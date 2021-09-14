@@ -224,6 +224,38 @@ function testSealedRecordTypes() returns [boolean, boolean] {
     return [a is A3, a is B3];
 }
 
+type Country record {|
+    string code?;
+    string name?;
+    string native?;
+    string phone?;
+    Continent continent?;
+    string? capital?;
+    string? currency?;
+    string emoji?;
+    string emojiU?;
+
+|};
+
+type Continent record {|
+    string code?;
+    string name?;
+|};
+
+type MyCountry record {|
+    string code?;
+    string phone?;
+    record {|
+        string code?;
+    |} continent?;
+|};
+
+function testRecordsWithOptionalFields() {
+    MyCountry x = {};
+    Country y = x;
+    assertTrue(x is Country);
+}
+
 // ========================== Objects ==========================
 
 public class Person {
