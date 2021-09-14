@@ -251,7 +251,7 @@ public class RemotePackageRepository implements PackageRepository {
             }
         }
         // Resolve the requests from remote repository if there are unresolved requests
-        if (requests.size() > 0) {
+        if (!requests.isEmpty()) {
             try {
                 PackageResolutionRequest packageResolutionRequest = toPackageResolutionRequest(requests);
                 PackageResolutionResponse packageResolutionResponse = client.resolveDependencies(
