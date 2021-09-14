@@ -24,6 +24,8 @@ import org.ballerinalang.debugadapter.evaluation.validator.SerialExpressionValid
 
 import java.util.Map;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+
 /**
  * Ballerina expression evaluator.
  *
@@ -67,7 +69,7 @@ public class DebugExpressionEvaluator extends Evaluator {
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(EvaluationExceptionKind.PREFIX + "internal error");
+            throw createEvaluationException("internal error");
         }
     }
 }

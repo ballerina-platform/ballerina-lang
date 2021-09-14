@@ -172,4 +172,16 @@
             <Bug pattern="BC_UNCONFIRMED_CAST" />
         </OR>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.completions.builder.XMLNSCompletionItemBuilder"/>
+        <OR>
+            <Bug pattern="DM_CONVERT_CASE" />
+        </OR>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.util.TestUtil" />
+        <OR>
+            <Bug pattern="DM_DEFAULT_ENCODING" />
+        </OR>
+    </Match>
 </FindBugsFilter>

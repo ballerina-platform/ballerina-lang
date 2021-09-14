@@ -15,7 +15,7 @@
           "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \n  \n  \n  \n**Return** `record {| array:Type value; |}?`   \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "next",
       "insertText": "next()",
       "insertTextFormat": "Snippet"
