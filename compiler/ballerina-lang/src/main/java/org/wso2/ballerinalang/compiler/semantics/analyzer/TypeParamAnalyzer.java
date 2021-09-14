@@ -52,7 +52,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -450,7 +449,7 @@ public class TypeParamAnalyzer {
                 break;
         }
         if (actualType.tag == TypeTags.INTERSECTION) {
-            visitType(loc, expType, ((BIntersectionType)actualType).effectiveType, env, resolvedTypes,
+            visitType(loc, expType, ((BIntersectionType) actualType).effectiveType, env, resolvedTypes,
                     result, checkContravariance);
         }
         if (actualType.tag == TypeTags.TYPEREFDESC) {
@@ -552,7 +551,6 @@ public class TypeParamAnalyzer {
         findTypeParam(loc, expType.eType, tupleElementType, env, resolvedTypes, result);
     }
 
-    //todo @chiran
     private void findTypeParamInUnion(Location loc, BType expType, BUnionType actualType,
                                       SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
         LinkedHashSet<BType> members = new LinkedHashSet<>();
@@ -695,11 +693,7 @@ public class TypeParamAnalyzer {
     private BType getMatchingBoundType(BType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
         if (isTypeParam(expType)) {
             for (SymbolEnv.TypeParamEntry typeParamEntry : env.typeParamsEntries) {
-                if (typeParamEntry.typeParam.tag == TypeTags.TYPEREFDESC && expType.tag != TypeTags.TYPEREFDESC) {
-                    typeParamEntry.typeParam = types.getReferredType(typeParamEntry.typeParam);
-                }
-                if (typeParamEntry.typeParam == expType ||
-                        typeParamEntry.typeParam == types.getReferredType(expType)) {
+                if (typeParamEntry.typeParam == expType) {
                     return typeParamEntry.boundType;
                 }
             }
@@ -789,7 +783,7 @@ public class TypeParamAnalyzer {
             case TypeTags.INTERSECTION:
                 return getMatchingReadonlyIntersectionBoundType((BIntersectionType) expType, env, resolvedTypes);
             case TypeTags.TYPEREFDESC:
-                return getMatchingBoundType(((BTypeReferenceType) expType).referredType, env, resolvedTypes);
+                return getMatchingBoundType(types.getReferredType(expType), env, resolvedTypes);
             default:
                 return expType;
         }

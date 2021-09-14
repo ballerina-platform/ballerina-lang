@@ -911,8 +911,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        BType applicableExpType = expType.tag == TypeTags.TYPEREFDESC ?
-                ((BTypeReferenceType) expType).referredType : expType;
+        BType applicableExpType = types.getReferredType(expType);
 
         applicableExpType = applicableExpType.tag == TypeTags.INTERSECTION ?
                 ((BIntersectionType) applicableExpType).effectiveType : applicableExpType;
@@ -1149,10 +1148,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean validateTableType(BTableType tableType) {
-        BType constraint = tableType.constraint;
-        if (constraint.tag == TypeTags.TYPEREFDESC) {
-            constraint = ((BTypeReferenceType) constraint).referredType;
-        }
+        BType constraint = types.getReferredType(tableType.constraint);
         if (tableType.isTypeInlineDefined && !types.isAssignable(constraint, symTable.mapAllType)) {
             dlog.error(tableType.constraintPos, DiagnosticErrorCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, constraint);
             resultType = symTable.semanticError;
@@ -1264,10 +1260,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean validateTableConstructorExpr(BLangTableConstructorExpr tableConstructorExpr,
                                                  BTableType tableType) {
-        BType constraintType = tableType.constraint;
-        if (constraintType.tag == TypeTags.TYPEREFDESC) {
-            constraintType = ((BTypeReferenceType) constraintType).referredType;
-        }
+        BType constraintType = types.getReferredType(tableType.constraint);
         if (tableConstructorExpr.tableKeySpecifier != null) {
             List<String> fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
 
@@ -1440,7 +1433,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (tag == TypeTags.TYPEREFDESC) {
-            return checkListConstructorCompatibility(((BTypeReferenceType) bType).referredType, listConstructor);
+            return checkListConstructorCompatibility(types.getReferredType(bType), listConstructor);
         }
 
         if (tag == TypeTags.INTERSECTION) {
@@ -1521,7 +1514,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.INTERSECTION:
                 return ((BIntersectionType) type).effectiveType;
             case TypeTags.TYPEREFDESC:
-                return ((BTypeReferenceType) type).referredType;
+                return types.getReferredType(type);
         }
         return symTable.semanticError;
     }
@@ -1876,7 +1869,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (tag == TypeTags.TYPEREFDESC) {
-            return checkMappingConstructorCompatibility(((BTypeReferenceType) bType).referredType, mappingConstructor);
+            return checkMappingConstructorCompatibility(types.getReferredType(bType), mappingConstructor);
         }
 
         if (tag == TypeTags.INTERSECTION) {
@@ -1955,7 +1948,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.INTERSECTION:
                 return ((BIntersectionType) type).effectiveType;
             case TypeTags.TYPEREFDESC:
-                return ((BTypeReferenceType) type).referredType;
+                return types.getReferredType(type);
         }
         return symTable.semanticError;
     }
@@ -2786,7 +2779,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 visitInvocation(iExpr, types.getReferredType(varRefType));
                 break;
             case TypeTags.INTERSECTION:
-                visitInvocation(iExpr, ((BIntersectionType)varRefType).effectiveType);
+                visitInvocation(iExpr, ((BIntersectionType) varRefType).effectiveType);
                 break;
             case TypeTags.SEMANTIC_ERROR:
                 break;
@@ -2965,9 +2958,6 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             // if `errorTypeRef.type == semanticError` then an error is already logged.
             BType errorType = types.getReferredType(errorTypeRef.getBType());
-            if (errorType.tag == TypeTags.TYPEREFDESC) {
-                errorType = ((BTypeReferenceType) errorType).referredType;
-            }
             if (errorType.tag != TypeTags.ERROR) {
                 if (errorType.tag != TypeTags.SEMANTIC_ERROR) {
                     dlog.error(errorTypeRef.pos, DiagnosticErrorCode.INVALID_ERROR_TYPE_REFERENCE, errorTypeRef);
@@ -2981,19 +2971,13 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private List<BType> expandExpectedErrorTypes(BType candidateType) {
-        if (candidateType.tag == TypeTags.TYPEREFDESC) {
-            candidateType = ((BTypeReferenceType) candidateType).referredType;
-        }
+        candidateType = types.getReferredType(candidateType);
         List<BType> expandedCandidates = new ArrayList<>();
         if (candidateType.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) candidateType).getMemberTypes()) {
-                if (memberType.tag == TypeTags.TYPEREFDESC) {
-                    memberType = ((BTypeReferenceType) memberType).referredType;
-                }
+                memberType = types.getReferredType(memberType);
                 if (types.isAssignable(memberType, symTable.errorType)) {
-                    if (memberType.tag == TypeTags.TYPEREFDESC) {
-                        expandedCandidates.add(((BTypeReferenceType) memberType).referredType);
-                    } else if (memberType.tag == TypeTags.INTERSECTION) {
+                    if (memberType.tag == TypeTags.INTERSECTION) {
                         expandedCandidates.add(((BIntersectionType) memberType).effectiveType);
                     } else {
                         expandedCandidates.add(memberType);
@@ -3001,9 +2985,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
         } else if (types.isAssignable(candidateType, symTable.errorType)) {
-            if (candidateType.tag == TypeTags.TYPEREFDESC) {
-                expandedCandidates.add(((BTypeReferenceType) candidateType).referredType);
-            } else if (candidateType.tag == TypeTags.INTERSECTION) {
+            if (candidateType.tag == TypeTags.INTERSECTION) {
                 expandedCandidates.add(((BIntersectionType) candidateType).effectiveType);
             } else {
                 expandedCandidates.add(candidateType);
@@ -3331,9 +3313,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if (actualType.tag == TypeTags.TYPEREFDESC) {
-            actualType = ((BTypeReferenceType) actualType).referredType;
-        }
+        actualType = types.getReferredType(actualType);
 
         if (actualType.tag == TypeTags.INTERSECTION) {
             actualType = ((BIntersectionType) actualType).effectiveType;
@@ -4847,8 +4827,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean evaluateRawTemplateExprs(List<? extends BLangExpression> exprs, BType fieldType,
                                              DiagnosticCode code, Location pos) {
-        BType listType = fieldType.tag != TypeTags.TYPEREFDESC ? fieldType :
-                ((BTypeReferenceType) fieldType).referredType;
+        BType listType = types.getReferredType(fieldType);
 
         listType = listType.tag != TypeTags.INTERSECTION ? listType :
                 ((BIntersectionType) listType).effectiveType;
@@ -7208,10 +7187,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
         BType actualType = symTable.semanticError;
-
-        if (varRefType.tag == TypeTags.TYPEREFDESC) {
-            varRefType = ((BTypeReferenceType) varRefType).referredType;
-        }
+        varRefType = types.getReferredType(varRefType);
 
         if (types.isSubTypeOfBaseType(varRefType, TypeTags.OBJECT)) {
             actualType = checkObjectFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);

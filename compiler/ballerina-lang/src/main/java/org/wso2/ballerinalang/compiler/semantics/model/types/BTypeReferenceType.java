@@ -25,7 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.TYPEREFDESC;
 
 /**
- * @since 0.94
+ * @since 2.0.0
  */
 public class BTypeReferenceType extends BType implements ReferenceType {
 
@@ -35,7 +35,7 @@ public class BTypeReferenceType extends BType implements ReferenceType {
     public BTypeReferenceType(BType referredType, BTypeSymbol tsymbol, long flags) {
         super(TYPEREFDESC, tsymbol, flags);
         this.referredType = referredType;
-        this.definitionName = tsymbol != null ? tsymbol.getName().getValue() : null;
+        this.definitionName = tsymbol.getName().getValue();
     }
 
     @Override

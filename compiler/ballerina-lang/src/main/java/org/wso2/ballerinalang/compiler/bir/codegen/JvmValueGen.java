@@ -1241,7 +1241,6 @@ public class JvmValueGen {
 
     private void createRecordPopulateInitialValuesMethod(ClassWriter cw) {
 
-
         MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, POPULATE_INITIAL_VALUES_METHOD,
                                           String.format("([L%s;)V", B_MAPPING_INITIAL_VALUE_ENTRY), null, null);
         mv.visitCode();

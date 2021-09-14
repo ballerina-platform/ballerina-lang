@@ -63,7 +63,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -4621,7 +4620,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         int tag = bType.tag;
         if (tag == TypeTags.TYPEREFDESC) {
-            return getErrorTypes(((BTypeReferenceType) bType).referredType);
+            return getErrorTypes(types.getReferredType(bType));
         }
         if (tag == TypeTags.ERROR) {
             errorType = bType;

@@ -1278,10 +1278,6 @@ public class Types {
         return false;
     }
 
-    public boolean referenceTypeMatchesTag(BType type, int tag) {
-        return type.tag == tag;
-    }
-
     public BType getReferredType(BType type) {
         BType constraint = type;
         if (type.tag == TypeTags.TYPEREFDESC) {

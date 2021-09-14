@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 /**
- * @since 0.94
+ * @since 2.0.0
  */
 public class BTypeDefinitionSymbol extends BSymbol {
 

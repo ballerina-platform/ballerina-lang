@@ -583,7 +583,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         // according to the precedence.
         for (BLangType typeRef : classDefinition.typeRefs) {
             BType type = types.getReferredType(typeRef.getBType());
-
             if (type == null || type == symTable.semanticError) {
                 return;
             }
@@ -1555,8 +1554,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BType referenceConstraintType = types.getReferredType(definedType);
-        boolean isIntersectionType = types.referenceTypeMatchesTag(referenceConstraintType, TypeTags.INTERSECTION)
-                && !isLabel;
+        boolean isIntersectionType = referenceConstraintType.tag == TypeTags.INTERSECTION && !isLabel;
 
         BType effectiveDefinedType = isIntersectionType ? ((BIntersectionType) referenceConstraintType).effectiveType :
                 referenceConstraintType;
@@ -1765,7 +1763,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private boolean isErrorIntersection(BType definedType) {
         BType type = types.getReferredType(definedType);
-
         if (type.tag == TypeTags.INTERSECTION) {
             BIntersectionType intersectionType = (BIntersectionType) type;
             return intersectionType.effectiveType.tag == TypeTags.ERROR;

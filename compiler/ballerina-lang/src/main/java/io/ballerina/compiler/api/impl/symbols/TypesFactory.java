@@ -177,10 +177,9 @@ public class TypesFactory {
             return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID,
                     types.getReferredType(bType), tSymbol, typeRefFromIntersectType);
         } else {
-            if (tSymbol instanceof BTypeDefinitionSymbol) {
-                return createTypeDescriptor(bType, tSymbol.type.tsymbol, moduleID);
-            }
-            return createTypeDescriptor(bType, (BTypeSymbol) tSymbol, moduleID);
+            BTypeSymbol typeSymbol = tSymbol instanceof BTypeDefinitionSymbol ? tSymbol.type.tsymbol
+                    : (BTypeSymbol) tSymbol;
+            return createTypeDescriptor(bType, typeSymbol, moduleID);
         }
 
     }
@@ -226,8 +225,7 @@ public class TypesFactory {
             case OBJECT:
                 ObjectTypeSymbol objType = new BallerinaObjectTypeSymbol(this.context, moduleID, (BObjectType) bType);
                 if (Symbols.isFlagOn(tSymbol.flags, Flags.CLASS)) {
-                    BTypeSymbol classSymbol = tSymbol;
-                    return symbolFactory.createClassSymbol((BClassSymbol) classSymbol, classSymbol.name.value, objType);
+                    return symbolFactory.createClassSymbol((BClassSymbol) tSymbol, tSymbol.name.value, objType);
                 }
                 return objType;
             case RECORD:

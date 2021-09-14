@@ -2054,7 +2054,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         Name typeName = names.fromTypeKind(typeKind);
         BSymbol typeSymbol = lookupMemberSymbol(typeNode.pos, symTable.rootScope,
                                                 env, typeName, SymTag.TYPE);
-
         if (typeSymbol == symTable.notFoundSymbol) {
             dlog.error(typeNode.pos, diagCode, typeName);
         }
@@ -2109,23 +2108,20 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BLangType bLangTypeOne = constituentTypeNodes.get(0);
         BType typeOne = resolveTypeNode(bLangTypeOne, env);
-
-        typeOne = types.getReferredType(typeOne);
-
         if (typeOne == symTable.noType) {
             return symTable.noType;
         }
-        typeBLangTypeMap.put(typeOne, bLangTypeOne);
+        typeOne = types.getReferredType(typeOne);
 
+        typeBLangTypeMap.put(typeOne, bLangTypeOne);
 
         BLangType bLangTypeTwo = constituentTypeNodes.get(1);
         BType typeTwo = resolveTypeNode(bLangTypeTwo, env);
-
-        typeTwo = types.getReferredType(typeTwo);
-
         if (typeTwo == symTable.noType) {
             return symTable.noType;
         }
+        typeTwo = types.getReferredType(typeTwo);
+
         typeBLangTypeMap.put(typeTwo, bLangTypeTwo);
 
         boolean hasReadOnlyType = typeOne == symTable.readonlyType || typeTwo == symTable.readonlyType;
