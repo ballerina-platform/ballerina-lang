@@ -47,7 +47,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "getModel",
       "insertText": "getModel()",
       "insertTextFormat": "Snippet"

@@ -171,6 +171,28 @@ var floatValue = 2.0;
 json jsonValue = {name: "John", age: 20};
 var '\ \/\:\@\[\`\{\~\u{03C0}_IL = "IL with global var";
 
+// let expression helper declarations
+const globalVar = 2;
+int k = let int x = 4 in 2 * x * globalVar;
+
+type SampleErrorData record {
+    string message?;
+    error cause?;
+    string info;
+    boolean fatal;
+};
+
+type SampleError error<SampleErrorData>;
+
+type Foo record {|
+    string message?;
+    error cause?;
+    string detailMsg;
+    boolean isFatal;
+|};
+
+type FooError error<Foo>;
+
 public function main() {
     //------------------------ basic, simple type variables ------------------------//
 
@@ -353,4 +375,22 @@ function printDetails(string name, int age = 18, string... modules) returns stri
 
 function addition(int a, int b) returns int {
     return a + b;
+}
+
+function func(int k) returns int {
+    return k * 2;
+}
+
+function func2(string y) returns int {
+    return y.length();
+}
+
+function getSampleError() returns SampleError {
+    SampleError e = error SampleError("Sample Error", info = "Detail Msg", fatal = true);
+    return e;
+}
+
+function getRecordConstrainedError() returns FooError {
+    FooError e = error FooError("Some Error", detailMsg = "Failed Message", isFatal = true);
+    return e;
 }
