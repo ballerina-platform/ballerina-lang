@@ -57,9 +57,7 @@ public class SemTypeTest {
         ignore(testFiles, "float-singleton.bal");
         ignore(testFiles, "float-singleton2.bal");
         ignore(testFiles, "error2.bal");
-        ignore(testFiles, "readonly2.bal");
         ignore(testFiles, "function.bal");
-        ignore(testFiles, "contextual.bal");
         ignore(testFiles, "hard.bal");
 
         include(testFiles,

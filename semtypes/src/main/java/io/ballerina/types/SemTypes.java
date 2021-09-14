@@ -67,4 +67,8 @@ public class SemTypes {
     public static SemType errorDetail(SemType detail) {
         return Error.errorDetail(detail);
     }
+
+    public static SemType intersection(SemType t1, SemType t2) {
+        return Core.intersect(t1, t2);
+    }
 }

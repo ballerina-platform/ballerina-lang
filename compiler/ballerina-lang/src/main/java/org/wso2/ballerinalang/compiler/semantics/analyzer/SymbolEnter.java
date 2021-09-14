@@ -544,7 +544,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             case UNION_TYPE_NODE:
                 return resolveTypeDesc((BLangUnionTypeNode) td, semtypeEnv, mod, depth, defn);
             case INTERSECTION_TYPE_NODE:
-                return resolveTypeDesc((BLangIntersectionTypeNode) td, semtypeEnv);
+                return resolveTypeDesc((BLangIntersectionTypeNode) td, semtypeEnv, mod, depth, defn);
             case USER_DEFINED_TYPE:
                 return resolveTypeDesc((BLangUserDefinedType) td, semtypeEnv, mod, depth);
             case BUILT_IN_REF_TYPE:
@@ -566,15 +566,24 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private SemType resolveSingletonType(BLangFiniteTypeNode td, int index) {
         BLangLiteral literal = (BLangLiteral) td.valueSpace.get(index);
+        Object litVal = literal.value;
         switch (literal.getBType().getKind()) {
             case FLOAT:
-                return SemTypes.floatConst(Double.parseDouble((String) literal.value));
+                double value;
+                if (litVal instanceof Long) {
+                    value = ((Long) litVal).doubleValue();
+                } else if (litVal instanceof Double) {
+                    value = (double) litVal;
+                } else {
+                    value = Double.parseDouble((String) litVal);
+                }
+                return SemTypes.floatConst(value);
             case INT:
-                return SemTypes.intConst((long) literal.value);
+                return SemTypes.intConst((long) litVal);
             case STRING:
-                return SemTypes.stringConst((String) literal.value);
+                return SemTypes.stringConst((String) litVal);
             case BOOLEAN:
-                return SemTypes.booleanConst((Boolean) literal.value);
+                return SemTypes.booleanConst((Boolean) litVal);
             case DECIMAL:
             default:
                 throw new AssertionError("Finite type not implemented for: " + literal);
@@ -739,8 +748,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         return u;
     }
 
-    private SemType resolveTypeDesc(BLangIntersectionTypeNode td, Env semtypeEnv) {
-        throw new AssertionError("not implemented");
+    private SemType resolveTypeDesc(BLangIntersectionTypeNode td, Env semtypeEnv, Map<String, BLangNode> mod, int depth,
+                                    BLangTypeDefinition defn) {
+        Iterator<BLangType> iterator = td.constituentTypeNodes.iterator();
+        SemType type = resolveTypeDesc(semtypeEnv, mod, defn, depth, iterator.next());
+        while (iterator.hasNext()) {
+            type = SemTypes.intersection(type, resolveTypeDesc(semtypeEnv, mod, defn, depth, iterator.next()));
+        }
+        return type;
     }
 
     private SemType resolveTypeDesc(BLangValueType td, Env semtypeEnv) {
