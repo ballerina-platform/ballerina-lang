@@ -80,7 +80,7 @@ public class Runtime {
         try {
             validateArgs(object, methodName);
             Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
-            return scheduler.scheduleToObjectGroup(object, new Object[1], func, null, callback, properties,
+            return scheduler.scheduleToObjectGroup(new Object[1], func, null, callback, properties,
                                                    returnType, strandName, metadata);
         } catch (BError e) {
             callback.notifyFailure(e);
@@ -159,7 +159,7 @@ public class Runtime {
                 return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
                                           metadata);
             } else {
-                return scheduler.scheduleToObjectGroup(object, new Object[1], func, null, callback, properties,
+                return scheduler.scheduleToObjectGroup(new Object[1], func, null, callback, properties,
                                                        returnType, strandName, metadata);
             }
         } catch (BError e) {
