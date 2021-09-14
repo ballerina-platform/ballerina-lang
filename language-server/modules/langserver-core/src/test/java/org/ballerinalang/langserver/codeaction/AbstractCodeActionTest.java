@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -44,6 +45,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -90,7 +93,77 @@ public abstract class AbstractCodeActionTest {
         Range range = new Range(pos, pos);
         String res = getResponse(sourcePath, range, codeActionContext);
 
-        TestUtil.evaluateCodeActionTest(res, configJsonObject, sourcePath, range);
+        for (JsonElement element : configJsonObject.get("expected").getAsJsonArray()) {
+            JsonObject expected = element.getAsJsonObject();
+            String expTitle = expected.get("title").getAsString();
+
+            boolean codeActionFound = false;
+            JsonObject responseJson = getResponseJson(res);
+            for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
+                JsonObject right = jsonElement.getAsJsonObject().get("right").getAsJsonObject();
+                if (right == null) {
+                    continue;
+                }
+
+                // Match title
+                String actualTitle = right.get("title").getAsString();
+                if (!expTitle.equals(actualTitle)) {
+                    continue;
+                }
+                // Match edits
+                if (expected.get("edits") != null) {
+                    JsonArray actualEdit = right.get("edit").getAsJsonObject().get("documentChanges")
+                            .getAsJsonArray().get(0).getAsJsonObject().get("edits").getAsJsonArray();
+                    JsonArray expEdit = expected.get("edits").getAsJsonArray();
+                    if (!expEdit.equals(actualEdit)) {
+                        continue;
+                    }
+                }
+                // Match args
+                if (expected.get("command") != null) {
+                    JsonObject expectedCommand = expected.get("command").getAsJsonObject();
+                    JsonObject actualCommand = right.get("command").getAsJsonObject();
+
+                    if (!Objects.equals(actualCommand.get("command"), expectedCommand.get("command"))) {
+                        continue;
+                    }
+
+                    if (!Objects.equals(actualCommand.get("title"), expectedCommand.get("title"))) {
+                        continue;
+                    }
+
+                    JsonArray actualArgs = actualCommand.getAsJsonArray("arguments");
+                    JsonArray expArgs = expectedCommand.getAsJsonArray("arguments");
+                    if (!TestUtil.isArgumentsSubArray(actualArgs, expArgs)) {
+                        continue;
+                    }
+
+                    boolean docUriFound = false;
+                    for (JsonElement actualArg : actualArgs) {
+                        JsonObject arg = actualArg.getAsJsonObject();
+                        if ("doc.uri".equals(arg.get("key").getAsString())) {
+                            Optional<Path> docPath = CommonUtil.getPathFromURI(arg.get("value").getAsString());
+                            if (docPath.isPresent()) {
+                                // We just check file names, since one refers to file in build/ while
+                                // the other refers to the file in test resources
+                                docUriFound = docPath.get().getFileName().equals(sourcePath.getFileName());
+                            }
+                        }
+                    }
+
+                    if (!docUriFound) {
+                        continue;
+                    }
+                }
+                // Code-action matched
+                codeActionFound = true;
+                break;
+            }
+            String cursorStr = range.getStart().getLine() + ":" + range.getEnd().getCharacter();
+            Assert.assertTrue(codeActionFound,
+                    "Cannot find expected Code Action for: " + expTitle + ", cursor at " + cursorStr
+                            + " in " + sourcePath);
+        }
         TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
     }
 
