@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -900,9 +901,13 @@ public class JvmTypeGen {
         String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
         String fieldName = getTypeFieldName(toNameString(typeToLoad));
 
+        HashMap<String, String> encodedVsInitialIds = new HashMap<>();
+        JvmDesugarPhase.encodePackageIdentifiers(packageID, encodedVsInitialIds);
+        boolean samePackage = this.packageID.equals(packageID);
+        JvmDesugarPhase.replaceEncodedPackageIdentifiers(packageID, encodedVsInitialIds);
+
         // if name contains $anon and doesn't belong to the same package, load type using getAnonType() method.
-        if (!this.packageID.equals(packageID) &&
-                (fieldName.contains(BLangAnonymousModelHelper.ANON_PREFIX)
+        if (!samePackage && (fieldName.contains(BLangAnonymousModelHelper.ANON_PREFIX)
                         || Symbols.isFlagOn(typeToLoad.flags, Flags.ANONYMOUS))) {
             Integer hash = typeHashVisitor.visit(typeToLoad);
             String shape = typeToLoad.toString();
