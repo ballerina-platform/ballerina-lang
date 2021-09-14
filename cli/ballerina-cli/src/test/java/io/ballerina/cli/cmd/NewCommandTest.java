@@ -20,15 +20,20 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.projects.util.ProjectConstants;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
 
 
 /**
@@ -37,6 +42,8 @@ import java.nio.file.Path;
  * @since 2.0.0
  */
 public class NewCommandTest extends BaseCommandTest {
+    private Path testResources;
+    private Path centralCache;
 
     @DataProvider(name = "invalidProjectNames")
     public Object[][] provideInvalidProjectNames() {
@@ -44,6 +51,26 @@ public class NewCommandTest extends BaseCommandTest {
                 { "hello-app" },
                 { "my$project" }
         };
+    }
+
+    @BeforeClass
+    public void setup() throws IOException {
+
+        super.setup();
+        try {
+            this.testResources = super.tmpDir.resolve("build-test-resources");
+            this.centralCache = this.testResources.resolve("repositories/central.ballerina.io/bala/");
+            Files.createDirectories(this.centralCache);
+            URI testResourcesURI = Objects.requireNonNull(
+                    getClass().getClassLoader().getResource("test-resources")).toURI();
+            Files.walkFileTree(Paths.get(testResourcesURI), new BuildCommandTest.Copy(Paths.get(testResourcesURI),
+                    this.testResources));
+        } catch (URISyntaxException e) {
+            Assert.fail("error loading resources");
+        }
+        Path balacacheTemplatePath = this.testResources.resolve("balacache-templates");
+        Files.walkFileTree(balacacheTemplatePath, new BuildCommandTest.Copy(balacacheTemplatePath,
+                this.centralCache));
     }
 
     @Test(description = "Create a new project")
@@ -207,14 +234,15 @@ public class NewCommandTest extends BaseCommandTest {
     @Test(description = "Test new command with central template in the local cache")
     public void testNewCommandWithTemplateInLocalCache() throws IOException {
         // Test if no arguments was passed in
-        String templateArg = "ballerina/io:0.6.0-beta.2";
-        String[] args = {"myproject", "-t", templateArg};
+        String templateArg = "admin/Sample:0.1.5";
+        String[] args = {"sample_pull_local", "-t", templateArg};
         NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
 
-        Path packageDir = tmpDir.resolve("myproject");
+        Path packageDir = tmpDir.resolve("sample_pull_local");
         Assert.assertTrue(Files.exists(packageDir));
+
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
@@ -224,38 +252,8 @@ public class NewCommandTest extends BaseCommandTest {
                 "name = \"" + templateSplit[1].split(":")[0] + "\"\n" +
                 "version = \"" +  templateSplit[1].split(":")[1] + "\"\n";
         Assert.assertTrue(tomlContent.contains(expectedTomlContent));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.DEPENDENCIES_TOML)));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME)));
-
-        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
-    }
-
-    @Test(description = "Test new command with central template in the local cache")
-    public void testNewCommandWithCentralTemplatePull() throws IOException {
-        // Test if no arguments was passed in
-        String templateArg = "ballerina/io:0.6.0-beta.2";
-        String[] args = {"myproject", "-t", templateArg};
-        NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
-        new CommandLine(newCommand).parseArgs(args);
-        newCommand.execute();
-
-        Path packageDir = tmpDir.resolve("myproject");
-        Assert.assertTrue(Files.exists(packageDir));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String tomlContent = Files.readString(
-                packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String[] templateSplit = templateArg.split("/");
-        String expectedTomlContent = "[package]\n" +
-                "org = \"" + templateSplit[0] + "\"\n" +
-                "name = \"" + templateSplit[1].split(":")[0] + "\"\n" +
-                "version = \"" +  templateSplit[1].split(":")[1] + "\"\n";
-        Assert.assertTrue(tomlContent.contains(expectedTomlContent));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.DEPENDENCIES_TOML)));
-
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME)));
 
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }

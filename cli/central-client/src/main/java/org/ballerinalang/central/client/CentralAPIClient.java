@@ -468,16 +468,12 @@ public class CentralAPIClient {
             String errorMsg = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature +
                     "' from the remote repository '" + url + "'.");
             throw new CentralClientException(errorMsg);
-        } catch (UnknownHostException e) {
-            throw new CentralClientException(e.getMessage());
         } catch (IOException e) {
             throw new CentralClientException(e.getMessage());
         } finally {
             body.ifPresent(ResponseBody::close);
             try {
                 this.closeClient(client);
-            } catch (UnknownHostException e) {
-                throw new CentralClientException(e.getMessage());
             } catch (IOException e) {
                 // ignore
             }

@@ -21,6 +21,7 @@ package io.ballerina.cli.cmd;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -36,8 +37,6 @@ import java.util.List;
 import static io.ballerina.cli.cmd.CommandUtil.applyBalaTemplate;
 import static io.ballerina.cli.cmd.CommandUtil.applyBalaTemplateForCentralPackages;
 import static io.ballerina.cli.cmd.CommandUtil.findBalaTemplate;
-import static io.ballerina.cli.cmd.CommandUtil.findOrg;
-import static io.ballerina.cli.cmd.CommandUtil.findPkgVersion;
 import static io.ballerina.cli.cmd.CommandUtil.pullPackageFromCentral;
 import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
@@ -154,25 +153,31 @@ public class NewCommand implements BLauncherCmd {
                     .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
                     .resolve(ProjectConstants.BALA_DIR_NAME);
             Path balaCachePkgPath = (Path) findBalaTemplate(template);
-                Files.createDirectories(path);
-                if (!CommandUtil.getTemplates().contains(template)) {
-
-                    Path balaPathToPkgVersion = balaCache.resolve(findOrg(template)).resolve(packageName)
-                            .resolve(findPkgVersion(template));
-                    if (balaCachePkgPath == null && !Files.exists(balaPathToPkgVersion)) {
-                        // Pull from central
-                        pullPackageFromCentral(balaCache, template);
-                        applyBalaTemplateForCentralPackages(path, balaCache, template);
-                    } else {
-                        // fetch from local cache
-                        applyBalaTemplate(path, template);
-                    }
+            Files.createDirectories(path);
+            // check if the template matches with one of the inbuilt template types
+            if (!CommandUtil.getTemplates().contains(template)) {
+                // Check if the package is available in local bala cache
+                if (balaCachePkgPath != null) {
+                    // Pkg is available in the local cache
+                    applyBalaTemplate(path, balaCache, template);
                 } else {
-                    CommandUtil.initPackageByTemplate(path, packageName, template);
+                    // Pull pkg from central
+                    pullPackageFromCentral(balaCache, path, template);
+                    applyBalaTemplateForCentralPackages(path, balaCache, template);
                 }
+            } else {
+                // create package with inbuilt template
+                CommandUtil.initPackageByTemplate(path, packageName, template);
+            }
         } catch (AccessDeniedException e) {
             CommandUtil.printError(errStream,
                     "error occurred while creating project : " + "Insufficient Permission : " + e.getMessage(),
+                    null,
+                    false);
+            CommandUtil.exitError(this.exitWhenFinish);
+        } catch (CentralClientException e) {
+            CommandUtil.printError(errStream,
+                    "error occurred while pulling the package : " + e.getMessage(),
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);

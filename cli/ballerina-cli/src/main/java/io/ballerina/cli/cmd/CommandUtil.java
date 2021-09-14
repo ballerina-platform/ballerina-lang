@@ -22,13 +22,18 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.internal.bala.PackageJson;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
+import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -78,11 +83,11 @@ public class CommandUtil {
     public static final String GITIGNORE = "gitignore";
     public static final String NEW_CMD_DEFAULTS = "new_cmd_defaults";
     public static final String CREATE_CMD_TEMPLATES = "create_cmd_templates";
+    protected static PrintStream printStream;
     private static FileSystem jarFs;
     private static Map<String, String> env;
     private static PrintStream errStream;
     private static Path homeCache;
-    protected static PrintStream printStream;
     private static boolean exitWhenFinish;
     private static Path userDir;
 
@@ -160,7 +165,7 @@ public class CommandUtil {
                     StandardCopyOption.REPLACE_EXISTING);
 
             String packageMd = FileUtils.readFileAsString(
-                    NEW_CMD_DEFAULTS + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME);
+                    CREATE_CMD_TEMPLATES + "/lib/" + ProjectConstants.PACKAGE_MD_FILE_NAME);
 
             write(path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME),
                     packageMd.getBytes(StandardCharsets.UTF_8));
@@ -246,59 +251,109 @@ public class CommandUtil {
      * Apply the central template to the created module.
      *
      * @param modulePath path to the module
+     * @param balaCache path to balacache
      * @param template template name
-     * @throws IOException if any IOException occurred
-     * @throws URISyntaxException if any URISyntaxException occurred
      */
-    public static void applyBalaTemplate(Path modulePath, String template) throws IOException {
+    public static void applyBalaTemplate(Path modulePath, Path balaCache, String template) {
         // find all balas matching org and package name.
         Path balaTemplate = (Path) findBalaTemplate(template);
 
         String packageName = findPkgName(template);
+        String orgName = findOrg(template);
+        String version = findPkgVersion(template);
+
+        if (version == null) {
+            Path balaToPkgPath = balaCache.resolve(orgName).resolve(packageName);
+            List<PackageVersion> packageVersions = getPackageVersions(balaToPkgPath);
+
+            if (packageVersions.size() == 1) {
+                version = String.valueOf(packageVersions.get(0));
+            } else {
+                version = String.valueOf(findLatest(packageVersions));
+            }
+        }
+
+        Path balaPath = balaCache.resolve(
+                ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
+
+        //First we will check for a bala that match any platform
+        String platform = findPlatform(balaPath);
+
+        balaPath = balaCache.resolve(
+                ProjectUtils.getRelativeBalaPath(orgName, packageName, version, platform));
+
+        Gson gson = new Gson();
+        Path packageJsonPath = balaTemplate.resolve("package.json");
+
         if (balaTemplate != null) {
-            try {
-                // Copy docs
-                Path packageMDFilePath = balaTemplate.resolve("docs").resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
-                Path toPackageMdPath = modulePath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
-                if (Files.exists(packageMDFilePath)) {
-                    Files.copy(packageMDFilePath, toPackageMdPath, StandardCopyOption.REPLACE_EXISTING);
-                }
+            try (FileReader packageReader = new FileReader(String.valueOf(packageJsonPath))) {
+                PackageJson packageJson = gson.fromJson(packageReader, PackageJson.class);
+                boolean templateVal = packageJson.getTemplate();
+                if (templateVal) {
 
-                Path moduleMd = balaTemplate.resolve("docs").resolve("modules").resolve(packageName)
-                        .resolve(ProjectConstants.MODULE_MD_FILE_NAME);
-                Path toModuleMd = modulePath.resolve(ProjectConstants.MODULE_MD_FILE_NAME);
-                if (Files.exists(moduleMd)) {
-                    Files.copy(moduleMd, toModuleMd);
-                }
+                    // Copy platform library
+                    Path platformLibPath = balaTemplate.resolve("platform").resolve("java11");
+                    Path projectPlatform = modulePath.resolve("Platform");
+                    if (Files.exists(platformLibPath)) {
+                        Files.createDirectories(projectPlatform);
+                        Files.walkFileTree(platformLibPath, new FileUtils.Copy(platformLibPath, projectPlatform));
+                    }
 
-                // Copy modules
-                Path sourceModulesDir = balaTemplate.resolve("modules").resolve(packageName);
-                if (Files.exists(sourceModulesDir)) {
-                    Files.walkFileTree(sourceModulesDir, new FileUtils.Copy(sourceModulesDir, modulePath));
-                }
-
-                // Copy platform library
-                Path platformLibPath = balaTemplate.resolve("platform").resolve("java11");
-                Path projectPlatform = modulePath.resolve("Platform");
-                if (Files.exists(platformLibPath)) {
-                    Files.createDirectories(projectPlatform);
-                    Files.walkFileTree(platformLibPath, new FileUtils.Copy(platformLibPath, projectPlatform));
-                }
-
-                // Copy Package.json to Ballerina.toml
-                Gson gson = new Gson();
-                Path packageJsonPath = balaTemplate.resolve("package.json");
-                try (FileReader packageReader = new FileReader(String.valueOf(packageJsonPath))) {
-                    PackageJson packageJson = gson.fromJson(packageReader, PackageJson.class);
+                    // Copy package.json and write it as Ballerina.toml
                     if (Files.exists(packageJsonPath)) {
                         Path balaToml = modulePath.resolve(ProjectConstants.BALLERINA_TOML);
                         Files.createFile(balaToml);
-                        writeBallerinaToml(balaToml, packageJson, template, projectPlatform);
+                        writeBallerinaToml(balaToml, packageJson, projectPlatform, orgName, packageName, version,
+                                platform);
                     }
+
+                    // Copy docs
+                    Path packageMDFilePath = balaTemplate.resolve("docs")
+                            .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
+                    Path toPackageMdPath = modulePath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
+                    if (Files.exists(packageMDFilePath)) {
+                        Files.copy(packageMDFilePath, toPackageMdPath, StandardCopyOption.REPLACE_EXISTING);
+                    }
+
+                    Path moduleMd = balaTemplate.resolve("docs").resolve("modules").resolve(packageName)
+                            .resolve(ProjectConstants.MODULE_MD_FILE_NAME);
+                    Path toModuleMd = modulePath.resolve(ProjectConstants.MODULE_MD_FILE_NAME);
+                    if (Files.exists(moduleMd)) {
+                        Files.copy(moduleMd, toModuleMd);
+                    }
+
+                    // Copy modules
+                    Path sourceModulesDir = balaTemplate.resolve("modules").resolve(packageName);
+                    if (Files.exists(sourceModulesDir)) {
+                        Files.walkFileTree(sourceModulesDir, new FileUtils.Copy(sourceModulesDir, modulePath));
+                    }
+                } else {
+                    exitError(exitWhenFinish);
                 }
+
+//                // Copy platform library
+//                Path platformLibPath = balaTemplate.resolve("platform").resolve("java11");
+//                Path projectPlatform = modulePath.resolve("Platform");
+//                if (Files.exists(platformLibPath)) {
+//                    Files.createDirectories(projectPlatform);
+//                    Files.walkFileTree(platformLibPath, new FileUtils.Copy(platformLibPath, projectPlatform));
+//                }
+
+                // Copy Package.json to Ballerina.toml
+//                Gson gson = new Gson();
+//                Path packageJsonPath = balaTemplate.resolve("package.json");
+//                try (FileReader packageReader = new FileReader(String.valueOf(packageJsonPath))) {
+//                    PackageJson packageJson = gson.fromJson(packageReader, PackageJson.class);
+//                    if (Files.exists(packageJsonPath)) {
+//                        Path balaToml = modulePath.resolve(ProjectConstants.BALLERINA_TOML);
+//                        Files.createFile(balaToml);
+//                        writeBallerinaToml(balaToml, packageJson, projectPlatform, orgName, packageName, version,
+//                                platform);
+//                    }
+//                }
             } catch (IOException e) {
                 printError(errStream,
-                        "Error while applying template : " + e.getMessage(),
+                        "Error while reading the package json file: " + e.getMessage(),
                         null,
                         false);
                 getRuntime().exit(1);
@@ -306,28 +361,23 @@ public class CommandUtil {
         }
     }
 
-    public static Object findBalaTemplate(String template) throws IOException {
+    /**
+     * Find the bala path for a given template.
+     *
+     * @param template template name
+     */
+    public static Object findBalaTemplate(String template) {
         homeCache = RepoUtils.createAndGetHomeReposPath();
+        Path balaCache = Paths.get(String.valueOf(homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
+                .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME).resolve(ProjectConstants.BALA_DIR_NAME)));
         String packageName = findPkgName(template);
-        String[] orgSplit = template.split("/");
-        String orgName = orgSplit[0].trim();
-        try {
-            String version = findPkgVersion(template);
-
-            Path balaCache = Paths.get(String.valueOf(homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
-                    .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME).resolve(ProjectConstants.BALA_DIR_NAME)));
-
+        String orgName = findOrg(template);
+        String version = findPkgVersion(template);
+        if (version != null) {
             //First we will check for a bala that match any platform
             Path balaPath = balaCache.resolve(
                     ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
-            String platform = "";
-            if (!Files.exists(balaPath)) {
-                //If bala for any platform not exist check for specific platform
-                platform = JvmTarget.JAVA_11.code();
-            } else {
-                platform = ANY_PLATFORM;
-            }
-
+            String platform = findPlatform(balaPath);
             String balaGlob = "glob:**/" + orgName + "/" + packageName + "/" + version + "/" + platform;
             PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(balaGlob);
 
@@ -352,27 +402,18 @@ public class CommandUtil {
                         false);
                 getRuntime().exit(1);
             }
-
-            //First we will check for a bala that match any platform
-            if (!Files.exists(balaPath)) {
-                //If bala for any platform not exist check for specific platform
-                balaPath = balaCache.resolve(
-                        ProjectUtils.getRelativeBalaPath(orgName, packageName, version, JvmTarget.JAVA_11.code()));
-                if (!Files.exists(balaPath)) {
-                    return Optional.empty();
-                }
-            }
-        } catch (IOException e) {
-            throw new IOException("module version cannot be null");
+        } else {
+            return null;
         }
         return null;
     }
 
-    public static void pullPackageFromCentral(Path balaCache, String template) {
+    public static void pullPackageFromCentral(Path balaCache, Path projectPath, String template)
+            throws CentralClientException {
+        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
         String packageName = findPkgName(template);
         String orgName = findOrg(template);
 
-        try {
             String version = findPkgVersion(template);
             Path packagePathInBalaCache = balaCache.resolve(orgName).resolve(packageName);
             // create directory path in bala cache
@@ -399,26 +440,15 @@ public class CommandUtil {
                             getAccessTokenOfCLI(settings));
                     client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
                             RepoUtils.getBallerinaVersion(), false);
-                } catch (CentralClientException e) {
-                    errStream.println("unexpected error occurred while pulling package: " + e.getMessage());
-                    exitError(exitWhenFinish);
+                } catch (PackageAlreadyExistsException e) {
+                    applyBalaTemplate(projectPath, balaCache, template);
                 }
             }
-        } catch (IOException e) {
-            printError(errStream,
-                    "error found in getting the version from arg: " + e.getMessage(),
-                    null,
-                    false);
-            getRuntime().exit(1);
-        }
-
-        if (exitWhenFinish) {
-            getRuntime().exit(0);
-        }
     }
 
-    public static void writeBallerinaToml(Path balTomlPath, PackageJson packageJson, String template,
-                                          Path projectPlatform) throws IOException {
+    public static void writeBallerinaToml(Path balTomlPath, PackageJson packageJson, Path projectPlatform,
+                                          String orgName, String packageName, String version, String platform)
+            throws IOException {
 
         Files.writeString(balTomlPath, "[package]", StandardOpenOption.APPEND);
         Files.writeString(balTomlPath, "\norg = \"" + packageJson.getOrganization() + "\"",
@@ -433,26 +463,8 @@ public class CommandUtil {
         Files.writeString(balTomlPath, "\nimplementation_vendor = \"" + packageJson.getImplementationVendor()
                 + "\"", StandardOpenOption.APPEND);
         Files.writeString(balTomlPath, "\nlanguage_spec_version = \"" + packageJson.getLanguageSpecVersion()
-                + "\"\n", StandardOpenOption.APPEND);
-
-        String platform = "";
-        String packageName = findPkgName(template);
-        String[] orgSplit = template.split("/");
-        String orgName = findOrg(template);
-        String version = "*";
-        String packagePart = (orgSplit.length > 1) ? orgSplit[1] : "";
-        String[] pkgSplit = packagePart.split(":");
-        version = (pkgSplit.length > 1) ? pkgSplit[1].trim() : version;
-
-        Path balaCache = Paths.get(String.valueOf(homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
-                .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME).resolve(ProjectConstants.BALA_DIR_NAME)));
-        Path balaPath = balaCache.resolve(
-                ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
-        if (!Files.exists(balaPath)) {
-            platform = JvmTarget.JAVA_11.code();
-        } else {
-            platform = ANY_PLATFORM;
-        }
+                + "\"", StandardOpenOption.APPEND);
+        Files.writeString(balTomlPath, "\ntemplate = " + packageJson.getTemplate() + "\n", StandardOpenOption.APPEND);
 
         if (platform.equals("java11")) {
             Files.writeString(balTomlPath, "\n[[platform.java11.dependencies]]", StandardOpenOption.APPEND);
@@ -475,6 +487,12 @@ public class CommandUtil {
         }
     }
 
+    /**
+     * Find the package name for a given template.
+     *
+     * @param template template name
+     * @return packageName - package name of the module
+     */
     public static String findPkgName(String template) {
         // Split the template in to parts
         String[] orgSplit = template.split("/");
@@ -485,13 +503,25 @@ public class CommandUtil {
         return packageName;
     }
 
+    /**
+     * Find the organization for a given template.
+     *
+     * @param template template name
+     * @return orgName - org of the module
+     */
     public static String findOrg(String template) {
         String[] orgSplit = template.split("/");
         String orgName = orgSplit[0].trim();
         return orgName;
     }
 
-    public static String findPkgVersion(String template) throws IOException {
+    /**
+     * Find the package version for a given template.
+     *
+     * @param template template name
+     * @return version - version of the module
+     */
+    public static String findPkgVersion(String template) {
         String[] orgSplit = template.split("/");
         String packagePart = (orgSplit.length > 1) ? orgSplit[1] : "";
         String[] pkgSplit = packagePart.split(":");
@@ -499,8 +529,25 @@ public class CommandUtil {
         if (pkgSplit.length > 1) {
             return pkgSplit[1].trim();
         } else {
-            throw new IOException("error found in getting the version from arg: ");
+            return null;
         }
+    }
+
+    /**
+     * Find the platform of the module for a given template.
+     *
+     * @param balaPath path to the module
+     * @return platform - platform of the module
+     */
+    public static String findPlatform(Path balaPath) {
+        String platform = "";
+        if (!Files.exists(balaPath)) {
+            //If bala for any platform not exist check for specific platform
+            platform = JvmTarget.JAVA_11.code();
+        } else {
+            platform = ANY_PLATFORM;
+        }
+        return platform;
     }
 
     /**
@@ -508,81 +555,80 @@ public class CommandUtil {
      *
      * @param modulePath path to the module
      * @param template package template
-     * @throws IOException if any IOException occurred
-     * @throws URISyntaxException if any URISyntaxException occurred
      */
     public static void applyBalaTemplateForCentralPackages(Path modulePath, Path balaCache, String template) {
         String packageName = findPkgName(template);
         String orgName = findOrg(template);
-        try {
-            String version = findPkgVersion(template);
-            Path balaPath = balaCache.resolve(
-                    ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
+        String version = findPkgVersion(template);
 
-            //First we will check for a bala that match any platform
-            if (!Files.exists(balaPath)) {
-                //If bala for any platform not exist check for specific platform
-                balaPath = balaCache.resolve(
-                        ProjectUtils.getRelativeBalaPath(orgName, packageName, version, JvmTarget.JAVA_11.code()));
-                if (!Files.exists(balaPath)) {
-                    balaPath = balaCache.resolve(
-                            ProjectUtils.getRelativeBalaPath(orgName, packageName, version, ANY_PLATFORM));
-                }
+        if (version == null) {
+            Path balaToPkgPath = balaCache.resolve(orgName).resolve(packageName);
+            List<PackageVersion> packageVersions = getPackageVersions(balaToPkgPath);
+
+            if (packageVersions.size() == 1) {
+                version = String.valueOf(packageVersions.get(0));
+            } else {
+                version = String.valueOf(findLatest(packageVersions));
             }
+        }
 
-            Gson gson = new Gson();
-            String packageJsonPath = String.valueOf(balaPath.resolve("package.json"));
-            try (FileReader packageReader = new FileReader(packageJsonPath)) {
-                PackageJson packageJson = gson.fromJson(packageReader, PackageJson.class);
-                if (Files.exists(balaPath.resolve("package.json"))) {
-                    if (packageJson.getTemplate() == true) {
-                        userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
-                        // Copy docs
-                        Path packageMDFilePath = balaPath.resolve("docs")
-                                .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
-                        Path toPackageMdPath = modulePath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
-                        if (Files.exists(packageMDFilePath)) {
-                            Files.copy(packageMDFilePath, toPackageMdPath, StandardCopyOption.REPLACE_EXISTING);
-                        }
+        Path balaPath = balaCache.resolve(
+                ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
 
-                        Path moduleMd = balaPath.resolve("docs").resolve("modules").resolve(packageName)
-                                .resolve(ProjectConstants.MODULE_MD_FILE_NAME);
-                        Path toModuleMd = modulePath.resolve(ProjectConstants.MODULE_MD_FILE_NAME);
-                        if (Files.exists(moduleMd)) {
-                            Files.copy(moduleMd, toModuleMd);
-                        }
+        String platform = findPlatform(balaPath);
+        balaPath = balaCache.resolve(
+                ProjectUtils.getRelativeBalaPath(orgName, packageName, version, platform));
 
-                        // Copy modules
-                        Path sourceModulesDir = balaPath.resolve("modules").resolve(packageName);
-                        if (Files.exists(sourceModulesDir)) {
-                            Files.walkFileTree(sourceModulesDir, new FileUtils.Copy(sourceModulesDir, modulePath));
-                        }
-
-                        // Copy platform library
-                        Path platformLibPath = balaPath.resolve("platform").resolve("java11");
-                        Path projectPlatform = modulePath.resolve("Platform");
-                        Path platformLibRelativePath = userDir.relativize(projectPlatform);
-                        if (Files.exists(platformLibPath)) {
-                            Files.createDirectories(projectPlatform);
-                            Files.walkFileTree(platformLibPath, new FileUtils.Copy(platformLibPath, projectPlatform));
-                        }
-
-                        // Copy Package.json to Ballerina.toml
-                        Path balaToml = modulePath.resolve(ProjectConstants.BALLERINA_TOML);
-                        Files.createFile(balaToml);
-                        writeBallerinaToml(balaToml, packageJson, template, platformLibRelativePath);
+        Gson gson = new Gson();
+        String packageJsonPath = String.valueOf(balaPath.resolve("package.json"));
+        try (FileReader packageReader = new FileReader(packageJsonPath)) {
+            PackageJson packageJson = gson.fromJson(packageReader, PackageJson.class);
+            boolean templateVal = packageJson.getTemplate();
+            if (Files.exists(balaPath.resolve("package.json"))) {
+                if (templateVal) {
+                    userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+                    // Copy docs
+                    Path packageMDFilePath = balaPath.resolve("docs")
+                            .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
+                    Path toPackageMdPath = modulePath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
+                    if (Files.exists(packageMDFilePath)) {
+                        Files.copy(packageMDFilePath, toPackageMdPath, StandardCopyOption.REPLACE_EXISTING);
                     }
+
+                    Path moduleMd = balaPath.resolve("docs").resolve("modules").resolve(packageName)
+                            .resolve(ProjectConstants.MODULE_MD_FILE_NAME);
+                    Path toModuleMd = modulePath.resolve(ProjectConstants.MODULE_MD_FILE_NAME);
+                    if (Files.exists(moduleMd)) {
+                        Files.copy(moduleMd, toModuleMd);
+                    }
+
+                    // Copy modules
+                    Path sourceModulesDir = balaPath.resolve("modules").resolve(packageName);
+                    if (Files.exists(sourceModulesDir)) {
+                        Files.walkFileTree(sourceModulesDir, new FileUtils.Copy(sourceModulesDir, modulePath));
+                    }
+
+                    // Copy platform library
+                    Path platformLibPath = balaPath.resolve("platform").resolve("java11");
+                    Path projectPlatform = modulePath.resolve("Platform");
+                    Path platformLibRelativePath = userDir.relativize(projectPlatform);
+                    if (Files.exists(platformLibPath)) {
+                        createDirectories(projectPlatform);
+                        Files.walkFileTree(platformLibPath, new FileUtils.Copy(platformLibPath, projectPlatform));
+                    }
+
+                    // Copy Package.json to Ballerina.toml
+                    Path balaToml = modulePath.resolve(ProjectConstants.BALLERINA_TOML);
+                    Files.createFile(balaToml);
+                    writeBallerinaToml(balaToml, packageJson, platformLibRelativePath, orgName, packageName,
+                            version, platform);
+                } else {
+                    exitError(exitWhenFinish);
                 }
-            } catch (IOException e) {
-                printError(errStream,
-                        "Error while applying template: " + e.getMessage(),
-                        null,
-                        false);
-                getRuntime().exit(1);
             }
         } catch (IOException e) {
             printError(errStream,
-                    "error found in getting the version from arg: " + e.getMessage(),
+                    "Error while reading the package json file: " + e.getMessage(),
                     null,
                     false);
             getRuntime().exit(1);
@@ -614,5 +660,61 @@ public class CommandUtil {
                 .replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
 
         write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
+    }
+
+    protected static PackageVersion findLatest(List<PackageVersion> packageVersions) {
+        if (packageVersions.isEmpty()) {
+            return null;
+        }
+
+        PackageVersion latestVersion = packageVersions.get(0);
+        for (PackageVersion pkgVersion : packageVersions) {
+            latestVersion = getLatest(latestVersion, pkgVersion);
+        }
+        return latestVersion;
+    }
+
+    protected static PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
+        SemanticVersion semVer1 = v1.value();
+        SemanticVersion semVer2 = v2.value();
+        boolean isV1PreReleaseVersion = semVer1.isPreReleaseVersion();
+        boolean isV2PreReleaseVersion = semVer2.isPreReleaseVersion();
+        if (isV1PreReleaseVersion ^ isV2PreReleaseVersion) {
+            return isV1PreReleaseVersion ? v2 : v1;
+        } else {
+            return semVer1.greaterThanOrEqualTo(semVer2) ? v1 : v2;
+        }
+    }
+
+    public static List<PackageVersion> getPackageVersions(Path balaPackagePath) {
+        List<Path> versions = new ArrayList<>();
+        try {
+            if (Files.exists(balaPackagePath)) {
+                try (Stream<Path> collect = Files.list(balaPackagePath)) {
+                    versions.addAll(collect.collect(Collectors.toList()));
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
+        }
+        return pathToVersions(versions);
+    }
+
+    protected static List<PackageVersion> pathToVersions(List<Path> versions) {
+        List<PackageVersion> availableVersions = new ArrayList<>();
+        versions.stream().map(path -> Optional.ofNullable(path)
+                .map(Path::getFileName)
+                .map(Path::toString)
+                .orElse("0.0.0")).forEach(version -> {
+            try {
+                availableVersions.add(PackageVersion.from(version));
+            } catch (ProjectException ignored) {
+                // We consider only the semver compatible versions as valid
+                // bala directories. Since we only allow building and pushing
+                // semver compatible packages, it is safe to pick only
+                // the semver compatible versions.
+            }
+        });
+        return availableVersions;
     }
 }
