@@ -163,7 +163,7 @@ public class PackageResolution {
         if (rootPackageContext.project().kind() == ProjectKind.BUILD_PROJECT) {
             Path buildFilePath = this.rootPackageContext.project().sourceRoot().resolve(TARGET_DIR_NAME)
                     .resolve(BUILD_FILE);
-            if (buildFilePath.toFile().exists()) {
+            if (buildFilePath.toFile().exists() && buildFilePath.toFile().length() > 0) {
                 try {
                     BuildJson buildJson = readBuildJson(buildFilePath);
                     if (!buildJson.isExpiredLastUpdateTime()) {

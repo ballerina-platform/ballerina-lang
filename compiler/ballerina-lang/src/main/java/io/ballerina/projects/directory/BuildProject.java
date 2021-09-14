@@ -213,14 +213,18 @@ public class BuildProject extends Project {
                 BuildJson buildJson = readBuildJson(buildFilePath);
                 // need to update Dependencies toml
                 writeDependencies();
-                // check whether last updated time is expired
-                if (shouldUpdate) {
-                    // update build json file
-                    writeBuildFile(buildFilePath);
+                if (buildJson != null) {
+                    // check whether last updated time is expired
+                    if (shouldUpdate) {
+                        // update build json file
+                        writeBuildFile(buildFilePath);
+                    } else {
+                        // only update build time
+                        buildJson.setLastBuildTime(System.currentTimeMillis());
+                        ProjectUtils.writeBuildFile(buildFilePath, buildJson);
+                    }
                 } else {
-                    // only update build time
-                    buildJson.setLastBuildTime(System.currentTimeMillis());
-                    ProjectUtils.writeBuildFile(buildFilePath, buildJson);
+                    writeBuildFile(buildFilePath);
                 }
             } catch (JsonSyntaxException e) {
                 throw new ProjectException("Invalid '" + BUILD_FILE + "' file format");

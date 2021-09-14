@@ -18,6 +18,8 @@
 package io.ballerina.projects.test;
 
 import com.sun.management.UnixOperatingSystemMXBean;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
@@ -43,6 +45,7 @@ import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.environment.DefaultPackageResolver;
 import io.ballerina.projects.repos.TempDirCompilationCache;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.BCompileUtil;
@@ -114,6 +117,72 @@ public class PackageResolutionTests extends BaseTest {
         // Check direct package dependencies
         Assert.assertEquals(buildProject.currentPackage().packageDependencies().size(), 1,
                 "Unexpected number of dependencies");
+    }
+
+    @Test()
+    public void testProjectwithInvalidBuildFile() throws IOException {
+        // Package path
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_0");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_2");
+
+        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder().experimental(true);
+        buildOptionsBuilder.sticky(false);
+        BuildOptions buildOptions = buildOptionsBuilder.build();
+
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
+
+        // Delete the build file
+        if (loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME).toFile().exists()) {
+            TestUtils.deleteDirectory(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME).toFile());
+        }
+
+        // Create empty build file
+        Files.createDirectory(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME));
+        Files.createFile(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE));
+
+        PackageCompilation compilation = loadProject.currentPackage().getCompilation();
+
+        DependencyGraph<ResolvedPackageDependency> dependencyGraph = compilation.getResolution().dependencyGraph();
+        for (ResolvedPackageDependency graphNode : dependencyGraph.getNodes()) {
+            Collection<ResolvedPackageDependency> directDeps = dependencyGraph.getDirectDependencies(graphNode);
+            PackageManifest manifest = graphNode.packageInstance().manifest();
+            if (manifest.name().value().equals("package_o")) {
+                Assert.assertEquals(manifest.version().toString(), "1.0.2");
+            }
+        }
+    }
+
+    @Test(dependsOnMethods = "testProjectwithInvalidBuildFile")
+    public void testProjectSaveWithEmptyBuildFile() throws IOException {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath);
+        Files.deleteIfExists(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE));
+        Files.createFile(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE));
+        loadProject.save();
+        Assert.assertTrue(Files.exists(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE)));
+    }
+
+    @Test(dependsOnMethods = "testProjectSaveWithEmptyBuildFile")
+    public void testProjectSaveWithCorruptBuildFile() throws IOException {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath);
+        Files.deleteIfExists(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE));
+        Files.createFile(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE));
+        Files.writeString(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE), "Invalid");
+        try {
+            loadProject.save();
+        } catch (ProjectException e) {
+            Assert.assertEquals(e.getMessage(), "Invalid 'build' file format");
+        }
     }
 
     @Test(description = "tests resolution with one transitive dependency")
