@@ -25,7 +25,7 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 /**
- * Represents a named argument completion ite.
+ * Represents a named argument completion item.
  *
  * @since 2.0.0
  */

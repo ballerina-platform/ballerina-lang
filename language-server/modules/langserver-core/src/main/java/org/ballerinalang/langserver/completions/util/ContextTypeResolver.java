@@ -347,14 +347,14 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-        if (!CommonUtil.withinArgumentContext(context, node)
+        if (!CommonUtil.isInFunctionCallParameterContext(context, node)
                 || !(funcSymbol.get() instanceof FunctionSymbol)) {
             return SymbolUtil.getTypeDescriptor(funcSymbol.get());
         }
 
         Optional<ParameterSymbol> paramSymbol =
                 CommonUtil.resolveFunctionParameterSymbol(
-                        ((FunctionSymbol) funcSymbol.get()).typeDescriptor(), context, node.arguments());
+                        ((FunctionSymbol) funcSymbol.get()).typeDescriptor(), context, node);
         if (paramSymbol.isEmpty()) {
             return Optional.empty();
         }
@@ -365,12 +365,12 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     public Optional<TypeSymbol> transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
 
         Optional<TypeSymbol> classSymbol = context.currentSemanticModel()
-                .flatMap(semanticModel -> semanticModel.type(implicitNewExpressionNode))
+                .flatMap(semanticModel -> semanticModel.typeOf(implicitNewExpressionNode))
                 .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol))).stream().findFirst();
         if (classSymbol.isEmpty()) {
             return Optional.empty();
         }
-        if (!CommonUtil.withinArgumentContext(context, implicitNewExpressionNode)
+        if (!CommonUtil.isInNewExpressionParameterContext(context, implicitNewExpressionNode)
                 || !(classSymbol.get() instanceof ClassSymbol)) {
             return SymbolUtil.getTypeDescriptor(classSymbol.get());
         }
@@ -382,7 +382,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         Optional<MethodSymbol> methodSymbol = ((ClassSymbol) classSymbol.get()).initMethod();
         Optional<ParameterSymbol> paramSymbol =
                 CommonUtil.resolveFunctionParameterSymbol(methodSymbol.get().typeDescriptor(),
-                        context, args.get().arguments());
+                        context, implicitNewExpressionNode);
         if (paramSymbol.isEmpty()) {
             return Optional.empty();
         }
@@ -392,20 +392,19 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(ExplicitNewExpressionNode explicitNewExpressionNode) {
         Optional<TypeSymbol> classSymbol = context.currentSemanticModel()
-                .flatMap(semanticModel -> semanticModel.type(explicitNewExpressionNode))
+                .flatMap(semanticModel -> semanticModel.typeOf(explicitNewExpressionNode))
                 .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol))).stream().findFirst();
         if (classSymbol.isEmpty()) {
             return Optional.empty();
         }
-        if (!CommonUtil.withinArgumentContext(context, explicitNewExpressionNode)
+        if (!CommonUtil.isInNewExpressionParameterContext(context, explicitNewExpressionNode)
                 || !(classSymbol.get() instanceof ClassSymbol)) {
             return SymbolUtil.getTypeDescriptor(classSymbol.get());
         }
-        ParenthesizedArgList args = explicitNewExpressionNode.parenthesizedArgList();
         Optional<MethodSymbol> methodSymbol = ((ClassSymbol) classSymbol.get()).initMethod();
         Optional<ParameterSymbol> paramSymbol =
                 CommonUtil.resolveFunctionParameterSymbol(methodSymbol.get().typeDescriptor(),
-                        context, args.arguments());
+                        context, explicitNewExpressionNode);
         if (paramSymbol.isEmpty()) {
             return Optional.empty();
         }

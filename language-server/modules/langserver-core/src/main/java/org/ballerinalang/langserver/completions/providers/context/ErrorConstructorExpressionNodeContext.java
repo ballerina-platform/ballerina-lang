@@ -139,9 +139,9 @@ public class ErrorConstructorExpressionNodeContext extends
             String sortText;
             if (completionItem.getType() == LSCompletionItem.CompletionItemType.NAMED_ARG) {
                 sortText = SortingUtil.genSortText(1) +
-                        SortingUtil.genSortText(SortingUtil.toRank(completionItem));
+                        SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
             } else {
-                sortText = SortingUtil.genSortText(SortingUtil.toRank(completionItem));
+                sortText = SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
             }
             completionItem.getCompletionItem().setSortText(sortText);
         }

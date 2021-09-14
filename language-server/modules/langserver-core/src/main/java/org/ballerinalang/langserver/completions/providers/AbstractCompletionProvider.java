@@ -24,7 +24,6 @@ import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
-import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
@@ -39,7 +38,6 @@ import io.ballerina.compiler.api.symbols.WorkerSymbol;
 import io.ballerina.compiler.api.symbols.XMLNamespaceSymbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
-import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -67,7 +65,6 @@ import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.builder.ConstantCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.FieldCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.builder.NamedArgCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.ParameterCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.StreamTypeInitCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.TypeCompletionItemBuilder;
@@ -611,40 +608,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 }).forEach(completionItems::add);
 
         return completionItems;
-    }
-
-    protected List<LSCompletionItem> getNamedArgCompletionItems(BallerinaCompletionContext context,
-                                                                List<ParameterSymbol> params,
-                                                                List<String> existingNamedArgs) {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        Predicate<ParameterSymbol> predicate = parameter -> parameter.paramKind() == ParameterKind.REQUIRED
-                || parameter.paramKind() == ParameterKind.DEFAULTABLE;
-        params.stream().filter(predicate).forEach(parameterSymbol -> {
-            Optional<String> paramName = parameterSymbol.getName();
-            TypeSymbol paramType = parameterSymbol.typeDescriptor();
-            String defaultValue = CommonUtil.getDefaultValueForType(paramType).orElse("\"\"");
-            if (paramName.isEmpty() || paramName.get().isEmpty() || existingNamedArgs.contains(paramName.get())) {
-                return;
-            }
-            String label = paramName.get();
-
-            String insertText = paramName.get() + " = ${1:" + defaultValue + "}";
-            CompletionItem completionItem = NamedArgCompletionItemBuilder.build(parameterSymbol, label, insertText);
-            completionItems.add(new SymbolCompletionItem(context, parameterSymbol, completionItem));
-        });
-        return completionItems;
-    }
-
-    protected boolean withInNamedArgAssignmentContext(BallerinaCompletionContext context) {
-        if (context.getNodeAtCursor().kind() != SyntaxKind.NAMED_ARG) {
-            return false;
-        }
-        NamedArgumentNode node = (NamedArgumentNode) context.getNodeAtCursor();
-        if (node.equalsToken().isMissing()) {
-            return false;
-        }
-        int position = context.getCursorPositionInTree();
-        return node.equalsToken().textRange().endOffset() <= position && position <= node.textRange().endOffset();
     }
 
     /**

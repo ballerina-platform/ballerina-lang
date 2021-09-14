@@ -17,33 +17,20 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
-import io.ballerina.compiler.api.symbols.ParameterKind;
-import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.NamedArgCompletionItem;
-import org.ballerinalang.langserver.completions.builder.NamedArgCompletionItemBuilder;
-import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 /**
  * Completion Provider for {@link FunctionCallExpressionNode} context.
@@ -67,9 +54,7 @@ public class FunctionCallExpressionNodeContext extends InvocationNodeContextProv
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(this.actionKWCompletions(ctx));
         completionItems.addAll(this.expressionCompletions(ctx));
-        if (!withInNamedArgAssignmentContext(ctx)) {
-            completionItems.addAll(this.getNamedArgExpressionCompletionItems(ctx, node));
-        }
+        completionItems.addAll(this.getNamedArgExpressionCompletionItems(ctx, node));
         this.sort(ctx, node, completionItems);
         return completionItems;
     }
@@ -98,35 +83,5 @@ public class FunctionCallExpressionNodeContext extends InvocationNodeContextProv
         }
         FunctionSymbol functionSymbol = (FunctionSymbol) symbol.get();
         return getNamedArgCompletionItems(context, functionSymbol, node.arguments());
-    }
-
-    protected List<LSCompletionItem> getNamedArgCompletionItems(BallerinaCompletionContext context,
-                                                            FunctionSymbol functionSymbol,
-                                                            SeparatedNodeList<FunctionArgumentNode> argumentNodeList) {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (!CommonUtil.isValidNamedArgContext(context, argumentNodeList)) {
-            return completionItems;
-        }
-
-        FunctionTypeSymbol functionTypeSymbol = functionSymbol.typeDescriptor();
-        Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
-        if (params.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<String> existingNamedArgs = CommonUtil.getDefinedArgumentNames(context, params.get(), argumentNodeList);
-        Predicate<ParameterSymbol> predicate = parameter -> parameter.paramKind() == ParameterKind.REQUIRED
-                || parameter.paramKind() == ParameterKind.DEFAULTABLE;
-        params.get().stream().filter(predicate).forEach(parameterSymbol -> {
-            Optional<String> paramName = parameterSymbol.getName();
-            TypeSymbol paramType = parameterSymbol.typeDescriptor();
-            String defaultValue = CommonUtil.getDefaultValueForType(paramType).orElse("");
-            if (paramName.isEmpty() || paramName.get().isEmpty() || existingNamedArgs.contains(paramName.get())) {
-                return;
-            }
-            CompletionItem completionItem = NamedArgCompletionItemBuilder.build(paramName.get(), defaultValue);
-            completionItems.add(new NamedArgCompletionItem(context, completionItem, Either.forLeft(parameterSymbol)));
-        });
-        return completionItems;
     }
 }

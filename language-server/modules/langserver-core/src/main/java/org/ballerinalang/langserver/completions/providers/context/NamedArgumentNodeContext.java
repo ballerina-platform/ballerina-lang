@@ -87,8 +87,7 @@ public class NamedArgumentNodeContext extends AbstractCompletionProvider<NamedAr
          */
         int cursor = context.getCursorPositionInTree();
         TextRange textRange = node.expression().textRange();
-        return cursor > node.equalsToken().textRange().endOffset()
-                && cursor >= textRange.startOffset()
+        return !node.equalsToken().isMissing() && cursor >= node.equalsToken().textRange().endOffset()
                 && cursor <= textRange.endOffset();
     }
 
@@ -106,7 +105,7 @@ public class NamedArgumentNodeContext extends AbstractCompletionProvider<NamedAr
         TypeSymbol symbol = typeSymbol.get();
         for (LSCompletionItem completionItem : completionItems) {
             completionItem.getCompletionItem()
-                    .setSortText(SortingUtil.genSortTextByAssignability(completionItem, symbol));
+                    .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
         }
     }
 

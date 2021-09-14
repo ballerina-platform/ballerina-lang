@@ -52,9 +52,9 @@ import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -1390,6 +1390,41 @@ public class CommonUtil {
     }
 
     /**
+     * Given the cursor position information, returns the expected ParameterSymbol
+     * information corresponding to the FunctionTypeSymbol instance.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
+     * @param node               Implicit new expression node.
+     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     */
+    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                           PositionedOperationContext ctx,
+                                                                           ImplicitNewExpressionNode node) {
+        Optional<ParenthesizedArgList> args = node.parenthesizedArgList();
+        if (args.isEmpty()) {
+            return Optional.empty();
+        }
+        return resolveParameterSymbol(functionTypeSymbol, ctx, args.get().arguments());
+    }
+
+    /**
+     * Given the cursor position information, returns the expected ParameterSymbol
+     * information corresponding to the FunctionTypeSymbol instance.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
+     * @param node               Explicit new expression node.
+     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     */
+    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                           PositionedOperationContext ctx,
+                                                                           ExplicitNewExpressionNode node) {
+        ParenthesizedArgList args = node.parenthesizedArgList();
+        return resolveParameterSymbol(functionTypeSymbol, ctx, args.arguments());
+    }
+
+    /**
      * Check if the cursor is positioned in a function call expression parameter context.
      *
      * @param ctx  PositionedOperationContext
@@ -1423,6 +1458,35 @@ public class CommonUtil {
     public static Boolean isInMethodCallParameterContext(PositionedOperationContext ctx,
                                                          RemoteMethodCallActionNode node) {
         return isWithinParenthesis(ctx, node.openParenToken(), node.closeParenToken());
+    }
+
+    /**
+     * Check if the cursor is positioned in a method call expression parameter context.
+     *
+     * @param ctx  PositionedOperationContext
+     * @param node RemoteMethodCallActionNode
+     * @return {@link Boolean} whether the cursor is in parameter context.
+     */
+    public static Boolean isInNewExpressionParameterContext(PositionedOperationContext ctx,
+                                                            ImplicitNewExpressionNode node) {
+        Optional<ParenthesizedArgList> argList = node.parenthesizedArgList();
+        if (argList.isEmpty()) {
+            return false;
+        }
+        return isWithinParenthesis(ctx, argList.get().openParenToken(), argList.get().closeParenToken());
+    }
+
+    /**
+     * Check if the cursor is positioned in a method call expression parameter context.
+     *
+     * @param ctx  PositionedOperationContext
+     * @param node RemoteMethodCallActionNode
+     * @return {@link Boolean} whether the cursor is in parameter context.
+     */
+    public static Boolean isInNewExpressionParameterContext(PositionedOperationContext ctx,
+                                                            ExplicitNewExpressionNode node) {
+        ParenthesizedArgList argList = node.parenthesizedArgList();
+        return isWithinParenthesis(ctx, argList.openParenToken(), argList.closeParenToken());
     }
 
     /**
@@ -1514,10 +1578,10 @@ public class CommonUtil {
     /**
      * Provided a set of arguments and parameters, returns the list of argument names that has been already defined.
      *
-     * @param context
-     * @param params
-     * @param argumentNodeList
-     * @return
+     * @param context          Completion context.
+     * @param params           List of expected parameter symbols.
+     * @param argumentNodeList Argument list.
+     * @return {@link List<String>} already defined argument names.
      */
     public static List<String> getDefinedArgumentNames(BallerinaCompletionContext context,
                                                        List<ParameterSymbol> params,
@@ -1659,7 +1723,7 @@ public class CommonUtil {
      *
      * @param context          completion context.
      * @param argumentNodeList argument node list.
-     * @return
+     * @return {@link Boolean} whether the cursor is positioned so that the named arguments can  be suggested.
      */
     public static boolean isValidNamedArgContext(BallerinaCompletionContext context,
                                                  SeparatedNodeList<FunctionArgumentNode> argumentNodeList) {
@@ -1675,4 +1739,3 @@ public class CommonUtil {
         return true;
     }
 }
-
