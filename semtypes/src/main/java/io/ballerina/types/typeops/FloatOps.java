@@ -33,7 +33,7 @@ public class FloatOps extends CommonOps implements UniformTypeOps {
 
     @Override
     public SubtypeData diff(SubtypeData t1, SubtypeData t2) {
-        return intersect(t1, complement(t1));
+        return intersect(t1, complement(t2));
     }
 
     @Override
