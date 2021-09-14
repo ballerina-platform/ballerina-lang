@@ -77,10 +77,6 @@ public class OpenDocumentPerformanceTest {
         return new Object[][]{
                 {"performance_open_document.json"},
         };
-
-    @Override
-    public String getTestResourceDir() {
-        return "performance_completion";
     }
 
     public String getConfigJsonPath(String configFilePath) {
