@@ -252,7 +252,13 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void letExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // wrong types
+        debugTestRunner.assertEvaluationError(context, "let int x = \"hello\" in 2 * x", "Failed to evaluate." +
+                System.lineSeparator() + "Reason: compilation error(s) found while creating executables for " +
+                "evaluation: " + System.lineSeparator() + "incompatible types: expected 'int', found 'string'");
+        // undefined variable
+        debugTestRunner.assertEvaluationError(context, "let int x = 4*y, int y = 2 in 2 * x;", "Failed to evaluate." +
+                System.lineSeparator() + "Reason: Undefined variable 'y'");
     }
 
     @Override
@@ -445,7 +451,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                         "         }" +
                         "         on conflict onConflictError;"
                 , "Failed to evaluate." + System.lineSeparator() +
-                        "Reason: compilation error(s) found while creating executables for the query evaluation: " +
+                        "Reason: compilation error(s) found while creating executables for evaluation: " +
                         System.lineSeparator() +
                         "field name 'id' used in key specifier is not found in table constraint type 'map'" +
                         System.lineSeparator() +
@@ -460,7 +466,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                         "         }" +
                         "         on conflict onConflictError;",
                 "Failed to evaluate." + System.lineSeparator() +
-                        "Reason: compilation error(s) found while creating executables for the query evaluation: " +
+                        "Reason: compilation error(s) found while creating executables for evaluation: " +
                         System.lineSeparator() +
                         "on conflict can only be used with queries which produce tables with key specifiers");
     }

@@ -242,3 +242,56 @@ public type NodeCredential record {|
     # Optfield
     string optField ?;
 |};
+
+function testVarType() {
+    int testInt;
+    var testVar = testFunction3();
+    if !(testVar is string) {
+        return;
+    }
+    testInt = 10;
+}
+
+public function testFunction3() returns int|string|boolean[]?{
+    return 2;
+}
+
+var testAnonFuncVar = function() returns string {
+    return "hello";
+};
+
+var testAnonFuncNilVar = function() {
+    return;
+};
+
+# Description for new test record for TestRecordType1
+TestRecordType1 testRecordType1 = {
+    field1: 1,
+    field2: 2,
+    field3: 3
+};
+
+int? testVar1 = ();
+
+type MapArray map<string>[];
+
+function testFunction4() {
+     MapArray arr = [
+        {"x": "foo"},
+        {"y": "bar"}
+    ];
+    return;
+}
+
+type TestStructuredName record {
+    string firstName;
+    string lastName;
+};
+type Name TestStructuredName|string;
+
+function testFunction5() {
+    Name name1 = {
+        firstName: "Rowan",
+        lastName: "Atkinson"
+    };
+}

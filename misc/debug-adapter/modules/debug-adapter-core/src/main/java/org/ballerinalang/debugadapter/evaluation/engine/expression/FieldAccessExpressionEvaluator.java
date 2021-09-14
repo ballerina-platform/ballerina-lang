@@ -24,7 +24,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
@@ -35,6 +34,10 @@ import org.ballerinalang.debugadapter.variable.types.BXmlPi;
 import org.ballerinalang.debugadapter.variable.types.BXmlSequence;
 import org.ballerinalang.debugadapter.variable.types.BXmlText;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.FIELD_NOT_FOUND;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INVALID_XML_ATTRIBUTE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getChildVarByName;
 
 /**
@@ -66,8 +69,8 @@ public class FieldAccessExpressionEvaluator extends Evaluator {
             expression = ((OptionalFieldAccessExpressionNode) syntaxNode).expression().toSourceCode().trim();
             fieldName = ((OptionalFieldAccessExpressionNode) syntaxNode).fieldName().toSourceCode().trim();
         } else {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Field " +
-                    "access is not supported on type '" + syntaxNode.kind().stringValue() + "'."));
+            throw createEvaluationException(String.format("Field access is not supported on type '%s'.",
+                    syntaxNode.kind().stringValue()));
         }
 
         // expression is evaluated resulting in a value v
@@ -83,8 +86,8 @@ public class FieldAccessExpressionEvaluator extends Evaluator {
                     && resultVar.getBType() != BVariableType.RECORD
                     && resultVar.getBType() != BVariableType.JSON
                     && result.getType() != BVariableType.XML) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Field " +
-                        "access is not supported on type '" + resultVar.getBType().getString() + "'."));
+                throw createEvaluationException(String.format("Field access is not supported on type '%s'.",
+                        resultVar.getBType().getString()));
             }
 
             Value fieldValue;
@@ -97,27 +100,21 @@ public class FieldAccessExpressionEvaluator extends Evaluator {
         } catch (EvaluationException e) {
             throw e;
         } catch (DebugVariableException e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.FIELD_NOT_FOUND.getString(),
-                    fieldName, expression));
+            throw createEvaluationException(FIELD_NOT_FOUND, fieldName, expression);
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
-                    syntaxNode.toSourceCode().trim()));
+            throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
         }
     }
 
     private Value getXmlAttributeValue(BVariable variable) throws EvaluationException {
         if (variable instanceof BXmlSequence) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INVALID_XML_ATTRIBUTE.getString(),
-                    "xml sequence"));
+            throw createEvaluationException(INVALID_XML_ATTRIBUTE, "xml sequence");
         } else if (variable instanceof BXmlText) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INVALID_XML_ATTRIBUTE.getString(),
-                    "xml text"));
+            throw createEvaluationException(INVALID_XML_ATTRIBUTE, "xml text");
         } else if (variable instanceof BXmlComment) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INVALID_XML_ATTRIBUTE.getString(),
-                    "xml comment"));
+            throw createEvaluationException(INVALID_XML_ATTRIBUTE, "xml comment");
         } else if (variable instanceof BXmlPi) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INVALID_XML_ATTRIBUTE.getString(),
-                    "xml pi"));
+            throw createEvaluationException(INVALID_XML_ATTRIBUTE, "xml pi");
         }
 
         try {
@@ -125,8 +122,7 @@ public class FieldAccessExpressionEvaluator extends Evaluator {
             BVariable attributesVar = VariableFactory.getVariable(context, attributes);
             return getChildVarByName(attributesVar, fieldName);
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                    "Undefined attribute `" + fieldName + "' in: '" + expression + "'"));
+            throw createEvaluationException(String.format("Undefined attribute `%s' in: '%s'", fieldName, expression));
         }
     }
 }

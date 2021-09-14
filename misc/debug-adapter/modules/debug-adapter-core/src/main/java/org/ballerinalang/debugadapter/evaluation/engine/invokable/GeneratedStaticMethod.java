@@ -22,12 +22,13 @@ import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_SCHEDULER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.INVOKE_FUNCTION_ASYNC;
@@ -53,8 +54,7 @@ public class GeneratedStaticMethod extends GeneratedMethod {
     protected Value invoke() throws EvaluationException {
         try {
             if (!(classRef instanceof ClassType)) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR
-                        .getString(), methodRef.name()));
+                throw createEvaluationException(FUNCTION_EXECUTION_ERROR, methodRef.name());
             }
             List<String> argTypeList = new ArrayList<>();
             argTypeList.add(JAVA_LANG_CLASSLOADER);
