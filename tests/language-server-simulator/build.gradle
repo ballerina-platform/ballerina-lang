@@ -1,0 +1,122 @@
+/*
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+plugins {
+    id 'de.undercouch.download' version '4.1.2'
+}
+
+apply from: "$rootDir/gradle/javaProjectWithExtBala.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+
+configurations.all {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
+ext {
+    balSourceDir = "nBallerinaSrc"
+}
+
+configurations {
+    dependency {
+        transitive true
+    }
+    compilerPluginJar {
+        transitive true
+    }
+}
+
+dependencies {
+    implementation project(':ballerina-tools-api')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-parser')
+    implementation project(':language-server:language-server-commons')
+    implementation project(':language-server:language-server-core')
+    implementation project(':ballerina-test-utils')
+
+    implementation('org.eclipse.lsp4j:org.eclipse.lsp4j') {
+        exclude group: 'com.google.guava', module: 'guava'
+    }
+    implementation('org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc') {
+        exclude group: 'com.google.guava', module: 'guava'
+    }
+    implementation 'org.slf4j:slf4j-jdk14'
+
+    testCompile 'org.testng:testng'
+}
+
+description = 'Ballerina - Language Server Simulator'
+
+// Skip this module from coverage
+jacocoTestReport {
+    reports {
+        xml.enabled true // coveralls plugin depends on xml format report
+        html.enabled true
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: '**')
+        }))
+    }
+}
+
+task downloadBalTestProject(type: Download) {
+    // Download nBallerina latest tag
+    src "https://github.com/ballerina-platform/nballerina/archive/refs/tags/subset06.zip"
+    onlyIfModified true
+    dest new File("${buildDir}/nballeirna-src.zip")
+}
+
+def extractedBalSrcDir
+
+task unpackBalTestProject(type: Copy) {
+    def sourceDir = "${buildDir}/${balSourceDir}"
+    from zipTree { "${buildDir}/nballeirna-src.zip" }
+    new File("${sourceDir}").mkdirs()
+    into new File("${sourceDir}")
+
+    // Find the compiler directory within nballerina source
+    new File("${sourceDir}").eachDir { parentDir ->
+        if (parentDir.isDirectory()) {
+            parentDir.eachDir { child ->
+                if (child.name == "compiler" && child.isDirectory()) {
+                    extractedBalSrcDir = "${sourceDir}/${parentDir.name}/${child.name}"
+                }
+            }
+        }
+    }
+}
+
+task runLSSimulator(type: JavaExec) {
+    dependsOn unpackBalTestProject
+    dependsOn loadDistributionCache
+    systemProperty "ballerina.home", "$buildDir/"
+    systemProperty "ballerina.version", project.version
+    systemProperty "ls.simulation.duration", "60"
+    systemProperty "ls.simulation.src", "${extractedBalSrcDir}"
+    systemProperty "LANG_REPO_BUILD", "false"
+
+    jvmArgs = ['-Xms256m', '-Xmx1024m', '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=\"$buildDir\""]
+
+    group = "Execution"
+    description = "Run the main class with JavaExecTask"
+    classpath = sourceSets.main.runtimeClasspath
+    main = "org.ballerinalang.langserver.simulator.EditorSimulator"
+}
+
+unpackBalTestProject.dependsOn downloadBalTestProject

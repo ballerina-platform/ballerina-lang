@@ -178,4 +178,10 @@
             <Bug pattern="DM_CONVERT_CASE" />
         </OR>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.util.TestUtil" />
+        <OR>
+            <Bug pattern="DM_DEFAULT_ENCODING" />
+        </OR>
+    </Match>
 </FindBugsFilter>
