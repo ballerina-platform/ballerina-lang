@@ -405,7 +405,34 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void letExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // Basic let expression
+        debugTestRunner.assertExpression(context, "let int x = 4 in 2 * x * globalVar", "16", "int");
+        // Basic let expression with var
+        debugTestRunner.assertExpression(context, "let int x = 4 in 2 * x * globalVar", "16", "int");
+        // Multiple var Declarations
+        debugTestRunner.assertExpression(context, "let int x = globalVar*2, int z = 5 in z * x * globalVar", "40",
+                "int");
+        // Multiple var Declarations with reuse
+        debugTestRunner.assertExpression(context, "let int x = 2, int z = 5+x in z * x * globalVar;", "28", "int");
+        // Function calls in declarations
+        debugTestRunner.assertExpression(context, "let int x = 4, int y = 1, int z = func(y + y*2 + globalVar) in z *" +
+                " (x + globalVar + y)", "70", "int");
+        // Function calls in expression
+        debugTestRunner.assertExpression(context, "let int x = 4, int z = 10 in func(x * z)", "80", "int");
+        // Let expression as a function arg
+        debugTestRunner.assertExpression(context, "func2(let string x = \"aa\", string y = \"bb\" in x+y)", "4", "int");
+        // Let expression tuple
+        debugTestRunner.assertExpression(context, "let [[string, [int, [boolean, byte]]], [float, int]] " +
+                "v1 = [[\"Ballerina\", [3, [true, 34]]], [5.6, 45]], int x = 2 in v1[0][1][0] + x;", "5", "int");
+        // Let expression tuple binding
+        debugTestRunner.assertExpression(context, "let [[string, int], [boolean, float]] [[c1, c2],[c3, c4]] = " +
+                "[[\"Ballerina\", 34], [true, 6.7]], int x = 2 in c2 + x", "36", "int");
+        // Let expression with error binding
+        debugTestRunner.assertExpression(context, "let SampleError error(reason, info = info, fatal = fatal) = " +
+                "getSampleError(), int x = 1 in reason.length() + x;", "13", "int");
+        // Let expression with record constrained error binding
+        debugTestRunner.assertExpression(context, "let var error(_, detailMsg = detailMsg, isFatal = isFatal) = " +
+                "getRecordConstrainedError() in detailMsg", "\"Failed Message\"", "string");
     }
 
     @Override

@@ -22,12 +22,15 @@ import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.TYPE_MISMATCH;
 
 /**
  * String template expression evaluator implementation.
@@ -68,9 +71,8 @@ public class StringTemplateEvaluator extends Evaluator {
                         break;
                     default:
                         // Interpolation expression results can only be (int|float|decimal|string|boolean).
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(),
-                                "(int|float|decimal|string|boolean)", result.getType().getString(),
-                                syntaxNode.content().get(i).toSourceCode()));
+                        throw createEvaluationException(TYPE_MISMATCH, "(int|float|decimal|string|boolean)",
+                                result.getType().getString(), syntaxNode.content().get(i).toSourceCode());
                 }
             }
             Value result = EvaluationUtils.concatBStrings(context, templateMemberValues.toArray(new Value[0]));
@@ -82,8 +84,7 @@ public class StringTemplateEvaluator extends Evaluator {
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
-                    syntaxNode.toSourceCode().trim()));
+            throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
         }
     }
 }

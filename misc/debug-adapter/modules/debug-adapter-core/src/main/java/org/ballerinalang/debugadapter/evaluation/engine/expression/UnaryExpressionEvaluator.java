@@ -21,12 +21,13 @@ import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
 
 import java.util.Collections;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_UNARY_EXPR_HELPER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_UNARY_INVERT_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_UNARY_MINUS_METHOD;
@@ -73,16 +74,14 @@ public class UnaryExpressionEvaluator extends Evaluator {
                     genMethod = getGeneratedMethod(context, B_UNARY_EXPR_HELPER_CLASS, B_UNARY_NOT_METHOD);
                     break;
                 default:
-                    throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
-                            syntaxNode.toSourceCode().trim()));
+                    throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
             }
             genMethod.setArgValues(Collections.singletonList(valueAsObject));
             return new BExpressionValue(context, genMethod.invokeSafely());
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
-                    syntaxNode.toSourceCode().trim()));
+            throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
         }
     }
 }

@@ -32,7 +32,6 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeInstanceMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
@@ -46,6 +45,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.CLASS_LOADING_FAILED;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND;
 
 /**
  * Debug expression evaluation utils.
@@ -186,14 +189,12 @@ public class EvaluationUtils {
         }
         List<Method> methods = classesRef.get(0).methodsByName(methodName);
         if (methods == null || methods.isEmpty()) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
-                    methodName));
+            throw createEvaluationException(HELPER_UTIL_NOT_FOUND, methodName);
         }
         methods = methods.stream().filter(method -> method.isPublic() && method.isStatic() &&
                 compare(method.argumentTypeNames(), argTypeNames)).collect(Collectors.toList());
         if (methods.size() != 1) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
-                    methodName));
+            throw createEvaluationException(HELPER_UTIL_NOT_FOUND, methodName);
         }
         return new RuntimeStaticMethod(context, classesRef.get(0), methods.get(0));
     }
@@ -208,16 +209,14 @@ public class EvaluationUtils {
         }
         List<Method> methods = classesRef.get(0).methodsByName(methodName);
         if (methods == null || methods.isEmpty()) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
-                    methodName));
+            throw createEvaluationException(HELPER_UTIL_NOT_FOUND, methodName);
         }
         methods = methods.stream()
                 .filter(method -> method.isPublic() && method.isStatic())
                 .collect(Collectors.toList());
 
         if (methods.size() != 1) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
-                    methodName));
+            throw createEvaluationException(HELPER_UTIL_NOT_FOUND, methodName);
         }
         return new GeneratedStaticMethod(context, classesRef.get(0), methods.get(0));
     }
@@ -227,8 +226,7 @@ public class EvaluationUtils {
         try {
             ClassType classType = (ClassType) evaluationContext.getAttachedVm().classesByName(JAVA_LANG_CLASS).get(0);
             if (classType == null) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_LOADING_FAILED.getString(),
-                        methodName));
+                throw createEvaluationException(CLASS_LOADING_FAILED, methodName);
             }
             Method forNameMethod = null;
             List<Method> methods = classType.methodsByName(FOR_NAME_METHOD);
@@ -238,8 +236,7 @@ public class EvaluationUtils {
                 }
             }
             if (forNameMethod == null) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_LOADING_FAILED.getString(),
-                        methodName));
+                throw createEvaluationException(CLASS_LOADING_FAILED, methodName);
             }
 
             // Do not use unmodifiable lists because the list will be modified by JPDA.
@@ -251,8 +248,7 @@ public class EvaluationUtils {
                     forNameMethod, args, ObjectReference.INVOKE_SINGLE_THREADED);
             return ((ClassObjectReference) classReference).reflectedType();
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_LOADING_FAILED.getString(),
-                    methodName));
+            throw createEvaluationException(CLASS_LOADING_FAILED, methodName);
         }
     }
 
@@ -398,8 +394,8 @@ public class EvaluationUtils {
         List<Method> method = ((ObjectReference) result).referenceType().methodsByName(B_STRING_CONCAT_METHOD);
         for (int i = 1; i < bStrings.length; i++) {
             if (method.size() != 1) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
-                        "occurred when trying to load required methods to execute BString concatenation"));
+                throw createEvaluationException("Error occurred when trying to load required methods to execute " +
+                        "BString concatenation");
             }
             RuntimeInstanceMethod concatMethod = new RuntimeInstanceMethod(context, result, method.get(0));
             concatMethod.setArgValues(Collections.singletonList(bStrings[i]));
