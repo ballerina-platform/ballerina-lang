@@ -1,7 +1,7 @@
 {
   "position": {
-    "line": 3,
-    "character": 35
+    "line": 258,
+    "character": 9
   },
   "source": {
     "file": "hover.bal"
@@ -10,7 +10,7 @@
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "Description for module variable with init  \n  \n---  \n  \n`int` modVar1"
+        "value": "`function () returns string` testAnonFuncVar"
       }
     },
     "id": {
