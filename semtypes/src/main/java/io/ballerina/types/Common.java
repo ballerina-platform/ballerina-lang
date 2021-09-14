@@ -70,9 +70,9 @@ public class Common {
             return !((BddAllOrNothing) b).isAll() || predicate.apply(tc, pos, neg);
         } else {
             BddNode bn = (BddNode) b;
-            return bddEvery(tc, bn.left, Conjunction.and(bn.atom, pos), neg, predicate)
+            return bddEvery(tc, bn.left, Conjunction.from(bn.atom, pos), neg, predicate)
                     && bddEvery(tc, bn.middle, pos, neg, predicate)
-                    && bddEvery(tc, bn.right, pos, Conjunction.and(bn.atom, neg), predicate);
+                    && bddEvery(tc, bn.right, pos, Conjunction.from(bn.atom, neg), predicate);
         }
     }
 
@@ -82,9 +82,9 @@ public class Common {
             return !((BddAllOrNothing) b).isAll() || predicate.apply(tc, pos, neg);
         } else {
             BddNode bn = (BddNode) b;
-            return bddEveryPositive(tc, bn.left, Conjunction.and(bn.atom, pos), neg, predicate)
+            return bddEveryPositive(tc, bn.left, andIfPositive(bn.atom, pos), neg, predicate)
                     && bddEveryPositive(tc, bn.middle, pos, neg, predicate)
-                    && bddEveryPositive(tc, bn.right, pos, Conjunction.and(bn.atom, neg), predicate);
+                    && bddEveryPositive(tc, bn.right, pos, andIfPositive(bn.atom, neg), predicate);
         }
     }
 
@@ -112,7 +112,7 @@ public class Common {
         if (atom instanceof RecAtom && ((RecAtom) atom).index < 0) {
             return next;
         }
-        return Conjunction.and(atom, next);
+        return Conjunction.from(atom, next);
     }
 
     public static SemType[] shallowCopyTypes(SemType[] v) {

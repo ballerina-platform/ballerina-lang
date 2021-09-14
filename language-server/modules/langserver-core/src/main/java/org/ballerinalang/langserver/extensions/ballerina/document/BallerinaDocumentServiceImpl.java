@@ -314,7 +314,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = params.getDocumentIdentifier().getUri();
             try {
-                DocumentServiceContext context = ContextBuilder.buildBaseContext(fileUri,
+                DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(fileUri,
                         this.workspaceManager,
                         LSContextOperation.DOC_DIAGNOSTICS,
                         this.serverContext);

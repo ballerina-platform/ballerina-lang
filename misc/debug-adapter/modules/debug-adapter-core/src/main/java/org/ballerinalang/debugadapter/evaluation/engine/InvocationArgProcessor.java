@@ -30,6 +30,7 @@ import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -54,7 +55,6 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.GE
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.REST_ARG_IDENTIFIER;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.checkIsType;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getUnionTypeFrom;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
 
 /**
@@ -135,7 +135,7 @@ public class InvocationArgProcessor {
                     Value elementType = getElementType(context, restArrayType);
                     if (!checkIsType(context, jdiArgValue, elementType)) {
                         throw new EvaluationException(String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(),
-                                restParamTypeName.replaceAll(BallerinaTypeResolver.ARRAY_TYPE_SUFFIX, ""),
+                                restParamTypeName.replaceAll(NameBasedTypeResolver.ARRAY_TYPE_SUFFIX, ""),
                                 argValue.getType().getString(), restParamName));
                     }
                     restValues.add(jdiArgValue);
@@ -277,7 +277,7 @@ public class InvocationArgProcessor {
                     Value elementType = getElementType(context, restArrayType);
                     if (!checkIsType(context, jdiArgValue, elementType)) {
                         throw new EvaluationException(String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(),
-                                restParamTypeName.replaceAll(BallerinaTypeResolver.ARRAY_TYPE_SUFFIX, ""),
+                                restParamTypeName.replaceAll(NameBasedTypeResolver.ARRAY_TYPE_SUFFIX, ""),
                                 argValue.getType().getString(), restParamName));
                     }
                     restValues.add(jdiArgValue);
@@ -428,8 +428,9 @@ public class InvocationArgProcessor {
     }
 
     private static Value resolveType(SuspendedContext context, String arrayTypeName) throws EvaluationException {
-        List<Value> resolvedTypes = BallerinaTypeResolver.resolve(context, arrayTypeName);
-        return resolvedTypes.size() > 1 ? getUnionTypeFrom(context, resolvedTypes) : resolvedTypes.get(0);
+        NameBasedTypeResolver bTypeResolver = new NameBasedTypeResolver(new EvaluationContext(context));
+        List<Value> resolvedTypes = bTypeResolver.resolve(arrayTypeName);
+        return resolvedTypes.size() > 1 ? bTypeResolver.getUnionTypeFrom(resolvedTypes) : resolvedTypes.get(0);
     }
 
     private static boolean isPositionalArg(Map.Entry<String, Evaluator> arg) {

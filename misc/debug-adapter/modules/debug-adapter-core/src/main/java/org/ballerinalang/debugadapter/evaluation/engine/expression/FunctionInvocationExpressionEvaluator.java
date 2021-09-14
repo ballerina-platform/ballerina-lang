@@ -21,11 +21,12 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
-import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.debugadapter.DebugSourceType;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
@@ -41,8 +42,15 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.FUNCTION_NOT_FOUND;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.IMPORT_RESOLVING_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_ACCESS;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_FUNCTION;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
+import static org.ballerinalang.debugadapter.evaluation.engine.EvaluationTypeResolver.isPublicSymbol;
 import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 
 /**
@@ -56,27 +64,23 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
     private final String functionName;
     private final List<Map.Entry<String, Evaluator>> argEvaluators;
 
-    public FunctionInvocationExpressionEvaluator(SuspendedContext context, FunctionCallExpressionNode node,
+    public FunctionInvocationExpressionEvaluator(EvaluationContext context, FunctionCallExpressionNode node,
                                                  List<Map.Entry<String, Evaluator>> argEvaluators) {
         super(context);
         this.syntaxNode = node;
         this.argEvaluators = argEvaluators;
-        this.functionName = syntaxNode.functionName().toSourceCode().trim();
+        this.functionName = syntaxNode.functionName().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE ?
+                ((QualifiedNameReferenceNode) syntaxNode.functionName()).identifier().text().trim() :
+                syntaxNode.functionName().toSourceCode().trim();
     }
 
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
         try {
-            // Trying to get the function definition information using the semantic API.
-            Optional<FunctionSymbol> functionDef = findFunctionWithinModule();
-            if (functionDef.isEmpty()) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_NOT_FOUND.getString(),
-                        functionName));
-            }
-
-            String className = constructQualifiedClassNameFrom(functionDef.get());
+            FunctionSymbol functionDef = resolveFunctionDefinitionSymbol();
+            String className = constructQualifiedClassNameFrom(functionDef);
             GeneratedStaticMethod jvmMethod = EvaluationUtils.getGeneratedMethod(context, className, functionName);
-            FunctionTypeSymbol functionTypeDesc = functionDef.get().typeDescriptor();
+            FunctionTypeSymbol functionTypeDesc = functionDef.typeDescriptor();
             Map<String, Value> argValueMap = generateNamedArgs(context, functionName, functionTypeDesc, argEvaluators);
             jvmMethod.setNamedArgValues(argValueMap);
             Value result = jvmMethod.invokeSafely();
@@ -89,18 +93,46 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
         }
     }
 
-    private Optional<FunctionSymbol> findFunctionWithinModule() {
-        SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
-        List<Symbol> functionMatches = semanticContext.moduleSymbols()
-                .stream()
-                .filter(symbol -> symbol.kind() == FUNCTION && symbol.getName().isPresent()
-                        && modifyName(symbol.getName().get()).equals(functionName))
-                .collect(Collectors.toList());
-        if (functionMatches.isEmpty()) {
-            return Optional.empty();
+    private FunctionSymbol resolveFunctionDefinitionSymbol() throws EvaluationException {
+
+        List<FunctionSymbol> functionMatches;
+        Optional<String> modulePrefix;
+        // If the function name is a qualified name reference, need to resolve the imported module symbol first.
+        if (syntaxNode.functionName().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            modulePrefix = Optional.of(((QualifiedNameReferenceNode) syntaxNode.functionName()).modulePrefix().text());
+            if (!resolvedImports.containsKey(modulePrefix.get())) {
+                throw createEvaluationException(IMPORT_RESOLVING_ERROR, modulePrefix.get());
+            }
+            functionMatches = resolvedImports.get(modulePrefix.get()).functions().stream()
+                    .filter(symbol -> symbol.getName().isPresent() &&
+                            modifyName(symbol.getName().get()).equals(functionName))
+                    .collect(Collectors.toList());
+
+            if (functionMatches.size() == 1 && !isPublicSymbol(functionMatches.get(0))) {
+                throw createEvaluationException(NON_PUBLIC_OR_UNDEFINED_ACCESS, functionName);
+            }
+        } else {
+            modulePrefix = Optional.empty();
+            SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
+            functionMatches = semanticContext.moduleSymbols()
+                    .stream()
+                    .filter(symbol -> symbol.kind() == FUNCTION && symbol.getName().isPresent()
+                            && modifyName(symbol.getName().get()).equals(functionName))
+                    .map(symbol -> (FunctionSymbol) symbol)
+                    .collect(Collectors.toList());
         }
 
-        return Optional.ofNullable((FunctionSymbol) functionMatches.get(0));
+        if (functionMatches.isEmpty()) {
+            if (modulePrefix.isPresent()) {
+                throw createEvaluationException(NON_PUBLIC_OR_UNDEFINED_FUNCTION, functionName, modulePrefix.get());
+            } else {
+                throw createEvaluationException(FUNCTION_NOT_FOUND, syntaxNode.functionName().toSourceCode().trim());
+            }
+        } else if (functionMatches.size() > 1) {
+            throw createEvaluationException("Multiple function definitions found with name: '" + functionName + "'");
+        }
+
+        return functionMatches.get(0);
     }
 
     private String constructQualifiedClassNameFrom(FunctionSymbol functionDef) {
@@ -116,7 +148,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
         return new StringJoiner(".")
                 .add(encodeModuleName(moduleMeta.orgName()))
                 .add(encodeModuleName(moduleMeta.moduleName()))
-                .add(moduleMeta.version().split("\\.")[0])
+                .add(moduleMeta.version().split(MODULE_VERSION_SEPARATOR)[0])
                 .add(className)
                 .toString();
     }

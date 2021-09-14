@@ -17,14 +17,12 @@
 package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.utils.VariableUtils;
-
-import java.util.Optional;
 
 /**
  * Simple name reference evaluator implementation.
@@ -35,7 +33,7 @@ public class SimpleNameReferenceEvaluator extends Evaluator {
 
     private final String nameReference;
 
-    public SimpleNameReferenceEvaluator(SuspendedContext context, SimpleNameReferenceNode node) {
+    public SimpleNameReferenceEvaluator(EvaluationContext context, SimpleNameReferenceNode node) {
         super(context);
         this.nameReference = node.name().text();
     }
@@ -43,20 +41,7 @@ public class SimpleNameReferenceEvaluator extends Evaluator {
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
         try {
-            // Searches within local variable scope.
-            Optional<BExpressionValue> result = VariableUtils.searchLocalVariables(context, nameReference);
-            if (result.isPresent()) {
-                return result.get();
-            }
-
-            // If no results found, searches within global variable scope.
-            result = VariableUtils.searchGlobalVariables(context, nameReference);
-            if (result.isPresent()) {
-                return result.get();
-            }
-
-            throw new EvaluationException(String.format(EvaluationExceptionKind.VARIABLE_NOT_FOUND.getString(),
-                    nameReference));
+            return new BExpressionValue(context, VariableUtils.fetchVariableValue(context, nameReference));
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {

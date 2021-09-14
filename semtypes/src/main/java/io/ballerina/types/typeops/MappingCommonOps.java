@@ -30,11 +30,11 @@ import io.ballerina.types.TypeCheckContext;
 import io.ballerina.types.UniformTypeOps;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-// todo: use this to place common things between Ro and RW, if there are non; delete this.
 /**
  * Common mapping related methods operate on SubtypeData.
  *
@@ -42,10 +42,16 @@ import java.util.Optional;
  */
 public abstract class MappingCommonOps extends CommonOps implements UniformTypeOps {
 
+
+    // This works the same as the tuple case, except that instead of
+    // just comparing the lengths of the tuples we compare the sorted list of field names
     public static boolean mappingFormulaIsEmpty(TypeCheckContext tc, Conjunction posList, Conjunction negList) {
         MappingAtomicType combined;
         if (posList == null) {
-            combined = MappingAtomicType.from(new String[0], new SemType[0], PredefinedType.TOP);
+            combined = MappingAtomicType.from(new String[0], new SemType[0],
+                    // This isn't right for the readonly case.
+                    // bddFixReadOnly avoids this
+                    PredefinedType.TOP);
         } else {
             // combine all the positive atoms using intersection
             combined = tc.mappingAtomType(posList.atom);
@@ -81,7 +87,7 @@ public abstract class MappingCommonOps extends CommonOps implements UniformTypeO
 
             FieldPairs pairing;
 
-            if (pos.names != neg.names) {
+            if (!Arrays.equals(pos.names, neg.names)) {
                 // If this negative type has required fields that the positive one does not allow
                 // or vice-versa, then this negative type has no effect,
                 // so we can move on to the next one
