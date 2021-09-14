@@ -17,10 +17,10 @@
  */
 package io.ballerinalang.compiler.parser.test.errorhandler;
 
+import io.ballerina.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerina.compiler.internal.parser.BallerinaParserErrorHandler;
+import io.ballerina.compiler.internal.parser.ParserRuleContext;
 import io.ballerina.compiler.internal.parser.SyntaxErrors;
-import io.ballerina.compiler.parser.ParserRuleContext;
-import io.ballerina.compiler.parser.diagnostics.DiagnosticErrorCode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;

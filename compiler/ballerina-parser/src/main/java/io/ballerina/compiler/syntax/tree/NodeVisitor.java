@@ -439,6 +439,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(xMLComment);
     }
 
+    public void visit(XMLCDATANode xMLCDATANode) {
+        visitSyntaxNode(xMLCDATANode);
+    }
+
     public void visit(XMLProcessingInstruction xMLProcessingInstruction) {
         visitSyntaxNode(xMLProcessingInstruction);
     }
@@ -817,10 +821,6 @@ public abstract class NodeVisitor {
 
     public void visit(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
         visitSyntaxNode(parameterizedTypeDescriptorNode);
-    }
-
-    public void visit(BalPartNode balPartNode) {
-        visitSyntaxNode(balPartNode);
     }
 
     // Tokens

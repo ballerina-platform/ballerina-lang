@@ -28,7 +28,7 @@ import io.ballerina.compiler.syntax.tree.ModuleXMLNamespaceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.shell.snippet.SnippetSubKind;
-import io.ballerina.shell.utils.QuotedIdentifier;
+import io.ballerina.shell.utils.Identifier;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -50,29 +50,29 @@ public class ModuleMemberDeclarationSnippet extends AbstractSnippet<ModuleMember
      * @return the name associated with the module level declaration.
      * If the module declaration has no name, this will return null.
      */
-    public QuotedIdentifier name() {
+    public Identifier name() {
         if (rootNode instanceof ClassDefinitionNode) {
             String className = ((ClassDefinitionNode) rootNode).className().text();
-            return new QuotedIdentifier(className);
+            return new Identifier(className);
         } else if (rootNode instanceof ConstantDeclarationNode) {
             String constName = ((ConstantDeclarationNode) rootNode).variableName().text();
-            return new QuotedIdentifier(constName);
+            return new Identifier(constName);
         } else if (rootNode instanceof EnumDeclarationNode) {
             String enumName = ((EnumDeclarationNode) rootNode).identifier().text();
-            return new QuotedIdentifier(enumName);
+            return new Identifier(enumName);
         } else if (rootNode instanceof FunctionDefinitionNode) {
             String funcName = ((FunctionDefinitionNode) rootNode).functionName().text();
-            return new QuotedIdentifier(funcName);
+            return new Identifier(funcName);
         } else if (rootNode instanceof ListenerDeclarationNode) {
             String listenerName = ((ListenerDeclarationNode) rootNode).variableName().text();
-            return new QuotedIdentifier(listenerName);
+            return new Identifier(listenerName);
         } else if (rootNode instanceof ModuleXMLNamespaceDeclarationNode) {
             ModuleXMLNamespaceDeclarationNode namespaceNode = (ModuleXMLNamespaceDeclarationNode) rootNode;
-            return namespaceNode.namespacePrefix().map(Token::text).map(QuotedIdentifier::new)
+            return namespaceNode.namespacePrefix().map(Token::text).map(Identifier::new)
                     .orElseGet(this::createAnonModuleName);
         } else if (rootNode instanceof TypeDefinitionNode) {
             String typeName = ((TypeDefinitionNode) rootNode).typeName().text();
-            return new QuotedIdentifier(typeName);
+            return new Identifier(typeName);
         } else {
             return createAnonModuleName();
         }
@@ -82,7 +82,7 @@ public class ModuleMemberDeclarationSnippet extends AbstractSnippet<ModuleMember
      * Creates an unused module name.
      * The prefix will follow the format $I.
      */
-    private QuotedIdentifier createAnonModuleName() {
-        return new QuotedIdentifier("$" + unnamedModuleNameIndex.getAndIncrement());
+    private Identifier createAnonModuleName() {
+        return new Identifier("$" + unnamedModuleNameIndex.getAndIncrement());
     }
 }

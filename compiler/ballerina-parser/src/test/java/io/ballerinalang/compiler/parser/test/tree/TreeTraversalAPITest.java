@@ -17,8 +17,6 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
-import io.ballerina.compiler.parser.ParserRuleContext;
-import io.ballerina.compiler.syntax.tree.BalPartNode;
 import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -26,7 +24,6 @@ import io.ballerina.compiler.syntax.tree.InvalidTokenMinutiaeNode;
 import io.ballerina.compiler.syntax.tree.MinutiaeList;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -270,8 +267,6 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         Assert.assertEquals(actualChildNodeKindList, expectedChildNodeKindList);
     }
 
-    // ------------------------ Test obtained syntax tree from a given context ---------------------------
-
     @Test
     public void testAsTopLevelAPI() {
         String text =
@@ -331,135 +326,5 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         Node rootNode = syntaxTree.rootNode();
         Assert.assertFalse(rootNode.hasDiagnostics());
         Assert.assertEquals(rootNode.kind(), SyntaxKind.TYPE_TEST_EXPRESSION);
-    }
-
-    @Test
-    public void testSTObtainedFromCompUnitCtx() {
-        String text =
-                "public function main() {\n" +
-                "}";
-
-        TextDocument textDocument = TextDocuments.from(text);
-        SyntaxTree syntaxTree = SyntaxTree
-                .from(ParserRuleContext.COMP_UNIT, textDocument); // Equivalent to SyntaxTree.from(textDocument);
-        NonTerminalNode rootNode = syntaxTree.rootNode();
-        Assert.assertFalse(rootNode.hasDiagnostics());
-        Assert.assertEquals(rootNode.kind(), SyntaxKind.MODULE_PART);
-    }
-
-    @Test
-    public void testSTObtainedFromStmtsCtx() {
-        String text =
-                "int a = 0;\n" +
-                "while(a < 10) {\n" +
-                "    a = a + 1;\n" +
-                "}\n" +
-                "a = 20;";
-
-        TextDocument textDocument = TextDocuments.from(text);
-        SyntaxTree syntaxTree = SyntaxTree.from(ParserRuleContext.STATEMENTS, textDocument);
-        NonTerminalNode rootNode = syntaxTree.rootNode();
-        Assert.assertFalse(rootNode.hasDiagnostics());
-        Assert.assertEquals(rootNode.kind(), SyntaxKind.BAL_PART);
-
-        BalPartNode balPartNode = (BalPartNode) rootNode;
-        NodeList<Node> stmts = balPartNode.constructs();
-        Assert.assertEquals(stmts.size(), 3);
-        Assert.assertEquals(stmts.get(0).kind(), SyntaxKind.LOCAL_VAR_DECL);
-        Assert.assertEquals(stmts.get(1).kind(), SyntaxKind.WHILE_STATEMENT);
-        Assert.assertEquals(stmts.get(2).kind(), SyntaxKind.ASSIGNMENT_STATEMENT);
-
-        ChildNodeList children = rootNode.children();
-        Assert.assertEquals(children.size(), 4);
-        Assert.assertEquals(children.get(0).kind(), SyntaxKind.LOCAL_VAR_DECL);
-        Assert.assertEquals(children.get(1).kind(), SyntaxKind.WHILE_STATEMENT);
-        Assert.assertEquals(children.get(2).kind(), SyntaxKind.ASSIGNMENT_STATEMENT);
-        Assert.assertEquals(children.get(3).kind(), SyntaxKind.EOF_TOKEN);
-
-        // Test with syntax errors
-        text = "int a = 0;\n" +
-                "}\n" +
-                "a = 20;";
-
-        textDocument = TextDocuments.from(text);
-        syntaxTree = SyntaxTree.from(ParserRuleContext.STATEMENTS, textDocument);
-        rootNode = syntaxTree.rootNode();
-        Assert.assertTrue(rootNode.hasDiagnostics());
-
-        children = rootNode.children();
-        Assert.assertEquals(children.size(), 2);
-        Assert.assertEquals(children.get(0).kind(), SyntaxKind.LOCAL_VAR_DECL);
-        Assert.assertEquals(children.get(1).kind(), SyntaxKind.EOF_TOKEN);
-
-        // Test with syntax errors
-        text = "const c = 10;";
-
-        textDocument = TextDocuments.from(text);
-        syntaxTree = SyntaxTree.from(ParserRuleContext.STATEMENTS, textDocument);
-        rootNode = syntaxTree.rootNode();
-        Assert.assertTrue(rootNode.hasDiagnostics());
-
-        children = rootNode.children();
-        Assert.assertEquals(children.size(), 1);
-        Assert.assertEquals(children.get(0).kind(), SyntaxKind.EOF_TOKEN);
-
-        // Test with syntax errors
-        text = "worker w { }";
-
-        textDocument = TextDocuments.from(text);
-        syntaxTree = SyntaxTree.from(ParserRuleContext.STATEMENTS, textDocument);
-        rootNode = syntaxTree.rootNode();
-        Assert.assertTrue(rootNode.hasDiagnostics());
-
-        children = rootNode.children();
-        Assert.assertEquals(children.size(), 1);
-        Assert.assertEquals(children.get(0).kind(), SyntaxKind.EOF_TOKEN);
-    }
-
-    @Test
-    public void testSTObtainedFromExprCtx() {
-        String text = "3 is int";
-
-        TextDocument textDocument = TextDocuments.from(text);
-        SyntaxTree syntaxTree = SyntaxTree.from(ParserRuleContext.EXPRESSION, textDocument);
-        NonTerminalNode rootNode = syntaxTree.rootNode();
-        Assert.assertFalse(rootNode.hasDiagnostics());
-        Assert.assertEquals(rootNode.kind(), SyntaxKind.BAL_PART);
-
-        BalPartNode balPartNode = (BalPartNode) rootNode;
-        NodeList<Node> exprs = balPartNode.constructs();
-        Assert.assertEquals(exprs.size(), 1);
-        Assert.assertEquals(exprs.get(0).kind(), SyntaxKind.TYPE_TEST_EXPRESSION);
-
-        ChildNodeList children = rootNode.children();
-        Assert.assertEquals(children.size(), 2);
-        Assert.assertEquals(children.get(0).kind(), SyntaxKind.TYPE_TEST_EXPRESSION);
-        Assert.assertEquals(children.get(1).kind(), SyntaxKind.EOF_TOKEN);
-
-        // Test with syntax errors
-        text = "int x = 10;";
-
-        textDocument = TextDocuments.from(text);
-        syntaxTree = SyntaxTree.from(ParserRuleContext.EXPRESSION, textDocument);
-        rootNode = syntaxTree.rootNode();
-        Assert.assertTrue(rootNode.hasDiagnostics());
-        Assert.assertEquals(rootNode.kind(), SyntaxKind.BAL_PART);
-
-        balPartNode = (BalPartNode) rootNode;
-        exprs = balPartNode.constructs();
-        Assert.assertEquals(exprs.size(), 1);
-        Assert.assertEquals(exprs.get(0).kind(), SyntaxKind.INT_TYPE_DESC);
-
-        children = rootNode.children();
-        Assert.assertEquals(children.size(), 2);
-        Assert.assertEquals(children.get(0).kind(), SyntaxKind.INT_TYPE_DESC);
-        Assert.assertEquals(children.get(1).kind(), SyntaxKind.EOF_TOKEN);
-    }
-
-    @Test(expectedExceptions = UnsupportedOperationException.class)
-    public void testExceptionForUnsupportedCtx() {
-        String text = "int x = 10;";
-        TextDocument textDocument = TextDocuments.from(text);
-        SyntaxTree.from(ParserRuleContext.STATEMENT, textDocument);
     }
 }

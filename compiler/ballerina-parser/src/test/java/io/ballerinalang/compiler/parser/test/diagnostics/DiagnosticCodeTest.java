@@ -17,8 +17,8 @@
  */
 package io.ballerinalang.compiler.parser.test.diagnostics;
 
-import io.ballerina.compiler.parser.diagnostics.DiagnosticErrorCode;
-import io.ballerina.compiler.parser.diagnostics.DiagnosticWarningCode;
+import io.ballerina.compiler.internal.diagnostics.DiagnosticErrorCode;
+import io.ballerina.compiler.internal.diagnostics.DiagnosticWarningCode;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import org.testng.Assert;
 import org.testng.annotations.Test;

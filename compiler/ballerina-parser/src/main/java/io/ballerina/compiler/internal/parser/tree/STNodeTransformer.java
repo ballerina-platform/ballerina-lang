@@ -429,6 +429,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(xMLComment);
     }
 
+    public T transform(STXMLCDATANode xMLCDATANode) {
+        return transformSyntaxNode(xMLCDATANode);
+    }
+
     public T transform(STXMLProcessingInstruction xMLProcessingInstruction) {
         return transformSyntaxNode(xMLProcessingInstruction);
     }
@@ -807,10 +811,6 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
         return transformSyntaxNode(parameterizedTypeDescriptorNode);
-    }
-
-    public T transform(STBalPartNode balPartNode) {
-        return transformSyntaxNode(balPartNode);
     }
 
     // Tokens

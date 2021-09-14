@@ -20,9 +20,9 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
-import io.ballerina.projects.Document;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.docs.DocumentationGenerator;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
@@ -65,11 +65,11 @@ public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
     @Override
     public List<CodeLens> getLenses(DocumentServiceContext context) {
         List<CodeLens> lenses = new ArrayList<>();
-        Optional<Document> document = context.currentDocument();
-        if (document.isEmpty()) {
+        Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
+        if (syntaxTree.isEmpty()) {
             return lenses;
         }
-        for (ModuleMemberDeclarationNode member : ((ModulePartNode) document.get().syntaxTree().rootNode()).members()) {
+        for (ModuleMemberDeclarationNode member : ((ModulePartNode) syntaxTree.get().rootNode()).members()) {
             if (DocumentationGenerator.hasDocs(member)) {
                 continue;
             }

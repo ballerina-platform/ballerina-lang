@@ -2371,6 +2371,26 @@
             ]
         },
         {
+            "name": "XMLCDATANode",
+            "base": "XMLItemNode",
+            "kind": "XML_CDATA",
+            "attributes": [
+                {
+                    "name": "cdataStart",
+                    "type": "Token"
+                },
+                {
+                    "name": "content",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "cdataEnd",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "XMLProcessingInstruction",
             "base": "XMLItemNode",
             "kind": "XML_PI",
@@ -4322,22 +4342,6 @@
                     "name": "typeParamNode",
                     "type": "TypeParameterNode",
                     "isOptional": true
-                }
-            ]
-        },
-        {
-            "name": "BalPartNode",
-            "base": "Node",
-            "kind": "BAL_PART",
-            "attributes": [
-                {
-                    "name": "constructs",
-                    "type": "Node",
-                    "occurrences": "MULTIPLE"
-                },
-                {
-                    "name": "eofToken",
-                    "type": "Token"
                 }
             ]
         }

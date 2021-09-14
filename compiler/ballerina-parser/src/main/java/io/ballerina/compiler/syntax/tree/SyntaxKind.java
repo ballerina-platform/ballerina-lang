@@ -195,6 +195,8 @@ public enum SyntaxKind {
     SLASH_ASTERISK_TOKEN(588, "/*"),
     DOUBLE_GT_TOKEN(589, ">>"),
     TRIPPLE_GT_TOKEN(590, ">>>"),
+    XML_CDATA_START_TOKEN(591, "<![CDATA["),
+    XML_CDATA_END_TOKEN(592, "]]>"),
 
     // Documentation reference types
     TYPE_DOC_REFERENCE_TOKEN(900, "type"),
@@ -479,6 +481,7 @@ public enum SyntaxKind {
     XML_ATTRIBUTE(4009),
     XML_ATTRIBUTE_VALUE(4010),
     INTERPOLATION(4011),
+    XML_CDATA(4012),
 
     // Documentation
     MARKDOWN_DOCUMENTATION(4500),
@@ -492,7 +495,6 @@ public enum SyntaxKind {
     MARKDOWN_CODE_BLOCK(4508),
     INLINE_CODE_REFERENCE(4509),
 
-    BAL_PART(5),
     INVALID(4),
     MODULE_PART(3),
     EOF_TOKEN(2),

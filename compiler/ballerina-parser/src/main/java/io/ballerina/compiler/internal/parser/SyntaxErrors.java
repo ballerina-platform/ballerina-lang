@@ -17,6 +17,8 @@
  */
 package io.ballerina.compiler.internal.parser;
 
+import io.ballerina.compiler.internal.diagnostics.DiagnosticErrorCode;
+import io.ballerina.compiler.internal.diagnostics.DiagnosticWarningCode;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
@@ -24,9 +26,6 @@ import io.ballerina.compiler.internal.parser.tree.STNodeList;
 import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.compiler.internal.syntax.NodeListUtils;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
-import io.ballerina.compiler.parser.ParserRuleContext;
-import io.ballerina.compiler.parser.diagnostics.DiagnosticErrorCode;
-import io.ballerina.compiler.parser.diagnostics.DiagnosticWarningCode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 
@@ -324,6 +323,8 @@ public class SyntaxErrors {
             case EXPR_FUNC_BODY_START:
             case RIGHT_DOUBLE_ARROW:
                 return DiagnosticErrorCode.ERROR_MISSING_RIGHT_DOUBLE_ARROW_TOKEN;
+            case XML_CDATA_END:
+                return DiagnosticErrorCode.ERROR_MISSING_XML_CDATA_END_TOKEN;
             default:
                 return getKeywordErrorCode(ctx);
         }

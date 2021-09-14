@@ -1300,6 +1300,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 commentEnd);
     }
 
+    public static STNode createXMLCDATANode(
+            STNode cdataStart,
+            STNode content,
+            STNode cdataEnd) {
+
+        return new STXMLCDATANode(
+                cdataStart,
+                content,
+                cdataEnd);
+    }
+
     public static STNode createXMLProcessingInstruction(
             STNode piStart,
             STNode target,
@@ -2373,15 +2384,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 kind,
                 keywordToken,
                 typeParamNode);
-    }
-
-    public static STNode createBalPartNode(
-            STNode constructs,
-            STNode eofToken) {
-
-        return new STBalPartNode(
-                constructs,
-                eofToken);
     }
 }
 

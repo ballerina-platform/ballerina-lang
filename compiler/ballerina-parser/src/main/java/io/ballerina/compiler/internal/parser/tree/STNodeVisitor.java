@@ -429,6 +429,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(xMLComment);
     }
 
+    public void visit(STXMLCDATANode xMLCDATANode) {
+        visitSyntaxNode(xMLCDATANode);
+    }
+
     public void visit(STXMLProcessingInstruction xMLProcessingInstruction) {
         visitSyntaxNode(xMLProcessingInstruction);
     }
@@ -807,10 +811,6 @@ public abstract class STNodeVisitor {
 
     public void visit(STParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
         visitSyntaxNode(parameterizedTypeDescriptorNode);
-    }
-
-    public void visit(STBalPartNode balPartNode) {
-        visitSyntaxNode(balPartNode);
     }
 
     // STNodeList

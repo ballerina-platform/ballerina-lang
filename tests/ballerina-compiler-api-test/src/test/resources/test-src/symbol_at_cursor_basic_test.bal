@@ -152,3 +152,15 @@ function testOnFail() returns boolean {
         return false;
     }
 }
+
+function foo() returns string {
+    return "abc";
+}
+
+function test(string name, int age) {
+    Person p = {
+        name: name,
+        age,
+        [foo()]: "FOO"
+    };
+}

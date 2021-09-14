@@ -1760,6 +1760,21 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public XMLCDATANode transform(
+            XMLCDATANode xMLCDATANode) {
+        Token cdataStart =
+                modifyToken(xMLCDATANode.cdataStart());
+        NodeList<Node> content =
+                modifyNodeList(xMLCDATANode.content());
+        Token cdataEnd =
+                modifyToken(xMLCDATANode.cdataEnd());
+        return xMLCDATANode.modify(
+                cdataStart,
+                content,
+                cdataEnd);
+    }
+
+    @Override
     public XMLProcessingInstruction transform(
             XMLProcessingInstruction xMLProcessingInstruction) {
         Token piStart =
@@ -3217,18 +3232,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 parameterizedTypeDescriptorNode.kind(),
                 keywordToken,
                 typeParamNode);
-    }
-
-    @Override
-    public BalPartNode transform(
-            BalPartNode balPartNode) {
-        NodeList<Node> constructs =
-                modifyNodeList(balPartNode.constructs());
-        Token eofToken =
-                modifyToken(balPartNode.eofToken());
-        return balPartNode.modify(
-                constructs,
-                eofToken);
     }
 
     // Tokens

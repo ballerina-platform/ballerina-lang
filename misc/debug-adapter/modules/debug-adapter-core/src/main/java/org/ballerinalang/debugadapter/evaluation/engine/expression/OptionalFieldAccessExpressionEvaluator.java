@@ -17,7 +17,7 @@
 package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
@@ -32,7 +32,7 @@ public class OptionalFieldAccessExpressionEvaluator extends FieldAccessExpressio
     private static final String UNDEFINED_FIELD_ERROR_PREFIX = "Undefined field";
     private static final String UNDEFINED_ATTRIBUTE_ERROR_PREFIX = "Undefined attribute";
 
-    public OptionalFieldAccessExpressionEvaluator(SuspendedContext context, Evaluator expression,
+    public OptionalFieldAccessExpressionEvaluator(EvaluationContext context, Evaluator expression,
                                                   OptionalFieldAccessExpressionNode fieldAccessExpressionNode) {
         super(context, expression, fieldAccessExpressionNode);
     }
