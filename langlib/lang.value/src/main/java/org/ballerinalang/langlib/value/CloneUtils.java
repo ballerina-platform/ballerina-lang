@@ -80,10 +80,4 @@ public class CloneUtils {
         BRefValue refValue = (BRefValue) value;
         return refValue.frozenCopy(new HashMap<>());
     }
-
-    public static BError createConversionError(Object inputValue, Type targetType) {
-        return createError(BALLERINA_PREFIXED_CONVERSION_ERROR,
-                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
-                                                                TypeChecker.getType(inputValue), targetType));
-    }
 }
