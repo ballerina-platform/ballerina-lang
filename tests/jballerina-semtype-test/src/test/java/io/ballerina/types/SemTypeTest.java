@@ -57,9 +57,7 @@ public class SemTypeTest {
         // blocked on https://github.com/ballerina-platform/ballerina-lang/issues/28334 and
         // https://github.com/ballerina-platform/ballerina-lang/issues/32722
         ignore(testFiles, "float-singleton2.bal");
-        ignore(testFiles, "error2.bal");
         ignore(testFiles, "function.bal");
-        ignore(testFiles, "hard.bal");
 
         include(testFiles,
                 "test-src/simple-type/type-test.bal",
