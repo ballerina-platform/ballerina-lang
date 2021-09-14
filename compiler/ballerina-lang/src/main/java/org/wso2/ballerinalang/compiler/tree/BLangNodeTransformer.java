@@ -173,8 +173,13 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 /**
- * TODO: Fix me.
+ * The {@link BLangNodeTransformer} transforms each {@link BLangNode} objects to another object of type T.
+ * <p>
+ * If you are looking for a {@link BLangNode} visitor that returns void, see {@link BLangNodeAnalyzer}.
+ * <p>
  *
+ * @param <T> the type of class that passed along with transform methods.
+ * @param <R> the type of class that is returned by transform methods
  * @since 2.0.0
  */
 public abstract class BLangNodeTransformer<T, R> {
