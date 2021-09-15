@@ -34,6 +34,8 @@ import java.util.List;
  * @since 2.0.0
  */
 public class BLangMappingBindingPattern extends BLangBindingPattern implements MappingBindingPatternNode {
+
+    // BLangNodes
     public List<BLangFieldBindingPattern> fieldBindingPatterns = new ArrayList<>();
     public BLangRestBindingPattern restBindingPattern;
 

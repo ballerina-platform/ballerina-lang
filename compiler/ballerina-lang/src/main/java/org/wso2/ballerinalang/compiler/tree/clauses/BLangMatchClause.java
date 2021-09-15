@@ -44,10 +44,14 @@ import java.util.Map;
  */
 public class BLangMatchClause extends BLangNode implements MatchClauseNode {
 
+    // BLangNodes
+
     public List<BLangMatchPattern> matchPatterns = new ArrayList<>();
     public BLangMatchGuard matchGuard;
     public BLangBlockStmt blockStmt;
     public BLangExpression expr; // This is used to keep the expression of match statement.
+
+    // Semantic Data
     public Map<String, BVarSymbol> declaredVars = new HashMap<>();
     public BType patternsType;
 

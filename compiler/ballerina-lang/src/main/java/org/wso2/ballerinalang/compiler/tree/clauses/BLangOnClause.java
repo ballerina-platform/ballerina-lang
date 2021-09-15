@@ -36,13 +36,17 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  */
 public class BLangOnClause extends BLangNode implements OnClauseNode {
 
+    // BLangNodes
     public BLangExpression lhsExpr;
     public BLangExpression rhsExpr;
 
+    // Parser Flags and Data
+    public Location equalsKeywordPos;
+
+    // Semantic Data
     public SymbolEnv lhsEnv;
     public SymbolEnv rhsEnv;
 
-    public Location equalsKeywordPos;
 
     public BLangOnClause() {
     }

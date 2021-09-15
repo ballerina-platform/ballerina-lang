@@ -32,7 +32,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  * @since Swan Lake
  */
 public class BLangOrderKey extends BLangNode implements OrderKeyNode {
+
+    // BLangNodes
     public BLangExpression expression;
+
+    // Parser Flags and Data
     public boolean isAscending = true;
 
     public BLangOrderKey() {

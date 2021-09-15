@@ -34,8 +34,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  */
 public class BLangSelectClause extends BLangNode implements SelectClauseNode {
 
-    public SymbolEnv env;
+    // BLangNodes
     public BLangExpression expression;
+
+    // Semantic Data
+    public SymbolEnv env;
 
     public BLangSelectClause() {
     }

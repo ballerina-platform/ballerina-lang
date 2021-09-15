@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangSimpleBindingPattern extends BLangBindingPattern implements SimpleBindingPatternNode {
 
+    // BLangNodes
     public BLangCaptureBindingPattern captureBindingPattern;
     public BLangWildCardBindingPattern wildCardBindingPattern;
 

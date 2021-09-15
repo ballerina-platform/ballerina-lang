@@ -36,8 +36,12 @@ import java.util.StringJoiner;
  * @since Swan Lake
  */
 public class BLangOrderByClause extends BLangNode implements OrderByClauseNode {
-    public SymbolEnv env;
+
+    // BLangNodes
     public List<OrderKeyNode> orderByKeyList = new ArrayList<>();
+
+    // Semantic Data
+    public SymbolEnv env;
 
     public BLangOrderByClause() {
     }

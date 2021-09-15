@@ -29,6 +29,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * @since 1.2.0
  */
 public class BLangFromClause extends BLangInputClause {
+
+    // Semantic Data
     public SymbolEnv env;
 
     @Override

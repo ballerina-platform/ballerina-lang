@@ -34,7 +34,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  */
 public class BLangLimitClause extends BLangNode implements LimitClauseNode {
 
+    // BLangNodes
     public BLangExpression expression;
+
+    // Semantic Data
     public SymbolEnv env;
 
     public BLangLimitClause() {

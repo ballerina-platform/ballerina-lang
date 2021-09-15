@@ -34,8 +34,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
  */
 public class BLangDoClause extends BLangNode implements DoClauseNode {
 
-    public SymbolEnv env;
+    // BLangNodes
     public BLangBlockStmt body;
+
+    // Semantic Data
+    public SymbolEnv env;
 
     public BLangDoClause() {
     }

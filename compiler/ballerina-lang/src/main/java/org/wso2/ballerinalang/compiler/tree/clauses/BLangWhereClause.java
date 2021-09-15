@@ -35,8 +35,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  */
 public class BLangWhereClause extends BLangNode implements WhereClauseNode {
 
-    public SymbolEnv env;
+    // BLangNodes
     public BLangExpression expression;
+
+    // Semantic Data
+    public SymbolEnv env;
 
     public BLangWhereClause() {
     }
