@@ -55,7 +55,12 @@ public class NativeConversionNegativeTest {
         // check the error
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'map<json>' value cannot be converted to 'Person'");
+        Assert.assertEquals(errorMsg, "'map<json>' value cannot be converted to 'Person': " +
+                "\n\t\tvariable 'parent.parent' should be of type '()'" +
+                "\n\t\tvariable 'parent.address' should be of type '()'" +
+                "\n\t\tvariable 'parent' should be of type '()'" +
+                "\n\t\tvariable 'address' should be of type '()'" +
+                "\n\t\tvariable 'marks' should be of type '()'");
     }
 
     @Test
@@ -63,7 +68,8 @@ public class NativeConversionNegativeTest {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyJSONtoStructWithoutDefaults");
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'map<json>' value cannot be converted to 'StructWithoutDefaults'");
+        Assert.assertEquals(errorMsg, "'map<json>' value cannot be converted to 'StructWithoutDefaults': " +
+                "\n\t\tmissing required field 'a' of type 'int' in record 'StructWithoutDefaults'");
     }
 
     @Test
@@ -71,7 +77,8 @@ public class NativeConversionNegativeTest {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyMaptoStructWithoutDefaults");
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'map<anydata>' value cannot be converted to 'StructWithoutDefaults'");
+        Assert.assertEquals(errorMsg, "'map<anydata>' value cannot be converted to 'StructWithoutDefaults': " +
+                "\n\t\tmissing required field 'a' of type 'int' in record 'StructWithoutDefaults'");
     }
 
     @Test(description = "Test converting an unsupported array to json")

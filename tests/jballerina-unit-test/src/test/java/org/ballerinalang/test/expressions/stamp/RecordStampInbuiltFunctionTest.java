@@ -566,7 +566,8 @@ public class RecordStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Teacher' value cannot be converted to 'NonAcademicStaff'");
+                            "'Teacher' value cannot be converted to 'NonAcademicStaff': " +
+                "\n\t\tvariable 'postalCode' should be of type 'string'");
     }
 
     @Test
@@ -576,7 +577,9 @@ public class RecordStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Employee' value cannot be converted to 'Teacher'");
+                            "'Employee' value cannot be converted to 'Teacher': " +
+                "\n\t\tmissing required field 'school' of type 'string' in record 'Teacher'" +
+                "\n\t\tmissing required field 'age' of type 'int' in record 'Teacher'");
     }
 
     @Test
@@ -586,7 +589,8 @@ public class RecordStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Employee' value cannot be converted to 'Teacher'");
+                            "'Employee' value cannot be converted to 'Teacher': " +
+                "\n\t\tvariable 'school' should be of type 'string'");
     }
 
     @AfterClass

@@ -146,16 +146,8 @@ function testConvertRecordToMapWithCyclicValueReferences() returns map<anydata>|
     Manager p = { name: "Waruna", age: 25, parent: () };
     Manager p2 = { name: "Milinda", age: 25, parent:p };
     p.parent = p2;
-    anydata a = p;
-    basicMatch(a);
     map<anydata> m =  check trap p.cloneWithType(AnydataMap); // Cyclic value will be check when stamping the value.
     return m;
-}
-
-function basicMatch(any a) {
-    // match a {
-    //         var {var1, var2, var3} => {io:println("Matched");}
-    // }
 }
 
 type AnydataMap map<anydata>;

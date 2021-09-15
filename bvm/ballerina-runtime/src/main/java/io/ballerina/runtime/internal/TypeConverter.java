@@ -431,8 +431,6 @@ public class TypeConverter {
                 } else if (!targetType.sealed) {
                     if (getConvertibleTypesFromJson(valueEntry.getValue(), restFieldType, fieldNameLong,
                             unresolvedValues, errors).size() != 1) {
-                        errors.add("value of field '" + valueEntry.getKey() + "' adding to the record '" +
-                                targetType + "' should be of type '" + restFieldType + "'");
                         returnVal = false;
                     }
                 } else {
@@ -449,8 +447,6 @@ public class TypeConverter {
                 } else if (!targetType.sealed) {
                     if (getConvertibleTypes(valueEntry.getValue(), restFieldType, fieldNameLong, false,
                             unresolvedValues, errors).size() != 1) {
-                        errors.add("value of field '" + valueEntry.getKey() + "' adding to the record '" +
-                                targetType + "' should be of type '" + restFieldType + "'");
                         returnVal = false;
                     }
                 } else {
