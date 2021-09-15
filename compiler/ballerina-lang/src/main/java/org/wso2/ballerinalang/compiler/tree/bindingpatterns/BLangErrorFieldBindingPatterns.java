@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.bindingpattern.ErrorFieldBindingPatternsNode
 import org.ballerinalang.model.tree.bindingpattern.NamedArgBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.RestBindingPatternNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeModifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -69,8 +69,8 @@ public class BLangErrorFieldBindingPatterns extends BLangBindingPattern implemen
     }
 
     @Override
-    public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
-        return transformer.transform(this, props);
+    public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
+        return modifier.modify(this, props);
     }
 
     @Override

@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.types;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.IntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeModifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -57,8 +57,8 @@ public class BLangIntersectionTypeNode extends BLangType implements Intersection
     }
 
     @Override
-    public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
-        return transformer.transform(this, props);
+    public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
+        return modifier.modify(this, props);
     }
 
     @Override
