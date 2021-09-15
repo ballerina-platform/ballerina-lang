@@ -380,25 +380,20 @@ public class DebuggerRuntime {
      * @param executablePath path of the jar to be classloaded
      * @param mainClass      main class name
      * @param functionName   name of the function to be executed
-     * @param argValues      argument values
+     * @param userArgs       argument values
      * @return result of the function invocation
      */
     public static Object classloadAndInvokeFunction(String executablePath, String mainClass, String functionName,
-                                                    Object... argValues) {
+                                                    Object... userArgs) {
         try {
+            // Need to pass the strand (or null) as the first argument for the generated function.
+            List<Object> functionArgs = new ArrayList<>();
+            functionArgs.add(null);
+            functionArgs.addAll(Arrays.asList(userArgs));
+
             URL pathUrl = Paths.get(executablePath).toUri().toURL();
             URLClassLoader classLoader = AccessController.doPrivileged((PrivilegedAction<URLClassLoader>) () ->
                     new URLClassLoader(new URL[]{pathUrl}, ClassLoader.getSystemClassLoader()));
-
-            List<Object> generatedArgs = new ArrayList<>();
-            generatedArgs.add(null);
-            for (Object arg : argValues) {
-                generatedArgs.add(arg);
-                // since the generated functions will contain an additional boolean flag for each parameter (to indicate
-                // whether its an user provided arg), need to inject additional boolean values.
-                // Todo - remove once https://github.com/ballerina-platform/ballerina-lang/pull/31589 is merged.
-                generatedArgs.add(true);
-            }
 
             // Derives the namespace of the generated classes.
             String[] mainClassNameParts = mainClass.split("\\.");
@@ -420,7 +415,7 @@ public class DebuggerRuntime {
             invokeFunction(classLoader, scheduler, String.join(".", packageNameSpace, MODULE_INIT_CLASS_NAME),
                     MODULE_START_METHOD_NAME, new Object[1]);
             // Run the actual method
-            return invokeFunction(classLoader, scheduler, mainClass, functionName, generatedArgs.toArray());
+            return invokeFunction(classLoader, scheduler, mainClass, functionName, functionArgs.toArray());
         } catch (Exception e) {
             return e.getMessage();
         }

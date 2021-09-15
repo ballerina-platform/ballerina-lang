@@ -81,9 +81,9 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
 
             SymbolBasedArgProcessor argProcessor = new SymbolBasedArgProcessor(context, functionName, jvmMethod
                     .getJDIMethodRef(), functionDef);
-            List<Value> argsList = argProcessor.process(argEvaluators);
+            List<Value> orderedArgsList = argProcessor.process(argEvaluators);
 
-            jvmMethod.setArgValues(argsList);
+            jvmMethod.setArgValues(orderedArgsList);
             Value result = jvmMethod.invokeSafely();
             return new BExpressionValue(context, result);
         } catch (EvaluationException e) {
