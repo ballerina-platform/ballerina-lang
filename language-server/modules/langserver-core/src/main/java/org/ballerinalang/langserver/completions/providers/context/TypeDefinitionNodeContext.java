@@ -52,21 +52,30 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
         if (this.onTypeNameContext(context, node)) {
             return new ArrayList<>();
         }
-        List<LSCompletionItem> completionItems = typeDescriptorCItems(context);
+        List<LSCompletionItem> completionItems = typeDescriptorCItems(context, node);
         this.sort(context, node, completionItems);
         
         return completionItems;
     }
 
-    private List<LSCompletionItem> typeDescriptorCItems(BallerinaCompletionContext context) {
+    private List<LSCompletionItem> typeDescriptorCItems(BallerinaCompletionContext context, TypeDefinitionNode node) {
         if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
             QualifiedNameReferenceNode nameRef
                     = (QualifiedNameReferenceNode) context.getNodeAtCursor();
             return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, nameRef), context);
         }
-        List<LSCompletionItem> completionItems = new ArrayList<>(this.getTypeDescContextItems(context));
-        completionItems.addAll(this.getTypeQualifierItems(context));
-
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        if (onSuggestionsAfterQualifiers(context, node.typeDescriptor())) {
+            /*
+             * Covers the following
+             * type T <qualifier(s)> x<cursor>
+             * Currently the qualifier can be isolated/transactional.
+             */
+            completionItems.addAll(getCompletionItemsOnQualifiers(node.typeDescriptor(), context));
+        } else {
+            completionItems.addAll(this.getTypeDescContextItems(context));
+            completionItems.addAll(this.getTypeQualifierItems(context));
+        }
         return completionItems;
     }
 
