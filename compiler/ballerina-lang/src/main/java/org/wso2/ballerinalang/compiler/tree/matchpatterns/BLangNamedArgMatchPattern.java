@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangNamedArgMatchPattern extends BLangMatchPattern implements NamedArgMatchPatternNode {
 
+    // BLangNodes
     public BLangIdentifier argName;
     public BLangMatchPattern matchPattern;
 

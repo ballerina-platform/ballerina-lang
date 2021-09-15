@@ -124,6 +124,7 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMessageMatch
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangFieldMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangNamedArgMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangSimpleMatchPattern;
@@ -859,54 +860,91 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
 
     public void visit(BLangConstPattern node, T props) {
         analyzeNode(node, props);
+        visitBLangMatchPattern(node, props);
+        visitNode(node.expr, props);
     }
 
     public void visit(BLangErrorCauseMatchPattern node, T props) {
         analyzeNode(node, props);
+        visitBLangMatchPattern(node, props);
+        visitNode(node.simpleMatchPattern, props);
+        visitNode(node.errorMatchPattern, props);
     }
 
     public void visit(BLangErrorFieldMatchPatterns node, T props) {
         analyzeNode(node, props);
+        visitBLangMatchPattern(node, props);
+        visitNode(node.namedArgMatchPatterns, props);
+        visitNode(node.restMatchPattern, props);
     }
 
     public void visit(BLangErrorMatchPattern node, T props) {
         analyzeNode(node, props);
+        visitBLangMatchPattern(node, props);
+        visitNode(node.errorMessageMatchPattern, props);
+        visitNode(node.errorCauseMatchPattern, props);
+        visitNode(node.errorFieldMatchPatterns, props);
+        visitNode(node.errorTypeReference, props);
     }
 
     public void visit(BLangErrorMessageMatchPattern node, T props) {
         analyzeNode(node, props);
+        visitBLangMatchPattern(node, props);
+        visitNode(node.simpleMatchPattern, props);
     }
 
     public void visit(BLangFieldMatchPattern node, T props) {
         analyzeNode(node, props);
+        visitBLangMatchPattern(node, props);
+        visitNode(node.fieldName, props);
+        visitNode(node.matchPattern, props);
+        visitNode(node.matchPattern, props);
     }
 
     public void visit(BLangListMatchPattern node, T props) {
         analyzeNode(node, props);
+        visitBLangMatchPattern(node, props);
+        visitNode(node.matchPatterns, props);
+        visitNode(node.restMatchPattern, props);
     }
 
     public void visit(BLangMappingMatchPattern node, T props) {
         analyzeNode(node, props);
+        visitBLangMatchPattern(node, props);
+        visitNode(node.fieldMatchPatterns, props);
+        visitNode(node.restMatchPattern, props);
     }
 
     public void visit(BLangNamedArgMatchPattern node, T props) {
         analyzeNode(node, props);
+        visitBLangMatchPattern(node, props);
+        visitNode(node.argName, props);
+        visitNode(node.matchPattern, props);
     }
 
     public void visit(BLangRestMatchPattern node, T props) {
         analyzeNode(node, props);
+        visitBLangMatchPattern(node, props);
+        visitNode(node.variableName, props);
     }
 
     public void visit(BLangSimpleMatchPattern node, T props) {
         analyzeNode(node, props);
+        visitBLangMatchPattern(node, props);
+        visitNode(node.constPattern, props);
+        visitNode(node.wildCardMatchPattern, props);
+        visitNode(node.varVariableName, props);
     }
 
     public void visit(BLangVarBindingPatternMatchPattern node, T props) {
         analyzeNode(node, props);
+        visitBLangMatchPattern(node, props);
+        visitNode(node.bindingPattern, props);
     }
 
     public void visit(BLangWildCardMatchPattern node, T props) {
         analyzeNode(node, props);
+        visitBLangMatchPattern(node, props);
     }
 
     // Statements
@@ -1224,6 +1262,10 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
         visitNode(node.returnTypeAnnAttachments, props);
         visitNode(node.body, props);
         visitNode(node.defaultWorkerName, props);
+    }
+
+    private void visitBLangMatchPattern(BLangMatchPattern node, T props) {
+        visitNode(node.matchExpr, props);
     }
 
     private void visitBLangStructureTypeNode(BLangStructureTypeNode node, T props) {

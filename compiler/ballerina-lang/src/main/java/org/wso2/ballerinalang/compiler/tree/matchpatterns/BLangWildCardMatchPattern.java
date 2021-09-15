@@ -30,8 +30,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangWildCardMatchPattern extends BLangMatchPattern implements WildCardMatchPatternNode {
 
-    public boolean matchesAll;
-
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);

@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  */
 public class BLangConstPattern extends BLangMatchPattern implements ConstPatternNode {
 
+    // BLangNodes
     public BLangExpression expr;
 
     @Override

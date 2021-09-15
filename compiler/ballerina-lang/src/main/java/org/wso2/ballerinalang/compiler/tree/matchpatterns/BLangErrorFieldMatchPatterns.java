@@ -35,6 +35,7 @@ import java.util.List;
  */
 public class BLangErrorFieldMatchPatterns extends BLangMatchPattern implements ErrorFieldMatchPatternsNode {
 
+    // BLangNodes
     public List<BLangNamedArgMatchPattern> namedArgMatchPatterns = new ArrayList<>();
     public BLangRestMatchPattern restMatchPattern;
 

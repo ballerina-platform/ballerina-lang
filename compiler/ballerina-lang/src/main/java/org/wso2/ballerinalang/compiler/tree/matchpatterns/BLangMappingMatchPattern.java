@@ -34,6 +34,8 @@ import java.util.List;
  * @since 2.0.0
  */
 public class BLangMappingMatchPattern extends BLangMatchPattern implements MappingMatchPatternNode {
+
+    // BLangNodes
     public List<BLangFieldMatchPattern> fieldMatchPatterns = new ArrayList<>();
     public BLangRestMatchPattern restMatchPattern;
 
