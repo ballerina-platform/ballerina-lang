@@ -1472,7 +1472,7 @@ class SymbolFinder extends BaseVisitor {
         for (BLangRecordVariable.BLangRecordVariableKeyValue var : bLangRecordVariable.variableList) {
             lookupNode(var.valueBindingPattern);
         }
-        lookupNode((BLangNode) bLangRecordVariable.restParam);
+        lookupNode(bLangRecordVariable.restParam);
         lookupNodes(bLangRecordVariable.annAttachments);
     }
 

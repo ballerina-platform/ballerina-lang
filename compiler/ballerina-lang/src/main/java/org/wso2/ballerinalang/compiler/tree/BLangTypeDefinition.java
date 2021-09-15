@@ -38,11 +38,16 @@ import java.util.Set;
  */
 public class BLangTypeDefinition extends BLangNode implements TypeDefinition {
 
+    // BLangNodes
     public BLangIdentifier name;
     public BLangType typeNode;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
+
+    // Parser Flags and Data
     public Set<Flag> flagSet;
+
+    // Semantic Data
     public int precedence;
     public boolean isBuiltinTypeDef;
     public boolean hasCyclicReference = false;

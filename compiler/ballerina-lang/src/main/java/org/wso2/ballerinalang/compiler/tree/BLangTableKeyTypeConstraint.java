@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
  */
 public class BLangTableKeyTypeConstraint extends BLangNode implements TableKeyTypeConstraintNode {
 
+    // BLangNodes
     public BLangType keyType;
 
     @Override

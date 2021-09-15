@@ -491,8 +491,6 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.absoluteResourcePath = new ArrayList<>(source.absoluteResourcePath);
         clone.serviceNameLiteral = clone(source.serviceNameLiteral);
 
-        clone.variableNode = clone(source.variableNode);
-        clone.isAnonymousServiceValue = source.isAnonymousServiceValue;
     }
 
     @Override
@@ -2065,7 +2063,7 @@ public class NodeCloner extends BLangNodeVisitor {
             newKeyValue.valueBindingPattern = clone(keyValue.valueBindingPattern);
             clone.variableList.add(newKeyValue);
         }
-        clone.restParam = clone((BLangVariable) source.restParam);
+        clone.restParam = clone(source.restParam);
         cloneBLangVariable(source, clone);
     }
 
@@ -2152,7 +2150,6 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.typeName = source.typeName;
         clone.identifier = source.identifier;
         clone.referenceName = source.referenceName;
-        clone.kind = source.kind;
         clone.type = source.type;
         clone.hasParserWarnings = source.hasParserWarnings;
     }

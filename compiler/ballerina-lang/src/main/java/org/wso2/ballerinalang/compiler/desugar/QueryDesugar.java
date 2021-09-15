@@ -1009,7 +1009,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             case RECORD_VARIABLE:
                 BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
                 recordVariable.variableList.forEach(value -> setSymbolOwner(value.valueBindingPattern, owner));
-                setSymbolOwner((BLangVariable) recordVariable.restParam, owner);
+                setSymbolOwner(recordVariable.restParam, owner);
                 break;
             case ERROR_VARIABLE:
                 BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
@@ -1043,7 +1043,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                     symbols.addAll(getIntroducedSymbols(keyValue.valueBindingPattern));
                 }
                 if (record.hasRestParam()) {
-                    symbols.addAll(getIntroducedSymbols((BLangVariable) record.restParam));
+                    symbols.addAll(getIntroducedSymbols(record.restParam));
                 }
             } else if (variable.getKind() == NodeKind.TUPLE_VARIABLE) {
                 // Tuple binding
@@ -1351,7 +1351,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         bLangRecordVariable.variableList.forEach(v -> v.getValue().accept(this));
         this.acceptNode(bLangRecordVariable.expr);
         if (bLangRecordVariable.hasRestParam()) {
-            ((BLangNode) bLangRecordVariable.restParam).accept(this);
+            bLangRecordVariable.restParam.accept(this);
         }
     }
 

@@ -32,6 +32,7 @@ import java.util.List;
  */
 public class BLangExternalFunctionBody extends BLangFunctionBody implements ExternalFunctionBodyNode {
 
+    // BLangNodes
     public List<BLangAnnotationAttachment> annAttachments;
 
     public BLangExternalFunctionBody() {

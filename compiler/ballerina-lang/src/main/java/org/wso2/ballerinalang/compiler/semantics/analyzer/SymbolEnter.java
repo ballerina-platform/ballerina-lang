@@ -2778,7 +2778,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     .collect(Collectors.toList());
             BRecordType restConstraint = createRecordTypeForRestField(recordVar.restParam.getPosition(), env,
                     recordVarType, varList, restType);
-            defineMemberNode(((BLangSimpleVariable) recordVar.restParam), env, restConstraint);
+            defineMemberNode(recordVar.restParam, env, restConstraint);
         }
 
         return validRecord;

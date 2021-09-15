@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  */
 public class BLangExprFunctionBody extends BLangFunctionBody implements ExprFunctionBodyNode {
 
+    // BLangNodes
     public BLangExpression expr;
 
     @Override

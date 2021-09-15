@@ -42,17 +42,21 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
 
     public static final String DEFAULT_WORKER_NAME = "function";
 
+    // BLangNodes
     public BLangIdentifier name;
-    public BLangIdentifier defaultWorkerName;
+    public List<BLangAnnotationAttachment> annAttachments;
+    public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public List<BLangSimpleVariable> requiredParams;
+    public BLangSimpleVariable restParam;
     public BLangType returnTypeNode;
     public List<BLangAnnotationAttachment> returnTypeAnnAttachments;
     public BLangFunctionBody body;
-    public Set<Flag> flagSet;
-    public List<BLangAnnotationAttachment> annAttachments;
-    public BLangMarkdownDocumentation markdownDocumentationAttachment;
-    public BLangSimpleVariable restParam;
+    public BLangIdentifier defaultWorkerName;
 
+    // Parser Flags and Data
+    public Set<Flag> flagSet;
+
+    // Semantic Data
     public BInvokableSymbol symbol;
     /**
      * clonedEnv is used for function parameter variable scoping.

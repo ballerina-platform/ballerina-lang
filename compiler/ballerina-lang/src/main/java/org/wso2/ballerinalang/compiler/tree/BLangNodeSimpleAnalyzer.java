@@ -17,6 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.NodeEntry;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorCauseBindingPattern;
@@ -173,62 +175,122 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
+import java.util.List;
+
 
 /**
- * The {@link BLangNodeAnalyzer} transforms each {@link BLangNode} objects to another object of type T.
+ * The {@link BLangNodeSimpleAnalyzer} transforms each {@link BLangNode} objects to another object of type T.
  * <p>
- * If you are looking for a {@link BLangNode} visitor that returns object with a type, see {@link BLangNodeTransformer}.
+ * This is simplified node visitor of the {@link BLangNodeAnalyzer}.
  * <p>
  *
  * @param <T> the type of class that passed along with transform methods.
  * @since 2.0.0
  */
-public abstract class BLangNodeAnalyzer<T> {
+public abstract class BLangNodeSimpleAnalyzer<T> extends BLangNodeAnalyzer<T> {
 
     public abstract void analyzeNode(BLangNode node, T props);
 
     public abstract void analyzeNodeEntry(BLangNodeEntry nodeEntry, T props);
 
+    public void visitNode(BLangNode node, T props) {
+        if (node == null) {
+            return;
+        }
+        node.accept(this, props);
+    }
+
+    public void visitNode(List<? extends Node> nodes, T props) {
+        if (nodes == null) {
+            return;
+        }
+        for (Node node : nodes) {
+            visitNode((BLangNode) node, props);
+        }
+    }
+
+    public void visitNodeEntry(BLangNodeEntry nodeEntry, T props) {
+        if (nodeEntry == null) {
+            return;
+        }
+        nodeEntry.accept(this, props);
+    }
+
+    public void visitNodeEntry(List<? extends NodeEntry> nodeEntries, T props) {
+        if (nodeEntries == null) {
+            return;
+        }
+        for (NodeEntry nodeEntry : nodeEntries) {
+            visitNodeEntry((BLangNodeEntry) nodeEntry, props);
+        }
+    }
+
     // Base Nodes
 
     public void visit(BLangAnnotation node, T props) {
         analyzeNode(node, props);
+        visitNode(node.name, props);
+        visitNode(node.annAttachments, props);
+        visitNode(node.markdownDocumentationAttachment, props);
+        visitNode(node.typeNode, props);
     }
 
     public void visit(BLangAnnotationAttachment node, T props) {
         analyzeNode(node, props);
+        visitNode(node.expr, props);
+        visitNode(node.annotationName, props);
+        visitNode(node.pkgAlias, props);
     }
 
     public void visit(BLangBlockFunctionBody node, T props) {
         analyzeNode(node, props);
+        visitNode(node.stmts, props);
     }
 
     public void visit(BLangClassDefinition node, T props) {
         analyzeNode(node, props);
+        visitNode(node.name, props);
+        visitNode(node.annAttachments, props);
+        visitNode(node.markdownDocumentationAttachment, props);
+        visitNode(node.initFunction, props);
+        visitNode(node.functions, props);
+        visitNode(node.fields, props);
+        visitNode(node.typeRefs, props);
     }
 
     public void visit(BLangCompilationUnit node, T props) {
         analyzeNode(node, props);
+        visitNode(node.topLevelNodes, props);
     }
 
     public void visit(BLangErrorVariable node, T props) {
         analyzeNode(node, props);
+        visitBLangVariableNode(node, props);
+        visitNode(node.message, props);
+        visitNode(node.cause, props);
+        visitNode(node.restDetail, props);
+        visitNodeEntry(node.detail, props);
     }
 
     public void visit(BLangErrorVariable.BLangErrorDetailEntry nodeEntry, T props) {
         analyzeNodeEntry(nodeEntry, props);
+        visitNode(nodeEntry.key, props);
+        visitNode(nodeEntry.valueBindingPattern, props);
     }
 
     public void visit(BLangExprFunctionBody node, T props) {
         analyzeNode(node, props);
+        visitNode(node.expr, props);
     }
 
     public void visit(BLangExternalFunctionBody node, T props) {
         analyzeNode(node, props);
+        visitNode(node.annAttachments, props);
     }
 
     public void visit(BLangFunction node, T props) {
         analyzeNode(node, props);
+        visitBLangInvokableNode(node, props);
     }
 
     public void visit(BLangIdentifier node, T props) {
@@ -237,74 +299,119 @@ public abstract class BLangNodeAnalyzer<T> {
 
     public void visit(BLangImportPackage node, T props) {
         analyzeNode(node, props);
+        visitNode(node.orgName, props);
+        visitNode(node.pkgNameComps, props);
+        visitNode(node.alias, props);
+        visitNode(node.compUnit, props);
+        visitNode(node.version, props);
     }
 
     public void visit(BLangMarkdownDocumentation node, T props) {
         analyzeNode(node, props);
+        visitNode(node.documentationLines, props);
+        visitNode(node.parameters, props);
+        visitNode(node.references, props);
+        visitNode(node.returnParameter, props);
+        visitNode(node.deprecationDocumentation, props);
+        visitNode(node.deprecatedParametersDocumentation, props);
     }
 
     public void visit(BLangMarkdownReferenceDocumentation node, T props) {
         analyzeNode(node, props);
     }
 
-    public void visit(BLangPackage node, T props) {
-        analyzeNode(node, props);
-    }
+    public abstract void visit(BLangPackage node, T props);
 
     public void visit(BLangRecordVariable node, T props) {
         analyzeNode(node, props);
+        visitBLangVariableNode(node, props);
+        visitNodeEntry(node.variableList, props);
+        visitNode(node.restParam, props);
     }
 
     public void visit(BLangRecordVariable.BLangRecordVariableKeyValue nodeEntry, T props) {
         analyzeNodeEntry(nodeEntry, props);
+        visitNode(nodeEntry.key, props);
+        visitNode(nodeEntry.valueBindingPattern, props);
     }
 
     public void visit(BLangResourceFunction node, T props) {
         analyzeNode(node, props);
+        visit((BLangFunction) node, props);
+        visitNode(node.methodName, props);
+        visitNode(node.resourcePath, props);
+        visitNode(node.restPathParam, props);
+        visitNode(node.pathParams, props);
     }
 
     public void visit(BLangRetrySpec node, T props) {
         analyzeNode(node, props);
+        visitNode(node.retryManagerType, props);
+        visitNode(node.argExprs, props);
     }
 
     public void visit(BLangService node, T props) {
         analyzeNode(node, props);
+        visitNode(node.serviceVariable, props);
+        visitNode(node.attachedExprs, props);
+        visitNode(node.serviceClass, props);
+        visitNode(node.absoluteResourcePath, props);
+        visitNode(node.serviceNameLiteral, props);
+        visitNode(node.name, props);
+        visitNode(node.annAttachments, props);
+        visitNode(node.markdownDocumentationAttachment, props);
     }
 
     public void visit(BLangSimpleVariable node, T props) {
         analyzeNode(node, props);
+        visitBLangVariableNode(node, props);
+        visitNode(node.name, props);
     }
 
     public void visit(BLangTableKeySpecifier node, T props) {
         analyzeNode(node, props);
+        visitNode(node.fieldNameIdentifierList, props);
     }
 
     public void visit(BLangTableKeyTypeConstraint node, T props) {
         analyzeNode(node, props);
+        visitNode(node.keyType, props);
     }
 
     public void visit(BLangTestablePackage node, T props) {
         analyzeNode(node, props);
+        visit((BLangPackage) node, props);
     }
 
     public void visit(BLangTupleVariable node, T props) {
         analyzeNode(node, props);
+        visitBLangVariableNode(node, props);
+        visitNode(node.memberVariables, props);
+        visitNode(node.restVariable, props);
     }
 
     public void visit(BLangTypeDefinition node, T props) {
         analyzeNode(node, props);
+        visitNode(node.name, props);
+        visitNode(node.typeNode, props);
+        visitNode(node.annAttachments, props);
+        visitNode(node.markdownDocumentationAttachment, props);
     }
 
     public void visit(BLangXMLNS node, T props) {
         analyzeNode(node, props);
+        visitNode(node.namespaceURI, props);
+        visitNode(node.prefix, props);
     }
 
     public void visit(BLangXMLNS.BLangLocalXMLNS node, T props) {
         analyzeNode(node, props);
+        visit((BLangXMLNS) node, props);
     }
 
     public void visit(BLangXMLNS.BLangPackageXMLNS node, T props) {
         analyzeNode(node, props);
+        visit((BLangXMLNS) node, props);
     }
 
     // Binding-patterns
@@ -439,6 +546,7 @@ public abstract class BLangNodeAnalyzer<T> {
 
     public void visit(BLangConstant node, T props) {
         analyzeNode(node, props);
+        visitBLangVariableNode(node, props);
     }
 
     public void visit(BLangConstRef node, T props) {
@@ -993,5 +1101,26 @@ public abstract class BLangNodeAnalyzer<T> {
 
     public void visit(BLangValueType node, T props) {
         analyzeNode(node, props);
+    }
+
+    // Private methods
+
+    private void visitBLangVariableNode(BLangVariable node, T props) {
+        visitNode(node.typeNode, props);
+        visitNode(node.annAttachments, props);
+        visitNode(node.markdownDocumentationAttachment, props);
+        visitNode(node.expr, props);
+    }
+
+    private void visitBLangInvokableNode(BLangInvokableNode node, T props) {
+        visitNode(node.name, props);
+        visitNode(node.annAttachments, props);
+        visitNode(node.markdownDocumentationAttachment, props);
+        visitNode(node.requiredParams, props);
+        visitNode(node.restParam, props);
+        visitNode(node.returnTypeNode, props);
+        visitNode(node.returnTypeAnnAttachments, props);
+        visitNode(node.body, props);
+        visitNode(node.defaultWorkerName, props);
     }
 }

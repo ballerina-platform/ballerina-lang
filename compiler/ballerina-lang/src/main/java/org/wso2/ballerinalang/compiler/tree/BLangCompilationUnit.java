@@ -31,14 +31,14 @@ import java.util.List;
  */
 public class BLangCompilationUnit extends BLangNode implements CompilationUnitNode {
 
-    public String name;
-
-    // Fields for caching.
-    public int hash;
-    public int length;
-
+    // BLangNodes
     public List<TopLevelNode> topLevelNodes;
+
+    // Parser Flags and Data
+    public String name;
     private PackageID packageID;
+
+    // Semantic Data
     private SourceKind sourceKind;
 
     public BLangCompilationUnit() {

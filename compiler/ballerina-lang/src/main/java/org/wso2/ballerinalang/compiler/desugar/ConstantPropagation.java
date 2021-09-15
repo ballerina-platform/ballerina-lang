@@ -462,13 +462,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         rewrite(serviceNode.annAttachments);
 
-        if (serviceNode.isAnonymousServiceValue) {
-            result = serviceNode;
-            return;
-        }
-
         rewrite(serviceNode.attachedExprs);
-        rewrite(serviceNode.resourceFunctions);
         result = serviceNode;
     }
 

@@ -29,6 +29,7 @@ import java.util.List;
  */
 public class BLangTableKeySpecifier extends BLangNode implements TableKeySpecifierNode {
 
+    // BLangNodes
     public List<IdentifierNode> fieldNameIdentifierList = new ArrayList<>();
 
     @Override

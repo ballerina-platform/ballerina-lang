@@ -33,19 +33,23 @@ import java.util.StringJoiner;
  * Represents an error variable node.
  * <p>
  * error (var reason, message = msgVar, ...var restOfIt) =
- *                          error ("Error Code", message = "Error Message", moreStuff = "some more");
+ * error ("Error Code", message = "Error Message", moreStuff = "some more");
  *
  * @since 0.985.0
  */
 public class BLangErrorVariable extends BLangVariable implements ErrorVariableNode {
+
+    // BLangNodes
     public BLangSimpleVariable message;
-    public List<BLangErrorDetailEntry> detail;
+    public BLangVariable cause;
     public BLangSimpleVariable restDetail;
+    public List<BLangErrorDetailEntry> detail;
+
+    // Semantic Data
     public BLangInvocation detailExpr;
     public boolean reasonVarPrefixAvailable;
-    public BLangLiteral reasonMatchConst; // todo: no longer needed remove
-    public boolean isInMatchStmt;
-    public BLangVariable cause;
+    public BLangLiteral reasonMatchConst; // TODO: #AST_CLEAN : no longer needed remove
+    public boolean isInMatchStmt; // TODO: #AST_CLEAN
 
     public BLangErrorVariable() {
         this.annAttachments = new ArrayList<>();
@@ -101,16 +105,17 @@ public class BLangErrorVariable extends BLangVariable implements ErrorVariableNo
      *
      * @since 0.995.0
      */
-    public static class BLangErrorDetailEntry implements ErrorVariableNode.ErrorDetailEntry {
+    public static class BLangErrorDetailEntry extends BLangNodeEntry implements ErrorVariableNode.ErrorDetailEntry {
 
+        // BLangNodes
         public BLangIdentifier key;
+        public BLangVariable valueBindingPattern;
 
         public BLangErrorDetailEntry(BLangIdentifier key, BLangVariable valueBindingPattern) {
             this.key = key;
             this.valueBindingPattern = valueBindingPattern;
         }
 
-        public BLangVariable valueBindingPattern;
 
         @Override
         public BLangIdentifier getKey() {
@@ -125,6 +130,16 @@ public class BLangErrorVariable extends BLangVariable implements ErrorVariableNo
         @Override
         public String toString() {
             return key + ": " + valueBindingPattern;
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+            return transformer.transform(this, props);
         }
     }
 }

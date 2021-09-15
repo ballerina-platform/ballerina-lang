@@ -41,20 +41,26 @@ import java.util.Set;
  * @since 2.0
  */
 public class BLangClassDefinition extends BLangNode implements ClassDefinition {
+
+    // BLangNodes
     public BLangIdentifier name;
-    public List<BLangFunction> functions;
-    public BLangFunction initFunction;
-    public BLangFunction generatedInitFunction;
-    public BLangSimpleVariable receiver;
-    public List<BLangSimpleVariable> fields;
-    public List<BLangType> typeRefs;
-    public BTypeSymbol symbol;
-    public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
+    public BLangFunction initFunction;
+    public List<BLangFunction> functions;
+    public List<BLangSimpleVariable> fields;
+    public List<BLangType> typeRefs;
+
+    // Parser Flags and Data
+    public Set<Flag> flagSet;
+    public boolean isServiceDecl;
+
+    // Semantic Data
+    public BTypeSymbol symbol;
+    public BLangFunction generatedInitFunction;
+    public BLangSimpleVariable receiver;
     public List<BLangSimpleVariable> referencedFields;
     public int precedence;
-    public boolean isServiceDecl;
 
     public BLangClassDefinition() {
         this.functions = new ArrayList<>();

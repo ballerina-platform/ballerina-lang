@@ -30,41 +30,36 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
 /**
  * @since 0.94
- *
  */
 public class BLangService extends BLangNode implements ServiceNode {
 
-    public Set<Flag> flagSet;
+    // BLangNodes
+    public BLangSimpleVariable serviceVariable;
+    public List<BLangExpression> attachedExprs;
+    public BLangClassDefinition serviceClass;
+    public List<IdentifierNode> absoluteResourcePath;
+    public BLangLiteral serviceNameLiteral;
+    public BLangIdentifier name;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
 
+    // Parser Flags and Data
+    public Set<Flag> flagSet;
+
+    // Semantic Data
     public BSymbol symbol;
-    public BLangIdentifier name;
-    public BLangClassDefinition serviceClass;
-    public List<BLangExpression> attachedExprs;
-
-    // Reference to global variable of this is a module level service.
-    public BLangVariable variableNode;
-    public boolean isAnonymousServiceValue;
-
-    // Cached values.
     public BType listenerType;
-    public List<BLangFunction> resourceFunctions;
-
-    public BLangSimpleVariable serviceVariable;
-    public List<IdentifierNode> absoluteResourcePath;
-    public BLangLiteral serviceNameLiteral;
 
     public BLangService() {
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
-        this.resourceFunctions = new ArrayList<>();
         this.attachedExprs = new ArrayList<>();
     }
 
@@ -79,12 +74,14 @@ public class BLangService extends BLangNode implements ServiceNode {
     }
 
     @Override
+    @Deprecated
     public boolean isAnonymousService() {
-        return this.isAnonymousServiceValue;
+        return false;
     }
 
+    @Deprecated
     public List<BLangFunction> getResources() {
-        return resourceFunctions;
+        return Collections.emptyList();
     }
 
     public List<BLangExpression> getAttachedExprs() {

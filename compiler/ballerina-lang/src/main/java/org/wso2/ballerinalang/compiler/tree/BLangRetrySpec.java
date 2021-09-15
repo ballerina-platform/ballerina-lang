@@ -33,6 +33,7 @@ import java.util.StringJoiner;
  */
 public class BLangRetrySpec extends BLangNode implements RetrySpecNode {
 
+    // BLangNodes
     public BLangType retryManagerType;
     public List<BLangExpression> argExprs = new ArrayList<>();
 

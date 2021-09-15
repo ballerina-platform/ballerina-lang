@@ -36,6 +36,7 @@ import java.util.EnumSet;
  */
 public class BLangSimpleVariable extends BLangVariable implements SimpleVariableNode {
 
+    // BLangNodes
     public BLangIdentifier name;
 
     public BLangSimpleVariable() {
