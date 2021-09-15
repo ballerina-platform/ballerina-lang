@@ -68,7 +68,7 @@ public class ResolutionEngine {
         this.moduleResolver = moduleResolver;
         this.resolutionOptions = resolutionOptions;
 
-        this.graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc);
+        this.graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
     }
 
     public DependencyGraph<DependencyNode> resolveDependencies(Collection<ModuleLoadRequest> moduleLoadRequests) {
@@ -360,6 +360,12 @@ public class ResolutionEngine {
         DependencyGraph<DependencyNode> dependencyGraph = graphBuilder.buildGraph();
         if (resolutionOptions.dumpGraph()) {
             String serializedGraph = DotGraphs.serializeDependencyNodeGraph(dependencyGraph);
+            console.println("\nResolving dependencies");
+            console.println(serializedGraph);
+        }
+        if (resolutionOptions.dumpRawGraph()) {
+            DependencyGraph<DependencyNode> rawDependencyGraph = graphBuilder.rawGraph();
+            String serializedGraph = DotGraphs.serializeDependencyNodeGraph(rawDependencyGraph);
             console.println("\nResolving dependencies");
             console.println(serializedGraph);
         }
