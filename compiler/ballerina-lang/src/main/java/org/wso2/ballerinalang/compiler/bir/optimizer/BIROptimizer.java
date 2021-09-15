@@ -33,13 +33,17 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -53,7 +57,7 @@ public class BIROptimizer {
     private final RHSTempVarOptimizer rhsTempVarOptimizer;
     private final LHSTempVarOptimizer lhsTempVarOptimizer;
     private final BIRLockOptimizer lockOptimizer;
-    private final BirVariableOptimizer variableOptimizer;
+//    private final BirVariableOptimizer variableOptimizer;
 
     public static BIROptimizer getInstance(CompilerContext context) {
         BIROptimizer birGen = context.get(BIR_OPTIMIZER);
@@ -69,7 +73,7 @@ public class BIROptimizer {
         this.rhsTempVarOptimizer = new RHSTempVarOptimizer();
         this.lhsTempVarOptimizer = new LHSTempVarOptimizer();
         this.lockOptimizer = new BIRLockOptimizer();
-        this.variableOptimizer = new BirVariableOptimizer();
+//        this.variableOptimizer = new BirVariableOptimizer();
     }
 
     public void optimizePackage(BIRPackage pkg) {
@@ -81,7 +85,7 @@ public class BIROptimizer {
 
         // Optimize lock statements
         this.lockOptimizer.optimizeNode(pkg);
-        variableOptimizer.optimizeNode(pkg);
+//        variableOptimizer.optimizeNode(pkg);
     }
 
     /**
@@ -269,6 +273,135 @@ public class BIROptimizer {
             birFunction.localVars = birFunction.localVars.stream()
                     .filter(l -> l.kind != VarKind.TEMP || !funcOpEnv.tempVars
                             .containsKey(l)).collect(Collectors.toList());
+            // Reuse temp vars
+            reuseTempVariables(birFunction, funcOpEnv);
+        }
+
+        private void reuseTempVariables(BIRFunction birFunction, OptimizerEnv funcOpEnv) {
+            // First we need to get the filter and order visited temp var list collected through LhsVarOptimizer.
+            List<BIROperand> orderedTempVars = getOrderedTempOperands(funcOpEnv);
+            // Using the order of loading of temp vars, we can get the reusable var list.
+            Map<BIRVariableDcl, List<BIRVariableDcl>> reusableVars = getReusableTempVars(orderedTempVars);
+            replaceVarsWithReusableVars(birFunction, orderedTempVars, reusableVars);
+        }
+
+        private List<BIROperand> getOrderedTempOperands(OptimizerEnv funcOpEnv) {
+            // Each temp var can be at least added to tempVarList twice as when defining the var and load. Some temp
+            // vars can be loaded multiple times. Here we will keep only operands order of first loaded and last
+            // loaded time. Others will be eliminated.
+            Set<BIRVariableDcl> firstLoadedSet = new HashSet<>();
+            List<BIROperand> orderedTempVars = new ArrayList<>();
+            Map<BIRVariableDcl, Integer> locationMap = new HashMap<>();
+            for (BIROperand birOperand : funcOpEnv.tempVarsList) {
+                BIRVariableDcl variableDcl = birOperand.variableDcl;
+                if (!firstLoadedSet.contains(variableDcl)) {
+                    firstLoadedSet.add(variableDcl);
+                    orderedTempVars.add(birOperand);
+                    continue;
+                }
+                // Keep index to remove later if they are loaded more than 2 times.
+                Integer index = locationMap.get(variableDcl);
+                if (index != null) {
+                    orderedTempVars.set(index, null);
+                }
+                locationMap.put(variableDcl, orderedTempVars.size());
+                orderedTempVars.add(birOperand);
+            }
+            // Keep only first and last loaded operands.
+            orderedTempVars.removeAll(Collections.singleton(null));
+            return orderedTempVars;
+        }
+
+        private Map<BIRVariableDcl, List<BIRVariableDcl>> getReusableTempVars(List<BIROperand> orderedTempVars) {
+            // MAp for store var against any temp variable which can replaced that.
+            Map<BIRVariableDcl, List<BIRVariableDcl>> reusableVars = new HashMap<>();
+            Set<BIRVariableDcl> firstLoadedSet = new HashSet<>();
+            // Keep the variables of same type.
+            Map<BType, List<BIRVariableDcl>> reusableVarsMap = new HashMap<>();
+            for (BIROperand birOperand : orderedTempVars) {
+                BIRVariableDcl variableDcl = birOperand.variableDcl;
+                if (!firstLoadedSet.contains(variableDcl)) {
+                    firstLoadedSet.add(variableDcl);
+                    List<BIRVariableDcl> birVariableDcls = reusableVarsMap.get(variableDcl.type);
+                    // When temp variable loaded at first time and it does have any other variable with same type,
+                    // we can use those variables to reuse them.
+                    if (birVariableDcls != null && !birVariableDcls.isEmpty()) {
+                        reusableVars.put(variableDcl, new ArrayList<>(birVariableDcls));
+                    }
+                    continue;
+                }
+                List<BIRVariableDcl> reusableList = reusableVarsMap.computeIfAbsent(variableDcl.type,
+                        k -> new ArrayList<>());
+                reusableList.add(variableDcl);
+            }
+            return reusableVars;
+        }
+
+        private void replaceVarsWithReusableVars(BIRFunction birFunction, List<BIROperand> orderedTempVars,
+                                                 Map<BIRVariableDcl, List<BIRVariableDcl>> reusableVars) {
+            Map<BIRVariableDcl, List<BIRVariableDcl>> reusableVsRemovableListVarMap = new HashMap<>();
+            Map<BIRVariableDcl, BIRVariableDcl> removableVarVsReplacementVarMap = new HashMap<>();
+            Map<BIROperand, BIRVariableDcl> removableOpsMap = new HashMap<>();
+            Set<BIRVariableDcl> firstLoadedSet = new HashSet<>();
+            Set<BIRVariableDcl> secondLoadedSet = new HashSet<>();
+
+            for (BIROperand birOperand : orderedTempVars) {
+                BIRVariableDcl variableDcl = birOperand.variableDcl;
+                List<BIRVariableDcl> reusableList = reusableVars.get(variableDcl);
+                // If given variable does not have any other variables to replace it we do not proceed.
+                if (reusableList == null || reusableList.isEmpty()) {
+                    secondLoadedSet.add(variableDcl);
+                    continue;
+                }
+                // Remove all removable vars with replaceable list.
+                reusableList.removeAll(removableVarVsReplacementVarMap.keySet());
+                if (!firstLoadedSet.contains(variableDcl)) {
+                    firstLoadedSet.add(variableDcl);
+                    BIRVariableDcl reusableVar = null;
+                    for (BIRVariableDcl birVariableDcl : reusableList) {
+                        if (!secondLoadedSet.contains(birVariableDcl)) {
+                            continue;
+                        }
+                        List<BIRVariableDcl> replaceableList = reusableVsRemovableListVarMap.get(birVariableDcl);
+                        // If no one use replaceable var then we can use it to replace given variable.
+                        if (replaceableList == null) {
+                            reusableVar = birVariableDcl;
+                            break;
+                        }
+                        boolean canReplace = true;
+                        // If the variable is selected to replace other variables and those are still not loaded, we can
+                        // use them for replace any other additional vars.
+                        for (BIRVariableDcl replaceableVar : replaceableList) {
+                            if (!secondLoadedSet.contains(replaceableVar)) {
+                                canReplace = false;
+                                break;
+                            }
+                        }
+                        if (canReplace) {
+                            reusableVar = birVariableDcl;
+                        }
+                    }
+                    if (reusableVar != null) {
+                        // Collect selected removable var and it replacable var.
+                        List<BIRVariableDcl> replaceableVars = reusableVsRemovableListVarMap
+                                .computeIfAbsent(reusableVar, k -> new ArrayList<>());
+                        replaceableVars.add(variableDcl);
+                        removableVarVsReplacementVarMap.put(variableDcl, reusableVar);
+                        removableOpsMap.put(birOperand, reusableVar);
+                    }
+                    continue;
+                }
+                secondLoadedSet.add(variableDcl);
+                BIRVariableDcl reusableVar = removableVarVsReplacementVarMap.get(variableDcl);
+                // Same var can be used by multiple operands. we need to collect all and then replace the it
+                // variable declarations.
+                if (reusableVar != null) {
+                    removableOpsMap.put(birOperand, reusableVar);
+                }
+            }
+            // Replace vars with removable vars.
+            removableOpsMap.forEach((birOperand, birVariableDcl) -> birOperand.variableDcl = birVariableDcl);
+            birFunction.localVars.removeAll(removableVarVsReplacementVarMap.keySet());
         }
 
         @Override
@@ -539,6 +672,7 @@ public class BIROptimizer {
             if (realVar != null) {
                 birVarRef.variableDcl = realVar;
             }
+            env.addTempBirOperand(birVarRef);
         }
 
         @Override
@@ -547,6 +681,7 @@ public class BIROptimizer {
             if (realVar != null) {
                 birArgument.variableDcl = realVar;
             }
+            env.addTempBirOperand(birArgument);
             this.optimizeNode(birArgument.condition, this.env);
         }
     }
@@ -559,6 +694,15 @@ public class BIROptimizer {
         private final Map<BIRVariableDcl, BIRVariableDcl> tempVars = new HashMap<>();
 
         private List<BIRNonTerminator> newInstructions;
-    }
 
+        private final List<BIROperand> tempVarsList = new ArrayList<>();
+
+        public void addTempBirOperand(BIROperand birOperand) {
+            BIRVariableDcl variableDcl = birOperand.variableDcl;
+            if (variableDcl.kind != VarKind.TEMP) {
+                return;
+            }
+            tempVarsList.add(birOperand);
+        }
+    }
 }
