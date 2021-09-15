@@ -21,11 +21,11 @@ package io.ballerina.projects;
  * Build options of a project.
  */
 public class BuildOptions {
-    private Boolean testReport;
-    private Boolean codeCoverage;
-    private Boolean dumpBuildTime;
-    private Boolean skipTests;
-    private CompilationOptions compilationOptions;
+    private final Boolean testReport;
+    private final Boolean codeCoverage;
+    private final Boolean dumpBuildTime;
+    private final Boolean skipTests;
+    private final CompilationOptions compilationOptions;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
                  CompilationOptions compilationOptions) {
@@ -110,13 +110,14 @@ public class BuildOptions {
         }
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
-        buildOptionsBuilder.offline(compilationOptions.offlineBuild);
-        buildOptionsBuilder.experimental(compilationOptions.experimental);
-        buildOptionsBuilder.observabilityIncluded(compilationOptions.observabilityIncluded);
-        buildOptionsBuilder.dumpBir(compilationOptions.dumpBir);
-        buildOptionsBuilder.cloud(compilationOptions.cloud);
-        buildOptionsBuilder.listConflictedClasses(compilationOptions.listConflictedClasses);
-        buildOptionsBuilder.sticky(compilationOptions.sticky);
+        buildOptionsBuilder.offline(compilationOptions.offlineBuild());
+        buildOptionsBuilder.experimental(compilationOptions.experimental());
+        buildOptionsBuilder.observabilityIncluded(compilationOptions.observabilityIncluded());
+        buildOptionsBuilder.dumpBir(compilationOptions.dumpBir());
+        buildOptionsBuilder.dumpGraph(compilationOptions.dumpGraph());
+        buildOptionsBuilder.cloud(compilationOptions.getCloud());
+        buildOptionsBuilder.listConflictedClasses(compilationOptions.listConflictedClasses());
+        buildOptionsBuilder.sticky(compilationOptions.sticky());
 
         return buildOptionsBuilder.build();
     }
@@ -138,7 +139,7 @@ public class BuildOptions {
         DUMP_BUILD_TIME("dumpBuildTime")
         ;
 
-        private String name;
+        private final String name;
 
         OptionName(String name) {
             this.name = name;

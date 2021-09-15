@@ -23,18 +23,19 @@ package io.ballerina.projects;
  * @since 2.0.0
  */
 public class CompilationOptions {
-    Boolean offlineBuild;
-    Boolean experimental;
-    Boolean observabilityIncluded;
-    Boolean dumpBir;
-    String dumpBirFile;
-    String cloud;
-    Boolean listConflictedClasses;
-    Boolean sticky;
+    private final Boolean offlineBuild;
+    private final Boolean experimental;
+    private final Boolean observabilityIncluded;
+    private final Boolean dumpBir;
+    private final String dumpBirFile;
+    private final String cloud;
+    private final Boolean listConflictedClasses;
+    private final Boolean sticky;
+    private final Boolean dumpGraph;
 
-    public CompilationOptions(Boolean offlineBuild, Boolean experimental,
+    CompilationOptions(Boolean offlineBuild, Boolean experimental,
                               Boolean observabilityIncluded, Boolean dumpBir, String dumpBirFile,
-                              String cloud, Boolean listConflictedClasses, Boolean sticky) {
+                              String cloud, Boolean listConflictedClasses, Boolean sticky, Boolean dumpGraph) {
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
@@ -43,6 +44,7 @@ public class CompilationOptions {
         this.cloud = cloud;
         this.listConflictedClasses = listConflictedClasses;
         this.sticky = sticky;
+        this.dumpGraph = dumpGraph;
     }
 
     public boolean offlineBuild() {
@@ -63,6 +65,10 @@ public class CompilationOptions {
 
     public Boolean dumpBir() {
         return toBooleanDefaultIfNull(this.dumpBir);
+    }
+
+    public Boolean dumpGraph() {
+        return toBooleanDefaultIfNull(this.dumpGraph);
     }
 
     public String getBirDumpFile() {
@@ -104,6 +110,11 @@ public class CompilationOptions {
             compilationOptionsBuilder.dumpBir(theirOptions.dumpBir);
         } else {
             compilationOptionsBuilder.dumpBir(this.dumpBir);
+        }
+        if (theirOptions.dumpGraph != null) {
+            compilationOptionsBuilder.dumpGraph(theirOptions.dumpGraph);
+        } else {
+            compilationOptionsBuilder.dumpGraph(this.dumpGraph);
         }
         if (theirOptions.cloud != null) {
             compilationOptionsBuilder.cloud(theirOptions.cloud);

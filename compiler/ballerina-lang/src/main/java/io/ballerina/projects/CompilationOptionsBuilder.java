@@ -33,6 +33,7 @@ public class CompilationOptionsBuilder {
     private String cloud;
     private Boolean listConflictedClasses;
     private Boolean sticky;
+    private Boolean dumpGraph;
 
     public CompilationOptionsBuilder() {
     }
@@ -67,6 +68,11 @@ public class CompilationOptionsBuilder {
         return this;
     }
 
+    CompilationOptionsBuilder dumpGraph(Boolean value) {
+        dumpGraph = value;
+        return this;
+    }
+
     CompilationOptionsBuilder listConflictedClasses(Boolean value) {
         listConflictedClasses = value;
         return this;
@@ -74,7 +80,7 @@ public class CompilationOptionsBuilder {
 
     public CompilationOptions build() {
         return new CompilationOptions(offline, experimental, observabilityIncluded, dumpBir,
-                                      dumpBirFile, cloud, listConflictedClasses, sticky);
+                                      dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph);
     }
 
     public void sticky(Boolean value) {
