@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
  */
 public class BLangXMLNSStatement extends BLangStatement implements XMLNSDeclStatementNode {
 
+    // BLangNodes
     public BLangXMLNS xmlnsDecl;
 
     @Override

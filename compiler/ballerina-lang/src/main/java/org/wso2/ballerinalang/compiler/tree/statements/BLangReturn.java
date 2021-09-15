@@ -29,6 +29,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  * @since 0.94
  */
 public class BLangReturn extends BLangStatement implements ReturnNode {
+
+    // BLangNodes
     public BLangExpression expr;
 
     @Override

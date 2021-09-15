@@ -35,8 +35,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  */
 public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
 
+    // BLangNodes
     public BLangExpression expr;
     public BLangIdentifier workerIdentifier;
+
+    // Semantic Data
     public SymbolEnv env;
     public BSymbol workerSymbol;
 

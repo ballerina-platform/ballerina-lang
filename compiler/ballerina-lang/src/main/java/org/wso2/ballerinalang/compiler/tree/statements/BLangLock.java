@@ -39,10 +39,8 @@ import java.util.stream.Collectors;
  */
 public class BLangLock extends BLangStatement implements LockNode {
 
+    // BLangNodes
     public BLangBlockStmt body;
-
-    public String uuid;
-
     public BLangOnFailClause onFailClause;
 
     public BLangLock() {
@@ -99,8 +97,9 @@ public class BLangLock extends BLangStatement implements LockNode {
      *
      * @since 1.0.0
      */
-    public static class BLangLockStmt extends BLangLock {
+    public static class BLangLockStmt extends BLangStatement {
 
+        // Semantic Data
         public Set<BVarSymbol> lockVariables = new HashSet<>();
 
         public BLangLockStmt(Location pos) {
@@ -110,6 +109,16 @@ public class BLangLock extends BLangStatement implements LockNode {
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
+            return modifier.modify(this, props);
         }
 
         @Override
@@ -124,6 +133,11 @@ public class BLangLock extends BLangStatement implements LockNode {
         public boolean addLockVariable(Set<BVarSymbol> variables) {
             return lockVariables.addAll(variables);
         }
+
+        @Override
+        public NodeKind getKind() {
+            return NodeKind.LOCK;
+        }
     }
 
     /**
@@ -131,8 +145,9 @@ public class BLangLock extends BLangStatement implements LockNode {
      *
      * @since 1.0.0
      */
-    public static class BLangUnLockStmt extends BLangLock {
+    public static class BLangUnLockStmt extends BLangStatement {
 
+        // Semantic Data
         public BLangLockStmt relatedLock;
 
         public BLangUnLockStmt(Location pos) {
@@ -145,8 +160,23 @@ public class BLangLock extends BLangStatement implements LockNode {
         }
 
         @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
+            return modifier.modify(this, props);
+        }
+
+        @Override
         public String toString() {
             return "unlock []";
+        }
+
+        @Override
+        public NodeKind getKind() {
+            return NodeKind.LOCK;
         }
     }
 }

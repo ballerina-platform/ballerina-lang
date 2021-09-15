@@ -43,15 +43,18 @@ import java.util.stream.Collectors;
 @Deprecated
 public class BLangMatch extends BLangStatement implements MatchNode {
 
+    // BLangNodes // TODO: #AST_CLEAN : Remove this
+    public BLangExpression expr;
+    public List<BLangMatchBindingPatternClause> patternClauses;
+    public BLangOnFailClause onFailClause;
+
+    // Semantic Data
+    public List<BType> exprTypes;
+
     public BLangMatch() {
         this.patternClauses = new ArrayList<>();
         this.exprTypes = new ArrayList<>();
     }
-
-    public BLangExpression expr;
-    public List<BLangMatchBindingPatternClause> patternClauses;
-    public List<BType> exprTypes;
-    public BLangOnFailClause onFailClause;
 
     @Override
     public NodeKind getKind() {
@@ -127,12 +130,15 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     public abstract static class BLangMatchBindingPatternClause extends BLangNode implements
             MatchBindingPatternNode {
 
+        // BLangNodes // TODO: #AST_CLEAN
         // pattern clause's body
         public BLangBlockStmt body;
 
         // match stmt expr
         public BLangExpression matchExpr;
 
+
+        // Parser Flags and Data
         // flag to set the last pattern clause
         public boolean isLastPattern;
     }
@@ -145,6 +151,7 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     public static class BLangMatchTypedBindingPatternClause extends BLangMatchBindingPatternClause
             implements MatchTypedBindingPatternNode {
 
+        // BLangNodes // TODO: #AST_CLEAN
         public BLangSimpleVariable variable;
 
         @Override
@@ -179,7 +186,7 @@ public class BLangMatch extends BLangStatement implements MatchNode {
 
         @Override
         public String toString() {
-            return String.valueOf(variable) + " => " + String.valueOf(body);
+            return variable + " => " + body;
         }
     }
 
@@ -192,6 +199,7 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     public static class BLangMatchStaticBindingPatternClause extends BLangMatchBindingPatternClause
             implements MatchStaticBindingPatternNode {
 
+        // BLangNodes // TODO: #AST_CLEAN
         // static match literal expr
         public BLangExpression literal;
 
@@ -227,7 +235,7 @@ public class BLangMatch extends BLangStatement implements MatchNode {
 
         @Override
         public String toString() {
-            return String.valueOf(literal) + " => " + String.valueOf(body);
+            return literal + " => " + body;
         }
     }
 
@@ -240,6 +248,7 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     public static class BLangMatchStructuredBindingPatternClause extends BLangMatchBindingPatternClause
             implements MatchStructuredBindingPatternNode {
 
+        // BLangNodes // TODO: #AST_CLEAN
         // binding match pattern
         public BLangVariable bindingPatternVariable;
 
@@ -283,7 +292,7 @@ public class BLangMatch extends BLangStatement implements MatchNode {
 
         @Override
         public String toString() {
-            return String.valueOf(bindingPatternVariable) + " => " + String.valueOf(body);
+            return bindingPatternVariable + " => " + body;
         }
     }
 }

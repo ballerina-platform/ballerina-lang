@@ -857,6 +857,14 @@ public abstract class BLangNodeModifier<T, R> {
         return modifyNode(node, props);
     }
 
+    public R modify(BLangLock.BLangLockStmt node, T props) {
+        return modifyNode(node, props);
+    }
+
+    public R modify(BLangLock.BLangUnLockStmt node, T props) {
+        return modifyNode(node, props);
+    }
+
     public R modify(BLangMatch node, T props) {
         return modifyNode(node, props);
     }

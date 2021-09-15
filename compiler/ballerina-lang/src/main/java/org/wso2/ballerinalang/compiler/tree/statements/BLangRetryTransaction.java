@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
  */
 public class BLangRetryTransaction extends BLangStatement implements RetryTransactionNode {
 
+    // BLangNodes
     public BLangRetrySpec retrySpec;
     public BLangTransaction transaction;
 

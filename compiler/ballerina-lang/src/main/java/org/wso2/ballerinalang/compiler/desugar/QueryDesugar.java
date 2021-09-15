@@ -1930,12 +1930,10 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLock.BLangLockStmt lockStmtNode) {
-        this.acceptNode(lockStmtNode.body);
     }
 
     @Override
     public void visit(BLangLock.BLangUnLockStmt unLockNode) {
-        this.acceptNode(unLockNode.body);
     }
 
     @Override

@@ -35,8 +35,10 @@ import java.util.StringJoiner;
  */
 public class BLangBlockStmt extends BLangStatement implements BlockStatementNode {
 
+    // BLangNodes
     public List<BLangStatement> stmts;
 
+    // Semantic Data
     public BVarSymbol mapSymbol;
 
     public FailureBreakMode failureBreakMode = FailureBreakMode.NOT_BREAKABLE;

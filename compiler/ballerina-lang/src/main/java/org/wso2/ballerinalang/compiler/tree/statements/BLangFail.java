@@ -36,9 +36,11 @@ import java.util.List;
  */
 public class BLangFail extends BLangStatement implements FailStatementNode {
 
+    // BLangNodes
     public BLangExpression expr;
-    public BLangNode exprStmt;
 
+    // Semantic Data
+    public BLangNode exprStmt;
     // This list catches types that are equivalent to the error type which are returned by the rhs expression.
     public List<BType> equivalentErrorTypeList;
 

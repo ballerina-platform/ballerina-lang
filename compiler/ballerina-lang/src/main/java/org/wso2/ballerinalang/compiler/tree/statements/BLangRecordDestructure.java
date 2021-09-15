@@ -35,9 +35,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
  */
 public class BLangRecordDestructure extends BLangStatement implements RecordDestructureNode {
 
+    // BLangNodes
     public BLangRecordVarRef varRef; // lhs
     public BLangExpression expr; // rhs
-    public boolean declaredWithVar;
 
     public BLangRecordDestructure() {
     }
@@ -84,6 +84,6 @@ public class BLangRecordDestructure extends BLangStatement implements RecordDest
 
     @Override
     public String toString() {
-        return declaredWithVar ? "var " : "" + varRef + " = " + expr;
+        return varRef + " = " + expr;
     }
 }

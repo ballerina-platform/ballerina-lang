@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
  */
 public class BLangRecordVariableDef extends BLangStatement implements VariableDefinitionNode {
 
+    // BLangNodes
     public BLangRecordVariable var;
 
     @Override

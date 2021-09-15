@@ -33,6 +33,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  * @since 0.985.0
  */
 public class BLangErrorDestructure extends BLangStatement implements ErrorDestructureNode {
+
+    // BLangNodes
     public BLangErrorVarRef varRef;
     public BLangExpression expr;
 

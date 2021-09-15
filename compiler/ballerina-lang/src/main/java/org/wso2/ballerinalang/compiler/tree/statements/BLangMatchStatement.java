@@ -36,6 +36,8 @@ import java.util.List;
  * @since 2.0.0
  */
 public class BLangMatchStatement extends BLangStatement implements MatchStatementNode {
+
+    // BLangNodes
     public BLangExpression expr; // TODO : replace with new node `action|expression`
     public List<BLangMatchClause> matchClauses = new ArrayList<>();
     public BLangOnFailClause onFailClause;

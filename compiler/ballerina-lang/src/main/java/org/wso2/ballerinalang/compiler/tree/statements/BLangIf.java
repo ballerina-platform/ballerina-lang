@@ -31,6 +31,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  * @since 0.94
  */
 public class BLangIf extends BLangStatement implements IfNode {
+
+    // BLangNodes
     public BLangExpression expr;
     public BLangBlockStmt body;
     public BLangStatement elseStmt;
