@@ -243,23 +243,24 @@ public class RemotePackageRepository implements PackageRepository {
         if (options.offline()) {
             return cachedPackages;
         }
+        List<ResolutionRequest> updatedRequests = new ArrayList<>(requests);
         // Remove the already resolved requests when the locking mode is hard
         for (PackageMetadataResponse response : cachedPackages) {
             if (response.packageLoadRequest().packageLockingMode().equals(PackageLockingMode.HARD)
                     && response.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
-                requests.remove(response.packageLoadRequest());
+                updatedRequests.remove(response.packageLoadRequest());
             }
         }
         // Resolve the requests from remote repository if there are unresolved requests
-        if (!requests.isEmpty()) {
+        if (!updatedRequests.isEmpty()) {
             try {
-                PackageResolutionRequest packageResolutionRequest = toPackageResolutionRequest(requests);
+                PackageResolutionRequest packageResolutionRequest = toPackageResolutionRequest(updatedRequests);
                 PackageResolutionResponse packageResolutionResponse = client.resolveDependencies(
                         packageResolutionRequest, JvmTarget.JAVA_11.code(),
                         RepoUtils.getBallerinaVersion(), true);
 
                 Collection<PackageMetadataResponse> remotePackages =
-                        fromPackageResolutionResponse(requests, packageResolutionResponse);
+                        fromPackageResolutionResponse(updatedRequests, packageResolutionResponse);
                 // Merge central requests and local requests
                 // Here we will pick the latest package from remote or local
                 return mergeResolution(remotePackages, cachedPackages);
