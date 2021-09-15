@@ -25,10 +25,12 @@ package io.ballerina.projects.environment;
 public class ResolutionOptions {
     private final boolean offline;
     private final boolean sticky;
+    private final boolean dumpGraph;
 
-    private ResolutionOptions(boolean offline, boolean sticky) {
+    private ResolutionOptions(boolean offline, boolean sticky, boolean dumpGraph) {
         this.offline = offline;
         this.sticky = sticky;
+        this.dumpGraph = dumpGraph;
     }
 
     /**
@@ -56,6 +58,10 @@ public class ResolutionOptions {
         return sticky;
     }
 
+    public boolean dumpGraph() {
+        return dumpGraph;
+    }
+
     public static ResolutionOptionBuilder builder() {
         return new ResolutionOptionBuilder();
     }
@@ -68,6 +74,7 @@ public class ResolutionOptions {
     public static class ResolutionOptionBuilder {
         private boolean offline = false;
         private boolean sticky = true;
+        private boolean dumpGraph = false;
 
         public ResolutionOptionBuilder setOffline(boolean value) {
             offline = value;
@@ -79,8 +86,13 @@ public class ResolutionOptions {
             return this;
         }
 
+        public ResolutionOptionBuilder setDumpGraph(boolean value) {
+            dumpGraph = value;
+            return this;
+        }
+
         public ResolutionOptions build() {
-            return new ResolutionOptions(offline, sticky);
+            return new ResolutionOptions(offline, sticky, dumpGraph);
         }
     }
 }
