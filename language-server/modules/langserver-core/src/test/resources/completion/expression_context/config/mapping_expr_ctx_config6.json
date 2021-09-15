@@ -21,14 +21,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testMap",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "testMap",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "value1",
       "kind": "Variable",
       "detail": "int",
