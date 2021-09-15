@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
  */
 public class BLangTupleVariable extends BLangVariable implements TupleVariableNode {
 
+    // BLangNodes
     public List<BLangVariable> memberVariables;
     public BLangVariable restVariable;
 

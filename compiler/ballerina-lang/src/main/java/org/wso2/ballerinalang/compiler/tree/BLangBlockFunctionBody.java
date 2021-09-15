@@ -35,7 +35,10 @@ import java.util.StringJoiner;
  */
 public class BLangBlockFunctionBody extends BLangFunctionBody implements BlockFunctionBodyNode {
 
+    // BLangNodes
     public List<BLangStatement> stmts;
+
+    // Semantic Data
     public BVarSymbol mapSymbol;
 
     public BLangBlockFunctionBody() {

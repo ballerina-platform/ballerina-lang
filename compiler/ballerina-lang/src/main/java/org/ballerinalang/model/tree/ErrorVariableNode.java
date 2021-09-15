@@ -39,7 +39,7 @@ public interface ErrorVariableNode extends VariableNode, AnnotatableNode, Docume
     /**
      * Interface for error detail entry.
      */
-    interface ErrorDetailEntry {
+    interface ErrorDetailEntry extends NodeEntry {
 
         IdentifierNode getKey();
 

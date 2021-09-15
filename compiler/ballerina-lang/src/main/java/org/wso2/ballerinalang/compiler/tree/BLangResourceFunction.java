@@ -29,6 +29,7 @@ import java.util.List;
  */
 public class BLangResourceFunction extends BLangFunction {
 
+    // BLangNodes
     public BLangIdentifier methodName;
     public List<BLangIdentifier> resourcePath;
     public BLangSimpleVariable restPathParam;

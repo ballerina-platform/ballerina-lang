@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
  */
 public class BLangMarkdownDocumentation extends BLangNode implements MarkdownDocumentationNode {
 
+    // BLangNodes
     public LinkedList<BLangMarkdownDocumentationLine> documentationLines;
     public LinkedList<BLangMarkdownParameterDocumentation> parameters;
     public LinkedList<BLangMarkdownReferenceDocumentation> references;

@@ -56,6 +56,7 @@ import java.util.TreeSet;
  */
 public class BLangPackage extends BLangNode implements PackageNode {
 
+    // BLangNodes
     public List<BLangCompilationUnit> compUnits;
     public List<BLangImportPackage> imports;
     public List<BLangXMLNS> xmlnsList;
@@ -66,20 +67,23 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangTypeDefinition> typeDefinitions;
     public List<BLangAnnotation> annotations;
     public BLangFunction initFunction, startFunction, stopFunction;
-    public Set<CompilerPhase> completedPhases;
-    public List<BSymbol> objAttachedFunctions;
     public List<TopLevelNode> topLevelNodes;
     public List<BLangTestablePackage> testablePkgs;
-    // Queue to maintain lambda functions so that we can visit all lambdas at the end of the semantic phase
-    public Queue<BLangLambdaFunction> lambdaFunctions = new ArrayDeque<>();
     public List<BLangClassDefinition> classDefinitions;
 
+    // Parser Flags and Data
+    public List<BSymbol> objAttachedFunctions;
+    public Set<Flag> flagSet;
+
+    // Semantic Data
+    public Set<CompilerPhase> completedPhases;
+    // Queue to maintain lambda functions so that we can visit all lambdas at the end of the semantic phase
+    public Queue<BLangLambdaFunction> lambdaFunctions = new ArrayDeque<>();
     // Hold global variable dependencies identified in DataflowAnalyzer.
     public Map<BSymbol, Set<BVarSymbol>> globalVariableDependencies;
 
     public PackageID packageID;
     public BPackageSymbol symbol;
-    public Set<Flag> flagSet;
     public byte[] jarBinaryContent;
 
     private int errorCount;

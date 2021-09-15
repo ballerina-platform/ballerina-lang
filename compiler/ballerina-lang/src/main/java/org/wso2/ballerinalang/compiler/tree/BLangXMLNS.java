@@ -29,8 +29,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  */
 public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
 
+    // BLangNodes
     public BLangExpression namespaceURI;
     public BLangIdentifier prefix;
+
+    // Semantic Data
     public BSymbol symbol;
 
     @Override

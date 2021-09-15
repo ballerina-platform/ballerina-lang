@@ -33,11 +33,16 @@ import java.util.Set;
  */
 public class BLangAnnotationAttachment extends BLangNode implements AnnotationAttachmentNode {
 
+    // BLangNodes
     public BLangExpression expr;
     public BLangIdentifier annotationName;
-    public Set<AttachPoint.Point> attachPoints;
     public BLangIdentifier pkgAlias;
+
+    // Parser Flags and Data
+
+    // Semantic Data
     public BAnnotationSymbol annotationSymbol;
+    public Set<AttachPoint.Point> attachPoints;
 
     public BLangAnnotationAttachment() {
         attachPoints = new LinkedHashSet<>();

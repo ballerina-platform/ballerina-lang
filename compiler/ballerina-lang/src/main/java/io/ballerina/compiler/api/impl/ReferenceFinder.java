@@ -1162,7 +1162,7 @@ public class ReferenceFinder extends BaseVisitor {
         }
 
         find(bLangRecordVariable.annAttachments);
-        find((BLangNode) bLangRecordVariable.restParam);
+        find(bLangRecordVariable.restParam);
     }
 
     @Override

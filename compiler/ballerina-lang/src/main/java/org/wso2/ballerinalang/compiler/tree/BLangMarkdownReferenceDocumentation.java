@@ -30,11 +30,11 @@ import org.ballerinalang.model.tree.NodeKind;
 public class BLangMarkdownReferenceDocumentation extends BLangNode
         implements MarkdownDocumentationReferenceAttributeNode {
 
+    // Parser Flags and Data
     public String qualifier = "";
     public String typeName =  "";
     public String identifier = "";
     public String referenceName; // Complete reference inside backticked block
-    public NodeKind kind;
     public DocumentationReferenceType type;
     public boolean hasParserWarnings = false; // Only used by new parser at BLangNodeTransformer
 

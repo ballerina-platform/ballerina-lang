@@ -38,13 +38,19 @@ import java.util.Set;
  * @since 0.94
  */
 public class BLangAnnotation extends BLangNode implements AnnotationNode {
+
+    // BLangNodes
     public BLangIdentifier name;
-    public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
-    public BSymbol symbol;
     public BLangType typeNode;
+
+    // Parser Flags and Data
+    public Set<Flag> flagSet;
     private Set<AttachPoint> attachPoints;
+
+    // Semantic Data
+    public BSymbol symbol;
 
     public BLangAnnotation() {
         this.flagSet = EnumSet.noneOf(Flag.class);
