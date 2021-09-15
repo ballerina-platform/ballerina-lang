@@ -26,18 +26,21 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * @since 0.94
  */
 public class BLangArrayType extends BLangType implements ArrayTypeNode {
+
+    // BLangNodes
     public BLangType elemtype;
+    public List<BLangExpression> sizes = new ArrayList<>();
 
+    // Parser Flags and Data
     public int dimensions;
-
-    public BLangExpression[] sizes = new BLangExpression[0];
 
     public BLangArrayType() {
     }
@@ -54,7 +57,7 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
 
     @Override
     public BLangExpression[] getSizes() {
-        return sizes;
+        return sizes.toArray(new BLangExpression[0]);
     }
 
     @Override
@@ -75,8 +78,8 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
     @Override
     public String toString() {
         final StringBuilder[] sb = {new StringBuilder(getTypeName())};
-        if (sizes.length == 0) {
-            Arrays.stream(sizes).forEach(size -> {
+        if (sizes.size() == 0) {
+            sizes.forEach(size -> {
                 if (size.getKind() == NodeKind.NUMERIC_LITERAL) {
                     Integer sizeIndicator = (Integer) (((BLangLiteral) size).getValue());
                     if (sizeIndicator == -1) {

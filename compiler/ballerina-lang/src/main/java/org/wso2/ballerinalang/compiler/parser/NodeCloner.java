@@ -1678,7 +1678,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.elemtype = clone(source.elemtype);
         clone.dimensions = source.dimensions;
-        clone.sizes = source.sizes;
+        clone.sizes = cloneList(source.sizes);
         cloneBLangType(source, clone);
     }
 

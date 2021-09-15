@@ -27,11 +27,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 /**
  * Implementation of {@link ErrorTypeNode}.
  *
- *
  * @since 0.983.0
  */
 public class BLangErrorType extends BLangType implements ErrorTypeNode {
+
+    // BLangNodes
     public BLangType detailType;
+
+    // Parser Flags and Data
     public boolean isAnonymous;
     public boolean isLocal;
 

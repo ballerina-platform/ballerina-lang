@@ -28,6 +28,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * @since 1.2.0
  */
 public class BLangStreamType extends BLangType implements StreamTypeNode {
+
+    // BLangNodes
     public BLangType type;
     public BLangType constraint;
     public BLangType error;

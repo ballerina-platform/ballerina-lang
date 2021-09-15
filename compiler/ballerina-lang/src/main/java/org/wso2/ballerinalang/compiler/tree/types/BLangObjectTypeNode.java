@@ -41,11 +41,10 @@ import java.util.Set;
  */
 public class BLangObjectTypeNode extends BLangStructureTypeNode implements ObjectTypeNode {
 
+    // BLangNodes
     public List<BLangFunction> functions;
-    public BLangFunction initFunction;
-    public BLangFunction generatedInitFunction;
-    public BLangSimpleVariable receiver;
 
+    // Parser Flags and Data
     public Set<Flag> flagSet;
 
     public BLangObjectTypeNode() {

@@ -166,9 +166,11 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -1045,6 +1047,8 @@ public abstract class BLangNodeSimpleAnalyzer<T> extends BLangNodeAnalyzer<T> {
 
     public void visit(BLangArrayType node, T props) {
         analyzeNode(node, props);
+        visitNode(node.elemtype, props);
+        visitNode(node.sizes, props);
     }
 
     public void visit(BLangBuiltInRefTypeNode node, T props) {
@@ -1053,50 +1057,79 @@ public abstract class BLangNodeSimpleAnalyzer<T> extends BLangNodeAnalyzer<T> {
 
     public void visit(BLangConstrainedType node, T props) {
         analyzeNode(node, props);
+        visitNode(node.type, props);
+        visitNode(node.constraint, props);
     }
 
     public void visit(BLangErrorType node, T props) {
         analyzeNode(node, props);
+        visitNode(node.detailType, props);
     }
 
     public void visit(BLangFiniteTypeNode node, T props) {
         analyzeNode(node, props);
+        visitNode(node.valueSpace, props);
     }
 
     public void visit(BLangFunctionTypeNode node, T props) {
         analyzeNode(node, props);
+        visitNode(node.params, props);
+        visitNode(node.restParam, props);
+        visitNode(node.returnTypeNode, props);
     }
 
     public void visit(BLangIntersectionTypeNode node, T props) {
         analyzeNode(node, props);
+        visitNode(node.constituentTypeNodes, props);
+    }
+
+    public void visit(BLangLetVariable nodeEntry, T props) {
+        analyzeNodeEntry(nodeEntry, props);
+        visitNode((BLangNode) nodeEntry.definitionNode, props);
     }
 
     public void visit(BLangObjectTypeNode node, T props) {
         analyzeNode(node, props);
+        visitBLangStructureTypeNode(node, props);
+        visitNode(node.functions, props);
     }
 
     public void visit(BLangRecordTypeNode node, T props) {
         analyzeNode(node, props);
+        visitBLangStructureTypeNode(node, props);
+        visitNode(node.restFieldType, props);
     }
 
     public void visit(BLangStreamType node, T props) {
         analyzeNode(node, props);
+        visitNode(node.type, props);
+        visitNode(node.constraint, props);
+        visitNode(node.error, props);
     }
 
     public void visit(BLangTableTypeNode node, T props) {
         analyzeNode(node, props);
+        visitNode(node.type, props);
+        visitNode(node.constraint, props);
+        visitNode(node.tableKeySpecifier, props);
+        visitNode(node.tableKeyTypeConstraint, props);
     }
 
     public void visit(BLangTupleTypeNode node, T props) {
         analyzeNode(node, props);
+        visitNode(node.memberTypeNodes, props);
+        visitNode(node.restParamType, props);
     }
 
     public void visit(BLangUnionTypeNode node, T props) {
         analyzeNode(node, props);
+        visitNode(node.memberTypeNodes, props);
     }
 
     public void visit(BLangUserDefinedType node, T props) {
         analyzeNode(node, props);
+        visitNode(node.pkgAlias, props);
+        visitNode(node.typeName, props);
     }
 
     public void visit(BLangValueType node, T props) {
@@ -1122,5 +1155,12 @@ public abstract class BLangNodeSimpleAnalyzer<T> extends BLangNodeAnalyzer<T> {
         visitNode(node.returnTypeAnnAttachments, props);
         visitNode(node.body, props);
         visitNode(node.defaultWorkerName, props);
+    }
+
+    private void visitBLangStructureTypeNode(BLangStructureTypeNode node, T props) {
+        visitNode(node.fields, props);
+        visitNode(node.typeRefs, props);
+        visitNode(node.initFunction, props);
+        visitNode(node.initFunction, props);
     }
 }

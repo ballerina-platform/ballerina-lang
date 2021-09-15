@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
  */
 public class BLangTupleTypeNode extends BLangType implements TupleTypeNode {
 
+    // BLangNodes
     public List<BLangType> memberTypeNodes = new ArrayList<>();
     public BLangType restParamType;
 

@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangBuiltInRefTypeNode extends BLangType implements BuiltInReferenceTypeNode {
 
+    // Parser Flags and Data
     public TypeKind typeKind;
 
     @Override

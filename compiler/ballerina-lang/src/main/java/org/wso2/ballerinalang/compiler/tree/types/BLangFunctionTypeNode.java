@@ -39,11 +39,13 @@ import java.util.stream.Collectors;
  */
 public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode {
 
+    // BLangNodes
     public List<BLangVariable> params = new ArrayList<>();
     public BLangVariable restParam;
     public BLangType returnTypeNode;
-    public Set<Flag> flagSet = new HashSet<>();
 
+    // Parser Flags and Data
+    public Set<Flag> flagSet = new HashSet<>();
     public boolean returnsKeywordExists = false;
 
     @Override

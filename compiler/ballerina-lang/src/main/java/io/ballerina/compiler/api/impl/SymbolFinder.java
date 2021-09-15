@@ -204,7 +204,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -1153,7 +1152,7 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangArrayType arrayType) {
         lookupNode(arrayType.elemtype);
-        lookupNodes(Arrays.asList(arrayType.sizes));
+        lookupNodes(arrayType.sizes);
     }
 
     @Override
