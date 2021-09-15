@@ -215,7 +215,8 @@ public class PackageUtils {
             classNameJoiner.add(document.module().packageInstance().packageOrg().value())
                     .add(encodeModuleName(document.module().moduleName().toString()))
                     .add(String.valueOf(packageMajorVersion))
-                    .add(document.name().replace(BAL_FILE_EXT, "").replace(SEPARATOR_REGEX, ".").replace("/", "."));
+                    .add(document.name().replace(BAL_FILE_EXT, "").replace(SEPARATOR_REGEX, ".")
+                            .replace("/", "."));
 
             return Optional.ofNullable(classNameJoiner.toString());
         } catch (Exception e) {
