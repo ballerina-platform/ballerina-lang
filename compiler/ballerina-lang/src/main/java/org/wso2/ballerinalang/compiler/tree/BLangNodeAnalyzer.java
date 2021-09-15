@@ -858,6 +858,14 @@ public abstract class BLangNodeAnalyzer<T> {
         analyzeNode(node, props);
     }
 
+    public void visit(BLangLock.BLangLockStmt node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangLock.BLangUnLockStmt node, T props) {
+        analyzeNode(node, props);
+    }
+
     public void visit(BLangMatch node, T props) {
         analyzeNode(node, props);
     }

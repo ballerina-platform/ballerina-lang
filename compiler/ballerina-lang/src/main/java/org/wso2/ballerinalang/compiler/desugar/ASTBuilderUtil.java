@@ -278,18 +278,12 @@ public class ASTBuilderUtil {
         return assignment;
     }
 
-    static BLangAssignment createAssignmentStmt(Location location, BLangExpression varRef,
-                                                BLangExpression rhsExpr) {
-        return createAssignmentStmt(location, varRef, rhsExpr, false);
-    }
-
     static BLangAssignment createAssignmentStmt(Location pos, BLangExpression varRef,
-                                                BLangExpression rhsExpr, boolean declaredWithVar) {
+                                                BLangExpression rhsExpr) {
         final BLangAssignment assignment = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignment.pos = pos;
         assignment.varRef = varRef;
         assignment.expr = rhsExpr;
-        assignment.declaredWithVar = declaredWithVar;
         return assignment;
     }
 

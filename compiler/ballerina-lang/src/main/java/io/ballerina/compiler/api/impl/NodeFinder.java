@@ -377,12 +377,10 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangLock.BLangLockStmt lockStmtNode) {
-        lookupNode(lockStmtNode.body);
     }
 
     @Override
     public void visit(BLangLock.BLangUnLockStmt unLockNode) {
-        lookupNode(unLockNode.body);
     }
 
     @Override

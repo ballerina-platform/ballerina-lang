@@ -33,9 +33,12 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
  */
 public class BLangRetry extends BLangStatement implements RetryNode {
 
+    // BLangNodes
     public BLangRetrySpec retrySpec;
     public BLangBlockStmt retryBody;
     public BLangOnFailClause onFailClause;
+
+    // Semantic Data
     public BLangStatement commonStmtForRetries;
 
     public BLangRetrySpec getRetrySpec() {

@@ -378,14 +378,10 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangLock.BLangLockStmt lockStmtNode) {
-        find(lockStmtNode.body);
-        find(lockStmtNode.onFailClause);
     }
 
     @Override
     public void visit(BLangLock.BLangUnLockStmt unLockNode) {
-        find(unLockNode.body);
-        find(unLockNode.onFailClause);
     }
 
     @Override

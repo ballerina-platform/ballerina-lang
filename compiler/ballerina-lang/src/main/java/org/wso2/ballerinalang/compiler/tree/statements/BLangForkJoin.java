@@ -34,6 +34,7 @@ import java.util.List;
  */
 public class BLangForkJoin extends BLangStatement implements ForkJoinNode {
 
+    // BLangNodes
     public List<BLangSimpleVariableDef> workers;
 
     public BLangForkJoin() {

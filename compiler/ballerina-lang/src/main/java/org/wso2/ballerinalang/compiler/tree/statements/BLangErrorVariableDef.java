@@ -32,6 +32,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * @since 0.985.0
  */
 public class BLangErrorVariableDef extends BLangStatement implements VariableDefinitionNode {
+
+    // BLangNodes
     public BLangErrorVariable errorVariable;
 
     @Override

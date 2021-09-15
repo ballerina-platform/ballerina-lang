@@ -32,8 +32,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  */
 public class BLangTransaction extends BLangStatement implements TransactionNode {
 
+    // BLangNodes
     public BLangBlockStmt transactionBody;
     public BLangOnFailClause onFailClause;
+
+    // Semantic Data
     public BLangExpression prevAttemptInfo;
 
     public BLangTransaction() {

@@ -593,7 +593,6 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.varRef = clone(source.varRef);
         clone.expr = clone(source.expr);
-        clone.declaredWithVar = source.declaredWithVar;
     }
 
     @Override
@@ -959,7 +958,6 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.varRef = clone(source.varRef);
         clone.expr = clone(source.expr);
-        clone.declaredWithVar = source.declaredWithVar;
     }
 
     @Override

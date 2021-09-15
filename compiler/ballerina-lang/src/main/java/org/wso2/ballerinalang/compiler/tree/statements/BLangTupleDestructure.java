@@ -35,6 +35,8 @@ import java.util.List;
  * @since 0.966.0
  */
 public class BLangTupleDestructure extends BLangStatement implements TupleDestructureNode {
+
+    // BLangNodes
     public BLangTupleVarRef varRef;
     public BLangExpression expr;
 

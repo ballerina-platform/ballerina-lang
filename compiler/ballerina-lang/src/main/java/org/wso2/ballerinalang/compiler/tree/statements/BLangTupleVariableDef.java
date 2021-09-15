@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
  */
 public class BLangTupleVariableDef extends BLangStatement implements VariableDefinitionNode {
 
+    // BLangNodes
     public BLangTupleVariable var;
 
     @Override

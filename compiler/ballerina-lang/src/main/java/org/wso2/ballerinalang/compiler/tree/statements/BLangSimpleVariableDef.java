@@ -31,9 +31,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
  * @since 0.94
  */
 public class BLangSimpleVariableDef extends BLangStatement implements VariableDefinitionNode {
-    
+
+    // BLangNodes
     public BLangSimpleVariable var;
 
+    // Parser Flags and Data
     // TODO: remove this and apply the property as a flag set.
     public boolean isInFork = false;
     public boolean isWorker = false;

@@ -31,20 +31,18 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  * @since 0.94
  */
 public class BLangAssignment extends BLangStatement implements AssignmentNode {
+
+    // BLangNodes
     public BLangExpression varRef;
     public BLangExpression expr;
-    public boolean declaredWithVar;
-    public boolean safeAssignment;
 
     public BLangAssignment() {
     }
 
-    public BLangAssignment(Location pos, BLangExpression varRef,
-                           BLangExpression expr, boolean declaredWithVar) {
+    public BLangAssignment(Location pos, BLangExpression varRef, BLangExpression expr) {
         this.pos = pos;
         this.varRef = varRef;
         this.expr = expr;
-        this.declaredWithVar = declaredWithVar;
     }
 
     @Override
@@ -58,8 +56,9 @@ public class BLangAssignment extends BLangStatement implements AssignmentNode {
     }
 
     @Override
+    @Deprecated
     public boolean isDeclaredWithVar() {
-        return declaredWithVar;
+        return false;
     }
 
     @Override
@@ -68,8 +67,8 @@ public class BLangAssignment extends BLangStatement implements AssignmentNode {
     }
 
     @Override
+    @Deprecated
     public void setDeclaredWithVar(boolean isDeclaredWithVar) {
-        this.declaredWithVar = isDeclaredWithVar;
     }
 
     @Override
@@ -99,7 +98,7 @@ public class BLangAssignment extends BLangStatement implements AssignmentNode {
 
     @Override
     public String toString() {
-        return (this.declaredWithVar ? "var " : "") + (this.varRef != null ? this.varRef : "") +
+        return (this.varRef != null ? this.varRef : "") +
                 (this.expr != null ? " = " + this.expr : ";");
     }
 }

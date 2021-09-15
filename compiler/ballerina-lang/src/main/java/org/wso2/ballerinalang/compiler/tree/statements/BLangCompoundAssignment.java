@@ -36,9 +36,14 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangValueExpression;
  */
 public class BLangCompoundAssignment extends BLangStatement implements CompoundAssignmentNode {
 
+    // BLangNodes
     public BLangValueExpression varRef;
     public BLangExpression expr;
+
+    // Parser Flags and Data
     public OperatorKind opKind;
+
+    // Semantic Data
     public BLangExpression modifiedExpr;
 
     public BLangCompoundAssignment() {

@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
  */
 public class BLangDo extends BLangStatement implements DoNode {
 
+    // BLangNodes
     public BLangBlockStmt body;
     public BLangOnFailClause onFailClause;
 

@@ -28,6 +28,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  * @since 0.983.0
  */
 public class BLangPanic extends BLangStatement implements PanicNode {
+
+    // BLangNodes
     public BLangExpression expr;
 
     public BLangPanic() {
