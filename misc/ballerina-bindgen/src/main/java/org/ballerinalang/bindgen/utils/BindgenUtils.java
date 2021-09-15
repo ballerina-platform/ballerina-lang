@@ -135,6 +135,16 @@ public class BindgenUtils {
         }
     }
 
+    public static Set<String> addImportedPackage(Class type, Set<String> importedPackages) {
+        if (type.isArray()) {
+            type = type.getComponentType();
+        }
+        if (!type.isPrimitive() && type != String.class) {
+            importedPackages.add(type.getPackageName());
+        }
+        return importedPackages;
+    }
+
     public static boolean isPublicConstructor(Constructor constructor) {
         int modifiers = constructor.getModifiers();
         return Modifier.isPublic(modifiers);

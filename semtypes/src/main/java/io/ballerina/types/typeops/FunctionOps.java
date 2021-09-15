@@ -92,9 +92,9 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
             FunctionAtomicType st = tc.functionAtomType(bn.atom);
             SemType sd = st.paramType;
             SemType sr = st.retType;
-            return functionBddIsEmpty(tc, bn.left, Core.union(s, sd), Conjunction.and(bn.atom, pos), neg)
+            return functionBddIsEmpty(tc, bn.left, Core.union(s, sd), Conjunction.from(bn.atom, pos), neg)
                     && functionBddIsEmpty(tc, bn.middle, s, pos, neg)
-                    && functionBddIsEmpty(tc, bn.right, s, pos, Conjunction.and(bn.atom, neg));
+                    && functionBddIsEmpty(tc, bn.right, s, pos, Conjunction.from(bn.atom, neg));
         }
     }
 

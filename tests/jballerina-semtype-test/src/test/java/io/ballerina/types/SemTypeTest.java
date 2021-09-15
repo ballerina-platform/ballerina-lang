@@ -54,22 +54,18 @@ public class SemTypeTest {
                 .collect(Collectors.toList());
 
         ignore(testFiles, "int-singleton.bal");
-        ignore(testFiles, "float-singleton.bal");
+        // blocked on https://github.com/ballerina-platform/ballerina-lang/issues/28334 and
+        // https://github.com/ballerina-platform/ballerina-lang/issues/32722
         ignore(testFiles, "float-singleton2.bal");
-        ignore(testFiles, "error1.bal");
-        ignore(testFiles, "error2.bal");
-        ignore(testFiles, "readonly2.bal");
         ignore(testFiles, "function.bal");
-        ignore(testFiles, "contextual.bal");
-        ignore(testFiles, "hard.bal");
 
         include(testFiles,
                 "test-src/simple-type/type-test.bal",
                 "test-src/simple-type/list-type-test.bal",
                 "test-src/simple-type/map-type-test.bal");
 
-        return testFiles.toArray(new String[0]);
-       // return new Object[]{"test-src/data/error1.bal"};
+        //return testFiles.toArray(new String[0]);
+        return new Object[]{"test-src/data/error2.bal"};
     }
 
     private void include(List<String> testFiles, String... fileNames) {
@@ -174,6 +170,11 @@ public class SemTypeTest {
         return Paths.get("src/test/resources").resolve(fileName);
     }
 
+    /**
+     * Represent subtype relationship.
+     *
+     * @since 3.0.0
+     */
     public static class TypeRel {
         public final String superType;
         public final String subType;

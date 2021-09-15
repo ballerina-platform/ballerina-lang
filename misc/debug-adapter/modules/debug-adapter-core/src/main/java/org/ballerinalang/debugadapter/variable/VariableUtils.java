@@ -22,13 +22,14 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 
 /**
  * JDI-based debug variable implementation related utilities.
@@ -286,8 +287,7 @@ public class VariableUtils {
         } else if (variable instanceof NamedCompoundVariable) {
             return ((NamedCompoundVariable) variable).getChildByName(childVarName);
         } else {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                    "Field access is not allowed for Ballerina simple types."));
+            throw createEvaluationException("Field access is not allowed for Ballerina simple types.");
         }
     }
 }

@@ -27,14 +27,13 @@ public class FloatOps extends CommonOps implements UniformTypeOps {
     @Override
     public SubtypeData intersect(SubtypeData t1, SubtypeData t2) {
         ArrayList<EnumerableFloat> values = new ArrayList<>();
-        boolean allowed = EnumerableSubtype.enumerableSubtypeIntersect((FloatSubtype) t1, (FloatSubtype) t1, values);
-        EnumerableFloat[] valueArray = new EnumerableFloat[values.size()];
-        return FloatSubtype.createFloatSubtype(allowed, values.toArray(valueArray));
+        boolean allowed = EnumerableSubtype.enumerableSubtypeIntersect((FloatSubtype) t1, (FloatSubtype) t2, values);
+        return FloatSubtype.createFloatSubtype(allowed, values.toArray(new EnumerableFloat[]{}));
     }
 
     @Override
     public SubtypeData diff(SubtypeData t1, SubtypeData t2) {
-        return intersect(t1, complement(t1));
+        return intersect(t1, complement(t2));
     }
 
     @Override

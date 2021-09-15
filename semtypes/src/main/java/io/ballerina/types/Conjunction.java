@@ -31,7 +31,7 @@ public class Conjunction {
         this.next = next;
     }
 
-    public static Conjunction and(Atom atom, Conjunction next) {
+    public static Conjunction from(Atom atom, Conjunction next) {
         return new Conjunction(atom, next);
     }
 }

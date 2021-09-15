@@ -476,7 +476,7 @@ public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Locatio
 
     @Override
     public Optional<Location> transform(PositionalArgumentNode positionalArgumentNode) {
-        return Optional.of(positionalArgumentNode.location());
+        return positionalArgumentNode.expression().apply(this);
     }
 
     @Override

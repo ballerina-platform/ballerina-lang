@@ -190,9 +190,9 @@ public abstract class EnumerableSubtype {
             String s1 = ((EnumerableString) v1).value;
             return Objects.equals(s1, s2) ? EQ : (Common.codePointCompare(s1, s2) ? LT : GT);
         } else {
-            double f1 = ((EnumerableFloat) v2).value;
+            double f1 = ((EnumerableFloat) v1).value;
             double f2 = ((EnumerableFloat) v2).value;
-            if (f1 == f2) {
+            if (bFloatEq(f1, f2)) {
                 return EQ;
             } else if (Double.isNaN(f1)) {
                 return LT;
@@ -203,6 +203,13 @@ public abstract class EnumerableSubtype {
             }
             return GT;
         }
+    }
+
+    private static boolean bFloatEq(double f1, double f2) {
+        if (Double.isNaN(f1)) {
+            return Double.isNaN(f2);
+        }
+        return f1 == f2;
     }
 }
 

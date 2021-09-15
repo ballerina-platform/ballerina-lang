@@ -24,12 +24,16 @@ package io.ballerina.types;
  */
 public class RecAtom implements Atom {
     public final int index;
+    private static final RecAtom zero = new RecAtom(0);
 
     public RecAtom(int index) {
         this.index = index;
     }
 
     public static RecAtom createRecAtom(int index) {
+        if (index == 0) {
+            return zero;
+        }
         return new RecAtom(index);
     }
 }
