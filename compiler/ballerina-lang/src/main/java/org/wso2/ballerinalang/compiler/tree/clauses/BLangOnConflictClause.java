@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  */
 public class BLangOnConflictClause extends BLangNode implements OnConflictClauseNode {
 
+    // BLangNodes
     public BLangExpression expression;
 
     public BLangOnConflictClause(){

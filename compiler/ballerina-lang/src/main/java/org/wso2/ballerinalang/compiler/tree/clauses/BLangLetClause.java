@@ -36,6 +36,11 @@ import java.util.StringJoiner;
  * @since 1.2.0
  */
 public class BLangLetClause extends BLangNode implements LetClauseNode {
+
+    // BLangNodes
+    public List<BLangLetVariable> letVarDeclarations = new ArrayList<>();
+
+    // Semantic Data
     public SymbolEnv env;
 
     public List<BLangLetVariable> getLetVarDeclarations() {
@@ -46,7 +51,6 @@ public class BLangLetClause extends BLangNode implements LetClauseNode {
         this.letVarDeclarations = letVarDeclarations;
     }
 
-    public List<BLangLetVariable> letVarDeclarations = new ArrayList<>();
 
     public BLangLetClause() {
     }

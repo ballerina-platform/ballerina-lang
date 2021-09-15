@@ -31,7 +31,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangCaptureBindingPattern extends BLangBindingPattern implements CaptureBindingPatternNode {
 
-    BLangIdentifier identifier;
+    // BLangNodes
+    public BLangIdentifier identifier;
+
+    // Semantic Data
     public BVarSymbol symbol;
 
     @Override

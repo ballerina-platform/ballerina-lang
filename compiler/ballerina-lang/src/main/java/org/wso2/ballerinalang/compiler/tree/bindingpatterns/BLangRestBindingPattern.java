@@ -32,7 +32,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * @since 2.0.0
  */
 public class BLangRestBindingPattern extends BLangBindingPattern implements RestBindingPatternNode {
+
+    // BLangNodes
     public BLangIdentifier variableName;
+
+    // Semantic Data
     public BVarSymbol symbol;
 
     @Override

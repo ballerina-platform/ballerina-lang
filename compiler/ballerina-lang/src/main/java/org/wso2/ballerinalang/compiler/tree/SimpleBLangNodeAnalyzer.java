@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPa
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -421,46 +422,67 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
 
     public void visit(BLangCaptureBindingPattern node, T props) {
         analyzeNode(node, props);
+        visitNode(node.identifier, props);
     }
 
     public void visit(BLangErrorBindingPattern node, T props) {
         analyzeNode(node, props);
+        visitNode(node.errorTypeReference, props);
+        visitNode(node.errorMessageBindingPattern, props);
+        visitNode(node.errorCauseBindingPattern, props);
+        visitNode(node.errorFieldBindingPatterns, props);
     }
 
     public void visit(BLangErrorCauseBindingPattern node, T props) {
         analyzeNode(node, props);
+        visitNode(node.simpleBindingPattern, props);
+        visitNode(node.errorBindingPattern, props);
     }
 
     public void visit(BLangErrorFieldBindingPatterns node, T props) {
         analyzeNode(node, props);
+        visitNode(node.namedArgBindingPatterns, props);
+        visitNode(node.restBindingPattern, props);
     }
 
     public void visit(BLangErrorMessageBindingPattern node, T props) {
         analyzeNode(node, props);
+        visitNode(node.simpleBindingPattern, props);
     }
 
     public void visit(BLangFieldBindingPattern node, T props) {
         analyzeNode(node, props);
+        visitNode(node.fieldName, props);
+        visitNode(node.bindingPattern, props);
     }
 
     public void visit(BLangListBindingPattern node, T props) {
         analyzeNode(node, props);
+        visitNode(node.bindingPatterns, props);
+        visitNode(node.restBindingPattern, props);
     }
 
     public void visit(BLangMappingBindingPattern node, T props) {
         analyzeNode(node, props);
+        visitNode(node.fieldBindingPatterns, props);
+        visitNode(node.restBindingPattern, props);
     }
 
     public void visit(BLangNamedArgBindingPattern node, T props) {
         analyzeNode(node, props);
+        visitNode(node.argName, props);
+        visitNode(node.bindingPattern, props);
     }
 
     public void visit(BLangRestBindingPattern node, T props) {
         analyzeNode(node, props);
+        visitNode(node.variableName, props);
     }
 
     public void visit(BLangSimpleBindingPattern node, T props) {
         analyzeNode(node, props);
+        visitNode(node.captureBindingPattern, props);
+        visitNode(node.wildCardBindingPattern, props);
     }
 
     public void visit(BLangWildCardBindingPattern node, T props) {
@@ -471,54 +493,73 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
 
     public void visit(BLangDoClause node, T props) {
         analyzeNode(node, props);
+        visitNode(node.body, props);
     }
 
     public void visit(BLangFromClause node, T props) {
         analyzeNode(node, props);
+        visitBLangInputClause(node, props);
     }
 
     public void visit(BLangJoinClause node, T props) {
         analyzeNode(node, props);
+        visitBLangInputClause(node, props);
+        visitNode(node.onClause, props);
     }
 
     public void visit(BLangLetClause node, T props) {
         analyzeNode(node, props);
+        visitNodeEntry(node.letVarDeclarations, props);
     }
 
     public void visit(BLangLimitClause node, T props) {
         analyzeNode(node, props);
+        visitNode(node.expression, props);
     }
 
     public void visit(BLangMatchClause node, T props) {
         analyzeNode(node, props);
+        visitNode(node.matchPatterns, props);
+        visitNode(node.expr, props);
+        visitNode(node.blockStmt, props);
+        visitNode(node.matchGuard, props);
     }
 
     public void visit(BLangOnClause node, T props) {
         analyzeNode(node, props);
+        visitNode(node.lhsExpr, props);
+        visitNode(node.rhsExpr, props);
     }
 
     public void visit(BLangOnConflictClause node, T props) {
         analyzeNode(node, props);
+        visitNode(node.expression, props);
     }
 
     public void visit(BLangOnFailClause node, T props) {
         analyzeNode(node, props);
+        visitNode(node.body, props);
+        visitNode((BLangNode) node.variableDefinitionNode, props);
     }
 
     public void visit(BLangOrderByClause node, T props) {
         analyzeNode(node, props);
+        visitNode(node.orderByKeyList, props);
     }
 
     public void visit(BLangOrderKey node, T props) {
         analyzeNode(node, props);
+        visitNode(node.expression, props);
     }
 
     public void visit(BLangSelectClause node, T props) {
         analyzeNode(node, props);
+        visitNode(node.expression, props);
     }
 
     public void visit(BLangWhereClause node, T props) {
         analyzeNode(node, props);
+        visitNode(node.expression, props);
     }
 
     // Expressions
@@ -1262,6 +1303,11 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
         visitNode(node.returnTypeAnnAttachments, props);
         visitNode(node.body, props);
         visitNode(node.defaultWorkerName, props);
+    }
+
+    private void visitBLangInputClause(BLangInputClause node, T props) {
+        visitNode(node.collection, props);
+        visitNode((BLangNode) node.variableDefinitionNode, props);
     }
 
     private void visitBLangMatchPattern(BLangMatchPattern node, T props) {

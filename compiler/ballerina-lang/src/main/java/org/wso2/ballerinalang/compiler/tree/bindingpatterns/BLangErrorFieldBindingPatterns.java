@@ -35,6 +35,7 @@ import java.util.List;
  */
 public class BLangErrorFieldBindingPatterns extends BLangBindingPattern implements ErrorFieldBindingPatternsNode {
 
+    // BLangNodes
     public List<BLangNamedArgBindingPattern> namedArgBindingPatterns = new ArrayList<>();
     public BLangRestBindingPattern restBindingPattern;
 

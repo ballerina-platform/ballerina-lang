@@ -35,10 +35,15 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
  */
 public class BLangOnFailClause extends BLangNode implements OnFailClauseNode {
 
+    // BLangNodes
     public BLangBlockStmt body;
     public VariableDefinitionNode variableDefinitionNode;
-    public BType varType;
+
+    // Parser Flags and Data
     public boolean isDeclaredWithVar;
+
+    // Semantic Data
+    public BType varType;
     public boolean bodyContainsFail;
     public boolean isInternal;
 
