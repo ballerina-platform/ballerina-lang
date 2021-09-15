@@ -100,6 +100,11 @@ public class BuildOptionsBuilder {
         return this;
     }
 
+    public BuildOptionsBuilder dumpRawGraph(Boolean value) {
+        compilationOptionsBuilder.dumpRawGraph(value);
+        return this;
+    }
+
     public BuildOptions build() {
         CompilationOptions compilationOptions = compilationOptionsBuilder.build();
         return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions);

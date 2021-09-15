@@ -91,6 +91,9 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-graph", hidden = true)
     private boolean dumpGraph;
 
+    @CommandLine.Option(names = "--dump-raw-graph", hidden = true)
+    private boolean dumpRawGraph;
+
     private static final String runCmd =
             "bal run [--debug <port>] <executable-jar> \n" +
             "    bal run [--experimental] [--offline]\n" +
@@ -224,6 +227,7 @@ public class RunCommand implements BLauncherCmd {
                 .observabilityIncluded(observabilityIncluded)
                 .sticky(sticky)
                 .dumpGraph(dumpGraph)
+                .dumpRawGraph(dumpRawGraph)
                 .build();
     }
 }

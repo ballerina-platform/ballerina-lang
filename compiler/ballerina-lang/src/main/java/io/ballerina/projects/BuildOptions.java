@@ -115,6 +115,7 @@ public class BuildOptions {
         buildOptionsBuilder.observabilityIncluded(compilationOptions.observabilityIncluded());
         buildOptionsBuilder.dumpBir(compilationOptions.dumpBir());
         buildOptionsBuilder.dumpGraph(compilationOptions.dumpGraph());
+        buildOptionsBuilder.dumpRawGraph(compilationOptions.dumpRawGraph());
         buildOptionsBuilder.cloud(compilationOptions.getCloud());
         buildOptionsBuilder.listConflictedClasses(compilationOptions.listConflictedClasses());
         buildOptionsBuilder.sticky(compilationOptions.sticky());
