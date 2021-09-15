@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangValueType extends BLangType implements ValueTypeNode {
 
+    // Parser Flags and Data
     public TypeKind typeKind;
 
     public BLangValueType() {

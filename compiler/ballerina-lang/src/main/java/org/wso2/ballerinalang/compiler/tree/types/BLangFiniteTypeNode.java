@@ -40,6 +40,7 @@ import java.util.StringJoiner;
  */
 public class BLangFiniteTypeNode extends BLangType implements FiniteTypeNode {
 
+    // BLangNodes
     public List<BLangExpression> valueSpace;
 
     public BLangFiniteTypeNode() {

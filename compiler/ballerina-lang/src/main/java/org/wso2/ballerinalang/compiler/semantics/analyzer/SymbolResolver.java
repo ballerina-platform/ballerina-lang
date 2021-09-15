@@ -1092,10 +1092,10 @@ public class SymbolResolver extends BLangNodeVisitor {
                                                                    env.enclPkg.symbol.pkgID, null, env.scope.owner,
                                                                    arrayTypeNode.pos, SOURCE);
             BArrayType arrType;
-            if (arrayTypeNode.sizes.length == 0) {
+            if (arrayTypeNode.sizes.size() == 0) {
                 arrType = new BArrayType(resultType, arrayTypeSymbol);
             } else {
-                BLangExpression size = arrayTypeNode.sizes[i];
+                BLangExpression size = arrayTypeNode.sizes.get(i);
                 if (size.getKind() == NodeKind.LITERAL || size.getKind() == NodeKind.NUMERIC_LITERAL) {
                     Integer sizeIndicator = (Integer) (((BLangLiteral) size).getValue());
                     BArrayState arrayState;

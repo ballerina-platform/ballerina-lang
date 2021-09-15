@@ -27,6 +27,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * @since 0.94
  */
 public class BLangConstrainedType extends BLangType implements ConstrainedTypeNode {
+
+    // BLangNodes
     public BLangType type;
     public BLangType constraint;
 

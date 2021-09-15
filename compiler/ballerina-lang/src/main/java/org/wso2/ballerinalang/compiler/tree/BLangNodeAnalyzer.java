@@ -164,6 +164,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -961,6 +962,10 @@ public abstract class BLangNodeAnalyzer<T> {
 
     public void visit(BLangIntersectionTypeNode node, T props) {
         analyzeNode(node, props);
+    }
+
+    public void visit(BLangLetVariable nodeEntry, T props) {
+        analyzeNodeEntry(nodeEntry, props);
     }
 
     public void visit(BLangObjectTypeNode node, T props) {

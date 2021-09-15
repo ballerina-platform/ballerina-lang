@@ -35,8 +35,12 @@ import java.util.Set;
  * @since 0.94
  */
 public class BLangUserDefinedType extends BLangType implements UserDefinedTypeNode {
+
+    // BLangNodes
     public BLangIdentifier pkgAlias;
     public BLangIdentifier typeName;
+
+    // Semantic Data
     public BSymbol symbol;
 
     public BLangUserDefinedType() {

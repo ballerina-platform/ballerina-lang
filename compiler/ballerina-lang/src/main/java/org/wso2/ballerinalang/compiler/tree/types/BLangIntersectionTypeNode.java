@@ -34,6 +34,7 @@ import java.util.StringJoiner;
  */
 public class BLangIntersectionTypeNode extends BLangType implements IntersectionTypeNode {
 
+    // BLangNodes
     public List<BLangType> constituentTypeNodes;
 
     public BLangIntersectionTypeNode() {

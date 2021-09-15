@@ -19,17 +19,33 @@
 package org.wso2.ballerinalang.compiler.tree.types;
 
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeEntry;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 
 /**
  * Represents a variable declarations used in let expression.
  *
  * @since 1.2.0
  */
-public class BLangLetVariable {
+public class BLangLetVariable extends BLangNodeEntry {
+
+    // TODO: #AST_CLEAN
+    // BLangNodes
     public VariableDefinitionNode definitionNode;
 
     @Override
     public String toString() {
         return String.valueOf(this.definitionNode);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+        return transformer.transform(this, props);
     }
 }

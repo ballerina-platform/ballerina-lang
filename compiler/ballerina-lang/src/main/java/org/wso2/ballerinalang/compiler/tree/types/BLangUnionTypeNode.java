@@ -36,6 +36,7 @@ import java.util.StringJoiner;
  */
 public class BLangUnionTypeNode extends BLangType implements UnionTypeNode {
 
+    // BLangNodes
     public List<BLangType> memberTypeNodes;
 
     public BLangUnionTypeNode() {
