@@ -88,6 +88,9 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
     private Boolean sticky;
 
+    @CommandLine.Option(names = "--dump-graph", hidden = true)
+    private boolean dumpGraph;
+
     private static final String runCmd =
             "bal run [--debug <port>] <executable-jar> \n" +
             "    bal run [--experimental] [--offline]\n" +
@@ -220,6 +223,7 @@ public class RunCommand implements BLauncherCmd {
                 .testReport(false)
                 .observabilityIncluded(observabilityIncluded)
                 .sticky(sticky)
+                .dumpGraph(dumpGraph)
                 .build();
     }
 }

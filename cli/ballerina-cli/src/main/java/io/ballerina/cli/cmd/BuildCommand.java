@@ -147,6 +147,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-bir-file", hidden = true)
     private String dumpBIRFile;
 
+    @CommandLine.Option(names = "--dump-graph", hidden = true)
+    private boolean dumpGraph;
+
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
@@ -361,6 +364,7 @@ public class BuildCommand implements BLauncherCmd {
                 .cloud(cloud)
                 .dumpBir(dumpBIR)
                 .dumpBirFile(dumpBIRFile)
+                .dumpGraph(dumpGraph)
                 .listConflictedClasses(listConflictedClasses)
                 .dumpBuildTime(dumpBuildTime)
                 .sticky(sticky)
