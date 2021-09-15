@@ -58,11 +58,12 @@ public class SemanticTokensUtils {
         if (filePathOptional.isEmpty()) {
             return new SemanticTokens(new ArrayList<>());
         }
-        Optional<Document> docOptional = semanticTokensContext.workspace().document(filePathOptional.get());
+        Optional<Document> docOptional = semanticTokensContext.currentDocument();
         if (docOptional.isEmpty()) {
             return new SemanticTokens(new ArrayList<>());
         }
-        return new SemanticTokensVisitor(semanticTokensContext).getSemanticTokens(docOptional.get());
+        return new SemanticTokensVisitor(semanticTokensContext).getSemanticTokens(docOptional.get().syntaxTree()
+                .rootNode());
     }
 
     /**
