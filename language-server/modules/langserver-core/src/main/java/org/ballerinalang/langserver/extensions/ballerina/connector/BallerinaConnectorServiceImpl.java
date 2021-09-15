@@ -67,8 +67,11 @@ import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -95,7 +98,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
     public static final String DEFAULT_CONNECTOR_FILE_KEY = "DEFAULT_CONNECTOR_FILE";
     // TODO: need to replace central url with system.env
-    public static final String BALLERINA_CENTRAL_URL = "https://api.staging-central.ballerina.io/2.0/registry";
+    public static final String BALLERINA_CENTRAL_URL = "https://api.dev-central.ballerina.io/2.0/registry";
     private static final Path STD_LIB_SOURCE_ROOT = Paths.get(CommonUtil.BALLERINA_HOME)
             .resolve("repo")
             .resolve("bala");
@@ -123,7 +126,6 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
             if (response.statusCode() == 200) {
                 BallerinaConnectorInfo[] connectorInfos = new Gson().fromJson(response.body(),
                         BallerinaConnectorInfo[].class);
@@ -189,32 +191,64 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
     @Override
     public CompletableFuture<BallerinaConnectorResponse> connector(BallerinaConnectorRequest request) {
-
-        String cacheableKey = getCacheableKey(request.getOrg(), request.getModule(), request.getVersion());
         String error = "";
         Connector connector = null;
 
-        try {
-            Path balaPath = resolveBalaPath(request.getOrg(), request.getModule(), request.getVersion());
-            ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
-            defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+//        TODO: Read connector metadata in disk cache
+//        Optional<Connector> optionalConnector = readConnectorFile(connector);
+//        if (optionalConnector.isPresent()) {
+//            connector = optionalConnector.get();
+//        }
 
-            Project balaProject = ProjectLoader.loadProject(balaPath, defaultBuilder);
+        if (connector == null && request.getId() != null) {
+            try {
+                HttpClient client = HttpClient.newHttpClient();
 
-            List<Connector> connectors = ConnectorGenerator.generateConnectorModel(balaProject);
-            for (Connector conn : connectors) {
-                if (conn.name.equals(request.getName())) {
-                    connector = conn;
-                    break;
+                HttpRequest connectorRequest = HttpRequest.newBuilder(
+                        URI.create(BALLERINA_CENTRAL_URL + "/connectors/" + request.getId()))
+                        .header("accept", "application/json")
+                        .build();
+
+                HttpResponse<String> response = client.send(connectorRequest, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() == 200) {
+                    connector = new Gson().fromJson(response.body(), Connector.class);
                 }
-            }
 
-        } catch (Exception e) {
-            String msg = "Operation 'ballerinaConnector/connector' for " + cacheableKey + ":" +
-                    request.getName() + " failed!";
-            error = e.getMessage();
-            this.clientLogger.logError(this.connectorExtContext, msg, e, null, (Position) null);
+            } catch (Exception e) {
+                String msg = "Operation 'ballerinaConnector/connectors' failed!";
+                this.clientLogger.logError(this.connectorExtContext, msg, e, null, (Position) null);
+            }
         }
+
+        if (connector == null) {
+            try {
+                Path balaPath = resolveBalaPath(request.getOrgName(), request.getModuleName(), request.getVersion());
+                ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+                defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+
+                Project balaProject = ProjectLoader.loadProject(balaPath, defaultBuilder);
+
+                List<Connector> connectors = ConnectorGenerator.generateConnectorModel(balaProject);
+                for (Connector conn : connectors) {
+                    if (conn.name.equals(request.getName())) {
+                        connector = conn;
+//                         TODO: Write connector metadata in disk cache
+//                         writeConnectorFile(connector);
+                        break;
+                    }
+                }
+
+            } catch (Exception e) {
+                String connectorId = getCacheableKey(request.getOrgName(), request.getModuleName(),
+                        request.getVersion());
+                String msg = "Operation 'ballerinaConnector/connector' for " + connectorId + ":" +
+                        request.getName() + " failed!";
+                error = e.getMessage();
+                this.clientLogger.logError(this.connectorExtContext, msg, e, null, (Position) null);
+            }
+        }
+
+
         BallerinaConnectorResponse response = new BallerinaConnectorResponse(connector, error);
         return CompletableFuture.supplyAsync(() -> response);
     }
@@ -400,6 +434,53 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
     private String getCacheableKey(String orgName, String moduleName, String version) {
         return orgName + "_" + moduleName + "_" +
                 (version.isEmpty() ? ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version);
+    }
+
+    private String getCacheFileName(Connector connector) {
+        return connector.orgName + "/" + connector.moduleName + "/" +
+                (connector.version.isEmpty() ? ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : connector.version) +
+                "_" + connector.name + ".json";
+    }
+
+    private String getCacheFilePath(Connector connector) {
+        String ballerinaHome = System.getProperty("ballerina.home");
+        return ballerinaHome + "metadata/" + connector.orgName + "/" + connector.moduleName + "/" +
+                (connector.version.isEmpty() ? ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : connector.version);
+    }
+
+    private Boolean writeConnectorFile(Connector connector) {
+        try {
+            String filePath = getCacheFilePath(connector);
+            String fileName = getCacheFileName(connector);
+
+            File connectorFile = new File(filePath + "/" + fileName);
+            if (connectorFile.createNewFile()) {
+                FileWriter fileWriter = new FileWriter(connectorFile);
+                fileWriter.write(new Gson().toJson(connector));
+                fileWriter.close();
+                return true;
+            }
+        } catch (IOException e) {
+            return false;
+        }
+        return false;
+    }
+
+    private Optional<Connector> readConnectorFile(Connector connector) {
+        try {
+            String filePath = getCacheFilePath(connector);
+            String fileName = getCacheFileName(connector);
+
+            File connectorFile = new File(filePath + "/" + fileName);
+            if (connectorFile.exists() && connectorFile.canRead()) {
+                BufferedReader fileReader = new BufferedReader(new FileReader(connectorFile));
+                Connector connector1 = new Gson().fromJson(fileReader, Connector.class);
+                return Optional.ofNullable(connector1);
+            }
+        } catch (IOException e) {
+            return Optional.empty();
+        }
+        return Optional.empty();
     }
 
     private BallerinaConnectorsResponse getConnectorConfig() throws IOException {
