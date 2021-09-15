@@ -31,10 +31,12 @@ public class CompilationOptions {
     private String cloud;
     private Boolean listConflictedClasses;
     private Boolean sticky;
+    private Boolean semtype;
 
     public CompilationOptions(Boolean offlineBuild, Boolean experimental,
                               Boolean observabilityIncluded, Boolean dumpBir, String dumpBirFile,
-                              String cloud, Boolean listConflictedClasses, Boolean sticky) {
+                              String cloud, Boolean listConflictedClasses, Boolean sticky,
+                              Boolean semtype) {
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
@@ -43,6 +45,7 @@ public class CompilationOptions {
         this.cloud = cloud;
         this.listConflictedClasses = listConflictedClasses;
         this.sticky = sticky;
+        this.semtype = semtype;
     }
 
     public boolean offlineBuild() {
@@ -106,6 +109,9 @@ public class CompilationOptions {
         if (theirOptions.sticky != null) {
             this.sticky = theirOptions.sticky;
         }
+        if (theirOptions.semtype != null) {
+            this.semtype = theirOptions.semtype;
+        }
         return this;
     }
 
@@ -121,5 +127,9 @@ public class CompilationOptions {
             return "";
         }
         return value;
+    }
+
+    public boolean semtype() {
+        return toBooleanDefaultIfNull(this.semtype);
     }
 }

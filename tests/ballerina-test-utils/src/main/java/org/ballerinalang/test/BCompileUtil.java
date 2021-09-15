@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.io.IOException;
@@ -101,6 +102,11 @@ public class BCompileUtil {
         CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
         invokeModuleInit(compileResult);
         return compileResult;
+    }
+
+    public static BLangPackage compileSemType(String sourceFilePath) {
+        Project project = loadProject(sourceFilePath, (new BuildOptionsBuilder()).semType(true).build());
+        return project.currentPackage().getCompilation().defaultModuleBLangPackage();
     }
 
     public static BIRCompileResult generateBIR(String sourceFilePath) {

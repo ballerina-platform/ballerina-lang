@@ -33,6 +33,7 @@ public class CompilationOptionsBuilder {
     private String cloud;
     private Boolean listConflictedClasses;
     private Boolean sticky;
+    private Boolean semtype;
 
     public CompilationOptionsBuilder() {
     }
@@ -74,10 +75,15 @@ public class CompilationOptionsBuilder {
 
     public CompilationOptions build() {
         return new CompilationOptions(buildOffline, experimental, observabilityIncluded, dumpBir,
-                dumpBirFile, cloud, listConflictedClasses, sticky);
+                dumpBirFile, cloud, listConflictedClasses, sticky, semtype);
     }
 
     void sticky(Boolean value) {
         sticky = value;
+    }
+
+    CompilationOptionsBuilder semtype(Boolean value) {
+        semtype = value;
+        return this;
     }
 }
