@@ -33,7 +33,7 @@ public type SomeRecord record {
     int intField;
 };
 
-public function testIfElseNarrowTypesRestting() {
+public function testIfElseNarrowTypesRestting1() {
     SomeRecord? c = {intField: 10};
     SomeRecord? f = ();
     SomeRecord|int|() g = 4;
@@ -83,4 +83,26 @@ function goo(SomeRecord|int aa) {
 
 function yoo(SomeRecord|int|() aa) {
 
+}
+
+public function testIfElseNarrowTypesRestting2() {
+    int|string? a = 1;
+    int|string? b = 1;
+
+    if a is int|string && b is int|string {
+        if a is int {
+
+        } else {
+            if b is int {
+                a = 1;
+                b = 1;
+            } else {
+                string c = a;
+                string d = b;
+            }
+        }
+
+        int|string e = a;
+        int|string f = b;
+    }
 }

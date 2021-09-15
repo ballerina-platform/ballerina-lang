@@ -2349,7 +2349,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         Map<BVarSymbol, BType.NarrowedTypes> prevNarrowedTypeInfo = this.narrowedTypeInfo;
-        Map<BVarSymbol, BType.NarrowedTypes> narrowedTypes = new HashMap<>();
+
+        // This map keeps the narrowed types of inner if statements and propagate the false types to else block when
+        // flow goes from the if statement to else block in compile time.
+        Map<BVarSymbol, BType.NarrowedTypes> falseTypesOfNarrowedTypes = new HashMap<>();
 
         SymbolEnv ifEnv = typeNarrower.evaluateTruth(ifNode.expr, ifNode.body, env);
 
@@ -2370,7 +2373,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     BUnionType unionType =
                             BUnionType.create(null, existingNarrowTypes.trueType, existingNarrowTypes.falseType);
                     BType.NarrowedTypes newPair = new BType.NarrowedTypes(existingNarrowTypes.trueType, unionType);
-                    narrowedTypes.put(key, newPair);
+                    falseTypesOfNarrowedTypes.put(key, newPair);
                 }
             }
         }
@@ -2385,7 +2388,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         this.narrowedTypeInfo = prevNarrowedTypeInfo;
         if (narrowedTypeInfo != null) {
-            narrowedTypeInfo.putAll(narrowedTypes);
+            narrowedTypeInfo.putAll(falseTypesOfNarrowedTypes);
         }
     }
 

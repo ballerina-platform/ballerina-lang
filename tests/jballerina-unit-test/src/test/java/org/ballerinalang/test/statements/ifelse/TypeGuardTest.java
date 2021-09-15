@@ -236,6 +236,26 @@ public class TypeGuardTest {
     }
 
     @Test
+    public void testTypeTestExprTypeNarrowingNegative() {
+        CompileResult negativeResult =
+                BCompileUtil.compile("test-src/statements/ifelse/type_test_type_narrowing_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'SomeRecord', found 'SomeRecord?'", 49, 17);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected '(SomeRecord|int)', found '(SomeRecord|int)?'", 52, 21);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected '()', found 'SomeRecord'", 62, 13);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected '(SomeRecord|int)', found '(SomeRecord|int)?'", 68, 13);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected '(int|string)', found '(int|string)?'", 105, 24);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected '(int|string)', found '(int|string)?'", 106, 24);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
+    }
+
+    @Test
     public void testValueTypeInUnion() {
         BValue[] returns = BRunUtil.invoke(result, "testValueTypeInUnion");
         Assert.assertEquals(returns.length, 1);
