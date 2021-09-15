@@ -273,7 +273,7 @@ public class BIROptimizer {
             birFunction.localVars = birFunction.localVars.stream()
                     .filter(l -> l.kind != VarKind.TEMP || !funcOpEnv.tempVars
                             .containsKey(l)).collect(Collectors.toList());
-            // Reuse temp vars
+            // Reuse lhs temp vars
             reuseTempVariables(birFunction, funcOpEnv);
         }
 
@@ -339,7 +339,7 @@ public class BIROptimizer {
 
         private void replaceVarsWithReusableVars(BIRFunction birFunction, List<BIROperand> orderedTempVars,
                                                  Map<BIRVariableDcl, List<BIRVariableDcl>> reusableVars) {
-            Map<BIRVariableDcl, List<BIRVariableDcl>> reusableVsRemovableListVarMap = new HashMap<>();
+            Map<BIRVariableDcl, BIRVariableDcl> reusableVsCurrentlyReplacedVarMap = new HashMap<>();
             Map<BIRVariableDcl, BIRVariableDcl> removableVarVsReplacementVarMap = new HashMap<>();
             Map<BIROperand, BIRVariableDcl> removableOpsMap = new HashMap<>();
             Set<BIRVariableDcl> firstLoadedSet = new HashSet<>();
@@ -357,37 +357,19 @@ public class BIROptimizer {
                 reusableList.removeAll(removableVarVsReplacementVarMap.keySet());
                 if (!firstLoadedSet.contains(variableDcl)) {
                     firstLoadedSet.add(variableDcl);
-                    BIRVariableDcl reusableVar = null;
                     for (BIRVariableDcl birVariableDcl : reusableList) {
                         if (!secondLoadedSet.contains(birVariableDcl)) {
                             continue;
                         }
-                        List<BIRVariableDcl> replaceableList = reusableVsRemovableListVarMap.get(birVariableDcl);
+                        BIRVariableDcl currentUsingVar = reusableVsCurrentlyReplacedVarMap.get(birVariableDcl);
                         // If no one use replaceable var then we can use it to replace given variable.
-                        if (replaceableList == null) {
-                            reusableVar = birVariableDcl;
+                        if (currentUsingVar == null || secondLoadedSet.contains(currentUsingVar)) {
+                            // Collect selected removable var and it replacable var.
+                            removableVarVsReplacementVarMap.put(variableDcl, birVariableDcl);
+                            removableOpsMap.put(birOperand, birVariableDcl);
+                            reusableVsCurrentlyReplacedVarMap.put(birVariableDcl, variableDcl);
                             break;
                         }
-                        boolean canReplace = true;
-                        // If the variable is selected to replace other variables and those are still not loaded, we can
-                        // use them for replace any other additional vars.
-                        for (BIRVariableDcl replaceableVar : replaceableList) {
-                            if (!secondLoadedSet.contains(replaceableVar)) {
-                                canReplace = false;
-                                break;
-                            }
-                        }
-                        if (canReplace) {
-                            reusableVar = birVariableDcl;
-                        }
-                    }
-                    if (reusableVar != null) {
-                        // Collect selected removable var and it replacable var.
-                        List<BIRVariableDcl> replaceableVars = reusableVsRemovableListVarMap
-                                .computeIfAbsent(reusableVar, k -> new ArrayList<>());
-                        replaceableVars.add(variableDcl);
-                        removableVarVsReplacementVarMap.put(variableDcl, reusableVar);
-                        removableOpsMap.put(birOperand, reusableVar);
                     }
                     continue;
                 }
@@ -547,6 +529,7 @@ public class BIROptimizer {
                 }
                 this.optimizeNode(((BIRNode.BIRMappingConstructorSpreadFieldEntry) initialValue).exprOp, this.env);
             }
+            birNewStructure.rhsOp.accept(this);
         }
 
         @Override
