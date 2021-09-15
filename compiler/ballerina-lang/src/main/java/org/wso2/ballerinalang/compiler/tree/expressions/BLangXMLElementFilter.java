@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.XMLElementFilter;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeModifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.Set;
@@ -72,8 +72,8 @@ public class BLangXMLElementFilter extends BLangExpression implements XMLElement
     }
 
     @Override
-    public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
-        return transformer.transform(this, props);
+    public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
+        return modifier.modify(this, props);
     }
 
     @Override

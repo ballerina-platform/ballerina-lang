@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.expressions.MatchExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeModifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
@@ -70,8 +70,8 @@ public class BLangMatchExpression extends BLangExpression implements MatchExpres
     }
 
     @Override
-    public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
-        return transformer.transform(this, props);
+    public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
+        return modifier.modify(this, props);
     }
 
     /**
@@ -114,8 +114,8 @@ public class BLangMatchExpression extends BLangExpression implements MatchExpres
         }
 
         @Override
-        public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
-            return transformer.transform(this, props);
+        public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
+            return modifier.modify(this, props);
         }
         
         @Override

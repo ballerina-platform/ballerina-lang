@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.MatchStatementNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeModifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
@@ -81,8 +81,8 @@ public class BLangMatchStatement extends BLangStatement implements MatchStatemen
     }
 
     @Override
-    public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
-        return transformer.transform(this, props);
+    public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
+        return modifier.modify(this, props);
     }
 
     @Override
