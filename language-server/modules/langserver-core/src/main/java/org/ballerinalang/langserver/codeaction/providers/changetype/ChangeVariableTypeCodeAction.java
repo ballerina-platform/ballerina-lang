@@ -113,6 +113,10 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
                 sNode.kind() != SyntaxKind.LOCAL_VAR_DECL &&
                 sNode.kind() != SyntaxKind.MODULE_VAR_DECL &&
                 sNode.kind() != SyntaxKind.ASSIGNMENT_STATEMENT) {
+            // The cursor can be within a positional/named arg. If so, don't show this code action
+            if (sNode.kind() == SyntaxKind.POSITIONAL_ARG || sNode.kind() == SyntaxKind.NAMED_ARG) {
+                return Optional.empty();
+            }
             sNode = sNode.parent();
         }
 
