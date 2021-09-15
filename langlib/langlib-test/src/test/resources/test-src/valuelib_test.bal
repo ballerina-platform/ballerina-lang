@@ -1593,6 +1593,11 @@ type RecordWithXmlField record {|
     xml:Text t;
 |};
 
+type RecordWithRestFields record {|
+    int a;
+    float ...;
+|};
+
 function testTableToJsonConversion() {
     table<RecordWithSimpleTypeFields> tb1 = table [
         {a: 5, b: 1, c: 2.5, d: 3.1, e: "abc", f: true},
@@ -1635,6 +1640,14 @@ function testTableToJsonConversion() {
     json j5 = tb5.toJson();
     assert(j5.toJsonString(), "[{\"x\":\"<bar>Text</bar>\", \"e\":\"<foo/>\", \"c\":\"<!--Comment-->\", " +
                                           "\"p\":\"<?PI ?>\", \"t\":\"Text\"}]");
+
+    table<RecordWithRestFields> tb6 = table [
+        {a: 1, "b": 2},
+        {a: 5, "b": 7.5, "c": 10, "d": 12.5}
+    ];
+
+    json j6 = tb6.toJson();
+    assert(j6.toJsonString(), "[{\"a\":1, \"b\":2.0}, {\"a\":5, \"b\":7.5, \"c\":10.0, \"d\":12.5}]");
 }
 
 type RecordWithHandleField record {|
