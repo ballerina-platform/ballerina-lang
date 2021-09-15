@@ -27,6 +27,8 @@ import java.util.Map;
  */
 public class Connector {
     @Expose
+    public String id;
+    @Expose
     public String orgName;
     @Expose
     public String moduleName;
@@ -39,9 +41,20 @@ public class Connector {
     @Expose
     public String documentation;
     @Expose
+    public String platform;
+    @Expose
+    public String ballerinaVersion;
+    @Expose
     public Map<String, String> displayAnnotation;
     @Expose
     public List<Function> functions;
+
+    public Connector(String orgName, String moduleName, String version, String name) {
+        this.orgName = orgName;
+        this.moduleName = moduleName;
+        this.version = version;
+        this.name = name;
+    }
 
     public Connector(String orgName, String moduleName, String packageName, String version, String name,
                      String documentation, Map<String, String> displayAnnotation, List<Function> functions) {
@@ -54,4 +67,6 @@ public class Connector {
         this.displayAnnotation = displayAnnotation;
         this.functions = functions;
     }
+
+
 }

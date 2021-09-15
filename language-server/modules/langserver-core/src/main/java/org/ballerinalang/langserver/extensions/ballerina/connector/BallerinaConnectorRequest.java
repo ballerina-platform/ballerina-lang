@@ -25,29 +25,37 @@ package org.ballerinalang.langserver.extensions.ballerina.connector;
  */
 public class BallerinaConnectorRequest {
 
-    private String org;
-    private String module;
+    private String id;
+    private String orgName;
+    private String moduleName;
     private String version = "";
     private String name;
-    private String displayName;
-    private Boolean beta;
 
-    public BallerinaConnectorRequest(String org, String module, String version,
-                                     String name, String displayName, Boolean beta) {
-        this.org = org;
-        this.module = module;
+    public BallerinaConnectorRequest(String org, String module, String version, String name) {
+        this.orgName = org;
+        this.moduleName = module;
         this.version = version;
         this.name = name;
-        this.displayName = displayName;
-        this.beta = beta;
     }
 
-    public String getOrg() {
-        return org;
+    public BallerinaConnectorRequest(String id, String orgName, String moduleName, String version, String name) {
+        this.id = id;
+        this.orgName = orgName;
+        this.moduleName = moduleName;
+        this.version = version;
+        this.name = name;
     }
 
-    public String getModule() {
-        return module;
+    public String getId() {
+        return id;
+    }
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public String getModuleName() {
+        return moduleName;
     }
 
     public String getVersion() {
@@ -58,22 +66,13 @@ public class BallerinaConnectorRequest {
         return name;
     }
 
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public Boolean getBeta() {
-        return beta;
-    }
-
     @Override
     public String toString() {
         return "BallerinaConnectorRequest{" +
-                "org='" + org + '\'' +
-                ", module='" + module + '\'' +
+                "org='" + orgName + '\'' +
+                ", module='" + moduleName + '\'' +
                 ", version='" + version + '\'' +
                 ", name='" + name + '\'' +
-                ", beta=" + beta +
                 '}';
     }
 }
