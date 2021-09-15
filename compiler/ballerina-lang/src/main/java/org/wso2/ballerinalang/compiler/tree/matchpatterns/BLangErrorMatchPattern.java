@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
  */
 public class BLangErrorMatchPattern extends BLangMatchPattern implements ErrorMatchPatternNode {
 
+    // BLangNodes
     public BLangErrorMessageMatchPattern errorMessageMatchPattern;
     public BLangErrorCauseMatchPattern errorCauseMatchPattern;
     public BLangErrorFieldMatchPatterns errorFieldMatchPatterns;

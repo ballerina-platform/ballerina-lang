@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangErrorMessageMatchPattern extends BLangMatchPattern implements ErrorMessageMatchPatternNode {
 
+    // BLangNodes
     public BLangSimpleMatchPattern simpleMatchPattern;
 
     @Override
