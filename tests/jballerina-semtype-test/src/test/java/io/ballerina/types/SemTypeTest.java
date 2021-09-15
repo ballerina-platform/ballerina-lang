@@ -53,17 +53,17 @@ public class SemTypeTest {
                 .filter(name -> name.endsWith(".bal"))
                 .collect(Collectors.toList());
 
-        ignore(testFiles, "int-singleton.bal");
+        //ignore(testFiles, "int-singleton.bal");
         ignore(testFiles, "float-singleton.bal");
         ignore(testFiles, "float-singleton2.bal");
         ignore(testFiles, "error2.bal");
         ignore(testFiles, "function.bal");
         ignore(testFiles, "hard.bal");
 
-        include(testFiles,
-                "test-src/simple-type/type-test.bal",
-                "test-src/simple-type/list-type-test.bal",
-                "test-src/simple-type/map-type-test.bal");
+        //include(testFiles,
+        //        "test-src/simple-type/type-test.bal",
+        //        "test-src/simple-type/list-type-test.bal",
+        //        "test-src/simple-type/map-type-test.bal");
 
         return testFiles.toArray(new String[0]);
         //return new Object[]{"test-src/data/error1.bal"};
@@ -94,7 +94,7 @@ public class SemTypeTest {
         List<String> expectedRels = extractSubtypeRelations(fileName);
         // Commented code will get expected content for this test to pass.
         // Useful for taking a diff.
-        // String text = toText(subtypeRels);
+        //String text = toText(subtypeRels);
         Assert.assertEquals(subtypeRels, expectedRels);
     }
 

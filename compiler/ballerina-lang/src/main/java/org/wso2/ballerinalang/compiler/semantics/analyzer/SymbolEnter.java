@@ -496,7 +496,12 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void resolveConstant(Env semtypeEnv, Map<String, BLangNode> modTable, BLangConstant constant) {
-        SemType semtype = resolveTypeDefn(semtypeEnv, modTable, constant.associatedTypeDefinition, 0);
+        SemType semtype;
+        if (constant.associatedTypeDefinition != null) {
+            semtype = resolveTypeDefn(semtypeEnv, modTable, constant.associatedTypeDefinition, 0);
+        } else {
+            semtype = PredefinedType.INT;
+        }
         semtypeEnv.addTypeDef(constant.name.value, semtype);
     }
 
