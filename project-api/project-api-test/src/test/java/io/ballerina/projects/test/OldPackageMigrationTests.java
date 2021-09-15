@@ -56,7 +56,7 @@ public class OldPackageMigrationTests extends BaseTest {
         // package_d --> package_b --> package_c
         // package_d --> package_e
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_d");
-        Path packagePath = RESOURCE_DIRECTORY.resolve("package_f_old");
+        Path packagePath = RESOURCE_DIRECTORY.resolve("package_f");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(packagePath));
 
         // Delete build file if exists
@@ -90,8 +90,8 @@ public class OldPackageMigrationTests extends BaseTest {
         // package_d --> package_b --> package_c
         // package_d --> package_e
         // package_b and package_d are local packages
-        cacheDependencyToLocalRepo(RESOURCE_DIRECTORY.resolve("package_b"));
-        cacheDependencyToLocalRepo(RESOURCE_DIRECTORY.resolve("package_d"));
+        cacheDependencyToLocalRepository(RESOURCE_DIRECTORY.resolve("package_b"));
+        cacheDependencyToLocalRepository(RESOURCE_DIRECTORY.resolve("package_d"));
         Path packagePath = RESOURCE_DIRECTORY.resolve("package_f_old_local");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(packagePath));
 

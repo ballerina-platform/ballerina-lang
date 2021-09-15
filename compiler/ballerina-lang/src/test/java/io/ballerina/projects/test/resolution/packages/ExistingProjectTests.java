@@ -36,6 +36,15 @@ public class ExistingProjectTests extends AbstractPackageResolutionTest {
                 // 6. Remove existing import which also is a dependency of a newer patch version of another import
                 {"suite-existing_project", "case-0006", true},
                 {"suite-existing_project", "case-0006", false},
+                // 7. Package contains hierarchical imports
+                {"suite-existing_project", "case-0007", true},
+                {"suite-existing_project", "case-0007", false},
+                // 8. Add a new hierarchical import which has a possible package name in the Dependencies.toml
+                {"suite-existing_project", "case-0008", true},
+                {"suite-existing_project", "case-0008", false},
+                // 9. Package uses a module available in the newer minor version of an existing dependency
+                {"suite-existing_project", "case-0009", true},
+                {"suite-existing_project", "case-0009", false},
                 // 8. package contains dependencies with pre-release versions
                 // 9. use a module added in the new version of a dependency
 
