@@ -69,7 +69,7 @@ public abstract class CompletionTest {
         String configJsonPath = "completion" + File.separator + configPath
                 + File.separator + configDir + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        String response = initializeSources(configJsonObject);
+        String response = getResponse(configJsonObject);
         JsonObject json = parser.parse(response).getAsJsonObject();
         Type collectionType = new TypeToken<List<CompletionItem>>() { }.getType();
         JsonArray resultList = json.getAsJsonObject("result").getAsJsonArray("left");
@@ -84,7 +84,7 @@ public abstract class CompletionTest {
         }
     }
 
-    private String initializeSources(JsonObject configJsonObject) throws IOException {
+    private String getResponse(JsonObject configJsonObject) throws IOException {
         Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
         Position position = new Position();
         JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();
