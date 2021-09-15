@@ -36,6 +36,7 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
+import javax.annotation.Nonnull;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -43,8 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 /**
  * Language server context implementation.
@@ -70,6 +69,8 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     private Module currentModule;
 
     private SemanticModel currentSemanticModel;
+
+    private Document currentDocument;
 
     private final LanguageServerContext languageServerContext;
 
@@ -193,11 +194,17 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
 
     @Override
     public Optional<Document> currentDocument() {
-        if (this.cancelChecker == null) {
-            return this.workspace().document(this.filePath());
+        if (this.currentDocument == null) {
+            Optional<Document> document;
+            if (this.cancelChecker == null) {
+                document = this.workspace().document(this.filePath());
+            } else {
+                document = this.workspace().document(this.filePath(), this.cancelChecker);
+            }
+            document.ifPresent(value -> this.currentDocument = value);
         }
 
-        return this.workspace().document(this.filePath(), this.cancelChecker);
+        return Optional.ofNullable(this.currentDocument);
     }
 
     @Override
