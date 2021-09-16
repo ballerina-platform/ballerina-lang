@@ -31,13 +31,13 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  */
 public class ServiceDeclTest {
 
-    @Test()
+    @Test
     public void testServiceDecl() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/service_decl.bal");
         BRunUtil.invoke(compileResult, "testServiceDecl");
     }
 
-    @Test()
+    @Test
     public void testServiceNameLiteral() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/service_decl_service_name_literal.bal");
         BRunUtil.invoke(compileResult, "testServiceName");
@@ -47,6 +47,12 @@ public class ServiceDeclTest {
     public void testAttachMethodParams() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/service_attach_test.bal");
         BRunUtil.invoke(compileResult, "testAttachMethodParams");
+    }
+
+    @Test
+    public void testServiceDeclAnnots() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/services/service_decl_annots.bal");
+        BRunUtil.invoke(compileResult, "testServiceDeclAnnots");
     }
 
     @Test
