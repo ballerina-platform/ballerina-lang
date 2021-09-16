@@ -507,7 +507,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private SemType evaluateConst(BLangConstant constant) {
         SemType s;
-        switch (constant.symbol.value.type.getKind()){
+        switch (constant.symbol.value.type.getKind()) {
             case INT:
                 s = SemTypes.intConst((long) constant.symbol.value.value);
                 break;
