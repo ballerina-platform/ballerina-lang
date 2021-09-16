@@ -256,13 +256,15 @@ public class TypeConverter {
     }
 
     // TODO: return only the first matching type
-    public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType, String varName, boolean isFromJson,
-                                                List<String> errors) {
-        return getConvertibleTypes(inputValue, targetType, varName, isFromJson, new ArrayList<>(), errors);
+    public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType, String parentTargetTypeName,
+                                                String varName, boolean isFromJson, List<String> errors) {
+        return getConvertibleTypes(inputValue, targetType, parentTargetTypeName, varName, isFromJson, new ArrayList<>(),
+                errors);
     }
 
-    public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType, String varName, boolean isFromJson,
-                                                  List<TypeValuePair> unresolvedValues, List<String> errors) {
+    public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType, String parentTargetTypeName,
+                                                String varName, boolean isFromJson,
+                                                List<TypeValuePair> unresolvedValues, List<String> errors) {
         Set<Type> convertibleTypes = new LinkedHashSet<>();
 
         int targetTypeTag = targetType.getTag();
@@ -273,8 +275,8 @@ public class TypeConverter {
                     if (TypeChecker.getType(inputValue) == memType) {
                         return Set.of(memType);
                     }
-                    convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, varName, isFromJson,
-                            unresolvedValues, errors));
+                    convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, targetType.toString(), varName,
+                            isFromJson, unresolvedValues, errors));
                 }
                 break;
             case TypeTags.ARRAY_TAG:
@@ -311,8 +313,8 @@ public class TypeConverter {
                 break;
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((BIntersectionType) targetType).getEffectiveType();
-                convertibleTypes.addAll(getConvertibleTypes(inputValue, effectiveType, varName, isFromJson,
-                        unresolvedValues, errors));
+                convertibleTypes.addAll(getConvertibleTypes(inputValue, effectiveType, targetType.toString(), varName,
+                        isFromJson, unresolvedValues, errors));
                 break;
             case TypeTags.FINITE_TYPE_TAG:
                 BFiniteType finiteType = (BFiniteType) targetType;
@@ -336,19 +338,21 @@ public class TypeConverter {
                 if (TypeChecker.checkIsLikeType(inputValue, targetType, true)) {
                     convertibleTypes.add(targetType);
                 } else if ((varName != null) && (errors.size() <= MAX_CONVERSION_ERROR_COUNT)) {
-                    errors.add("variable '" + varName + "' should be of type '" + targetType + "'");
+                    errors.add("field '" + varName + "' in record '" + parentTargetTypeName + "' should be of type '" +
+                            targetType + "'");
                 }
         }
         return convertibleTypes;
     }
 
-    public static List<Type> getConvertibleTypesFromJson(Object value, Type targetType, String varName,
-                                                         List<TypeValuePair> unresolvedValues, List<String> errors) {
+    public static List<Type> getConvertibleTypesFromJson(Object value, Type targetType, String parentTargetTypeName,
+                                                         String varName, List<TypeValuePair> unresolvedValues,
+                                                         List<String> errors) {
 
         int targetTypeTag = targetType.getTag();
 
-        List<Type> convertibleTypes = new ArrayList<>(TypeConverter.getConvertibleTypes(value, targetType, varName,
-                true, unresolvedValues, errors));
+        List<Type> convertibleTypes = new ArrayList<>(TypeConverter.getConvertibleTypes(value, targetType,
+                parentTargetTypeName, varName, true, unresolvedValues, errors));
 
         if (convertibleTypes.size() == 0) {
             switch (targetTypeTag) {
@@ -363,7 +367,7 @@ public class TypeConverter {
                     break;
                 case TypeTags.INTERSECTION_TAG:
                     return getConvertibleTypesFromJson(value, ((BIntersectionType) targetType).getEffectiveType(),
-                            varName, unresolvedValues, errors);
+                            targetType.toString(), varName, unresolvedValues, errors);
             }
         }
         return convertibleTypes;
@@ -418,12 +422,12 @@ public class TypeConverter {
             if (isFromJson) {
                 if (targetFieldTypes.containsKey(fieldName)) {
                     if (getConvertibleTypesFromJson(valueEntry.getValue(), targetFieldTypes.get(fieldName),
-                            fieldNameLong, unresolvedValues, errors).size() != 1) {
+                            targetType.toString(), fieldNameLong, unresolvedValues, errors).size() != 1) {
                         returnVal = false;
                     }
                 } else if (!targetType.sealed) {
-                    if (getConvertibleTypesFromJson(valueEntry.getValue(), restFieldType, fieldNameLong,
-                            unresolvedValues, errors).size() != 1) {
+                    if (getConvertibleTypesFromJson(valueEntry.getValue(), restFieldType, targetType.toString(),
+                            fieldNameLong, unresolvedValues, errors).size() != 1) {
                         returnVal = false;
                     }
                 } else {
@@ -435,13 +439,13 @@ public class TypeConverter {
                 }
             } else {
                 if (targetFieldTypes.containsKey(fieldName)) {
-                    if (getConvertibleTypes(valueEntry.getValue(), targetFieldTypes.get(fieldName), fieldNameLong,
-                            false, unresolvedValues, errors).size() != 1) {
+                    if (getConvertibleTypes(valueEntry.getValue(), targetFieldTypes.get(fieldName),
+                            targetType.toString(), fieldNameLong, false, unresolvedValues, errors).size() != 1) {
                         returnVal = false;
                     }
                 } else if (!targetType.sealed) {
-                    if (getConvertibleTypes(valueEntry.getValue(), restFieldType, fieldNameLong, false,
-                            unresolvedValues, errors).size() != 1) {
+                    if (getConvertibleTypes(valueEntry.getValue(), restFieldType, targetType.toString(), fieldNameLong,
+                            false, unresolvedValues, errors).size() != 1) {
                         returnVal = false;
                     }
                 } else {
@@ -481,7 +485,7 @@ public class TypeConverter {
             return false;
         }
         for (Object mapEntry : ((MapValueImpl) sourceValue).values()) {
-            if (getConvertibleTypes(mapEntry, targetType.getConstrainedType(), null, false,
+            if (getConvertibleTypes(mapEntry, targetType.getConstrainedType(), targetType.toString(), null, false,
                     unresolvedValues, new ArrayList<>()).size() != 1) {
                 return false;
             }
@@ -543,7 +547,7 @@ public class TypeConverter {
 
     private static boolean isConvertibleToArrayInstance(Object sourceElement, Type targetType,
                                                         List<TypeValuePair> unresolvedValues) {
-        Set<Type> convertibleTypes = getConvertibleTypes(sourceElement, targetType, null, false,
+        Set<Type> convertibleTypes = getConvertibleTypes(sourceElement, targetType, null, null, false,
                 unresolvedValues, new ArrayList<>());
         if (convertibleTypes.isEmpty() || !isConvertible(convertibleTypes, sourceElement)) {
             return false;
