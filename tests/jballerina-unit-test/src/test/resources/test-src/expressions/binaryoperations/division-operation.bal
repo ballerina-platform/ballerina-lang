@@ -125,6 +125,10 @@ function testDivisionNullable() {
     int? a17 = 1;
     int? a18 = a16 / a17;
 
+    int a19 = 30;
+    Ints? a20 = 2;
+    int? a21 = a19 / a20;
+
     assertEqual(a10, 1);
     assertEqual(a11, 5);
     assertEqual(a12, ());
@@ -132,6 +136,7 @@ function testDivisionNullable() {
     assertEqual(a14, 6.0);
     assertEqual(a15, ());
     assertEqual(a16, 2);
+    assertEqual(a21, 15);
 }
 
 function assertEqual(any actual, any expected) {

@@ -1845,10 +1845,12 @@ public class SymbolResolver extends BLangNodeVisitor {
                 return createBinaryOperator(opKind, lhsType, rhsType, compatibleType2);
             }
             if (lhsType.isNullable()) {
-                return createBinaryOperator(opKind, lhsType, rhsType, lhsType);
+                compatibleType1 = BUnionType.create(null, compatibleType1, symTable.nilType);
+                return createBinaryOperator(opKind, lhsType, rhsType, compatibleType1);
             }
             if (rhsType.isNullable()) {
-                return createBinaryOperator(opKind, lhsType, rhsType, rhsType);
+                compatibleType2 = BUnionType.create(null, compatibleType2, symTable.nilType);
+                return createBinaryOperator(opKind, lhsType, rhsType, compatibleType2);
             }
             return createBinaryOperator(opKind, lhsType, rhsType, compatibleType1);
         }

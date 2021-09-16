@@ -115,6 +115,10 @@ function testMultiplyNullable() {
     int? a17 = 1;
     int? a18 = a16 * a17;
 
+    int a19 = 25;
+    Ints? a20 = 2;
+    int? a21 = a19 * a20;
+
     assertEqual(a10, 100);
     assertEqual(a11, 5);
     assertEqual(a12, ());
@@ -122,6 +126,7 @@ function testMultiplyNullable() {
     assertEqual(a14, 150.0);
     assertEqual(a15, ());
     assertEqual(a18, 2);
+    assertEqual(a21, 50);
 }
 
 function assertEqual(any actual, any expected) {

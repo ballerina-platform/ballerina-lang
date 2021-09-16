@@ -99,6 +99,10 @@ function testSubNullable() {
     int? a17 = 1;
     int? a18 = a16 - a17;
 
+    int a19 = 25;
+    Ints? a20 = 2;
+    int? a21 = a19 - a20;
+
     assertEqual(a10, 1);
     assertEqual(a11, 2);
     assertEqual(a12, ());
@@ -106,6 +110,7 @@ function testSubNullable() {
     assertEqual(a14, 0.5);
     assertEqual(a15, ());
     assertEqual(a18, 1);
+    assertEqual(a21, 23);
 }
 
 function testContextuallyExpectedTypeOfNumericLiteralInSubtract() {

@@ -175,6 +175,10 @@ function testAddNullable() {
     int? a17 = 1;
     int? a18 = a16 + a17;
 
+    int a19 = 25;
+    Ints? a20 = 2;
+    int? a21 = a19 + a20;
+
     assertEqual(a10, 33);
     assertEqual(a11, 22);
     assertEqual(a12, ());
@@ -182,6 +186,7 @@ function testAddNullable() {
     assertEqual(a14, 10.5);
     assertEqual(a15, ());
     assertEqual(a18, 3);
+    assertEqual(a21, 27);
 }
 
 function assertEqual(any actual, any expected) {
