@@ -22,9 +22,12 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 
 import java.util.List;
+
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.FUNCTION_NOT_FOUND;
 
 /**
  * Ballerina JVM runtime instance method representation.
@@ -44,15 +47,13 @@ public class RuntimeInstanceMethod extends RuntimeMethod {
     protected Value invoke() throws EvaluationException {
         try {
             if (!(objectValueRef instanceof ObjectReference)) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR
-                        .getString(), methodRef.name()));
+                throw createEvaluationException(FUNCTION_EXECUTION_ERROR, methodRef.name());
             }
             List<Value> argValueList = getMethodArgs(this);
             return ((ObjectReference) objectValueRef).invokeMethod(context.getOwningThread().getThreadReference(),
                     methodRef, argValueList, ObjectReference.INVOKE_SINGLE_THREADED);
         } catch (ClassNotLoadedException e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_NOT_FOUND.getString(),
-                    methodRef.name()));
+            throw createEvaluationException(FUNCTION_NOT_FOUND, methodRef.name());
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {

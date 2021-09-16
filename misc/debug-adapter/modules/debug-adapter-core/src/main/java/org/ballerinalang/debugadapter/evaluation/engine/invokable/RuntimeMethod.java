@@ -20,13 +20,15 @@ import com.sun.jdi.Method;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR;
 
 /**
  * Ballerina JVM runtime method representation.
@@ -43,8 +45,7 @@ public abstract class RuntimeMethod extends JvmMethod {
     protected List<Value> getMethodArgs(JvmMethod method) throws EvaluationException {
         try {
             if (argValues == null && argEvaluators == null) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR
-                        .getString(), methodRef.name()));
+                throw createEvaluationException(FUNCTION_EXECUTION_ERROR, methodRef.name());
             }
             if (argValues != null) {
                 return argValues;
@@ -58,8 +59,7 @@ public abstract class RuntimeMethod extends JvmMethod {
             }
             return argValueList;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString(),
-                    methodRef.name()));
+            throw createEvaluationException(FUNCTION_EXECUTION_ERROR, methodRef.name());
         }
     }
 }

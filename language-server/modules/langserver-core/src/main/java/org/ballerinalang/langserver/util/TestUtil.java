@@ -46,6 +46,7 @@ import org.eclipse.lsp4j.CompletionItemCapabilities;
 import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.CompletionTriggerKind;
 import org.eclipse.lsp4j.DefinitionParams;
+import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
@@ -74,9 +75,11 @@ import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.SymbolTag;
 import org.eclipse.lsp4j.SymbolTagSupportCapabilities;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
+import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceClientCapabilities;
 import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
@@ -86,7 +89,6 @@ import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -470,6 +472,17 @@ public class TestUtil {
         serviceEndpoint.notify("textDocument/didOpen", documentParams);
     }
 
+    public static void didChangeDocument(Endpoint serviceEndpoint, Path filePath, String content) {
+        VersionedTextDocumentIdentifier identifier = new VersionedTextDocumentIdentifier();
+        identifier.setUri(filePath.toUri().toString());
+
+        DidChangeTextDocumentParams didChangeTextDocumentParams = new DidChangeTextDocumentParams();
+        didChangeTextDocumentParams.setTextDocument(identifier);
+        didChangeTextDocumentParams.setContentChanges(List.of(new TextDocumentContentChangeEvent(content)));
+
+        serviceEndpoint.notify("textDocument/didChange", didChangeTextDocumentParams);
+    }
+
     /**
      * Close an already opened document.
      *
@@ -504,8 +517,11 @@ public class TestUtil {
      * @return {@link Endpoint}     Service Endpoint
      */
     public static Endpoint initializeLanguageSever(BallerinaLanguageServer languageServer) {
+        return initializeLanguageSever(languageServer, OutputStream.nullOutputStream());
+    }
+    
+    public static Endpoint initializeLanguageSever(BallerinaLanguageServer languageServer, OutputStream out) {
         InputStream in = new ByteArrayInputStream(new byte[1024]);
-        OutputStream out = new ByteArrayOutputStream();
         Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(languageServer,
                 ExtendedLanguageClient.class, in, out);
         ExtendedLanguageClient client = launcher.getRemoteProxy();
