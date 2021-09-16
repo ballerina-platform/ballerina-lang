@@ -187,8 +187,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             }
 
             nodeJson.add("typeData", symbolJson);
-            if (node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK && this.visibleEpsForEachBlock.size() > 0
-                    && nodeJson.get("typeData") != null) {
+            if (node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK && nodeJson.get("typeData") != null) {
                 JsonArray eps = new JsonArray();
                 this.visibleEpsForEachBlock.forEach(eps::add);
                 this.visibleEpsForModule.forEach(eps::add);
