@@ -23,21 +23,21 @@ package io.ballerina.projects;
  * @since 2.0.0
  */
 public class CompilationOptions {
-    private final Boolean offlineBuild;
-    private final Boolean experimental;
-    private final Boolean observabilityIncluded;
-    private final Boolean dumpBir;
-    private final String dumpBirFile;
-    private final String cloud;
-    private final Boolean listConflictedClasses;
-    private final Boolean sticky;
-    private final Boolean dumpGraph;
-    private final Boolean dumpRawGraph;
+    Boolean offlineBuild;
+    Boolean experimental;
+    Boolean observabilityIncluded;
+    Boolean dumpBir;
+    String dumpBirFile;
+    String cloud;
+    Boolean listConflictedClasses;
+    Boolean sticky;
+    Boolean dumpGraph;
+    Boolean dumpRawGraphs;
 
     CompilationOptions(Boolean offlineBuild, Boolean experimental,
                        Boolean observabilityIncluded, Boolean dumpBir, String dumpBirFile,
                        String cloud, Boolean listConflictedClasses, Boolean sticky,
-                       Boolean dumpGraph, Boolean dumpRawGraph) {
+                       Boolean dumpGraph, Boolean dumpRawGraphs) {
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
@@ -47,7 +47,7 @@ public class CompilationOptions {
         this.listConflictedClasses = listConflictedClasses;
         this.sticky = sticky;
         this.dumpGraph = dumpGraph;
-        this.dumpRawGraph = dumpRawGraph;
+        this.dumpRawGraphs = dumpRawGraphs;
     }
 
     public boolean offlineBuild() {
@@ -78,8 +78,8 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(this.dumpGraph);
     }
 
-    public Boolean dumpRawGraph() {
-        return toBooleanDefaultIfNull(this.dumpRawGraph);
+    public Boolean dumpRawGraphs() {
+        return toBooleanDefaultIfNull(this.dumpRawGraphs);
     }
 
     public String getCloud() {
@@ -123,10 +123,10 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.dumpGraph(this.dumpGraph);
         }
-        if (theirOptions.dumpRawGraph != null) {
-            compilationOptionsBuilder.dumpRawGraph(theirOptions.dumpRawGraph);
+        if (theirOptions.dumpRawGraphs != null) {
+            compilationOptionsBuilder.dumpRawGraphs(theirOptions.dumpRawGraphs);
         } else {
-            compilationOptionsBuilder.dumpRawGraph(this.dumpRawGraph);
+            compilationOptionsBuilder.dumpRawGraphs(this.dumpRawGraphs);
         }
         if (theirOptions.cloud != null) {
             compilationOptionsBuilder.cloud(theirOptions.cloud);

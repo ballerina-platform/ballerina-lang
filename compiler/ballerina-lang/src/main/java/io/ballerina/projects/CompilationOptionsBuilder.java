@@ -74,7 +74,7 @@ public class CompilationOptionsBuilder {
         return this;
     }
 
-    CompilationOptionsBuilder dumpRawGraph(Boolean value) {
+    CompilationOptionsBuilder dumpRawGraphs(Boolean value) {
         dumpRawGraph = value;
         return this;
     }

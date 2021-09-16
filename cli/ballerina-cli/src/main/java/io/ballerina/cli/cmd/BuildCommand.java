@@ -150,8 +150,8 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-graph", hidden = true)
     private boolean dumpGraph;
 
-    @CommandLine.Option(names = "--dump-raw-graph", hidden = true)
-    private boolean dumpRawGraph;
+    @CommandLine.Option(names = "--dump-raw-graphs", hidden = true)
+    private boolean dumpRawGraphs;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -368,7 +368,7 @@ public class BuildCommand implements BLauncherCmd {
                 .dumpBir(dumpBIR)
                 .dumpBirFile(dumpBIRFile)
                 .dumpGraph(dumpGraph)
-                .dumpRawGraph(dumpRawGraph)
+                .dumpRawGraphs(dumpRawGraphs)
                 .listConflictedClasses(listConflictedClasses)
                 .dumpBuildTime(dumpBuildTime)
                 .sticky(sticky)

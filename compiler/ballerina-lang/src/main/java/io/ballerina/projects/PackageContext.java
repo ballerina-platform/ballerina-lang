@@ -225,7 +225,7 @@ class PackageContext {
                 .cloud(this.compilationOptions.getCloud())
                 .dumpBirFile(this.compilationOptions.getBirDumpFile())
                 .dumpGraph(this.compilationOptions.dumpGraph())
-                .dumpRawGraph(this.compilationOptions.dumpRawGraph())
+                .dumpRawGraphs(this.compilationOptions.dumpRawGraphs())
                 .listConflictedClasses(this.compilationOptions.listConflictedClasses())
                 .build();
         CompilationOptions mergedOptions = options.acceptTheirs(compilationOptions);

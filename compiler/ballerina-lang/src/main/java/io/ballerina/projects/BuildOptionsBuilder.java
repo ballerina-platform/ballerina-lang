@@ -100,8 +100,8 @@ public class BuildOptionsBuilder {
         return this;
     }
 
-    public BuildOptionsBuilder dumpRawGraph(Boolean value) {
-        compilationOptionsBuilder.dumpRawGraph(value);
+    public BuildOptionsBuilder dumpRawGraphs(Boolean value) {
+        compilationOptionsBuilder.dumpRawGraphs(value);
         return this;
     }
 
