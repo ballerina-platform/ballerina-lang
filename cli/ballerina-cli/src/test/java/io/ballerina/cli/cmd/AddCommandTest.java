@@ -125,7 +125,7 @@ public class AddCommandTest extends BaseCommandTest {
     }
 
     // if module name more than 256 characters is passed
-    @Test(description = "Test add command with invalid module name")
+    @Test(description = "Test add command with module name has more than 256 characters")
     public void testAddCommandWithNameHasMoreThan256Chars() throws IOException {
         String moduleName = "thisIsVeryLongModuleJustUsingItForTesting"
                 + "thisIsVeryLongModuleJustUsingItForTesting"
@@ -134,7 +134,6 @@ public class AddCommandTest extends BaseCommandTest {
                 + "thisIsVeryLongModuleJustUsingItForTesting"
                 + "thisIsVeryLongModuleJustUsingItForTesting"
                 + "thisIsVeryLongModuleJustUsingItForTesting";
-        // Test if no arguments was passed in
         String[] args = {moduleName};
         AddCommand addCommand = new AddCommand(projectPath, printStream, false);
         new CommandLine(addCommand).parseArgs(args);
@@ -142,6 +141,42 @@ public class AddCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(readOutput().contains("invalid module name : '" + moduleName + "' :\n"
                         + "Maximum length of module name is 256 characters."));
+    }
+
+    @Test(description = "Test add command with module name has initial underscore")
+    public void testAddCommandWithNameHasInitialUnderscore() throws IOException {
+        String moduleName = "_my_module";
+        String[] args = {moduleName};
+        AddCommand addCommand = new AddCommand(projectPath, printStream, false);
+        new CommandLine(addCommand).parseArgs(args);
+        addCommand.execute();
+
+        Assert.assertTrue(readOutput().contains("invalid module name : '_my_module' :\n"
+                + "Module name cannot have initial underscore characters."));
+    }
+
+    @Test(description = "Test add command with module name has trailing underscore")
+    public void testAddCommandWithNameHasTrailingUnderscore() throws IOException {
+        String moduleName = "my_module_";
+        String[] args = {moduleName};
+        AddCommand addCommand = new AddCommand(projectPath, printStream, false);
+        new CommandLine(addCommand).parseArgs(args);
+        addCommand.execute();
+
+        Assert.assertTrue(readOutput().contains("invalid module name : 'my_module_' :\n"
+                + "Module name cannot have trailing underscore characters."));
+    }
+
+    @Test(description = "Test add command with module name has consecutive underscores")
+    public void testAddCommandWithNameHasConsecutiveUnderscores() throws IOException {
+        String moduleName = "my__module";
+        String[] args = {moduleName};
+        AddCommand addCommand = new AddCommand(projectPath, printStream, false);
+        new CommandLine(addCommand).parseArgs(args);
+        addCommand.execute();
+
+        Assert.assertTrue(readOutput().contains("invalid module name : 'my__module' :\n"
+                + "Module name cannot have consecutive underscore characters."));
     }
 
     @Test(description = "Test add command with help flag")
