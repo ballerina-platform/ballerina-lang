@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangConstRef extends BLangSimpleVarRef implements LiteralNode, RecordLiteralNode.RecordVarNameFieldNode {
 
+    // Parser Flags and Data
     public Object value;
     public String originalValue;
 

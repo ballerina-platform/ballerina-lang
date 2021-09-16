@@ -31,6 +31,7 @@ import java.util.List;
  */
 public class BLangXMLSequenceLiteral extends BLangExpression implements XMLLiteralNode {
 
+    // BLangNodes
     public List<BLangExpression> xmlItems;
 
     public BLangXMLSequenceLiteral() {

@@ -40,22 +40,27 @@ import java.util.Map;
  */
 public class BLangXMLElementLiteral extends BLangExpression implements XMLElementLiteralNode {
 
+    // BLangNodes
     public BLangExpression startTagName;
     public BLangExpression endTagName;
     public List<BLangXMLAttribute> attributes;
     public List<BLangExpression> children;
-    public Map<Name, BXMLNSSymbol> namespacesInScope;
-    public List<BLangXMLNS> inlineNamespaces;
-    public BXMLNSSymbol defaultNsSymbol;
+
+    // Parser Flags and Data
     public boolean isRoot;
+
+    // Semantic Data
+    public List<BLangXMLNS> inlineNamespaces;
+    public Map<Name, BXMLNSSymbol> namespacesInScope;
+    public BXMLNSSymbol defaultNsSymbol;
     public Scope scope;
     public List<BLangExpression> modifiedChildren;
-    
+
     public BLangXMLElementLiteral() {
-        attributes = new ArrayList<BLangXMLAttribute>();
-        children = new ArrayList<BLangExpression>();
-        namespacesInScope = new LinkedHashMap<Name, BXMLNSSymbol>();
-        inlineNamespaces = new ArrayList<BLangXMLNS>();
+        attributes = new ArrayList<>();
+        children = new ArrayList<>();
+        namespacesInScope = new LinkedHashMap<>();
+        inlineNamespaces = new ArrayList<>();
     }
 
     @Override

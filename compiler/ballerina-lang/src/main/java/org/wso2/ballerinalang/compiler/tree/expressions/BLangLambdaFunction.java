@@ -36,7 +36,10 @@ import java.util.TreeMap;
  */
 public class BLangLambdaFunction extends BLangExpression implements LambdaFunctionNode {
 
+    // BLangNodes
     public BLangFunction function;
+
+    // Semantic Data
     public SymbolEnv capturedClosureEnv;
     public TreeMap<Integer, BVarSymbol> paramMapSymbolsOfEnclInvokable = new TreeMap<>();
     public TreeMap<Integer, BVarSymbol>  enclMapSymbols = new TreeMap<>();

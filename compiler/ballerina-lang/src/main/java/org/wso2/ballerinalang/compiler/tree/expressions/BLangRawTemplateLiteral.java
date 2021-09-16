@@ -35,6 +35,7 @@ import java.util.List;
  */
 public class BLangRawTemplateLiteral extends BLangExpression implements RawTemplateLiteralNode {
 
+    // BLangNodes
     public List<BLangLiteral> strings;
     public List<BLangExpression> insertions;
 

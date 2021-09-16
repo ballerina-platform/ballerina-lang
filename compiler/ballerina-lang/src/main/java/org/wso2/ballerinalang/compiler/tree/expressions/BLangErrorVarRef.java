@@ -37,13 +37,17 @@ import java.util.List;
  * @since 0.985.0
  */
 public class BLangErrorVarRef extends BLangVariableReference implements ErrorVariableReferenceNode {
-    public BVarSymbol varSymbol;
+
+    // BLangNodes
     public BLangIdentifier pkgAlias;
     public BLangVariableReference message;
     public BLangVariableReference cause;
     public List<BLangNamedArgsExpression> detail;
     public BLangVariableReference restVar;
     public BLangType typeNode;
+
+    // Semantic Data
+    public BVarSymbol varSymbol;
 
     public BLangErrorVarRef() {
         detail = new ArrayList<>();

@@ -32,9 +32,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangXMLAttribute extends BLangExpression implements XMLAttributeNode {
 
+    // BLangNodes
     public BLangExpression name;
     public BLangXMLQuotedString value;
-    public boolean isNamespaceDeclr;
+
+    // Parser Flags and Data
+    public boolean isNamespaceDeclr; // TODO: #AST_CLEAN
+
+    // Semantic Data
     public BSymbol symbol;
 
     @Override

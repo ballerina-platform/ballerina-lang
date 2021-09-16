@@ -30,6 +30,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangDynamicArgExpr extends BLangExpression implements DynamicArgNode {
 
+    // BLangNodes
+
+    // Semantic Data
+    // TODO: #AST_CLEAN - Seem no active usage
     public BLangExpression condition;
     public BLangExpression conditionalArgument;
 
@@ -55,6 +59,6 @@ public class BLangDynamicArgExpr extends BLangExpression implements DynamicArgNo
 
     @Override
     public String toString() {
-        return "{{" + String.valueOf(condition) + "," + String.valueOf(conditionalArgument) + "}}";
+        return "{{" + condition + "," + conditionalArgument + "}}";
     }
 }

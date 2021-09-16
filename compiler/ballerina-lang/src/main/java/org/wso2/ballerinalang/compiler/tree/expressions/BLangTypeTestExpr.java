@@ -34,8 +34,11 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
  */
 public class BLangTypeTestExpr extends BLangExpression implements TypeTestExpressionNode {
 
+    // BLangNodes
     public BLangExpression expr;
     public BLangType typeNode;
+
+    // Parser Flags and Data
     public boolean isNegation;
 
     public BLangTypeTestExpr() {

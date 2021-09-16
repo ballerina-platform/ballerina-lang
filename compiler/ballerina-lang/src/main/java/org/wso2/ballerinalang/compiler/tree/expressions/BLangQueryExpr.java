@@ -36,8 +36,12 @@ import java.util.stream.Collectors;
  * @since 1.2.0
  */
 public class BLangQueryExpr extends BLangExpression implements QueryExpressionNode {
+
+    // BLangNodes
     public List<BLangNode> queryClauseList = new ArrayList<>();
     public List<IdentifierNode> fieldNameIdentifierList = new ArrayList<>();
+
+    // Parser Flags and Data
     public boolean isStream = false;
     public boolean isTable = false;
 

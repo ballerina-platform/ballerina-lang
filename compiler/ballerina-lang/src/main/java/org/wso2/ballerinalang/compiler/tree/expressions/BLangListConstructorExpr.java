@@ -39,7 +39,10 @@ import java.util.List;
  */
 public class BLangListConstructorExpr extends BLangExpression implements ListConstructorExprNode {
 
+    // BLangNodes
     public List<BLangExpression> exprs;
+
+    // Semantic Data
     public boolean isTypedescExpr = false;
     public BType typedescType = null;
 

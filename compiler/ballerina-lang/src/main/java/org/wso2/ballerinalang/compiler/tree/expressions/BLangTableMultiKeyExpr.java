@@ -33,6 +33,7 @@ import java.util.List;
  */
 public class BLangTableMultiKeyExpr extends BLangExpression implements TableMultiKeyExpressionNode {
 
+    // BLangNodes
     public List<BLangExpression> multiKeyIndexExprs = new ArrayList<>();
 
     public List<BLangExpression> getMultiKeyIndexExprs() {
@@ -61,6 +62,6 @@ public class BLangTableMultiKeyExpr extends BLangExpression implements TableMult
 
     @Override
     public String toString() {
-        return "[" + String.valueOf(multiKeyIndexExprs) + "]";
+        return "[" + multiKeyIndexExprs + "]";
     }
 }

@@ -48,6 +48,7 @@ import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_SPREAD_OP;
  */
 public class BLangRecordLiteral extends BLangExpression implements RecordLiteralNode {
 
+    // BLangNodes
     public List<RecordField> fields;
 
     public BLangRecordLiteral() {
@@ -104,8 +105,11 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      */
     public static class BLangRecordKeyValueField extends BLangNode implements RecordKeyValueFieldNode {
 
+        // BLangNodes
         public BLangRecordKey key;
         public BLangExpression valueExpr;
+
+        // Parser Flags and Data
         public boolean readonly;
 
         public BLangRecordKeyValueField() {
@@ -168,6 +172,16 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         public boolean readonly;
 
         @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
+            return modifier.modify(this, props);
+        }
+
+        @Override
         public boolean isKeyValueField() {
             return false;
         }
@@ -180,6 +194,7 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      */
     public static class BLangRecordSpreadOperatorField extends BLangNode implements RecordSpreadOperatorFieldNode {
 
+        // BLangNodes
         public BLangExpression expr;
 
         @Override
@@ -230,10 +245,13 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      */
     public static class BLangRecordKey extends BLangNode {
 
-        public boolean computedKey = false;
-
+        // BLangNodes
         public BLangExpression expr;
 
+        // Parser Flags and Data
+        public boolean computedKey = false;
+
+        // Semantic Data
         // This field is set only if the record type is struct.
         public BVarSymbol fieldSymbol;
 
@@ -273,6 +291,7 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      * @since 0.94
      */
     public static class BLangStructLiteral extends BLangRecordLiteral {
+
         public BAttachedFunction initializer;
         public TreeMap<Integer, BVarSymbol> enclMapSymbols;
 
@@ -333,8 +352,10 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      *
      * @since 0.982.0
      */
+    @Deprecated
     public static class BLangChannelLiteral extends BLangRecordLiteral {
 
+        // TODO: #AST_CLEAN
         public String channelName;
 
         public BLangChannelLiteral(Location pos, BType channelType, String channelName) {

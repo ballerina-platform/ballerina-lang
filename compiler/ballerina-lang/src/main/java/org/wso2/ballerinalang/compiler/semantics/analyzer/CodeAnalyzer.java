@@ -126,7 +126,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
@@ -166,7 +165,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
@@ -3571,18 +3569,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(bLangArrowFunction.body.expr);
         this.defaultValueState = prevDefaultValueState;
     }
-
-    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-
-        analyzeExpr(xmlAttributeAccessExpr.expr);
-        analyzeExpr(xmlAttributeAccessExpr.indexExpr);
-    }
-
-    public void visit(BLangIntRangeExpression intRangeExpression) {
-        analyzeExpr(intRangeExpression.startExpr);
-        analyzeExpr(intRangeExpression.endExpr);
-    }
-
 
     /* Type Nodes */
 

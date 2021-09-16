@@ -380,7 +380,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_XML_NS_INTERPOLATION("BCE2626", "invalid.xml.ns.interpolation"),
     CANNOT_FIND_XML_NAMESPACE("BCE2627", "cannot.find.xml.namespace.prefix"),
     UNSUPPORTED_METHOD_INVOCATION_XML_NAV("BCE2628", "method.invocation.in.xml.navigation.expressions.not.supported"),
-    DEPRECATED_XML_ATTRIBUTE_ACCESS("BCE2629", "deprecated.xml.attribute.access.expression"),
     UNSUPPORTED_MEMBER_ACCESS_IN_XML_NAVIGATION("BCE2630", "member.access.within.xml.navigation.expression.not" +
             ".supported"),
 

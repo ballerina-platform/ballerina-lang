@@ -34,10 +34,15 @@ import java.util.StringJoiner;
  */
 public class BLangXMLNavigationAccess extends BLangExpression implements XMLNavigationAccess {
 
+    // BLangNodes
     public BLangExpression expr;
-    public final NavAccessType navAccessType;
-    public final List<BLangXMLElementFilter> filters;
     public BLangExpression childIndex;
+    public final List<BLangXMLElementFilter> filters;
+
+    // Parser Flags and Data
+    public final NavAccessType navAccessType;
+
+    // Semantic Data
     // Hack to avoid duplicate error messages in CodeAnalyzer, the reason for this flag is since we are adding
     // the 'receiver' of a method invocation as the first parameter to langlib invocations, XMLNavigationAccess
     // could be checked multiple times when used with langlib functions producing multiple error messages.

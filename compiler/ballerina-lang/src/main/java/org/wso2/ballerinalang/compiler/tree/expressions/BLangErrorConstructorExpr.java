@@ -35,9 +35,13 @@ import java.util.StringJoiner;
  * @since 2.0.0
  */
 public class BLangErrorConstructorExpr extends BLangExpression implements ErrorConstructorExpressionNode {
+
+    // BLangNodes
     public BLangUserDefinedType errorTypeRef;
     public List<BLangExpression> positionalArgs;
     public List<BLangNamedArgsExpression> namedArgs;
+
+    // Semantic Data
     // This is added to store the detail mapping created from the named args and it is used only at desugar.
     public BLangExpression errorDetail;
 

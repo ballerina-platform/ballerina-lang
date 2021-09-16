@@ -33,6 +33,7 @@ import java.util.LinkedList;
 public class BLangMarkDownDeprecatedParametersDocumentation extends BLangExpression
         implements MarkDownDocumentationDeprecatedParametersAttributeNode {
 
+    // BLangNodes
     public LinkedList<BLangMarkdownParameterDocumentation> parameters;
 
     public BLangMarkDownDeprecatedParametersDocumentation() {

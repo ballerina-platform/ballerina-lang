@@ -74,7 +74,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
@@ -111,7 +110,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
@@ -731,15 +729,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
         bLangArrowFunction.body = rewrite(bLangArrowFunction.body);
-        bLangArrowFunction.function = rewrite(bLangArrowFunction.function);
         result = bLangArrowFunction;
-    }
-
-    @Override
-    public void visit(BLangIntRangeExpression intRangeExpression) {
-        intRangeExpression.startExpr = rewrite(intRangeExpression.startExpr);
-        intRangeExpression.endExpr = rewrite(intRangeExpression.endExpr);
-        result = intRangeExpression;
     }
 
     @Override
@@ -883,12 +873,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
         result = xmlnsStmtNode;
-    }
-
-    @Override
-    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-        xmlAttributeAccessExpr.expr = rewrite(xmlAttributeAccessExpr.expr);
-        result = xmlAttributeAccessExpr;
     }
 
     @Override

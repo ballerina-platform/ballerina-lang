@@ -84,7 +84,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
@@ -815,12 +814,6 @@ class NodeFinder extends BaseVisitor {
     public void visit(BLangArrowFunction bLangArrowFunction) {
         lookupNodes(bLangArrowFunction.params);
         lookupNode(bLangArrowFunction.body);
-    }
-
-    @Override
-    public void visit(BLangIntRangeExpression intRangeExpression) {
-        lookupNode(intRangeExpression.startExpr);
-        lookupNode(intRangeExpression.endExpr);
     }
 
     @Override

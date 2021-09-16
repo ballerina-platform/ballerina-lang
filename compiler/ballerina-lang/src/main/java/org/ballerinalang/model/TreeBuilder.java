@@ -77,7 +77,6 @@ import org.ballerinalang.model.tree.expressions.GroupExpressionNode;
 import org.ballerinalang.model.tree.expressions.IgnoreNode;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.InferredTypedescDefaultNode;
-import org.ballerinalang.model.tree.expressions.IntRangeExpression;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
 import org.ballerinalang.model.tree.expressions.IsLikeExpressionNode;
 import org.ballerinalang.model.tree.expressions.LambdaFunctionNode;
@@ -244,7 +243,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
@@ -289,7 +287,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -1034,14 +1031,6 @@ public class TreeBuilder {
 
     public static RawTemplateLiteralNode createRawTemplateLiteralNode() {
         return new BLangRawTemplateLiteral();
-    }
-
-    public static IndexBasedAccessNode createXMLAttributeAccessNode() {
-        return new BLangXMLAttributeAccess();
-    }
-
-    public static IntRangeExpression createIntRangeExpression() {
-        return new BLangIntRangeExpression();
     }
 
     public static RestArgsNode createVarArgsNode() {

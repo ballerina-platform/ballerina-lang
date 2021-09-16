@@ -46,11 +46,14 @@ import java.util.Set;
  */
 public class BLangConstant extends BLangVariable implements ConstantNode, TypeDefinition {
 
+    // BLangNodes
     public BLangIdentifier name;
-    public BConstantSymbol symbol;
-
     // Type definition associated with this constant.
     public BLangTypeDefinition associatedTypeDefinition;
+
+    // Semantic Data
+    public BConstantSymbol symbol;
+
 
     public BLangConstant() {
         this.annAttachments = new ArrayList<>();

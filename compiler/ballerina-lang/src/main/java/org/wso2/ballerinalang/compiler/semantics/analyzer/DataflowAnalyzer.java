@@ -100,7 +100,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
@@ -142,7 +141,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
@@ -1445,18 +1443,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         // Restore the original set of uninitialized vars
         this.uninitializedVars = prevUninitializedVars;
-    }
-
-    @Override
-    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-        analyzeNode(xmlAttributeAccessExpr.expr, env);
-        analyzeNode(xmlAttributeAccessExpr.indexExpr, env);
-    }
-
-    @Override
-    public void visit(BLangIntRangeExpression intRangeExpression) {
-        analyzeNode(intRangeExpression.startExpr, env);
-        analyzeNode(intRangeExpression.endExpr, env);
     }
 
     @Override

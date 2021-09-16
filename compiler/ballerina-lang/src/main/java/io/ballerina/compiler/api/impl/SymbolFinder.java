@@ -88,12 +88,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
@@ -661,7 +659,7 @@ class SymbolFinder extends BaseVisitor {
     public void visit(BLangJoinClause joinClause) {
         lookupNode(joinClause.collection);
         lookupNode((BLangNode) joinClause.variableDefinitionNode);
-        lookupNode((BLangNode) joinClause.onClause);
+        lookupNode(joinClause.onClause);
     }
 
     @Override
@@ -807,7 +805,7 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangTupleVarRef varRefExpr) {
         lookupNodes(varRefExpr.expressions);
-        lookupNode((BLangNode) varRefExpr.restParam);
+        lookupNode(varRefExpr.restParam);
     }
 
     @Override
@@ -816,7 +814,7 @@ class SymbolFinder extends BaseVisitor {
             lookupNode(recordRefField.getBindingPattern());
         }
 
-        lookupNode((BLangExpression) varRefExpr.restParam);
+        lookupNode(varRefExpr.restParam);
     }
 
     @Override
@@ -870,7 +868,7 @@ class SymbolFinder extends BaseVisitor {
         // The assumption for the first condition is that if it's moduled-qualified, it must be a public symbol.
         // Hence owner would be a package symbol.
         if ((invocationExpr.symbol != null && setEnclosingNode(invocationExpr.symbol.owner,
-                                                               invocationExpr.pkgAlias.pos))
+                invocationExpr.pkgAlias.pos))
                 || setEnclosingNode(invocationExpr.symbol, invocationExpr.name.pos)) {
             return;
         }
@@ -891,7 +889,7 @@ class SymbolFinder extends BaseVisitor {
         // The assumption for the first condition is that if it's moduled-qualified, it must be a public symbol.
         // Hence owner would be a package symbol.
         if ((actionInvocationExpr.symbol != null && setEnclosingNode(actionInvocationExpr.symbol.owner,
-                                                                     actionInvocationExpr.pkgAlias.pos))
+                actionInvocationExpr.pkgAlias.pos))
                 || setEnclosingNode(actionInvocationExpr.symbol, actionInvocationExpr.name.pos)) {
             return;
         }
@@ -1053,12 +1051,6 @@ class SymbolFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangIntRangeExpression intRangeExpression) {
-        lookupNode(intRangeExpression.startExpr);
-        lookupNode(intRangeExpression.endExpr);
-    }
-
-    @Override
     public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
         lookupNode(bLangVarArgsExpression.expr);
     }
@@ -1163,7 +1155,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(constrainedType.constraint);
 
         if (this.symbolAtCursor == null) {
-            this.symbolAtCursor = ((BLangNode) constrainedType).getBType().tsymbol;
+            this.symbolAtCursor = constrainedType.getBType().tsymbol;
         }
     }
 
@@ -1605,7 +1597,7 @@ class SymbolFinder extends BaseVisitor {
     }
 
     private boolean isWithinNodeMetaData(TopLevelNode node) {
-        if (node instanceof  AnnotatableNode) {
+        if (node instanceof AnnotatableNode) {
 
             List<AnnotationAttachmentNode> nodes =
                     (List<AnnotationAttachmentNode>) ((AnnotatableNode) node).getAnnotationAttachments();

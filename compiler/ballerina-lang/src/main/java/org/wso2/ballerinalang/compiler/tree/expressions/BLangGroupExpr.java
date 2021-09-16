@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.GroupExpressionNode;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeModifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -31,9 +30,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangGroupExpr extends BLangExpression implements GroupExpressionNode {
 
+    // BLangNodes
     public BLangExpression expression;
-    public boolean isTypedescExpr = false;
-    public BType typedescType = null;
 
     @Override
     public ExpressionNode getExpression() {

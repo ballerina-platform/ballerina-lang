@@ -34,6 +34,7 @@ import java.util.Set;
  */
 public class BLangXMLElementAccess extends BLangExpression implements XMLElementAccess {
 
+    // BLangNodes
     public BLangExpression expr;
     public List<BLangXMLElementFilter> filters;
 

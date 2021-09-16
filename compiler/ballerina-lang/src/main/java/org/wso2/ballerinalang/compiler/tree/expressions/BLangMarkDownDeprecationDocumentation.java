@@ -34,8 +34,11 @@ import java.util.List;
 public class BLangMarkDownDeprecationDocumentation extends BLangExpression
         implements MarkDownDocumentationDeprecationAttributeNode {
 
+    // BLangNodes
     public List<String> deprecationDocumentationLines;
     public String deprecationLine;
+
+    // Semantic Data
     public boolean isCorrectDeprecationLine = false;
 
     public BLangMarkDownDeprecationDocumentation() {

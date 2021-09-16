@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
  */
 public class BLangStatementExpression extends BLangExpression implements StatementExpressionNode {
 
+    // BLangNodes
     public BLangExpression expr;
 
     public BLangStatement stmt;

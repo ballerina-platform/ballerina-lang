@@ -59,7 +59,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
@@ -103,7 +102,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
@@ -469,6 +467,10 @@ public abstract class BLangNodeModifier<T, R> {
         return modifyNode(node, props);
     }
 
+    public R modify(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess node, T props) {
+        return modifyNode(node, props);
+    }
+
     public R modify(BLangGroupExpr node, T props) {
         return modifyNode(node, props);
     }
@@ -481,11 +483,39 @@ public abstract class BLangNodeModifier<T, R> {
         return modifyNode(node, props);
     }
 
-    public R modify(BLangInferredTypedescDefaultNode node, T props) {
+    public R modify(BLangIndexBasedAccess.BLangArrayAccessExpr node, T props) {
         return modifyNode(node, props);
     }
 
-    public R modify(BLangIntRangeExpression node, T props) {
+    public R modify(BLangIndexBasedAccess.BLangMapAccessExpr node, T props) {
+        return modifyNode(node, props);
+    }
+
+    public R modify(BLangIndexBasedAccess.BLangJSONAccessExpr node, T props) {
+        return modifyNode(node, props);
+    }
+
+    public R modify(BLangIndexBasedAccess.BLangTableAccessExpr node, T props) {
+        return modifyNode(node, props);
+    }
+
+    public R modify(BLangIndexBasedAccess.BLangStringAccessExpr node, T props) {
+        return modifyNode(node, props);
+    }
+
+    public R modify(BLangIndexBasedAccess.BLangXMLAccessExpr node, T props) {
+        return modifyNode(node, props);
+    }
+
+    public R modify(BLangIndexBasedAccess.BLangStructFieldAccessExpr node, T props) {
+        return modifyNode(node, props);
+    }
+
+    public R modify(BLangIndexBasedAccess.BLangTupleAccessExpr node, T props) {
+        return modifyNode(node, props);
+    }
+
+    public R modify(BLangInferredTypedescDefaultNode node, T props) {
         return modifyNode(node, props);
     }
 
@@ -589,6 +619,10 @@ public abstract class BLangNodeModifier<T, R> {
         return modifyNode(node, props);
     }
 
+    public R modify(BLangRecordLiteral.BLangRecordVarNameField node, T props) {
+        return modifyNode(node, props);
+    }
+
     public R modify(BLangRecordLiteral.BLangRecordSpreadOperatorField node, T props) {
         return modifyNode(node, props);
     }
@@ -609,6 +643,10 @@ public abstract class BLangNodeModifier<T, R> {
         return modifyNode(node, props);
     }
 
+    public R modify(BLangRecordVarRef.BLangRecordVarRefKeyValue node, T props) {
+        return modifyNodeEntry(node, props);
+    }
+
     public R modify(BLangRestArgsExpression node, T props) {
         return modifyNode(node, props);
     }
@@ -618,6 +656,26 @@ public abstract class BLangNodeModifier<T, R> {
     }
 
     public R modify(BLangSimpleVarRef node, T props) {
+        return modifyNode(node, props);
+    }
+
+    public R modify(BLangSimpleVarRef.BLangLocalVarRef node, T props) {
+        return modifyNode(node, props);
+    }
+
+    public R modify(BLangSimpleVarRef.BLangFieldVarRef node, T props) {
+        return modifyNode(node, props);
+    }
+
+    public R modify(BLangSimpleVarRef.BLangPackageVarRef node, T props) {
+        return modifyNode(node, props);
+    }
+
+    public R modify(BLangSimpleVarRef.BLangFunctionVarRef node, T props) {
+        return modifyNode(node, props);
+    }
+
+    public R modify(BLangSimpleVarRef.BLangTypeLoad node, T props) {
         return modifyNode(node, props);
     }
 
@@ -698,10 +756,6 @@ public abstract class BLangNodeModifier<T, R> {
     }
 
     public R modify(BLangXMLAttribute node, T props) {
-        return modifyNode(node, props);
-    }
-
-    public R modify(BLangXMLAttributeAccess node, T props) {
         return modifyNode(node, props);
     }
 

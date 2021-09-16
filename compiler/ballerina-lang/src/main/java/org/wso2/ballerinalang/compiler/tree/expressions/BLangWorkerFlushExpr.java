@@ -37,7 +37,10 @@ import java.util.List;
  */
 public class BLangWorkerFlushExpr extends BLangExpression implements WorkerFlushExpressionNode {
 
+    // BLangNodes
     public BLangIdentifier workerIdentifier;
+
+    // Semantic Data
     public BSymbol workerSymbol;
     public List<BLangIdentifier> workerIdentifierList = new ArrayList<>();
     public List<BLangWorkerSend> cachedWorkerSendStmts = new ArrayList<>();
@@ -65,7 +68,7 @@ public class BLangWorkerFlushExpr extends BLangExpression implements WorkerFlush
     @Override
     public String toString() {
         if (workerIdentifier != null) {
-            return "flush " + String.valueOf(workerIdentifier);
+            return "flush " + workerIdentifier;
         }
         return "flush";
     }
