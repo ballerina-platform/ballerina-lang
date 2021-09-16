@@ -85,7 +85,7 @@ public class FromJsonWithType {
                 return null;
             }
             throw createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
         }
 
         Type sourceType = TypeChecker.getType(value);

@@ -57,7 +57,7 @@ public class MultiplyOperationTest {
     }
 
     @Test(description = "Test two int multiply overflow expression", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\" int range " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
                     "overflow\"\\}.*")
     public void testIntOverflowByMultiplication() {
         BRunUtil.invoke(result, "overflowByMultiplication");
