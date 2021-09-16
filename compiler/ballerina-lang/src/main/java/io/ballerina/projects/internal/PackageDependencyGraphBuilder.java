@@ -188,7 +188,7 @@ public class PackageDependencyGraphBuilder {
         depGraph.get(dependentVertex).add(dependencyVertex);
 
         // Recording every dependency relation in raw graph for troubleshooting purposes.
-        if (resolutionOptions.dumpRawGraph()) {
+        if (resolutionOptions.dumpRawGraphs()) {
             DependencyNode dependentNode = vertices.get(dependentVertex);
             rawGraphBuilder.addDependency(dependentNode, dependencyNode);
         }
@@ -208,7 +208,7 @@ public class PackageDependencyGraphBuilder {
 
     private NodeStatus addNewVertex(Vertex vertex, DependencyNode newPkgDep, boolean unresolved) {
         // Adding every node to the raw graph
-        if (resolutionOptions.dumpRawGraph()) {
+        if (resolutionOptions.dumpRawGraphs()) {
             rawGraphBuilder.add(newPkgDep);
         }
 
