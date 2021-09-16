@@ -293,7 +293,11 @@ public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Locatio
 
     @Override
     public Optional<Location> transform(ServiceDeclarationNode serviceDeclarationNode) {
-        return Optional.of(serviceDeclarationNode.serviceKeyword().location());
+        if (serviceDeclarationNode.qualifiers().isEmpty()) {
+            return Optional.of(serviceDeclarationNode.serviceKeyword().location());
+        }
+
+        return serviceDeclarationNode.qualifiers().get(0).apply(this);
     }
 
     @Override
