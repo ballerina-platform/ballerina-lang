@@ -52,12 +52,24 @@ public class ErrorCreator {
     }
 
     /**
+     * Create an error with given reason and details.
+     *
+     * @param message  error message
+     * @param details error details
+     * @return new error
+     */
+    public static BError createError(BString message, BMap<BString, Object> details) {
+        return new ErrorValue(message, details);
+    }
+
+    /**
      * Create an error with given message and details.
      *
      * @param message error message
      * @param details error details
      * @return new error.
      */
+    @Deprecated
     public static BError createError(BString message, BString details) {
         MappingInitialValueEntry[] initialValues;
         if (details != null) {
@@ -100,10 +112,11 @@ public class ErrorCreator {
      * Create an error with given type, reason and details.
      *
      * @param type    error type
-     * @param message  error message
+     * @param message error message
      * @param details error details
      * @return new error
      */
+    @Deprecated
     public static BError createError(Type type, BString message, BString details) {
         MappingInitialValueEntry[] initialValues;
         if (details != null) {
@@ -114,17 +127,6 @@ public class ErrorCreator {
         }
         MapValueImpl<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
         return new ErrorValue(type, message, null, detailMap);
-    }
-
-    /**
-     * Create an error with given reason and details.
-     *
-     * @param message  error message
-     * @param details error details
-     * @return new error
-     */
-    public static BError createError(BString message, BMap<BString, Object> details) {
-        return new ErrorValue(message, details);
     }
 
     /**
@@ -141,7 +143,7 @@ public class ErrorCreator {
     }
 
     /**
-     * Create a error value with given error type defined in the given module.
+     * Create an error value with given error type defined in the given module.
      *
      * @param module        module name
      * @param errorTypeName error type name
@@ -152,9 +154,34 @@ public class ErrorCreator {
      * @throws BError if given error type is not defined in the ballerina module.
      */
     public static BError createError(Module module, String errorTypeName,
-                                     BString message, BError cause, Object details) {
+                                     BString message, BError cause, BMap<BString, Object> details) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module));
         return valueCreator.createErrorValue(errorTypeName, message, cause, details);
+    }
+
+    /**
+     * Create an error value with given error type defined in the given module and reason, cause and details.
+     *
+     * @param module        module name
+     * @param errorTypeName error type name
+     * @param message       error message
+     * @param cause         error cause
+     * @param details       error details
+     * @return error value
+     */
+    @Deprecated
+    public static BError createError(Module module, String errorTypeName,
+                                     BString message, BError cause, BString details) {
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module));
+        MappingInitialValueEntry[] initialValues;
+        if (details != null) {
+            initialValues = new MappingInitialValueEntry[1];
+            initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD, details);
+        } else {
+            initialValues = new MappingInitialValueEntry[0];
+        }
+        MapValueImpl<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
+        return valueCreator.createErrorValue(errorTypeName, message, cause, detailMap);
     }
 
     /**
