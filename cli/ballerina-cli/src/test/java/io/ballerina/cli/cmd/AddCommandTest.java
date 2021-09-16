@@ -120,7 +120,28 @@ public class AddCommandTest extends BaseCommandTest {
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("invalid module name"));
+        Assert.assertTrue(readOutput().contains("invalid module name : 'mymo-dule' :\n"
+                        + "Module name can only contain alphanumerics, underscores and periods."));
+    }
+
+    // if module name more than 256 characters is passed
+    @Test(description = "Test add command with invalid module name")
+    public void testAddCommandWithNameHasMoreThan256Chars() throws IOException {
+        String moduleName = "thisIsVeryLongModuleJustUsingItForTesting"
+                + "thisIsVeryLongModuleJustUsingItForTesting"
+                + "thisIsVeryLongModuleJustUsingItForTesting"
+                + "thisIsVeryLongModuleJustUsingItForTesting"
+                + "thisIsVeryLongModuleJustUsingItForTesting"
+                + "thisIsVeryLongModuleJustUsingItForTesting"
+                + "thisIsVeryLongModuleJustUsingItForTesting";
+        // Test if no arguments was passed in
+        String[] args = {moduleName};
+        AddCommand addCommand = new AddCommand(projectPath, printStream, false);
+        new CommandLine(addCommand).parseArgs(args);
+        addCommand.execute();
+
+        Assert.assertTrue(readOutput().contains("invalid module name : '" + moduleName + "' :\n"
+                        + "Maximum length of module name is 256 characters."));
     }
 
     @Test(description = "Test add command with help flag")
