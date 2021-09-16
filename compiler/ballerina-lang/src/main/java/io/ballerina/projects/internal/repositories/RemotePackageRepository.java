@@ -159,6 +159,9 @@ public class RemotePackageRepository implements PackageRepository {
     public Collection<ImportModuleResponse> getPackageNames(Collection<ImportModuleRequest> requests,
                                                             ResolutionOptions options) {
         Collection<ImportModuleResponse> filesystem = fileSystemRepo.getPackageNames(requests, options);
+        if (options.offline()) {
+            return filesystem;
+        }
         List<ImportModuleResponse> unresolved = filesystem.stream()
                 .filter(r -> r.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED))
                 .collect(Collectors.toList());
