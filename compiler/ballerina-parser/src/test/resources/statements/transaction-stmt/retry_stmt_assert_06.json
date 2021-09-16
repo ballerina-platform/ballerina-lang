@@ -103,17 +103,7 @@
                       "hasDiagnostics": true,
                       "diagnostics": [
                         "ERROR_MISSING_CLOSE_BRACE_TOKEN"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "ON_FAIL_CLAUSE",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "ON_KEYWORD",
-                      "hasDiagnostics": true,
+                      ],
                       "leadingMinutiae": [
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
@@ -143,7 +133,16 @@
                           "kind": "WHITESPACE_MINUTIAE",
                           "value": " "
                         }
-                      ],
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "ON_FAIL_CLAUSE",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "ON_KEYWORD",
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",

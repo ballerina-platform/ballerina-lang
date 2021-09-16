@@ -22,13 +22,15 @@ import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_SCHEDULER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.INVOKE_FUNCTION_ASYNC;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_LANG_CLASSLOADER;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
@@ -52,11 +54,11 @@ public class GeneratedStaticMethod extends GeneratedMethod {
     protected Value invoke() throws EvaluationException {
         try {
             if (!(classRef instanceof ClassType)) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR
-                        .getString(), methodRef.name()));
+                throw createEvaluationException(FUNCTION_EXECUTION_ERROR, methodRef.name());
             }
             List<String> argTypeList = new ArrayList<>();
             argTypeList.add(JAVA_LANG_CLASSLOADER);
+            argTypeList.add(B_SCHEDULER_CLASS);
             argTypeList.add(JAVA_STRING_CLASS);
             argTypeList.add(JAVA_STRING_CLASS);
             argTypeList.add(JAVA_OBJECT_ARRAY_CLASS);
@@ -65,6 +67,7 @@ public class GeneratedStaticMethod extends GeneratedMethod {
 
             List<Value> scheduleMethodArgs = new ArrayList<>();
             scheduleMethodArgs.add(context.getDebuggeeClassLoader());
+            scheduleMethodArgs.add(null);
             scheduleMethodArgs.add(EvaluationUtils.getAsJString(context, classRef.name()));
             scheduleMethodArgs.add(EvaluationUtils.getAsJString(context, methodRef.name()));
             scheduleMethodArgs.addAll(getMethodArgs(this));

@@ -67,7 +67,7 @@ public class DiagnosticsTest {
     private final Gson gson = new Gson();
 
     private final LanguageServerContext serverContext = new LanguageServerContextImpl();
-    
+
     private final BallerinaWorkspaceManager workspaceManager = BallerinaWorkspaceManager.getInstance(serverContext);
 
     @BeforeClass
@@ -104,16 +104,17 @@ public class DiagnosticsTest {
 
     String getResponse(JsonObject configJsonObject) throws IOException, WorkspaceDocumentException {
         Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
-        DocumentServiceContext serviceContext = ContextBuilder.buildBaseContext(sourcePath.toUri().toString(),
-                                                                                this.workspaceManager,
-                                                                                LSContextOperation.TXT_DID_OPEN,
-                                                                                this.serverContext);
+        String uri = sourcePath.toUri().toString();
+        DocumentServiceContext serviceContext = ContextBuilder.buildDocumentServiceContext(uri,
+                this.workspaceManager,
+                LSContextOperation.TXT_DID_OPEN,
+                this.serverContext);
         DidOpenTextDocumentParams documentParams = new DidOpenTextDocumentParams();
         TextDocumentItem textDocumentItem = new TextDocumentItem();
         TextDocumentIdentifier identifier = new TextDocumentIdentifier();
 
         byte[] encodedContent = Files.readAllBytes(sourcePath);
-        identifier.setUri(sourcePath.toUri().toString());
+        identifier.setUri(uri);
         textDocumentItem.setUri(identifier.getUri());
         textDocumentItem.setText(new String(encodedContent));
         documentParams.setTextDocument(textDocumentItem);

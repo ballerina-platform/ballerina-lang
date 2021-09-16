@@ -110,7 +110,7 @@ public class CommandConstants {
 
     public static final String CREATE_VAR_TYPE_GUARD_TITLE = "Create variable and type guard";
 
-    public static final String TYPE_GUARD_TITLE = "Type guard variable";
+    public static final String TYPE_GUARD_TITLE = "Type guard variable '%s'";
 
     public static final String CREATE_VAR_ADD_CHECK_TITLE = "Create variable and check error";
 

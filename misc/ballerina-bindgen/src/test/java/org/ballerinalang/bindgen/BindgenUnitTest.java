@@ -172,6 +172,23 @@ public class BindgenUnitTest {
         Assert.assertFalse(syntaxTree.hasDiagnostics());
     }
 
+    @Test(description = "Test the bindings generated for a Java interface.")
+    public void interfaceMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
+        BindgenEnv interfaceBindgenEnv = new BindgenEnv();
+        interfaceBindgenEnv.setDirectJavaClass(true);
+        interfaceBindgenEnv.setModulesFlag(true);
+        interfaceBindgenEnv.setPackageName("test");
+        interfaceBindgenEnv.setPublicFlag(true);
+        BindgenFileGenerator interfaceBindingsGenerator = new BindgenFileGenerator(interfaceBindgenEnv);
+
+        Path interfacePath = Paths.get(resourceDirectory.toString(), "unit-test-resources", "interfaceMapping.bal");
+        String interfaceValue = Files.readString(resourceDirectory.resolve(interfacePath));
+        SyntaxTree interfaceSyntaxTree = interfaceBindingsGenerator.generate(new JClass(this.getClass().getClassLoader()
+                  .loadClass("org.ballerinalang.bindgen.InterfaceTestResource"), interfaceBindgenEnv));
+        Assert.assertEquals(Formatter.format(interfaceSyntaxTree.toSourceCode()), Formatter.format(interfaceValue));
+        Assert.assertFalse(interfaceSyntaxTree.hasDiagnostics());
+    }
+
     private BindgenEnv getBindgenEnv() {
         BindgenEnv bindgenEnv = new BindgenEnv();
         bindgenEnv.setDirectJavaClass(true);

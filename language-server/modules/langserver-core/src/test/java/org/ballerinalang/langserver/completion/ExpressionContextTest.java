@@ -63,10 +63,7 @@ public class ExpressionContextTest extends CompletionTest {
                 "annotation_access_ctx_config6.json",
                 "optional_field_access_ctx_config1.json",
                 "optional_field_access_ctx_config2.json",
-                "optional_field_access_ctx_config3.json",
-                "anon_func_expr_ctx_config1a.json", // broken due to parser qualifier parsing
-                "anon_func_expr_ctx_config1b.json", // broken due to parser qualifier parsing
-                "object_constructor_expr_ctx_config1.json" // broken due to parser qualifier parsing
+                "optional_field_access_ctx_config3.json"
         );
     }
 }

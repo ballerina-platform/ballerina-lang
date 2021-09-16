@@ -67,6 +67,13 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
             completionItems.addAll(this.getCompletionItemList(objectSymbols, context));
             completionItems.addAll(this.getModuleCompletionItems(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
+        } else if (onSuggestionsAfterQualifiers(context, node)) {
+            /*
+                Covers the following.
+                <qualifier(s)> <cursor>
+                currently the qualifier can be isolated/transactional/client.
+            */
+            completionItems.addAll(getCompletionItemsOnQualifiers(node, context));
         } else {
             completionItems.addAll(this.getModulePartContextItems(context));
         }

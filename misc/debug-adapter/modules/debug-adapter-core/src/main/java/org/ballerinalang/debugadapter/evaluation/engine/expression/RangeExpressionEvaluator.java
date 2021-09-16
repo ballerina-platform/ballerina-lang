@@ -19,10 +19,9 @@ package org.ballerinalang.debugadapter.evaluation.engine.expression;
 import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
@@ -32,6 +31,8 @@ import org.ballerinalang.debugadapter.variable.VariableFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_RANGE_EXPR_HELPER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_INT_RANGE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getGeneratedMethod;
@@ -44,7 +45,7 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.ge
  */
 public class RangeExpressionEvaluator extends BinaryExpressionEvaluator {
 
-    public RangeExpressionEvaluator(SuspendedContext context, BinaryExpressionNode node, Evaluator lhsEvaluator,
+    public RangeExpressionEvaluator(EvaluationContext context, BinaryExpressionNode node, Evaluator lhsEvaluator,
                                     Evaluator rhsEvaluator) {
         super(context, node, lhsEvaluator, rhsEvaluator);
     }
@@ -75,8 +76,7 @@ public class RangeExpressionEvaluator extends BinaryExpressionEvaluator {
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
-                    syntaxNode.toSourceCode().trim()));
+            throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
         }
     }
 }

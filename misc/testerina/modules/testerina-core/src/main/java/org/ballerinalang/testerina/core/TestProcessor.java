@@ -72,7 +72,7 @@ public class TestProcessor {
     private static final String GROUP_ANNOTATION_NAME = "groups";
     private static final String VALUE_SET_ANNOTATION_NAME = "dataProvider";
     private static final String TEST_ENABLE_ANNOTATION_NAME = "enable";
-    private static final String AFTER_SUITE_ALWAYS_RUN_FIELD_NAME = "alwaysRun";
+    private static final String ALWAYS_RUN_FIELD_NAME = "alwaysRun";
     private static final String VALUE_FIELD_NAME = "value";
     private static final String BEFORE_GROUPS_ANNOTATION_NAME = "BeforeGroups";
     private static final String AFTER_GROUPS_ANNOTATION_NAME = "AfterGroups";
@@ -177,7 +177,7 @@ public class TestProcessor {
                     suite.addBeforeSuiteFunction(functionName);
                 } else if (annotationName.contains(AFTER_SUITE_ANNOTATION_NAME)) {
                     suite.addAfterSuiteFunction(functionName,
-                            isAlwaysRunAfterSuite(getAnnotationNode(annotationSymbol, syntaxTreeMap, functionName)));
+                            isAlwaysRunValue(getAnnotationNode(annotationSymbol, syntaxTreeMap, functionName)));
                 } else if (annotationName.contains(BEFORE_GROUPS_ANNOTATION_NAME)) {
                     processGroupsAnnotation(getAnnotationNode(annotationSymbol, syntaxTreeMap, functionName),
                             functionName, suite, true);
@@ -358,7 +358,7 @@ public class TestProcessor {
      * @param annotationNode AnnotationNode
      * @return AtomicBoolean
      */
-    private AtomicBoolean isAlwaysRunAfterSuite(AnnotationNode annotationNode) {
+    private AtomicBoolean isAlwaysRunValue(AnnotationNode annotationNode) {
         AtomicBoolean alwaysRun = new AtomicBoolean(false);
         if (annotationNode != null && !annotationNode.annotValue().isEmpty()) {
             Optional<MappingConstructorExpressionNode> mappingNodes = annotationNode.annotValue();
@@ -366,7 +366,7 @@ public class TestProcessor {
                 mappingNodes.get().fields().forEach(mappingFieldNode -> {
                     if (mappingFieldNode.kind() == SyntaxKind.SPECIFIC_FIELD) {
                         SpecificFieldNode specificField = (SpecificFieldNode) mappingFieldNode;
-                        if (AFTER_SUITE_ALWAYS_RUN_FIELD_NAME.equals(specificField.fieldName().toString().trim())) {
+                        if (ALWAYS_RUN_FIELD_NAME.equals(specificField.fieldName().toString().trim())) {
                             ExpressionNode valueExpr = specificField.valueExpr().orElse(null);
                             if (valueExpr != null) {
 
@@ -410,7 +410,8 @@ public class TestProcessor {
                                 if (isBeforeGroups) {
                                     suite.addBeforeGroupsFunction(functionName, groupList);
                                 } else {
-                                    suite.addAfterGroupFunction(functionName, groupList);
+                                    suite.addAfterGroupFunction(functionName, groupList,
+                                            isAlwaysRunValue(annotationNode));
                                 }
                             }
                         }

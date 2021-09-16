@@ -26,6 +26,7 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -126,4 +127,28 @@ public interface DocumentServiceContext {
      * @return {@link LanguageServerContext}
      */
     LanguageServerContext languageServercontext();
+
+    /**
+     * Get the cancel checker.
+     * 
+     * @return {@link CancelChecker}
+     */
+    default Optional<CancelChecker> getCancelChecker() {
+        return Optional.empty();
+    }
+
+    /**
+     * Whether the operation is cancelled or not.
+     * 
+     * @return {@link Boolean}
+     */
+    default boolean isCancelled() {
+        return false;
+    }
+
+    /**
+     * Carry out the cancel check.
+     */
+    default void checkCancelled() {
+    }
 }
