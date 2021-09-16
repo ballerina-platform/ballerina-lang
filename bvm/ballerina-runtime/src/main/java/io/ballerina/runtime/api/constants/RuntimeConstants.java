@@ -117,8 +117,6 @@ public class RuntimeConstants {
     public static final String DEFAULT_LOG_FILE_HANDLER_PATTERN =
             "org.ballerinalang.logging.handlers.DefaultLogFileHandler.pattern";
 
-    public static final byte MAX_CONVERSION_ERROR_COUNT = 20;
-
 
     // Ballerina version system property name
     public static final String BALLERINA_VERSION = "ballerina.version";

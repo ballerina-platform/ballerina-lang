@@ -414,7 +414,8 @@ public function testConvertJsonToAmbiguousType() {
     Value|error res = j.cloneWithType(Value);
 
     if res is error {
-        assertEquality("'map<json>' value cannot be converted to 'Value'", res.detail()["message"]);
+        assertEquality("'map<json>' value cannot be converted to 'Value': " +
+        "\n\t\tfield 'value' in record 'Value' should be of type 'Maps'", res.detail()["message"]);
         return;
     }
 

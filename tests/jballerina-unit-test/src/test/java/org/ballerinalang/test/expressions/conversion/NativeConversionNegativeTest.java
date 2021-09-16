@@ -28,6 +28,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -56,11 +57,7 @@ public class NativeConversionNegativeTest {
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "'map<json>' value cannot be converted to 'Person': " +
-                "\n\t\tvariable 'parent.parent' should be of type '()'" +
-                "\n\t\tvariable 'parent.address' should be of type '()'" +
-                "\n\t\tvariable 'parent' should be of type '()'" +
-                "\n\t\tvariable 'address' should be of type '()'" +
-                "\n\t\tvariable 'marks' should be of type '()'");
+                "\n\t\tfield 'parent.parent' in record 'Person' should be of type 'Person?'");
     }
 
     @Test
@@ -140,5 +137,17 @@ public class NativeConversionNegativeTest {
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
                             "'Manager' value has cyclic reference");
     }
-}
 
+    @Test(dataProvider = "testConversionFunctionList")
+    public void testConversionNegative(String funcName) {
+        BRunUtil.invoke(negativeResult, funcName);
+    }
+
+    @DataProvider(name = "testConversionFunctionList")
+    public Object[] testConversionFunctions() {
+        return new Object[] {
+                "testConvertJsonToNestedRecordsWithErrors",
+                "testConvertFromJsonWithCyclicValueReferences"
+        };
+    }
+}

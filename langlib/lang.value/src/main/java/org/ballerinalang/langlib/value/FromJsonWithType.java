@@ -99,7 +99,7 @@ public class FromJsonWithType {
 
         List<String> errors = new ArrayList<>();
         List<Type> convertibleTypes = TypeConverter.getConvertibleTypesFromJson(value, targetType,
-                null, null, new ArrayList<>(), errors);
+                null, new ArrayList<>(), errors);
         if (convertibleTypes.isEmpty()) {
             throw CloneUtils.createConversionError(value, targetType, errors);
         } else if (convertibleTypes.size() > 1) {

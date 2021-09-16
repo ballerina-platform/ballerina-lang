@@ -28,7 +28,7 @@ import io.ballerina.runtime.internal.ErrorUtils;
 import java.util.HashMap;
 import java.util.List;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.MAX_CONVERSION_ERROR_COUNT;
+import static io.ballerina.runtime.internal.TypeConverter.MAX_CONVERSION_ERROR_COUNT;
 
 /**
  * This class contains the functions related to cloning Ballerina values.

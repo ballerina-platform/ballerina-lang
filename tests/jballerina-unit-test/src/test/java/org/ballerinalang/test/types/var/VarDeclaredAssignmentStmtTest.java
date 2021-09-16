@@ -214,8 +214,8 @@ public class VarDeclaredAssignmentStmtTest {
                                     "\n\t\tmissing required field 'parent.a' of type 'anydata' in record 'Person'" +
                                     "\n\t\tmissing required field 'parent.score' of type 'float' in record 'Person'" +
                                     "\n\t\tmissing required field 'parent.alive' of type 'boolean' in record 'Person'" +
-                                    "\n\t\tvariable 'parent.parent' should be of type '()'" +
-                                    "\n\t\tvariable 'parent' should be of type '()'");
+                                    "\n\t\tfield 'parent.parent' in record 'Person' should be of type 'Person?'" +
+                                    "\n\t\tfield 'parent.marks' in record 'Person' should be of type 'int[]'");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")
@@ -228,7 +228,7 @@ public class VarDeclaredAssignmentStmtTest {
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "'map<json>' value cannot be converted to 'PersonA': " +
-                "\n\t\tvariable 'age' should be of type 'int'");
+                "\n\t\tfield 'age' in record 'PersonA' should be of type 'int'");
     }
 
     @Test(description = "Test compatible struct with force casting.")
