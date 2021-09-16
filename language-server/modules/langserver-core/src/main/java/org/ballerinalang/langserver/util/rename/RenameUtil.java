@@ -75,7 +75,8 @@ public class RenameUtil {
      */
     public static Optional<Range> prepareRename(PrepareRenameContext context) {
         fillTokenInfoAtCursor(context);
-
+        context.checkCancelled();
+        
         // Token at cursor is checked at cursor position and cursor position - 1 column due to left associativity.
         //      Ex: int val<cursor>;
         // Here, the token at cursor will be ";", but user expects "val". To achieve this, we try col-1.

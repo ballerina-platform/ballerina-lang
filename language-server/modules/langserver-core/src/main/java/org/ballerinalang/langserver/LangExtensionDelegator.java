@@ -34,6 +34,7 @@ import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
@@ -82,6 +83,7 @@ public class LangExtensionDelegator {
      * @return {@link Either} completion results
      * @throws Throwable while executing the extension
      */
+    @Deprecated
     public Either<List<CompletionItem>, CompletionList> completion(CompletionParams params,
                                                                    CompletionContext context,
                                                                    LanguageServerContext serverContext)
@@ -90,6 +92,28 @@ public class LangExtensionDelegator {
         for (CompletionExtension ext : completionExtensions) {
             if (ext.validate(params)) {
                 completionItems.addAll(ext.execute(params, context, serverContext));
+            }
+        }
+
+        return Either.forLeft(completionItems);
+    }
+
+    /**
+     * Get the completions.
+     *
+     * @param params completion parameters
+     * @return {@link Either} completion results
+     * @throws Throwable while executing the extension
+     */
+    public Either<List<CompletionItem>, CompletionList> completion(CompletionParams params,
+                                                                   CompletionContext context,
+                                                                   LanguageServerContext serverContext,
+                                                                   CancelChecker cancelChecker)
+            throws Throwable {
+        List<CompletionItem> completionItems = new ArrayList<>();
+        for (CompletionExtension ext : completionExtensions) {
+            if (ext.validate(params)) {
+                completionItems.addAll(ext.execute(params, context, serverContext, cancelChecker));
             }
         }
 

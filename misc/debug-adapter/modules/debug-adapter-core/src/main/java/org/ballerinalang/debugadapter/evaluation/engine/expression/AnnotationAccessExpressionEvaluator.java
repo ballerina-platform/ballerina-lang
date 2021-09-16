@@ -18,10 +18,9 @@ package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
@@ -30,6 +29,9 @@ import org.ballerinalang.debugadapter.variable.BVariableType;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.TYPE_MISMATCH;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.GET_ANNOT_VALUE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_CLASS;
@@ -47,7 +49,7 @@ public class AnnotationAccessExpressionEvaluator extends Evaluator {
     private final AnnotAccessExpressionNode syntaxNode;
     private final Evaluator exprEvaluator;
 
-    public AnnotationAccessExpressionEvaluator(SuspendedContext context, AnnotAccessExpressionNode syntaxNode,
+    public AnnotationAccessExpressionEvaluator(EvaluationContext context, AnnotAccessExpressionNode syntaxNode,
                                                Evaluator exprEvaluator) {
         super(context);
         this.syntaxNode = syntaxNode;
@@ -65,8 +67,8 @@ public class AnnotationAccessExpressionEvaluator extends Evaluator {
             Value valueAsObject = getValueAsObject(context, result.getJdiValue());
 
             if (result.getType() != BVariableType.TYPE_DESC && result.getType() != BVariableType.UNKNOWN) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(),
-                        BVariableType.TYPE_DESC.getString(), result.getType().getString(), syntaxNode.toSourceCode()));
+                throw createEvaluationException(TYPE_MISMATCH, BVariableType.TYPE_DESC.getString(),
+                        result.getType().getString(), syntaxNode.toSourceCode());
             }
 
             List<String> argTypeNames = new ArrayList<>();
@@ -82,8 +84,7 @@ public class AnnotationAccessExpressionEvaluator extends Evaluator {
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
-                    syntaxNode.toSourceCode().trim()));
+            throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
         }
     }
 }

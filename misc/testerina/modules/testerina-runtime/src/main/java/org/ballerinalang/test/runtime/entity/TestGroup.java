@@ -20,6 +20,9 @@ package org.ballerinalang.test.runtime.entity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Represents a test group in the test suite.
@@ -28,13 +31,13 @@ public class TestGroup {
     private int testCount;
     private int executedCount;
     private List<String> beforeGroupsFunctions;
-    private List<String> afterGroupsFunctions;
+    private Map<String, AtomicBoolean> afterGroupsFunctions;
 
     public TestGroup() {
         this.testCount = 0;
         this.executedCount = 0;
         this.beforeGroupsFunctions = new ArrayList<>();
-        this.afterGroupsFunctions = new ArrayList<>();
+        this.afterGroupsFunctions = new TreeMap<>();
     }
 
     /**
@@ -75,7 +78,7 @@ public class TestGroup {
      *
      * @return list of function names
      */
-    public List<String> getAfterGroupsFunctions() {
+    public Map<String, AtomicBoolean> getAfterGroupsFunctions() {
         return afterGroupsFunctions;
     }
 
@@ -84,8 +87,8 @@ public class TestGroup {
      *
      * @param afterGroupsFunc name of the function
      */
-    public void addAfterGroupsFunction(String afterGroupsFunc) {
-        this.afterGroupsFunctions.add(afterGroupsFunc);
+    public void addAfterGroupsFunction(String afterGroupsFunc, AtomicBoolean alwaysRun) {
+        this.afterGroupsFunctions.put(afterGroupsFunc, alwaysRun);
     }
 
     /**
@@ -113,6 +116,5 @@ public class TestGroup {
      */
     public void sort() {
         Collections.sort(beforeGroupsFunctions);
-        Collections.sort(afterGroupsFunctions);
     }
 }
