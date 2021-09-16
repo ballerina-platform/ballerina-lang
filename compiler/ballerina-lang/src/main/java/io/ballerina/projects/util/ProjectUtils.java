@@ -142,6 +142,17 @@ public class ProjectUtils {
     }
 
     /**
+     * Validates the organization, package or module name length.
+     * Maximum length is 256 characters.
+     *
+     * @param name name.
+     * @return true if valid name length, else false.
+     */
+    public static boolean validateNameLength(String name) {
+        return name.length() <= 256;
+    }
+
+    /**
      * Find the project root by recursively up to the root.
      *
      * @param filePath project path
