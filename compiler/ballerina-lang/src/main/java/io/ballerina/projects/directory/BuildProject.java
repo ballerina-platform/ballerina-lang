@@ -226,10 +226,8 @@ public class BuildProject extends Project {
                 } else {
                     writeBuildFile(buildFilePath);
                 }
-            } catch (JsonSyntaxException e) {
+            } catch (JsonSyntaxException | IOException e) {
                 writeBuildFile(buildFilePath);
-            } catch (IOException e) {
-                throw new ProjectException("Failed to read the '" + BUILD_FILE + "' file");
             }
         }
     }
