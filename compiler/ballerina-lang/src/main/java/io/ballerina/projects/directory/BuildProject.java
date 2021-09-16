@@ -227,7 +227,7 @@ public class BuildProject extends Project {
                     writeBuildFile(buildFilePath);
                 }
             } catch (JsonSyntaxException e) {
-                throw new ProjectException("Invalid '" + BUILD_FILE + "' file format");
+                writeBuildFile(buildFilePath);
             } catch (IOException e) {
                 throw new ProjectException("Failed to read the '" + BUILD_FILE + "' file");
             }

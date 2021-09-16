@@ -44,6 +44,7 @@ import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.environment.DefaultPackageResolver;
+import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -159,30 +160,35 @@ public class PackageResolutionTests extends BaseTest {
     public void testProjectSaveWithEmptyBuildFile() throws IOException {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
-        Files.deleteIfExists(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
-                .resolve(ProjectConstants.BUILD_FILE));
-        Files.createFile(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
-                .resolve(ProjectConstants.BUILD_FILE));
+        Path buildPath = loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE);
+
+        Files.deleteIfExists(buildPath);
+        Files.createFile(buildPath); // Empty build file
+
         loadProject.save();
-        Assert.assertTrue(Files.exists(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
-                .resolve(ProjectConstants.BUILD_FILE)));
+
+        Assert.assertTrue(Files.exists(buildPath));
+        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
+        Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
     }
 
     @Test(dependsOnMethods = "testProjectSaveWithEmptyBuildFile")
     public void testProjectSaveWithCorruptBuildFile() throws IOException {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
-        Files.deleteIfExists(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
-                .resolve(ProjectConstants.BUILD_FILE));
-        Files.createFile(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
-                .resolve(ProjectConstants.BUILD_FILE));
-        Files.writeString(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
-                .resolve(ProjectConstants.BUILD_FILE), "Invalid");
-        try {
-            loadProject.save();
-        } catch (ProjectException e) {
-            Assert.assertEquals(e.getMessage(), "Invalid 'build' file format");
-        }
+        Path buildPath = loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE);
+
+        Files.deleteIfExists(buildPath);
+        Files.createFile(buildPath);
+        Files.writeString(buildPath, "Invalid"); // Invalid build file for JSONSyntaxException
+
+        loadProject.save();
+
+        Assert.assertTrue(Files.exists(buildPath));
+        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
+        Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
     }
 
     @Test(description = "tests resolution with one transitive dependency")
