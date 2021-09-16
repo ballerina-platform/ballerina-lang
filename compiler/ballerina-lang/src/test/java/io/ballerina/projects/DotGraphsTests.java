@@ -40,7 +40,7 @@ public class DotGraphsTests {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources",
             "dot-graphs");
 
-    @Test
+    @Test(enabled = false)
     public void test() {
         String dotFileName = "all-in-one-graph.dot";
         MutableGraph expectedMutableGraph = DotGraphUtils.createGraph(RESOURCE_DIRECTORY.resolve(dotFileName));
