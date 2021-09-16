@@ -485,14 +485,24 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private SemType evaluateConst(BLangConstant constant) {
-        if (constant.expr instanceof BLangUnaryExpr) {
-            constResolver.visit((BLangUnaryExpr) constant.expr);
-        } else if (constant.expr instanceof BLangBinaryExpr) {
-            constResolver.visit((BLangBinaryExpr) constant.expr);
+        SemType s;
+        switch (constant.symbol.value.type.getKind()){
+            case INT:
+                s = SemTypes.intConst((long) constant.symbol.value.value);
+                break;
+            case BOOLEAN:
+                s = SemTypes.booleanConst((boolean) constant.symbol.value.value);
+                break;
+            case STRING:
+                s =  SemTypes.stringConst((String) constant.symbol.value.value);
+                break;
+            case FLOAT:
+                s = SemTypes.floatConst((double) constant.symbol.value.value);
+                break;
+            default:
+                throw new AssertionError("Expression type not implemented for const semtype");
         }
-        BLangConstantValue result = constResolver.getResult();
-
-        return null;
+        return s;
     }
 
     private SemType resolveTypeDefn(Env semtypeEnv, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth) {
