@@ -18,11 +18,17 @@
 
 package org.ballerinalang.langlib.value;
 
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.ErrorUtils;
 
 import java.util.HashMap;
+import java.util.List;
+
+import static io.ballerina.runtime.api.constants.RuntimeConstants.MAX_CONVERSION_ERROR_COUNT;
 
 /**
  * This class contains the functions related to cloning Ballerina values.
@@ -71,5 +77,21 @@ public class CloneUtils {
 
         BRefValue refValue = (BRefValue) value;
         return refValue.frozenCopy(new HashMap<>());
+    }
+
+    public static BError createConversionError(Object value, Type targetType, List<String> errors) {
+        if (errors.isEmpty()) {
+            return ErrorUtils.createConversionError(value, targetType);
+        } else {
+            if (errors.size() == MAX_CONVERSION_ERROR_COUNT + 1) {
+                errors.remove(MAX_CONVERSION_ERROR_COUNT);
+                errors.add("...");
+            }
+            StringBuilder errorMsg = new StringBuilder();
+            for (String error : errors) {
+                errorMsg.append("\n\t\t").append(error);
+            }
+            return ErrorUtils.createConversionError(value, targetType, errorMsg.toString());
+        }
     }
 }

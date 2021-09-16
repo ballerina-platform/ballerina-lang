@@ -155,6 +155,6 @@ public class ErrorUtils {
     public static BError createConversionError(Object inputValue, Type targetType, String detailMessage) {
         return createError(VALUE_LANG_LIB_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
                 INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
-                .concat(StringUtils.fromString(": ".concat(detailMessage))));
+                .concat(StringUtils.fromString(": " + detailMessage)));
     }
 }

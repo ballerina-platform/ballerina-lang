@@ -116,20 +116,7 @@ public class CloneWithType {
 
         Type sourceType = TypeChecker.getType(value);
         if (convertibleTypes.isEmpty()) {
-            if (errors.isEmpty()) {
-                throw createConversionError(value, targetType);
-            } else {
-                StringBuilder errorMsg = new StringBuilder();
-                byte errorCount = 0;
-                for (String error : errors) {
-                    errorMsg.append("\n\t\t").append(error);
-                    errorCount++;
-                    if (errorCount == 100) {
-                        break;
-                    }
-                }
-                throw createConversionError(value, targetType, errorMsg.toString());
-            }
+            throw CloneUtils.createConversionError(value, targetType, errors);
         } else if (!allowAmbiguity && convertibleTypes.size() > 1 && !convertibleTypes.contains(sourceType) &&
                 !TypeConverter.hasIntegerSubTypes(convertibleTypes)) {
             throw createAmbiguousConversionError(value, targetType);

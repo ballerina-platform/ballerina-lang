@@ -59,6 +59,7 @@ import java.util.function.Supplier;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.MAX_CONVERSION_ERROR_COUNT;
 import static io.ballerina.runtime.internal.TypeChecker.anyToSigned16;
 import static io.ballerina.runtime.internal.TypeChecker.anyToSigned32;
 import static io.ballerina.runtime.internal.TypeChecker.anyToSigned8;
@@ -334,7 +335,7 @@ public class TypeConverter {
             default:
                 if (TypeChecker.checkIsLikeType(inputValue, targetType, true)) {
                     convertibleTypes.add(targetType);
-                } else if (varName != null) {
+                } else if ((varName != null) && (errors.size() <= MAX_CONVERSION_ERROR_COUNT)) {
                     errors.add("variable '" + varName + "' should be of type '" + targetType + "'");
                 }
         }
@@ -394,20 +395,17 @@ public class TypeConverter {
         MapValueImpl sourceMapValueImpl = (MapValueImpl) sourceValue;
         for (Map.Entry targetTypeEntry : targetFieldTypes.entrySet()) {
             String fieldName = targetTypeEntry.getKey().toString();
-            String fieldNameLong;
-            if (varName == null) {
-                fieldNameLong = fieldName;
-            } else {
-                fieldNameLong = varName + "." + fieldName;
-            }
+            String fieldNameLong = getLongFieldName(varName, fieldName);
 
             if (sourceMapValueImpl.containsKey(StringUtils.fromString(fieldName))) {
                 continue;
             }
             Field targetField = targetType.getFields().get(fieldName);
             if (SymbolFlags.isFlagOn(targetField.getFlags(), SymbolFlags.REQUIRED)) {
-                errors.add("missing required field '" + fieldNameLong + "' of type '" +
-                        targetField.getFieldType().toString() + "' in record '" + targetType + "'");
+                if (errors.size() <= MAX_CONVERSION_ERROR_COUNT) {
+                    errors.add("missing required field '" + fieldNameLong + "' of type '" +
+                            targetField.getFieldType().toString() + "' in record '" + targetType + "'");
+                }
                 returnVal = false;
             }
         }
@@ -415,12 +413,7 @@ public class TypeConverter {
         for (Object object : sourceMapValueImpl.entrySet()) {
             Map.Entry valueEntry = (Map.Entry) object;
             String fieldName = valueEntry.getKey().toString();
-            String fieldNameLong;
-            if (varName == null) {
-                fieldNameLong = fieldName;
-            } else {
-                fieldNameLong = varName + "." + fieldName;
-            }
+            String fieldNameLong = getLongFieldName(varName, fieldName);
 
             if (isFromJson) {
                 if (targetFieldTypes.containsKey(fieldName)) {
@@ -434,8 +427,10 @@ public class TypeConverter {
                         returnVal = false;
                     }
                 } else {
-                    errors.add("field '" + fieldNameLong + "' cannot be added to the closed record '" +
-                            targetType + "'");
+                    if (errors.size() <= MAX_CONVERSION_ERROR_COUNT) {
+                        errors.add("field '" + fieldNameLong + "' cannot be added to the closed record '" +
+                                targetType + "'");
+                    }
                     returnVal = false;
                 }
             } else {
@@ -450,13 +445,23 @@ public class TypeConverter {
                         returnVal = false;
                     }
                 } else {
-                    errors.add("field '" + fieldNameLong + "' cannot be added to the closed record '" +
-                            targetType + "'");
+                    if (errors.size() <= MAX_CONVERSION_ERROR_COUNT) {
+                        errors.add("field '" + fieldNameLong + "' cannot be added to the closed record '" +
+                                targetType + "'");
+                    }
                     returnVal = false;
                 }
             }
         }
         return returnVal;
+    }
+
+    private static String getLongFieldName(String varName, String fieldName) {
+        if (varName == null) {
+            return fieldName;
+        } else {
+            return varName + "." + fieldName;
+        }
     }
 
     private static boolean isConvertibleToTableType(Type tableConstrainedType) {
