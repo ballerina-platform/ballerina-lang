@@ -40,8 +40,10 @@ import java.util.List;
  */
 public class BLangCheckedExpr extends BLangExpression implements CheckedExpressionNode {
 
+    // BLangNodes
     public BLangExpression expr;
 
+    // Semantic Data
     // This list caches types that are equivalent to the error type which are returned by the rhs expression.
     public List<BType> equivalentErrorTypeList;
 

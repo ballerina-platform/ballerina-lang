@@ -36,6 +36,7 @@ import java.util.List;
  */
 public class BLangTableConstructorExpr extends BLangExpression implements TableConstructorExprNode {
 
+    // BLangNodes
     public BLangTableKeySpecifier tableKeySpecifier;
     public List<BLangRecordLiteral> recordLiteralList = new ArrayList<>();
 

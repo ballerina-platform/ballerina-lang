@@ -33,8 +33,10 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
  * 
  * @since 0.985.0
  */
+@Deprecated
 public class BLangIsLikeExpr extends BLangExpression implements IsLikeExpressionNode {
 
+    // BLangNodes
     public BLangExpression expr;
     public BLangType typeNode;
 

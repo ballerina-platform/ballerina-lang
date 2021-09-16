@@ -33,8 +33,13 @@ import java.util.List;
  */
 public class BLangXMLQuotedString extends BLangExpression implements XMLQuotedStringNode {
 
+    // BLangNodes
     public List<BLangExpression> textFragments;
+
+    // Parser Flags and Data
     public QuoteType quoteType;
+
+    // Semantic Data
     public BLangExpression concatExpr;
     
     public BLangXMLQuotedString() {

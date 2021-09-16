@@ -41,6 +41,7 @@ import java.util.StringJoiner;
 @Deprecated
 public class BLangMatchExpression extends BLangExpression implements MatchExpressionNode {
 
+    // BLangNodes
     public BLangExpression expr;
     public List<BLangMatchExprPatternClause> patternClauses = new ArrayList<>();
 
@@ -80,10 +81,11 @@ public class BLangMatchExpression extends BLangExpression implements MatchExpres
      * @since 0.970.0
      */
     public static class BLangMatchExprPatternClause extends BLangNode implements MatchExpressionPatternNode {
-
+        // BLangNodes
         public BLangSimpleVariable variable;
         public BLangExpression expr;
 
+        // Semantic Data
         // This field is used to capture types that are matched to this pattern.
         public Set<BType> matchedTypesDirect = new LinkedHashSet<>();
         public Set<BType> matchedTypesIndirect = new LinkedHashSet<>();

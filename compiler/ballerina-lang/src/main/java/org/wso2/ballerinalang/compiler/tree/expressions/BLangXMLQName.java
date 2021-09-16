@@ -32,9 +32,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * @since 0.94
  */
 public class BLangXMLQName extends BLangExpression implements XMLQNameNode {
-
+    // BLangNodes
     public BLangIdentifier localname;
     public BLangIdentifier prefix;
+
+    // Semantic Data
     public String namespaceURI;
     public BXMLNSSymbol nsSymbol;
     public boolean isUsedInXML = true;

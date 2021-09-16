@@ -21,8 +21,13 @@ import java.util.stream.Collectors;
 public class BLangMarkdownParameterDocumentation extends BLangExpression
         implements MarkdownDocumentationParameterAttributeNode {
 
+    // BLangNodes
     public BLangIdentifier parameterName;
+
+    // Parser Flags and Data
     public List<String> parameterDocumentationLines;
+
+    // Semantic Data
     public BVarSymbol symbol;
 
     public BLangMarkdownParameterDocumentation() {

@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangMarkdownDocumentationLine extends BLangExpression implements MarkdownDocumentationTextAttributeNode {
 
+    // Parser Flags and Data
     public String text;
 
     @Override

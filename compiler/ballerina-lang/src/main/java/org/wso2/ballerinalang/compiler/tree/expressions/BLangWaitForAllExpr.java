@@ -39,6 +39,7 @@ public class BLangWaitForAllExpr extends BLangExpression implements WaitForAllEx
 
     private static final String WAIT_KEYWORD = "wait";
 
+    // BLangNodes
     public List<BLangWaitKeyValue> keyValuePairs = new ArrayList<>();
 
     public List<BLangWaitKeyValue> getKeyValuePairs() {
@@ -87,6 +88,8 @@ public class BLangWaitForAllExpr extends BLangExpression implements WaitForAllEx
      * @since 0.985
      */
     public static class BLangWaitKeyValue extends BLangNode implements WaitKeyValueNode {
+
+        // BLangNodes
         public BLangIdentifier key;
         public BLangExpression valueExpr;
         public BLangExpression keyExpr;

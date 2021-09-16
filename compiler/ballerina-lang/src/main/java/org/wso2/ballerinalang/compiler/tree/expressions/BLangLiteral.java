@@ -29,10 +29,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangLiteral extends BLangExpression implements LiteralNode {
 
+    // Parser Flags and Data
     public Object value;
     public String originalValue;
-    public boolean isFiniteContext;
     public boolean isConstant;
+
+    // Semantic Data
+    public boolean isFiniteContext;
 
     public BLangLiteral() {
     }

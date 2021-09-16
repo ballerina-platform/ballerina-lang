@@ -37,7 +37,10 @@ import java.util.stream.Collectors;
 public class BLangMarkdownReturnParameterDocumentation extends BLangExpression
         implements MarkdownDocumentationReturnParameterAttributeNode {
 
+    // Parser Flags and Data
     public List<String> returnParameterDocumentationLines;
+
+    // Semantic Data
     public BType type;
 
     public BLangMarkdownReturnParameterDocumentation() {

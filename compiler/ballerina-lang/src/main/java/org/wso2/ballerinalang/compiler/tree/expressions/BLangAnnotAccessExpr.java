@@ -32,9 +32,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangAnnotAccessExpr extends BLangExpression implements AnnotAccessNode {
 
+    // BLangNodes
     public BLangExpression expr;
     public BLangIdentifier pkgAlias;
     public BLangIdentifier annotationName;
+
+    // Semantic Data
     public BAnnotationSymbol annotationSymbol;
 
     @Override

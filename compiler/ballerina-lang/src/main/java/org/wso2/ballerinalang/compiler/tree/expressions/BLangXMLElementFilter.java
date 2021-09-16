@@ -33,6 +33,8 @@ import java.util.Set;
  */
 public class BLangXMLElementFilter extends BLangExpression implements XMLElementFilter {
 
+
+    // Semantic Data
     public final Location elemNamePos;
     public final Location nsPos;
     public final String namespace;

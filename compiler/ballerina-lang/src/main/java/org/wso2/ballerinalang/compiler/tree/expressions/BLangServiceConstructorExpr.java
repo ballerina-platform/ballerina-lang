@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
  */
 public class BLangServiceConstructorExpr extends BLangExpression implements ServiceConstructorNode {
 
+    // BLangNodes
     public BLangService serviceNode;
 
     @Override

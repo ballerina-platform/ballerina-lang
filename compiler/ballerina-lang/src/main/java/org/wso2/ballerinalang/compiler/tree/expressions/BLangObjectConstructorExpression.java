@@ -30,13 +30,16 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 /**
  * Represents the object-constructor-expr.
  *
- * @since slp3
+ * @since 2.0.0
  */
 public class BLangObjectConstructorExpression extends BLangExpression {
 
+    // BLangNodes
     public BLangClassDefinition classNode;
     public BLangTypeInit typeInit;
     public BLangType referenceType;
+
+    // Parser Flags and Data
     public boolean isClient;
     public boolean isService;
 

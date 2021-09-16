@@ -59,7 +59,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
@@ -103,7 +102,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
@@ -470,6 +468,10 @@ public abstract class BLangNodeAnalyzer<T> {
         analyzeNode(node, props);
     }
 
+    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess node, T props) {
+        analyzeNode(node, props);
+    }
+
     public void visit(BLangGroupExpr node, T props) {
         analyzeNode(node, props);
     }
@@ -482,11 +484,39 @@ public abstract class BLangNodeAnalyzer<T> {
         analyzeNode(node, props);
     }
 
-    public void visit(BLangInferredTypedescDefaultNode node, T props) {
+    public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr node, T props) {
         analyzeNode(node, props);
     }
 
-    public void visit(BLangIntRangeExpression node, T props) {
+    public void visit(BLangIndexBasedAccess.BLangMapAccessExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangIndexBasedAccess.BLangTableAccessExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangIndexBasedAccess.BLangStringAccessExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangIndexBasedAccess.BLangTupleAccessExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangInferredTypedescDefaultNode node, T props) {
         analyzeNode(node, props);
     }
 
@@ -590,6 +620,10 @@ public abstract class BLangNodeAnalyzer<T> {
         analyzeNode(node, props);
     }
 
+    public void visit(BLangRecordLiteral.BLangRecordVarNameField node, T props) {
+        analyzeNode(node, props);
+    }
+
     public void visit(BLangRecordLiteral.BLangRecordSpreadOperatorField node, T props) {
         analyzeNode(node, props);
     }
@@ -610,6 +644,10 @@ public abstract class BLangNodeAnalyzer<T> {
         analyzeNode(node, props);
     }
 
+    public void visit(BLangRecordVarRef.BLangRecordVarRefKeyValue node, T props) {
+        analyzeNodeEntry(node, props);
+    }
+
     public void visit(BLangRestArgsExpression node, T props) {
         analyzeNode(node, props);
     }
@@ -619,6 +657,26 @@ public abstract class BLangNodeAnalyzer<T> {
     }
 
     public void visit(BLangSimpleVarRef node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangSimpleVarRef.BLangLocalVarRef node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangSimpleVarRef.BLangFieldVarRef node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangSimpleVarRef.BLangPackageVarRef node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangSimpleVarRef.BLangFunctionVarRef node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangSimpleVarRef.BLangTypeLoad node, T props) {
         analyzeNode(node, props);
     }
 
@@ -699,10 +757,6 @@ public abstract class BLangNodeAnalyzer<T> {
     }
 
     public void visit(BLangXMLAttribute node, T props) {
-        analyzeNode(node, props);
-    }
-
-    public void visit(BLangXMLAttributeAccess node, T props) {
         analyzeNode(node, props);
     }
 

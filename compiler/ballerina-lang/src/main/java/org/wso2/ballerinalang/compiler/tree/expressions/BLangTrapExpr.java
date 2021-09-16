@@ -31,6 +31,7 @@ public class BLangTrapExpr extends BLangExpression implements TrapExpressionNode
 
     private static final String TRAP_KEYWORD = "trap";
 
+    // BLangNodes
     public BLangExpression expr;
 
     @Override
@@ -55,7 +56,7 @@ public class BLangTrapExpr extends BLangExpression implements TrapExpressionNode
 
     @Override
     public String toString() {
-        return TRAP_KEYWORD + " " + String.valueOf(expr);
+        return TRAP_KEYWORD + " " + expr;
     }
 
     @Override

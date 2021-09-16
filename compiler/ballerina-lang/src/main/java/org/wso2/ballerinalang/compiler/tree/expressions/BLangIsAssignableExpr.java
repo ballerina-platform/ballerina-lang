@@ -34,11 +34,17 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
  *
  * @since 0.967.0
  */
+@Deprecated
 public class BLangIsAssignableExpr extends BLangExpression implements IsAssignableNode {
-    public final OperatorKind opKind = OperatorKind.IS_ASSIGNABLE;
+
+    // TODO: #AST_CLEAN
+    // BLangNodes
     public BLangExpression lhsExpr;
-    public BType targetType;
     public BLangType typeNode;
+
+    // Semantic Data
+    public final OperatorKind opKind = OperatorKind.IS_ASSIGNABLE;
+    public BType targetType;
     public BOperatorSymbol opSymbol;
 
     @Override

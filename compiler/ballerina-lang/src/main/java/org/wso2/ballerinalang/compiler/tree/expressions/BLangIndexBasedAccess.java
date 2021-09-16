@@ -33,8 +33,10 @@ import org.wso2.ballerinalang.compiler.util.FieldKind;
  */
 public class BLangIndexBasedAccess extends BLangAccessExpression implements IndexBasedAccessNode {
 
+    // BLangNodes
     public BLangExpression indexExpr;
 
+    // Semantic Data
     // Only used at Desugar and after.
     public boolean isStoreOnCreation = false;
 
@@ -221,8 +223,9 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
      */
     public static class BLangXMLAccessExpr extends BLangIndexBasedAccess {
 
+        // Semantic Data
         public FieldKind fieldType;
-        
+
         public BLangXMLAccessExpr(Location pos, BLangExpression varRef, BLangExpression indexExpr) {
             this.pos = pos;
             this.expr = varRef;

@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangRestArgsExpression extends BLangExpression implements RestArgsNode {
 
+    // BLangNodes
     public BLangExpression expr;
 
     @Override

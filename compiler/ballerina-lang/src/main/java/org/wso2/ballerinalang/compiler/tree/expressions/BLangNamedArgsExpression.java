@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangNamedArgsExpression extends BLangExpression implements NamedArgNode {
 
+    // BLangNodes
     public BLangIdentifier name;
     public BLangExpression expr;
 

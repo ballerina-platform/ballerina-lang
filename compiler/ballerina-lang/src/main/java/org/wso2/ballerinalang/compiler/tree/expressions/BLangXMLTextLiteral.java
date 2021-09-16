@@ -32,7 +32,10 @@ import java.util.List;
  */
 public class BLangXMLTextLiteral extends BLangExpression implements XMLTextLiteralNode {
 
+    // BLangNodes
     public List<BLangExpression> textFragments;
+
+    // Semantic Data
     public BLangExpression concatExpr;
 
     public BLangXMLTextLiteral() {

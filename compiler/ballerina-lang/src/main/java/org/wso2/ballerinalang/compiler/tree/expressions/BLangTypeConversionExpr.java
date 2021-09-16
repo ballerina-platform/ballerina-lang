@@ -41,11 +41,16 @@ import java.util.stream.Collectors;
  */
 public class BLangTypeConversionExpr extends BLangExpression implements TypeConversionNode {
 
+    // BLangNodes
     public BLangExpression expr;
     public BLangType typeNode;
-    public BType targetType;
     public List<BLangAnnotationAttachment> annAttachments = new ArrayList<>();
+
+    // Parser Flags and Data
     public Set<Flag> flagSet = EnumSet.noneOf(Flag.class);
+
+    // Semantic Data
+    public BType targetType;
     public boolean checkTypes = true;
 
     public ExpressionNode getExpression() {

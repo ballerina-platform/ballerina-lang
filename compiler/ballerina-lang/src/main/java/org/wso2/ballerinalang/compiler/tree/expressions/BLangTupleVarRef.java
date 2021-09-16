@@ -38,18 +38,21 @@ import java.util.stream.Collectors;
  */
 public class BLangTupleVarRef extends BLangVariableReference implements TupleVariableReferenceNode {
 
-    public BVarSymbol varSymbol;
-    public BLangIdentifier pkgAlias;
+    // BLangNodes
     public List<BLangExpression> expressions;
-    public ExpressionNode restParam;
+    public BLangExpression restParam;
+
+    // Semantic Data
+    public BVarSymbol varSymbol;
 
     public BLangTupleVarRef() {
         this.expressions = new ArrayList<>();
     }
 
     @Override
+    @Deprecated
     public BLangIdentifier getPackageAlias() {
-        return pkgAlias;
+        return null;
     }
 
     @Override
@@ -65,7 +68,7 @@ public class BLangTupleVarRef extends BLangVariableReference implements TupleVar
     @Override
     public String toString() {
         return "[" + expressions.stream().map(ExpressionNode::toString).collect(Collectors.joining(","))
-                + ((restParam != null) ? ", ..." + restParam.toString() + "]" : "]");
+                + ((restParam != null) ? ", ..." + restParam + "]" : "]");
     }
 
     @Override

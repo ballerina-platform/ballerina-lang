@@ -35,6 +35,8 @@ import java.util.stream.Collectors;
  * @since 1.2.0
  */
 public class BLangQueryAction extends BLangExpression implements QueryActionNode {
+
+    // BLangNodes
     public List<BLangNode> queryClauseList = new ArrayList<>();
     public BLangDoClause doClause;
 

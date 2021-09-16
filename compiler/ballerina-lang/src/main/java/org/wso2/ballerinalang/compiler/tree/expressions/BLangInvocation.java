@@ -45,18 +45,12 @@ import java.util.Set;
  */
 public class BLangInvocation extends BLangExpression implements InvocationNode {
 
+    // BLangNodes
     public BLangIdentifier pkgAlias;
     public BLangIdentifier name;
-    public List<BLangExpression> argExprs = new ArrayList<>();
-    //caching since at desugar level we need to identify whether this is actually attached function or not
-    public BSymbol exprSymbol;
-    public boolean functionPointerInvocation;
-    public boolean langLibInvocation;
-    public boolean async;
-    public Set<Flag> flagSet;
-    public List<BLangAnnotationAttachment> annAttachments = new ArrayList<>();
     public BLangExpression expr;
-    public BSymbol symbol;
+    public List<BLangExpression> argExprs = new ArrayList<>();
+    public List<BLangAnnotationAttachment> annAttachments = new ArrayList<>();
 
     /*
      * Below expressions are used by typechecker, desugar and codegen phases.
@@ -64,6 +58,18 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
      */
     public List<BLangExpression> requiredArgs = new ArrayList<>();
     public List<BLangExpression> restArgs = new ArrayList<>();
+
+    // Parser Flags and Data
+    public Set<Flag> flagSet;
+    public boolean async;
+
+    // Semantic Data
+    //caching since at desugar level we need to identify whether this is actually attached function or not
+    public BSymbol exprSymbol;
+    public boolean functionPointerInvocation;
+    public boolean langLibInvocation;
+    public BSymbol symbol;
+
 
     @Override
     public IdentifierNode getPackageAlias() {
@@ -100,15 +106,15 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
         StringBuilder br = new StringBuilder();
         if (expr != null) {
             // Action invocation or lambda invocation.
-            br.append(String.valueOf(expr)).append(".");
+            br.append(expr).append(".");
         } else if (pkgAlias != null && !pkgAlias.getValue().isEmpty()) {
-            br.append(String.valueOf(pkgAlias)).append(":");
+            br.append(pkgAlias).append(":");
         }
         br.append(name == null ? String.valueOf(symbol.name) : String.valueOf(name));
         br.append("(");
         if (argExprs.size() > 0) {
             String s = Arrays.toString(argExprs.toArray());
-            br.append(s.substring(1, s.length() - 1));
+            br.append(s, 1, s.length() - 1);
         }
         br.append(")");
         return br.toString();

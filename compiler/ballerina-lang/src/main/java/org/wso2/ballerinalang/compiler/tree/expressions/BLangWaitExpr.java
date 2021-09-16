@@ -35,6 +35,7 @@ public class BLangWaitExpr extends BLangExpression implements WaitExpressionNode
 
     private static final String WAIT_KEYWORD = "wait";
 
+    // BLangNodes
     public List<BLangExpression> exprList;
 
     @Override

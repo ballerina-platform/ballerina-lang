@@ -38,8 +38,11 @@ import java.util.StringJoiner;
  */
 public class BLangLetExpression extends BLangExpression implements LetExpressionNode {
 
+    // BLangNodes
     public List<BLangLetVariable> letVarDeclarations = new ArrayList<>();
     public BLangExpression expr;
+
+    // Semantic Data
     public SymbolEnv env;
 
     @Override

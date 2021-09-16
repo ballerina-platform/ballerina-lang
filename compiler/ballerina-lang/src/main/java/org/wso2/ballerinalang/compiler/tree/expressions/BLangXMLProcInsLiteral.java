@@ -33,14 +33,17 @@ import java.util.List;
  */
 public class BLangXMLProcInsLiteral extends BLangExpression implements XMLProcessingInstructionLiteralNode {
 
+    // BLangNodes
     public BLangLiteral target;
     public List<BLangExpression> dataFragments;
+
+    // Semantic Data
     public BLangExpression dataConcatExpr;
-    
+
     public BLangXMLProcInsLiteral() {
         dataFragments = new ArrayList<BLangExpression>();
     }
-    
+
     @Override
     public LiteralNode getTarget() {
         return target;

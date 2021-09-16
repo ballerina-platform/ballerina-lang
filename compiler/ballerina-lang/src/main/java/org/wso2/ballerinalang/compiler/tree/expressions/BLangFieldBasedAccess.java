@@ -35,10 +35,14 @@ import org.wso2.ballerinalang.compiler.util.FieldKind;
  */
 public class BLangFieldBasedAccess extends BLangAccessExpression implements FieldBasedAccessNode {
 
+    // BLangNodes
     public BLangIdentifier field;
-    public FieldKind fieldKind;
-    public BVarSymbol varSymbol;
 
+    // Parser Flags and Data
+    public FieldKind fieldKind;
+
+    // Semantic Data
+    public BVarSymbol varSymbol;
     // Only used at Desugar and after.
     public boolean isStoreOnCreation = false;
 
@@ -114,11 +118,26 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
      * @since 1.2.0
      */
     public static class BLangNSPrefixedFieldBasedAccess extends BLangFieldBasedAccess {
+
+        // BLangNodes
         public BLangIdentifier nsPrefix;
+
+        // Semantic Data
         public BXMLNSSymbol nsSymbol;
 
         public String toString() {
-            return String.valueOf(expr) + "." + String.valueOf(nsPrefix) + ":" + String.valueOf(field);
+            return expr + "." + nsPrefix + ":" + field;
         }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
+            return modifier.modify(this, props);
+        }
+
     }
 }
