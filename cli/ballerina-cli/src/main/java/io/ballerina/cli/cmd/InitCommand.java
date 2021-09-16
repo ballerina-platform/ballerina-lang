@@ -136,7 +136,7 @@ public class InitCommand implements BLauncherCmd {
 
         if (!ProjectUtils.validateUnderscoresOfName(packageName)) {
             CommandUtil.printError(errStream,
-                                   "invalid module name : '" + packageName + "' :\n" +
+                                   "invalid package name : '" + packageName + "' :\n" +
                                            ProjectUtils.getValidateUnderscoreError(packageName, "Package"),
                                    null,
                                    false);

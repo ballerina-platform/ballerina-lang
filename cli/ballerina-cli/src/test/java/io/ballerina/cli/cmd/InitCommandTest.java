@@ -277,7 +277,7 @@ public class InitCommandTest extends BaseCommandTest {
                 + "Maximum length of package name is 256 characters."));
     }
 
-    @Test(description = "Test init command with module name has initial underscore")
+    @Test(description = "Test init command with package name has initial underscore")
     public void testInitCommandWithNameHasInitialUnderscore() throws IOException {
         Path projectPath = tmpDir.resolve("sample5");
         if (Files.notExists(projectPath)) {
@@ -290,12 +290,12 @@ public class InitCommandTest extends BaseCommandTest {
         new CommandLine(initCommand).parseArgs(args);
         initCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("invalid module name : '" + pkgName + "' :\n"
+        Assert.assertTrue(readOutput().contains("invalid package name : '" + pkgName + "' :\n"
                 + "Package name cannot have initial underscore characters."));
     }
 
-    @Test(description = "Test add command with module name has trailing underscore")
-    public void testAddCommandWithNameHasTrailingUnderscore() throws IOException {
+    @Test(description = "Test init command with package name has trailing underscore")
+    public void testInitCommandWithNameHasTrailingUnderscore() throws IOException {
         Path projectPath = tmpDir.resolve("sample5");
         if (Files.notExists(projectPath)) {
             Files.createDirectory(projectPath);
@@ -307,12 +307,12 @@ public class InitCommandTest extends BaseCommandTest {
         new CommandLine(initCommand).parseArgs(args);
         initCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("invalid module name : '" + pkgName + "' :\n"
+        Assert.assertTrue(readOutput().contains("invalid package name : '" + pkgName + "' :\n"
                 + "Package name cannot have trailing underscore characters."));
     }
 
-    @Test(description = "Test add command with module name has consecutive underscores")
-    public void testAddCommandWithNameHasConsecutiveUnderscores() throws IOException {
+    @Test(description = "Test init command with module package has consecutive underscores")
+    public void testInitCommandWithNameHasConsecutiveUnderscores() throws IOException {
         Path projectPath = tmpDir.resolve("sample5");
         if (Files.notExists(projectPath)) {
             Files.createDirectory(projectPath);
@@ -324,7 +324,7 @@ public class InitCommandTest extends BaseCommandTest {
         new CommandLine(initCommand).parseArgs(args);
         initCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("invalid module name : '" + pkgName + "' :\n"
+        Assert.assertTrue(readOutput().contains("invalid package name : '" + pkgName + "' :\n"
                 + "Package name cannot have consecutive underscore characters."));
     }
 
