@@ -56,7 +56,7 @@ public class SubtractOperationTest {
     }
 
     @Test(description = "Test two int subtract overflow expression", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\" int range " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
                     "overflow\"\\}.*")
     public void testIntOverflowBySubtraction() {
         BRunUtil.invoke(result, "overflowBySubtraction");
