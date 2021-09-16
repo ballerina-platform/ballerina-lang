@@ -20,6 +20,7 @@ package io.ballerina.semantic.api.test.util;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -125,6 +126,16 @@ public class SemanticAPITestUtils {
         for (String val : expectedValues) {
             assertTrue(actualValues.containsKey(val), "Symbol not found: " + val);
         }
+    }
+
+    public static Symbol assertBasicsAndGetSymbol(SemanticModel model, Document srcFile, int line, int col,
+                                                  String name, SymbolKind symbolKind) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), symbolKind);
+        assertTrue(symbol.get().getName().isPresent());
+        assertEquals(symbol.get().getName().get(), name);
+        return symbol.get();
     }
 
     public static Map<String, Symbol> getSymbolsInFile(SemanticModel model, Document srcFile, int line,

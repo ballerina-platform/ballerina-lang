@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,14 +16,17 @@
  * under the License.
  */
 
-package io.ballerina.semantic.api.test;
+package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
@@ -42,8 +45,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
+import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ANY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
@@ -65,7 +70,7 @@ public class ClassSymbolTest {
 
     @BeforeClass
     public void setup() {
-        Project project = BCompileUtil.loadProject("test-src/class_symbols_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/symbols/class_symbols_test.bal");
         model = getDefaultModulesSemanticModel(project);
         srcFile = getDocumentForSingleSource(project);
     }
@@ -221,5 +226,121 @@ public class ClassSymbolTest {
         TypeSymbol type = (TypeSymbol) symbol.get();
         assertEquals(type.typeKind(), TYPE_REFERENCE);
         assertEquals(type.getName().get(), "PersonType");
+    }
+
+    @Test(dataProvider = "ClassFieldProvider")
+    public void testClassFields(int line, int col, String expName, String expDoc, TypeDescKind expTypeKind,
+                                String expAnnot, List<Qualifier> expQuals, boolean hasDefaultValue) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+        assertTrue(symbol.isPresent());
+
+        assertEquals(symbol.get().kind(), CLASS_FIELD);
+        ClassFieldSymbol field = (ClassFieldSymbol) symbol.get();
+
+        // Check name
+        assertEquals(field.getName().get(), expName);
+
+        // Check docs
+        Optional<Documentation> fieldDocs = field.documentation();
+        assertTrue(fieldDocs.isPresent());
+        assertTrue(fieldDocs.get().description().isPresent());
+        assertEquals(fieldDocs.get().description().get(), expDoc);
+
+        // Check annotations
+        List<AnnotationSymbol> fieldAnnots = field.annotations();
+        assertEquals(fieldAnnots.size(), 1);
+        assertEquals(fieldAnnots.get(0).getName().get(), expAnnot);
+
+        // Check Qualifiers
+        if (expQuals.size() > 0) {
+            List<Qualifier> qualifiers = field.qualifiers();
+            expQuals.forEach(qualifiers::contains);
+        } else {
+            assertTrue(field.qualifiers().isEmpty());
+        }
+
+        // Check type
+        assertEquals(field.typeDescriptor().typeKind(), expTypeKind);
+
+        // Has default values
+        assertEquals(field.hasDefaultValue(), hasDefaultValue);
+    }
+
+    @DataProvider(name = "ClassFieldProvider")
+    public Object[][] getFields() {
+        return new Object[][]{
+                {103, 18, "testName", "Name field", STRING, "v1", List.of(Qualifier.PRIVATE), false},
+                {107, 14, "x", "X field", ANY, "v2", List.of(Qualifier.FINAL), true},
+                {111, 16, "foo", "Foo field", TYPE_REFERENCE, "v1", List.of(Qualifier.PRIVATE), false},
+        };
+    }
+
+    @Test(dataProvider = "ClassMethodPosProvider")
+    public void testClassMethods(int line, int col, String expName, String expDoc, String expAnnot,
+                                 List<Qualifier> expQuals, String expSignature) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), SymbolKind.METHOD);
+
+        MethodSymbol method = (MethodSymbol) symbol.get();
+
+        // check name
+        assertEquals(method.getName().get(), expName);
+
+        // check docs (metadata)
+        Optional<Documentation> methodDocs = method.documentation();
+        assertTrue(methodDocs.isPresent());
+        assertTrue(methodDocs.get().description().isPresent());
+        assertEquals(methodDocs.get().description().get(), expDoc);
+
+        // check annotations (metadata)
+        List<AnnotationSymbol> methodAnnots = method.annotations();
+        assertEquals(methodAnnots.size(), 1);
+        assertEquals(methodAnnots.get(0).getName().get(), expAnnot);
+
+        // check qualifiers
+        if (expQuals.size() > 0) {
+            List<Qualifier> qualifiers = method.qualifiers();
+            expQuals.forEach(qualifiers::contains);
+        } else {
+            assertTrue(method.qualifiers().isEmpty());
+        }
+
+        // check signature
+        assertEquals(method.signature(), expSignature);
+    }
+
+    @DataProvider(name = "ClassMethodPosProvider")
+    public Object[][] getMethods() {
+        return new Object[][]{
+                {115, 13, "init", "Constructor", "v2", List.of(),
+                        "function init(string testName, int id)"},
+                {123, 20, "getName", "Get name", "v1", List.of(Qualifier.PUBLIC),
+                        "public function getName() returns string"},
+                {130, 29, "getX", "Get X", "v1", List.of(Qualifier.PUBLIC, Qualifier.ISOLATED),
+                        "public isolated function getX() returns any"},
+                {134, 13, "hello", "Hello", "v2", List.of(),
+                        "function hello() returns string"},
+        };
+    }
+
+    @Test(dataProvider = "TypeInclusionProvider")
+    public void testTypeInclusion(int line, int col, String name, TypeDescKind typeDescKind) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), TYPE);
+        assertEquals(((TypeSymbol) symbol.get()).typeKind(), TypeDescKind.TYPE_REFERENCE);
+
+        TypeReferenceTypeSymbol typeRef = (TypeReferenceTypeSymbol) symbol.get();
+        assertEquals(typeRef.getName().get(), name);
+        assertEquals(typeRef.typeDescriptor().typeKind(), typeDescKind);
+    }
+
+    @DataProvider(name = "TypeInclusionProvider")
+    public Object[][] getTypeInclusions() {
+        return new Object[][]{
+                {94, 5, "FooObject", OBJECT},
+                {138, 5, "FooClass", OBJECT}
+        };
     }
 }

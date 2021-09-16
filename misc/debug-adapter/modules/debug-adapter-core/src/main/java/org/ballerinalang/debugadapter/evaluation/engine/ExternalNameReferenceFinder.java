@@ -18,13 +18,16 @@ package org.ballerinalang.debugadapter.evaluation.engine;
 
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
-import io.ballerina.compiler.syntax.tree.BindingPatternNode;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
+import io.ballerina.compiler.syntax.tree.ErrorBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldBindingPatternFullNode;
+import io.ballerina.compiler.syntax.tree.FieldBindingPatternVarnameNode;
 import io.ballerina.compiler.syntax.tree.FromClauseNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
@@ -32,54 +35,59 @@ import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.InterpolationNode;
 import io.ballerina.compiler.syntax.tree.JoinClauseNode;
 import io.ballerina.compiler.syntax.tree.LetClauseNode;
+import io.ballerina.compiler.syntax.tree.LetExpressionNode;
 import io.ballerina.compiler.syntax.tree.LimitClauseNode;
+import io.ballerina.compiler.syntax.tree.ListBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.MappingBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.OnConflictClauseNode;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
-import io.ballerina.compiler.syntax.tree.OrderByClauseNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.RestArgumentNode;
+import io.ballerina.compiler.syntax.tree.RestBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.SelectClauseNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.TrapExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
+import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
 import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.WhereClauseNode;
 import io.ballerina.compiler.syntax.tree.XMLFilterExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
- * Syntax tree visitor implementation to capture all the variable references within query expressions.
+ * Syntax tree visitor implementation to capture all the "captured" variable references within a given Ballerina
+ * expression.
+ * <p>
+ * All the variable references that are defined within the expressions (i.e internal variables)
+ * will be ignored. (e.g. declared variables in let expressions, binding patterns in query expressions).
  *
  * @since 2.0.0
  */
-public class QueryReferenceFinder extends NodeVisitor {
+public class ExternalNameReferenceFinder extends NodeVisitor {
 
-    private final QueryExpressionNode queryExpressionNode;
+    private final ExpressionNode expressionNode;
     private final Set<String> internalVariables = new HashSet<>();
-    private final List<String> letVariables = new ArrayList<>();
     private final Set<String> capturedVariables = new HashSet<>();
 
-    public QueryReferenceFinder(QueryExpressionNode node) {
-        this.queryExpressionNode = node;
+    public ExternalNameReferenceFinder(ExpressionNode node) {
+        this.expressionNode = node;
     }
 
     /**
-     * @return Captures and returns all the variable references within the given query expression.
+     * @return Captures and returns all the variable references within the given user expression node.
      */
     public Set<String> getCapturedVariables() {
-        queryExpressionNode.accept(this);
+        expressionNode.accept(this);
         return capturedVariables;
     }
 
@@ -87,8 +95,7 @@ public class QueryReferenceFinder extends NodeVisitor {
 
     @Override
     public void visit(FromClauseNode fromClauseNode) {
-        BindingPatternNode bindingPattern = fromClauseNode.typedBindingPattern().bindingPattern();
-        internalVariables.addAll(extractVariablesFromBindingPattern(bindingPattern));
+        fromClauseNode.typedBindingPattern().accept(this);
         fromClauseNode.expression().accept(this);
     }
 
@@ -99,28 +106,21 @@ public class QueryReferenceFinder extends NodeVisitor {
 
     @Override
     public void visit(JoinClauseNode joinClauseNode) {
-        BindingPatternNode bindingPattern = joinClauseNode.typedBindingPattern().bindingPattern();
-        internalVariables.addAll(extractVariablesFromBindingPattern(bindingPattern));
+        joinClauseNode.typedBindingPattern().accept(this);
         joinClauseNode.expression().accept(this);
     }
 
     @Override
     public void visit(LetClauseNode letClauseNode) {
-        letClauseNode.letVarDeclarations().forEach(declarationNode -> {
-            BindingPatternNode bindingPattern = declarationNode.typedBindingPattern().bindingPattern();
-            letVariables.addAll(extractVariablesFromBindingPattern(bindingPattern));
+        letClauseNode.letVarDeclarations().forEach(declaration -> {
+            declaration.typedBindingPattern().accept(this);
+            declaration.expression().accept(this);
         });
-
-        letClauseNode.letVarDeclarations().forEach(declarationNode -> declarationNode.expression().accept(this));
     }
 
     @Override
     public void visit(LimitClauseNode limitClauseNode) {
         limitClauseNode.expression().accept(this);
-    }
-
-    @Override
-    public void visit(OrderByClauseNode orderByClauseNode) {
     }
 
     @Override
@@ -148,18 +148,18 @@ public class QueryReferenceFinder extends NodeVisitor {
 
     @Override
     public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
-        functionCallExpressionNode.arguments().forEach(this::visitSyntaxNode);
+        functionCallExpressionNode.arguments().forEach(node -> node.accept(this));
     }
 
     @Override
     public void visit(MethodCallExpressionNode methodCallExpressionNode) {
         methodCallExpressionNode.expression().accept(this);
-        methodCallExpressionNode.arguments().forEach(this::visitSyntaxNode);
+        methodCallExpressionNode.arguments().forEach(node -> node.accept(this));
     }
 
     @Override
     public void visit(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
-        errorConstructorExpressionNode.arguments().forEach(this::visitSyntaxNode);
+        errorConstructorExpressionNode.arguments().forEach(node -> node.accept(this));
     }
 
     @Override
@@ -187,7 +187,7 @@ public class QueryReferenceFinder extends NodeVisitor {
     @Override
     public void visit(IndexedExpressionNode indexedExpressionNode) {
         indexedExpressionNode.containerExpression().accept(this);
-        indexedExpressionNode.keyExpression().forEach(this::visitSyntaxNode);
+        indexedExpressionNode.keyExpression().forEach(node -> node.accept(this));
     }
 
     @Override
@@ -237,18 +237,24 @@ public class QueryReferenceFinder extends NodeVisitor {
 
     @Override
     public void visit(ExplicitNewExpressionNode explicitNewExpressionNode) {
-        explicitNewExpressionNode.parenthesizedArgList().arguments().forEach(this::visitSyntaxNode);
+        explicitNewExpressionNode.parenthesizedArgList().arguments().forEach(node -> node.accept(this));
     }
 
     @Override
     public void visit(ImplicitNewExpressionNode implicitNewExpressionNode) {
         implicitNewExpressionNode.parenthesizedArgList().ifPresent(parenthesizedArgList ->
-                parenthesizedArgList.arguments().forEach(this::visitSyntaxNode));
+                parenthesizedArgList.arguments().forEach(node -> node.accept(this)));
     }
 
     @Override
     public void visit(QueryExpressionNode queryExpressionNode) {
         visitSyntaxNode(queryExpressionNode);
+    }
+
+    @Override
+    public void visit(LetExpressionNode letExpressionNode) {
+        letExpressionNode.letVarDeclarations().forEach(declarationNode -> declarationNode.accept(this));
+        letExpressionNode.expression().accept(this);
     }
 
     // ############################### Function Argument Nodes ############################### //
@@ -268,22 +274,55 @@ public class QueryReferenceFinder extends NodeVisitor {
         restArgumentNode.expression().accept(this);
     }
 
+    // ############################## Binding Pattern Nodes ############################## //
+
+    @Override
+    public void visit(TypedBindingPatternNode typedBindingPatternNode) {
+        typedBindingPatternNode.bindingPattern().accept(this);
+    }
+
+    @Override
+    public void visit(CaptureBindingPatternNode captureBindingPatternNode) {
+        internalVariables.add(captureBindingPatternNode.variableName().text().trim());
+    }
+
+    @Override
+    public void visit(ListBindingPatternNode listBindingPatternNode) {
+        listBindingPatternNode.bindingPatterns().forEach(node -> node.accept(this));
+    }
+
+    @Override
+    public void visit(MappingBindingPatternNode mappingBindingPatternNode) {
+        mappingBindingPatternNode.fieldBindingPatterns().forEach(node -> node.accept(this));
+    }
+
+    @Override
+    public void visit(FieldBindingPatternFullNode fieldBindingPatternFullNode) {
+        fieldBindingPatternFullNode.bindingPattern().accept(this);
+    }
+
+    @Override
+    public void visit(FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+        internalVariables.add(fieldBindingPatternVarnameNode.variableName().name().text().trim());
+    }
+
+    @Override
+    public void visit(RestBindingPatternNode restBindingPatternNode) {
+        internalVariables.add(restBindingPatternNode.variableName().name().text().trim());
+    }
+
+    @Override
+    public void visit(ErrorBindingPatternNode errorBindingPatternNode) {
+        errorBindingPatternNode.argListBindingPatterns().forEach(node -> node.accept(this));
+    }
+
     // ################################## Other Nodes ################################## //
 
     @Override
     public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
         String variableRef = simpleNameReferenceNode.name().text().trim();
-        if (!internalVariables.contains(variableRef) && !letVariables.contains(variableRef)) {
+        if (!internalVariables.contains(variableRef)) {
             capturedVariables.add(variableRef);
         }
-    }
-
-    private List<String> extractVariablesFromBindingPattern(BindingPatternNode bindingPattern) {
-        List<String> capturedVariableNames = new ArrayList<>();
-        // Todo - check other binding pattern types
-        if (bindingPattern instanceof CaptureBindingPatternNode) {
-            capturedVariableNames.add(((CaptureBindingPatternNode) bindingPattern).variableName().text().trim());
-        }
-        return capturedVariableNames;
     }
 }

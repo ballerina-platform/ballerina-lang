@@ -19,7 +19,6 @@ package org.ballerinalang.debugadapter.evaluation.validator;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.parser.DebugParser;
 import org.ballerinalang.debugadapter.evaluation.parser.DebugParserException;
 import org.ballerinalang.debugadapter.evaluation.parser.ExpressionParser;
@@ -30,6 +29,8 @@ import org.ballerinalang.debugadapter.evaluation.validator.impl.TopLevelDeclarat
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 
 /**
  * Can be be used to validate debug user expression inputs and get the parsed syntax node of the expression,
@@ -75,14 +76,12 @@ public class SerialExpressionValidator extends Validator {
             // If any validation errors are detected during the expression validation, falls back on other validators
             // to determine the exact error.
             fallBackOnOtherValidators(source);
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                    e.getMessage()));
+            throw createEvaluationException(e.getMessage());
         } catch (Exception e) {
             // If any generic errors are detected during the expression validation, falls back on other validators to
             // determine the exact error.
             fallBackOnOtherValidators(source);
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                    "expression validation failed due to: " + e.getMessage()));
+            throw createEvaluationException("expression validation failed due to: " + e.getMessage());
         }
     }
 
@@ -98,11 +97,9 @@ public class SerialExpressionValidator extends Validator {
             try {
                 validator.validate(source);
             } catch (DebugParserException | ValidatorException e) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                        e.getMessage()));
+                throw createEvaluationException(e.getMessage());
             } catch (Exception e) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                        "expression validation failed due to: " + e.getMessage()));
+                throw createEvaluationException("expression validation failed due to: " + e.getMessage());
             }
         }
     }
