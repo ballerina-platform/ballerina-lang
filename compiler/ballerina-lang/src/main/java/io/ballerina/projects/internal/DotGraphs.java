@@ -57,6 +57,9 @@ public class DotGraphs {
         PackageVersionContainer<DependencyNode> pkgContainer = new PackageVersionContainer<>();
         for (DependencyNode depNode : dependencyGraph.getNodes()) {
             PackageDescriptor pkgDesc = depNode.pkgDesc();
+            if (pkgDesc.isLangLibPackage()) {
+                continue;
+            }
             pkgContainer.add(pkgDesc.org(), pkgDesc.name(), pkgDesc.version(), depNode);
         }
 
@@ -70,7 +73,14 @@ public class DotGraphs {
         List<DependencyNode> sortedList = dependencyGraph.toTopologicallySortedList();
         for (int i = sortedList.size() - 1; i >= 0; i--) {
             DependencyNode depNode = sortedList.get(i);
+            if (depNode.pkgDesc().isLangLibPackage()) {
+                continue;
+            }
+
             for (DependencyNode directDep : dependencyGraph.getDirectDependencies(depNode)) {
+                if (directDep.pkgDesc().isLangLibPackage()) {
+                    continue;
+                }
                 edges.add(getEdgeLine(depNode, directDep));
             }
 
