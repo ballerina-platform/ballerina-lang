@@ -114,6 +114,7 @@
             <class name="io.ballerina.semantic.api.test.symbols.ParameterSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.RecordTypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ServiceSymbolTest" />
+            <class name="io.ballerina.semantic.api.test.symbols.SymbolsInFieldAccessTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInMappingConstructorTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInObjectConstructorTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsWithinExprTest" />
