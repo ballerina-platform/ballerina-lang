@@ -160,7 +160,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                     rank = 5;
                 }
 
-                rank = rank < 0 ? SortingUtil.toRank(lsItem, 5) : rank;
+                rank = rank < 0 ? SortingUtil.toRank(context, lsItem, 5) : rank;
                 cItem.setSortText(genSortText(rank));
             }
         }
