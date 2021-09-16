@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeDefinitionAnalyzer.TypeDefinitionDFSResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -213,6 +214,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final SymbolResolver symResolver;
     private final BLangDiagnosticLog dlog;
     private final Types types;
+    private final TypeDefinitionDFSResolver typeDefinitionDFSResolver;
     private final SourceDirectory sourceDirectory;
     private List<BLangNode> unresolvedTypes;
     private Set<BLangNode> unresolvedRecordDueToFields;
@@ -250,6 +252,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.types = Types.getInstance(context);
+        this.typeDefinitionDFSResolver = TypeDefinitionDFSResolver.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.sourceDirectory = context.get(SourceDirectory.class);
@@ -269,6 +272,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void cleanup() {
         unknownTypeRefs.clear();
+        typeDefinitionDFSResolver.cleanup();
+        typeDefinitionDFSResolver.processDone = true;
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
@@ -393,6 +398,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.typeDefinitions.forEach(typDef -> typeAndClassDefs.add(typDef));
         List<BLangClassDefinition> classDefinitions = getClassDefinitions(pkgNode.topLevelNodes);
         classDefinitions.forEach(classDefn -> typeAndClassDefs.add(classDefn));
+
+
+        typeDefinitionDFSResolver.populateTypeDefinitions(typeAndClassDefs, pkgEnv);
         defineTypeNodes(typeAndClassDefs, pkgEnv);
 
         for (BLangVariable variable : pkgNode.globalVars) {
@@ -3768,6 +3776,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define all the fields
         resolveFields(structureType, structureTypeNode, typeDefEnv);
 
+        typeDefinitionDFSResolver.finishDefiningFields(typeDef);
         if (typeDef.symbol.kind == SymbolKind.TYPE_DEF && structureType.tsymbol.kind != SymbolKind.RECORD) {
             return;
         }

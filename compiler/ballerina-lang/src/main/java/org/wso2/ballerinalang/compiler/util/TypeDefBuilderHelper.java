@@ -74,7 +74,7 @@ public class TypeDefBuilderHelper {
 
     public static BLangRecordTypeNode createRecordTypeNode(BRecordType recordType, PackageID packageID,
                                                            SymbolTable symTable, Location pos) {
-        List<BLangSimpleVariable> fieldList = new ArrayList<>();
+        List<BLangSimpleVariable> fieldList = new ArrayList<>(recordType.fields.size());
         for (BField field : recordType.fields.values()) {
             BVarSymbol symbol = field.symbol;
             if (symbol == null) {
@@ -90,7 +90,7 @@ public class TypeDefBuilderHelper {
     }
 
     public static BLangObjectTypeNode createObjectTypeNode(BObjectType objectType, Location pos) {
-        List<BLangSimpleVariable> fieldList = new ArrayList<>();
+        List<BLangSimpleVariable> fieldList = new ArrayList<>(objectType.fields.size());
         for (BField field : objectType.fields.values()) {
             BVarSymbol symbol = field.symbol;
             BLangSimpleVariable fieldVar = ASTBuilderUtil.createVariable(field.pos, symbol.name.value, field.type,

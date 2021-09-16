@@ -31,6 +31,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeDefinitionAnalyzer.TypeDefinitionDFSResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -122,13 +123,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static java.lang.String.format;
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
+
+import static java.lang.String.format;
 
 /**
  * @since 0.94
@@ -146,6 +148,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     private SymbolEnv env;
     private BType resultType;
     private DiagnosticCode diagCode;
+    private final TypeDefinitionDFSResolver typeDefinitionDFSResolver;
     private SymbolEnter symbolEnter;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
@@ -170,6 +173,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
+        this.typeDefinitionDFSResolver = TypeDefinitionDFSResolver.getInstance(context);
         this.unifier = new Unifier();
     }
 
@@ -1197,7 +1201,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public void visit(BLangUnionTypeNode unionTypeNode) {
 
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(unionTypeNode.memberTypeNodes.size());
 
         for (BLangType langType : unionTypeNode.memberTypeNodes) {
             BType resolvedType = resolveTypeNode(langType, env);
@@ -1226,6 +1230,9 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangObjectTypeNode objectTypeNode) {
+        if (objectTypeNode.symbol != null) {
+            throw new UnsupportedOperationException("Already defined object symbol");
+        }
         EnumSet<Flag> flags = EnumSet.copyOf(objectTypeNode.flagSet);
         if (objectTypeNode.isAnonymous) {
             flags.add(Flag.PUBLIC);
@@ -1516,6 +1523,79 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
     }
 
+    private BSymbol searchForSymbol(BLangUserDefinedType userDefinedTypeNode) {
+        Name pkgAlias = names.fromIdNode(userDefinedTypeNode.pkgAlias);
+        Name typeName = names.fromIdNode(userDefinedTypeNode.typeName);
+        BSymbol symbol = symTable.notFoundSymbol;
+
+        // 1) Resolve ANNOTATION type if and only current scope inside ANNOTATION definition.
+        // Only valued types and ANNOTATION type allowed.
+        if (env.scope.owner.tag == SymTag.ANNOTATION) {
+            symbol = lookupAnnotationSpaceSymbolInPackage(userDefinedTypeNode.pos, env, pkgAlias, typeName);
+        }
+
+        // 2) Resolve the package scope using the package alias.
+        //    If the package alias is not empty or null, then find the package scope,
+        if (symbol == symTable.notFoundSymbol) {
+            BSymbol tempSymbol = lookupMainSpaceSymbolInPackage(userDefinedTypeNode.pos, env, pkgAlias, typeName);
+
+            if ((tempSymbol.tag & SymTag.TYPE) == SymTag.TYPE) {
+                symbol = tempSymbol;
+            } else if (Symbols.isTagOn(tempSymbol, SymTag.VARIABLE) && env.node.getKind() == NodeKind.FUNCTION) {
+                BLangFunction func = (BLangFunction) env.node;
+                boolean errored = false;
+
+                if (func.returnTypeNode == null ||
+                        (func.hasBody() && func.body.getKind() != NodeKind.EXTERN_FUNCTION_BODY)) {
+                    dlog.error(userDefinedTypeNode.pos,
+                            DiagnosticErrorCode.INVALID_NON_EXTERNAL_DEPENDENTLY_TYPED_FUNCTION);
+                    errored = true;
+                }
+
+                if (tempSymbol.type != null && tempSymbol.type.tag != TypeTags.TYPEDESC) {
+                    dlog.error(userDefinedTypeNode.pos, DiagnosticErrorCode.INVALID_PARAM_TYPE_FOR_RETURN_TYPE,
+                            tempSymbol.type);
+                    errored = true;
+                }
+
+                if (errored) {
+                    this.resultType = symTable.semanticError;
+                    return symbol;
+                }
+
+                ParameterizedTypeInfo parameterizedTypeInfo =
+                        getTypedescParamValueType(func.requiredParams, tempSymbol);
+                BType paramValType = parameterizedTypeInfo == null ? null : parameterizedTypeInfo.paramValueType;
+
+                if (paramValType == symTable.semanticError) {
+                    this.resultType = symTable.semanticError;
+                    return symbol;
+                }
+
+                if (paramValType != null) {
+                    BTypeSymbol tSymbol = new BTypeSymbol(SymTag.TYPE, Flags.PARAMETERIZED | tempSymbol.flags,
+                            tempSymbol.name, tempSymbol.originalName, tempSymbol.pkgID,
+                            null, func.symbol, tempSymbol.pos, VIRTUAL);
+                    tSymbol.type = new BParameterizedType(paramValType, (BVarSymbol) tempSymbol,
+                            tSymbol, tempSymbol.name, parameterizedTypeInfo.index);
+                    tSymbol.type.flags |= Flags.PARAMETERIZED;
+
+                    this.resultType = tSymbol.type;
+                    userDefinedTypeNode.symbol = tSymbol;
+                    return symbol;
+                }
+            }
+        }
+
+        if (symbol == symTable.notFoundSymbol) {
+            // 3) Lookup the root scope for types such as 'error'
+            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, symTable.rootScope, this.env, typeName,
+                    SymTag.VARIABLE_NAME);
+        }
+
+        return symbol;
+    }
+
     public void visit(BLangUserDefinedType userDefinedTypeNode) {
         // 1) Resolve the package scope using the package alias.
         //    If the package alias is not empty or null, then find the package scope,
@@ -1593,6 +1673,18 @@ public class SymbolResolver extends BLangNodeVisitor {
             // 3) Lookup the root scope for types such as 'error'
             symbol = lookupMemberSymbol(userDefinedTypeNode.pos, symTable.rootScope, this.env, typeName,
                                         SymTag.VARIABLE_NAME);
+        }
+
+        if (symbol != symTable.notFoundSymbol) {
+            // define dependent types. These types are referred as fields or inclusions in other
+            // records and classes
+            typeDefinitionDFSResolver.defineFieldsIfAvailable(symbol.pkgID.name, symbol.name);
+            System.out.println("Symbol is found and tried to define fields : " + symbol);
+        }
+
+        // try to define if not found
+        if (symbol == symTable.notFoundSymbol && typeDefinitionDFSResolver.defineTypeIfAvailable(pkgAlias, typeName)) {
+            symbol = searchForSymbol(userDefinedTypeNode);
         }
 
         if (this.env.logErrors && symbol == symTable.notFoundSymbol) {

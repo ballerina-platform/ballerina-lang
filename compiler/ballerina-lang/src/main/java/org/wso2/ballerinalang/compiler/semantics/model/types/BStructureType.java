@@ -38,6 +38,7 @@ public abstract class BStructureType extends BType {
 
     public LinkedHashMap<String, BField> fields;
     public List<BType> typeInclusions;
+    public boolean fieldsDefined = false;
 
     public BStructureType(int tag, BTypeSymbol tSymbol) {
         super(tag, tSymbol);
