@@ -68,7 +68,7 @@ public class MapUtils {
 
         throw ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
                                                                INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                                       BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
+                                       BLangExceptionHelper.getErrorDetails(RuntimeErrors.INVALID_MAP_INSERTION,
                                                                                expType, valuesType));
     }
 
@@ -86,7 +86,7 @@ public class MapUtils {
 
                 throw ErrorCreator.createError(
                         getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.RECORD_INVALID_READONLY_FIELD_UPDATE,
+                        BLangExceptionHelper.getErrorDetails(RuntimeErrors.RECORD_INVALID_READONLY_FIELD_UPDATE,
                                                              fieldName, recType));
             }
 
@@ -99,7 +99,7 @@ public class MapUtils {
             // If both of the above conditions fail, the implication is that this is an attempt to insert a
             // value to a non-existent field in a closed record.
             throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR,
-                                           BLangExceptionHelper.getErrorMessage(
+                                           BLangExceptionHelper.getErrorDetails(
                                                       RuntimeErrors.INVALID_RECORD_FIELD_ACCESS, fieldName, recType));
         }
 
@@ -110,7 +110,7 @@ public class MapUtils {
 
         throw ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
                                                                INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                                       BLangExceptionHelper.getErrorMessage(
+                                       BLangExceptionHelper.getErrorDetails(
                                                   RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName, recFieldType,
                                                   valuesType));
     }
