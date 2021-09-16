@@ -54,7 +54,7 @@ public class SemTypeTest {
                 .collect(Collectors.toList());
 
         //ignore(testFiles, "int-singleton.bal");
-        ignore(testFiles, "float-singleton.bal");
+        //ignore(testFiles, "float-singleton.bal");
         // blocked on https://github.com/ballerina-platform/ballerina-lang/issues/28334 and
         // https://github.com/ballerina-platform/ballerina-lang/issues/32722
         ignore(testFiles, "float-singleton2.bal");
