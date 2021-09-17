@@ -69,7 +69,7 @@ public class BlendedManifest {
                     depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME) ?
                     Repository.LOCAL : Repository.NOT_SPECIFIED;
 
-            if (localPackageRepository.isPackageExists(depInPkgManifest.org(), depInPkgManifest.name(),
+            if (!localPackageRepository.isPackageExists(depInPkgManifest.org(), depInPkgManifest.name(),
                                                        depInPkgManifest.version())) {
                 continue;
             }
