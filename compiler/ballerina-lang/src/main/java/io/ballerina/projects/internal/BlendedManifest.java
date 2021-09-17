@@ -71,30 +71,32 @@ public class BlendedManifest {
 
             if (localPackageRepository.isPackageExists(depInPkgManifest.org(), depInPkgManifest.name(),
                                                        depInPkgManifest.version())) {
-                if (existingDepOptional.isEmpty()) {
-                    depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(),
-                            new Dependency(depInPkgManifest.org(),
-                                    depInPkgManifest.name(), depInPkgManifest.version(), DependencyRelation.UNKNOWN,
-                                    depInPkgManifestRepo, moduleNames(depInPkgManifest, localPackageRepository),
-                                    DependencyOrigin.USER_SPECIFIED));
-                } else {
-                    Dependency existingDep = existingDepOptional.get();
-                    VersionCompatibilityResult compatibilityResult =
-                            depInPkgManifest.version().compareTo(existingDep.version());
-                    if (compatibilityResult == VersionCompatibilityResult.EQUAL ||
-                            compatibilityResult == VersionCompatibilityResult.GREATER_THAN) {
-                        Dependency newDep = new Dependency(depInPkgManifest.org(), depInPkgManifest.name(),
-                                depInPkgManifest.version(), DependencyRelation.UNKNOWN, depInPkgManifestRepo,
-                                moduleNames(depInPkgManifest, localPackageRepository), DependencyOrigin.USER_SPECIFIED);
-                        depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(), newDep);
-                    } else if (compatibilityResult == VersionCompatibilityResult.INCOMPATIBLE) {
-                        // TODO update with proper diagnostics
-                        // TODO report a diagnostic, skip this version and continue.
-                        throw new ProjectException("Dependency version (" + depInPkgManifest.version() + ") " +
-                                "specified in Ballerina.toml is incompatible with the " +
-                                "dependency version (" + existingDep.version + ") locked in Dependencies.toml. " +
-                                "org: `" + existingDep.org() + "` name: " + existingDep.name() + "");
-                    }
+                continue;
+            }
+
+            if (existingDepOptional.isEmpty()) {
+                depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(),
+                        new Dependency(depInPkgManifest.org(),
+                                depInPkgManifest.name(), depInPkgManifest.version(), DependencyRelation.UNKNOWN,
+                                depInPkgManifestRepo, moduleNames(depInPkgManifest, localPackageRepository),
+                                DependencyOrigin.USER_SPECIFIED));
+            } else {
+                Dependency existingDep = existingDepOptional.get();
+                VersionCompatibilityResult compatibilityResult =
+                        depInPkgManifest.version().compareTo(existingDep.version());
+                if (compatibilityResult == VersionCompatibilityResult.EQUAL ||
+                        compatibilityResult == VersionCompatibilityResult.GREATER_THAN) {
+                    Dependency newDep = new Dependency(depInPkgManifest.org(), depInPkgManifest.name(),
+                            depInPkgManifest.version(), DependencyRelation.UNKNOWN, depInPkgManifestRepo,
+                            moduleNames(depInPkgManifest, localPackageRepository), DependencyOrigin.USER_SPECIFIED);
+                    depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(), newDep);
+                } else if (compatibilityResult == VersionCompatibilityResult.INCOMPATIBLE) {
+                    // TODO update with proper diagnostics
+                    // TODO report a diagnostic, skip this version and continue.
+                    throw new ProjectException("Dependency version (" + depInPkgManifest.version() + ") " +
+                            "specified in Ballerina.toml is incompatible with the " +
+                            "dependency version (" + existingDep.version + ") locked in Dependencies.toml. " +
+                            "org: `" + existingDep.org() + "` name: " + existingDep.name() + "");
                 }
             }
         }
