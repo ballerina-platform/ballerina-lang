@@ -13,7 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-// import ballerina/io;
+
+import ballerina/test;
 
 type Person record {|
     string name = "";
@@ -146,17 +147,121 @@ function testConvertRecordToMapWithCyclicValueReferences() returns map<anydata>|
     Manager p = { name: "Waruna", age: 25, parent: () };
     Manager p2 = { name: "Milinda", age: 25, parent:p };
     p.parent = p2;
-    anydata a = p;
-    basicMatch(a);
     map<anydata> m =  check trap p.cloneWithType(AnydataMap); // Cyclic value will be check when stamping the value.
     return m;
 }
 
-function basicMatch(any a) {
-    // match a {
-    //         var {var1, var2, var3} => {io:println("Matched");}
-    // }
+function testConvertFromJsonWithCyclicValueReferences() {
+    json p = { name: "Waruna", age: 25, parent: () };
+    json p2 = { name: "Milinda", age: 25, parent: p };
+    map<json> p3 = <map<json>> p2;
+    p3["parent"] = p2;
+    json p4 = p3;
+    Engineer|error p5 = trap p4.fromJsonWithType(Engineer);
+    error err = <error> p5;
+    test:assertEquals(<string> checkpanic err.detail()["message"], "'map<json>' value has cyclic reference");
+    test:assertEquals(err.message(),"{ballerina/lang.value}ConversionError");
 }
 
 type AnydataMap map<anydata>;
 type T1_T2 [T1, T2];
+
+type Boss record {
+    Person3 man;
+    string department;
+};
+
+type Factory record {|
+    Person3 man1;
+    Person3 man2;
+    Boss man3;
+    float grade;
+    boolean permanant = false;
+    Student1 intern;
+    boolean...;
+|};
+
+type Person3 record {|
+    string name;
+    int age;
+|};
+
+type Apple record {
+    string color;
+};
+
+type Orange record {|
+    string colour;
+|};
+
+type Mango record {
+    string taste;
+    int amount;
+};
+
+type Student1 record {|
+    string name;
+    Apple|Orange|Mango fruit;
+|};
+
+function testConvertJsonToNestedRecordsWithErrors() {
+    json j = {
+        "man1": {
+            "fname": "Jane",
+            "age": "14"
+        },
+        "man2": {
+            "name": 2,
+            "aage": 14,
+            "height":67.5
+        },
+        "man3": {
+            "man": {
+                "namee": "Jane",
+                "age": "14",
+                "height":67.5
+            },
+            "department": 4
+        },
+        "intern": {
+            "name": 12,
+            "fruit": {
+                "color": 4,
+                "amount": "five"
+            }
+        },
+        "black": "color",
+        "blue": 4,
+        "white": true,
+        "yellow": "color",
+        "green": 4
+    };
+
+    Factory|error val = trap j.cloneWithType(Factory);
+
+    error err = <error> val;
+    string errorMsg = "'map<json>' value cannot be converted to 'Factory': " +
+        "\n\t\tmissing required field 'grade' of type 'float' in record 'Factory'" +
+        "\n\t\tmissing required field 'man1.name' of type 'string' in record 'Person3'" +
+        "\n\t\tfield 'man1.fname' cannot be added to the closed record 'Person3'" +
+        "\n\t\tfield 'man1.age' in record 'Person3' should be of type 'int'" +
+        "\n\t\tmissing required field 'man2.age' of type 'int' in record 'Person3'" +
+        "\n\t\tfield 'man2.name' in record 'Person3' should be of type 'string'" +
+        "\n\t\tfield 'man2.aage' cannot be added to the closed record 'Person3'" +
+        "\n\t\tfield 'man2.height' cannot be added to the closed record 'Person3'" +
+        "\n\t\tmissing required field 'man3.man.name' of type 'string' in record 'Person3'" +
+        "\n\t\tfield 'man3.man.namee' cannot be added to the closed record 'Person3'" +
+        "\n\t\tfield 'man3.man.age' in record 'Person3' should be of type 'int'" +
+        "\n\t\tfield 'man3.man.height' cannot be added to the closed record 'Person3'" +
+        "\n\t\tfield 'man3.department' in record 'Boss' should be of type 'string'" +
+        "\n\t\tfield 'intern.name' in record 'Student1' should be of type 'string'" +
+        "\n\t\tfield 'intern.fruit.color' in record 'Apple' should be of type 'string'" +
+        "\n\t\tmissing required field 'intern.fruit.colour' of type 'string' in record 'Orange'" +
+        "\n\t\tfield 'intern.fruit.color' cannot be added to the closed record 'Orange'" +
+        "\n\t\tfield 'intern.fruit.amount' cannot be added to the closed record 'Orange'" +
+        "\n\t\tmissing required field 'intern.fruit.taste' of type 'string' in record 'Mango'" +
+        "\n\t\tfield 'intern.fruit.amount' in record 'Mango' should be of type 'int'" +
+        "\n\t\t...";
+    test:assertEquals(<string> checkpanic err.detail()["message"], errorMsg);
+    test:assertEquals(err.message(),"{ballerina/lang.value}ConversionError");
+}

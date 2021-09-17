@@ -158,7 +158,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Teacher' value cannot be converted to 'Employee'");
+                            "'Teacher' value cannot be converted to 'Employee': " +
+                                    "\n\t\tmissing required field 'salary' of type 'float' in record 'Employee'");
     }
 
     @Test
@@ -167,7 +168,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Person' value cannot be converted to 'Student'");
+                            "'Person' value cannot be converted to 'Student': " +
+                                    "\n\t\tfield 'school' cannot be added to the closed record 'Student'");
     }
 
     @Test
