@@ -234,16 +234,7 @@ public class SymbolsWithinExprTest {
 
     @Test(dataProvider = "ErrorConPosProvider")
     public void testErrorConstructor(int line, int col, SymbolKind expKind, String expName) {
-        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
-
-        if (expKind == null) {
-            assertTrue(symbol.isEmpty());
-            return;
-        }
-
-        assertTrue(symbol.isPresent());
-        assertEquals(symbol.get().kind(), expKind);
-        assertEquals(symbol.get().getName().get(), expName);
+        assertSymbol(line, col, expKind, expName);
     }
 
     @DataProvider(name = "ErrorConPosProvider")
@@ -263,5 +254,34 @@ public class SymbolsWithinExprTest {
                 {85, 28, VARIABLE, "c"},
                 {85, 31, null, null},
         };
+    }
+
+    @Test(dataProvider = "TypeCastPosProvider")
+    public void testTypeCast(int line, int col, SymbolKind expKind, String expName) {
+        assertSymbol(line, col, expKind, expName);
+    }
+
+    @DataProvider(name = "TypeCastPosProvider")
+    public Object[][] getTypeCastPos() {
+        return new Object[][]{
+                {90, 12, null, null},
+                {90, 14, ANNOTATION, "v1"},
+                {90, 17, RECORD_FIELD, "foo"},
+                {90, 33, VARIABLE, "ad"},
+        };
+    }
+
+    // utils
+    private void assertSymbol(int line, int col, SymbolKind expKind, String expName) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+
+        if (expKind == null) {
+            assertTrue(symbol.isEmpty());
+            return;
+        }
+
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), expKind);
+        assertEquals(symbol.get().getName().get(), expName);
     }
 }

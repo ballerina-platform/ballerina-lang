@@ -86,6 +86,11 @@ function testErrorConstructor() {
     error err3 = error(msg, c, a = "foo");
 }
 
+function testTypeCast() {
+    anydata ad = 10;
+    int x = <@v1{foo: "bar"} int>ad;
+}
+
 // utils
 
 const PI = 3.14;
