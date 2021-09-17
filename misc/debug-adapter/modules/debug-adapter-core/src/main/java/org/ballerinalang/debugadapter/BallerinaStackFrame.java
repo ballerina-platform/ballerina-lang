@@ -106,12 +106,14 @@ public class BallerinaStackFrame {
             Source source = new Source();
             source.setName(jStackFrame.location().sourceName());
             URI uri = frameLocationPath.toUri();
+
             // If the corresponding source file of the stack frame is a bala source, the source should be readonly in
             // the editor side. Therefore adds a custom URI scheme to the file path, after verifying that the connected
             // debug client support custom URI schemes.
             Optional<ClientConfigHolder.ExtendedClientCapabilities> capabilities =
                     context.getAdapter().getClientConfigHolder().getExtendedCapabilities();
             boolean supportsReadOnlyEditors = capabilities.isPresent() && capabilities.get().supportsReadOnlyEditors();
+
             if (supportsReadOnlyEditors && sourceType == DebugSourceType.DEPENDENCY) {
                 source.setPath(URI.create(BALA_URI_SCHEME_NAME + uri.getPath()).normalize().toString());
             } else {

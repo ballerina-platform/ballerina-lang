@@ -127,21 +127,6 @@ public class DebugInstructionTest extends BaseTestCase {
         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 35));
     }
 
-    @Test(description = "STEP_IN instruction related debug test")
-    public void stepInInstructionTest() throws BallerinaTestException {
-        // Todo
-    }
-
-    @Test(description = "STEP_OUT instruction related debug test")
-    public void stepOutInstructionTest() throws BallerinaTestException {
-        // Todo
-    }
-
-    @Test(description = "CONTINUE/NEXT_BREAKPOINT instruction related debug test")
-    public void continueInstructionTest() throws BallerinaTestException {
-        // Todo
-    }
-
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

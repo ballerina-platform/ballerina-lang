@@ -37,6 +37,7 @@ import org.testng.annotations.Test;
 public class LangLibDebugTest {
 
     private DebugTestRunner debugTestRunner;
+    private static final String BALA_URI_SCHEME = "bala:";
 
     @BeforeClass
     public void setup() {
@@ -56,6 +57,7 @@ public class LangLibDebugTest {
         // Steps into `int` language library.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_IN);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().startsWith(BALA_URI_SCHEME));
         Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().replaceAll("\\\\", "/")
                 .endsWith("ballerina/lang.int/1.1.0/any/modules/lang.int/int.bal"));
 
@@ -67,6 +69,7 @@ public class LangLibDebugTest {
         // Steps into `float` language library.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_IN);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().startsWith(BALA_URI_SCHEME));
         Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().replaceAll("\\\\", "/")
                 .endsWith("ballerina/lang.float/1.0.0/any/modules/lang.float/float.bal"));
     }
