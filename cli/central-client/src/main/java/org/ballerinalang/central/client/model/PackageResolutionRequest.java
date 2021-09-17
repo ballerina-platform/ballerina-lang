@@ -27,6 +27,8 @@ import com.google.gson.stream.JsonWriter;
 
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -129,7 +131,8 @@ public class PackageResolutionRequest {
     }
 
     public void addPackage(String orgName, String name, String version, Mode mode) {
-        packages.add(new Package(orgName, name, version, mode));
+        // The version is encoded to avoid issue handling the dash in pre-release version tag
+        packages.add(new Package(orgName, name, URLEncoder.encode(version, StandardCharsets.UTF_8), mode));
     }
 
     static class EmptyStringTypeAdapter
