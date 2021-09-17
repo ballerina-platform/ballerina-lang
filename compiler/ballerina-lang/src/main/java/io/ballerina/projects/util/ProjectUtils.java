@@ -153,34 +153,6 @@ public class ProjectUtils {
     }
 
     /**
-     * Checks the organization, package or module name has initial, trailing or consecutive underscores.
-     *
-     * @param name name.
-     * @return true if name does not have initial, trailing or consecutive underscores, else false.
-     */
-    public static boolean validateUnderscoresOfName(String name) {
-        return !(name.startsWith("_") || name.endsWith("_") || name.contains("__"));
-    }
-
-    /**
-     * Get specific error message when organization, package or module name has initial, trailing or
-     * consecutive underscores.
-     *
-     * @param name            name.
-     * @param packageOrModule package or module.
-     * @return specific error message.
-     */
-    public static String getValidateUnderscoreError(String name, String packageOrModule) {
-        if (name.startsWith("_")) {
-            return packageOrModule + " name cannot have initial underscore characters.";
-        } else if (name.endsWith("_")) {
-            return packageOrModule + " name cannot have trailing underscore characters.";
-        } else {
-            return packageOrModule + " name cannot have consecutive underscore characters.";
-        }
-    }
-
-    /**
      * Find the project root by recursively up to the root.
      *
      * @param filePath project path

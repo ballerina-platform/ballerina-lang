@@ -277,57 +277,6 @@ public class InitCommandTest extends BaseCommandTest {
                 + "Maximum length of package name is 256 characters."));
     }
 
-    @Test(description = "Test init command with package name has initial underscore")
-    public void testInitCommandWithNameHasInitialUnderscore() throws IOException {
-        Path projectPath = tmpDir.resolve("sample5");
-        if (Files.notExists(projectPath)) {
-            Files.createDirectory(projectPath);
-        }
-
-        String pkgName = "_my_package";
-        String[] args = {pkgName};
-        InitCommand initCommand = new InitCommand(projectPath, printStream, false);
-        new CommandLine(initCommand).parseArgs(args);
-        initCommand.execute();
-
-        Assert.assertTrue(readOutput().contains("invalid package name : '" + pkgName + "' :\n"
-                + "Package name cannot have initial underscore characters."));
-    }
-
-    @Test(description = "Test init command with package name has trailing underscore")
-    public void testInitCommandWithNameHasTrailingUnderscore() throws IOException {
-        Path projectPath = tmpDir.resolve("sample5");
-        if (Files.notExists(projectPath)) {
-            Files.createDirectory(projectPath);
-        }
-
-        String pkgName = "my_package_";
-        String[] args = {pkgName};
-        InitCommand initCommand = new InitCommand(projectPath, printStream, false);
-        new CommandLine(initCommand).parseArgs(args);
-        initCommand.execute();
-
-        Assert.assertTrue(readOutput().contains("invalid package name : '" + pkgName + "' :\n"
-                + "Package name cannot have trailing underscore characters."));
-    }
-
-    @Test(description = "Test init command with module package has consecutive underscores")
-    public void testInitCommandWithNameHasConsecutiveUnderscores() throws IOException {
-        Path projectPath = tmpDir.resolve("sample5");
-        if (Files.notExists(projectPath)) {
-            Files.createDirectory(projectPath);
-        }
-
-        String pkgName = "my__package";
-        String[] args = {pkgName};
-        InitCommand initCommand = new InitCommand(projectPath, printStream, false);
-        new CommandLine(initCommand).parseArgs(args);
-        initCommand.execute();
-
-        Assert.assertTrue(readOutput().contains("invalid package name : '" + pkgName + "' :\n"
-                + "Package name cannot have consecutive underscore characters."));
-    }
-
     @Test(description = "Test init command inside a ballerina project", dependsOnMethods = "testInitCommand")
     public void testInitCommandInsideProject() throws IOException {
         // Test if no arguments was passed in
