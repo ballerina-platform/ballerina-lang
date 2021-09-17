@@ -185,8 +185,6 @@ public abstract class BLangNodeTransformer<T, R> {
 
     public abstract R transformNode(BLangNode node, T props);
 
-    public abstract R transformNode(BLangNodeEntry nodeEntry, T props);
-
     // Base Nodes
 
     public R transform(BLangAnnotation node, T props) {
@@ -213,8 +211,8 @@ public abstract class BLangNodeTransformer<T, R> {
         return transformNode(node, props);
     }
 
-    public R transform(BLangErrorVariable.BLangErrorDetailEntry nodeEntry, T props) {
-        return transformNode(nodeEntry, props);
+    public R transform(BLangErrorVariable.BLangErrorDetailEntry node, T props) {
+        return transformNode(node, props);
     }
 
     public R transform(BLangExprFunctionBody node, T props) {
@@ -253,8 +251,8 @@ public abstract class BLangNodeTransformer<T, R> {
         return transformNode(node, props);
     }
 
-    public R transform(BLangRecordVariable.BLangRecordVariableKeyValue nodeEntry, T props) {
-        return transformNode(nodeEntry, props);
+    public R transform(BLangRecordVariable.BLangRecordVariableKeyValue node, T props) {
+        return transformNode(node, props);
     }
 
     public R transform(BLangResourceFunction node, T props) {
@@ -1025,8 +1023,8 @@ public abstract class BLangNodeTransformer<T, R> {
         return transformNode(node, props);
     }
 
-    public R transform(BLangLetVariable nodeEntry, T props) {
-        return transformNode(nodeEntry, props);
+    public R transform(BLangLetVariable node, T props) {
+        return transformNode(node, props);
     }
 
     public R transform(BLangObjectTypeNode node, T props) {

@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.NodeEntry;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorCauseBindingPattern;
@@ -195,8 +194,6 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
 
     public abstract void analyzeNode(BLangNode node, T props);
 
-    public abstract void analyzeNodeEntry(BLangNodeEntry nodeEntry, T props);
-
     public void visitNode(BLangNode node, T props) {
         if (node == null) {
             return;
@@ -210,22 +207,6 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
         }
         for (Node node : nodes) {
             visitNode((BLangNode) node, props);
-        }
-    }
-
-    public void visitNodeEntry(BLangNodeEntry nodeEntry, T props) {
-        if (nodeEntry == null) {
-            return;
-        }
-        nodeEntry.accept(this, props);
-    }
-
-    public void visitNodeEntry(List<? extends NodeEntry> nodeEntries, T props) {
-        if (nodeEntries == null) {
-            return;
-        }
-        for (NodeEntry nodeEntry : nodeEntries) {
-            visitNodeEntry((BLangNodeEntry) nodeEntry, props);
         }
     }
 
@@ -273,13 +254,13 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
         visitNode(node.message, props);
         visitNode(node.cause, props);
         visitNode(node.restDetail, props);
-        visitNodeEntry(node.detail, props);
+        visitNode(node.detail, props);
     }
 
-    public void visit(BLangErrorVariable.BLangErrorDetailEntry nodeEntry, T props) {
-        analyzeNodeEntry(nodeEntry, props);
-        visitNode(nodeEntry.key, props);
-        visitNode(nodeEntry.valueBindingPattern, props);
+    public void visit(BLangErrorVariable.BLangErrorDetailEntry node, T props) {
+        analyzeNode(node, props);
+        visitNode(node.key, props);
+        visitNode(node.valueBindingPattern, props);
     }
 
     public void visit(BLangExprFunctionBody node, T props) {
@@ -329,14 +310,14 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
     public void visit(BLangRecordVariable node, T props) {
         analyzeNode(node, props);
         visitBLangVariableNode(node, props);
-        visitNodeEntry(node.variableList, props);
+        visitNode(node.variableList, props);
         visitNode(node.restParam, props);
     }
 
-    public void visit(BLangRecordVariable.BLangRecordVariableKeyValue nodeEntry, T props) {
-        analyzeNodeEntry(nodeEntry, props);
-        visitNode(nodeEntry.key, props);
-        visitNode(nodeEntry.valueBindingPattern, props);
+    public void visit(BLangRecordVariable.BLangRecordVariableKeyValue node, T props) {
+        analyzeNode(node, props);
+        visitNode(node.key, props);
+        visitNode(node.valueBindingPattern, props);
     }
 
     public void visit(BLangResourceFunction node, T props) {
@@ -509,7 +490,7 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
 
     public void visit(BLangLetClause node, T props) {
         analyzeNode(node, props);
-        visitNodeEntry(node.letVarDeclarations, props);
+        visitNode(node.letVarDeclarations, props);
     }
 
     public void visit(BLangLimitClause node, T props) {
@@ -757,7 +738,7 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
 
     public void visit(BLangLetExpression node, T props) {
         analyzeNode(node, props);
-        visitNodeEntry(node.letVarDeclarations, props);
+        visitNode(node.letVarDeclarations, props);
         visitNode(node.expr, props);
     }
 
@@ -880,12 +861,12 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
         analyzeNode(node, props);
         visitBLangVariableReference(node, props);
         visitNode(node.pkgAlias, props);
-        visitNodeEntry(node.recordRefFields, props);
+        visitNode(node.recordRefFields, props);
         visitNode(node.restParam, props);
     }
 
     public void visit(BLangRecordVarRef.BLangRecordVarRefKeyValue node, T props) {
-        analyzeNodeEntry(node, props);
+        analyzeNode(node, props);
         visitNode(node.variableName, props);
         visitNode(node.variableReference, props);
     }
@@ -1438,9 +1419,9 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
         visitNode(node.constituentTypeNodes, props);
     }
 
-    public void visit(BLangLetVariable nodeEntry, T props) {
-        analyzeNodeEntry(nodeEntry, props);
-        visitNode((BLangNode) nodeEntry.definitionNode, props);
+    public void visit(BLangLetVariable node, T props) {
+        analyzeNode(node, props);
+        visitNode((BLangNode) node.definitionNode, props);
     }
 
     public void visit(BLangObjectTypeNode node, T props) {

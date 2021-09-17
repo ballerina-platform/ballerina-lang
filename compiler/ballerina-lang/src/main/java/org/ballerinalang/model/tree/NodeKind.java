@@ -25,7 +25,6 @@ public enum NodeKind {
     ANNOTATION,
     ANNOTATION_ATTACHMENT,
     ANNOTATION_ATTRIBUTE,
-    CATCH,
     COMPILATION_UNIT,
     DEPRECATED,
     DOCUMENTATION,
@@ -159,7 +158,6 @@ public enum NodeKind {
     PANIC,
     TRANSACTION,
     TRANSFORM,
-    TRY,
     TUPLE_DESTRUCTURE,
     RECORD_DESTRUCTURE,
     ERROR_DESTRUCTURE,
@@ -242,6 +240,9 @@ public enum NodeKind {
     OBJECT_TYPE,
     ERROR_TYPE,
     STREAM_TYPE,
-    TABLE_TYPE
+    TABLE_TYPE,
+
+    /* Internal */
+    NODE_ENTRY
 
 }

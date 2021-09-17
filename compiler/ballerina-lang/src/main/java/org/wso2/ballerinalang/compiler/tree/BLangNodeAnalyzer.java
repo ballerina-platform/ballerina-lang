@@ -186,8 +186,6 @@ public abstract class BLangNodeAnalyzer<T> {
 
     public abstract void analyzeNode(BLangNode node, T props);
 
-    public abstract void analyzeNodeEntry(BLangNodeEntry nodeEntry, T props);
-
     // Base Nodes
 
     public void visit(BLangAnnotation node, T props) {
@@ -214,8 +212,8 @@ public abstract class BLangNodeAnalyzer<T> {
         analyzeNode(node, props);
     }
 
-    public void visit(BLangErrorVariable.BLangErrorDetailEntry nodeEntry, T props) {
-        analyzeNodeEntry(nodeEntry, props);
+    public void visit(BLangErrorVariable.BLangErrorDetailEntry node, T props) {
+        analyzeNode(node, props);
     }
 
     public void visit(BLangExprFunctionBody node, T props) {
@@ -254,8 +252,8 @@ public abstract class BLangNodeAnalyzer<T> {
         analyzeNode(node, props);
     }
 
-    public void visit(BLangRecordVariable.BLangRecordVariableKeyValue nodeEntry, T props) {
-        analyzeNodeEntry(nodeEntry, props);
+    public void visit(BLangRecordVariable.BLangRecordVariableKeyValue node, T props) {
+        analyzeNode(node, props);
     }
 
     public void visit(BLangResourceFunction node, T props) {
@@ -645,7 +643,7 @@ public abstract class BLangNodeAnalyzer<T> {
     }
 
     public void visit(BLangRecordVarRef.BLangRecordVarRefKeyValue node, T props) {
-        analyzeNodeEntry(node, props);
+        analyzeNode(node, props);
     }
 
     public void visit(BLangRestArgsExpression node, T props) {
@@ -1026,8 +1024,8 @@ public abstract class BLangNodeAnalyzer<T> {
         analyzeNode(node, props);
     }
 
-    public void visit(BLangLetVariable nodeEntry, T props) {
-        analyzeNodeEntry(nodeEntry, props);
+    public void visit(BLangLetVariable node, T props) {
+        analyzeNode(node, props);
     }
 
     public void visit(BLangObjectTypeNode node, T props) {
