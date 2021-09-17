@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ServiceConstructorNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeModifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 
@@ -43,8 +43,8 @@ public class BLangServiceConstructorExpr extends BLangExpression implements Serv
     }
 
     @Override
-    public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
-        return modifier.modify(this, props);
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

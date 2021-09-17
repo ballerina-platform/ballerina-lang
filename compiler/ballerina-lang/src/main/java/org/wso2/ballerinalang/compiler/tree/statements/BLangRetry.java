@@ -21,7 +21,7 @@ import org.ballerinalang.model.clauses.OnFailClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.RetryNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeModifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
@@ -78,8 +78,8 @@ public class BLangRetry extends BLangStatement implements RetryNode {
     }
 
     @Override
-    public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
-        return modifier.modify(this, props);
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

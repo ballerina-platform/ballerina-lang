@@ -83,8 +83,8 @@ public class BLangErrorVariable extends BLangVariable implements ErrorVariableNo
     }
 
     @Override
-    public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
-        return modifier.modify(this, props);
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override
@@ -138,8 +138,8 @@ public class BLangErrorVariable extends BLangVariable implements ErrorVariableNo
         }
 
         @Override
-        public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
-            return modifier.modify(this, props);
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
         }
     }
 }

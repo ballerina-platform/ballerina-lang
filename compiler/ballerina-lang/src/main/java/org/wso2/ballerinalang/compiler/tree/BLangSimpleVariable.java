@@ -60,8 +60,8 @@ public class BLangSimpleVariable extends BLangVariable implements SimpleVariable
     }
 
     @Override
-    public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
-        return modifier.modify(this, props);
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

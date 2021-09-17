@@ -24,7 +24,7 @@ import org.ballerinalang.model.tree.expressions.ArrowFunctionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeModifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
@@ -80,8 +80,8 @@ public class BLangArrowFunction extends BLangExpression implements ArrowFunction
     }
 
     @Override
-    public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
-        return modifier.modify(this, props);
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

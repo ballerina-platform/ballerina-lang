@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeModifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -52,8 +52,8 @@ public class BLangErrorVariableDef extends BLangStatement implements VariableDef
     }
 
     @Override
-    public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
-        return modifier.modify(this, props);
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override
