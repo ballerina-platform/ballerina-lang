@@ -232,7 +232,6 @@ import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
-import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -654,7 +653,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
         NodeList<IdentifierToken> names = importDeclaration.moduleName();
         Location position = getPosition(importDeclaration);
-        names.forEach(name -> pkgNameComps.add(this.createIdentifier(getPosition(name), name.text(), null)));
+        names.forEach(name -> pkgNameComps.add(this.createIdentifier(getPosition(name), name.text())));
 
         BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
         importDcl.pos = position;
@@ -4070,7 +4069,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
 
         BLangExpression expr = createExpression(xmlFilterExpressionNode.expression());
-        BLangXMLElementAccess elementAccess = new BLangXMLElementAccess(getPosition(xmlFilterExpressionNode), null,
+        BLangXMLElementAccess elementAccess = new BLangXMLElementAccess(getPosition(xmlFilterExpressionNode),
                 expr, filters);
         return elementAccess;
     }
@@ -4101,7 +4100,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangExpression expr = createExpression(xmlStepExpressionNode.expression());
         // TODO : implement the value for childIndex
         BLangXMLNavigationAccess xmlNavigationAccess =
-                new BLangXMLNavigationAccess(getPosition(xmlStepExpressionNode), null, expr, filters,
+                new BLangXMLNavigationAccess(getPosition(xmlStepExpressionNode), expr, filters,
                 XMLNavigationAccess.NavAccessType.fromInt(starCount), null);
         return xmlNavigationAccess;
     }
@@ -4777,7 +4776,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             elementName = elementName.substring(1);
         }
 
-        return new BLangXMLElementFilter(getPosition(node), null, ns, nsPos, elementName, elemNamePos);
+        return new BLangXMLElementFilter(getPosition(node), ns, nsPos, elementName, elemNamePos);
     }
 
     private boolean stringStartsWithSingleQuote(String ns) {
@@ -5195,7 +5194,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     private BLangIdentifier createIdentifier(Location pos, Token token) {
         if (token == null) {
-            return createIdentifier(pos, null, null);
+            return createIdentifier(pos, (String) null);
         }
 
         String identifierName = token.text();
@@ -5210,10 +5209,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private BLangIdentifier createIdentifier(Location pos, String value) {
-        return createIdentifier(pos, value, null);
-    }
-
-    private BLangIdentifier createIdentifier(Location pos, String value, Set<Whitespace> ws) {
         BLangIdentifier bLIdentifer = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         if (value == null) {
             return bLIdentifer;
@@ -5228,9 +5223,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
         bLIdentifer.setOriginalValue(value);
         bLIdentifer.pos = pos;
-        if (ws != null) {
-            bLIdentifer.addWS(ws);
-        }
         return bLIdentifer;
     }
 
@@ -5489,15 +5481,13 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
     }
 
-    private VariableNode createBasicVarNodeWithoutType(Location location, Set<Whitespace> ws,
-                                                       String identifier, Location identifierLocation,
-                                                       ExpressionNode expr) {
+    private VariableNode createBasicVarNodeWithoutType(Location location, String identifier,
+                                                       Location identifierLocation, ExpressionNode expr) {
         BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         bLSimpleVar.pos = location;
-        IdentifierNode name = this.createIdentifier(identifierLocation, identifier, ws);
+        IdentifierNode name = this.createIdentifier(identifierLocation, identifier);
         ((BLangIdentifier) name).pos = identifierLocation;
         bLSimpleVar.setName(name);
-        bLSimpleVar.addWS(ws);
         if (expr != null) {
             bLSimpleVar.setInitialExpression(expr);
         }
@@ -6020,7 +6010,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         Location pos = getPosition(recordTypeDescriptorNode);
         // Generate a name for the anonymous object
         String genName = anonymousModelHelper.getNextAnonymousTypeKey(this.packageID);
-        IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName, null);
+        IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName);
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
         typeDef.flagSet.add(Flag.ANONYMOUS);

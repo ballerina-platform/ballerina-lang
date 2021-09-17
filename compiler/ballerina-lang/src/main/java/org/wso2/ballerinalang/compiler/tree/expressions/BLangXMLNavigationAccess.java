@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
@@ -26,7 +25,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.List;
-import java.util.Set;
 import java.util.StringJoiner;
 
 /**
@@ -48,12 +46,11 @@ public class BLangXMLNavigationAccess extends BLangExpression implements XMLNavi
     // could be checked multiple times when used with langlib functions producing multiple error messages.
     public boolean methodInvocationAnalyzed;
 
-    public BLangXMLNavigationAccess(Location pos, Set<Whitespace> ws, BLangExpression expr,
+    public BLangXMLNavigationAccess(Location pos, BLangExpression expr,
                                     List<BLangXMLElementFilter> filters,
                                     NavAccessType navAccessType,
                                     BLangExpression childIndex) {
         this.pos = pos;
-        this.addWS(ws);
         this.expr = expr;
         this.filters = filters;
         this.navAccessType = navAccessType;
