@@ -271,7 +271,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.birOptimizer.optimizePackage(birPkg);
         astPkg.symbol.birPackageFile = new BIRPackageFile(new BIRBinaryWriter(birPkg).serialize());
 
-        if (astPkg.hasTestablePackage()) {
+        if (!astPkg.moduleContextDataHolder.skipTests() && astPkg.hasTestablePackage()) {
             BIRPackage testBirPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName, astPkg.packageID.pkgName,
                     astPkg.packageID.name, astPkg.packageID.version, astPkg.packageID.sourceFileName);
             this.env = new BIRGenEnv(testBirPkg);
