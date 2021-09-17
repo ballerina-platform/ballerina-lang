@@ -214,7 +214,8 @@ public class RemotePackageRepository implements PackageRepository {
                             && m.getOrganization().equals(packageOrg.value())).findFirst();
             if (resolvedModule.isPresent()) {
                 PackageDescriptor packageDescriptor = PackageDescriptor.from(packageOrg,
-                        PackageName.from(resolvedModule.get().getPackageName()));
+                        PackageName.from(resolvedModule.get().getPackageName()),
+                        PackageVersion.from(resolvedModule.get().getVersion()));
                 ImportModuleResponse importModuleResponse = new ImportModuleResponse(packageDescriptor,
                         module.importModuleRequest());
                 result.add(importModuleResponse);
