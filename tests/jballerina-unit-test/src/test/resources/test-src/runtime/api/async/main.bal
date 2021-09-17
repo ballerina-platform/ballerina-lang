@@ -173,6 +173,33 @@ public function callAsyncInvalidObjectMethod(IsolatedClass s) returns int|error 
 } external;
 
 
+int globalVar1 = 2;
+
+public service class NonIsolatedServiceClass1 {
+
+    resource function getA .() returns int {
+        globalVar1 = globalVar1 + 2;
+        return globalVar1;
+    }
+
+    public function getNonIsolatedResourceA() returns int = @java:Method {
+        name: "getNonIsolatedResourceA",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+}
+
+public service class NonIsolatedServiceClass2 {
+    resource function getB .() returns int {
+        globalVar1 = globalVar1 + 2;
+        return globalVar1;
+    }
+
+    public function getNonIsolatedResourceB() returns int = @java:Method {
+        name: "getNonIsolatedResourceB",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+}
 
 public function main() {
     IsolatedClass isolatedClass = new ();
@@ -247,4 +274,14 @@ public function main() {
     test:assertTrue(r9 is error);
     error e9 = <error> r9;
     test:assertEquals(e9.message(), "No such method: foo");
+
+    testNonIsolatedSequentialCall();
+}
+
+function testNonIsolatedSequentialCall() {
+    NonIsolatedServiceClass1 obj1 = new ();
+    NonIsolatedServiceClass2 obj2 = new ();
+
+    test:assertEquals(obj1.getNonIsolatedResourceA(), 4);
+    test:assertEquals(obj2.getNonIsolatedResourceB(), 6);
 }

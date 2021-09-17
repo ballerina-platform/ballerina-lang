@@ -32,17 +32,16 @@ import io.ballerina.runtime.internal.values.ChannelDetails;
 import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.io.PrintStream;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-import java.util.WeakHashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -82,7 +81,7 @@ public class Scheduler {
 
     private Semaphore mainBlockSem;
     private ListenerRegistry listenerRegistry;
-    private Map<BObject, ItemGroup> objectGroups = Collections.synchronizedMap(new WeakHashMap<>());
+    private AtomicReference<ItemGroup> objectGroup = new AtomicReference<>();
 
     public Scheduler(boolean immortal) {
         try {
@@ -169,7 +168,7 @@ public class Scheduler {
         return future;
     }
 
-    public FutureValue scheduleToObjectGroup(BObject object, Object[] params, Function function, Strand parent,
+    public FutureValue scheduleToObjectGroup(Object[] params, Function function, Strand parent,
                                              Callback callback, Map<String, Object> properties, Type returnType,
                                              String strandName, StrandMetadata metadata) {
         FutureValue future = createFuture(parent, callback, properties, returnType, strandName, metadata);
@@ -177,14 +176,13 @@ public class Scheduler {
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
-        ItemGroup group = objectGroups.compute(object, (o, groupInMap) -> {
-            if (groupInMap == null) {
-                return new ItemGroup(item);
-            } else {
-                groupInMap.add(item);
-                return groupInMap;
-            }
-        });
+        ItemGroup group = objectGroup.get();
+        if (group == null) {
+            group = new ItemGroup(item);
+            objectGroup.set(group);
+        } else {
+            group.add(item);
+        }
         future.strand.strandGroup = group;
         if (group.scheduled.compareAndSet(false, true)) {
             runnableList.add(group);
