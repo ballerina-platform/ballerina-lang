@@ -21,6 +21,7 @@ package org.ballerinalang.debugadapter;
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
@@ -108,7 +109,10 @@ public class BallerinaStackFrame {
             // If the corresponding source file of the stack frame is a bala source, the source should be readonly in
             // the editor side. Therefore adds a custom URI scheme to the file path, after verifying that the connected
             // debug client support custom URI schemes.
-            if (sourceType == DebugSourceType.DEPENDENCY) {
+            Optional<ClientConfigHolder.ExtendedClientCapabilities> capabilities =
+                    context.getAdapter().getClientConfigHolder().getExtendedCapabilities();
+            boolean supportsReadOnlyEditors = capabilities.isPresent() && capabilities.get().supportsReadOnlyEditors();
+            if (supportsReadOnlyEditors && sourceType == DebugSourceType.DEPENDENCY) {
                 source.setPath(URI.create(BALA_URI_SCHEME_NAME + uri.getPath()).normalize().toString());
             } else {
                 source.setPath(uri.normalize().toString());
