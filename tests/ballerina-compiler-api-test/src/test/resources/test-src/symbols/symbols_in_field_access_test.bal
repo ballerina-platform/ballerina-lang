@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function test() {
+function testFieldAccess() {
     Person p = {name: "John Doe", age: 20};
     string s = p.name;
 
@@ -38,9 +38,14 @@ function test() {
     s = p4.name;
 }
 
-function getPerson() returns Person => {name: "Jane Doe", age: 25};
+function testOptionalFieldAccess() {
+    Employee emp = {name: "J. Doe"};
+    var v = emp?.designation;
+}
 
 // utils
+
+function getPerson() returns Person => {name: "Jane Doe", age: 25};
 
 type Person record {
     string name;
@@ -62,7 +67,7 @@ public type Person2 record {
     |} address;
 };
 
-type PersonObj {
+type PersonObj object{
     string name;
 };
 
@@ -73,3 +78,8 @@ class PersonClz {
         self.name = name;
     }
 }
+
+type Employee record {
+    string name;
+    string designation?;
+};

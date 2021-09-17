@@ -19,8 +19,10 @@
 package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
@@ -36,6 +38,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static org.testng.Assert.assertEquals;
@@ -94,6 +97,20 @@ public class SymbolsInFieldAccessTest {
                 {34, 11, OBJECT_FIELD, "name"},
                 {37, 8, VARIABLE, "p4"},
                 {37, 11, CLASS_FIELD, "name"},
+                {42, 12, VARIABLE, "emp"},
         };
+    }
+
+    @Test
+    public void testOptionalFieldAccess() {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(42, 17));
+
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), RECORD_FIELD);
+        assertEquals(symbol.get().getName().get(), "designation");
+        assertTrue(((RecordFieldSymbol) symbol.get()).isOptional());
+
+        TypeSymbol type = ((RecordFieldSymbol) symbol.get()).typeDescriptor();
+        assertEquals(type.typeKind(), STRING);
     }
 }
