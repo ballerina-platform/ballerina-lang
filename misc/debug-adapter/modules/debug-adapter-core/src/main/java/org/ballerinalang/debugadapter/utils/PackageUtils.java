@@ -47,6 +47,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+import static org.ballerinalang.debugadapter.DebugSourceType.DEPENDENCY;
+import static org.ballerinalang.debugadapter.DebugSourceType.PACKAGE;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 
 /**
@@ -64,9 +66,13 @@ public class PackageUtils {
     private static final String FILE_SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
 
     /**
-     * Retrieves the absolute path of the breakpoint location using JDI breakpoint hit information.
+     * Returns the corresponding debug source path based on the given stack frame location.
+     *
+     * @param stackFrameLocation stack frame location
+     * @param sourceProject      project instance of the detected debug source
      */
-    public static Optional<Path> getSrcPathFromBreakpointLocation(Location location, Project sourceProject) {
+    public static Optional<Map.Entry<Path, DebugSourceType>> getStackFrameSourcePath(Location stackFrameLocation,
+                                                                           Project sourceProject) {
         // Source resolving is processed according to the following order .
         // 1. Checks whether debug hit location resides within the current debug source project and if so, returns
         // the absolute path of the project file source.
@@ -80,10 +86,14 @@ public class PackageUtils {
         sourceResolvers.add(new DependencySourceResolver(sourceProject));
 
         for (SourceResolver sourceResolver : sourceResolvers) {
-            if (sourceResolver.isSupported(location)) {
-                Optional<Path> resolvedPath = sourceResolver.resolve(location);
+            if (sourceResolver.isSupported(stackFrameLocation)) {
+                Optional<Path> resolvedPath = sourceResolver.resolve(stackFrameLocation);
                 if (resolvedPath.isPresent()) {
-                    return resolvedPath;
+                    if (sourceResolver instanceof DependencySourceResolver) {
+                        return Optional.of(new AbstractMap.SimpleEntry<>(resolvedPath.get(), DEPENDENCY));
+                    } else {
+                        return Optional.of(new AbstractMap.SimpleEntry<>(resolvedPath.get(), PACKAGE));
+                    }
                 }
             }
         }
