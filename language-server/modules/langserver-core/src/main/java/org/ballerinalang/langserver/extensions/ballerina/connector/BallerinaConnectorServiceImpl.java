@@ -21,7 +21,6 @@ package org.ballerinalang.langserver.extensions.ballerina.connector;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.moandjiezana.toml.Toml;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -55,7 +54,6 @@ import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.diagramutil.connector.generator.ConnectorGenerator;
 import org.ballerinalang.diagramutil.connector.models.connector.Connector;
@@ -69,11 +67,9 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -96,23 +92,21 @@ import java.util.concurrent.CompletableFuture;
  */
 public class BallerinaConnectorServiceImpl implements BallerinaConnectorService {
 
-    public static final String DEFAULT_CONNECTOR_FILE_KEY = "DEFAULT_CONNECTOR_FILE";
-    // TODO: need to replace central url with system.env
-    public static final String BALLERINA_CENTRAL_URL = "https://api.dev-central.ballerina.io/2.0/registry";
+    public static final String BALLERINA_CENTRAL_URL = "BALLERINA_CENTRAL_URL";
     private static final Path STD_LIB_SOURCE_ROOT = Paths.get(CommonUtil.BALLERINA_HOME)
             .resolve("repo")
             .resolve("bala");
-    private String connectorConfig;
+    private String ballerinaCentralUrl;
     private final ConnectorExtContext connectorExtContext;
     private final LSClientLogger clientLogger;
 
     public BallerinaConnectorServiceImpl(LanguageServerContext serverContext) {
         this.connectorExtContext = new ConnectorExtContext();
-        connectorConfig = System.getenv(DEFAULT_CONNECTOR_FILE_KEY);
-        this.clientLogger = LSClientLogger.getInstance(serverContext);
-        if (connectorConfig == null) {
-            connectorConfig = System.getProperty(DEFAULT_CONNECTOR_FILE_KEY);
+        ballerinaCentralUrl = System.getenv(BALLERINA_CENTRAL_URL);
+        if (ballerinaCentralUrl == null) {
+            ballerinaCentralUrl = "https://api.central.ballerina.io/2.0/registry";
         }
+        this.clientLogger = LSClientLogger.getInstance(serverContext);
     }
 
     @Override
@@ -121,7 +115,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
             HttpClient client = HttpClient.newHttpClient();
 
             HttpRequest request = HttpRequest.newBuilder(
-                    URI.create(BALLERINA_CENTRAL_URL + "/connectors"))
+                    URI.create(this.ballerinaCentralUrl + "/connectors"))
                     .header("accept", "application/json")
                     .build();
 
@@ -205,7 +199,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 HttpClient client = HttpClient.newHttpClient();
 
                 HttpRequest connectorRequest = HttpRequest.newBuilder(
-                        URI.create(BALLERINA_CENTRAL_URL + "/connectors/" + request.getId()))
+                        URI.create(this.ballerinaCentralUrl + "/connectors/" + request.getId()))
                         .header("accept", "application/json")
                         .build();
 
@@ -483,15 +477,4 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         return Optional.empty();
     }
 
-    private BallerinaConnectorsResponse getConnectorConfig() throws IOException {
-        try (InputStream inputStream = new FileInputStream(new File(connectorConfig));) {
-            Toml toml;
-            try {
-                toml = new Toml().read(inputStream);
-            } catch (IllegalStateException e) {
-                throw new BLangCompilerException("invalid connector.toml due to " + e.getMessage());
-            }
-            return toml.to(BallerinaConnectorsResponse.class);
-        }
-    }
 }
