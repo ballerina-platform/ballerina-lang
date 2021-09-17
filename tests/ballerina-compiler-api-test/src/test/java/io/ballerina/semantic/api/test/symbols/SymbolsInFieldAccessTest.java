@@ -62,17 +62,8 @@ public class SymbolsInFieldAccessTest {
     }
 
     @Test(dataProvider = "PosProvider")
-    public void testFields(int line, int col, SymbolKind kind, String name) {
-        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
-
-        if (kind == null) {
-            assertTrue(symbol.isEmpty());
-            return;
-        }
-
-        assertTrue(symbol.isPresent());
-        assertEquals(symbol.get().kind(), kind);
-        assertEquals(symbol.get().getName().get(), name);
+    public void testFields(int line, int col, SymbolKind expKind, String expName) {
+        assertSymbol(line, col, expKind, expName);
     }
 
     @DataProvider(name = "PosProvider")
@@ -112,5 +103,36 @@ public class SymbolsInFieldAccessTest {
 
         TypeSymbol type = ((RecordFieldSymbol) symbol.get()).typeDescriptor();
         assertEquals(type.typeKind(), STRING);
+    }
+
+    @Test(dataProvider = "XMLAccessPosProvider")
+    public void testXMLAttributeAccess(int line, int col, SymbolKind expKind, String expName) {
+        assertSymbol(line, col, expKind, expName);
+    }
+
+    @DataProvider(name = "XMLAccessPosProvider")
+    public Object[][] getXMLAccessPos() {
+        return new Object[][]{
+                {47, 23, VARIABLE, "x"},
+                {47, 26, null, null},
+//                {51, 12, XMLNS, "ns"}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32800
+                {51, 15, null, null},
+                {53, 27, VARIABLE, "x"},
+                {53, 30, null, null},
+        };
+    }
+
+    // utils
+    private void assertSymbol(int line, int col, SymbolKind expKind, String expName) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+
+        if (expKind == null) {
+            assertTrue(symbol.isEmpty());
+            return;
+        }
+
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), expKind);
+        assertEquals(symbol.get().getName().get(), expName);
     }
 }

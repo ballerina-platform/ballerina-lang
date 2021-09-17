@@ -43,6 +43,17 @@ function testOptionalFieldAccess() {
     var v = emp?.designation;
 }
 
+function testXMLAttributeAccess() {
+    xml x = xml `<root attr="attr-val"><a></a><b></b></root>`;
+    string|error val = x.attr;
+
+    xmlns "www.url.com" as ns;
+    x = xml `<root attr="attr-val" ns:attr="attr-with-ns-val"><a></a><b></b></root>`;
+    val = x.ns:attr;
+
+    string|error|() val2 = x?.attr;
+}
+
 // utils
 
 function getPerson() returns Person => {name: "Jane Doe", age: 25};
