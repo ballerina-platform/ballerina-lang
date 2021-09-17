@@ -53,7 +53,6 @@ public class SemTypeTest {
                 .filter(name -> name.endsWith(".bal"))
                 .collect(Collectors.toList());
 
-        ignore(testFiles, "int-singleton.bal");
         // blocked on https://github.com/ballerina-platform/ballerina-lang/issues/28334 and
         // https://github.com/ballerina-platform/ballerina-lang/issues/32722
         ignore(testFiles, "float-singleton2.bal");
@@ -64,8 +63,8 @@ public class SemTypeTest {
                 "test-src/simple-type/list-type-test.bal",
                 "test-src/simple-type/map-type-test.bal");
 
-        //return testFiles.toArray(new String[0]);
-        return new Object[]{"test-src/data/error2.bal"};
+        return testFiles.toArray(new String[0]);
+        //return new Object[]{"test-src/data/error2.bal"};
     }
 
     private void include(List<String> testFiles, String... fileNames) {
@@ -93,7 +92,7 @@ public class SemTypeTest {
         List<String> expectedRels = extractSubtypeRelations(fileName);
         // Commented code will get expected content for this test to pass.
         // Useful for taking a diff.
-        // String text = toText(subtypeRels);
+        //String text = toText(subtypeRels);
         Assert.assertEquals(subtypeRels, expectedRels);
     }
 
