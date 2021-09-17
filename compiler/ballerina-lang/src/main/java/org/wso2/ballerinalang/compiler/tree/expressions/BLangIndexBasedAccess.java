@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeModifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 
@@ -66,8 +66,8 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
     }
 
     @Override
-    public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
-        return modifier.modify(this, props);
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override
@@ -97,8 +97,8 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
         }
 
         @Override
-        public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
-            return modifier.modify(this, props);
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
         }
     }
 
@@ -132,8 +132,8 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
         }
 
         @Override
-        public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
-            return modifier.modify(this, props);
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
         }
     }
 
@@ -159,8 +159,8 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
         }
 
         @Override
-        public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
-            return modifier.modify(this, props);
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
         }
     }
 
@@ -186,8 +186,8 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
         }
 
         @Override
-        public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
-            return modifier.modify(this, props);
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
         }
     }
 
@@ -213,8 +213,8 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
         }
 
         @Override
-        public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
-            return modifier.modify(this, props);
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
         }
     }
 
@@ -252,8 +252,8 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
         }
 
         @Override
-        public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
-            return modifier.modify(this, props);
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
         }
     }
 
@@ -290,8 +290,8 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
         }
 
         @Override
-        public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
-            return modifier.modify(this, props);
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
         }
     }
 
@@ -319,8 +319,8 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
         }
 
         @Override
-        public <T, R> R apply(BLangNodeModifier<T, R> modifier, T props) {
-            return modifier.modify(this, props);
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
         }
     }
 }

@@ -470,7 +470,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
  *
  * @since 1.3.0
  */
-public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
+public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
     private BLangDiagnosticLog dlog;
@@ -491,8 +491,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private  HashSet<String> constantSet = new HashSet<String>();
 
-    public BLangNodeTransformer(CompilerContext context,
-                                PackageID packageID, String entryName) {
+    public BLangNodeBuilder(CompilerContext context,
+                            PackageID packageID, String entryName) {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.dlog.setCurrentPackageId(packageID);
         this.symTable = SymbolTable.getInstance(context);

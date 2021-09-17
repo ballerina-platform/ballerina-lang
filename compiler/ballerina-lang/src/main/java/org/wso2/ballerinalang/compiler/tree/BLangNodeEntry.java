@@ -28,5 +28,5 @@ public abstract class BLangNodeEntry implements NodeEntry {
 
     public abstract <T> void accept(BLangNodeAnalyzer<T> analyzer, T props);
 
-    public abstract <T, R> R apply(BLangNodeModifier<T, R> modifier, T props);
+    public abstract <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props);
 }
