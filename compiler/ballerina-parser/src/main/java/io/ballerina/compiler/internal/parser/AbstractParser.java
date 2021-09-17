@@ -185,26 +185,6 @@ public abstract class AbstractParser {
     }
 
     /**
-     * Clones the last node in list with the invalid node as minutiae and update the list if the nodeList is not empty.
-     * Otherwise adds the invalid node as minutiae to the next consumed token.
-     *
-     * @param nodeList       node list to be updated if not empty
-     * @param invalidParam   the invalid node to be attached to the last node in list as minutiae
-     * @param diagnosticCode diagnostic code related to the invalid node
-     * @param args           additional arguments used in diagnostic message
-     */
-    protected void updateLastNodeInListOrAddInvalidNodeToNextToken(List<STNode> nodeList,
-                                                             STNode invalidParam,
-                                                             DiagnosticCode diagnosticCode,
-                                                             Object... args) {
-        if (nodeList.isEmpty()) {
-            addInvalidNodeToNextToken(invalidParam, diagnosticCode, args);
-        } else {
-            updateLastNodeInListWithInvalidNode(nodeList, invalidParam, diagnosticCode, args);
-        }
-    }
-
-    /**
      * Clones the last node in list with the invalid node as trailing minutiae and update the list.
      *
      * @param nodeList       node list to be updated
@@ -239,11 +219,11 @@ public abstract class AbstractParser {
     }
 
     /**
-     * Clones the a node in list with the invalid node as leading minutiae and update the list.
+     * Clones the node at the given index of the list, with the invalid node as leading minutiae, and update the list.
      *
      * @param nodeList       node list to be updated
      * @param indexOfTheNode index of the node in list to be updated
-     * @param invalidParam   the invalid node to be attached to the first node in list as minutiae
+     * @param invalidParam   the invalid node to be attached to the node at the given index of the list, as minutiae
      * @param diagnosticCode diagnostic code related to the invalid node
      * @param args           additional arguments used in diagnostic message
      */
@@ -255,6 +235,22 @@ public abstract class AbstractParser {
         STNode node = nodeList.get(indexOfTheNode);
         STNode newNode = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(node, invalidParam, diagnosticCode, args);
         nodeList.set(indexOfTheNode, newNode);
+    }
+
+    /**
+     * Clones the node with invalid nodes in the invalid node stack, as trailing minutiae.
+     *
+     * @param node node to be cloned
+     * @return a cloned node with invalid node minutiae
+     */
+    protected STNode addInvalidNodeStackToTrailingMinutiae(STNode node) {
+        while (!invalidNodeInfoStack.isEmpty()) {
+            InvalidNodeInfo invalidNodeInfo = invalidNodeInfoStack.pop();
+            node = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(node, invalidNodeInfo.node,
+                    invalidNodeInfo.diagnosticCode, invalidNodeInfo.args);
+        }
+
+        return node;
     }
 
     /**
