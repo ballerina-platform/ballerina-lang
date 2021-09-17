@@ -78,6 +78,14 @@ function testFunctionAndMethodCallExpr() {
     _ = p.baz(hundred, PI);
 }
 
+function testErrorConstructor() {
+    string msg = "Op failed";
+    error c = error("Cause");
+    Error1 err1 = error Error1(msg, c, code = hundred);
+    Error2 err2 = error Error2(msg, c, a = "foo", b = 10);
+    error err3 = error(msg, c, a = "foo");
+}
+
 // utils
 
 const PI = 3.14;
@@ -118,3 +126,6 @@ type Annot record {
 public annotation Annot v1 on type;
 
 function rand(int x, int y = 0, float... z) returns string => "random str";
+
+type Error1 error<record {int code;}>;
+type Error2 error<record {}>;

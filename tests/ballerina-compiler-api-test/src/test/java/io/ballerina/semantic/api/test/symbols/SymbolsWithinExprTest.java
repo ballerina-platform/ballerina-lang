@@ -37,7 +37,6 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
-import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
@@ -230,6 +229,39 @@ public class SymbolsWithinExprTest {
                 {77, 10, METHOD, "baz"},
                 {77, 14, VARIABLE, "hundred"},
                 {77, 23, CONSTANT, "PI"},
+        };
+    }
+
+    @Test(dataProvider = "ErrorConPosProvider")
+    public void testErrorConstructor(int line, int col, SymbolKind expKind, String expName) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+
+        if (expKind == null) {
+            assertTrue(symbol.isEmpty());
+            return;
+        }
+
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), expKind);
+        assertEquals(symbol.get().getName().get(), expName);
+    }
+
+    @DataProvider(name = "ErrorConPosProvider")
+    public Object[][] getErrorConPos() {
+        return new Object[][]{
+                {82, 14, null, null},
+                {82, 20, null, null},
+                {83, 24, TYPE, "Error1"},
+                {83, 31, VARIABLE, "msg"},
+                {83, 36, VARIABLE, "c"},
+//                {83, 39, RECORD_FIELD, "code"}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32808
+                {83, 46, VARIABLE, "hundred"},
+                {84, 24, TYPE, "Error2"},
+                {84, 39, null, null},
+                {84, 50, null, null},
+                {85, 23, VARIABLE, "msg"},
+                {85, 28, VARIABLE, "c"},
+                {85, 31, null, null},
         };
     }
 }
