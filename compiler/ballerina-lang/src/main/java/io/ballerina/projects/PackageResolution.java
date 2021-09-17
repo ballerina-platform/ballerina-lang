@@ -410,6 +410,8 @@ public class PackageResolution {
         return ResolutionOptions.builder()
                 .setOffline(compilationOptions.offlineBuild())
                 .setSticky(getSticky(rootPackageContext))
+                .setDumpGraph(compilationOptions.dumpGraph())
+                .setDumpRawGraphs(compilationOptions.dumpRawGraphs())
                 .build();
     }
 

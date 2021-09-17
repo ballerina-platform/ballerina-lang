@@ -27,6 +27,7 @@ import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.SemanticVersion.VersionCompatibilityResult;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.util.ProjectConstants;
 
@@ -52,15 +53,21 @@ public class PackageDependencyGraphBuilder {
     private final Map<Vertex, DependencyNode> vertices = new HashMap<>();
     private final Map<Vertex, Set<Vertex>> depGraph = new HashMap<>();
 
+    // We are maintaining the raw graph for trouble shooting purposes.
+    private final DependencyGraphBuilder<DependencyNode> rawGraphBuilder;
+    private final ResolutionOptions resolutionOptions;
+
     private Set<Vertex> unresolvedVertices = new HashSet<>();
 
     private final DependencyNode rootDepNode;
     private final Vertex rootNodeVertex;
 
-    public PackageDependencyGraphBuilder(PackageDescriptor rootNode) {
+    public PackageDependencyGraphBuilder(PackageDescriptor rootNode, ResolutionOptions resolutionOptions) {
         this.rootNodeVertex = new Vertex(rootNode.org(), rootNode.name());
         this.rootDepNode = new DependencyNode(rootNode,
                 PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE);
+        this.resolutionOptions = resolutionOptions;
+        this.rawGraphBuilder = DependencyGraphBuilder.getBuilder(rootDepNode);
 
         Vertex dependentVertex = new Vertex(rootDepNode.pkgDesc().org(), rootDepNode.pkgDesc().name());
         addNewVertex(dependentVertex, rootDepNode, false);
@@ -149,21 +156,6 @@ public class PackageDependencyGraphBuilder {
         return unresolvedNodes;
     }
 
-    private NodeStatus addDependencyInternal(PackageDescriptor dependent,
-                                             DependencyNode dependencyNode,
-                                             boolean unresolved) {
-        // Add the correct version of the dependent to the graph.
-        Vertex dependentVertex = new Vertex(dependent.org(), dependent.name());
-        if (!depGraph.containsKey(dependentVertex)) {
-            throw new IllegalStateException("Dependent node does not exist in the graph: " + dependent);
-        }
-
-        Vertex dependencyVertex = new Vertex(dependencyNode.pkgDesc().org(), dependencyNode.pkgDesc().name());
-        NodeStatus nodeStatus = addNewVertex(dependencyVertex, dependencyNode, unresolved);
-        depGraph.get(dependentVertex).add(dependencyVertex);
-        return nodeStatus;
-    }
-
     /**
      * Clean up the dependency graph by cleaning up dangling dependencies.
      */
@@ -178,6 +170,31 @@ public class PackageDependencyGraphBuilder {
         }
     }
 
+    public DependencyGraph<DependencyNode> rawGraph() {
+        return rawGraphBuilder.build();
+    }
+
+    private NodeStatus addDependencyInternal(PackageDescriptor dependent,
+                                             DependencyNode dependencyNode,
+                                             boolean unresolved) {
+        // Add the correct version of the dependent to the graph.
+        Vertex dependentVertex = new Vertex(dependent.org(), dependent.name());
+        if (!depGraph.containsKey(dependentVertex)) {
+            throw new IllegalStateException("Dependent node does not exist in the graph: " + dependent);
+        }
+
+        Vertex dependencyVertex = new Vertex(dependencyNode.pkgDesc().org(), dependencyNode.pkgDesc().name());
+        NodeStatus nodeStatus = addNewVertex(dependencyVertex, dependencyNode, unresolved);
+        depGraph.get(dependentVertex).add(dependencyVertex);
+
+        // Recording every dependency relation in raw graph for troubleshooting purposes.
+        if (resolutionOptions.dumpRawGraphs()) {
+            DependencyNode dependentNode = vertices.get(dependentVertex);
+            rawGraphBuilder.addDependency(dependentNode, dependencyNode);
+        }
+        return nodeStatus;
+    }
+
     private void removeDanglingNodes(Vertex nodeVertex, Set<Vertex> danglingVertices) {
         danglingVertices.remove(nodeVertex);
         Set<Vertex> dependencies = depGraph.get(nodeVertex);
@@ -190,6 +207,11 @@ public class PackageDependencyGraphBuilder {
     }
 
     private NodeStatus addNewVertex(Vertex vertex, DependencyNode newPkgDep, boolean unresolved) {
+        // Adding every node to the raw graph
+        if (resolutionOptions.dumpRawGraphs()) {
+            rawGraphBuilder.add(newPkgDep);
+        }
+
         if (!vertices.containsKey(vertex)) {
             vertices.put(vertex, newPkgDep);
             depGraph.put(vertex, new HashSet<>());

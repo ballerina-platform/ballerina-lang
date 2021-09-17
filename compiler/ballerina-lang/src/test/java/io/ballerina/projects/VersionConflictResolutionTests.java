@@ -18,6 +18,7 @@
 package io.ballerina.projects;
 
 import com.google.gson.Gson;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.PackageDependencyGraphBuilder;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.util.ProjectConstants;
@@ -46,6 +47,8 @@ public class VersionConflictResolutionTests {
     private static final PackageDescriptor rootPkgDesc = PackageDescriptor.from(PackageOrg.from("samjs"),
             PackageName.from("a"), PackageVersion.from("0.1.0"));
 
+    private static final ResolutionOptions resolutionOptions = ResolutionOptions.builder().build();
+
     @Test
     public void testNoVersionConflictsCase() throws IOException {
         // Dependency graph
@@ -67,7 +70,7 @@ public class VersionConflictResolutionTests {
 
     @Test(description = "Override default scope dependency with another default version dependency")
     public void testConflictResolutionCase1A() {
-        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc);
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
@@ -85,7 +88,7 @@ public class VersionConflictResolutionTests {
 
     @Test(description = "Override default scope dependency with another default version dependency")
     public void testConflictResolutionCase1B() {
-        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc);
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
@@ -103,7 +106,7 @@ public class VersionConflictResolutionTests {
 
     @Test(description = "Override test scope dependency with another test version dependency")
     public void testConflictResolutionCase2A() {
-        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc);
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
@@ -121,7 +124,7 @@ public class VersionConflictResolutionTests {
 
     @Test(description = "Override test scope dependency with another test version dependency")
     public void testConflictResolutionCase2B() {
-        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc);
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
@@ -139,7 +142,7 @@ public class VersionConflictResolutionTests {
 
     @Test(description = "Override test scope dependency with another default version dependency")
     public void testConflictResolutionCase3A() {
-        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc);
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
@@ -157,7 +160,7 @@ public class VersionConflictResolutionTests {
 
     @Test(description = "Override test scope dependency with another default version dependency")
     public void testConflictResolutionCase3B() {
-        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc);
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
@@ -175,7 +178,7 @@ public class VersionConflictResolutionTests {
 
     @Test(description = "Override default scope dependency with another test version dependency")
     public void testConflictResolutionCase4A() {
-        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc);
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
@@ -193,7 +196,7 @@ public class VersionConflictResolutionTests {
 
     @Test(description = "Override default scope dependency with another test version dependency")
     public void testConflictResolutionCase4B() {
-        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc);
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
@@ -211,7 +214,7 @@ public class VersionConflictResolutionTests {
 
     @Test(description = "Override local repo dependency with the same version from central repo")
     public void testConflictResolutionCase5A() {
-        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc);
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"), ProjectConstants.LOCAL_REPOSITORY_NAME);
@@ -229,7 +232,7 @@ public class VersionConflictResolutionTests {
 
     @Test(description = "Override local repo dependency with another version")
     public void testConflictResolutionCase5B() {
-        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc);
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"), ProjectConstants.LOCAL_REPOSITORY_NAME);
@@ -247,7 +250,7 @@ public class VersionConflictResolutionTests {
 
     @Test(description = "Override local repo dependency with another version")
     public void testConflictResolutionCase5C() {
-        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc);
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"), ProjectConstants.LOCAL_REPOSITORY_NAME);
@@ -297,7 +300,8 @@ public class VersionConflictResolutionTests {
     }
 
     private DependencyGraph<DependencyNode> getDependencyGraph(Path jsonPath) throws IOException {
-        PackageDependencyGraphBuilder depGraphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc);
+        PackageDependencyGraphBuilder depGraphBuilder =
+                new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
         DependencyGraphJson dependencyGraphJson = gson
                 .fromJson(Files.newBufferedReader(jsonPath),
                         DependencyGraphJson.class);

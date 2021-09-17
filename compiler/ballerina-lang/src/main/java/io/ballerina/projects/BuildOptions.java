@@ -114,6 +114,8 @@ public class BuildOptions {
         buildOptionsBuilder.experimental(compilationOptions.experimental);
         buildOptionsBuilder.observabilityIncluded(compilationOptions.observabilityIncluded);
         buildOptionsBuilder.dumpBir(compilationOptions.dumpBir);
+        buildOptionsBuilder.dumpGraph(compilationOptions.dumpGraph);
+        buildOptionsBuilder.dumpRawGraphs(compilationOptions.dumpRawGraphs);
         buildOptionsBuilder.cloud(compilationOptions.cloud);
         buildOptionsBuilder.listConflictedClasses(compilationOptions.listConflictedClasses);
         buildOptionsBuilder.sticky(compilationOptions.sticky);
@@ -138,7 +140,7 @@ public class BuildOptions {
         DUMP_BUILD_TIME("dumpBuildTime")
         ;
 
-        private String name;
+        private final String name;
 
         OptionName(String name) {
             this.name = name;
