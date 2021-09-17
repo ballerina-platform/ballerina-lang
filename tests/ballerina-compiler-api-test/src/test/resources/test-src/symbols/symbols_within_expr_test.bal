@@ -47,7 +47,7 @@ function testStructuralConstructors() {
     var m2 = {id: 1002, name: "Jane Doe"};
 
     var tbl2 = table key(id) [
-        {id: 1001, name: "John Doe"}
+        {id: 1001, name: "John Doe"},
         {id: 1002, name: "Jane Doe"}
         //{...m}
     ];
@@ -59,11 +59,15 @@ function testNewExpr() {
     p = new PersonClz(name);
 
     _StreamImplementor si = object {
-        public isolated function next() returns record {|Foo value;|}? {
+        public isolated function next() returns record {|FooRec value;|}? {
             return ();
         }
     };
     var st = new stream<FooRec>(si);
+}
+
+function testAnnotTagReference() {
+    Annot? annot = FooRec.@v1;
 }
 
 // utils
@@ -72,6 +76,9 @@ const PI = 3.14;
 int hundred = 100;
 string greet = "Hello World!";
 
+@v1 {
+    foo: "bar"
+}
 type FooRec record {
     int x;
     string y;
@@ -93,3 +100,9 @@ class PersonClz {
 type _StreamImplementor object {
     public isolated function next() returns record {|FooRec value;|}?;
 };
+
+type Annot record {
+    string foo;
+};
+
+public annotation Annot v1 on type;

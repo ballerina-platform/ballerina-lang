@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
 
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
@@ -187,5 +188,15 @@ public class SymbolsWithinExprTest {
                 {65, 24, TYPE, "FooRec"},
                 {65, 32, VARIABLE, "si"},
         };
+    }
+
+    // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32802
+    @Test(enabled = false)
+    public void testAnnotTagRef() {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(69, 27));
+
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), ANNOTATION);
+        assertEquals(symbol.get().getName().get(), "v1");
     }
 }
