@@ -67,12 +67,12 @@ public class ClientConfigHolder {
         if (extendedClientCapabilities != null) {
             return Optional.of(extendedClientCapabilities);
         }
-        Object envObject = clientRequestArgs.get(ARG_CAPABILITIES);
-        if (!(envObject instanceof Map)) {
+        Object capabilitiesObj = clientRequestArgs.get(ARG_CAPABILITIES);
+        if (!(capabilitiesObj instanceof Map)) {
             return Optional.empty();
         }
 
-        Map<String, Object> capabilities = (Map<String, Object>) envObject;
+        Map<String, Object> capabilities = (Map<String, Object>) capabilitiesObj;
         extendedClientCapabilities = new ExtendedClientCapabilities();
         Object readOnlyEditorConfig = capabilities.get(ARG_SUPPORT_READONLY_EDITOR);
         if (readOnlyEditorConfig instanceof Boolean) {
@@ -104,6 +104,7 @@ public class ClientConfigHolder {
      * Inner class to hold the extended capabilities of the connected debug client.
      */
     public static class ExtendedClientCapabilities {
+
         private boolean supportsReadOnlyEditors = false;
 
         public boolean supportsReadOnlyEditors() {
