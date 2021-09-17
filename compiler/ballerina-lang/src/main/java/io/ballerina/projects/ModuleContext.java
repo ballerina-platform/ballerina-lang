@@ -370,7 +370,8 @@ class ModuleContext {
         pkgNode.moduleContextDataHolder = new ModuleContextDataHolder(
                 moduleContext.isExported(),
                 moduleContext.descriptor(),
-                moduleContext.project().kind());
+                moduleContext.project.kind(),
+                moduleContext.project.buildOptions().skipTests());
         packageCache.put(moduleCompilationId, pkgNode);
 
         // Parse source files

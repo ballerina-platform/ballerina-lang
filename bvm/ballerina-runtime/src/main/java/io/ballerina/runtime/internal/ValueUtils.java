@@ -18,12 +18,16 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.State;
@@ -31,9 +35,11 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.ValueCreator;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Class @{@link ValueUtils} provides utils to create Ballerina Values.
@@ -162,6 +168,28 @@ public class ValueUtils {
         BXml xml = TypeConverter.stringToXml(value);
         xml.freezeDirect();
         return xml;
+    }
+
+    /**
+     * Provide the Typedesc Value with the singleton type with a value.
+     * @param value Ballerina value
+     * @return typedesc with singleton type
+     */
+    public static BTypedesc createSingletonTypedesc(BValue value) {
+        return io.ballerina.runtime.api.creators.ValueCreator
+                .createTypedescValue(TypeCreator.createFiniteType(value.toString(), Set.of(value), 0));
+    }
+
+    /**
+     * Provide the Typedesc Value depending on the immutability of a value.
+     * @param type Ballerina value
+     * @return typedesc with the suitable type
+     */
+    public static BTypedesc getTypedescValue(Type type, BValue value) {
+        if (type.isReadOnly()) {
+            return createSingletonTypedesc(value);
+        }
+        return new TypedescValueImpl(type);
     }
 
 }

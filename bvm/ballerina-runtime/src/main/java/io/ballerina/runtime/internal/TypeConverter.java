@@ -66,11 +66,13 @@ import static io.ballerina.runtime.internal.TypeChecker.anyToUnsigned16;
 import static io.ballerina.runtime.internal.TypeChecker.anyToUnsigned32;
 import static io.ballerina.runtime.internal.TypeChecker.anyToUnsigned8;
 import static io.ballerina.runtime.internal.TypeChecker.checkIsLikeType;
+import static io.ballerina.runtime.internal.TypeChecker.getType;
 import static io.ballerina.runtime.internal.TypeChecker.isCharLiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isNumericType;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned16LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned32LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned8LiteralValue;
+import static io.ballerina.runtime.internal.TypeChecker.isSimpleBasicType;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned16LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned32LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned8LiteralValue;
@@ -308,7 +310,14 @@ public class TypeConverter {
                 convertibleTypes.addAll(getConvertibleTypes(inputValue, effectiveType, unresolvedValues));
                 break;
             case TypeTags.FINITE_TYPE_TAG:
-                for (Object valueSpaceItem : ((BFiniteType) targetType).valueSpace) {
+                BFiniteType finiteType = (BFiniteType) targetType;
+                if (finiteType.valueSpace.size() == 1) {
+                    Type valueType = getType(finiteType.valueSpace.iterator().next());
+                    if (!isSimpleBasicType(valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
+                        return getConvertibleTypes(inputValue, valueType, unresolvedValues);
+                    }
+                }
+                for (Object valueSpaceItem : finiteType.valueSpace) {
                     Type inputValueType = TypeChecker.getType(inputValue);
                     if (inputValue == valueSpaceItem) {
                         return Set.of(inputValueType);

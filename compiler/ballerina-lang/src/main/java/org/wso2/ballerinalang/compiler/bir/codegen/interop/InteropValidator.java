@@ -98,7 +98,7 @@ public class InteropValidator {
 
     private void validateTestPackages(ModuleId moduleId, CompilerBackend compilerBackend,
                                       BLangPackage bLangPackage) {
-        if (!bLangPackage.hasTestablePackage()) {
+        if (bLangPackage.moduleContextDataHolder.skipTests() || !bLangPackage.hasTestablePackage()) {
             return;
         }
         Set<Path> testDependencies = getPlatformDependencyPaths(moduleId, compilerBackend,
