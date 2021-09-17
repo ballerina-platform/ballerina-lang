@@ -116,6 +116,7 @@
             <class name="io.ballerina.semantic.api.test.symbols.ServiceSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInAccessExprsTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInAnonFunctionsTest" />
+            <class name="io.ballerina.semantic.api.test.symbols.SymbolsInBinaryExprsTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInMappingConstructorTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInObjectConstructorTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsWithinExprTest" />
