@@ -250,7 +250,6 @@ public class NodeCloner extends BLangNodeVisitor {
         source.accept(this);
         BLangCompilationUnit clone = (BLangCompilationUnit) source.cloneRef;
         clone.pos = source.pos;
-        clone.addWS(source.getWS());
         return clone;
     }
 
@@ -267,7 +266,6 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangNode result = sourceNode.cloneRef;
         result.pos = sourceNode.pos;
         result.internal = sourceNode.internal;
-        result.addWS(source.getWS());
         result.setBType(sourceNode.getBType());
         currentCloneAttempt = prevCloneAttempt;
         return (T) result;
@@ -304,7 +302,6 @@ public class NodeCloner extends BLangNodeVisitor {
             result = sourceNode.cloneRef;
             result.pos = sourceNode.pos;
             result.internal = sourceNode.internal;
-            result.addWS(source.getWS());
             result.setBType(sourceNode.getBType());
         }
         return (T) result;
@@ -2139,7 +2136,6 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.pos = source.pos;
         clone.readonly = source.readonly;
-        clone.addWS(source.getWS());
 
         BLangRecordKey newKey = new BLangRecordKey(clone(source.key.expr));
         newKey.computedKey = source.key.computedKey;
@@ -2155,7 +2151,6 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangRecordSpreadOperatorField clone = new BLangRecordSpreadOperatorField();
         source.cloneRef = clone;
         clone.pos = source.pos;
-        clone.addWS(source.getWS());
         clone.expr = clone(source.expr);
     }
 
@@ -2165,7 +2160,6 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangWaitKeyValue clone = new BLangWaitKeyValue();
         source.cloneRef = clone;
         clone.pos = source.pos;
-        clone.addWS(source.getWS());
         clone.key = source.key;
         clone.valueExpr = clone(source.valueExpr);
         clone.keyExpr = clone(source.keyExpr);
@@ -2175,7 +2169,6 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangXMLElementFilter source) {
         BLangXMLElementFilter clone = new BLangXMLElementFilter(
                 source.pos,
-                source.getWS(),
                 source.namespace,
                 source.nsPos,
                 source.name,
@@ -2187,7 +2180,6 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangXMLElementAccess source) {
         BLangXMLElementAccess clone = new BLangXMLElementAccess(
                 source.pos,
-                source.getWS(),
                 clone(source.expr),
                 cloneList(source.filters));
         source.cloneRef = clone;
@@ -2197,7 +2189,6 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangXMLNavigationAccess source) {
         BLangXMLNavigationAccess clone = new BLangXMLNavigationAccess(
                 source.pos,
-                source.getWS(),
                 clone(source.expr),
                 cloneList(source.filters),
                 source.navAccessType,
@@ -2210,7 +2201,6 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangClassDefinition clone = new BLangClassDefinition();
         source.cloneRef = clone;
         clone.pos = source.pos;
-        clone.addWS(source.getWS());
         clone.annAttachments = cloneList(source.annAttachments);
         clone.markdownDocumentationAttachment = clone(source.markdownDocumentationAttachment);
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
