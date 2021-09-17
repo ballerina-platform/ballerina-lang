@@ -18,13 +18,23 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.NodeEntry;
+import org.ballerinalang.model.tree.NodeKind;
 
 /**
- * Represents AST node entries, which are not part of the AST.
+ * Represents AST node entries, which used to group BLangNodes.
  *
  * @since 2.0.0
  */
-public abstract class BLangNodeEntry implements NodeEntry {
+public abstract class BLangNodeEntry extends BLangNode implements NodeEntry {
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.NODE_ENTRY;
+    }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+    }
 
     public abstract <T> void accept(BLangNodeAnalyzer<T> analyzer, T props);
 
