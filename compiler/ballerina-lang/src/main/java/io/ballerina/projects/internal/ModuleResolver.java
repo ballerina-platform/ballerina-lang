@@ -32,7 +32,6 @@ import io.ballerina.projects.util.ProjectUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -154,8 +153,12 @@ public class ModuleResolver {
         }
 
         if (pkgDesc == null) {
-            // TODO How can we use use possiblePackages?
-            List<PackageDescriptor> possiblePackages = Collections.emptyList();
+            List<PackageDescriptor> possiblePackages = new ArrayList<>();
+            for (PackageName possiblePkgName : possiblePkgNames) {
+                Optional<BlendedManifest.Dependency> dependency = blendedManifest.dependency(pkgOrg, possiblePkgName);
+                dependency.ifPresent(value -> possiblePackages.add(createPkgDesc(pkgOrg, possiblePkgName, value)));
+            }
+
             ImportModuleRequest importModuleRequest = new ImportModuleRequest(
                     pkgOrg, moduleLoadRequest, possiblePackages);
             unresolvedModuleRequests.add(importModuleRequest);

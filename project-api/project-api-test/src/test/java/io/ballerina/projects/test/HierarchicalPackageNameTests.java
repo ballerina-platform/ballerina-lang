@@ -22,8 +22,10 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
@@ -172,5 +174,18 @@ public class HierarchicalPackageNameTests {
             }
         }
 
+    }
+
+    @Test
+    public void testExistingPackage() {
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_c");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_c_v0_2_0");
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_b");
+        BuildProject project = TestUtils.loadBuildProject(projectDirPath);
+        PackageResolution resolution = project.currentPackage().getResolution();
+        Collection<ResolvedPackageDependency> directDependencies = resolution.dependencyGraph()
+                .getDirectDependencies(resolution.dependencyGraph().getRoot());
+        ResolvedPackageDependency dependency = directDependencies.iterator().next();
+        Assert.assertEquals(dependency.packageInstance().manifest().version().toString(), "0.1.0");
     }
 }
