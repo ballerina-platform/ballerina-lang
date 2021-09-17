@@ -23,7 +23,7 @@ import io.ballerina.types.UniformTypeCode;
 /**
  * Represent a 3-tuple containing paired-up subtype data.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class SubtypePair {
     public final UniformTypeCode uniformTypeCode;

@@ -20,7 +20,7 @@ package io.ballerina.types;
 /**
  * Represents the Conjunction record type.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class Conjunction {
     public Atom atom;

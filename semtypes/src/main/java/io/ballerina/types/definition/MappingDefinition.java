@@ -40,7 +40,7 @@ import java.util.List;
 /**
  * Represent mapping type desc.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class MappingDefinition implements Definition {
 

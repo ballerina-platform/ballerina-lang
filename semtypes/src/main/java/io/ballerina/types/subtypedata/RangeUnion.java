@@ -23,7 +23,7 @@ package io.ballerina.types.subtypedata;
  * status 1 means union/intersect is empty because r2 is before r1 with no overlap
  * Precondition r1 and r2 are non-empty.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class RangeUnion {
     public final int status; // -1, 1, default to zero when there is a range

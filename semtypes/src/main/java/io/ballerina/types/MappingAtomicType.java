@@ -20,7 +20,7 @@ package io.ballerina.types;
 /**
  * MappingAtomicType node.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class MappingAtomicType implements AtomicType {
     // sorted

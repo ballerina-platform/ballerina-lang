@@ -20,7 +20,7 @@ package io.ballerina.types;
 /**
  * Represent the BDD atom.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public interface Atom {
 }

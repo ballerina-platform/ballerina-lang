@@ -32,7 +32,7 @@ import java.util.StringJoiner;
 /**
  * Represent StringSubtype.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class StringSubtype extends EnumerableSubtype implements ProperSubtypeData {
 

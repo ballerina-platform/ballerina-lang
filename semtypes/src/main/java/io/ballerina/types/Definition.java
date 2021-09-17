@@ -20,7 +20,7 @@ package io.ballerina.types;
 /**
  * Super type for type-descs.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public interface Definition {
     SemType getSemType(Env env);

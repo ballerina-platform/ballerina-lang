@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * ComplexSemType node.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class ComplexSemType implements SemType {
     // For a uniform type with code c,

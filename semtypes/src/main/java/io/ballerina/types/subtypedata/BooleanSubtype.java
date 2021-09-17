@@ -28,7 +28,7 @@ import java.util.Optional;
 /**
  * Represent BooleanSubtype.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class BooleanSubtype implements ProperSubtypeData {
     public final boolean value;

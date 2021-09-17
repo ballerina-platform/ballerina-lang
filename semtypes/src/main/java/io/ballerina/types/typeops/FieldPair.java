@@ -22,7 +22,7 @@ import io.ballerina.types.SemType;
 /**
  * Represent the FieldPair record.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class FieldPair {
     public final String  name;

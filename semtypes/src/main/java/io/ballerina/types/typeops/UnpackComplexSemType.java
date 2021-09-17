@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * Represent `unpackComplexSemType` function.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class UnpackComplexSemType {
     private UnpackComplexSemType() {

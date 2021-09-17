@@ -29,7 +29,7 @@ import java.util.Optional;
 /**
  * Iteration implementation of `MappingPairIterator`.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class MappingPairIterator implements Iterator<FieldPair> {
     private final String[] names1;

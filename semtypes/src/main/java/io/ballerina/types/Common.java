@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * Code common to implementation of multiple basic types.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class Common {
 
@@ -158,7 +158,7 @@ public class Common {
     /**
      * Function interface used for method references.
      *
-     * @since 2.0.0
+     * @since 3.0.0
      */
     public interface BddPredicate {
         boolean apply(TypeCheckContext tc, Conjunction posList, Conjunction negList);

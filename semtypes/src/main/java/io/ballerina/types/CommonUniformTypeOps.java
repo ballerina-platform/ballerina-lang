@@ -20,7 +20,7 @@ package io.ballerina.types;
 /**
  * Operations common to most of the subtypes.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public interface CommonUniformTypeOps {
     SubtypeData union(SubtypeData t1, SubtypeData t2);

@@ -41,7 +41,7 @@ import java.util.stream.Stream;
 /**
  * Test semtypes using compiler front-end for parsing.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class SemTypeTest {
 

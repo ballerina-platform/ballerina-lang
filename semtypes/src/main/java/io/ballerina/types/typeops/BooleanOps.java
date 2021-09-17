@@ -27,7 +27,7 @@ import io.ballerina.types.subtypedata.BooleanSubtype;
 /**
  * Uniform type ops for boolean type.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class BooleanOps implements UniformTypeOps {
     @Override

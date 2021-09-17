@@ -32,7 +32,7 @@ import io.ballerina.types.typeops.UniformTypeOpsPanicImpl;
 /**
  * Lookup table containing subtype ops for each uniform type indexed by uniform type code.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class OpsTable {
     private static final UniformTypeOpsPanicImpl PANIC_IMPL = new UniformTypeOpsPanicImpl();

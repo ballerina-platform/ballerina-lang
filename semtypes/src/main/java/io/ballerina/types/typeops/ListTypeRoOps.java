@@ -26,7 +26,7 @@ import io.ballerina.types.UniformTypeOps;
 /**
  * List readonly specific methods operate on SubtypeData.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class ListTypeRoOps extends CommonOps implements UniformTypeOps {
     @Override

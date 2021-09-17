@@ -27,7 +27,7 @@ import io.ballerina.types.UniformTypeOps;
 /**
  * Uniform type ops for error type.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class ErrorOps extends CommonOps implements UniformTypeOps {
 

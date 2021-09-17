@@ -35,7 +35,7 @@ import java.io.PrintStream;
 /**
  * Function specific methods operate on SubtypeData.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class FunctionOps extends CommonOps implements UniformTypeOps {
 

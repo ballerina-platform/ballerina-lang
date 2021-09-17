@@ -25,7 +25,7 @@ import io.ballerina.types.TypeCheckContext;
 /**
  * Mapping readonly specific methods operate on SubtypeData.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class MappingRoOps extends MappingCommonOps {
     @Override

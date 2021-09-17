@@ -37,7 +37,7 @@ import static io.ballerina.types.PredefinedType.TOP;
 /**
  * Operations Common to ListRo and ListRw.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class ListCommonOps {
     static boolean listSubtypeIsEmpty(TypeCheckContext tc, SubtypeData t) {

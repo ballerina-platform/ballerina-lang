@@ -20,7 +20,7 @@ package io.ballerina.types;
 /**
  * UniformSubtype node.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class UniformSubtype {
     public final UniformTypeCode uniformTypeCode;

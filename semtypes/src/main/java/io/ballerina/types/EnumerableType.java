@@ -20,7 +20,7 @@ package io.ballerina.types;
 /**
  * Interface to indicate Enumerable types.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public interface EnumerableType {
 }
