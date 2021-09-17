@@ -54,7 +54,25 @@ function testXMLAttributeAccess() {
     string|error|() val2 = x?.attr;
 }
 
+function testMemberAccess() {
+    string s = "Hello";
+    int x = s[indx];
+    x = s[2];
+
+    xml xm = xml `<greet>hello</greet>`;
+    x = xm[2];
+    x = xm[indx];
+
+    anydata[] arr = [];
+    x = arr[indx];
+
+    Person p = {name: "J. Doe", age: 20};
+    int age = p["age"];
+}
+
 // utils
+
+const indx = 2;
 
 function getPerson() returns Person => {name: "Jane Doe", age: 25};
 

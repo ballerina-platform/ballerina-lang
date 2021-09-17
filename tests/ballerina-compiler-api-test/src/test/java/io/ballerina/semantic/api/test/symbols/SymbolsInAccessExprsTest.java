@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
@@ -49,14 +50,14 @@ import static org.testng.Assert.assertTrue;
  *
  * @since 2.0.0
  */
-public class SymbolsInFieldAccessTest {
+public class SymbolsInAccessExprsTest {
 
     private SemanticModel model;
     private Document srcFile;
 
     @BeforeClass
     public void setup() {
-        Project project = BCompileUtil.loadProject("test-src/symbols/symbols_in_field_access_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/symbols/symbols_in_access_exprs_test.bal");
         model = getDefaultModulesSemanticModel(project);
         srcFile = getDocumentForSingleSource(project);
     }
@@ -119,6 +120,27 @@ public class SymbolsInFieldAccessTest {
                 {51, 15, null, null},
                 {53, 27, VARIABLE, "x"},
                 {53, 30, null, null},
+        };
+    }
+
+    @Test(dataProvider = "MemberAccessPosProvider")
+    public void testMemberAccess(int line, int col, SymbolKind expKind, String expName) {
+        assertSymbol(line, col, expKind, expName);
+    }
+
+    @DataProvider(name = "MemberAccessPosProvider")
+    public Object[][] getMemberAccessPos() {
+        return new Object[][]{
+                {58, 12, VARIABLE, "s"},
+                {58, 14, CONSTANT, "indx"},
+                {59, 10, null, null},
+                {62, 8, VARIABLE, "xm"},
+                {62, 11, null, null},
+                {63, 11, CONSTANT, "indx"},
+                {66, 8, VARIABLE, "arr"},
+                {66, 12, CONSTANT, "indx"},
+                {69, 14, VARIABLE, "p"},
+                {69, 17, RECORD_FIELD, "age"},
         };
     }
 
