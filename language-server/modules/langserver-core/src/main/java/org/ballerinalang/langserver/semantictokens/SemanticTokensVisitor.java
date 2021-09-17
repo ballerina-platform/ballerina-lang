@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.semantictokens;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -579,17 +580,19 @@ public class SemanticTokensVisitor extends NodeVisitor {
                 break;
         }
 
-        // Add the symbol's semantic token if it is in the same file
-        if (declarationType != -1 && symbolLineRange.filePath().equals(this.semanticTokensContext.currentDocument()
-                .get().name()) && symbol.get().getModule().isPresent() && symbol.get().getModule().get().getName()
-                .isPresent() && this.semanticTokensContext.currentModule().isPresent() && symbol.get().getModule()
-                .get().getName().get().equals(this.semanticTokensContext.currentModule().get().moduleId()
-                        .moduleName())) {
+        if (declarationType != -1) {
+            Optional<ModuleSymbol> moduleSymbol = symbol.get().getModule();
+            // Add the symbol's semantic token if it is in the same file
+            if (symbolLineRange.filePath().equals(this.semanticTokensContext.currentDocument().get().name()) &&
+                    moduleSymbol.isPresent() && moduleSymbol.get().getName().isPresent() &&
+                    this.semanticTokensContext.currentModule().isPresent() && moduleSymbol.get().getName().get()
+                    .equals(this.semanticTokensContext.currentModule().get().moduleId().moduleName())) {
                 SemanticToken semanticToken = new SemanticToken(linePosition.line(), linePosition.offset());
-            if (!semanticTokens.contains(semanticToken)) {
-                semanticToken.setProperties(node.textRange().length(), declarationType, declarationModifiers == -1 ?
-                        0 : declarationModifiers);
-                semanticTokens.add(semanticToken);
+                if (!semanticTokens.contains(semanticToken)) {
+                    semanticToken.setProperties(node.textRange().length(), declarationType, declarationModifiers == -1 ?
+                            0 : declarationModifiers);
+                    semanticTokens.add(semanticToken);
+                }
             }
         }
 
@@ -600,9 +603,8 @@ public class SemanticTokensVisitor extends NodeVisitor {
 
             List<Location> locations = semanticModel.get().references(symbol.get(),
                     this.semanticTokensContext.currentDocument().get(), false);
-            locations.stream().filter(location ->
-                    location != null && location.lineRange().filePath()
-                            .equals(this.semanticTokensContext.currentDocument().get().name())).forEach(location -> {
+            locations.stream().filter(location -> location.lineRange().filePath()
+                    .equals(this.semanticTokensContext.currentDocument().get().name())).forEach(location -> {
                         LinePosition position = location.lineRange().startLine();
                         SemanticToken semanticToken = new SemanticToken(position.line(), position.offset());
                         if (!semanticTokens.contains(semanticToken)) {

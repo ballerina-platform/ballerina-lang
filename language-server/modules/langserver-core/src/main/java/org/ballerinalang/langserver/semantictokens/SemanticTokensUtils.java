@@ -29,7 +29,6 @@ import org.eclipse.lsp4j.Unregistration;
 import org.eclipse.lsp4j.UnregistrationParams;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -54,15 +53,15 @@ public class SemanticTokensUtils {
      */
     public static SemanticTokens getSemanticTokens(SemanticTokensContext semanticTokensContext) {
         String fileUri = semanticTokensContext.fileUri();
-        Optional<Path> filePathOptional = CommonUtil.getPathFromURI(fileUri);
-        if (filePathOptional.isEmpty()) {
-            return new SemanticTokens(new ArrayList<>());
+        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+        if (filePath.isEmpty()) {
+            return new SemanticTokens(Collections.emptyList());
         }
-        Optional<Document> docOptional = semanticTokensContext.currentDocument();
-        if (docOptional.isEmpty()) {
-            return new SemanticTokens(new ArrayList<>());
+        Optional<Document> document = semanticTokensContext.currentDocument();
+        if (document.isEmpty()) {
+            return new SemanticTokens(Collections.emptyList());
         }
-        return new SemanticTokensVisitor(semanticTokensContext).getSemanticTokens(docOptional.get().syntaxTree()
+        return new SemanticTokensVisitor(semanticTokensContext).getSemanticTokens(document.get().syntaxTree()
                 .rootNode());
     }
 
