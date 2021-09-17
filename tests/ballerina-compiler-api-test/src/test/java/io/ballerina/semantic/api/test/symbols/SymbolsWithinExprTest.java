@@ -35,6 +35,9 @@ import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
+import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
+import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
@@ -198,5 +201,35 @@ public class SymbolsWithinExprTest {
         assertTrue(symbol.isPresent());
         assertEquals(symbol.get().kind(), ANNOTATION);
         assertEquals(symbol.get().getName().get(), "v1");
+    }
+
+    @Test(dataProvider = "FnCallPosProvider")
+    public void testFunctionCall(int line, int col, SymbolKind expKind, String expName) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+
+        if (expKind == null) {
+            assertTrue(symbol.isEmpty());
+            return;
+        }
+
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), expKind);
+        assertEquals(symbol.get().getName().get(), expName);
+    }
+
+    @DataProvider(name = "FnCallPosProvider")
+    public Object[][] getFuncCallPos() {
+        return new Object[][]{
+                {73, 8, FUNCTION, "rand"},
+                {73, 13, VARIABLE, "hundred"},
+//                {73, 22, PARAMETER, "y"}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32807
+                {74, 8, FUNCTION, "rand"},
+                {74, 13, VARIABLE, "hundred"},
+                {74, 22, CONSTANT, "PI"},
+                {77, 8, VARIABLE, "p"},
+                {77, 10, METHOD, "baz"},
+                {77, 14, VARIABLE, "hundred"},
+                {77, 23, CONSTANT, "PI"},
+        };
     }
 }

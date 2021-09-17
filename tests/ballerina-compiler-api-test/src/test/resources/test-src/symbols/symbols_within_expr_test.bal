@@ -70,6 +70,14 @@ function testAnnotTagReference() {
     Annot? annot = FooRec.@v1;
 }
 
+function testFunctionAndMethodCallExpr() {
+    _ = rand(hundred, y = 99);
+    _ = rand(hundred, PI);
+
+    PersonClz p = new("J. Doe");
+    _ = p.baz(hundred, PI);
+}
+
 // utils
 
 const PI = 3.14;
@@ -95,6 +103,8 @@ class PersonClz {
     function init(string name) {
         self.name = name;
     }
+
+    function baz(int x, int y = 10, string... z) returns string => self.name;
 }
 
 type _StreamImplementor object {
@@ -106,3 +116,5 @@ type Annot record {
 };
 
 public annotation Annot v1 on type;
+
+function rand(int x, int y = 0, float... z) returns string => "random str";
