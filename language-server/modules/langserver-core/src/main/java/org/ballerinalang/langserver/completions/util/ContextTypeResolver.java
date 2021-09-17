@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -297,7 +298,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (filteredSymbol.isEmpty()) {
             return Optional.empty();
         }
-        
+
         return SymbolUtil.getTypeDescriptor(filteredSymbol.get());
     }
 
@@ -328,6 +329,37 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         Optional<ParameterSymbol> paramSymbol =
                 CommonUtil.resolveFunctionParameterSymbol(
                         ((FunctionSymbol) funcSymbol.get()).typeDescriptor(), context, node);
+
+        if (paramSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return SymbolUtil.getTypeDescriptor(paramSymbol.get());
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(MethodCallExpressionNode node) {
+        if (node.methodName().kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            // Should always be simple name reference.
+            return Optional.empty();
+        }
+        SimpleNameReferenceNode methodName = (SimpleNameReferenceNode) node.methodName();
+        FieldAccessCompletionResolver resolver = new FieldAccessCompletionResolver(this.context);
+        List<Symbol> visibleEntries = resolver.getVisibleEntries(node.expression());
+        Optional<Symbol> methodSymbol = visibleEntries.stream()
+                .filter(symbol -> symbol.getName().orElse("").equals(methodName.name().text()))
+                .findFirst();
+
+        if (methodSymbol.isEmpty() || methodSymbol.get().kind() != SymbolKind.METHOD) {
+            return Optional.empty();
+        }
+        if (!CommonUtil.isInMethodCallParameterContext(context, node)) {
+            return SymbolUtil.getTypeDescriptor(methodSymbol.get());
+        }
+
+        Optional<ParameterSymbol> paramSymbol =
+                CommonUtil.resolveFunctionParameterSymbol(
+                        ((MethodSymbol) methodSymbol.get()).typeDescriptor(), context, node);
 
         if (paramSymbol.isEmpty()) {
             return Optional.empty();
@@ -559,7 +591,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
         ParameterSymbol parameterSymbol = parameterSymbols.get().get(argIndex);
         TypeSymbol typeDescriptor = parameterSymbol.typeDescriptor();
-        
+
         return Optional.of(typeDescriptor);
     }
 

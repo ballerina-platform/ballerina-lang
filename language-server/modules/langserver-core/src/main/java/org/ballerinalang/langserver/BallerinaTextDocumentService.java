@@ -143,7 +143,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     position.getPosition());
             try {
                 return LangExtensionDelegator.instance()
-                        .completion(position, context, this.serverContext, cancelChecker);
+                        .completion(position, context, this.serverContext, null);
             } catch (CancellationException ignore) {
                 // Ignore the cancellation exception
             } catch (Throwable e) {
