@@ -96,6 +96,15 @@ function testTypeOf() {
     typedesc<anydata> td = typeof (x + 25);
 }
 
+function testUnaryExpr() {
+    int x = 10;
+    int y = +x;
+    y = -x;
+    y = ~x;
+    boolean tr = true;
+    boolean b = !tr;
+}
+
 // utils
 
 const PI = 3.14;

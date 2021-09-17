@@ -280,8 +280,24 @@ public class SymbolsWithinExprTest {
     public Object[][] getTypeOfPos() {
         return new Object[][]{
                 {95, 27, null, null},
-                {95, 35, null, null},
-                {95, 36, VARIABLE, "x"},
+                {95, 34, null, null},
+                {95, 35, VARIABLE, "x"},
+        };
+    }
+
+    @Test(dataProvider = "UnaryExprPosProvider")
+    public void testUnaryExpr(int line, int col, SymbolKind expKind, String expName) {
+        assertSymbol(line, col, expKind, expName);
+    }
+
+    @DataProvider(name = "UnaryExprPosProvider")
+    public Object[][] getUnaryExprPos() {
+        return new Object[][]{
+                {100, 12, null, null},
+                {100, 13, VARIABLE, "x"},
+                {101, 9, VARIABLE, "x"},
+                {102, 9, VARIABLE, "x"},
+                {104, 17, VARIABLE, "tr"},
         };
     }
 
