@@ -83,6 +83,10 @@ public abstract class AbstractPackageRepository implements PackageRepository {
                                                                              PackageName name,
                                                                              PackageVersion version);
 
+    public abstract boolean isPackageExists(PackageOrg org,
+                                               PackageName name,
+                                               PackageVersion version);
+
     public abstract Collection<ModuleDescriptor> getModules(PackageOrg org,
                                                                PackageName name,
                                                                PackageVersion version);
