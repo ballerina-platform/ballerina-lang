@@ -91,6 +91,11 @@ function testTypeCast() {
     int x = <@v1{foo: "bar"} int>ad;
 }
 
+function testTypeOf() {
+    int x = 10;
+    typedesc<anydata> td = typeof (x + 25);
+}
+
 // utils
 
 const PI = 3.14;

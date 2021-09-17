@@ -271,6 +271,20 @@ public class SymbolsWithinExprTest {
         };
     }
 
+    @Test(dataProvider = "TypeOfPosProvider")
+    public void testTypeOf(int line, int col, SymbolKind expKind, String expName) {
+        assertSymbol(line, col, expKind, expName);
+    }
+
+    @DataProvider(name = "TypeOfPosProvider")
+    public Object[][] getTypeOfPos() {
+        return new Object[][]{
+                {95, 27, null, null},
+                {95, 35, null, null},
+                {95, 36, VARIABLE, "x"},
+        };
+    }
+
     // utils
     private void assertSymbol(int line, int col, SymbolKind expKind, String expName) {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
