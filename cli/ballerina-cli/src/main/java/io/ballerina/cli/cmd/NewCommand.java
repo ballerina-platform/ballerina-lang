@@ -190,6 +190,9 @@ public class NewCommand implements BLauncherCmd {
         }
         errStream.println("Created new Ballerina package '" + guessPkgName(packageName)
                 + "' at " + userDir.relativize(path) + ".");
+        if (this.exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
+        }
         return;
     }
 

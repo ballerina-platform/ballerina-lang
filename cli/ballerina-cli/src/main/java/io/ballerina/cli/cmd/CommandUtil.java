@@ -467,7 +467,7 @@ public class CommandUtil {
         Files.writeString(balTomlPath, "\ntemplate = " + packageJson.getTemplate() + "\n", StandardOpenOption.APPEND);
 
         if (platform.equals("java11")) {
-            Files.writeString(balTomlPath, "\n[[platform.java11.dependencies]]", StandardOpenOption.APPEND);
+            Files.writeString(balTomlPath, "\n[[platform.java11.dependency]]", StandardOpenOption.APPEND);
             JsonArray platformLibraries = packageJson.getPlatformDependencies();
             for (Object dependencies : platformLibraries) {
                 JsonObject dependeciesObj = (JsonObject) dependencies;
