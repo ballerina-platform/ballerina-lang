@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -279,13 +280,12 @@ public class BIROptimizer {
 
         private void reuseTempVariables(BIRFunction birFunction, OptimizerEnv funcOpEnv) {
             // First we need to get the filter and order visited temp var list collected through LhsVarOptimizer.
-            List<BIROperand> orderedTempVars = getOrderedTempOperands(funcOpEnv);
-            // Using the order of loading of temp vars, we can get the reusable var list.
-            Map<BIRVariableDcl, List<BIRVariableDcl>> reusableVars = getReusableTempVars(orderedTempVars);
-            replaceVarsWithReusableVars(birFunction, orderedTempVars, reusableVars);
+            List<BIROperand> orderedTempVars = filterTempVars(funcOpEnv);
+            // Replace with reusable vars.
+            replaceVarsWithReusableVars(birFunction, orderedTempVars);
         }
 
-        private List<BIROperand> getOrderedTempOperands(OptimizerEnv funcOpEnv) {
+        private List<BIROperand> filterTempVars(OptimizerEnv funcOpEnv) {
             // Each temp var can be at least added to tempVarList twice as when defining the var and load. Some temp
             // vars can be loaded multiple times. Here we will keep only operands order of first loaded and last
             // loaded time. Others will be eliminated.
@@ -312,74 +312,42 @@ public class BIROptimizer {
             return orderedTempVars;
         }
 
-        private Map<BIRVariableDcl, List<BIRVariableDcl>> getReusableTempVars(List<BIROperand> orderedTempVars) {
-            // MAp for store var against any temp variable which can replaced that.
-            Map<BIRVariableDcl, List<BIRVariableDcl>> reusableVars = new HashMap<>();
-            Set<BIRVariableDcl> firstLoadedSet = new HashSet<>();
-            // Keep the variables of same type.
-            Map<BType, List<BIRVariableDcl>> reusableVarsMap = new HashMap<>();
-            for (BIROperand birOperand : orderedTempVars) {
-                BIRVariableDcl variableDcl = birOperand.variableDcl;
-                if (!firstLoadedSet.contains(variableDcl)) {
-                    firstLoadedSet.add(variableDcl);
-                    List<BIRVariableDcl> birVariableDcls = reusableVarsMap.get(variableDcl.type);
-                    // When temp variable loaded at first time and it does have any other variable with same type,
-                    // we can use those variables to reuse them.
-                    if (birVariableDcls != null && !birVariableDcls.isEmpty()) {
-                        reusableVars.put(variableDcl, new ArrayList<>(birVariableDcls));
-                    }
-                    continue;
-                }
-                List<BIRVariableDcl> reusableList = reusableVarsMap.computeIfAbsent(variableDcl.type,
-                        k -> new ArrayList<>());
-                reusableList.add(variableDcl);
-            }
-            return reusableVars;
-        }
+        private void replaceVarsWithReusableVars(BIRFunction birFunction, List<BIROperand> orderedTempVars) {
 
-        private void replaceVarsWithReusableVars(BIRFunction birFunction, List<BIROperand> orderedTempVars,
-                                                 Map<BIRVariableDcl, List<BIRVariableDcl>> reusableVars) {
-            Map<BIRVariableDcl, BIRVariableDcl> reusableVsCurrentlyReplacedVarMap = new HashMap<>();
             Map<BIRVariableDcl, BIRVariableDcl> removableVarVsReplacementVarMap = new HashMap<>();
+            Map<BType, Set<BIRVariableDcl>> typeVsReusableVarsMap = new HashMap<>();
             Map<BIROperand, BIRVariableDcl> removableOpsMap = new HashMap<>();
             Set<BIRVariableDcl> firstLoadedSet = new HashSet<>();
-            Set<BIRVariableDcl> secondLoadedSet = new HashSet<>();
-
             for (BIROperand birOperand : orderedTempVars) {
                 BIRVariableDcl variableDcl = birOperand.variableDcl;
-                List<BIRVariableDcl> reusableList = reusableVars.get(variableDcl);
-                // If given variable does not have any other variables to replace it we do not proceed.
-                if (reusableList == null || reusableList.isEmpty()) {
-                    secondLoadedSet.add(variableDcl);
-                    continue;
-                }
-                // Remove all removable vars with replaceable list.
-                reusableList.removeAll(removableVarVsReplacementVarMap.keySet());
                 if (!firstLoadedSet.contains(variableDcl)) {
                     firstLoadedSet.add(variableDcl);
-                    for (BIRVariableDcl birVariableDcl : reusableList) {
-                        if (!secondLoadedSet.contains(birVariableDcl)) {
-                            continue;
-                        }
-                        BIRVariableDcl currentUsingVar = reusableVsCurrentlyReplacedVarMap.get(birVariableDcl);
-                        // If no one use replaceable var then we can use it to replace given variable.
-                        if (currentUsingVar == null || secondLoadedSet.contains(currentUsingVar)) {
-                            // Collect selected removable var and it replacable var.
-                            removableVarVsReplacementVarMap.put(variableDcl, birVariableDcl);
-                            removableOpsMap.put(birOperand, birVariableDcl);
-                            reusableVsCurrentlyReplacedVarMap.put(birVariableDcl, variableDcl);
-                            break;
-                        }
+                    Set<BIRVariableDcl> reusableList = typeVsReusableVarsMap.computeIfAbsent(variableDcl.type,
+                            k -> new LinkedHashSet<>());
+                    if (reusableList.isEmpty()) {
+                        // No variables to reuse hence continue.
+                        continue;
                     }
+                    // We always get oldest reusable var.
+                    BIRVariableDcl reusableVar = reusableList.iterator().next();
+                    removableVarVsReplacementVarMap.put(variableDcl, reusableVar);
+                    removableOpsMap.put(birOperand, reusableVar);
+                    reusableList.remove(reusableVar);
+                    reusableList.remove(variableDcl);
                     continue;
                 }
-                secondLoadedSet.add(variableDcl);
                 BIRVariableDcl reusableVar = removableVarVsReplacementVarMap.get(variableDcl);
-                // Same var can be used by multiple operands. we need to collect all and then replace the it
+                Set<BIRVariableDcl> reusableList = typeVsReusableVarsMap.get(variableDcl.type);
+                // Same var can be used by multiple operands. We need to collect all and then replace the it
                 // variable declarations.
                 if (reusableVar != null) {
                     removableOpsMap.put(birOperand, reusableVar);
+                    // Now previous reusable var can be reused.
+                    reusableList.add(reusableVar);
+                    continue;
                 }
+                // variable can be reused since it is used last time.
+                reusableList.add(variableDcl);
             }
             // Replace vars with removable vars.
             removableOpsMap.forEach((birOperand, birVariableDcl) -> birOperand.variableDcl = birVariableDcl);
