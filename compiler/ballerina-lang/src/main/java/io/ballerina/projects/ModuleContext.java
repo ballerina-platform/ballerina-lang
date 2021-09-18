@@ -77,7 +77,7 @@ class ModuleContext {
     private byte[] birBytes = new byte[0];
     private final Bootstrap bootstrap;
     private ModuleCompilationState moduleCompState;
-    private Set<ModuleLoadRequest> allModuleLoadRequests;
+    private Set<ModuleLoadRequest> allModuleLoadRequests = null;
 
     ModuleContext(Project project,
                   ModuleId moduleId,
@@ -170,6 +170,9 @@ class ModuleContext {
     }
 
     Set<ModuleLoadRequest> populateModuleLoadRequests() {
+        if (allModuleLoadRequests != null) {
+            return allModuleLoadRequests;
+        }
         allModuleLoadRequests = new LinkedHashSet<>();
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         for (DocumentContext docContext : srcDocContextMap.values()) {

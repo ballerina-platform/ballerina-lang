@@ -23,6 +23,7 @@ import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.environment.PackageRepository;
+import io.ballerina.projects.internal.PackageVersionContainer;
 import io.ballerina.projects.internal.repositories.AbstractPackageRepository;
 
 import java.io.IOException;
@@ -100,7 +101,7 @@ public class PackageRepositoryBuilder {
     }
 
     private PackageRepository buildLocalRepo(List<Path> localPackagePaths) {
-        PackageContainer<PackageDescWrapper> pkgContainer = new PackageContainer<>();
+        PackageVersionContainer<PackageDescWrapper> pkgContainer = new PackageVersionContainer<>();
         Map<PackageDescriptor, DependencyGraph<PackageDescriptor>> graphMap = new HashMap<>();
 
         for (Path localPackagePath : localPackagePaths) {
@@ -118,7 +119,7 @@ public class PackageRepositoryBuilder {
     }
 
     private PackageRepository buildInternal(Path repoDotFilePath, RepositoryKind repoKind) {
-        PackageContainer<PackageDescWrapper> pkgContainer = new PackageContainer<>();
+        PackageVersionContainer<PackageDescWrapper> pkgContainer = new PackageVersionContainer<>();
         GraphNodeMarker nodeMarker = new GraphNodeMarker();
         DependencyGraphBuilder<PackageDescriptor> graphBuilder = DependencyGraphBuilder.getBuilder();
 
@@ -186,7 +187,7 @@ public class PackageRepositoryBuilder {
         }
     }
 
-    private PackageRepository buildInternal(PackageContainer<PackageDescWrapper> pkgContainer,
+    private PackageRepository buildInternal(PackageVersionContainer<PackageDescWrapper> pkgContainer,
                                             Map<PackageDescriptor, DependencyGraph<PackageDescriptor>> graphMap,
                                             RepositoryKind repoKind) {
         switch (repoKind) {

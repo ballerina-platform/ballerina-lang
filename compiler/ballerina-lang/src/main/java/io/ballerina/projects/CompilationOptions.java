@@ -31,10 +31,13 @@ public class CompilationOptions {
     String cloud;
     Boolean listConflictedClasses;
     Boolean sticky;
+    Boolean dumpGraph;
+    Boolean dumpRawGraphs;
 
-    public CompilationOptions(Boolean offlineBuild, Boolean experimental,
-                              Boolean observabilityIncluded, Boolean dumpBir, String dumpBirFile,
-                              String cloud, Boolean listConflictedClasses, Boolean sticky) {
+    CompilationOptions(Boolean offlineBuild, Boolean experimental,
+                       Boolean observabilityIncluded, Boolean dumpBir, String dumpBirFile,
+                       String cloud, Boolean listConflictedClasses, Boolean sticky,
+                       Boolean dumpGraph, Boolean dumpRawGraphs) {
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
@@ -43,6 +46,8 @@ public class CompilationOptions {
         this.cloud = cloud;
         this.listConflictedClasses = listConflictedClasses;
         this.sticky = sticky;
+        this.dumpGraph = dumpGraph;
+        this.dumpRawGraphs = dumpRawGraphs;
     }
 
     public boolean offlineBuild() {
@@ -67,6 +72,14 @@ public class CompilationOptions {
 
     public String getBirDumpFile() {
         return this.dumpBirFile;
+    }
+
+    public Boolean dumpGraph() {
+        return toBooleanDefaultIfNull(this.dumpGraph);
+    }
+
+    public Boolean dumpRawGraphs() {
+        return toBooleanDefaultIfNull(this.dumpRawGraphs);
     }
 
     public String getCloud() {
@@ -104,6 +117,16 @@ public class CompilationOptions {
             compilationOptionsBuilder.dumpBir(theirOptions.dumpBir);
         } else {
             compilationOptionsBuilder.dumpBir(this.dumpBir);
+        }
+        if (theirOptions.dumpGraph != null) {
+            compilationOptionsBuilder.dumpGraph(theirOptions.dumpGraph);
+        } else {
+            compilationOptionsBuilder.dumpGraph(this.dumpGraph);
+        }
+        if (theirOptions.dumpRawGraphs != null) {
+            compilationOptionsBuilder.dumpRawGraphs(theirOptions.dumpRawGraphs);
+        } else {
+            compilationOptionsBuilder.dumpRawGraphs(this.dumpRawGraphs);
         }
         if (theirOptions.cloud != null) {
             compilationOptionsBuilder.cloud(theirOptions.cloud);

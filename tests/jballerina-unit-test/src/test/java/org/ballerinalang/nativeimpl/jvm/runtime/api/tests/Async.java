@@ -65,6 +65,16 @@ public class Async {
         return 0;
     }
 
+    public static long getNonIsolatedResourceA(Environment env, BObject obj) {
+        invokeMethodAsyncConcurrently(env, obj, "$gen$$getA$$0046");
+        return 0;
+    }
+
+    public static long getNonIsolatedResourceB(Environment env, BObject obj) {
+        invokeMethodAsyncConcurrently(env, obj, "$gen$$getB$$0046");
+        return 0;
+    }
+
     public static boolean nonIsolatedClassIsIsolated(BObject obj) {
         return obj.getType().isIsolated();
     }

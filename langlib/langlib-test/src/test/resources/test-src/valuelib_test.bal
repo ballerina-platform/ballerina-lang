@@ -531,7 +531,7 @@ function testCloneWithTypeTupleToJSON() {
     jsonValue = tupleValue2.cloneWithType();
     assert(jsonValue is error, true);
     error err = <error> jsonValue;
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(<string> checkpanic err.detail()["message"], "'[string,string,xml<(lang.xml:Element|lang.xml:Comment|" +
          "lang.xml:ProcessingInstruction|lang.xml:Text)>]' value cannot be converted to 'json'");
 
@@ -554,7 +554,7 @@ function testCloneWithTypeTupleToJSON() {
     jsonValue = tupleValue6.cloneWithType();
     assert(jsonValue is error, true);
     err = <error> jsonValue;
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(<string> checkpanic err.detail()["message"], "'[string,(int|xml<(lang.xml:Element|lang.xml:Comment|" +
          "lang.xml:ProcessingInstruction|lang.xml:Text)>)...]' value cannot be converted to 'json'");
 
@@ -562,14 +562,14 @@ function testCloneWithTypeTupleToJSON() {
     jsonValue = tupleValue7.cloneWithType();
     assert(jsonValue is error, true);
     err = <error> jsonValue;
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(<string> checkpanic err.detail()["message"], "'[string,anydata...]' value cannot be converted to 'json'");
 
     [string, xml|int] tupleValue8 = ["text1", xml `</elem>`];
     jsonValue = tupleValue8.cloneWithType();
     assert(jsonValue is error, true);
     err = <error> jsonValue;
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(<string> checkpanic err.detail()["message"], "'[string,(xml<(lang.xml:Element|lang.xml:Comment|" +
          "lang.xml:ProcessingInstruction|lang.xml:Text)>|int)]' value cannot be converted to 'json'");
 
@@ -582,7 +582,7 @@ function testCloneWithTypeTupleToJSON() {
     jsonValue = tupleValue10.cloneWithType();
     assert(jsonValue is error, true);
     err = <error> jsonValue;
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(<string> checkpanic err.detail()["message"], "'[int,(string|xml<(lang.xml:Element|lang.xml:Comment|" +
         "lang.xml:ProcessingInstruction|lang.xml:Text)>),A...]' value cannot be converted to 'json'");
 }
@@ -623,8 +623,9 @@ public function testCloneWithTypeOptionalFieldToMandotoryField() {
     error bbe = <error> b;
     var message = bbe.detail()["message"];
     string messageString = message is error? message.toString(): message.toString();
-    assert(bbe.message(), "{ballerina/lang.typedesc}ConversionError");
-    assert(messageString, "'CRec' value cannot be converted to 'BRec'");
+    assert(bbe.message(), "{ballerina/lang.value}ConversionError");
+    assert(messageString, "'CRec' value cannot be converted to 'BRec': " +
+    "\n\t\tmissing required field 'i' of type 'int' in record 'BRec'");
 }
 
 type Foo record {
@@ -650,7 +651,7 @@ function testCloneWithTypeAmbiguousTargetType() {
     error bbe = <error> bb;
     var message = bbe.detail()["message"];
     string messageString = message is error? message.toString(): message.toString();
-    assert(bbe.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(bbe.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'Foo' value cannot be converted to '(Bar|Baz)': ambiguous target type");
 }
 
@@ -837,7 +838,7 @@ function testCloneWithTypeDecimalToIntNegative() {
     error err = <error>result;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'decimal' value cannot be converted to 'int'");
 
     decimal[] a1 = [9223372036854775807.5, -9223372036854775807.6];
@@ -846,7 +847,7 @@ function testCloneWithTypeDecimalToIntNegative() {
     err = <error>a2e;
     message = err.detail()["message"];
     messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'decimal' value cannot be converted to 'int'");
 
     decimal a2 = 0.0 / 0;
@@ -864,7 +865,7 @@ function checkDecimalToIntError(any|error result) {
     error err = <error>result;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'decimal' value cannot be converted to 'int'");
 }
 
@@ -898,7 +899,7 @@ function testCloneWithTypeIntArrayToUnionArray() {
     error err = <error> e;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'int[]' value cannot be converted to '(byte|float)[]'");
 
     float[] y = [10, 20];
@@ -932,7 +933,7 @@ function testCloneWithTypeIntArrayToUnionArray() {
     err = <error> m;
     message = err.detail()["message"];
     messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'float[]' value cannot be converted to '(lang.int:Signed16|lang.int:Unsigned8|decimal)[]'");
 }
 
@@ -955,7 +956,7 @@ function testCloneWithTypeArrayToUnionTupleNegative() {
     error err = <error> c;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'int[]' value cannot be converted to '[(int|decimal),(byte|lang.int:Unsigned8)]'");
 }
 
@@ -966,7 +967,7 @@ function testCloneWithTypeArrayToTupleWithMoreTargetTypes() {
     error err = <error> d;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'int[]' value cannot be converted to '[int,float,decimal,byte]'");
 }
 
@@ -977,7 +978,7 @@ function testCloneWithTypeArrayToTupleWithUnionRestTypeNegative() {
     error err = <error> e;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'int[]' value cannot be converted to '[(float|decimal),(int|byte)...]'");
 }
 
@@ -988,7 +989,7 @@ function testCloneWithTypeArrayToTupleNegative() {
     error err = <error> f;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'float[]' value cannot be converted to '[string,lang.string:Char,(string|lang.string:Char)]'");
 }
 
@@ -999,7 +1000,7 @@ function testCloneWithTypeArrayToTupleWithStructureRestTypeNegative() {
     error err = <error> g;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'int[]' value cannot be converted to '[map<int>,[string,int]...]'");
 }
 
@@ -1025,7 +1026,7 @@ function testCloneWithTypeTupleRestTypeNegative() {
     error err = <error> c;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'[int,float,(int|float)...]' value cannot be converted to '[string...]'");
 }
 
@@ -1037,7 +1038,7 @@ function testCloneWithTypeUnionTupleRestTypeNegative() {
     error err = <error> d;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'[int,float,(int|float)...]' value cannot be converted to '[(int|float),(decimal|int)...]'");
 }
 
@@ -1075,8 +1076,9 @@ function testCloneWithTypeWithInferredArgument() {
    error err = <error>h;
    var message = err.detail()["message"];
    string messageString = message is error ? message.toString() : message.toString();
-   assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
-   assert(messageString, "'CRec' value cannot be converted to 'BRec'");
+   assert(err.message(), "{ballerina/lang.value}ConversionError");
+   assert(messageString, "'CRec' value cannot be converted to 'BRec': " +
+   "\n\t\tmissing required field 'i' of type 'int' in record 'BRec'");
 
    Foo i = {s: "test string"};
    Bar|Baz|error j = i.cloneWithType();
@@ -1085,7 +1087,7 @@ function testCloneWithTypeWithInferredArgument() {
    err = <error>j;
    message = err.detail()["message"];
    messageString = message is error ? message.toString() : message.toString();
-   assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+   assert(err.message(), "{ballerina/lang.value}ConversionError");
    assert(messageString, "'Foo' value cannot be converted to '(Bar|Baz)': ambiguous target type");
 
    anydata k = ();

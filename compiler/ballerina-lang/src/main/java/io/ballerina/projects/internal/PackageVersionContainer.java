@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.test.resolution.packages.internal;
+package io.ballerina.projects.internal;
 
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
@@ -33,10 +33,10 @@ import java.util.stream.Collectors;
  *
  * @param <T> element type
  */
-public class PackageContainer<T> {
+public class PackageVersionContainer<T> {
     private final Map<PackageOrg, Map<PackageName, Map<PackageVersion, T>>> pkgOrgMap;
 
-    public PackageContainer() {
+    public PackageVersionContainer() {
         this.pkgOrgMap = new HashMap<>();
     }
 

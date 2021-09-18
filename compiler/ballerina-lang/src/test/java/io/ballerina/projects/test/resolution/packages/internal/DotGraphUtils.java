@@ -51,6 +51,14 @@ public class DotGraphUtils {
     private DotGraphUtils() {
     }
 
+    public static MutableGraph createGraph(String content) {
+        try {
+            return new Parser().read(content);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static MutableGraph createGraph(Path dotFilePath) {
         try (InputStream dot = Files.newInputStream(dotFilePath)) {
             return new Parser().read(dot);

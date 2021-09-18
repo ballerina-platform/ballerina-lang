@@ -26,6 +26,7 @@ import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
+import io.ballerina.projects.internal.PackageVersionContainer;
 import io.ballerina.projects.internal.repositories.AbstractPackageRepository;
 
 import java.util.Collection;
@@ -42,12 +43,12 @@ import java.util.stream.Collectors;
  */
 public class  DefaultPackageRepository extends AbstractPackageRepository {
 
-    protected final PackageContainer<PackageDescWrapper> pkgContainer;
+    protected final PackageVersionContainer<PackageDescWrapper> pkgContainer;
     protected final Map<PackageDescriptor, DependencyGraph<PackageDescriptor>> graphMap;
     public static final DefaultPackageRepository EMPTY_REPO = new DefaultPackageRepository(
-            new PackageContainer<>(), new HashMap<>());
+            new PackageVersionContainer<>(), new HashMap<>());
 
-    public DefaultPackageRepository(PackageContainer<PackageDescWrapper> pkgContainer,
+    public DefaultPackageRepository(PackageVersionContainer<PackageDescWrapper> pkgContainer,
                                     Map<PackageDescriptor, DependencyGraph<PackageDescriptor>> graphMap) {
         this.pkgContainer = pkgContainer;
         this.graphMap = graphMap;

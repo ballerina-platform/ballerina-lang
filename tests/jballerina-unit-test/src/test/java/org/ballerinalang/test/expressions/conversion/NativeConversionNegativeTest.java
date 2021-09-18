@@ -28,6 +28,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -55,7 +56,8 @@ public class NativeConversionNegativeTest {
         // check the error
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'map<json>' value cannot be converted to 'Person'");
+        Assert.assertEquals(errorMsg, "'map<json>' value cannot be converted to 'Person': " +
+                "\n\t\tfield 'parent.parent' in record 'Person' should be of type 'Person?'");
     }
 
     @Test
@@ -63,7 +65,8 @@ public class NativeConversionNegativeTest {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyJSONtoStructWithoutDefaults");
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'map<json>' value cannot be converted to 'StructWithoutDefaults'");
+        Assert.assertEquals(errorMsg, "'map<json>' value cannot be converted to 'StructWithoutDefaults': " +
+                "\n\t\tmissing required field 'a' of type 'int' in record 'StructWithoutDefaults'");
     }
 
     @Test
@@ -71,7 +74,8 @@ public class NativeConversionNegativeTest {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyMaptoStructWithoutDefaults");
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'map<anydata>' value cannot be converted to 'StructWithoutDefaults'");
+        Assert.assertEquals(errorMsg, "'map<anydata>' value cannot be converted to 'StructWithoutDefaults': " +
+                "\n\t\tmissing required field 'a' of type 'int' in record 'StructWithoutDefaults'");
     }
 
     @Test(description = "Test converting an unsupported array to json")
@@ -133,5 +137,17 @@ public class NativeConversionNegativeTest {
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
                             "'Manager' value has cyclic reference");
     }
-}
 
+    @Test(dataProvider = "testConversionFunctionList")
+    public void testConversionNegative(String funcName) {
+        BRunUtil.invoke(negativeResult, funcName);
+    }
+
+    @DataProvider(name = "testConversionFunctionList")
+    public Object[] testConversionFunctions() {
+        return new Object[] {
+                "testConvertJsonToNestedRecordsWithErrors",
+                "testConvertFromJsonWithCyclicValueReferences"
+        };
+    }
+}
