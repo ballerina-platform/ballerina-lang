@@ -51,6 +51,7 @@ import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -66,6 +67,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.ballerina.projects.test.TestUtils.isWindows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -187,6 +189,34 @@ public class PackageResolutionTests extends BaseTest {
         loadProject.save();
 
         Assert.assertTrue(Files.exists(buildPath));
+        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
+        Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
+    }
+
+    @Test(dependsOnMethods = "testProjectSaveWithEmptyBuildFile")
+    public void testProjectSaveWithNoReadPermission() throws IOException {
+        // Skip test in windows due to file permission setting issue
+        if (isWindows()) {
+            throw new SkipException("Skipping tests on Windows");
+        }
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath);
+        Path buildPath = loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE);
+        boolean readable = buildPath.toFile().setReadable(false, false);
+        if (!readable) {
+            Assert.fail("could not set readable permission");
+        }
+
+        loadProject.save();
+
+        PackageCompilation compilation = loadProject.currentPackage().getCompilation();
+        Assert.assertTrue(Files.exists(buildPath));
+
+        readable = buildPath.toFile().setReadable(true, true);
+        if (!readable) {
+            Assert.fail("could not set readable permission");
+        }
         BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
         Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
     }
