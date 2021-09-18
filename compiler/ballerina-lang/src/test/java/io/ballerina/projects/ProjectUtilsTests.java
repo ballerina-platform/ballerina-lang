@@ -26,7 +26,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -78,25 +77,4 @@ public class ProjectUtilsTests {
         });
     }
 
-    @Test
-    public void testWriteBuildFile() throws IOException {
-        Path buildFilePath = tempDirectory.resolve(ProjectConstants.BUILD_FILE);
-        Files.createFile(buildFilePath);
-        ProjectUtils.writeBuildFile(buildFilePath, buildJson);
-        // check file exists
-        Assert.assertTrue(buildFilePath.toFile().exists());
-        // check created build file content
-        BuildJson resBuildJson = ProjectUtils.readBuildJson(buildFilePath);
-        Assert.assertEquals(resBuildJson.lastBuildTime(), 1629359520);
-        Assert.assertEquals(resBuildJson.lastUpdateTime(), 1629259520);
-    }
-
-    @Test(dependsOnMethods = "testWriteBuildFile",
-            expectedExceptions = ProjectException.class,
-            expectedExceptionsMessageRegExp = "'build' file does not have write permissions")
-    public void testWriteBuildFileForNonExistingPath() throws IOException {
-        Path buildFilePath = tempDirectory.resolve(ProjectConstants.BUILD_FILE);
-        new File(String.valueOf(buildFilePath)).setWritable(false);
-        ProjectUtils.writeBuildFile(buildFilePath, buildJson);
-    }
 }
