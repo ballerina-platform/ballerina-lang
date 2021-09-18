@@ -45,6 +45,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -163,7 +164,7 @@ public class PackageResolution {
         if (rootPackageContext.project().kind() == ProjectKind.BUILD_PROJECT) {
             Path buildFilePath = this.rootPackageContext.project().sourceRoot().resolve(TARGET_DIR_NAME)
                     .resolve(BUILD_FILE);
-            if (buildFilePath.toFile().exists() && buildFilePath.toFile().length() > 0) {
+            if (Files.exists(buildFilePath) && buildFilePath.toFile().length() > 0) {
                 try {
                     BuildJson buildJson = readBuildJson(buildFilePath);
                     if (!buildJson.isExpiredLastUpdateTime()) {
