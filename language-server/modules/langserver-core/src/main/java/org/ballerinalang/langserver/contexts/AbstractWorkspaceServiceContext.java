@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.contexts;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
@@ -79,7 +80,8 @@ public class AbstractWorkspaceServiceContext implements WorkspaceServiceContext 
 
             return semanticModel.get()
                     .visibleSymbols(srcFile.get(), 
-                            LinePosition.from(position.getLine(), position.getCharacter()));            
+                            LinePosition.from(position.getLine(), position.getCharacter()),
+                            DiagnosticState.VALID, DiagnosticState.REDECLARED);
         });
     }
 

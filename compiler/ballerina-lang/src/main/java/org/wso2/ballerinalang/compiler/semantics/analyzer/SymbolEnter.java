@@ -251,15 +251,20 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.sourceDirectory = context.get(SourceDirectory.class);
-        this.importedPackages = new ArrayList<>();
-        this.unknownTypeRefs = new HashSet<>();
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
+
+        this.importedPackages = new ArrayList<>();
+        this.unknownTypeRefs = new HashSet<>();
         this.intersectionTypes = new ArrayList<>();
 
         CompilerOptions options = CompilerOptions.getInstance(context);
         projectAPIInitiatedCompilation = Boolean.parseBoolean(
                 options.get(CompilerOptionName.PROJECT_API_INITIATED_COMPILATION));
+    }
+
+    private void cleanup() {
+        unknownTypeRefs.clear();
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
@@ -318,6 +323,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineConstructs(pkgNode, pkgEnv);
         pkgNode.getTestablePkgs().forEach(testablePackage -> defineTestablePackage(testablePackage, pkgEnv));
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
+
+        // cleanup to avoid caching on compile context
+        cleanup();
 
         // After we have visited a package node, we need to remove it from the imports list.
         importedPackages.remove(pkgNode.packageID);
@@ -1303,7 +1311,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private  boolean isTypeConstructorAvailable(NodeKind unresolvedType) {
+    private boolean isTypeConstructorAvailable(NodeKind unresolvedType) {
         switch (unresolvedType) {
             case OBJECT_TYPE:
             case RECORD_TYPE:
@@ -1313,7 +1321,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TABLE_TYPE:
             case ERROR_TYPE:
             case FUNCTION_TYPE:
-            case STREAM_TYPE:    
+            case STREAM_TYPE:
                 return true;
             default:
                 return false;

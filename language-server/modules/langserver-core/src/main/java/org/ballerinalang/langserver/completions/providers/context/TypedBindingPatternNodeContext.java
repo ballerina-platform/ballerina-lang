@@ -64,4 +64,12 @@ public class TypedBindingPatternNodeContext extends AbstractCompletionProvider<T
 
         return cursor >= tDesc.textRange().startOffset() && cursor <= tDesc.textRange().endOffset();
     }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, TypedBindingPatternNode node) {
+        int cursor = context.getCursorPositionInTree();
+        TypeDescriptorNode typeDescriptorNode = node.typeDescriptor();
+        
+        return !typeDescriptorNode.isMissing() && cursor > typeDescriptorNode.textRange().endOffset();
+    }
 }

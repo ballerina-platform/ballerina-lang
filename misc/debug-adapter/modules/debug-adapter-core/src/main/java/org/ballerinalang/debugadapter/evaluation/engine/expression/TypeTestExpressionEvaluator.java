@@ -18,16 +18,18 @@ package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.engine.BallerinaTypeResolver;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.NodeBasedTypeResolver;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 
 import java.util.List;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.TYPE_RESOLVING_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.checkIsType;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
 
@@ -41,7 +43,7 @@ public class TypeTestExpressionEvaluator extends Evaluator {
     private final TypeTestExpressionNode syntaxNode;
     private final Evaluator exprEvaluator;
 
-    public TypeTestExpressionEvaluator(SuspendedContext context, TypeTestExpressionNode typetestExpressionNode,
+    public TypeTestExpressionEvaluator(EvaluationContext context, TypeTestExpressionNode typetestExpressionNode,
                                        Evaluator exprEvaluator) {
         super(context);
         this.syntaxNode = typetestExpressionNode;
@@ -59,10 +61,10 @@ public class TypeTestExpressionEvaluator extends Evaluator {
 
             // Resolves runtime type(s) using type descriptor nodes.
             // resolvedTypes.size() > 1 for union types.
-            List<Value> resolvedTypes = BallerinaTypeResolver.resolve(context, syntaxNode.typeDescriptor());
+            NodeBasedTypeResolver bTypeResolver = new NodeBasedTypeResolver(evaluationContext);
+            List<Value> resolvedTypes = bTypeResolver.resolve(syntaxNode.typeDescriptor());
             if (resolvedTypes.isEmpty()) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.TYPE_RESOLVING_ERROR.getString(),
-                        syntaxNode.typeDescriptor().toSourceCode()));
+                throw createEvaluationException(TYPE_RESOLVING_ERROR, syntaxNode.typeDescriptor().toSourceCode());
             }
 
             for (Value type : resolvedTypes) {
@@ -75,8 +77,7 @@ public class TypeTestExpressionEvaluator extends Evaluator {
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
-                    syntaxNode.toSourceCode().trim()));
+            throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
         }
     }
 }

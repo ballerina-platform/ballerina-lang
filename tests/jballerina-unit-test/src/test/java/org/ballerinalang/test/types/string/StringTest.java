@@ -245,6 +245,7 @@ public class StringTest {
         validateError(multilineLiterals, indx++, "missing binary operator", 21, 22);
         validateError(multilineLiterals, indx++, "missing double quote", 21, 22);
         validateError(multilineLiterals, indx++, "missing semicolon token", 22, 1);
+        validateError(multilineLiterals, indx++, "invalid escape sequence '\\B'", 25, 16);
         Assert.assertEquals(multilineLiterals.getErrorCount(), indx);
     }
 

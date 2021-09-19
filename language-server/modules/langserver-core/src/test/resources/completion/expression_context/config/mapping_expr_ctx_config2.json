@@ -473,14 +473,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testMap",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "testMap",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",

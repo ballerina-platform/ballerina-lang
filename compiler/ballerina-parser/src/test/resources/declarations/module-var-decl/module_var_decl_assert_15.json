@@ -1114,31 +1114,30 @@
                   "hasDiagnostics": true,
                   "diagnostics": [
                     "ERROR_MISSING_IDENTIFIER"
+                  ],
+                  "leadingMinutiae": [
+                    {
+                      "kind": "INVALID_NODE_MINUTIAE",
+                      "invalidNode": {
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
+                        "children": [
+                          {
+                            "kind": "QUESTION_MARK_TOKEN",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_INVALID_TOKEN"
+                            ]
+                          }
+                        ]
+                      }
+                    }
                   ]
                 }
               ]
             },
             {
               "kind": "SEMICOLON_TOKEN",
-              "hasDiagnostics": true,
-              "leadingMinutiae": [
-                {
-                  "kind": "INVALID_NODE_MINUTIAE",
-                  "invalidNode": {
-                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                    "hasDiagnostics": true,
-                    "children": [
-                      {
-                        "kind": "QUESTION_MARK_TOKEN",
-                        "hasDiagnostics": true,
-                        "diagnostics": [
-                          "ERROR_INVALID_TOKEN"
-                        ]
-                      }
-                    ]
-                  }
-                }
-              ],
               "trailingMinutiae": [
                 {
                   "kind": "END_OF_LINE_MINUTIAE",

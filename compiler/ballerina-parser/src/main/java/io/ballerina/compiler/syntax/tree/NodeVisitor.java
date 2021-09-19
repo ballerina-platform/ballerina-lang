@@ -439,6 +439,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(xMLComment);
     }
 
+    public void visit(XMLCDATANode xMLCDATANode) {
+        visitSyntaxNode(xMLCDATANode);
+    }
+
     public void visit(XMLProcessingInstruction xMLProcessingInstruction) {
         visitSyntaxNode(xMLProcessingInstruction);
     }

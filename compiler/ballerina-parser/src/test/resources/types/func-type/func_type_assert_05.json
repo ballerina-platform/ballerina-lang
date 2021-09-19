@@ -1139,6 +1139,28 @@
                                               "hasDiagnostics": true,
                                               "diagnostics": [
                                                 "ERROR_MISSING_IDENTIFIER"
+                                              ],
+                                              "leadingMinutiae": [
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "INT_KEYWORD",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_TOKEN"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
                                               ]
                                             }
                                           ]
@@ -1161,29 +1183,6 @@
                         },
                         {
                           "kind": "EQUAL_TOKEN",
-                          "hasDiagnostics": true,
-                          "leadingMinutiae": [
-                            {
-                              "kind": "INVALID_NODE_MINUTIAE",
-                              "invalidNode": {
-                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                "hasDiagnostics": true,
-                                "children": [
-                                  {
-                                    "kind": "INT_KEYWORD",
-                                    "hasDiagnostics": true,
-                                    "diagnostics": [
-                                      "ERROR_INVALID_TOKEN"
-                                    ]
-                                  }
-                                ]
-                              }
-                            },
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ],
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -1285,18 +1284,7 @@
                                   "hasDiagnostics": true,
                                   "diagnostics": [
                                     "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CAPTURE_BINDING_PATTERN",
-                              "hasDiagnostics": true,
-                              "children": [
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "hasDiagnostics": true,
-                                  "value": "f3",
+                                  ],
                                   "leadingMinutiae": [
                                     {
                                       "kind": "INVALID_NODE_MINUTIAE",
@@ -1318,7 +1306,16 @@
                                       "kind": "WHITESPACE_MINUTIAE",
                                       "value": " "
                                     }
-                                  ],
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "f3",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",

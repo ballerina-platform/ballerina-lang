@@ -1,2 +1,2 @@
-function foo(*Person person = {a = 2}) {
+function foo(*Person person = {a=  2}) {
 }
