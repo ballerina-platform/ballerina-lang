@@ -24,7 +24,7 @@ function testUnreachableCodeWithWhile1() {
 
 function testUnreachableCodeWithWhile2() {
     while false {
-        foo();
+        foo(); // unreachable code
         string b = "ABC";
         string c = b + "D";
     }
@@ -32,16 +32,16 @@ function testUnreachableCodeWithWhile2() {
 }
 
 function testUnreachableCodeWithIf1() {
-    if false { // unreachable code
-        int a = 1;
+    if false {
+        int a = 1; // unreachable code
         string b = "ABC";
     }
     int|string c = 25;
 }
 
 function testUnreachableCodeWithIf2() {
-    if false { // unreachable code
-        string b = "ABC";
+    if false {
+        string b = "ABC"; // unreachable code
         foo();
         int a = 1;
     }
@@ -51,14 +51,14 @@ function testUnreachableCodeWithIf2() {
 function testUnreachableCodeWithIf3() {
     if true {
         string b = "ABC";
-        int a = 1;
+        return;
     }
-    int|string c = 25;
+    int|string c = 25; // unreachable code
 }
 
 function testUnreachableCodeWithIfElse1() {
-    if false { // unreachable code
-        int a = 1;
+    if false {
+        int a = 1; // unreachable code
         string b = "ABC";
     } else {
         string d = "XYZ";
@@ -71,8 +71,8 @@ function testUnreachableCodeWithIfElse2() {
     if true {
         int a = 1;
         string b = "ABC";
-    } else { // unreachable code
-        string d = "XYZ";
+    } else {
+        string d = "XYZ"; // unreachable code
         int e = 26;
     }
     int|string c = 25;
@@ -116,8 +116,8 @@ function testUnreachableCodeWithIfElse3() {
         a = v * 20;
     } else if e is Z { // always true
         a = v * 30;
-    } else { // unreachable code
-        foo();
+    } else {
+        foo(); // unreachable code
     }
 }
 
@@ -132,8 +132,8 @@ function testUnreachableCodeWithIfElse4() {
         a = v * 20;
     } else if e is Z { // always true
         a = v * 30;
-    } else if e is Y { // unreachable code
-        foo();
+    } else if e is Y {
+        foo(); // unreachable code
     }
 }
 
@@ -149,8 +149,8 @@ function testUnreachableCodeWithIfElse5() {
     } else if e is Z { // always true
         a = v * 30;
         return ();
-    } else { // unreachable code
-        a = v * 40;
+    } else {
+        a = v * 40; // unreachable code
     }
 }
 
@@ -168,7 +168,7 @@ function testUnreachableCodeWithIfElse6(E e) returns int {
 function testUnreachableCodeWithIfElse7(E e) returns int {
     if e is X {
         return 1;
-    } else if e is Y{
+    } else if e is Y {
         return 2;
     }
     int a = 12;
@@ -177,21 +177,21 @@ function testUnreachableCodeWithIfElse7(E e) returns int {
 
 function testUnreachableCodeWithWhileHavingBreakAndContinue1() {
     int a;
-    while false { // unreachable code
-        if true {
+    while false {
+        if true { // unreachable code
             continue;
-        } else { // unreachable code
-            a = 1;
+        } else {
+            a = 1; // unreachable code
         }
         int i = a;
     }
 
     int b;
-    while false { // unreachable code
-        if true {
+    while false {
+        if true { // unreachable code
             break;
-        } else { // unreachable code
-            b = 1;
+        } else {
+            b = 1; // unreachable code
         }
         int i = b;
     }
@@ -221,8 +221,8 @@ function testUnreachableCodeWithWhile4() returns int {
         int|string b = 10;
         if b is int {
             value += 1;
-            if false { // unreachable code
-                break;
+            if false {
+                break; // unreachable code
             }
             value += 2;
         }
@@ -240,8 +240,8 @@ function testUnreachableCodeWithWhile4() returns int {
 
 function testUnreachableCodeWithWhile5() returns int {
     int value = 0;
-    while false { // unreachable code
-        value += 1;
+    while false {
+        value += 1; // unreachable code
         foo();
         return value;
     }
@@ -272,7 +272,7 @@ function testUnreachableCodeWithFail() returns error? {
             }
         }
     }
-    string w = "A"; // unreachable code
+    string w = "A";
 }
 
 function testUnreachableCodeWithFail2() returns error {
@@ -322,8 +322,8 @@ function getError() returns error {
 function testConstTrueConditionWihLogicalAndInIfElse() {
     if true && true {
         return;
-    } else { // unreachable code
-        int a = 10;
+    } else {
+        int a = 10; // unreachable code
     }
 }
 
@@ -337,8 +337,8 @@ function testConstTrueConditionWihLogicalAndInIf() {
 function testConstTrueConditionWihLogicalAndInIfElse2() {
     if true && true {
         int a = 10;
-    } else { // unreachable code
-        int b = 10;
+    } else {
+        int b = 10; // unreachable code
     }
     int c = 10;
 }
@@ -346,15 +346,15 @@ function testConstTrueConditionWihLogicalAndInIfElse2() {
 function testConstTrueConditionWihLogicalAndInIfElse3() {
     if true {
         int a = 10;
-    } else if true && true { // unreachable code
-        int b = 10;
+    } else if true && true {
+        int b = 10; // unreachable code
     }
     int c = 10;
 }
 
 function testConstFalseConditionWihLogicalAndInIfElse1() {
-    if false && false { // unreachable code
-        int a = 10;
+    if false && false {
+        int a = 10; // unreachable code
     } else {
         int b = 10;
     }
@@ -365,8 +365,8 @@ function testConstTrueConditionWihLogicalAndInWhile1() {
     while true && true {
         if true && true {
             int a = 12;
-        } else if true { // unreachable code
-            int a = 10;
+        } else if true {
+            int a = 10; // unreachable code
         }
     }
     int b = 10;
@@ -374,8 +374,8 @@ function testConstTrueConditionWihLogicalAndInWhile1() {
 
 function testConstFalseConditionWihTypeTestInIfElse1() {
     int a = 10;
-    if a !is int { // unreachable code
-        int b = 10;
+    if a !is int {
+        int b = 10; // unreachable code
     } else {
         int c = 10;
     }
@@ -384,8 +384,8 @@ function testConstFalseConditionWihTypeTestInIfElse1() {
 
 function testConstFalseConditionWihTypeTestInWhile1() {
     int a = 10;
-    while a !is int { // unreachable code
-        int b = 10;
+    while a !is int {
+        int b = 10; // unreachable code
     }
     int c = 10;
 }
@@ -395,8 +395,8 @@ function impossible() returns never {
 }
 
 function testConstFalseWithIf() {
-    if false { // unreachable code
-        int a = 10;
+    if false {
+        int a = 10; // unreachable code
     } else {
         int a = 20;
     }
@@ -417,8 +417,8 @@ function testUnreachabilitywithIfElse(E e) returns int {
 }
 
 function testConstFalseWithWhile() {
-    while false { // unreachable code
-        int a = 10;
+    while false {
+        int a = 10; // unreachable code
     }
     int|string c = 25;
 }
@@ -438,8 +438,8 @@ function testUnreachableCodeWithWhileConstTrue2() returns int {
             return 1;
         } else if a is () { // always true
             return 2;
-        } else { // unreachable code
-            return 3;
+        } else {
+            return 3; // unreachable code
         }
     }
     return 4; // unreachable code
@@ -487,4 +487,78 @@ function testUnreachableCodeWithWhileConstTrue4(string p) returns string {
     }
     string x = " -> end.";
     return str + x + " -> parameter:" + p;
+}
+
+const TRUE = true;
+const FALSE = false;
+
+function testUnreachableCodeWithConstRef1() {
+    if TRUE {
+        return;
+    }
+    int x = 1; // unreachable code
+}
+
+function testUnreachableCodeWithConstRef2() {
+    if FALSE {
+        return; // unreachable code
+    }
+    int x = 1;
+}
+
+function testUnreachableCodeWithConstRef3() {
+    while TRUE {
+        return;
+    }
+    int x = 1; // unreachable code
+}
+
+function testUnreachableCodeWithConstRef4() {
+    while FALSE {
+        return; // unreachable code
+    }
+    int x = 1;
+}
+
+type TRUE1 true;
+type FALSE1 false;
+
+function testUnreachableCodeWithConstRef5() {
+    TRUE1 b = true;
+
+    if b {
+        return;
+    }
+
+    int x = 1; // unreachable code
+}
+
+function testUnreachableCodeWithConstRef6() {
+    FALSE1 b = false;
+
+    if b {
+        return; // unreachable code
+    }
+
+    int x = 1;
+}
+
+function testUnreachableCodeWithConstRef7() {
+    TRUE1 b = true;
+
+    while b {
+        return;
+    }
+
+    int x = 1; // unreachable code
+}
+
+function testUnreachableCodeWithConstRef8() {
+    FALSE1 b = false;
+
+    while b {
+        return; // unreachable code
+    }
+
+    int x = 1;
 }
