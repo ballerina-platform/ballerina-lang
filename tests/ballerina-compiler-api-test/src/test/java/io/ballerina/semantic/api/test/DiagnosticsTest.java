@@ -64,7 +64,7 @@ public class DiagnosticsTest {
         List<Diagnostic> diagnostics = model.diagnostics(range);
 
         assertEquals(diagnostics.size(), 1);
-        assertDiagnostic(diagnostics.get(0), getExpectedErrors()[3]);
+        assertDiagnostic(diagnostics.get(0), getExpectedErrors()[7]);
     }
 
     @Test
@@ -84,6 +84,10 @@ public class DiagnosticsTest {
 
     private Object[][] getExpectedErrors() {
         return new Object[][]{
+                {"incompatible types: expected '([string]|record {| string arg2; |})', found '()'", 17, 24},
+                {"missing ellipsis token", 17, 24},
+                {"missing open parenthesis token", 17, 24},
+                {"missing semicolon token", 18, 0},
                 {"missing semicolon token", 18, 0},
                 {"invalid token 'string'", 21, 8},
                 {"missing identifier", 21, 15},
