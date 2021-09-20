@@ -1734,7 +1734,7 @@ public class Types {
         }
 
         BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
-                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
+                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), env);
         BUnionType nextMethodReturnType =
                 (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
         foreachNode.varType = varType;
@@ -1828,7 +1828,7 @@ public class Types {
         }
 
         BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
-                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
+                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), env);
         BUnionType nextMethodReturnType =
                 (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
         bLangInputClause.varType = varType;
