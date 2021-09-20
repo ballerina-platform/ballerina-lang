@@ -73,7 +73,7 @@ public class DiagnosticsTest {
                 "test-src/testerrorproject/");
 
         LineRange range = LineRange.from("diagnostic_properties_check.bal", LinePosition.from(1, 0),
-                LinePosition.from(1, 24));
+                LinePosition.from(17, 24));
         List<Diagnostic> diagnostics = model.diagnostics(range);
 
         assertEquals(diagnostics.size(), 3);
