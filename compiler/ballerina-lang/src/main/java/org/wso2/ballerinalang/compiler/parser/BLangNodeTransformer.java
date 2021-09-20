@@ -2723,15 +2723,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangIf bLIf = (BLangIf) TreeBuilder.createIfElseStatementNode();
         bLIf.pos = getPosition(ifElseStmtNode);
         bLIf.setCondition(createExpression(ifElseStmtNode.condition()));
-        BLangBlockStmt ifBlockStmt = (BLangBlockStmt) ifElseStmtNode.ifBody().apply(this);
-        ifBlockStmt.pos = getPosition(ifElseStmtNode.ifBody());
-        bLIf.setBody(ifBlockStmt);
+        bLIf.setBody((BLangBlockStmt) ifElseStmtNode.ifBody().apply(this));
 
         ifElseStmtNode.elseBody().ifPresent(elseBody -> {
             ElseBlockNode elseNode = (ElseBlockNode) elseBody;
-            BLangStatement elseStmt = (BLangStatement) elseNode.elseBody().apply(this);
-            elseStmt.pos = getPosition(elseNode.elseBody());
-            bLIf.setElseStatement(elseStmt);
+            bLIf.setElseStatement(
+                    (org.ballerinalang.model.tree.statements.StatementNode) elseNode.elseBody().apply(this));
         });
         return bLIf;
     }

@@ -117,7 +117,7 @@ public class TypeNarrower extends BLangNodeVisitor {
                     typeInfo.trueType;
             BVarSymbol originalSym = getOriginalVarSymbol(symbol);
             symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, originalSym, narrowedType,
-                                                 originalSym.origin == VIRTUAL);
+                                                 originalSym.origin == VIRTUAL, false);
         }
 
         return targetEnv;
@@ -153,18 +153,19 @@ public class TypeNarrower extends BLangNodeVisitor {
         SymbolEnv targetEnv = getTargetEnv(targetNode, env);
         BVarSymbol originalVarSym = getOriginalVarSymbol((BVarSymbol) varRef.symbol);
         symbolEnter.defineTypeNarrowedSymbol(varRef.pos, targetEnv, originalVarSym, remainingType,
-                originalVarSym.origin == VIRTUAL);
+                originalVarSym.origin == VIRTUAL, false);
         return targetEnv;
     }
 
     public SymbolEnv evaluateFalsityForSingleIf(BLangExpression expr, SymbolEnv currentEnv) {
-        if (!(expr.getKind() == NodeKind.TYPE_TEST_EXPR || (expr.getKind() == NodeKind.GROUP_EXPR &&
+        NodeKind exprKind = expr.getKind();
+        if (!(exprKind == NodeKind.TYPE_TEST_EXPR || (exprKind == NodeKind.GROUP_EXPR &&
                 ((BLangGroupExpr) expr).expression.getKind() == NodeKind.TYPE_TEST_EXPR))) {
             return currentEnv;
         }
 
         BLangExpression expression;
-        if (expr.getKind() == NodeKind.GROUP_EXPR) {
+        if (exprKind == NodeKind.GROUP_EXPR) {
             expression = ((BLangGroupExpr) expr).expression;
         } else {
             expression = expr;
@@ -175,11 +176,11 @@ public class TypeNarrower extends BLangNodeVisitor {
             return currentEnv;
         }
 
-        narrowedTypes.forEach((symbol, typeInfo) -> {
-            BVarSymbol originalSym = getOriginalVarSymbol(symbol);
+        for (Map.Entry<BVarSymbol, NarrowedTypes> narrowedType : narrowedTypes.entrySet()) {
+            BVarSymbol originalSym = getOriginalVarSymbol(narrowedType.getKey());
             symbolEnter.defineTypeNarrowedSymbol(expression.pos, currentEnv, originalSym,
-                    typeInfo.falseType, originalSym.origin == VIRTUAL);
-        });
+                    narrowedType.getValue().falseType, originalSym.origin == VIRTUAL, true);
+        }
 
         return currentEnv;
     }
@@ -208,7 +209,7 @@ public class TypeNarrower extends BLangNodeVisitor {
         narrowedTypes.forEach((symbol, typeInfo) -> {
             BVarSymbol originalSym = getOriginalVarSymbol(symbol);
             symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, originalSym,
-                                                 typeInfo.falseType, originalSym.origin == VIRTUAL);
+                                                 typeInfo.falseType, originalSym.origin == VIRTUAL, false);
         });
 
         return targetEnv;

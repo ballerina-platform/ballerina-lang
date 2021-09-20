@@ -23,7 +23,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.types.TypeNode;
@@ -209,6 +208,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+import org.wso2.ballerinalang.compiler.util.BooleanCondition;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -624,40 +624,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         // If the flow was terminated within 'else' block, then after the if-else block,
         // only the results of the 'if' block matters.
-        if (elseResult.flowTerminated || checkConstTrueCondition(ifNode.expr)) {
+        if (elseResult.flowTerminated || (new ConditionResolver(types, symTable)).checkConstCondition(ifNode.expr)
+                        .equals(BooleanCondition.TRUE)) {
             this.uninitializedVars = ifResult.uninitializedVars;
             return;
         }
 
         this.uninitializedVars = mergeUninitializedVars(ifResult.uninitializedVars, elseResult.uninitializedVars);
-    }
-
-    private boolean checkConstTrueCondition(BLangExpression condition) {
-        switch (condition.getKind()) {
-            case GROUP_EXPR:
-                return checkConstTrueCondition(((BLangGroupExpr) condition).expression);
-            case LITERAL:
-                BLangLiteral literal = (BLangLiteral) condition;
-                if (!(literal.value instanceof Boolean)) {
-                    return false;
-                }
-                return literal.value.equals(true);
-            case TYPE_TEST_EXPR:
-                BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) condition;
-                return types.isAssignable(typeTestExpr.expr.getBType(),
-                        typeTestExpr.typeNode.getBType());
-            case BINARY_EXPR:
-                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) condition;
-                if (binaryExpr.opKind != OperatorKind.AND && !(binaryExpr.lhsExpr.getKind() == NodeKind.LITERAL ||
-                        binaryExpr.lhsExpr.getKind() == NodeKind.TYPE_TEST_EXPR) &&
-                        !(binaryExpr.rhsExpr.getKind() == NodeKind.LITERAL ||
-                                binaryExpr.rhsExpr.getKind() == NodeKind.TYPE_TEST_EXPR)) {
-                    return false;
-                }
-                return checkConstTrueCondition(binaryExpr.lhsExpr) && checkConstTrueCondition(binaryExpr.rhsExpr);
-            default:
-                return false;
-        }
     }
 
     @Override
@@ -2169,11 +2142,5 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             this.uninitializedVars = uninitializedVars;
             this.flowTerminated = flowTerminated;
         }
-    }
-
-    private enum ConditionState {
-        TRUE,
-        FALSE,
-        NOT_BOOLEAN_CONST
     }
 }
