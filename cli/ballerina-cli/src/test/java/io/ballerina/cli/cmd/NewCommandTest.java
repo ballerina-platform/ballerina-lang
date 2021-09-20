@@ -69,6 +69,10 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
         Assert.assertFalse(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(".devcontainer.json")));
+        String devcontainerContent = Files.readString(packageDir.resolve(".devcontainer.json"));
+        Assert.assertTrue(devcontainerContent.contains(RepoUtils.getBallerinaVersion()));
     }
 
     @Test(description = "Test new command with main template")
