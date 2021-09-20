@@ -29,6 +29,7 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class TypeGuardTest extends AbstractCodeActionTest {
+
     @Override
     public String getResourceDir() {
         return "type-guard";
@@ -47,6 +48,8 @@ public class TypeGuardTest extends AbstractCodeActionTest {
                 {"typeGuardCodeAction1.json", "typeGuard.bal"},
                 {"typeGuardCodeAction2.json", "typeGuard.bal"},
                 {"typeGuardCodeAction3.json", "typeGuard.bal"},
+                {"typeGuardVariableCodeAction1.json", "typeGuardVariable1.bal"},
+                {"typeGuardVariableCodeAction2.json", "typeGuardVariable1.bal"},
         };
     }
 }

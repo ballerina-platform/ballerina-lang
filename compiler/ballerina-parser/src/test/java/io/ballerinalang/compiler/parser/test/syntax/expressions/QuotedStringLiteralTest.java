@@ -44,5 +44,6 @@ public class QuotedStringLiteralTest extends AbstractExpressionsTest {
     @Test
     public void testQuotedWithInvalidEscapeSequence() {
         test("\"hello \\u{K} world \\h how are you?\"", "basic-literals/quoted_string_literal_assert_03.json");
+        test("\"\\Ballerina\"", "basic-literals/quoted_string_literal_assert_04.json");
     }
 }
