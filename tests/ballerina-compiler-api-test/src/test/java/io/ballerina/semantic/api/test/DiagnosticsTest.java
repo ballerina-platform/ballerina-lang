@@ -18,14 +18,19 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.DiagnosticPropertyKind;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.testng.annotations.Test;
 
 import java.util.List;
 
+import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -62,6 +67,19 @@ public class DiagnosticsTest {
         assertDiagnostic(diagnostics.get(0), getExpectedErrors()[3]);
     }
 
+    @Test
+    public void testDiagnosticProperties() {
+        SemanticModel model = SemanticAPITestUtils.getDefaultModulesSemanticModel(
+                "test-src/testerrorproject/");
+
+        LineRange range = LineRange.from("diagnostic_properties_check.bal", LinePosition.from(1, 0),
+                LinePosition.from(1, 24));
+        List<Diagnostic> diagnostics = model.diagnostics(range);
+
+        assertEquals(diagnostics.size(), 3);
+        assertDiagnosticProperties(diagnostics);
+    }
+
     // Utils
 
     private Object[][] getExpectedErrors() {
@@ -78,5 +96,38 @@ public class DiagnosticsTest {
         assertEquals(diagnostic.message(), expected[0]);
         assertEquals(diagnostic.location().lineRange().startLine().line(), expected[1]);
         assertEquals(diagnostic.location().lineRange().startLine().offset(), expected[2]);
+    }
+
+    private Object[][] getExpectedDiagnosticProperties() {
+        return new Object[][] {
+                {"[string]|record {| string arg2; |}", UNION},
+                {"()", NIL},
+        };
+    }
+
+    private void assertDiagnosticProperties(List<Diagnostic> diagnostics) {
+        int index = 0;
+
+        for (Diagnostic diagnostic : diagnostics) {
+
+            List<DiagnosticProperty<?>> diagnosticProperties = diagnostic.properties();
+
+            if (diagnosticProperties != null) {
+
+                for (DiagnosticProperty<?> property : diagnosticProperties) {
+
+                    // The diagnostic property value is an instance of TypeSymbol only if the property kind is SYMBOLIC.
+                    if (property.kind() == DiagnosticPropertyKind.SYMBOLIC) {
+                        TypeSymbol typeSymbol = (TypeSymbol) property.value();
+                        assertEquals(typeSymbol.signature(), getExpectedDiagnosticProperties()[index][0]);
+                        assertEquals(typeSymbol.typeKind(), getExpectedDiagnosticProperties()[index++][1]);
+                    }
+
+                }
+
+            }
+
+        }
+
     }
 }
