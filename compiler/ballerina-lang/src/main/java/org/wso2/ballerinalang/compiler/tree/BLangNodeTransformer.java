@@ -172,890 +172,890 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 /**
- * The {@link BLangNodeTransformer} transforms each {@link BLangNode} objects to another object of type T.
+ * The {@link BLangNodeTransformer} transforms each {@link BLangNode} objects to another object of type R.
  * <p>
  * If you are looking for a {@link BLangNode} visitor that returns void, see {@link BLangNodeAnalyzer}.
  * <p>
  *
- * @param <T> the type of class that passed along with transform methods.
+ * @param <T> the type of data class that passed along with transform methods.
  * @param <R> the type of class that is returned by transform methods
  * @since 2.0.0
  */
 public abstract class BLangNodeTransformer<T, R> {
 
-    public abstract R transformNode(BLangNode node, T props);
+    public abstract R transformNode(BLangNode node, T data);
 
     // Base Nodes
 
-    public R transform(BLangAnnotation node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangAnnotation node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangAnnotationAttachment node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangAnnotationAttachment node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangBlockFunctionBody node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangBlockFunctionBody node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangClassDefinition node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangClassDefinition node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangCompilationUnit node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangCompilationUnit node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangErrorVariable node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangErrorVariable node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangErrorVariable.BLangErrorDetailEntry node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangErrorVariable.BLangErrorDetailEntry node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangExprFunctionBody node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangExprFunctionBody node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangExternalFunctionBody node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangExternalFunctionBody node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangFunction node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangFunction node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangIdentifier node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangIdentifier node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangImportPackage node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangImportPackage node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangMarkdownDocumentation node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangMarkdownDocumentation node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangMarkdownReferenceDocumentation node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangMarkdownReferenceDocumentation node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangPackage node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangPackage node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRecordVariable node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRecordVariable node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRecordVariable.BLangRecordVariableKeyValue node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRecordVariable.BLangRecordVariableKeyValue node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangResourceFunction node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangResourceFunction node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRetrySpec node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRetrySpec node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangService node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangService node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangSimpleVariable node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangSimpleVariable node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangTableKeySpecifier node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangTableKeySpecifier node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangTableKeyTypeConstraint node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangTableKeyTypeConstraint node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangTestablePackage node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangTestablePackage node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangTupleVariable node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangTupleVariable node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangTypeDefinition node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangTypeDefinition node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangXMLNS node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangXMLNS node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangXMLNS.BLangLocalXMLNS node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangXMLNS.BLangLocalXMLNS node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangXMLNS.BLangPackageXMLNS node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangXMLNS.BLangPackageXMLNS node, T data) {
+        return transformNode(node, data);
     }
 
     // Binding-patterns
 
-    public R transform(BLangCaptureBindingPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangCaptureBindingPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangErrorBindingPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangErrorBindingPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangErrorCauseBindingPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangErrorCauseBindingPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangErrorFieldBindingPatterns node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangErrorFieldBindingPatterns node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangErrorMessageBindingPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangErrorMessageBindingPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangFieldBindingPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangFieldBindingPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangListBindingPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangListBindingPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangMappingBindingPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangMappingBindingPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangNamedArgBindingPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangNamedArgBindingPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRestBindingPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRestBindingPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangSimpleBindingPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangSimpleBindingPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangWildCardBindingPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangWildCardBindingPattern node, T data) {
+        return transformNode(node, data);
     }
 
     // Clauses
 
-    public R transform(BLangDoClause node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangDoClause node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangFromClause node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangFromClause node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangJoinClause node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangJoinClause node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangLetClause node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangLetClause node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangLimitClause node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangLimitClause node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangMatchClause node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangMatchClause node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangOnClause node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangOnClause node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangOnConflictClause node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangOnConflictClause node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangOnFailClause node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangOnFailClause node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangOrderByClause node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangOrderByClause node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangOrderKey node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangOrderKey node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangSelectClause node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangSelectClause node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangWhereClause node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangWhereClause node, T data) {
+        return transformNode(node, data);
     }
 
     // Expressions
 
-    public R transform(BLangAnnotAccessExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangAnnotAccessExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangArrowFunction node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangArrowFunction node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangBinaryExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangBinaryExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangCheckedExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangCheckedExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangCheckPanickedExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangCheckPanickedExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangCommitExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangCommitExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangConstant node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangConstant node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangConstRef node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangConstRef node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangDynamicArgExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangDynamicArgExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangElvisExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangElvisExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangErrorConstructorExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangErrorConstructorExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangErrorVarRef node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangErrorVarRef node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangFieldBasedAccess node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangFieldBasedAccess node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangFieldBasedAccess.BLangStructFunctionVarRef node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangFieldBasedAccess.BLangStructFunctionVarRef node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangGroupExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangGroupExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangIgnoreExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangIgnoreExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangIndexBasedAccess node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangIndexBasedAccess node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangIndexBasedAccess.BLangArrayAccessExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangIndexBasedAccess.BLangArrayAccessExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangIndexBasedAccess.BLangMapAccessExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangIndexBasedAccess.BLangMapAccessExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangIndexBasedAccess.BLangJSONAccessExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangIndexBasedAccess.BLangJSONAccessExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangIndexBasedAccess.BLangTableAccessExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangIndexBasedAccess.BLangTableAccessExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangIndexBasedAccess.BLangStringAccessExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangIndexBasedAccess.BLangStringAccessExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangIndexBasedAccess.BLangXMLAccessExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangIndexBasedAccess.BLangXMLAccessExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangIndexBasedAccess.BLangStructFieldAccessExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangIndexBasedAccess.BLangStructFieldAccessExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangIndexBasedAccess.BLangTupleAccessExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangIndexBasedAccess.BLangTupleAccessExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangInferredTypedescDefaultNode node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangInferredTypedescDefaultNode node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangInvocation node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangInvocation node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangInvocation.BFunctionPointerInvocation node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangInvocation.BFunctionPointerInvocation node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangInvocation.BLangAttachedFunctionInvocation node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangInvocation.BLangAttachedFunctionInvocation node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangInvocation.BLangActionInvocation node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangInvocation.BLangActionInvocation node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangIsAssignableExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangIsAssignableExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangIsLikeExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangIsLikeExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangLambdaFunction node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangLambdaFunction node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangLetExpression node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangLetExpression node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangListConstructorExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangListConstructorExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangLiteral node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangLiteral node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangMarkDownDeprecatedParametersDocumentation node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangMarkDownDeprecatedParametersDocumentation node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangMarkDownDeprecationDocumentation node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangMarkDownDeprecationDocumentation node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangMarkdownDocumentationLine node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangMarkdownDocumentationLine node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangMarkdownParameterDocumentation node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangMarkdownParameterDocumentation node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangMarkdownReturnParameterDocumentation node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangMarkdownReturnParameterDocumentation node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangMatchExpression node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangMatchExpression node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangMatchExpression.BLangMatchExprPatternClause node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangMatchExpression.BLangMatchExprPatternClause node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangMatchGuard node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangMatchGuard node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangNamedArgsExpression node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangNamedArgsExpression node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangObjectConstructorExpression node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangObjectConstructorExpression node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangQueryAction node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangQueryAction node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangQueryExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangQueryExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRawTemplateLiteral node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRawTemplateLiteral node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRecordLiteral node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRecordLiteral node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRecordLiteral.BLangRecordKeyValueField node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRecordLiteral.BLangRecordKeyValueField node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRecordLiteral.BLangRecordVarNameField node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRecordLiteral.BLangRecordVarNameField node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRecordLiteral.BLangRecordSpreadOperatorField node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRecordLiteral.BLangRecordSpreadOperatorField node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRecordLiteral.BLangRecordKey node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRecordLiteral.BLangRecordKey node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRecordLiteral.BLangStructLiteral node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRecordLiteral.BLangStructLiteral node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRecordLiteral.BLangMapLiteral node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRecordLiteral.BLangMapLiteral node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRecordVarRef node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRecordVarRef node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRecordVarRef.BLangRecordVarRefKeyValue node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRecordVarRef.BLangRecordVarRefKeyValue node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRestArgsExpression node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRestArgsExpression node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangServiceConstructorExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangServiceConstructorExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangSimpleVarRef node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangSimpleVarRef node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangSimpleVarRef.BLangLocalVarRef node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangSimpleVarRef.BLangLocalVarRef node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangSimpleVarRef.BLangFieldVarRef node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangSimpleVarRef.BLangFieldVarRef node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangSimpleVarRef.BLangPackageVarRef node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangSimpleVarRef.BLangPackageVarRef node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangSimpleVarRef.BLangFunctionVarRef node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangSimpleVarRef.BLangFunctionVarRef node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangSimpleVarRef.BLangTypeLoad node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangSimpleVarRef.BLangTypeLoad node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangStatementExpression node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangStatementExpression node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangStringTemplateLiteral node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangStringTemplateLiteral node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangTableConstructorExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangTableConstructorExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangTableMultiKeyExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangTableMultiKeyExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangTernaryExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangTernaryExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangTransactionalExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangTransactionalExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangTrapExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangTrapExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangTupleVarRef node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangTupleVarRef node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangTypeConversionExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangTypeConversionExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangTypedescExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangTypedescExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangTypeInit node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangTypeInit node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangTypeTestExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangTypeTestExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangUnaryExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangUnaryExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangWaitExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangWaitExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangWaitForAllExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangWaitForAllExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangWaitForAllExpr.BLangWaitKeyValue node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangWaitForAllExpr.BLangWaitKeyValue node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangWorkerFlushExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangWorkerFlushExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangWorkerReceive node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangWorkerReceive node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangWorkerSyncSendExpr node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangWorkerSyncSendExpr node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangXMLAttribute node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangXMLAttribute node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangXMLCommentLiteral node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangXMLCommentLiteral node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangXMLElementAccess node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangXMLElementAccess node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangXMLElementFilter node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangXMLElementFilter node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangXMLElementLiteral node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangXMLElementLiteral node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangXMLNavigationAccess node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangXMLNavigationAccess node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangXMLProcInsLiteral node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangXMLProcInsLiteral node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangXMLQName node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangXMLQName node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangXMLQuotedString node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangXMLQuotedString node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangXMLSequenceLiteral node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangXMLSequenceLiteral node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangXMLTextLiteral node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangXMLTextLiteral node, T data) {
+        return transformNode(node, data);
     }
 
     // Match patterns
 
-    public R transform(BLangConstPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangConstPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangErrorCauseMatchPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangErrorCauseMatchPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangErrorFieldMatchPatterns node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangErrorFieldMatchPatterns node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangErrorMatchPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangErrorMatchPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangErrorMessageMatchPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangErrorMessageMatchPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangFieldMatchPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangFieldMatchPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangListMatchPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangListMatchPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangMappingMatchPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangMappingMatchPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangNamedArgMatchPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangNamedArgMatchPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRestMatchPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRestMatchPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangSimpleMatchPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangSimpleMatchPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangVarBindingPatternMatchPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangVarBindingPatternMatchPattern node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangWildCardMatchPattern node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangWildCardMatchPattern node, T data) {
+        return transformNode(node, data);
     }
 
     // Statements
 
-    public R transform(BLangAssignment node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangAssignment node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangBlockStmt node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangBlockStmt node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangBreak node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangBreak node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangCompoundAssignment node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangCompoundAssignment node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangContinue node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangContinue node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangDo node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangDo node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangErrorDestructure node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangErrorDestructure node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangErrorVariableDef node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangErrorVariableDef node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangExpressionStmt node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangExpressionStmt node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangFail node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangFail node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangForeach node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangForeach node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangForkJoin node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangForkJoin node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangIf node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangIf node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangLock node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangLock node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangLock.BLangLockStmt node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangLock.BLangLockStmt node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangLock.BLangUnLockStmt node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangLock.BLangUnLockStmt node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangMatch node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangMatch node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangMatch.BLangMatchTypedBindingPatternClause node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangMatch.BLangMatchTypedBindingPatternClause node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangMatch.BLangMatchStaticBindingPatternClause node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangMatch.BLangMatchStaticBindingPatternClause node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangMatch.BLangMatchStructuredBindingPatternClause node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangMatch.BLangMatchStructuredBindingPatternClause node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangMatchStatement node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangMatchStatement node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangPanic node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangPanic node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRecordDestructure node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRecordDestructure node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRecordVariableDef node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRecordVariableDef node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRetry node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRetry node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRetryTransaction node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRetryTransaction node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangReturn node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangReturn node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRollback node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRollback node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangSimpleVariableDef node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangSimpleVariableDef node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangTransaction node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangTransaction node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangTupleDestructure node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangTupleDestructure node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangTupleVariableDef node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangTupleVariableDef node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangWhile node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangWhile node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangWorkerSend node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangWorkerSend node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangXMLNSStatement node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangXMLNSStatement node, T data) {
+        return transformNode(node, data);
     }
 
     // Types
 
-    public R transform(BLangArrayType node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangArrayType node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangBuiltInRefTypeNode node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangBuiltInRefTypeNode node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangConstrainedType node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangConstrainedType node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangErrorType node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangErrorType node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangFiniteTypeNode node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangFiniteTypeNode node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangFunctionTypeNode node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangFunctionTypeNode node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangIntersectionTypeNode node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangIntersectionTypeNode node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangLetVariable node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangLetVariable node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangObjectTypeNode node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangObjectTypeNode node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangRecordTypeNode node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangRecordTypeNode node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangStreamType node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangStreamType node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangTableTypeNode node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangTableTypeNode node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangTupleTypeNode node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangTupleTypeNode node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangUnionTypeNode node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangUnionTypeNode node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangUserDefinedType node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangUserDefinedType node, T data) {
+        return transformNode(node, data);
     }
 
-    public R transform(BLangValueType node, T props) {
-        return transformNode(node, props);
+    public R transform(BLangValueType node, T data) {
+        return transformNode(node, data);
     }
 }
