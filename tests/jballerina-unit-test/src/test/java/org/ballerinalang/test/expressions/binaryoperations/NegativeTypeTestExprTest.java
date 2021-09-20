@@ -47,34 +47,34 @@ public class NegativeTypeTestExprTest {
         int i = 0;
         BAssertUtil.validateHint(negativeResult, i++,
                 "expression will always evaluate to 'false'", 19, 9);
-        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 19, 20);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 20, 9);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'int' will not be matched to 'float'", 28,
                 9);
         BAssertUtil.validateHint(negativeResult, i++,
                 "expression will always evaluate to 'false'", 37, 9);
-        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 37, 26);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 38, 9);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'int' will not be matched to '(string|float)'", 46, 9);
         BAssertUtil.validateHint(negativeResult, i++,
                 "expression will always evaluate to 'false'", 55, 9);
-        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 55, 27);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 56, 9);
         BAssertUtil.validateHint(negativeResult, i++,
                 "expression will always evaluate to 'false'", 64, 9);
-        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 64, 33);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 65, 9);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: '(int|string)' will not be matched to '(boolean|float)'", 73, 9);
         BAssertUtil.validateHint(negativeResult, i++,
                 "expression will always evaluate to 'false'", 91, 9);
-        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 91, 18);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 92, 9);
         BAssertUtil.validateHint(negativeResult, i++,
                 "expression will always evaluate to 'false'", 93, 16);
-        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 93, 25);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 94, 9);
         BAssertUtil.validateHint(negativeResult, i++,
                 "expression will always evaluate to 'false'", 118, 9);
-        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 118, 18);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 119, 9);
         BAssertUtil.validateHint(negativeResult, i++,
                 "expression will always evaluate to 'false'", 120, 16);
-        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 120, 25);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 121, 9);
         BAssertUtil.validateHint(negativeResult, i++,
                 "expression will always evaluate to 'false'", 131, 18);
         BAssertUtil.validateHint(negativeResult, i++,
@@ -111,23 +111,23 @@ public class NegativeTypeTestExprTest {
                 "expression will always evaluate to 'false'", 161, 18);
         BAssertUtil.validateHint(negativeResult, i++,
                 "expression will always evaluate to 'false'", 177, 16);
-        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 177, 26);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 178, 9);
         BAssertUtil.validateHint(negativeResult, i++,
                 "expression will always evaluate to 'false'", 187, 13);
         BAssertUtil.validateHint(negativeResult, i++,
                 "expression will always evaluate to 'false'", 187, 24);
         BAssertUtil.validateHint(negativeResult, i++,
                 "expression will always evaluate to 'false'", 225, 8);
-        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 225, 18);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 226, 9);
         BAssertUtil.validateHint(negativeResult, i++,
                 "expression will always evaluate to 'false'", 229, 9);
-        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 229, 19);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 230, 9);
         BAssertUtil.validateHint(negativeResult, i++,
                 "expression will always evaluate to 'false'", 241, 9);
-        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 241, 24);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 242, 9);
         BAssertUtil.validateHint(negativeResult, i++,
                 "expression will always evaluate to 'false'", 246, 9);
-        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 246, 28);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 247, 9);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'foo|bar' will not be matched to 'baz|2'", 255, 10);
         BAssertUtil.validateError(negativeResult, i++,

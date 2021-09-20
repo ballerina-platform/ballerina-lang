@@ -90,8 +90,8 @@ function testSimpleRecordTypes() returns string {
     A a = {};
     if (a is B) { // always true
         return "a is B";
-    } else if (a is A) { // unreachable code
-        return "a is A";
+    } else if (a is A) {
+        return "a is A"; // unreachable code
     }
 
     // checking against undefined type (this moved to type-test-expr-semantics-negative.bal)
@@ -117,8 +117,8 @@ function testNestedRecordTypes() returns string {
     X x = {};
     if (x is Y) { // always true
         return "x is B";
-    } else if (x is X) { // unreachable code
-        return "x is A";
+    } else if (x is X) {
+        return "x is A"; // unreachable code
     }
 
     return "n/a"; // unreachable code
