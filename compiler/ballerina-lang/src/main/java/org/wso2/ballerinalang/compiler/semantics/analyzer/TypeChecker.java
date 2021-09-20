@@ -4390,7 +4390,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     (OperatorKind.ADD.equals(unaryExpr.operator) || OperatorKind.SUB.equals(unaryExpr.operator));
             exprType = decimalAddNegate ? checkExpr(unaryExpr.expr, env, expType) : checkExpr(unaryExpr.expr, env);
             if (exprType != symTable.semanticError) {
-                BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, exprType);
+                BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.operator, exprType);
                 if (symbol == symTable.notFoundSymbol) {
                     dlog.error(unaryExpr.pos, DiagnosticErrorCode.UNARY_OP_INCOMPATIBLE_TYPES,
                             unaryExpr.operator, exprType);
@@ -5207,7 +5207,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             default:
                 BSymbol itrSymbol = symResolver.lookupLangLibMethod(collectionType,
-                        names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
+                        names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), env);
                 if (itrSymbol == this.symTable.notFoundSymbol) {
                     return null;
                 }
@@ -5547,8 +5547,7 @@ public class TypeChecker extends BLangNodeVisitor {
         argExprs.add(typedescExpr);
         BLangInvocation invocation = ASTBuilderUtil.createLangLibInvocationNode(FUNCTION_NAME_ENSURE_TYPE,
                 argExprs, checkedExpr.expr, checkedExpr.pos);
-        invocation.symbol = symResolver.lookupLangLibMethod(type,
-                names.fromString(invocation.name.value));
+        invocation.symbol = symResolver.lookupLangLibMethod(type, names.fromString(invocation.name.value), env);
         invocation.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         checkedExpr.expr = invocation;
     }
@@ -6010,7 +6009,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BSymbol getLangLibMethod(BLangInvocation iExpr, BType bType) {
 
         Name funcName = names.fromString(iExpr.name.value);
-        BSymbol funcSymbol = symResolver.lookupLangLibMethod(bType, funcName);
+        BSymbol funcSymbol = symResolver.lookupLangLibMethod(bType, funcName, env);
 
         if (funcSymbol == symTable.notFoundSymbol) {
             return symTable.notFoundSymbol;

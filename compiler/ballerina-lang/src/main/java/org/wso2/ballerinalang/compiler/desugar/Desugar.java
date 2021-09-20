@@ -1995,7 +1995,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangInvocation invocationNode = createInvocationNode("entries", new ArrayList<>(), type);
 
         invocationNode.expr = expr;
-        invocationNode.symbol = symResolver.lookupLangLibMethod(type, names.fromString("entries"));
+        invocationNode.symbol = symResolver.lookupLangLibMethod(type, names.fromString("entries"), env);
         invocationNode.requiredArgs = Lists.of(expr);
         invocationNode.setBType(invocationNode.symbol.type.getReturnType());
         invocationNode.langLibInvocation = true;
@@ -2007,7 +2007,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangInvocation invocationNode = createInvocationNode("map", new ArrayList<>(), filteredVar.getBType());
 
         invocationNode.expr = ASTBuilderUtil.createVariableRef(pos, filteredVar.symbol);
-        invocationNode.symbol = symResolver.lookupLangLibMethod(filteredVar.getBType(), names.fromString("map"));
+        invocationNode.symbol = symResolver.lookupLangLibMethod(filteredVar.getBType(), names.fromString("map"), env);
         invocationNode.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, filteredVar.symbol));
         invocationNode.setBType(invocationNode.symbol.type.getReturnType());
         invocationNode.requiredArgs.add(backToMapLambda);
@@ -2076,7 +2076,7 @@ public class Desugar extends BLangNodeVisitor {
 
         invocationNode.expr = ASTBuilderUtil.createVariableRef(pos, entriesInvocationVar.symbol);
         invocationNode.symbol = symResolver.lookupLangLibMethod(entriesInvocationVar.getBType(),
-                                                                names.fromString("filter"));
+                names.fromString("filter"), env);
         invocationNode.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, entriesInvocationVar.symbol));
         invocationNode.setBType(invocationNode.symbol.type.getReturnType());
         invocationNode.requiredArgs.add(filter);
@@ -2217,7 +2217,8 @@ public class Desugar extends BLangNodeVisitor {
         typedescExpr.setBType(typedescType);
 
         invocationNode.expr = typedescExpr;
-        invocationNode.symbol = symResolver.lookupLangLibMethod(typedescType, names.fromString(CREATE_RECORD_VALUE));
+        invocationNode.symbol = symResolver.lookupLangLibMethod(typedescType,
+                names.fromString(CREATE_RECORD_VALUE), env);
         invocationNode.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, source), typedescExpr);
         invocationNode.setBType(BUnionType.create(null, targetType, symTable.errorType));
         return invocationNode;
@@ -2234,7 +2235,7 @@ public class Desugar extends BLangNodeVisitor {
         typedescExpr.setBType(typedescType);
 
         invocationNode.expr = typedescExpr;
-        invocationNode.symbol = symResolver.lookupLangLibMethod(typedescType, names.fromString(CLONE_WITH_TYPE));
+        invocationNode.symbol = symResolver.lookupLangLibMethod(typedescType, names.fromString(CLONE_WITH_TYPE), env);
         invocationNode.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, source), typedescExpr);
         invocationNode.setBType(BUnionType.create(null, targetType, symTable.errorType));
         return invocationNode;
@@ -2555,7 +2556,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangInvocation createLengthInvocation(Location pos, BLangExpression collection) {
         BInvokableSymbol lengthInvokableSymbol = (BInvokableSymbol) symResolver
-                .lookupLangLibMethod(collection.getBType(), names.fromString(LENGTH_FUNCTION_NAME));
+                .lookupLangLibMethod(collection.getBType(), names.fromString(LENGTH_FUNCTION_NAME), env);
         BLangInvocation lengthInvocation = ASTBuilderUtil.createInvocationExprForMethod(pos, lengthInvokableSymbol,
                 Lists.of(collection), symResolver);
         lengthInvocation.argExprs = lengthInvocation.requiredArgs;
@@ -5194,7 +5195,7 @@ public class Desugar extends BLangNodeVisitor {
 
     BInvokableSymbol getLangLibIteratorInvokableSymbol(BVarSymbol collectionSymbol) {
         return (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionSymbol.type,
-                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
+                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), env);
     }
 
     private BLangBlockStmt desugarForeachToWhile(BLangForeach foreach, BLangSimpleVariableDef varDef) {
@@ -7750,7 +7751,7 @@ public class Desugar extends BLangNodeVisitor {
 
         invocationNode.expr = invokeOnExpr;
 
-        invocationNode.symbol = symResolver.lookupLangLibMethod(symTable.xmlType, names.fromString(functionName));
+        invocationNode.symbol = symResolver.lookupLangLibMethod(symTable.xmlType, names.fromString(functionName), env);
 
         ArrayList<BLangExpression> requiredArgs = new ArrayList<>();
         requiredArgs.add(invokeOnExpr);
@@ -8179,7 +8180,7 @@ public class Desugar extends BLangNodeVisitor {
         invocationNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
 
         invocationNode.expr = onExpr;
-        invocationNode.symbol = symResolver.lookupLangLibMethod(onExpr.getBType(), names.fromString(functionName));
+        invocationNode.symbol = symResolver.lookupLangLibMethod(onExpr.getBType(), names.fromString(functionName), env);
 
         ArrayList<BLangExpression> requiredArgs = new ArrayList<>();
         requiredArgs.add(onExpr);

@@ -1787,7 +1787,7 @@ public class Types {
         }
 
         BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
-                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
+                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), env);
         BObjectType objectType = (BObjectType) getReferredType(iteratorSymbol.retType);
         BUnionType nextMethodReturnType =
                 (BUnionType) getResultTypeOfNextInvocation(objectType);
