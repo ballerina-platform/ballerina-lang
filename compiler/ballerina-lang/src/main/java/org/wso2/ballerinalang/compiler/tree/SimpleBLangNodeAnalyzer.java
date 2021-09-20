@@ -187,1337 +187,1337 @@ import java.util.List;
  * This is simplified node visitor of the {@link BLangNodeAnalyzer}.
  * <p>
  *
- * @param <T> the type of class that passed along with transform methods.
+ * @param <T> the type of data class that passed along with transform methods.
  * @since 2.0.0
  */
 public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
 
-    public abstract void analyzeNode(BLangNode node, T props);
+    public abstract void analyzeNode(BLangNode node, T data);
 
-    public void visitNode(BLangNode node, T props) {
+    public void visitNode(BLangNode node, T data) {
         if (node == null) {
             return;
         }
-        node.accept(this, props);
+        node.accept(this, data);
     }
 
-    public void visitNode(List<? extends Node> nodes, T props) {
+    public void visitNode(List<? extends Node> nodes, T data) {
         if (nodes == null) {
             return;
         }
         for (Node node : nodes) {
-            visitNode((BLangNode) node, props);
+            visitNode((BLangNode) node, data);
         }
     }
 
     // Base Nodes
 
-    public void visit(BLangAnnotation node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.name, props);
-        visitNode(node.annAttachments, props);
-        visitNode(node.markdownDocumentationAttachment, props);
-        visitNode(node.typeNode, props);
+    public void visit(BLangAnnotation node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.name, data);
+        visitNode(node.annAttachments, data);
+        visitNode(node.markdownDocumentationAttachment, data);
+        visitNode(node.typeNode, data);
     }
 
-    public void visit(BLangAnnotationAttachment node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
-        visitNode(node.annotationName, props);
-        visitNode(node.pkgAlias, props);
+    public void visit(BLangAnnotationAttachment node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
+        visitNode(node.annotationName, data);
+        visitNode(node.pkgAlias, data);
     }
 
-    public void visit(BLangBlockFunctionBody node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.stmts, props);
+    public void visit(BLangBlockFunctionBody node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.stmts, data);
     }
 
-    public void visit(BLangClassDefinition node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.name, props);
-        visitNode(node.annAttachments, props);
-        visitNode(node.markdownDocumentationAttachment, props);
-        visitNode(node.initFunction, props);
-        visitNode(node.functions, props);
-        visitNode(node.fields, props);
-        visitNode(node.typeRefs, props);
+    public void visit(BLangClassDefinition node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.name, data);
+        visitNode(node.annAttachments, data);
+        visitNode(node.markdownDocumentationAttachment, data);
+        visitNode(node.initFunction, data);
+        visitNode(node.functions, data);
+        visitNode(node.fields, data);
+        visitNode(node.typeRefs, data);
     }
 
-    public void visit(BLangCompilationUnit node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.topLevelNodes, props);
+    public void visit(BLangCompilationUnit node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.topLevelNodes, data);
     }
 
-    public void visit(BLangErrorVariable node, T props) {
-        analyzeNode(node, props);
-        visitBLangVariableNode(node, props);
-        visitNode(node.message, props);
-        visitNode(node.cause, props);
-        visitNode(node.restDetail, props);
-        visitNode(node.detail, props);
+    public void visit(BLangErrorVariable node, T data) {
+        analyzeNode(node, data);
+        visitBLangVariableNode(node, data);
+        visitNode(node.message, data);
+        visitNode(node.cause, data);
+        visitNode(node.restDetail, data);
+        visitNode(node.detail, data);
     }
 
-    public void visit(BLangErrorVariable.BLangErrorDetailEntry node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.key, props);
-        visitNode(node.valueBindingPattern, props);
+    public void visit(BLangErrorVariable.BLangErrorDetailEntry node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.key, data);
+        visitNode(node.valueBindingPattern, data);
     }
 
-    public void visit(BLangExprFunctionBody node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
+    public void visit(BLangExprFunctionBody node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangExternalFunctionBody node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.annAttachments, props);
+    public void visit(BLangExternalFunctionBody node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.annAttachments, data);
     }
 
-    public void visit(BLangFunction node, T props) {
-        analyzeNode(node, props);
-        visitBLangInvokableNode(node, props);
+    public void visit(BLangFunction node, T data) {
+        analyzeNode(node, data);
+        visitBLangInvokableNode(node, data);
     }
 
-    public void visit(BLangIdentifier node, T props) {
-        analyzeNode(node, props);
+    public void visit(BLangIdentifier node, T data) {
+        analyzeNode(node, data);
     }
 
-    public void visit(BLangImportPackage node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.orgName, props);
-        visitNode(node.pkgNameComps, props);
-        visitNode(node.alias, props);
-        visitNode(node.compUnit, props);
-        visitNode(node.version, props);
+    public void visit(BLangImportPackage node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.orgName, data);
+        visitNode(node.pkgNameComps, data);
+        visitNode(node.alias, data);
+        visitNode(node.compUnit, data);
+        visitNode(node.version, data);
     }
 
-    public void visit(BLangMarkdownDocumentation node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.documentationLines, props);
-        visitNode(node.parameters, props);
-        visitNode(node.references, props);
-        visitNode(node.returnParameter, props);
-        visitNode(node.deprecationDocumentation, props);
-        visitNode(node.deprecatedParametersDocumentation, props);
+    public void visit(BLangMarkdownDocumentation node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.documentationLines, data);
+        visitNode(node.parameters, data);
+        visitNode(node.references, data);
+        visitNode(node.returnParameter, data);
+        visitNode(node.deprecationDocumentation, data);
+        visitNode(node.deprecatedParametersDocumentation, data);
     }
 
-    public void visit(BLangMarkdownReferenceDocumentation node, T props) {
-        analyzeNode(node, props);
+    public void visit(BLangMarkdownReferenceDocumentation node, T data) {
+        analyzeNode(node, data);
     }
 
-    public abstract void visit(BLangPackage node, T props);
+    public abstract void visit(BLangPackage node, T data);
 
-    public void visit(BLangRecordVariable node, T props) {
-        analyzeNode(node, props);
-        visitBLangVariableNode(node, props);
-        visitNode(node.variableList, props);
-        visitNode(node.restParam, props);
+    public void visit(BLangRecordVariable node, T data) {
+        analyzeNode(node, data);
+        visitBLangVariableNode(node, data);
+        visitNode(node.variableList, data);
+        visitNode(node.restParam, data);
     }
 
-    public void visit(BLangRecordVariable.BLangRecordVariableKeyValue node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.key, props);
-        visitNode(node.valueBindingPattern, props);
+    public void visit(BLangRecordVariable.BLangRecordVariableKeyValue node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.key, data);
+        visitNode(node.valueBindingPattern, data);
     }
 
-    public void visit(BLangResourceFunction node, T props) {
-        analyzeNode(node, props);
-        visit((BLangFunction) node, props);
-        visitNode(node.methodName, props);
-        visitNode(node.resourcePath, props);
-        visitNode(node.restPathParam, props);
-        visitNode(node.pathParams, props);
+    public void visit(BLangResourceFunction node, T data) {
+        analyzeNode(node, data);
+        visit((BLangFunction) node, data);
+        visitNode(node.methodName, data);
+        visitNode(node.resourcePath, data);
+        visitNode(node.restPathParam, data);
+        visitNode(node.pathParams, data);
     }
 
-    public void visit(BLangRetrySpec node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.retryManagerType, props);
-        visitNode(node.argExprs, props);
+    public void visit(BLangRetrySpec node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.retryManagerType, data);
+        visitNode(node.argExprs, data);
     }
 
-    public void visit(BLangService node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.serviceVariable, props);
-        visitNode(node.attachedExprs, props);
-        visitNode(node.serviceClass, props);
-        visitNode(node.absoluteResourcePath, props);
-        visitNode(node.serviceNameLiteral, props);
-        visitNode(node.name, props);
-        visitNode(node.annAttachments, props);
-        visitNode(node.markdownDocumentationAttachment, props);
+    public void visit(BLangService node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.serviceVariable, data);
+        visitNode(node.attachedExprs, data);
+        visitNode(node.serviceClass, data);
+        visitNode(node.absoluteResourcePath, data);
+        visitNode(node.serviceNameLiteral, data);
+        visitNode(node.name, data);
+        visitNode(node.annAttachments, data);
+        visitNode(node.markdownDocumentationAttachment, data);
     }
 
-    public void visit(BLangSimpleVariable node, T props) {
-        analyzeNode(node, props);
-        visitBLangVariableNode(node, props);
-        visitNode(node.name, props);
+    public void visit(BLangSimpleVariable node, T data) {
+        analyzeNode(node, data);
+        visitBLangVariableNode(node, data);
+        visitNode(node.name, data);
     }
 
-    public void visit(BLangTableKeySpecifier node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.fieldNameIdentifierList, props);
+    public void visit(BLangTableKeySpecifier node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.fieldNameIdentifierList, data);
     }
 
-    public void visit(BLangTableKeyTypeConstraint node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.keyType, props);
+    public void visit(BLangTableKeyTypeConstraint node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.keyType, data);
     }
 
-    public void visit(BLangTestablePackage node, T props) {
-        analyzeNode(node, props);
-        visit((BLangPackage) node, props);
+    public void visit(BLangTestablePackage node, T data) {
+        analyzeNode(node, data);
+        visit((BLangPackage) node, data);
     }
 
-    public void visit(BLangTupleVariable node, T props) {
-        analyzeNode(node, props);
-        visitBLangVariableNode(node, props);
-        visitNode(node.memberVariables, props);
-        visitNode(node.restVariable, props);
+    public void visit(BLangTupleVariable node, T data) {
+        analyzeNode(node, data);
+        visitBLangVariableNode(node, data);
+        visitNode(node.memberVariables, data);
+        visitNode(node.restVariable, data);
     }
 
-    public void visit(BLangTypeDefinition node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.name, props);
-        visitNode(node.typeNode, props);
-        visitNode(node.annAttachments, props);
-        visitNode(node.markdownDocumentationAttachment, props);
+    public void visit(BLangTypeDefinition node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.name, data);
+        visitNode(node.typeNode, data);
+        visitNode(node.annAttachments, data);
+        visitNode(node.markdownDocumentationAttachment, data);
     }
 
-    public void visit(BLangXMLNS node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.namespaceURI, props);
-        visitNode(node.prefix, props);
+    public void visit(BLangXMLNS node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.namespaceURI, data);
+        visitNode(node.prefix, data);
     }
 
-    public void visit(BLangXMLNS.BLangLocalXMLNS node, T props) {
-        analyzeNode(node, props);
-        visit((BLangXMLNS) node, props);
+    public void visit(BLangXMLNS.BLangLocalXMLNS node, T data) {
+        analyzeNode(node, data);
+        visit((BLangXMLNS) node, data);
     }
 
-    public void visit(BLangXMLNS.BLangPackageXMLNS node, T props) {
-        analyzeNode(node, props);
-        visit((BLangXMLNS) node, props);
+    public void visit(BLangXMLNS.BLangPackageXMLNS node, T data) {
+        analyzeNode(node, data);
+        visit((BLangXMLNS) node, data);
     }
 
     // Binding-patterns
 
-    public void visit(BLangCaptureBindingPattern node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.identifier, props);
+    public void visit(BLangCaptureBindingPattern node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.identifier, data);
     }
 
-    public void visit(BLangErrorBindingPattern node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.errorTypeReference, props);
-        visitNode(node.errorMessageBindingPattern, props);
-        visitNode(node.errorCauseBindingPattern, props);
-        visitNode(node.errorFieldBindingPatterns, props);
+    public void visit(BLangErrorBindingPattern node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.errorTypeReference, data);
+        visitNode(node.errorMessageBindingPattern, data);
+        visitNode(node.errorCauseBindingPattern, data);
+        visitNode(node.errorFieldBindingPatterns, data);
     }
 
-    public void visit(BLangErrorCauseBindingPattern node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.simpleBindingPattern, props);
-        visitNode(node.errorBindingPattern, props);
+    public void visit(BLangErrorCauseBindingPattern node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.simpleBindingPattern, data);
+        visitNode(node.errorBindingPattern, data);
     }
 
-    public void visit(BLangErrorFieldBindingPatterns node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.namedArgBindingPatterns, props);
-        visitNode(node.restBindingPattern, props);
+    public void visit(BLangErrorFieldBindingPatterns node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.namedArgBindingPatterns, data);
+        visitNode(node.restBindingPattern, data);
     }
 
-    public void visit(BLangErrorMessageBindingPattern node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.simpleBindingPattern, props);
+    public void visit(BLangErrorMessageBindingPattern node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.simpleBindingPattern, data);
     }
 
-    public void visit(BLangFieldBindingPattern node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.fieldName, props);
-        visitNode(node.bindingPattern, props);
+    public void visit(BLangFieldBindingPattern node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.fieldName, data);
+        visitNode(node.bindingPattern, data);
     }
 
-    public void visit(BLangListBindingPattern node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.bindingPatterns, props);
-        visitNode(node.restBindingPattern, props);
+    public void visit(BLangListBindingPattern node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.bindingPatterns, data);
+        visitNode(node.restBindingPattern, data);
     }
 
-    public void visit(BLangMappingBindingPattern node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.fieldBindingPatterns, props);
-        visitNode(node.restBindingPattern, props);
+    public void visit(BLangMappingBindingPattern node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.fieldBindingPatterns, data);
+        visitNode(node.restBindingPattern, data);
     }
 
-    public void visit(BLangNamedArgBindingPattern node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.argName, props);
-        visitNode(node.bindingPattern, props);
+    public void visit(BLangNamedArgBindingPattern node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.argName, data);
+        visitNode(node.bindingPattern, data);
     }
 
-    public void visit(BLangRestBindingPattern node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.variableName, props);
+    public void visit(BLangRestBindingPattern node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.variableName, data);
     }
 
-    public void visit(BLangSimpleBindingPattern node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.captureBindingPattern, props);
-        visitNode(node.wildCardBindingPattern, props);
+    public void visit(BLangSimpleBindingPattern node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.captureBindingPattern, data);
+        visitNode(node.wildCardBindingPattern, data);
     }
 
-    public void visit(BLangWildCardBindingPattern node, T props) {
-        analyzeNode(node, props);
+    public void visit(BLangWildCardBindingPattern node, T data) {
+        analyzeNode(node, data);
     }
 
     // Clauses
 
-    public void visit(BLangDoClause node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.body, props);
+    public void visit(BLangDoClause node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.body, data);
     }
 
-    public void visit(BLangFromClause node, T props) {
-        analyzeNode(node, props);
-        visitBLangInputClause(node, props);
+    public void visit(BLangFromClause node, T data) {
+        analyzeNode(node, data);
+        visitBLangInputClause(node, data);
     }
 
-    public void visit(BLangJoinClause node, T props) {
-        analyzeNode(node, props);
-        visitBLangInputClause(node, props);
-        visitNode(node.onClause, props);
+    public void visit(BLangJoinClause node, T data) {
+        analyzeNode(node, data);
+        visitBLangInputClause(node, data);
+        visitNode(node.onClause, data);
     }
 
-    public void visit(BLangLetClause node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.letVarDeclarations, props);
+    public void visit(BLangLetClause node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.letVarDeclarations, data);
     }
 
-    public void visit(BLangLimitClause node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expression, props);
+    public void visit(BLangLimitClause node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expression, data);
     }
 
-    public void visit(BLangMatchClause node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.matchPatterns, props);
-        visitNode(node.expr, props);
-        visitNode(node.blockStmt, props);
-        visitNode(node.matchGuard, props);
+    public void visit(BLangMatchClause node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.matchPatterns, data);
+        visitNode(node.expr, data);
+        visitNode(node.blockStmt, data);
+        visitNode(node.matchGuard, data);
     }
 
-    public void visit(BLangOnClause node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.lhsExpr, props);
-        visitNode(node.rhsExpr, props);
+    public void visit(BLangOnClause node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.lhsExpr, data);
+        visitNode(node.rhsExpr, data);
     }
 
-    public void visit(BLangOnConflictClause node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expression, props);
+    public void visit(BLangOnConflictClause node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expression, data);
     }
 
-    public void visit(BLangOnFailClause node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.body, props);
-        visitNode((BLangNode) node.variableDefinitionNode, props);
+    public void visit(BLangOnFailClause node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.body, data);
+        visitNode((BLangNode) node.variableDefinitionNode, data);
     }
 
-    public void visit(BLangOrderByClause node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.orderByKeyList, props);
+    public void visit(BLangOrderByClause node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.orderByKeyList, data);
     }
 
-    public void visit(BLangOrderKey node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expression, props);
+    public void visit(BLangOrderKey node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expression, data);
     }
 
-    public void visit(BLangSelectClause node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expression, props);
+    public void visit(BLangSelectClause node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expression, data);
     }
 
-    public void visit(BLangWhereClause node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expression, props);
+    public void visit(BLangWhereClause node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expression, data);
     }
 
     // Expressions
 
-    public void visit(BLangAnnotAccessExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
-        visitNode(node.pkgAlias, props);
-        visitNode(node.annotationName, props);
+    public void visit(BLangAnnotAccessExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
+        visitNode(node.pkgAlias, data);
+        visitNode(node.annotationName, data);
     }
 
-    public void visit(BLangArrowFunction node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.params, props);
-        visitNode((BLangNode) node.functionName, props);
-        visitNode(node.body, props);
+    public void visit(BLangArrowFunction node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.params, data);
+        visitNode((BLangNode) node.functionName, data);
+        visitNode(node.body, data);
     }
 
-    public void visit(BLangBinaryExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.lhsExpr, props);
-        visitNode(node.rhsExpr, props);
+    public void visit(BLangBinaryExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.lhsExpr, data);
+        visitNode(node.rhsExpr, data);
     }
 
-    public void visit(BLangCheckedExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
+    public void visit(BLangCheckedExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangCheckPanickedExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
+    public void visit(BLangCheckPanickedExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangCommitExpr node, T props) {
-        analyzeNode(node, props);
+    public void visit(BLangCommitExpr node, T data) {
+        analyzeNode(node, data);
     }
 
-    public void visit(BLangConstant node, T props) {
-        analyzeNode(node, props);
-        visitBLangVariableNode(node, props);
-        visitNode(node.name, props);
-        visitNode(node.associatedTypeDefinition, props);
+    public void visit(BLangConstant node, T data) {
+        analyzeNode(node, data);
+        visitBLangVariableNode(node, data);
+        visitNode(node.name, data);
+        visitNode(node.associatedTypeDefinition, data);
     }
 
-    public void visit(BLangConstRef node, T props) {
-        analyzeNode(node, props);
-        visit((BLangSimpleVarRef) node, props);
+    public void visit(BLangConstRef node, T data) {
+        analyzeNode(node, data);
+        visit((BLangSimpleVarRef) node, data);
     }
 
-    public void visit(BLangDynamicArgExpr node, T props) {
-        analyzeNode(node, props);
+    public void visit(BLangDynamicArgExpr node, T data) {
+        analyzeNode(node, data);
     }
 
-    public void visit(BLangElvisExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.lhsExpr, props);
-        visitNode(node.rhsExpr, props);
+    public void visit(BLangElvisExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.lhsExpr, data);
+        visitNode(node.rhsExpr, data);
     }
 
-    public void visit(BLangErrorConstructorExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.errorTypeRef, props);
-        visitNode(node.errorDetail, props);
-        visitNode(node.namedArgs, props);
+    public void visit(BLangErrorConstructorExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.errorTypeRef, data);
+        visitNode(node.errorDetail, data);
+        visitNode(node.namedArgs, data);
     }
 
-    public void visit(BLangErrorVarRef node, T props) {
-        analyzeNode(node, props);
-        visitBLangVariableReference(node, props);
-        visitNode(node.pkgAlias, props);
-        visitNode(node.message, props);
-        visitNode(node.cause, props);
-        visitNode(node.detail, props);
-        visitNode(node.restVar, props);
-        visitNode(node.typeNode, props);
+    public void visit(BLangErrorVarRef node, T data) {
+        analyzeNode(node, data);
+        visitBLangVariableReference(node, data);
+        visitNode(node.pkgAlias, data);
+        visitNode(node.message, data);
+        visitNode(node.cause, data);
+        visitNode(node.detail, data);
+        visitNode(node.restVar, data);
+        visitNode(node.typeNode, data);
     }
 
-    public void visit(BLangFieldBasedAccess node, T props) {
-        analyzeNode(node, props);
-        visitBLangAccessExpression(node, props);
-        visitNode(node.field, props);
+    public void visit(BLangFieldBasedAccess node, T data) {
+        analyzeNode(node, data);
+        visitBLangAccessExpression(node, data);
+        visitNode(node.field, data);
     }
 
-    public void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef node, T props) {
-        analyzeNode(node, props);
-        visit((BLangFieldBasedAccess) node, props);
+    public void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef node, T data) {
+        analyzeNode(node, data);
+        visit((BLangFieldBasedAccess) node, data);
     }
 
-    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess node, T props) {
-        analyzeNode(node, props);
-        visit((BLangFieldBasedAccess) node, props);
-        visitNode(node.nsPrefix, props);
+    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess node, T data) {
+        analyzeNode(node, data);
+        visit((BLangFieldBasedAccess) node, data);
+        visitNode(node.nsPrefix, data);
     }
 
-    public void visit(BLangGroupExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expression, props);
+    public void visit(BLangGroupExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expression, data);
     }
 
-    public void visit(BLangIgnoreExpr node, T props) {
-        analyzeNode(node, props);
+    public void visit(BLangIgnoreExpr node, T data) {
+        analyzeNode(node, data);
     }
 
-    public void visit(BLangIndexBasedAccess node, T props) {
-        analyzeNode(node, props);
-        visitBLangIndexBasedAccess(node, props);
+    public void visit(BLangIndexBasedAccess node, T data) {
+        analyzeNode(node, data);
+        visitBLangIndexBasedAccess(node, data);
     }
 
-    public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr node, T props) {
-        analyzeNode(node, props);
-        visitBLangIndexBasedAccess(node, props);
+    public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr node, T data) {
+        analyzeNode(node, data);
+        visitBLangIndexBasedAccess(node, data);
     }
 
-    public void visit(BLangIndexBasedAccess.BLangMapAccessExpr node, T props) {
-        analyzeNode(node, props);
-        visitBLangIndexBasedAccess(node, props);
+    public void visit(BLangIndexBasedAccess.BLangMapAccessExpr node, T data) {
+        analyzeNode(node, data);
+        visitBLangIndexBasedAccess(node, data);
     }
 
-    public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr node, T props) {
-        analyzeNode(node, props);
-        visitBLangIndexBasedAccess(node, props);
+    public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr node, T data) {
+        analyzeNode(node, data);
+        visitBLangIndexBasedAccess(node, data);
     }
 
-    public void visit(BLangIndexBasedAccess.BLangTableAccessExpr node, T props) {
-        analyzeNode(node, props);
-        visitBLangIndexBasedAccess(node, props);
+    public void visit(BLangIndexBasedAccess.BLangTableAccessExpr node, T data) {
+        analyzeNode(node, data);
+        visitBLangIndexBasedAccess(node, data);
     }
 
-    public void visit(BLangIndexBasedAccess.BLangStringAccessExpr node, T props) {
-        analyzeNode(node, props);
-        visitBLangIndexBasedAccess(node, props);
+    public void visit(BLangIndexBasedAccess.BLangStringAccessExpr node, T data) {
+        analyzeNode(node, data);
+        visitBLangIndexBasedAccess(node, data);
     }
 
-    public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr node, T props) {
-        analyzeNode(node, props);
-        visitBLangIndexBasedAccess(node, props);
+    public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr node, T data) {
+        analyzeNode(node, data);
+        visitBLangIndexBasedAccess(node, data);
     }
 
-    public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr node, T props) {
-        analyzeNode(node, props);
-        visitBLangIndexBasedAccess(node, props);
+    public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr node, T data) {
+        analyzeNode(node, data);
+        visitBLangIndexBasedAccess(node, data);
     }
 
-    public void visit(BLangIndexBasedAccess.BLangTupleAccessExpr node, T props) {
-        analyzeNode(node, props);
-        visitBLangIndexBasedAccess(node, props);
+    public void visit(BLangIndexBasedAccess.BLangTupleAccessExpr node, T data) {
+        analyzeNode(node, data);
+        visitBLangIndexBasedAccess(node, data);
     }
 
-    public void visit(BLangInferredTypedescDefaultNode node, T props) {
-        analyzeNode(node, props);
+    public void visit(BLangInferredTypedescDefaultNode node, T data) {
+        analyzeNode(node, data);
     }
 
-    public void visit(BLangInvocation node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.pkgAlias, props);
-        visitNode(node.name, props);
-        visitNode(node.expr, props);
-        visitNode(node.argExprs, props);
-        visitNode(node.requiredArgs, props);
-        visitNode(node.restArgs, props);
+    public void visit(BLangInvocation node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.pkgAlias, data);
+        visitNode(node.name, data);
+        visitNode(node.expr, data);
+        visitNode(node.argExprs, data);
+        visitNode(node.requiredArgs, data);
+        visitNode(node.restArgs, data);
     }
 
-    public void visit(BLangInvocation.BFunctionPointerInvocation node, T props) {
-        analyzeNode(node, props);
-        visit((BLangInvocation) node, props);
+    public void visit(BLangInvocation.BFunctionPointerInvocation node, T data) {
+        analyzeNode(node, data);
+        visit((BLangInvocation) node, data);
     }
 
-    public void visit(BLangInvocation.BLangAttachedFunctionInvocation node, T props) {
-        analyzeNode(node, props);
-        visit((BLangInvocation) node, props);
+    public void visit(BLangInvocation.BLangAttachedFunctionInvocation node, T data) {
+        analyzeNode(node, data);
+        visit((BLangInvocation) node, data);
     }
 
-    public void visit(BLangInvocation.BLangActionInvocation node, T props) {
-        analyzeNode(node, props);
-        visit((BLangInvocation) node, props);
+    public void visit(BLangInvocation.BLangActionInvocation node, T data) {
+        analyzeNode(node, data);
+        visit((BLangInvocation) node, data);
     }
 
-    public void visit(BLangIsAssignableExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.lhsExpr, props);
-        visitNode(node.typeNode, props);
+    public void visit(BLangIsAssignableExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.lhsExpr, data);
+        visitNode(node.typeNode, data);
     }
 
-    public void visit(BLangIsLikeExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
-        visitNode(node.typeNode, props);
+    public void visit(BLangIsLikeExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
+        visitNode(node.typeNode, data);
     }
 
-    public void visit(BLangLambdaFunction node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.function, props);
+    public void visit(BLangLambdaFunction node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.function, data);
     }
 
-    public void visit(BLangLetExpression node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.letVarDeclarations, props);
-        visitNode(node.expr, props);
+    public void visit(BLangLetExpression node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.letVarDeclarations, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangListConstructorExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.exprs, props);
+    public void visit(BLangListConstructorExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.exprs, data);
     }
 
-    public void visit(BLangLiteral node, T props) {
-        analyzeNode(node, props);
+    public void visit(BLangLiteral node, T data) {
+        analyzeNode(node, data);
     }
 
-    public void visit(BLangMarkDownDeprecatedParametersDocumentation node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.parameters, props);
+    public void visit(BLangMarkDownDeprecatedParametersDocumentation node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.parameters, data);
     }
 
-    public void visit(BLangMarkDownDeprecationDocumentation node, T props) {
-        analyzeNode(node, props);
+    public void visit(BLangMarkDownDeprecationDocumentation node, T data) {
+        analyzeNode(node, data);
     }
 
-    public void visit(BLangMarkdownDocumentationLine node, T props) {
-        analyzeNode(node, props);
+    public void visit(BLangMarkdownDocumentationLine node, T data) {
+        analyzeNode(node, data);
     }
 
-    public void visit(BLangMarkdownParameterDocumentation node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.parameterName, props);
+    public void visit(BLangMarkdownParameterDocumentation node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.parameterName, data);
     }
 
-    public void visit(BLangMarkdownReturnParameterDocumentation node, T props) {
-        analyzeNode(node, props);
+    public void visit(BLangMarkdownReturnParameterDocumentation node, T data) {
+        analyzeNode(node, data);
     }
 
-    public void visit(BLangMatchExpression node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
-        visitNode(node.patternClauses, props);
+    public void visit(BLangMatchExpression node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
+        visitNode(node.patternClauses, data);
     }
 
-    public void visit(BLangMatchExpression.BLangMatchExprPatternClause node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
-        visitNode(node.variable, props);
+    public void visit(BLangMatchExpression.BLangMatchExprPatternClause node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
+        visitNode(node.variable, data);
     }
 
-    public void visit(BLangMatchGuard node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
+    public void visit(BLangMatchGuard node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangNamedArgsExpression node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.name, props);
-        visitNode(node.expr, props);
+    public void visit(BLangNamedArgsExpression node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.name, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangObjectConstructorExpression node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.classNode, props);
-        visitNode(node.typeInit, props);
-        visitNode(node.referenceType, props);
+    public void visit(BLangObjectConstructorExpression node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.classNode, data);
+        visitNode(node.typeInit, data);
+        visitNode(node.referenceType, data);
     }
 
-    public void visit(BLangQueryAction node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.queryClauseList, props);
-        visitNode(node.doClause, props);
+    public void visit(BLangQueryAction node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.queryClauseList, data);
+        visitNode(node.doClause, data);
     }
 
-    public void visit(BLangQueryExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.queryClauseList, props);
-        visitNode(node.fieldNameIdentifierList, props);
+    public void visit(BLangQueryExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.queryClauseList, data);
+        visitNode(node.fieldNameIdentifierList, data);
     }
 
-    public void visit(BLangRawTemplateLiteral node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.strings, props);
-        visitNode(node.insertions, props);
+    public void visit(BLangRawTemplateLiteral node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.strings, data);
+        visitNode(node.insertions, data);
     }
 
-    public void visit(BLangRecordLiteral node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.fields, props);
+    public void visit(BLangRecordLiteral node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.fields, data);
     }
 
-    public void visit(BLangRecordLiteral.BLangRecordKeyValueField node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.key, props);
-        visitNode(node.valueExpr, props);
+    public void visit(BLangRecordLiteral.BLangRecordKeyValueField node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.key, data);
+        visitNode(node.valueExpr, data);
     }
 
-    public void visit(BLangRecordLiteral.BLangRecordVarNameField node, T props) {
-        analyzeNode(node, props);
-        visit((BLangSimpleVarRef) node, props);
+    public void visit(BLangRecordLiteral.BLangRecordVarNameField node, T data) {
+        analyzeNode(node, data);
+        visit((BLangSimpleVarRef) node, data);
     }
 
-    public void visit(BLangRecordLiteral.BLangRecordSpreadOperatorField node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
+    public void visit(BLangRecordLiteral.BLangRecordSpreadOperatorField node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangRecordLiteral.BLangRecordKey node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
+    public void visit(BLangRecordLiteral.BLangRecordKey node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangRecordLiteral.BLangStructLiteral node, T props) {
-        analyzeNode(node, props);
-        visit((BLangRecordLiteral) node, props);
+    public void visit(BLangRecordLiteral.BLangStructLiteral node, T data) {
+        analyzeNode(node, data);
+        visit((BLangRecordLiteral) node, data);
     }
 
-    public void visit(BLangRecordLiteral.BLangMapLiteral node, T props) {
-        analyzeNode(node, props);
-        visit((BLangRecordLiteral) node, props);
+    public void visit(BLangRecordLiteral.BLangMapLiteral node, T data) {
+        analyzeNode(node, data);
+        visit((BLangRecordLiteral) node, data);
     }
 
-    public void visit(BLangRecordVarRef node, T props) {
-        analyzeNode(node, props);
-        visitBLangVariableReference(node, props);
-        visitNode(node.pkgAlias, props);
-        visitNode(node.recordRefFields, props);
-        visitNode(node.restParam, props);
+    public void visit(BLangRecordVarRef node, T data) {
+        analyzeNode(node, data);
+        visitBLangVariableReference(node, data);
+        visitNode(node.pkgAlias, data);
+        visitNode(node.recordRefFields, data);
+        visitNode(node.restParam, data);
     }
 
-    public void visit(BLangRecordVarRef.BLangRecordVarRefKeyValue node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.variableName, props);
-        visitNode(node.variableReference, props);
+    public void visit(BLangRecordVarRef.BLangRecordVarRefKeyValue node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.variableName, data);
+        visitNode(node.variableReference, data);
     }
 
-    public void visit(BLangRestArgsExpression node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
+    public void visit(BLangRestArgsExpression node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangServiceConstructorExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.serviceNode, props);
+    public void visit(BLangServiceConstructorExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.serviceNode, data);
     }
 
-    public void visit(BLangSimpleVarRef node, T props) {
-        analyzeNode(node, props);
-        visitBLangVariableReference(node, props);
-        visitNode(node.pkgAlias, props);
-        visitNode(node.variableName, props);
+    public void visit(BLangSimpleVarRef node, T data) {
+        analyzeNode(node, data);
+        visitBLangVariableReference(node, data);
+        visitNode(node.pkgAlias, data);
+        visitNode(node.variableName, data);
     }
 
-    public void visit(BLangSimpleVarRef.BLangLocalVarRef node, T props) {
-        analyzeNode(node, props);
-        visit((BLangSimpleVarRef) node, props);
+    public void visit(BLangSimpleVarRef.BLangLocalVarRef node, T data) {
+        analyzeNode(node, data);
+        visit((BLangSimpleVarRef) node, data);
     }
 
-    public void visit(BLangSimpleVarRef.BLangFieldVarRef node, T props) {
-        analyzeNode(node, props);
-        visit((BLangSimpleVarRef) node, props);
+    public void visit(BLangSimpleVarRef.BLangFieldVarRef node, T data) {
+        analyzeNode(node, data);
+        visit((BLangSimpleVarRef) node, data);
     }
 
-    public void visit(BLangSimpleVarRef.BLangPackageVarRef node, T props) {
-        analyzeNode(node, props);
-        visit((BLangSimpleVarRef) node, props);
+    public void visit(BLangSimpleVarRef.BLangPackageVarRef node, T data) {
+        analyzeNode(node, data);
+        visit((BLangSimpleVarRef) node, data);
     }
 
-    public void visit(BLangSimpleVarRef.BLangFunctionVarRef node, T props) {
-        analyzeNode(node, props);
-        visit((BLangSimpleVarRef) node, props);
+    public void visit(BLangSimpleVarRef.BLangFunctionVarRef node, T data) {
+        analyzeNode(node, data);
+        visit((BLangSimpleVarRef) node, data);
     }
 
-    public void visit(BLangSimpleVarRef.BLangTypeLoad node, T props) {
-        analyzeNode(node, props);
-        visit((BLangSimpleVarRef) node, props);
+    public void visit(BLangSimpleVarRef.BLangTypeLoad node, T data) {
+        analyzeNode(node, data);
+        visit((BLangSimpleVarRef) node, data);
     }
 
-    public void visit(BLangStatementExpression node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.stmt, props);
-        visitNode(node.expr, props);
+    public void visit(BLangStatementExpression node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.stmt, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangStringTemplateLiteral node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.exprs, props);
+    public void visit(BLangStringTemplateLiteral node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.exprs, data);
     }
 
-    public void visit(BLangTableConstructorExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.tableKeySpecifier, props);
-        visitNode(node.recordLiteralList, props);
+    public void visit(BLangTableConstructorExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.tableKeySpecifier, data);
+        visitNode(node.recordLiteralList, data);
     }
 
-    public void visit(BLangTableMultiKeyExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.multiKeyIndexExprs, props);
+    public void visit(BLangTableMultiKeyExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.multiKeyIndexExprs, data);
     }
 
-    public void visit(BLangTernaryExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
-        visitNode(node.thenExpr, props);
-        visitNode(node.elseExpr, props);
+    public void visit(BLangTernaryExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
+        visitNode(node.thenExpr, data);
+        visitNode(node.elseExpr, data);
     }
 
-    public void visit(BLangTransactionalExpr node, T props) {
-        analyzeNode(node, props);
+    public void visit(BLangTransactionalExpr node, T data) {
+        analyzeNode(node, data);
     }
 
-    public void visit(BLangTrapExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
+    public void visit(BLangTrapExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangTupleVarRef node, T props) {
-        analyzeNode(node, props);
-        visitBLangVariableReference(node, props);
-        visitNode(node.expressions, props);
-        visitNode(node.restParam, props);
+    public void visit(BLangTupleVarRef node, T data) {
+        analyzeNode(node, data);
+        visitBLangVariableReference(node, data);
+        visitNode(node.expressions, data);
+        visitNode(node.restParam, data);
     }
 
-    public void visit(BLangTypeConversionExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
-        visitNode(node.typeNode, props);
-        visitNode(node.annAttachments, props);
+    public void visit(BLangTypeConversionExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
+        visitNode(node.typeNode, data);
+        visitNode(node.annAttachments, data);
     }
 
-    public void visit(BLangTypedescExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.typeNode, props);
+    public void visit(BLangTypedescExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.typeNode, data);
     }
 
-    public void visit(BLangTypeInit node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.userDefinedType, props);
-        visitNode(node.initInvocation, props);
-        visitNode(node.argsExpr, props);
+    public void visit(BLangTypeInit node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.userDefinedType, data);
+        visitNode(node.initInvocation, data);
+        visitNode(node.argsExpr, data);
     }
 
-    public void visit(BLangTypeTestExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
-        visitNode(node.typeNode, props);
+    public void visit(BLangTypeTestExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
+        visitNode(node.typeNode, data);
     }
 
-    public void visit(BLangUnaryExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
+    public void visit(BLangUnaryExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangWaitExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.exprList, props);
+    public void visit(BLangWaitExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.exprList, data);
     }
 
-    public void visit(BLangWaitForAllExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.keyValuePairs, props);
+    public void visit(BLangWaitForAllExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.keyValuePairs, data);
     }
 
-    public void visit(BLangWaitForAllExpr.BLangWaitKeyValue node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.key, props);
-        visitNode(node.key, props);
-        visitNode(node.valueExpr, props);
+    public void visit(BLangWaitForAllExpr.BLangWaitKeyValue node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.key, data);
+        visitNode(node.key, data);
+        visitNode(node.valueExpr, data);
     }
 
-    public void visit(BLangWorkerFlushExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.workerIdentifier, props);
+    public void visit(BLangWorkerFlushExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.workerIdentifier, data);
     }
 
-    public void visit(BLangWorkerReceive node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.workerIdentifier, props);
+    public void visit(BLangWorkerReceive node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.workerIdentifier, data);
     }
 
-    public void visit(BLangWorkerSyncSendExpr node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.workerIdentifier, props);
-        visitNode(node.expr, props);
+    public void visit(BLangWorkerSyncSendExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.workerIdentifier, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangXMLAttribute node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.name, props);
-        visitNode(node.value, props);
+    public void visit(BLangXMLAttribute node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.name, data);
+        visitNode(node.value, data);
     }
 
-    public void visit(BLangXMLCommentLiteral node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.textFragments, props);
-        visitNode(node.concatExpr, props);
+    public void visit(BLangXMLCommentLiteral node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.textFragments, data);
+        visitNode(node.concatExpr, data);
     }
 
-    public void visit(BLangXMLElementAccess node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
-        visitNode(node.filters, props);
+    public void visit(BLangXMLElementAccess node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
+        visitNode(node.filters, data);
     }
 
-    public void visit(BLangXMLElementFilter node, T props) {
-        analyzeNode(node, props);
+    public void visit(BLangXMLElementFilter node, T data) {
+        analyzeNode(node, data);
     }
 
-    public void visit(BLangXMLElementLiteral node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.startTagName, props);
-        visitNode(node.endTagName, props);
-        visitNode(node.attributes, props);
-        visitNode(node.children, props);
+    public void visit(BLangXMLElementLiteral node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.startTagName, data);
+        visitNode(node.endTagName, data);
+        visitNode(node.attributes, data);
+        visitNode(node.children, data);
     }
 
-    public void visit(BLangXMLNavigationAccess node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
-        visitNode(node.childIndex, props);
-        visitNode(node.filters, props);
+    public void visit(BLangXMLNavigationAccess node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
+        visitNode(node.childIndex, data);
+        visitNode(node.filters, data);
     }
 
-    public void visit(BLangXMLProcInsLiteral node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.target, props);
-        visitNode(node.dataFragments, props);
+    public void visit(BLangXMLProcInsLiteral node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.target, data);
+        visitNode(node.dataFragments, data);
     }
 
-    public void visit(BLangXMLQName node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.prefix, props);
-        visitNode(node.localname, props);
+    public void visit(BLangXMLQName node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.prefix, data);
+        visitNode(node.localname, data);
     }
 
-    public void visit(BLangXMLQuotedString node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.textFragments, props);
+    public void visit(BLangXMLQuotedString node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.textFragments, data);
     }
 
-    public void visit(BLangXMLSequenceLiteral node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.xmlItems, props);
+    public void visit(BLangXMLSequenceLiteral node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.xmlItems, data);
     }
 
-    public void visit(BLangXMLTextLiteral node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.textFragments, props);
+    public void visit(BLangXMLTextLiteral node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.textFragments, data);
     }
 
     // Match patterns
 
-    public void visit(BLangConstPattern node, T props) {
-        analyzeNode(node, props);
-        visitBLangMatchPattern(node, props);
-        visitNode(node.expr, props);
+    public void visit(BLangConstPattern node, T data) {
+        analyzeNode(node, data);
+        visitBLangMatchPattern(node, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangErrorCauseMatchPattern node, T props) {
-        analyzeNode(node, props);
-        visitBLangMatchPattern(node, props);
-        visitNode(node.simpleMatchPattern, props);
-        visitNode(node.errorMatchPattern, props);
+    public void visit(BLangErrorCauseMatchPattern node, T data) {
+        analyzeNode(node, data);
+        visitBLangMatchPattern(node, data);
+        visitNode(node.simpleMatchPattern, data);
+        visitNode(node.errorMatchPattern, data);
     }
 
-    public void visit(BLangErrorFieldMatchPatterns node, T props) {
-        analyzeNode(node, props);
-        visitBLangMatchPattern(node, props);
-        visitNode(node.namedArgMatchPatterns, props);
-        visitNode(node.restMatchPattern, props);
+    public void visit(BLangErrorFieldMatchPatterns node, T data) {
+        analyzeNode(node, data);
+        visitBLangMatchPattern(node, data);
+        visitNode(node.namedArgMatchPatterns, data);
+        visitNode(node.restMatchPattern, data);
     }
 
-    public void visit(BLangErrorMatchPattern node, T props) {
-        analyzeNode(node, props);
-        visitBLangMatchPattern(node, props);
-        visitNode(node.errorMessageMatchPattern, props);
-        visitNode(node.errorCauseMatchPattern, props);
-        visitNode(node.errorFieldMatchPatterns, props);
-        visitNode(node.errorTypeReference, props);
+    public void visit(BLangErrorMatchPattern node, T data) {
+        analyzeNode(node, data);
+        visitBLangMatchPattern(node, data);
+        visitNode(node.errorMessageMatchPattern, data);
+        visitNode(node.errorCauseMatchPattern, data);
+        visitNode(node.errorFieldMatchPatterns, data);
+        visitNode(node.errorTypeReference, data);
     }
 
-    public void visit(BLangErrorMessageMatchPattern node, T props) {
-        analyzeNode(node, props);
-        visitBLangMatchPattern(node, props);
-        visitNode(node.simpleMatchPattern, props);
+    public void visit(BLangErrorMessageMatchPattern node, T data) {
+        analyzeNode(node, data);
+        visitBLangMatchPattern(node, data);
+        visitNode(node.simpleMatchPattern, data);
     }
 
-    public void visit(BLangFieldMatchPattern node, T props) {
-        analyzeNode(node, props);
-        visitBLangMatchPattern(node, props);
-        visitNode(node.fieldName, props);
-        visitNode(node.matchPattern, props);
-        visitNode(node.matchPattern, props);
+    public void visit(BLangFieldMatchPattern node, T data) {
+        analyzeNode(node, data);
+        visitBLangMatchPattern(node, data);
+        visitNode(node.fieldName, data);
+        visitNode(node.matchPattern, data);
+        visitNode(node.matchPattern, data);
     }
 
-    public void visit(BLangListMatchPattern node, T props) {
-        analyzeNode(node, props);
-        visitBLangMatchPattern(node, props);
-        visitNode(node.matchPatterns, props);
-        visitNode(node.restMatchPattern, props);
+    public void visit(BLangListMatchPattern node, T data) {
+        analyzeNode(node, data);
+        visitBLangMatchPattern(node, data);
+        visitNode(node.matchPatterns, data);
+        visitNode(node.restMatchPattern, data);
     }
 
-    public void visit(BLangMappingMatchPattern node, T props) {
-        analyzeNode(node, props);
-        visitBLangMatchPattern(node, props);
-        visitNode(node.fieldMatchPatterns, props);
-        visitNode(node.restMatchPattern, props);
+    public void visit(BLangMappingMatchPattern node, T data) {
+        analyzeNode(node, data);
+        visitBLangMatchPattern(node, data);
+        visitNode(node.fieldMatchPatterns, data);
+        visitNode(node.restMatchPattern, data);
     }
 
-    public void visit(BLangNamedArgMatchPattern node, T props) {
-        analyzeNode(node, props);
-        visitBLangMatchPattern(node, props);
-        visitNode(node.argName, props);
-        visitNode(node.matchPattern, props);
+    public void visit(BLangNamedArgMatchPattern node, T data) {
+        analyzeNode(node, data);
+        visitBLangMatchPattern(node, data);
+        visitNode(node.argName, data);
+        visitNode(node.matchPattern, data);
     }
 
-    public void visit(BLangRestMatchPattern node, T props) {
-        analyzeNode(node, props);
-        visitBLangMatchPattern(node, props);
-        visitNode(node.variableName, props);
+    public void visit(BLangRestMatchPattern node, T data) {
+        analyzeNode(node, data);
+        visitBLangMatchPattern(node, data);
+        visitNode(node.variableName, data);
     }
 
-    public void visit(BLangSimpleMatchPattern node, T props) {
-        analyzeNode(node, props);
-        visitBLangMatchPattern(node, props);
-        visitNode(node.constPattern, props);
-        visitNode(node.wildCardMatchPattern, props);
-        visitNode(node.varVariableName, props);
+    public void visit(BLangSimpleMatchPattern node, T data) {
+        analyzeNode(node, data);
+        visitBLangMatchPattern(node, data);
+        visitNode(node.constPattern, data);
+        visitNode(node.wildCardMatchPattern, data);
+        visitNode(node.varVariableName, data);
     }
 
-    public void visit(BLangVarBindingPatternMatchPattern node, T props) {
-        analyzeNode(node, props);
-        visitBLangMatchPattern(node, props);
-        visitNode(node.bindingPattern, props);
+    public void visit(BLangVarBindingPatternMatchPattern node, T data) {
+        analyzeNode(node, data);
+        visitBLangMatchPattern(node, data);
+        visitNode(node.bindingPattern, data);
     }
 
-    public void visit(BLangWildCardMatchPattern node, T props) {
-        analyzeNode(node, props);
-        visitBLangMatchPattern(node, props);
+    public void visit(BLangWildCardMatchPattern node, T data) {
+        analyzeNode(node, data);
+        visitBLangMatchPattern(node, data);
     }
 
     // Statements
 
-    public void visit(BLangAssignment node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.varRef, props);
-        visitNode(node.expr, props);
+    public void visit(BLangAssignment node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.varRef, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangBlockStmt node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.stmts, props);
+    public void visit(BLangBlockStmt node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.stmts, data);
     }
 
-    public void visit(BLangBreak node, T props) {
-        analyzeNode(node, props);
+    public void visit(BLangBreak node, T data) {
+        analyzeNode(node, data);
     }
 
-    public void visit(BLangCompoundAssignment node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.varRef, props);
-        visitNode(node.expr, props);
+    public void visit(BLangCompoundAssignment node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.varRef, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangContinue node, T props) {
-        analyzeNode(node, props);
+    public void visit(BLangContinue node, T data) {
+        analyzeNode(node, data);
     }
 
-    public void visit(BLangDo node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.body, props);
-        visitNode(node.onFailClause, props);
+    public void visit(BLangDo node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.body, data);
+        visitNode(node.onFailClause, data);
     }
 
-    public void visit(BLangErrorDestructure node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.varRef, props);
-        visitNode(node.expr, props);
+    public void visit(BLangErrorDestructure node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.varRef, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangErrorVariableDef node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.errorVariable, props);
+    public void visit(BLangErrorVariableDef node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.errorVariable, data);
     }
 
-    public void visit(BLangExpressionStmt node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
+    public void visit(BLangExpressionStmt node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangFail node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
+    public void visit(BLangFail node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangForeach node, T props) {
-        analyzeNode(node, props);
-        visitNode((BLangNode) node.variableDefinitionNode, props);
-        visitNode(node.body, props);
-        visitNode(node.collection, props);
-        visitNode(node.onFailClause, props);
+    public void visit(BLangForeach node, T data) {
+        analyzeNode(node, data);
+        visitNode((BLangNode) node.variableDefinitionNode, data);
+        visitNode(node.body, data);
+        visitNode(node.collection, data);
+        visitNode(node.onFailClause, data);
     }
 
-    public void visit(BLangForkJoin node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.workers, props);
+    public void visit(BLangForkJoin node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.workers, data);
     }
 
-    public void visit(BLangIf node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
-        visitNode(node.body, props);
-        visitNode(node.elseStmt, props);
+    public void visit(BLangIf node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
+        visitNode(node.body, data);
+        visitNode(node.elseStmt, data);
     }
 
-    public void visit(BLangLock node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.body, props);
-        visitNode(node.onFailClause, props);
+    public void visit(BLangLock node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.body, data);
+        visitNode(node.onFailClause, data);
     }
 
-    public void visit(BLangLock.BLangLockStmt node, T props) {
-        analyzeNode(node, props);
+    public void visit(BLangLock.BLangLockStmt node, T data) {
+        analyzeNode(node, data);
     }
 
-    public void visit(BLangLock.BLangUnLockStmt node, T props) {
-        analyzeNode(node, props);
+    public void visit(BLangLock.BLangUnLockStmt node, T data) {
+        analyzeNode(node, data);
     }
 
-    public void visit(BLangMatch node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
-        visitNode(node.patternClauses, props);
-        visitNode(node.onFailClause, props);
+    public void visit(BLangMatch node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
+        visitNode(node.patternClauses, data);
+        visitNode(node.onFailClause, data);
     }
 
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.body, props);
-        visitNode(node.matchExpr, props);
-        visitNode(node.variable, props);
+    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.body, data);
+        visitNode(node.matchExpr, data);
+        visitNode(node.variable, data);
     }
 
-    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.body, props);
-        visitNode(node.matchExpr, props);
-        visitNode(node.literal, props);
+    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.body, data);
+        visitNode(node.matchExpr, data);
+        visitNode(node.literal, data);
     }
 
-    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.body, props);
-        visitNode(node.matchExpr, props);
-        visitNode(node.bindingPatternVariable, props);
-        visitNode(node.typeGuardExpr, props);
+    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.body, data);
+        visitNode(node.matchExpr, data);
+        visitNode(node.bindingPatternVariable, data);
+        visitNode(node.typeGuardExpr, data);
     }
 
-    public void visit(BLangMatchStatement node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
-        visitNode(node.matchClauses, props);
-        visitNode(node.onFailClause, props);
+    public void visit(BLangMatchStatement node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
+        visitNode(node.matchClauses, data);
+        visitNode(node.onFailClause, data);
     }
 
-    public void visit(BLangPanic node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
+    public void visit(BLangPanic node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangRecordDestructure node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.varRef, props);
-        visitNode(node.expr, props);
+    public void visit(BLangRecordDestructure node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.varRef, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangRecordVariableDef node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.var, props);
+    public void visit(BLangRecordVariableDef node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.var, data);
     }
 
-    public void visit(BLangRetry node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.retrySpec, props);
-        visitNode(node.retryBody, props);
-        visitNode(node.onFailClause, props);
+    public void visit(BLangRetry node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.retrySpec, data);
+        visitNode(node.retryBody, data);
+        visitNode(node.onFailClause, data);
     }
 
-    public void visit(BLangRetryTransaction node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.retrySpec, props);
-        visitNode(node.transaction, props);
+    public void visit(BLangRetryTransaction node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.retrySpec, data);
+        visitNode(node.transaction, data);
     }
 
-    public void visit(BLangReturn node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
+    public void visit(BLangReturn node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangRollback node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
+    public void visit(BLangRollback node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangSimpleVariableDef node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.var, props);
+    public void visit(BLangSimpleVariableDef node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.var, data);
     }
 
-    public void visit(BLangTransaction node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.transactionBody, props);
-        visitNode(node.onFailClause, props);
+    public void visit(BLangTransaction node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.transactionBody, data);
+        visitNode(node.onFailClause, data);
     }
 
-    public void visit(BLangTupleDestructure node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.varRef, props);
-        visitNode(node.expr, props);
+    public void visit(BLangTupleDestructure node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.varRef, data);
+        visitNode(node.expr, data);
     }
 
-    public void visit(BLangTupleVariableDef node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.var, props);
+    public void visit(BLangTupleVariableDef node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.var, data);
     }
 
-    public void visit(BLangWhile node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
-        visitNode(node.body, props);
-        visitNode(node.onFailClause, props);
+    public void visit(BLangWhile node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
+        visitNode(node.body, data);
+        visitNode(node.onFailClause, data);
     }
 
-    public void visit(BLangWorkerSend node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.expr, props);
-        visitNode(node.workerIdentifier, props);
+    public void visit(BLangWorkerSend node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
+        visitNode(node.workerIdentifier, data);
     }
 
-    public void visit(BLangXMLNSStatement node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.xmlnsDecl, props);
+    public void visit(BLangXMLNSStatement node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.xmlnsDecl, data);
     }
 
     // Types
 
-    public void visit(BLangArrayType node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.elemtype, props);
-        visitNode(node.sizes, props);
+    public void visit(BLangArrayType node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.elemtype, data);
+        visitNode(node.sizes, data);
     }
 
-    public void visit(BLangBuiltInRefTypeNode node, T props) {
-        analyzeNode(node, props);
+    public void visit(BLangBuiltInRefTypeNode node, T data) {
+        analyzeNode(node, data);
     }
 
-    public void visit(BLangConstrainedType node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.type, props);
-        visitNode(node.constraint, props);
+    public void visit(BLangConstrainedType node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.type, data);
+        visitNode(node.constraint, data);
     }
 
-    public void visit(BLangErrorType node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.detailType, props);
+    public void visit(BLangErrorType node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.detailType, data);
     }
 
-    public void visit(BLangFiniteTypeNode node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.valueSpace, props);
+    public void visit(BLangFiniteTypeNode node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.valueSpace, data);
     }
 
-    public void visit(BLangFunctionTypeNode node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.params, props);
-        visitNode(node.restParam, props);
-        visitNode(node.returnTypeNode, props);
+    public void visit(BLangFunctionTypeNode node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.params, data);
+        visitNode(node.restParam, data);
+        visitNode(node.returnTypeNode, data);
     }
 
-    public void visit(BLangIntersectionTypeNode node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.constituentTypeNodes, props);
+    public void visit(BLangIntersectionTypeNode node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.constituentTypeNodes, data);
     }
 
-    public void visit(BLangLetVariable node, T props) {
-        analyzeNode(node, props);
-        visitNode((BLangNode) node.definitionNode, props);
+    public void visit(BLangLetVariable node, T data) {
+        analyzeNode(node, data);
+        visitNode((BLangNode) node.definitionNode, data);
     }
 
-    public void visit(BLangObjectTypeNode node, T props) {
-        analyzeNode(node, props);
-        visitBLangStructureTypeNode(node, props);
-        visitNode(node.functions, props);
+    public void visit(BLangObjectTypeNode node, T data) {
+        analyzeNode(node, data);
+        visitBLangStructureTypeNode(node, data);
+        visitNode(node.functions, data);
     }
 
-    public void visit(BLangRecordTypeNode node, T props) {
-        analyzeNode(node, props);
-        visitBLangStructureTypeNode(node, props);
-        visitNode(node.restFieldType, props);
+    public void visit(BLangRecordTypeNode node, T data) {
+        analyzeNode(node, data);
+        visitBLangStructureTypeNode(node, data);
+        visitNode(node.restFieldType, data);
     }
 
-    public void visit(BLangStreamType node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.type, props);
-        visitNode(node.constraint, props);
-        visitNode(node.error, props);
+    public void visit(BLangStreamType node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.type, data);
+        visitNode(node.constraint, data);
+        visitNode(node.error, data);
     }
 
-    public void visit(BLangTableTypeNode node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.type, props);
-        visitNode(node.constraint, props);
-        visitNode(node.tableKeySpecifier, props);
-        visitNode(node.tableKeyTypeConstraint, props);
+    public void visit(BLangTableTypeNode node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.type, data);
+        visitNode(node.constraint, data);
+        visitNode(node.tableKeySpecifier, data);
+        visitNode(node.tableKeyTypeConstraint, data);
     }
 
-    public void visit(BLangTupleTypeNode node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.memberTypeNodes, props);
-        visitNode(node.restParamType, props);
+    public void visit(BLangTupleTypeNode node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.memberTypeNodes, data);
+        visitNode(node.restParamType, data);
     }
 
-    public void visit(BLangUnionTypeNode node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.memberTypeNodes, props);
+    public void visit(BLangUnionTypeNode node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.memberTypeNodes, data);
     }
 
-    public void visit(BLangUserDefinedType node, T props) {
-        analyzeNode(node, props);
-        visitNode(node.pkgAlias, props);
-        visitNode(node.typeName, props);
+    public void visit(BLangUserDefinedType node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.pkgAlias, data);
+        visitNode(node.typeName, data);
     }
 
-    public void visit(BLangValueType node, T props) {
-        analyzeNode(node, props);
+    public void visit(BLangValueType node, T data) {
+        analyzeNode(node, data);
     }
 
     // Private methods
 
-    private void visitBLangVariableNode(BLangVariable node, T props) {
-        visitNode(node.typeNode, props);
-        visitNode(node.annAttachments, props);
-        visitNode(node.markdownDocumentationAttachment, props);
-        visitNode(node.expr, props);
+    private void visitBLangVariableNode(BLangVariable node, T data) {
+        visitNode(node.typeNode, data);
+        visitNode(node.annAttachments, data);
+        visitNode(node.markdownDocumentationAttachment, data);
+        visitNode(node.expr, data);
     }
 
-    private void visitBLangInvokableNode(BLangInvokableNode node, T props) {
-        visitNode(node.name, props);
-        visitNode(node.annAttachments, props);
-        visitNode(node.markdownDocumentationAttachment, props);
-        visitNode(node.requiredParams, props);
-        visitNode(node.restParam, props);
-        visitNode(node.returnTypeNode, props);
-        visitNode(node.returnTypeAnnAttachments, props);
-        visitNode(node.body, props);
-        visitNode(node.defaultWorkerName, props);
+    private void visitBLangInvokableNode(BLangInvokableNode node, T data) {
+        visitNode(node.name, data);
+        visitNode(node.annAttachments, data);
+        visitNode(node.markdownDocumentationAttachment, data);
+        visitNode(node.requiredParams, data);
+        visitNode(node.restParam, data);
+        visitNode(node.returnTypeNode, data);
+        visitNode(node.returnTypeAnnAttachments, data);
+        visitNode(node.body, data);
+        visitNode(node.defaultWorkerName, data);
     }
 
-    private void visitBLangInputClause(BLangInputClause node, T props) {
-        visitNode(node.collection, props);
-        visitNode((BLangNode) node.variableDefinitionNode, props);
+    private void visitBLangInputClause(BLangInputClause node, T data) {
+        visitNode(node.collection, data);
+        visitNode((BLangNode) node.variableDefinitionNode, data);
     }
 
-    private void visitBLangAccessExpression(BLangAccessExpression node, T props) {
-        visitNode(node.expr, props);
+    private void visitBLangAccessExpression(BLangAccessExpression node, T data) {
+        visitNode(node.expr, data);
     }
 
-    private void visitBLangIndexBasedAccess(BLangIndexBasedAccess node, T props) {
-        visitBLangAccessExpression(node, props);
-        visitNode(node.indexExpr, props);
+    private void visitBLangIndexBasedAccess(BLangIndexBasedAccess node, T data) {
+        visitBLangAccessExpression(node, data);
+        visitNode(node.indexExpr, data);
     }
 
-    private void visitBLangVariableReference(BLangVariableReference node, T props) {
+    private void visitBLangVariableReference(BLangVariableReference node, T data) {
     }
 
-    private void visitBLangMatchPattern(BLangMatchPattern node, T props) {
-        visitNode(node.matchExpr, props);
+    private void visitBLangMatchPattern(BLangMatchPattern node, T data) {
+        visitNode(node.matchExpr, data);
     }
 
-    private void visitBLangStructureTypeNode(BLangStructureTypeNode node, T props) {
-        visitNode(node.fields, props);
-        visitNode(node.typeRefs, props);
-        visitNode(node.initFunction, props);
-        visitNode(node.initFunction, props);
+    private void visitBLangStructureTypeNode(BLangStructureTypeNode node, T data) {
+        visitNode(node.fields, data);
+        visitNode(node.typeRefs, data);
+        visitNode(node.initFunction, data);
+        visitNode(node.initFunction, data);
     }
 }
