@@ -136,7 +136,8 @@ public class ModuleVariableDeclarationNodeContext extends
             if (lsCItem.getType() != LSCompletionItem.CompletionItemType.SNIPPET) {
                 sortingText = SortingUtil.genSortText(1);
             } else {
-                sortingText = SortingUtil.genSortText(2) + SortingUtil.genSortText(SortingUtil.toRank(lsCItem));
+                sortingText = SortingUtil.genSortText(2)
+                        + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
             }
             lsCItem.getCompletionItem().setSortText(sortingText);
         }
