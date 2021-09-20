@@ -1,24 +1,10 @@
 {
   "position": {
-    "line": 4,
-    "character": 32
+    "line": 9,
+    "character": 9
   },
-  "source": "expression_context/source/check_expression_ctx_source3.bal",
+  "source": "function_body/source/source11.bal",
   "items": [
-    {
-      "label": "ENUM1_FIELD1",
-      "kind": "EnumMember",
-      "detail": "ENUM1_FIELD1",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
-      "sortText": "H",
-      "insertText": "ENUM1_FIELD1",
-      "insertTextFormat": "Snippet"
-    },
     {
       "label": "TEST_INT_CONST1",
       "kind": "Variable",
@@ -29,7 +15,7 @@
           "value": ""
         }
       },
-      "sortText": "C",
+      "sortText": "D",
       "insertText": "TEST_INT_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -43,16 +29,86 @@
           "value": ""
         }
       },
-      "sortText": "C",
+      "sortText": "D",
       "insertText": "TEST_STRING_CONST1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ENUM1_FIELD1",
+      "kind": "EnumMember",
+      "detail": "ENUM1_FIELD1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "I",
+      "insertText": "ENUM1_FIELD1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "AnnotationType",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "M",
+      "sortText": "N",
       "insertText": "AnnotationType",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "N",
+      "insertText": "TestRecord1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord2",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "N",
+      "insertText": "TestRecord2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap2",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "O",
+      "insertText": "TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap3",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "O",
+      "insertText": "TestMap3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "L",
+      "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorOne",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "M",
+      "insertText": "ErrorOne",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorTwo",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "M",
+      "insertText": "ErrorTwo",
       "insertTextFormat": "Snippet"
     },
     {
@@ -62,7 +118,7 @@
       "documentation": {
         "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
       },
-      "sortText": "I",
+      "sortText": "J",
       "insertText": "ResponseMessage",
       "insertTextFormat": "Snippet"
     },
@@ -73,72 +129,32 @@
       "documentation": {
         "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
       },
-      "sortText": "I",
+      "sortText": "J",
       "insertText": "RequestMessage",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestRecord1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "M",
-      "insertText": "TestRecord1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestRecord2",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "M",
-      "insertText": "TestRecord2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap2",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "N",
-      "insertText": "TestMap2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap3",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "N",
-      "insertText": "TestMap3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Object",
-      "sortText": "K",
-      "insertText": "TestObject1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ErrorOne",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "L",
-      "insertText": "ErrorOne",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ErrorTwo",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "L",
-      "insertText": "ErrorTwo",
+      "label": "TestEnum1",
+      "kind": "Enum",
+      "detail": "enum",
+      "sortText": "J",
+      "insertText": "TestEnum1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Listener",
       "kind": "Interface",
       "detail": "Class",
-      "sortText": "K",
+      "sortText": "L",
       "insertText": "Listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestClass1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "L",
+      "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -148,7 +164,7 @@
       "documentation": {
         "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
       },
-      "sortText": "K",
+      "sortText": "L",
       "insertText": "Client",
       "insertTextFormat": "Snippet"
     },
@@ -159,23 +175,15 @@
       "documentation": {
         "left": "Represents a response.\n"
       },
-      "sortText": "K",
+      "sortText": "L",
       "insertText": "Response",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestClass1",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "K",
-      "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "listener1",
       "kind": "Variable",
-      "detail": "module1:Listener",
-      "sortText": "C",
+      "detail": "mod1:Listener",
+      "sortText": "D",
       "insertText": "listener1",
       "insertTextFormat": "Snippet"
     },
@@ -189,7 +197,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n"
         }
       },
-      "sortText": "A",
+      "sortText": "B",
       "filterText": "function1",
       "insertText": "function1()",
       "insertTextFormat": "Snippet"
@@ -204,7 +212,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n"
         }
       },
-      "sortText": "A",
+      "sortText": "B",
       "filterText": "function2",
       "insertText": "function2()",
       "insertTextFormat": "Snippet"
@@ -219,7 +227,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Return** `int`   \n- Return Value Description  \n  \n"
         }
       },
-      "sortText": "A",
+      "sortText": "B",
       "filterText": "function3",
       "insertText": "function3(${1})",
       "insertTextFormat": "Snippet",
@@ -238,7 +246,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function4 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description"
         }
       },
-      "sortText": "A",
+      "sortText": "B",
       "filterText": "function4",
       "insertText": "function4(${1})",
       "insertTextFormat": "Snippet",

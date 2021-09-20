@@ -71,6 +71,8 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
 
     private SemanticModel currentSemanticModel;
 
+    private Document currentDocument;
+
     private final LanguageServerContext languageServerContext;
 
     private CancelChecker cancelChecker;
@@ -193,11 +195,17 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
 
     @Override
     public Optional<Document> currentDocument() {
-        if (this.cancelChecker == null) {
-            return this.workspace().document(this.filePath());
+        if (this.currentDocument == null) {
+            Optional<Document> document;
+            if (this.cancelChecker == null) {
+                document = this.workspace().document(this.filePath());
+            } else {
+                document = this.workspace().document(this.filePath(), this.cancelChecker);
+            }
+            document.ifPresent(value -> this.currentDocument = value);
         }
 
-        return this.workspace().document(this.filePath(), this.cancelChecker);
+        return Optional.ofNullable(this.currentDocument);
     }
 
     @Override
