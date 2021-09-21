@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.diagnostics.Location;
@@ -127,8 +128,12 @@ public class BallerinaPackageServiceImpl implements BallerinaPackageService {
             if (module.moduleName().moduleNamePart() != null) {
                 jsonModule.addProperty(PackageServiceConstants.NAME, module.moduleName().moduleNamePart());
             }
-            List<Symbol> symbolList = project.currentPackage()
-                    .getCompilation().getSemanticModel(moduleId).moduleSymbols();
+            Optional<PackageCompilation> packageCompilation =
+                    this.workspaceManager.waitAndGetPackageCompilation(project.sourceRoot());
+            if (packageCompilation.isEmpty()) {
+                return;
+            }
+            List<Symbol> symbolList = packageCompilation.get().getSemanticModel(moduleId).moduleSymbols();
 
             List<FunctionSymbol> functionList =
                     symbolList.stream().filter(symbol -> symbol.kind() == SymbolKind.FUNCTION)
