@@ -285,6 +285,36 @@ public function testFromJsonWithTypeWithTypeReferences() {
    assertEquality(f.toString(), "[\"foo\"]");
  }
 
+ type Student record {|
+     string name;
+     int age;
+     PermanentAddress address;
+     string...;
+ |};
+
+ function testFromJsonWithTypeNestedRecordsNegative() {
+     json j = {
+         "name": "Radha",
+         "age": 14,
+         "address": {
+             "apartment_no": 123,
+             "street": "Perera Mawatha",
+             "city": 7
+         },
+         "employed": false
+     };
+
+     (Student & readonly)|error radha = trap j.fromJsonWithType();
+
+     error err = <error> radha;
+     string errorMsg = "'map<json>' value cannot be converted to '(Student & readonly)': " +
+         "\n\t\tmissing required field 'address.country' of type 'string?' in record '(PermanentAddress & readonly)'" +
+         "\n\t\tfield 'address.city' in record '(PermanentAddress & readonly)' should be of type 'string'" +
+         "\n\t\tvalue of field 'employed' adding to the record '(Student & readonly)' should be of type 'string'";
+     assertEquality(<string> checkpanic err.detail()["message"], errorMsg);
+     assertEquality(err.message(),"{ballerina/lang.value}ConversionError");
+ }
+
 
 /////////////////////////// Tests for `fromJsonStringWithType()` ///////////////////////////
 

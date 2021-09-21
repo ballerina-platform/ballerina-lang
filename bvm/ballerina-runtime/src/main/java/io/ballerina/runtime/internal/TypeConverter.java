@@ -313,8 +313,13 @@ public class TypeConverter {
                 break;
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((BIntersectionType) targetType).getEffectiveType();
-                convertibleTypes.addAll(getConvertibleTypes(inputValue, effectiveType, varName,
-                        isFromJson, unresolvedValues, errors));
+                if (isFromJson) {
+                    convertibleTypes.addAll(getConvertibleTypesFromJson(inputValue, effectiveType, varName,
+                            unresolvedValues, errors));
+                } else {
+                    convertibleTypes.addAll(getConvertibleTypes(inputValue, effectiveType, varName,
+                            false, unresolvedValues, errors));
+                }
                 break;
             case TypeTags.FINITE_TYPE_TAG:
                 BFiniteType finiteType = (BFiniteType) targetType;
@@ -351,7 +356,7 @@ public class TypeConverter {
         List<Type> convertibleTypes = new ArrayList<>(TypeConverter.getConvertibleTypes(value, targetType,
                 varName, true, unresolvedValues, errors));
 
-        if (convertibleTypes.size() == 0) {
+        if (convertibleTypes.isEmpty()) {
             switch (targetTypeTag) {
                 case TypeTags.XML_TAG:
                 case TypeTags.XML_ELEMENT_TAG:
@@ -362,9 +367,8 @@ public class TypeConverter {
                         convertibleTypes.add(targetType);
                     }
                     break;
-                case TypeTags.INTERSECTION_TAG:
-                    return getConvertibleTypesFromJson(value, ((BIntersectionType) targetType).getEffectiveType(),
-                            varName, new ArrayList<>(), errors);
+                default:
+                    break;
             }
         }
         return convertibleTypes;
