@@ -93,6 +93,12 @@ public class  DefaultPackageRepository extends AbstractPackageRepository {
     }
 
     @Override
+    public boolean isPackageExists(PackageOrg org, PackageName name, PackageVersion version) {
+        Optional<PackageDescWrapper> packageDescWrapper = pkgContainer.get(org, name, version);
+        return packageDescWrapper.isPresent();
+    }
+
+    @Override
     public Optional<Package> getPackage(ResolutionRequest request, ResolutionOptions options) {
         throw new UnsupportedOperationException();
     }

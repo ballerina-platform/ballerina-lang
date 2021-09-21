@@ -111,6 +111,14 @@ public class FileSystemRepository extends AbstractPackageRepository {
     }
 
     @Override
+    public boolean isPackageExists(PackageOrg org,
+                                   PackageName name,
+                                   PackageVersion version) {
+        Path balaPath = getPackagePath(org.value(), name.value(), version.value().toString());
+        return Files.exists(balaPath);
+    }
+
+    @Override
     public Collection<PackageVersion> getPackageVersions(ResolutionRequest request, ResolutionOptions options) {
         // if version and org name is empty we add empty string so we return empty package anyway
         return getPackageVersions(request.orgName(), request.packageName(),

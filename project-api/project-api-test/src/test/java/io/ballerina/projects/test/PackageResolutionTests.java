@@ -418,4 +418,28 @@ public class PackageResolutionTests extends BaseTest {
         Assert.assertEquals(mockResolver.resolvePackageNames(moduleRequests,
                 ResolutionOptions.builder().build()).size(), 2);
     }
+
+    @Test(description = "tests resolution for dependency given in Ballerina.toml without repository")
+    public void testPackageResolutionOfDependencyMissingRepository() {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_y_having_dependency_missing_repo");
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.errors().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 4, "Unexpected compilation diagnostics");
+
+        Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
+        // Check dependency repository is not given diagnostic
+        Assert.assertTrue(diagnosticIterator.next().toString().contains(
+                "ERROR [Ballerina.toml:(6:1,9:18)] 'repository' under [[dependency]] is missing"));
+        // Check dependency cannot be resolved diagnostic
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                            "ERROR [fee.bal:(1:1,1:16)] cannot resolve module 'ccc/ddd'");
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                            "ERROR [fee.bal:(4:2,4:27)] undefined function 'notExistingFunction'");
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                            "ERROR [fee.bal:(4:2,4:27)] undefined module 'ddd'");
+    }
 }
