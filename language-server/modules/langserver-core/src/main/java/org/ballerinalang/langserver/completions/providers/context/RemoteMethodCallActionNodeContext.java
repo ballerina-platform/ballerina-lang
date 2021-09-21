@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -24,7 +25,6 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.util.ContextTypePair;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 
 import java.util.ArrayList;
@@ -49,9 +49,9 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         ContextTypeResolver resolver = new ContextTypeResolver(context);
-        Optional<ContextTypePair> expressionType = node.expression().apply(resolver);
+        Optional<TypeSymbol> expressionType = node.expression().apply(resolver);
 
-        if (expressionType.isEmpty() || !SymbolUtil.isClient(expressionType.get().getRawType())) {
+        if (expressionType.isEmpty() || !SymbolUtil.isClient(expressionType.get())) {
             return Collections.emptyList();
         }
 
@@ -60,7 +60,7 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
             Covers the following case where a is a client object and we suggest the remote actions
             (1) a -> g<cursor>
              */
-            List<Symbol> clientActions = this.getClientActions(expressionType.get().getRawType());
+            List<Symbol> clientActions = this.getClientActions(expressionType.get());
             completionItems.addAll(this.getCompletionItemList(clientActions, context));
         } else if (onSuggestFunctionParameters(node, context)) {
             /*

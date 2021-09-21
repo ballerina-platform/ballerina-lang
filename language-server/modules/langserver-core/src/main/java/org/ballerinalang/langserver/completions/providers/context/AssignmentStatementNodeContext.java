@@ -30,7 +30,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
-import org.ballerinalang.langserver.completions.util.ContextTypePair;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
@@ -70,6 +69,13 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
                     || symbol.kind() == SymbolKind.FUNCTION;
             List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+        } else if (onSuggestionsAfterQualifiers(context, node.expression())) {
+            /*
+            Captures the following case.
+            (1) TypeName c = <qualifier(s)> <cursor>
+            Currently qualifier can be isolated, transactional, client, service.
+             */
+            completionItems.addAll(getCompletionItemsOnQualifiers(node.expression(), context));
         } else {
             /*
             Captures the following cases
@@ -81,7 +87,6 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
             completionItems.addAll(this.getNewExprCompletionItems(context, node));
         }
         this.sort(context, node, completionItems);
-
         return completionItems;
     }
 
@@ -103,7 +108,7 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
         TypeSymbol symbol = typeSymbolAtCursor.get();
         for (LSCompletionItem completionItem : completionItems) {
             completionItem.getCompletionItem()
-                    .setSortText(SortingUtil.genSortTextByAssignability(completionItem, symbol));
+                    .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
         }
     }
 
@@ -111,11 +116,11 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
                                                              AssignmentStatementNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         ContextTypeResolver typeResolver = new ContextTypeResolver(context);
-        Optional<ContextTypePair> type = node.apply(typeResolver);
+        Optional<TypeSymbol> type = node.apply(typeResolver);
         if (type.isEmpty()) {
             return completionItems;
         }
-        TypeSymbol rawType = CommonUtil.getRawType(type.get().getRawType());
+        TypeSymbol rawType = CommonUtil.getRawType(type.get());
         if (rawType.kind() == SymbolKind.CLASS) {
             completionItems.add(this.getImplicitNewCItemForClass((ClassSymbol) rawType, context));
         }

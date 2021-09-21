@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import javax.annotation.Nonnull;
 
@@ -42,8 +43,9 @@ public class HoverContextImpl extends AbstractDocumentServiceContext implements 
                      String fileUri,
                      WorkspaceManager wsManager,
                      Position cursorPosition,
-                     LanguageServerContext serverContext) {
-        super(operation, fileUri, wsManager, serverContext);
+                     LanguageServerContext serverContext,
+                     CancelChecker cancelChecker) {
+        super(operation, fileUri, wsManager, serverContext, cancelChecker);
         this.cursorPosition = cursorPosition;
     }
 
@@ -84,7 +86,8 @@ public class HoverContextImpl extends AbstractDocumentServiceContext implements 
                     this.fileUri,
                     this.wsManager,
                     this.cursorPosition,
-                    this.serverContext);
+                    this.serverContext,
+                    this.cancelChecker);
         }
         
         public HoverContextBuilder withPosition(Position cursorPosition) {

@@ -81,7 +81,7 @@ public class FunctionCallExpressionNodeContext extends BlockNodeContextProvider<
         TypeSymbol symbol = parameterSymbol.get();
         for (LSCompletionItem completionItem : completionItems) {
             completionItem.getCompletionItem()
-                    .setSortText(SortingUtil.genSortTextByAssignability(completionItem, symbol));
+                    .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
         }
     }
 }

@@ -51,11 +51,6 @@ public class TypeDescContextTest extends CompletionTest {
 
     @Override
     public List<String> skipList() {
-        return Arrays.asList(
-                "function_typedesc16.json",
-                "function_typedesc17.json",
-                "function_typedesc18.json",
-                "function_typedesc19.json"
-        );
+        return Arrays.asList();
     }
 }
