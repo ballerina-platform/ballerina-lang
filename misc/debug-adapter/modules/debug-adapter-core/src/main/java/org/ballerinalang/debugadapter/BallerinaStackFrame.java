@@ -115,6 +115,9 @@ public class BallerinaStackFrame {
             boolean supportsReadOnlyEditors = capabilities.isPresent() && capabilities.get().supportsReadOnlyEditors();
 
             if (supportsReadOnlyEditors && sourceType == DebugSourceType.DEPENDENCY) {
+                // Note: Since we are using a Ballerina-specific custom URI scheme, the future DAP client
+                // implementations may have to implement custom editor providers in order to support URIs coming
+                // from the debug server.
                 source.setPath(URI.create(BALA_URI_SCHEME_NAME + uri.getPath()).normalize().toString());
             } else {
                 source.setPath(uri.normalize().toString());

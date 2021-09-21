@@ -32,12 +32,14 @@ public class BallerinaTestDebugPoint {
     private final String condition;
     private final String logMessage;
 
+    private static final String FILE_URI_SCHEME = "file://";
+
     public BallerinaTestDebugPoint(String filePath, int line) {
         this(filePath, line, null, null);
     }
 
     public BallerinaTestDebugPoint(String filePath, int line, String condition, String logMessage) {
-        this.filePath = filePath;
+        this.filePath = getPathWithoutURIScheme(filePath);
         this.line = line;
         this.condition = condition;
         this.logMessage = logMessage;
@@ -81,5 +83,15 @@ public class BallerinaTestDebugPoint {
     @Override
     public String toString() {
         return "Ballerina test breakpoint at line: " + line + " in " + filePath;
+    }
+
+    /**
+     * Since the debug server may return URIs of the source files, URI schemes should be ignored when asserting debug
+     * point locations.
+     *
+     * @param filePath file path with possible URI schemes
+     */
+    private String getPathWithoutURIScheme(String filePath) {
+        return filePath.startsWith(FILE_URI_SCHEME) ? filePath.replaceFirst(FILE_URI_SCHEME, "") : filePath;
     }
 }
