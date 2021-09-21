@@ -122,7 +122,7 @@ public class PackageResolutionTests extends BaseTest {
                 "Unexpected number of dependencies");
     }
 
-    @Test()
+    @Test(description = "tests resolution with invalid build file")
     public void testProjectwithInvalidBuildFile() throws IOException {
         // Package path
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
@@ -158,7 +158,7 @@ public class PackageResolutionTests extends BaseTest {
         }
     }
 
-    @Test(dependsOnMethods = "testProjectwithInvalidBuildFile")
+    @Test(dependsOnMethods = "testProjectwithInvalidBuildFile", description = "tests project with empty build file")
     public void testProjectSaveWithEmptyBuildFile() throws IOException {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
@@ -175,7 +175,7 @@ public class PackageResolutionTests extends BaseTest {
         Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
     }
 
-    @Test(dependsOnMethods = "testProjectSaveWithEmptyBuildFile")
+    @Test(dependsOnMethods = "testProjectSaveWithEmptyBuildFile", description = "tests project with corrupt build file")
     public void testProjectSaveWithCorruptBuildFile() throws IOException {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
@@ -193,7 +193,8 @@ public class PackageResolutionTests extends BaseTest {
         Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
     }
 
-    @Test(dependsOnMethods = "testProjectSaveWithEmptyBuildFile")
+    @Test(dependsOnMethods = "testProjectSaveWithCorruptBuildFile", description = "tests project with no read " +
+            "permissions")
     public void testProjectSaveWithNoReadPermission() throws IOException {
         // Skip test in windows due to file permission setting issue
         if (isWindows()) {
@@ -217,6 +218,30 @@ public class PackageResolutionTests extends BaseTest {
         if (!readable) {
             Assert.fail("could not set readable permission");
         }
+        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
+        Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
+    }
+
+    @Test(dependsOnMethods = "testProjectSaveWithNoReadPermission", description = "tests project with no write " +
+            "permissions")
+    public void testProjectSaveWithNoWritePermission() throws IOException {
+        // Skip test in windows due to file permission setting issue
+        if (isWindows()) {
+            throw new SkipException("Skipping tests on Windows");
+        }
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath);
+        Path buildPath = loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE);
+        boolean writable = buildPath.toFile().setWritable(false, false);
+        if (!writable) {
+            Assert.fail("could not set writable permission");
+        }
+
+        loadProject.save();
+
+        PackageCompilation compilation = loadProject.currentPackage().getCompilation();
+        Assert.assertTrue(Files.exists(buildPath));
         BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
         Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
     }
