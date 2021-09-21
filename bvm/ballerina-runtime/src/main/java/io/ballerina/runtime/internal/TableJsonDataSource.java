@@ -19,8 +19,6 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.creators.TypeCreator;
-import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -29,8 +27,8 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BMapType;
-import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStructureType;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ArrayValue;
@@ -42,8 +40,7 @@ import io.ballerina.runtime.internal.values.TupleValueImpl;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * {@link JsonDataSource} implementation for table.
@@ -90,7 +87,7 @@ public class TableJsonDataSource implements JsonDataSource {
         while (itr.hasNext()) {
             TupleValueImpl tupleValue = (TupleValueImpl) itr.next();
             //Retrieve table value from key-value tuple
-            MapValueImpl record = ((MapValueImpl) tupleValue.get(1));
+            BMap record = ((BMap) tupleValue.get(1));
             try {
                 values.append(this.objGen.transform(record));
             } catch (IOException e) {
@@ -107,35 +104,25 @@ public class TableJsonDataSource implements JsonDataSource {
     private static class DefaultJSONObjectGenerator implements JSONObjectGenerator {
 
         @Override
-        public Object transform(MapValueImpl record) {
+        public Object transform(BMap<?, ?> record) {
             MapValue<BString, Object> objNode = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_JSON));
             BStructureType structType = (BStructureType) record.getType();
-            LinkedList<Field> structFields = new LinkedList<>();
+            BField[] structFields = null;
             if (structType != null) {
-                structFields.addAll(structType.getFields().values());
-                if (record.size() > structFields.size()) {
-                    Type restFieldType = ((BRecordType) structType).getRestFieldType();
-                    for (int i = structFields.size(); i < record.size(); i++) {
-                        structFields.add(TypeCreator.createField(restFieldType, record.getKeys()[i].toString(), 0));
-                    }
-                }
+                structFields = structType.getFields().values().toArray(new BField[0]);
             }
-            if (structFields.size() > 0) {
-                Iterator<Field> itr = structFields.iterator();
-                for (int i = 0; i < structFields.size(); i++) {
-                    Field structField = itr.next();
-                    Type type = structField.getFieldType();
-                    String fieldName = structField.getFieldName();
-                    constructJsonData(record, objNode, fieldName, type, structFields, i);
-                }
+            for (Map.Entry entry : record.entrySet()) {
+                Type type = TypeChecker.getType(entry.getValue());
+                String fieldName = entry.getKey().toString();
+                constructJsonData(record, objNode, fieldName, type, structFields);
             }
             return objNode;
         }
 
     }
 
-    private static void constructJsonData(MapValueImpl record, MapValue<BString, Object> jsonObject, String name,
-                                          Type type, LinkedList<Field> structFields, int index) {
+    private static void constructJsonData(BMap<?, ?> record, MapValue<BString, Object> jsonObject, String name,
+                                          Type type, BField[] structFields) {
         BString key = StringUtils.fromString(name);
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
@@ -163,7 +150,7 @@ public class TableJsonDataSource implements JsonDataSource {
                 break;
             case TypeTags.ARRAY_TAG:
             case TypeTags.TUPLE_TAG:
-                jsonObject.put(key, getDataArray(record, key));
+                jsonObject.put(key, getDataArray((MapValue) record, key));
                 break;
             case TypeTags.JSON_TAG:
                 jsonObject.put(key, record.getStringValue(key) == null ? null :
@@ -171,7 +158,7 @@ public class TableJsonDataSource implements JsonDataSource {
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                jsonObject.put(key, getStructData(record.getMapValue(key), structFields, index, key));
+                jsonObject.put(key, getStructData(record.getMapValue(key), structFields, key, type));
                 break;
             case TypeTags.XML_TAG:
             case TypeTags.XML_ELEMENT_TAG:
@@ -189,7 +176,7 @@ public class TableJsonDataSource implements JsonDataSource {
         }
     }
 
-    private static Object getStructData(BMap data, LinkedList<Field> structFields, int index, BString key) {
+    private static Object getStructData(BMap<?, ?> data, BField[] structFields, BString key, Type internalType) {
         if (structFields == null) {
             ArrayValue jsonArray = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_JSON));
             if (data != null) {
@@ -218,19 +205,19 @@ public class TableJsonDataSource implements JsonDataSource {
             MapValue<BString, Object> jsonData = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_JSON));
             boolean structError = true;
             if (data != null) {
-                Type internalType = structFields.get(index).getFieldType();
                 if (internalType.getTag() == TypeTags.OBJECT_TYPE_TAG
                         || internalType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                    LinkedList<Field> internalStructFields = new LinkedList<>();
-                    internalStructFields.addAll(((BStructureType) internalType).getFields().values());
-                    for (int i = 0; i < internalStructFields.size(); i++) {
-                        BString internalKeyName = StringUtils.fromString(internalStructFields.get(i).getFieldName());
+                    BField[] internalStructFields =
+                            ((BStructureType) internalType).getFields().values().toArray(new BField[0]);
+                    for (Map.Entry entry : data.entrySet()) {
+                        Type type = TypeChecker.getType(entry.getValue());
+                        BString internalKeyName = StringUtils.fromString(entry.getKey().toString());
                         Object value = data.get(internalKeyName);
                         if (value instanceof BigDecimal) {
                             jsonData.put(internalKeyName, ((BigDecimal) value).doubleValue());
                         } else if (value instanceof MapValueImpl) {
                             jsonData.put(internalKeyName,
-                                         getStructData((MapValueImpl) value, internalStructFields, i, internalKeyName));
+                                    getStructData((BMap) value, internalStructFields, internalKeyName, type));
                         } else {
                             jsonData.put(internalKeyName, value);
                         }
@@ -267,7 +254,7 @@ public class TableJsonDataSource implements JsonDataSource {
          * @return The generated JSON object
          * @throws IOException for JSON reading/serializing errors
          */
-        Object transform(MapValueImpl record) throws IOException;
+        Object transform(BMap<?, ?> record) throws IOException;
 
     }
 }
