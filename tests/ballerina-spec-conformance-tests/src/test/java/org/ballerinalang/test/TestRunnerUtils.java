@@ -17,6 +17,9 @@ package org.ballerinalang.test;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.testng.Assert;
+import org.testng.ITestContext;
+import org.testng.ITestResult;
+import org.testng.SkipException;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -25,10 +28,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -40,205 +47,473 @@ public class TestRunnerUtils {
 
     private static final String START_TEST_CASE = "Test-Case";
     private static final String DESCRIPTION = "Description";
-    private static final String AUTHOR = "Author";
     private static final String FAIL_ISSUE = "Fail-Issue";
     private static final String LABELS = "Labels";
     public static final String OUTPUT = "output";
     public static final String PANIC = "panic";
     public static final String ERROR = "error";
-    public static final String SKIPPED_TEST = "skipped-test";
+    public static final String PARSER_ERROR = "parser-error";
+    public static final String OTHER = "other";
     private static final String EMPTY_STRING = "";
-    private static final String COLON = ":";
+    private static final String CARRIAGE_RETURN_CHAR = "\\r";
+    public static final String UNDERSCORE = "_";
     private static final String NEW_LINE_CHARACTER = "\n";
     private static final String BAL_EXTENSION = ".bal";
     public static final String RESOURCE_DIR = "src/test/resources/";
     public static final String TEMP_DIR = "test-src/";
     private static final String IMPORT_BALLERINAI = "import ballerinai/io;";
-    private static int fileCount = 0;
     private static int absLineNum;
-    public static String detailsOfTests = "";
-    public static int totalTest = 0;
-    public static int totalTestPassed = 0;
-
+    public static String diagnostics;
 
     public static void readTestFile(String fileName, String path, List<Object[]> testCases, Set<String> labels)
                                                                                                     throws IOException {
+        absLineNum = 1;
+        String subPath = path.split("/conformance/")[1];
+        subPath = subPath.substring(0, subPath.lastIndexOf("/") + 1);
+
         File testFile = new File(path);
         FileReader fileReader = new FileReader(testFile);
         BufferedReader buffReader = new BufferedReader(fileReader);
+
         String line = buffReader.readLine();
-        absLineNum = 1;
-        String pattern = String.format("^(%s)\\s*:\\s*.*", START_TEST_CASE);
         while (line != null) {
-            if (Pattern.matches(pattern, line)) {
-                line = createTestFile(fileName, line, buffReader, testCases, labels);
-            } else {
-                line = buffReader.readLine();
-                absLineNum++;
-            }
+            line = readTestFile(subPath, line, fileName, buffReader, testCases, labels);
         }
         buffReader.close();
     }
 
-    private static String createTestFile(String fileName, String kindOfTestFile, BufferedReader buffReader,
-                                         List<Object[]>  testCases, Set<String> labels) throws IOException {
-        String tempFileName = fileName.substring(0, fileName.indexOf(".")) + fileCount++;
-        String tempDir = TEMP_DIR + tempFileName + BAL_EXTENSION;
-        File tempBalFile = new File(RESOURCE_DIR + tempDir);
-        String kindOfTestCase = readHeadersOfTestCase(buffReader, kindOfTestFile, labels);
-        if (kindOfTestCase.equals(SKIPPED_TEST)) {
-            return EMPTY_STRING;
-        }
-        List<String> outputValues = new ArrayList<>();
-        List<Integer> errLines = new ArrayList<>();
-        Object[] testCase = new Object[6];
+    private static String readTestFile(String path, String line, String fileName, BufferedReader buffReader,
+                                       List<Object[]>  testCases, Set<String> selectedLabels) throws IOException {
+        diagnostics = null;
+        String tempDir = RESOURCE_DIR + TEMP_DIR + path;
+        new File(tempDir).mkdirs();
+        String tempFileName = fileName.substring(0, fileName.indexOf(".")) + UNDERSCORE + absLineNum;
+
+        Map<String, String> headersOfTestCase = readHeadersOfTest(line, buffReader);
+        String kindOfTestCase = getKindOfTest(headersOfTestCase.get(START_TEST_CASE));
+        boolean isSkippedTestCase = isSkippedTestCase(selectedLabels, headersOfTestCase.get(LABELS));
+
+        Object[] testCase = new Object[8];
         testCase[0] = kindOfTestCase;
+        testCase[1] = TEMP_DIR + path + tempFileName + BAL_EXTENSION;
+        testCase[4] = fileName;
+        testCase[5] = absLineNum;
+        testCase[6] = isSkippedTestCase;
+
+        return writeToBalFile(testCases, testCase, kindOfTestCase, tempDir, tempFileName, buffReader);
+    }
+
+    private static String writeToBalFile(List<Object[]>  testCases, Object[] testCase, String kindOfTestCase,
+                                         String tempDir, String tempFileName, BufferedReader buffReader)
+                                         throws IOException {
+        List<String> outputValues = new ArrayList<>();
+        List<Integer> lineNumbers = new ArrayList<>();
+        File tempBalFile = new File(tempDir + tempFileName + BAL_EXTENSION);
         FileWriter tempFileWriter = new FileWriter(tempBalFile);
-        boolean isOutputTest = kindOfTestCase.equals(OUTPUT);
-        if (isOutputTest) {
+        if (kindOfTestCase.equals(OUTPUT)) {
             tempFileWriter.write(IMPORT_BALLERINAI + NEW_LINE_CHARACTER);
         }
-        String line;
-        int relativeLineNum = 0;
-        while ((line = buffReader.readLine()) != null) {
-            if (!isOutputTest) {
-                relativeLineNum = relativeLineNum + 1;
-            }
+        String line = buffReader.readLine();
+        int relativeLineNum = 1;
+        while (line != null) {
             if (line.startsWith(START_TEST_CASE)) {
                 break;
             }
-            String pattern = String.format(".*//\\s*@\\s*(%s)\\s*.*", kindOfTestCase);
-            if (Pattern.matches(pattern, line)) {
-                String output = line.substring(line.indexOf(kindOfTestCase) + kindOfTestCase.length()).trim();
-                if (!kindOfTestCase.equals(OUTPUT)) {
-                    errLines.add(relativeLineNum);
-                }
-                outputValues.add(output);
-            } else if (Pattern.matches(".*//.*", line)) {
-                Assert.fail("format of output is incorrect, format of output " +
-                            "should be //@error, //@output and //@panic");
-            }
+            line = getExpectedValues(kindOfTestCase, line, relativeLineNum, lineNumbers, outputValues);
             tempFileWriter.write(line + NEW_LINE_CHARACTER);
+            line = buffReader.readLine();
+            relativeLineNum = relativeLineNum + 1;
         }
+
         tempFileWriter.close();
-        testCase[1] = tempDir;
-        testCase[2] = outputValues;
-        testCase[3] = errLines;
-        testCase[4] = fileName;
-        testCase[5] = absLineNum;
         absLineNum = absLineNum + relativeLineNum;
+        testCase[2] = outputValues;
+        testCase[3] = lineNumbers;
+        testCase[7] = diagnostics;
+
         testCases.add(testCase);
         return line;
     }
 
-    private static String getKindOfTestCase(String kindOfTestCase) {
-        String pattern = String.format(".*:\\s*(%s|%s|%s)$", OUTPUT, ERROR, PANIC);
-        if (Pattern.matches(pattern, kindOfTestCase.trim())) {
-            return kindOfTestCase.substring(kindOfTestCase.indexOf(COLON) + 1).trim();
-        }
-        throw new AssertionError(String.format("Kind of testcase is incorrect in line %d, expected kind of " +
-                                               "testcases are OUTPUT, ERROR, PANIC", absLineNum));
-    }
-
-    private static String readHeadersOfTestCase(BufferedReader buffReader, String kindOfTestFile,
-                                                Set<String> selectedLabels) throws IOException {
-        Map<String, String> headers = new HashMap<>();
-        String line;
-
-        String pattern = String.format("^(%s|%s|%s|%s)\\s*:\\s*.*", DESCRIPTION, AUTHOR, FAIL_ISSUE, LABELS);
-        String kind = getKindOfTestCase(kindOfTestFile);
-        String key = null;
-        String value = null;
-        while ((line = buffReader.readLine()) != null) {
-            absLineNum++;
-            String header = line.strip();
-            if (header.equals(EMPTY_STRING)) {
-                headers.put(key, value);
-                break;
-            } else if (Pattern.matches(pattern, header)) {
-                if (key != null) {
-                    headers.put(key, value);
-                }
-                int index = line.indexOf(COLON);
-                key = header.substring(0, index).trim();
-                value = header.substring(index + 1).trim();
-                if (key.equals(LABELS)) {
-                    String[] labels = value.split("\\s*,\\s*");
-                    checkLabelsDefined(labels);
-                    kind = isSkippedTestCase(selectedLabels, labels, kind);
-                }
-            } else {
-                value = value + " " + header.trim();
+    private static String getExpectedValues(String kindOfTestCase, String line, int relativeLineNum,
+                                            List<Integer> lineNumbers, List<String> outputValues) {
+        Pattern pattern = Pattern.compile("(.*)//\\s*@\\s*(\\S+)\\s*(.*)");
+        Matcher matcher = pattern.matcher(line);
+        if (matcher.find()) {
+            if (!kindOfTestCase.equals(matcher.group(2).trim())) {
+                reportDiagnostics("format of output is incorrect, It should be //@error, //@output and //@panic");
             }
+            String output = matcher.group(3).trim();
+            line = matcher.group(1);
+            lineNumbers.add(relativeLineNum);
+            outputValues.add(output);
         }
-        return kind;
+        return line;
     }
 
-    private static void checkLabelsDefined(String[] labels) {
-//        for (String label : labels) {
-//            if (!org.ballerinalang.test.Labels.LABELS.contains(label)) {
-//                Assert.fail(String.format("Lable %s is not defined", label));
-//            }
-//        }
-    }
-
-    private static String isSkippedTestCase(Set<String> selectedLabels, String[] labels, String kind) {
-        if (selectedLabels.isEmpty()) {
+    private static String getKindOfTest(String kind) {
+        if (kind == null) {
+            reportDiagnostics("Kind of testcase is not defined");
+        }
+        if (kind.equals(OUTPUT) || kind.equals(ERROR) || kind.equals(PANIC) || kind.equals(PARSER_ERROR)) {
             return kind;
         }
-        for (String label : labels) {
+        reportDiagnostics("incorrect test kind, expected kind of testcases are OUTPUT, ERROR, PANIC");
+        return OTHER;
+    }
+
+    private static Map<String, String> readHeadersOfTest(String line, BufferedReader buffReader) throws IOException {
+        ArrayList<String> requiredHeaders = new ArrayList<>(Arrays.asList(START_TEST_CASE, DESCRIPTION, LABELS));
+        Map<String, String> headers = new HashMap<>();
+        Pattern pattern = Pattern.compile("^(\\S+)\\s*:\\s*(.*)");
+
+        String key = null;
+        String value = null;
+        while (line != null) {
+            String header = line.strip();
+            Matcher matcher = pattern.matcher(header);
+            if (header.equals(EMPTY_STRING)) {
+                if (key == null) {
+                    line = buffReader.readLine();
+                    absLineNum++;
+                    continue;
+                }
+                requiredHeaders.remove(key);
+                headers.put(key, value);
+                break;
+            } else if (matcher.find() && !matcher.group(1).equals("int")) { //todo: handle int:Unsigned32 kind cases
+                if (key != null) {
+                    requiredHeaders.remove(key);
+                    headers.put(key, value);
+                }
+                key = matcher.group(1);
+                if (!(key.equals(LABELS) || key.equals(DESCRIPTION) || key.equals(FAIL_ISSUE) ||
+                                                                                        key.equals(START_TEST_CASE))) {
+                    reportDiagnostics(String.format("header %s is not defined", key));
+                }
+                value = matcher.group(2);
+            } else if (key != null) {
+                value = value + " " + header.trim();
+            } else {
+                reportDiagnostics("incorrect header format");
+            }
+            line = buffReader.readLine();
+            absLineNum++;
+        }
+
+        if (!requiredHeaders.isEmpty()) {
+            reportDiagnostics("incorrect header format");
+        }
+        return headers;
+    }
+
+    public static void reportDiagnostics(String msg) {
+        if (diagnostics != null) {
+            return;
+        }
+        diagnostics = msg;
+    }
+
+    public static HashMap<String, HashSet<String>> readLabels(String testDir) {
+        try {
+            File file = new File(testDir + "/" + RESOURCE_DIR + "labels.csv");
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+            String line = br.readLine();
+            String[] tempArr;
+            HashMap<String, HashSet<String>> labels = new HashMap<>();
+            while ((line = br.readLine()) != null) {
+                tempArr = line.split(",");
+                if (!labels.containsKey(tempArr[0])) {
+                    labels.put(tempArr[0], new HashSet<>());
+                }
+                if (tempArr.length == 2) {
+                    String x = tempArr[1];
+                    if (!labels.containsKey(x)) {
+                        labels.put(x, new HashSet<>());
+                    }
+                    labels.get(x).add(tempArr[0]);
+                }
+            }
+            br.close();
+            return labels;
+        } catch (IOException ioe) {
+            throw new AssertionError("can't resolve labels.csv file");
+        }
+    }
+
+    private static boolean isSkippedTestCase(Set<String> selectedLabels, String labels) {
+        if (selectedLabels.isEmpty() || labels == null) {
+            return false;
+        }
+        for (String label : labels.split("\\s*,\\s*")) {
             if (selectedLabels.contains(label)) {
-                return SKIPPED_TEST;
+                return false;
             }
         }
-        return kind;
+        return true;
     }
 
-    public static String validateError(CompileResult result, List<String> outputValues, String kind,
-                                       List<Integer> errLines, String fileName, int absLineNum, String details) {
-        for (int i = 0; i < result.getDiagnostics().length; i++) {
-            totalTest = totalTest + 1;
-            Diagnostic diagnostic = result.getDiagnostics()[i];
-            int actualLineNum = diagnostic.location().lineRange().startLine().line() + 1 + absLineNum;
-            int expLineNum = errLines.get(i) + absLineNum;
-            boolean output = actualLineNum == expLineNum;
-            if (output) {
-                totalTestPassed = totalTestPassed + 1;
-            }
-            details = details + ReportGenerator.generateErrorDetails(fileName, kind, String.valueOf(actualLineNum),
-                                                          outputValues.get(i), diagnostic.message(), getResult(output));
-            detailsOfTests = detailsOfTests + ReportGenerator.generateTestDetails(fileName, kind,
-                                                                         String.valueOf(expLineNum), getResult(output));
-
-            Assert.assertEquals(actualLineNum, expLineNum, String.format("In %s, incorrect line number:", fileName));
-        }
-        return details;
-    }
-
-    public static void validateOutput(String fileName, List<String> outputValues, String[] results) {
-        if (outputValues.size() != results.length) {
-            Assert.fail(String.format("In %s file, Expected %s but found %s", fileName, outputValues,
-                        Arrays.toString(results)));
-        }
-        for (int i = 0; i < outputValues.size(); i++) {
-            if (!results[i].equals(outputValues.get(i))) {
-                Assert.fail(String.format("In %s file, Expected %s vlaues but found %s values", fileName,
-                            outputValues, Arrays.toString(results)));
-            }
+    public static void validateFormatOfTest(String diagnostic) {
+        if (diagnostic != null) {
+            Assert.fail(diagnostic);
         }
     }
 
-    public static String validatePanic(int result, String kind, String errorMessage, int expectedErrLine,
-                                       String fileName, String detailsOfErrors) {
-        boolean output = result == expectedErrLine;
-        String lineNum = String.valueOf(expectedErrLine + absLineNum);
-        detailsOfErrors = detailsOfErrors + ReportGenerator.generateErrorDetails(fileName, kind, errorMessage, lineNum,
-                                                                            String.valueOf(result), getResult(output));
-        detailsOfTests = detailsOfTests + ReportGenerator.generateTestDetails(fileName, kind, lineNum,
-                                                                                    getResult(output));
+    public static void isSkippedTest(boolean isSkippedTestCase) {
+        if (isSkippedTestCase) {
+            throw new SkipException("Skip");
+        }
+    }
 
-        Assert.assertEquals(result, expectedErrLine, String.format("In %s, incorrect line number:", fileName));
-        return detailsOfErrors;
+    public static void setDetailsOfTest(ITestContext context, String kind, String fileName, int absLineNum,
+                                        String diagnostics) {
+        context.setAttribute("Kind", kind);
+        context.setAttribute("FileName", fileName);
+        context.setAttribute("lineNo", Integer.toString(absLineNum));
+        context.setAttribute("FileName", fileName);
+        context.setAttribute("FormatErrors", diagnostics);
+    }
+
+    public static void validateOutputOfTest(String path, String kind, List<String> outputValues,
+                                            List<Integer> lineNumbers, String fileName, int absLineNum,
+                                            ITestContext context) {
+        try {
+            CompileResult compileResult = BCompileUtil.compile(path);
+            switch (kind) {
+                case ERROR:
+                case PANIC:
+                    Collection<Diagnostic> errors = compileResult.getDiagnosticResult().errors();
+                    if (!errors.isEmpty()) {
+                        validateError(errors, lineNumbers, outputValues, absLineNum, context);
+                    } else {
+                        validateRuntimeErrorOrPanic(compileResult, lineNumbers, outputValues, absLineNum, context);
+                    }
+                    break;
+                case OUTPUT:
+                    validateOutput(compileResult, outputValues, lineNumbers, absLineNum, context);
+                    break;
+            }
+        } catch (Exception e) {
+            Assert.fail("failed to run spec conformance test: \"" + fileName + "\"", e);
+        }
+    }
+
+    public static void getAllLabels(HashSet<String> allLabels, HashSet<String> impliesLabelSet, HashMap<String,
+                                    HashSet<String>> definedLabels,  String label) {
+        allLabels.add(label);
+        for (String impliesLabel : impliesLabelSet) {
+            getAllLabels(allLabels, definedLabels.get(impliesLabel), definedLabels, impliesLabel);
+        }
+    }
+
+    public static void setDetailsOfErrorKindTest(ITestContext context, List<Integer> lineNumbers,
+                                                 List<String> outputValues, Collection<Diagnostic> diagnostics) {
+        context.setAttribute("LineNumbers", lineNumbers);
+        context.setAttribute("OutputValues", outputValues);
+        context.setAttribute("Diagnostics", diagnostics);
+    }
+
+    public static List<Object> getDetailsOfErrorKindTests(ITestContext context) {
+        List<Object> results = new ArrayList<>();
+        results.add(context.getAttribute("LineNumbers"));
+        results.add(context.getAttribute("OutputValues"));
+        results.add(context.getAttribute("Diagnostics"));
+
+        return results;
+    }
+
+    public static void validateError(Collection<Diagnostic> diagnostics, List<Integer> lineNumbers,
+                                     List<String> outputValues, int absLineNum, ITestContext context) {
+        setDetailsOfErrorKindTest(context, lineNumbers, outputValues, diagnostics);
+        Iterator<Diagnostic> iterator = diagnostics.iterator();
+        for (int i = 0; i < diagnostics.size(); i++) {
+            Diagnostic diagnostic = iterator.next();
+            String actualLineNum =
+                    String.valueOf(diagnostic.location().lineRange().startLine().line() + 1 + absLineNum);
+            String message = diagnostic.message().replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING);
+            String expLineNum;
+            String expValue;
+            try {
+                expLineNum = String.valueOf(lineNumbers.get(i) + absLineNum);
+                expValue = outputValues.get(i);
+            } catch (IndexOutOfBoundsException e) {
+                expLineNum = null;
+                expValue = null;
+            }
+            setResultsAttributes(context, message, expValue, actualLineNum, expLineNum);
+            Assert.assertEquals(actualLineNum, expLineNum);
+        }
+        if (outputValues.size() > diagnostics.size()) {
+            setResultsAttributes(context, null, outputValues.get(diagnostics.size()), null,
+                          String.valueOf(lineNumbers.get(diagnostics.size())));
+            Assert.assertNull(iterator.next().toString());
+        }
+    }
+
+    public static void validateOutput(CompileResult compileResult, List<String> outputValues, List<Integer> lineNumbers,
+                                      int absLineNum, ITestContext context) {
+        Collection<Diagnostic> diagnostics = compileResult.getDiagnosticResult().errors();
+        if (!diagnostics.isEmpty()) {
+            Diagnostic diagnostic = diagnostics.iterator().next();
+            String outputVal = outputValues.get(0);
+            String message = diagnostic.message().replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING);
+            String actualLineNum =
+                   String.valueOf(diagnostic.location().lineRange().startLine().line() + absLineNum);
+            setResultsAttributes(context, message, outputVal, actualLineNum,
+                                 String.valueOf(lineNumbers.get(0) + absLineNum));
+            Assert.assertEquals(outputVal, diagnostic.toString());
+        }
+
+        BRunUtil.ExitDetails exitDetails = BRunUtil.run(compileResult);
+        if (!exitDetails.errorOutput.isEmpty()) {
+            String outputVal = outputValues.get(0);
+            setResultsAttributes(context, exitDetails.errorOutput, outputVal, null,
+                                 String.valueOf(lineNumbers.get(0) + absLineNum));
+            Assert.assertEquals(outputVal, exitDetails.errorOutput);
+        }
+
+        String consoleOutput = exitDetails.consoleOutput;
+        String[] results = consoleOutput.split("\r\n|\r|\n");
+        int size = outputValues.size();
+        for (int i = 0; i < size; i++) {
+            String expectedOutput = outputValues.get(i);
+            String actualOutput;
+            try {
+                actualOutput = results[i];
+            } catch (ArrayIndexOutOfBoundsException e) {
+                actualOutput = null;
+            }
+            setResultsAttributes(context, actualOutput, expectedOutput, actualOutput,
+                                 String.valueOf(lineNumbers.get(i)));
+            Assert.assertEquals(expectedOutput, actualOutput);
+        }
+
+        if (results.length > size) {
+            setResultsAttributes(context, results[size - 1], null, null, null);
+            Assert.assertNull(results[size - 1]);
+        }
+    }
+
+    public static void validateRuntimeErrorOrPanic(CompileResult compileResult, List<Integer> lineNumbers,
+                                                   List<String> outputValues, int absLineNum, ITestContext context) {
+        BRunUtil.ExitDetails exitDetails = BRunUtil.run(compileResult);
+        if (exitDetails.errorOutput.isEmpty()) {
+            String outputVal = outputValues.get(0);
+            setResultsAttributes(context, exitDetails.consoleOutput, outputVal, null,
+                                 String.valueOf(lineNumbers.get(0) + absLineNum));
+            Assert.assertNull(outputVal);
+        }
+        String errorOutput = BRunUtil.run(compileResult).errorOutput;
+        Matcher matcherForErrorMsg = Pattern.compile("^(error)\\s*:\\s*(.*)").matcher(errorOutput);
+        Matcher matcherForErrorLineNum = Pattern.compile(":(\\d+)\\)$").matcher(errorOutput);
+
+        if (matcherForErrorMsg.find() && matcherForErrorLineNum.find()) {
+            int lineNum = lineNumbers.get(0) + absLineNum;
+            String errorLineNum = String.valueOf(Integer.parseInt(matcherForErrorLineNum.group(1)) + absLineNum);
+            setResultsAttributes(context, matcherForErrorMsg.group(2), outputValues.get(0),
+                                 errorLineNum, String.valueOf(lineNum));
+            Assert.assertEquals(errorLineNum, String.valueOf(lineNum));
+        }
+    }
+
+    public static void setResultsAttributes(ITestContext context, String actualValue, String expectedValue,
+                                            String actualLineNo, String expectedLineNo) {
+        context.setAttribute("ActualValue", actualValue);
+        context.setAttribute("ExpectedValue", expectedValue);
+        context.setAttribute("ActualLineNo", actualLineNo);
+        context.setAttribute("ExpectedLineNo", expectedLineNo);
+    }
+
+    public static List<String> getDetailsOfTest(ITestContext context, ITestResult result) {
+        List<String> results = new ArrayList<>();
+        results.add((String) context.getAttribute("FileName"));
+        results.add((String) context.getAttribute("Kind"));
+        results.add((String) context.getAttribute("lineNo"));
+        String formatErrors = (String) context.getAttribute("FormatErrors");
+        results.add(formatErrors);
+        if (result.getStatus() == ITestResult.SKIP || formatErrors != null) {
+            return results;
+        }
+        results.add((String) context.getAttribute("ActualValue"));
+        results.add((String) context.getAttribute("ExpectedValue"));
+        results.add((String) context.getAttribute("ActualLineNo"));
+        results.add((String) context.getAttribute("ExpectedLineNo"));
+        return results;
+    }
+
+    public static void setDetailsOfErrorKindTests(ITestContext context, ReportGenerator reportGenerator,
+                                                  List<String> detailsOfTest) {
+        List<Object> detailsOfErrorKindTests = getDetailsOfErrorKindTests(context);
+
+        boolean haveOnlyNulls = detailsOfErrorKindTests.stream().allMatch(x -> x == null);
+
+        if (!haveOnlyNulls) {
+            int absLineNo = Integer.parseInt(detailsOfTest.get(2));
+            List<Integer> lineNumbers = (List<Integer>) detailsOfErrorKindTests.get(0);
+            List<String> outputValues = (List<String>) detailsOfErrorKindTests.get(1);
+            Collection<Diagnostic> diagnostics = (Collection<Diagnostic>) detailsOfErrorKindTests.get(2);
+
+            Iterator<Diagnostic> iterator = diagnostics.iterator();
+            for (int i = 0; i < diagnostics.size(); i++) {
+                List<String> results = new ArrayList<>();
+                results.add(detailsOfTest.get(0));
+                results.add(detailsOfTest.get(1));
+                results.add(detailsOfTest.get(2));
+                results.add(detailsOfTest.get(3));
+                Diagnostic diagnostic = iterator.next();
+                int actualLineNum = diagnostic.location().lineRange().startLine().line() + 1 + absLineNo;
+                String message = diagnostic.message().replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING);
+                String expLineNum;
+                String expOutput;
+                try {
+                    expLineNum = String.valueOf(lineNumbers.get(i) + absLineNo);
+                    expOutput = outputValues.get(i);
+                } catch (IndexOutOfBoundsException e) {
+                    expLineNum = null;
+                    expOutput = null;
+                }
+                results.add(message);
+                results.add(expOutput);
+                results.add(String.valueOf(actualLineNum));
+                results.add(expLineNum);
+                reportGenerator.addDetailsOfErrorKindTests(results);
+            }
+
+            for (int i = diagnostics.size(); i < outputValues.size(); i++) {
+                List<String> results = new ArrayList<>();
+                results.add(detailsOfTest.get(0));
+                results.add(detailsOfTest.get(1));
+                results.add(detailsOfTest.get(2));
+                results.add(detailsOfTest.get(3));
+                results.add(null);
+                results.add(outputValues.get(i));
+                results.add(null);
+                results.add(String.valueOf(lineNumbers.get(i)));
+                reportGenerator.addDetailsOfErrorKindTests(results);
+            }
+        } else {
+            reportGenerator.addDetailsOfErrorKindTests(detailsOfTest);
+        }
+    }
+
+    public static void setDetails(ITestContext context, ITestResult result, ReportGenerator reportGenerator) {
+        List<String> detailsOfTest = getDetailsOfTest(context, result);
+        if (result.getStatus() != ITestResult.SKIP && detailsOfTest.get(1).equals(ERROR)) {
+            setDetailsOfErrorKindTests(context, reportGenerator, detailsOfTest);
+        }
+        switch (result.getStatus()) {
+            case ITestResult.SUCCESS:
+                break;
+            case ITestResult.FAILURE:
+                reportGenerator.addDetailsOfFailedTests(detailsOfTest);
+                break;
+            case ITestResult.SKIP:
+                reportGenerator.addDetailsOfSkippedTests(detailsOfTest);
+                break;
+            default:
+                throw new RuntimeException("Invalid status");
+        }
     }
 
     public static void deleteFilesWithinDirectory(File directory) {
@@ -253,11 +528,20 @@ public class TestRunnerUtils {
         }
     }
 
-    public static String getResult(boolean output) {
-        if (output) {
-            return "Pass";
-        } else {
-            return "Fail";
+    public static boolean deleteDirectory(String directoryPath) {
+        File directory = new File(directoryPath);
+        if (directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    boolean success = deleteDirectory(f.toPath().toString());
+                    if (!success) {
+                        return false;
+                    }
+                }
+            }
+
         }
+        return directory.delete();
     }
 }

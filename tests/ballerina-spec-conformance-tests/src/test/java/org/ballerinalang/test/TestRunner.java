@@ -15,9 +15,11 @@
  */
 package org.ballerinalang.test;
 
-
 import org.testng.Assert;
+import org.testng.ITestContext;
+import org.testng.ITestResult;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -28,13 +30,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import static org.ballerinalang.test.TestRunnerUtils.RESOURCE_DIR;
+import static org.ballerinalang.test.TestRunnerUtils.TEMP_DIR;
+import static org.ballerinalang.test.TestRunnerUtils.deleteDirectory;
+import static org.ballerinalang.test.TestRunnerUtils.getAllLabels;
+import static org.ballerinalang.test.TestRunnerUtils.isSkippedTest;
+import static org.ballerinalang.test.TestRunnerUtils.setDetails;
+import static org.ballerinalang.test.TestRunnerUtils.setDetailsOfTest;
+import static org.ballerinalang.test.TestRunnerUtils.validateFormatOfTest;
+import static org.ballerinalang.test.TestRunnerUtils.validateOutputOfTest;
 
 /**
  * Test runner for run spec conformance tests through compiler phases.
@@ -45,87 +55,60 @@ public class TestRunner {
 
     private final Path ballerinaLangDir = Paths.get("").toAbsolutePath().getParent().getParent();
     private final Path testDir = ballerinaLangDir.resolve("tests").resolve("ballerina-spec-conformance-tests");
-    private final Path testSourcesDirectory = Paths.get("src/test/resources").toAbsolutePath().normalize();
-    CompileResult compileResult;
 
     @BeforeClass
-    public void cleanAndCreateDir() {
+    public void cleanDir(ITestContext context) {
+        context.setAttribute("ReportGenerator", new ReportGenerator());
         TestRunnerUtils.deleteFilesWithinDirectory(new File(ReportGenerator.REPORT_DIR.toString()));
     }
 
-    @Test(dataProvider = "spec-conformance-test-file-provider")
-    public void test(String kind, String path, List<String> outputValues, List<Integer> errLines, String fileName,
-                     int absLineNum) {
-        String detailsOfErrorKindTests = "";
-        try {
-            compileResult = BCompileUtil.compile(path);
-            Files.delete(testSourcesDirectory.resolve((new File(path)).toPath()));
-        } catch (Exception e) {
-            Assert.fail("failed to run spec conformance test: \"" + fileName + "\"", e);
-        }
+    @Test(dataProvider = "spec-conformance-tests-file-provider")
+    public void test(String kind, String path, List<String> outputValues, List<Integer> lineNumbers, String fileName,
+                     int absLineNum, boolean isSkippedTest, String diagnostics, ITestContext context) {
+        setDetailsOfTest(context, kind, fileName, absLineNum, diagnostics);
+        isSkippedTest(isSkippedTest);
+        validateFormatOfTest(diagnostics);
+        validateOutputOfTest(path, kind, outputValues, lineNumbers, fileName, absLineNum, context);
+    }
 
-        if (!kind.equals(TestRunnerUtils.ERROR)) {
-            BRunUtil.ExitDetails exitDetails = BRunUtil.run(compileResult);
-            if (exitDetails.exitCode != 0) {
-                Matcher matcher = Pattern.compile(":(\\d+)\\)").matcher(exitDetails.errorOutput);
-                // Todo: filter error message
-                String error = "";
-                if (matcher.find()) {
-                    detailsOfErrorKindTests =
-                            TestRunnerUtils.validatePanic(Integer.parseInt(matcher.group(1)) + absLineNum, kind, error,
-                                            errLines.get(0) + absLineNum, fileName, detailsOfErrorKindTests);
-                }
-            } else {
-                String consoleOutput = exitDetails.consoleOutput;
-                String[] result = consoleOutput.split("\r\n|\r|\n");
-                TestRunnerUtils.validateOutput(fileName, outputValues, result);
-            }
-        } else {
-            detailsOfErrorKindTests = TestRunnerUtils.validateError(compileResult, outputValues, kind, errLines,
-                                                                    fileName, absLineNum, detailsOfErrorKindTests);
-        }
-
-        try {
-            ReportGenerator.generateReport(ReportGenerator.ERROR_REPORT,
-                                           fileName.substring(0, fileName.indexOf(".")), detailsOfErrorKindTests);
-        } catch (Exception e) {
-            Assert.fail("failed to generate spec conformance test report: \"" + fileName + "\"", e);
-        }
+    @AfterMethod
+    public void resultsOfTests(ITestContext context, ITestResult result) {
+        ReportGenerator reportGenerator = (ReportGenerator) context.getAttribute("ReportGenerator");
+        setDetails(context, result, reportGenerator);
     }
 
     @AfterClass
-    public void generateReports() {
-        try {
-            ReportGenerator.generateReport(ReportGenerator.TESTS_REPORT,
-                                           "test_summary", TestRunnerUtils.detailsOfTests);
-        } catch (Exception e) {
-            Assert.fail("failed to generate spec conformance test report: ", e);
-        }
+    public void generateReports(ITestContext context) throws IOException {
+        deleteDirectory(testDir + "/" + RESOURCE_DIR + TEMP_DIR);
+        ReportGenerator reportGenerator = (ReportGenerator) context.getAttribute("ReportGenerator");
+        reportGenerator.generateReport();
     }
 
-    public HashSet<String> skipList() {
-        // to skip balt file
+    public static HashSet<String> runSelectedTests(HashMap<String, HashSet<String>> definedLabels) {
+        final String[] labels = new String[] {};
         HashSet<String> hashSet = new HashSet<>();
+
+        for (String label : labels) {
+            if (definedLabels.containsKey(label)) {
+                getAllLabels(hashSet, definedLabels.get(label), definedLabels, label);
+            } else {
+                Assert.fail(String.format("Label %s is not defined", label));
+            }
+        }
         return hashSet;
     }
 
-    public HashSet<String> runSelectedTests() {
-        final String[] setValues = new String[] {};
-        return new HashSet<>(Arrays.asList(setValues));
-    }
-
-    @DataProvider(name = "spec-conformance-test-file-provider")
+    @DataProvider(name = "spec-conformance-tests-file-provider")
     public Iterator<Object[]> dataProvider() {
-        HashSet<String> skippedTests = skipList();
-        Set<String> labels = runSelectedTests();
+        HashMap<String, HashSet<String>> definedLabels = TestRunnerUtils.readLabels(testDir.toString());
+        Set<String> labels = runSelectedTests(definedLabels);
         List<Object[]> testCases = new ArrayList<>();
         try {
             Files.walk(testDir.resolve("src").resolve("test").resolve("resources").resolve("ballerina-spec-tests")
                     .resolve("conformance"))
                     .filter(path -> {
                         File file = path.toFile();
-                        return file.isFile() && file.getName().endsWith(".balt")
-                                && !skippedTests.contains(file.getName());
+                        return file.isFile() && file.getName().endsWith(".balt");
                     })
                     .map(path -> new Object[]{path.toFile().getName(), path.toString()})
                     .forEach(object -> {
