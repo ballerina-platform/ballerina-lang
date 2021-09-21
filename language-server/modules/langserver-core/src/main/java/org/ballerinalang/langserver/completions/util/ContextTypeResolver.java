@@ -60,6 +60,7 @@ import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
@@ -349,6 +350,28 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         Optional<Symbol> methodSymbol = visibleEntries.stream()
                 .filter(symbol -> symbol.getName().orElse("").equals(methodName.name().text()))
                 .findFirst();
+
+        if (methodSymbol.isEmpty() || methodSymbol.get().kind() != SymbolKind.METHOD) {
+            return Optional.empty();
+        }
+        if (!CommonUtil.isInMethodCallParameterContext(context, node)) {
+            return SymbolUtil.getTypeDescriptor(methodSymbol.get());
+        }
+
+        Optional<ParameterSymbol> paramSymbol =
+                CommonUtil.resolveFunctionParameterSymbol(
+                        ((MethodSymbol) methodSymbol.get()).typeDescriptor(), context, node);
+
+        if (paramSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return SymbolUtil.getTypeDescriptor(paramSymbol.get());
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(RemoteMethodCallActionNode node) {
+        Optional<Symbol> methodSymbol = this.context.currentSemanticModel().get().symbol(node);
 
         if (methodSymbol.isEmpty() || methodSymbol.get().kind() != SymbolKind.METHOD) {
             return Optional.empty();

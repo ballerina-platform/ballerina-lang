@@ -48,6 +48,7 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -1353,6 +1354,21 @@ public class CommonUtil {
      *
      * @param functionTypeSymbol Referenced FunctionTypeSymbol
      * @param ctx                Positioned operation context information.
+     * @param node               Remote method call action node.
+     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     */
+    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                           PositionedOperationContext ctx,
+                                                                           RemoteMethodCallActionNode node) {
+        return resolveParameterSymbol(functionTypeSymbol, ctx, node.arguments());
+    }
+
+    /**
+     * Given the cursor position information, returns the expected ParameterSymbol
+     * information corresponding to the FunctionTypeSymbol instance.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
      * @param node               Method call expression node.
      * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
      */
@@ -1378,11 +1394,23 @@ public class CommonUtil {
      * Check if the cursor is positioned in a method call expression parameter context.
      *
      * @param ctx  PositionedOperationContext
-     * @param node FunctionCallExpressionNode
+     * @param node MethodCallExpressionNode
      * @return {@link Boolean} whether the cursor is in parameter context.
      */
     public static Boolean isInMethodCallParameterContext(PositionedOperationContext ctx,
                                                          MethodCallExpressionNode node) {
+        return isWithinParenthesis(ctx, node.openParenToken(), node.closeParenToken());
+    }
+
+    /**
+     * Check if the cursor is positioned in a method call expression parameter context.
+     *
+     * @param ctx  PositionedOperationContext
+     * @param node RemoteMethodCallActionNode
+     * @return {@link Boolean} whether the cursor is in parameter context.
+     */
+    public static Boolean isInMethodCallParameterContext(PositionedOperationContext ctx,
+                                                         RemoteMethodCallActionNode node) {
         return isWithinParenthesis(ctx, node.openParenToken(), node.closeParenToken());
     }
 
