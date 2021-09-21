@@ -111,7 +111,7 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         TypeSymbol symbol = typeSymbolAtCursor.get();
         for (LSCompletionItem completionItem : completionItems) {
             completionItem.getCompletionItem()
-                    .setSortText(SortingUtil.genSortTextByAssignability(completionItem, symbol));
+                    .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
         }
     }
 }

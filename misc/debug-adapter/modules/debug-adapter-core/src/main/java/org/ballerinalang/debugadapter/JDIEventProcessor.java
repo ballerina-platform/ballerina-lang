@@ -210,8 +210,10 @@ public class JDIEventProcessor {
         }
     }
 
-    void setBreakpoints(String path, Map<Integer, BalBreakpoint> breakpoints) {
-        this.breakpoints.put(getQualifiedClassName(context, path), breakpoints);
+    void setBreakpoints(String debugSourcePath, Map<Integer, BalBreakpoint> breakpoints) {
+        Optional<String> qualifiedClassName = getQualifiedClassName(context, debugSourcePath);
+        qualifiedClassName.ifPresent(qClassName -> this.breakpoints.put(qClassName, breakpoints));
+
         if (context.getDebuggeeVM() != null) {
             // Setting breakpoints to a already running debug session.
             context.getEventManager().deleteAllBreakpoints();
