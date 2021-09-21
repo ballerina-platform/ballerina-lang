@@ -351,6 +351,7 @@ public class Desugar extends BLangNodeVisitor {
     private static final String GENERATED_ERROR_VAR = "$error$";
     private static final String HAS_KEY = "hasKey";
     private static final String CREATE_RECORD_VALUE = "createRecordFromMap";
+    private static final String METHOD_INIT = "$init$";
 
     public static final String XML_INTERNAL_SELECT_DESCENDANTS = "selectDescendants";
     public static final String XML_INTERNAL_CHILDREN = "children";
@@ -676,7 +677,7 @@ public class Desugar extends BLangNodeVisitor {
         userDefInitInvocation.requiredArgs = Collections.emptyList();
 
         BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
-        returnStmt.pos = pkgNode.initFunction.pos;
+//        returnStmt.pos = pkgNode.initFunction.pos;
         returnStmt.expr = userDefInitInvocation;
         initFnBody.stmts.add(returnStmt);
     }
@@ -1097,7 +1098,7 @@ public class Desugar extends BLangNodeVisitor {
             paramRefs.add(ASTBuilderUtil.createVariableRef(location, var.symbol));
         }
 
-        BLangInvocation invocation = ASTBuilderUtil.createInvocationExprMethod(location,
+        BLangInvocation invocation = ASTBuilderUtil.createInvocationExprMethod(null,
                 objectTypeSymbol.initializerFunc.symbol,
                 paramRefs, Collections.emptyList(), symResolver);
         if (generatedInitFunction.restParam != null) {
@@ -8263,13 +8264,18 @@ public class Desugar extends BLangNodeVisitor {
         if (invokableNode.workers.size() == 0 && invokableNode.symbol.type.getReturnType().isNullable()
                 && (funcBody.stmts.size() < 1 ||
                 funcBody.stmts.get(funcBody.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
-            Location invPos = invokableNode.pos;
-            Location returnStmtPos = new BLangDiagnosticLocation(invPos.lineRange().filePath(),
-                                                            invPos.lineRange().endLine().line(),
-                                                            invPos.lineRange().endLine().line(),
-                                                            invPos.lineRange().startLine().offset(),
-                                                            invPos.lineRange().startLine().offset());
-            BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(returnStmtPos, symTable.nilType);
+            BLangReturn returnStmt;
+            if (invokableNode.name.value.contains(METHOD_INIT)) {
+                returnStmt = ASTBuilderUtil.createNilReturnStmt(null, symTable.nilType);
+            } else {
+                Location invPos = invokableNode.pos;
+                Location returnStmtPos = new BLangDiagnosticLocation(invPos.lineRange().filePath(),
+                        invPos.lineRange().endLine().line(),
+                        invPos.lineRange().endLine().line(),
+                        invPos.lineRange().startLine().offset(),
+                        invPos.lineRange().startLine().offset(), 0, 0);
+                returnStmt = ASTBuilderUtil.createNilReturnStmt(returnStmtPos, symTable.nilType);
+            }
             funcBody.addStatement(returnStmt);
         }
     }
