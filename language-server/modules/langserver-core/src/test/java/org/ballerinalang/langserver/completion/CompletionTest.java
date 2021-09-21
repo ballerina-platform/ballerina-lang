@@ -49,7 +49,7 @@ import java.util.List;
  */
 public abstract class CompletionTest {
 
-    public Endpoint serviceEndpoint;
+    protected Endpoint serviceEndpoint;
 
     private final Path testRoot = FileUtils.RES_DIR.resolve("completion");
 

@@ -39,7 +39,7 @@ import java.util.List;
  * Test hover feature in language server.
  */
 public class HoverProviderTest {
-    public Endpoint serviceEndpoint;
+    protected Endpoint serviceEndpoint;
     protected Path configRoot;
     protected Path sourceRoot;
     private final JsonParser parser = new JsonParser();

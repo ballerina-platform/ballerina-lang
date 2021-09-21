@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.performance;
 
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.util.FileUtils;
+import org.ballerinalang.langserver.util.PerformanceTestUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
@@ -52,7 +53,7 @@ public class OpenDocumentPerformanceTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
 
         long actualResponseTime = getResponseTimeCompletion(configJsonObject);
-        int expectedResponseTime = Integer.parseInt(System.getProperty("responseTimeThreshold"));
+        int expectedResponseTime = PerformanceTestUtils.getOpenDocumentResponseTimeThreshold();
         Assert.assertTrue(actualResponseTime < expectedResponseTime,
                 String.format("Expected response time = %d, received %d.", expectedResponseTime, actualResponseTime));
     }

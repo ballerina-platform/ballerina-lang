@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completion;
 
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.util.PerformanceTestUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
 import org.testng.Assert;
@@ -50,7 +51,7 @@ public class CompletionPerformanceTest extends CompletionTest {
         long end = System.currentTimeMillis();
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
         long actualResponseTime = end - start;
-        int expectedResponseTime = Integer.parseInt(System.getProperty("responseTimeThreshold")) / 2;
+        int expectedResponseTime = PerformanceTestUtils.getCompletionResponseTimeThreshold();
         Assert.assertTrue(actualResponseTime < expectedResponseTime,
                 String.format("Expected response time = %d, received %d.", expectedResponseTime, actualResponseTime));
         return responseString;

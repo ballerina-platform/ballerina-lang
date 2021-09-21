@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.codeaction;
 
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.util.PerformanceTestUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.Range;
@@ -50,7 +51,7 @@ public class CodeActionPerformanceTest extends AbstractCodeActionTest {
         String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
         long end = System.currentTimeMillis();
         long actualResponseTime = end - start;
-        int expectedResponseTime = Integer.parseInt(System.getProperty("responseTimeThreshold")) / 2;
+        int expectedResponseTime = PerformanceTestUtils.getCodeActionResponseTimeThreshold();
         Assert.assertTrue(actualResponseTime < expectedResponseTime,
                 String.format("Expected response time = %d, received %d.", expectedResponseTime, actualResponseTime));
         return res;
