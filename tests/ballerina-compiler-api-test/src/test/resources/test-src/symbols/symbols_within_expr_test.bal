@@ -111,6 +111,13 @@ function testCheckingAndTrappingExprs() returns error? {
     int|error y = trap panickingFn();
 }
 
+function testTypeTestExpr() {
+    anydata ad = <Person>{id: 123, name: "J. Doe"};
+    boolean b = ad is Person;
+
+    if (ad is PI) {
+    }
+}
 // utils
 
 const PI = 3.14;
