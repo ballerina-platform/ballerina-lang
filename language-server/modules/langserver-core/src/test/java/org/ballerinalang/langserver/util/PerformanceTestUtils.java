@@ -22,31 +22,32 @@ package org.ballerinalang.langserver.util;
  */
 public class PerformanceTestUtils {
 
+    private static final String RES_TIME_THRESHOLD_SYSTEM_PROPERTY = "responseTimeThreshold";
     /**
      * Get response time threshold for Completion Performance Test.
      */
     public static int getCompletionResponseTimeThreshold() {
-        return Integer.parseInt(System.getProperty("responseTimeThreshold")) / 2;
+        return Integer.parseInt(System.getProperty(RES_TIME_THRESHOLD_SYSTEM_PROPERTY)) / 2;
     }
 
     /**
      * Get response time threshold for Code Action Performance Test.
      */
     public static int getCodeActionResponseTimeThreshold() {
-        return Integer.parseInt(System.getProperty("responseTimeThreshold")) / 2;
+        return Integer.parseInt(System.getProperty(RES_TIME_THRESHOLD_SYSTEM_PROPERTY)) / 2;
     }
 
     /**
      * Get response time threshold for Hover Performance Test.
      */
     public static int getHoverResponseTimeThreshold() {
-        return Integer.parseInt(System.getProperty("responseTimeThreshold")) / 2;
+        return Integer.parseInt(System.getProperty(RES_TIME_THRESHOLD_SYSTEM_PROPERTY)) / 2;
     }
 
     /**
      * Get response time threshold for Open Document Performance Test.
      */
     public static int getOpenDocumentResponseTimeThreshold() {
-        return Integer.parseInt(System.getProperty("responseTimeThreshold"));
+        return Integer.parseInt(System.getProperty(RES_TIME_THRESHOLD_SYSTEM_PROPERTY));
     }
 }
