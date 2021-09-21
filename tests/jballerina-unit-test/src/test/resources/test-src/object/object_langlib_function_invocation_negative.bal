@@ -58,9 +58,3 @@ public class DynamicListenerImpl {
 public readonly class StackFrameImpl {
     *runtime:StackFrame;
 }
-
-function testAnonObjectImpl() {
-    var myObj = object runtime:StackFrame {
-
-    };
-}

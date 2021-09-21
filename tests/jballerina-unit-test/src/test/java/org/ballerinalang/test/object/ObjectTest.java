@@ -826,9 +826,6 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 3, "no implementation found for the method 'toString' " +
                         "of class 'StackFrameImpl'",
                 58, 1);
-        BAssertUtil.validateError(result, 4, "no implementation found for the method 'toString'" +
-                        " of object constructor 'object { public function toString () returns (string); } & readonly'",
-                63, 17);
     }
 
     @Test

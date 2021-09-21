@@ -664,14 +664,7 @@ public class BIRGen extends BLangNodeVisitor {
         birFunc.argsCount = astFunc.requiredParams.size()
                 + (astFunc.restParam != null ? 1 : 0) + astFunc.paramClosureMap.size();
         if (astFunc.flagSet.contains(Flag.ATTACHED) && typeDefs.containsKey(astFunc.receiver.getBType().tsymbol)) {
-            BType receiverType = astFunc.receiver.getBType();
-            if (receiverType.tag == TypeTags.OBJECT && ((BObjectType) receiverType).immutableType != null) {
-                BTypeSymbol typeSymbol = ((BObjectType) receiverType).immutableType.effectiveType.tsymbol;
-                if (typeDefs.containsKey(typeSymbol)) {
-                    typeDefs.get(typeSymbol).attachedFuncs.add(birFunc);
-                }
-            }
-            typeDefs.get(receiverType.tsymbol).attachedFuncs.add(birFunc);
+            typeDefs.get(astFunc.receiver.getBType().tsymbol).attachedFuncs.add(birFunc);
         } else {
             this.env.enclPkg.functions.add(birFunc);
         }
