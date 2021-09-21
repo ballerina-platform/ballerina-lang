@@ -105,6 +105,12 @@ function testUnaryExpr() {
     boolean b = !tr;
 }
 
+function testCheckingAndTrappingExprs() returns error? {
+    int x = check getError();
+    x = checkpanic getError();
+    int|error y = trap panickingFn();
+}
+
 // utils
 
 const PI = 3.14;
@@ -148,3 +154,7 @@ function rand(int x, int y = 0, float... z) returns string => "random str";
 
 type Error1 error<record {int code;}>;
 type Error2 error<record {}>;
+
+function getError() returns Error2|int => error Error2("Checking Expr");
+
+function panickingFn() returns int => panic error("Panicked");

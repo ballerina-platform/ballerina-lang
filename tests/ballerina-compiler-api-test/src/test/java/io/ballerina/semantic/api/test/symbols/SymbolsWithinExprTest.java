@@ -301,6 +301,23 @@ public class SymbolsWithinExprTest {
         };
     }
 
+    @Test(dataProvider = "CheckingExprPosProvider")
+    public void testCheckingAndTrappingExprs(int line, int col, SymbolKind expKind, String expName) {
+        assertSymbol(line, col, expKind, expName);
+    }
+
+    @DataProvider(name = "CheckingExprPosProvider")
+    public Object[][] getCheckingExprPos() {
+        return new Object[][]{
+                {108, 12, null, null},
+                {108, 18, FUNCTION, "getError"},
+                {109, 8, null, null},
+                {109, 19, FUNCTION, "getError"},
+                {110, 18, null, null},
+                {110, 23, FUNCTION, "panickingFn"},
+        };
+    }
+
     // utils
     private void assertSymbol(int line, int col, SymbolKind expKind, String expName) {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
