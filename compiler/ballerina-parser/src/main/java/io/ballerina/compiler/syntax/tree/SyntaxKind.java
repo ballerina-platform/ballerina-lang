@@ -517,4 +517,8 @@ public enum SyntaxKind {
     public String stringValue() {
         return strValue;
     }
+
+    public boolean isKeyword() {
+        return this.tag >= 50 && this.tag < 500;
+    }
 }
