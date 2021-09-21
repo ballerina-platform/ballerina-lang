@@ -146,6 +146,9 @@ public class CompletionUtil {
         context.setNodeAtCursor(nonTerminalNode);
     }
 
+    /**
+     * Check whether the cursor is within a comment.
+     */
     private static boolean isWithinComment(BallerinaCompletionContext ctx) {
         Iterator<Minutiae> minutiaeIterator = Collections.emptyIterator();
         if (ctx.getCursorPositionInTree() <= ctx.getTokenAtCursor().textRange().startOffset()) {
