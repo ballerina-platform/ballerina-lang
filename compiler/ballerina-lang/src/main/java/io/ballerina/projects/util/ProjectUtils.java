@@ -579,7 +579,7 @@ public class ProjectUtils {
         pkgGraphDependencies.forEach(graphDependency -> {
             PackageDescriptor descriptor = graphDependency.packageInstance().descriptor();
             addDependencyContent(content, descriptor.org().value(), descriptor.name().value(),
-                                 descriptor.version().value().toString(), null, Collections.emptyList(),
+                                 descriptor.version().value().toString(), null, false, Collections.emptyList(),
                                  Collections.emptyList());
             content.append("\n");
         });
@@ -604,15 +604,15 @@ public class ProjectUtils {
         // write dependencies from package dependency graph
         pkgDependencies.forEach(dependency -> {
             addDependencyContent(content, dependency.getOrg(), dependency.getName(), dependency.getVersion(),
-                                 getDependencyScope(dependency.getScope()), dependency.getDependencies(),
-                                 dependency.getModules());
+                                 getDependencyScope(dependency.getScope()), dependency.isTransitive(),
+                                 dependency.getDependencies(), dependency.getModules());
             content.append("\n");
         });
         return String.valueOf(content);
     }
 
     private static void addDependencyContent(StringBuilder content, String org, String name, String version,
-                                             String scope, List<Dependency> dependencies,
+                                             String scope, boolean transitive, List<Dependency> dependencies,
                                              List<Dependency.Module> modules) {
         content.append("[[package]]\n");
         content.append("org = \"").append(org).append("\"\n");
@@ -621,6 +621,7 @@ public class ProjectUtils {
         if (scope != null) {
             content.append("scope = \"").append(scope).append("\"\n");
         }
+        content.append("transitive = ").append(transitive).append("\n");
 
         // write dependencies
         if (!dependencies.isEmpty()) {

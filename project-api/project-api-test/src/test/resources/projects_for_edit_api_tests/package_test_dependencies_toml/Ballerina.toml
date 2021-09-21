@@ -1,7 +1,2 @@
-[package]
-org = "foo"
-name = "test_dependencies_package"
-version = "2.1.0"
-
 [build-options]
 observabilityIncluded = true

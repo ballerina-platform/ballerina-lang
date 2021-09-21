@@ -1,5 +1,0 @@
-Compiling source
-	foo/winery:0.1.0
-
-Creating bala
-	target\bala\foo-winery-java11-0.1.0.bala
