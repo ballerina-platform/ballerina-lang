@@ -315,7 +315,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(secLocalDep.repository(), "local");
     }
 
-    static PackageManifest getPackageManifest(Path tomlPath) throws IOException {
+    private PackageManifest getPackageManifest(Path tomlPath) throws IOException {
         String tomlContent = Files.readString(tomlPath);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
         return ManifestBuilder.from(ballerinaToml, null, tomlPath.getParent()).packageManifest();
