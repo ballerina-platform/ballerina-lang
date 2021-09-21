@@ -41,10 +41,10 @@ public class BIntersectionType extends BType implements IntersectionType {
     private static final String OPENING_PARENTHESIS = "(";
     private static final String CLOSING_PARENTHESIS = ")";
 
-    private List<Type> constituentTypes;
+    private final List<Type> constituentTypes;
     private Type effectiveType;
 
-    private int typeFlags;
+    private final int typeFlags;
     private final boolean readonly;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
@@ -75,6 +75,7 @@ public class BIntersectionType extends BType implements IntersectionType {
         }
     }
 
+    @Override
     public List<Type> getConstituentTypes() {
         return constituentTypes;
     }
@@ -152,6 +153,7 @@ public class BIntersectionType extends BType implements IntersectionType {
         return Objects.hash(super.hashCode(), constituentTypes);
     }
 
+    @Override
     public boolean isNilable() {
         return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.NILABLE);
     }
