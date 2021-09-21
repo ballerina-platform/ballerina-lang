@@ -35,6 +35,7 @@ public class ProjectConstants {
     public static final String CONFIGURATION_TOML = "Config.toml";
     public static final String SETTINGS_FILE_NAME = "Settings.toml";
     public static final String GITIGNORE_FILE_NAME = ".gitignore";
+    public static final String DEVCONTAINER = ".devcontainer.json";
     public static final String MODULE_MD_FILE_NAME = "Module.md";
     public static final String PACKAGE_MD_FILE_NAME = "Package.md";
     public static final String PACKAGE_JSON = "package.json";
