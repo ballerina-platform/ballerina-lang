@@ -69,11 +69,8 @@ public class CompletionUtil {
         CompletionTriggerKind triggerKind = ctx.getCompletionParams().getContext().getTriggerKind();
         if (triggerKind == CompletionTriggerKind.TriggerCharacter
                 && triggerCharacter.equals(SyntaxKind.GT_TOKEN.stringValue())
-                && ctx.getTokenAtCursor().kind() != SyntaxKind.RIGHT_ARROW_TOKEN) {
-            return Collections.emptyList();
-        }
-
-        if (isWithinComment(ctx)) {
+                && ctx.getTokenAtCursor().kind() != SyntaxKind.RIGHT_ARROW_TOKEN
+                || isWithinComment(ctx)) {
             return Collections.emptyList();
         }
 
@@ -160,7 +157,6 @@ public class CompletionUtil {
         while (minutiaeIterator.hasNext()) {
             Minutiae minutiae = minutiaeIterator.next();
             if (minutiae.kind() == SyntaxKind.COMMENT_MINUTIAE
-                    && minutiae.lineRange().startLine().line() == ctx.getCursorPosition().getLine()
                     && minutiae.textRange().startOffset() < ctx.getCursorPositionInTree()
                     && ctx.getCursorPositionInTree() <= minutiae.textRange().endOffset()) {
                         return true;
