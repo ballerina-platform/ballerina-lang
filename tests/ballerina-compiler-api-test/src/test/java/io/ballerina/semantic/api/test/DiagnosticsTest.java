@@ -111,9 +111,7 @@ public class DiagnosticsTest {
 
     private void assertDiagnosticProperties(List<Diagnostic> diagnostics) {
         int index = 0;
-
         for (Diagnostic diagnostic : diagnostics) {
-
             List<DiagnosticProperty<?>> diagnosticProperties = diagnostic.properties();
 
             if (diagnosticProperties == null) {
@@ -121,17 +119,13 @@ public class DiagnosticsTest {
             }
 
             for (DiagnosticProperty<?> property : diagnosticProperties) {
-
                 // The diagnostic property value is an instance of TypeSymbol only if the property kind is SYMBOLIC.
                 if (property.kind() == DiagnosticPropertyKind.SYMBOLIC) {
                     TypeSymbol typeSymbol = (TypeSymbol) property.value();
                     assertEquals(typeSymbol.signature(), getExpectedDiagnosticProperties()[index][0]);
                     assertEquals(typeSymbol.typeKind(), getExpectedDiagnosticProperties()[index++][1]);
                 }
-
             }
-
         }
-
     }
 }
