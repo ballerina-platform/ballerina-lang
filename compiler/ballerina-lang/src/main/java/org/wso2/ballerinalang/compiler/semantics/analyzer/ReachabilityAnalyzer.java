@@ -204,13 +204,13 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangContinue continueNode) {
         checkStatementExecutionValidity(continueNode);
-        this.continueAsLastStatement = true;
+        this.continueAsLastStatement = this.loopCount > 0;
     }
 
     @Override
     public void visit(BLangBreak breakNode) {
         checkStatementExecutionValidity(breakNode);
-        this.breakAsLastStatement = true;
+        this.breakAsLastStatement = this.loopCount > 0;
         this.breakStmtFound = true;
     }
 

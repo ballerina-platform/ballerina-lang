@@ -2304,7 +2304,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         if (loopAlterNotAllowed) {
             this.dlog.error(continueNode.pos, DiagnosticErrorCode.CONTINUE_NOT_ALLOWED);
-            return;
         }
     }
 
@@ -2639,7 +2638,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         if (loopAlterNotAllowed) {
             this.dlog.error(breakNode.pos, DiagnosticErrorCode.BREAK_NOT_ALLOWED);
-            return;
         }
     }
 
