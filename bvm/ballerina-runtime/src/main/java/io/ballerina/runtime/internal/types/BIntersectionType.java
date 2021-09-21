@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -41,7 +42,7 @@ public class BIntersectionType extends BType implements IntersectionType {
     private static final String OPENING_PARENTHESIS = "(";
     private static final String CLOSING_PARENTHESIS = ")";
 
-    private final List<Type> constituentTypes;
+    public final List<Type> constituentTypes;
     private Type effectiveType;
 
     private final int typeFlags;
@@ -77,7 +78,7 @@ public class BIntersectionType extends BType implements IntersectionType {
 
     @Override
     public List<Type> getConstituentTypes() {
-        return constituentTypes;
+        return new ArrayList<>(constituentTypes);
     }
 
 
