@@ -334,6 +334,24 @@ public class SymbolsWithinExprTest {
         };
     }
 
+    @Test(dataProvider = "LetExprPosProvider")
+    public void testLetExpr(int line, int col, SymbolKind expKind, String expName) {
+        assertSymbol(line, col, expKind, expName);
+    }
+
+    @DataProvider(name = "LetExprPosProvider")
+    public Object[][] getLetExprPos() {
+        return new Object[][]{
+                {122, 12, null, null},
+                {122, 20, VARIABLE, "x"},
+                {122, 29, ANNOTATION, "v1"},
+                {122, 32, RECORD_FIELD, "foo"},
+                {122, 44, TYPE, "Person"},
+                {122, 56, RECORD_FIELD, "id"},
+                {122, 83, VARIABLE, "x"},
+        };
+    }
+
 
     // utils
     private void assertSymbol(int line, int col, SymbolKind expKind, String expName) {

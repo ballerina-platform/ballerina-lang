@@ -118,6 +118,11 @@ function testTypeTestExpr() {
     if (ad is PI) {
     }
 }
+
+function testLetExpr() {
+    var v = let int x = 10, @v1{foo: "Foo"} Person p = {id: 10, name: "J. Doe"} in x * 2;
+}
+
 // utils
 
 const PI = 3.14;
@@ -155,7 +160,7 @@ type Annot record {
     string foo;
 };
 
-public annotation Annot v1 on type;
+public annotation Annot v1 on type, var;
 
 function rand(int x, int y = 0, float... z) returns string => "random str";
 
