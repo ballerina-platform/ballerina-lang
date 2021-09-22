@@ -83,13 +83,11 @@ public class CommandUtil {
     public static final String GITIGNORE = "gitignore";
     public static final String NEW_CMD_DEFAULTS = "new_cmd_defaults";
     public static final String CREATE_CMD_TEMPLATES = "create_cmd_templates";
-    protected static PrintStream printStream;
     private static FileSystem jarFs;
     private static Map<String, String> env;
     private static PrintStream errStream;
     private static Path homeCache;
     private static boolean exitWhenFinish;
-    private static Path userDir;
 
     public static void initJarFs() {
         URI uri = null;
@@ -256,11 +254,9 @@ public class CommandUtil {
      */
     public static void applyBalaTemplate(Path modulePath, Path balaCache, String template) {
         // find all balas matching org and package name.
-        Path balaTemplate = (Path) findBalaTemplate(template);
         String packageName = findPkgName(template);
         String orgName = findOrg(template);
         String version = findPkgVersion(template);
-
         if (version == null) {
             Path balaToPkgPath = balaCache.resolve(orgName).resolve(packageName);
             List<PackageVersion> packageVersions = getPackageVersions(balaToPkgPath);
@@ -278,61 +274,51 @@ public class CommandUtil {
         String platform = findPlatform(balaPath);
         balaPath = balaCache.resolve(
                 ProjectUtils.getRelativeBalaPath(orgName, packageName, version, platform));
-
         Gson gson = new Gson();
-        Path packageJsonPath = balaTemplate.resolve("package.json");
-        if (balaTemplate != null) {
-            try (FileReader packageReader = new FileReader(String.valueOf(packageJsonPath))) {
-                PackageJson packageJson = gson.fromJson(packageReader, PackageJson.class);
-                boolean templateVal = packageJson.getTemplate();
-                if (templateVal) {
-
-                    // Copy platform library
-                    Path platformLibPath = balaTemplate.resolve("platform").resolve("java11");
-                    Path projectPlatform = modulePath.resolve("Platform");
-                    if (Files.exists(platformLibPath)) {
-                        Files.createDirectories(projectPlatform);
-                        Files.walkFileTree(platformLibPath, new FileUtils.Copy(platformLibPath, projectPlatform));
-                    }
-
-                    // Copy package.json and write it as Ballerina.toml
-                    if (Files.exists(packageJsonPath)) {
-                        Path balaToml = modulePath.resolve(ProjectConstants.BALLERINA_TOML);
-                        Files.createFile(balaToml);
-                        writeBallerinaToml(balaToml, packageJson, projectPlatform, orgName, packageName, version,
-                                platform);
-                    }
-
-                    // Copy docs
-                    Path packageMDFilePath = balaTemplate.resolve("docs")
-                            .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
-                    Path toPackageMdPath = modulePath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
-                    if (Files.exists(packageMDFilePath)) {
-                        Files.copy(packageMDFilePath, toPackageMdPath, StandardCopyOption.REPLACE_EXISTING);
-                    }
-
-                    Path moduleMd = balaTemplate.resolve("docs").resolve("modules").resolve(packageName)
-                            .resolve(ProjectConstants.MODULE_MD_FILE_NAME);
-                    Path toModuleMd = modulePath.resolve(ProjectConstants.MODULE_MD_FILE_NAME);
-                    if (Files.exists(moduleMd)) {
-                        Files.copy(moduleMd, toModuleMd);
-                    }
-
-                    // Copy modules
-                    Path sourceModulesDir = balaTemplate.resolve("modules").resolve(packageName);
-                    if (Files.exists(sourceModulesDir)) {
-                        Files.walkFileTree(sourceModulesDir, new FileUtils.Copy(sourceModulesDir, modulePath));
-                    }
-                } else {
-                    exitError(exitWhenFinish);
+        Path packageJsonPath = balaPath.resolve("package.json");
+        try (FileReader packageReader = new FileReader(String.valueOf(packageJsonPath))) {
+            PackageJson packageJson = gson.fromJson(packageReader, PackageJson.class);
+            if (packageJson.getTemplate()) {
+                // Copy platform library
+                Path platformLibPath = balaPath.resolve("platform").resolve("java11");
+                Path projectPlatform = modulePath.resolve("Platform");
+                if (Files.exists(platformLibPath)) {
+                    Files.createDirectories(projectPlatform);
+                    Files.walkFileTree(platformLibPath, new FileUtils.Copy(platformLibPath, projectPlatform));
                 }
-            } catch (IOException e) {
-                printError(errStream,
-                        "Error while reading the package json file: " + e.getMessage(),
-                        null,
-                        false);
-                getRuntime().exit(1);
+                // Copy package.json and write it as Ballerina.toml
+                if (Files.exists(packageJsonPath)) {
+                    Path balaToml = modulePath.resolve(ProjectConstants.BALLERINA_TOML);
+                    Files.createFile(balaToml);
+                    writeBallerinaToml(balaToml, packageJson, projectPlatform, platform);
+                }
+                // Copy docs
+                Path packageMDFilePath = balaPath.resolve("docs")
+                        .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
+                Path toPackageMdPath = modulePath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
+                if (Files.exists(packageMDFilePath)) {
+                    Files.copy(packageMDFilePath, toPackageMdPath, StandardCopyOption.REPLACE_EXISTING);
+                }
+                Path moduleMd = balaPath.resolve("docs").resolve("modules").resolve(packageName)
+                        .resolve(ProjectConstants.MODULE_MD_FILE_NAME);
+                Path toModuleMd = modulePath.resolve(ProjectConstants.MODULE_MD_FILE_NAME);
+                if (Files.exists(moduleMd)) {
+                    Files.copy(moduleMd, toModuleMd);
+                }
+                // Copy modules
+                Path sourceModulesDir = balaPath.resolve("modules").resolve(packageName);
+                if (Files.exists(sourceModulesDir)) {
+                    Files.walkFileTree(sourceModulesDir, new FileUtils.Copy(sourceModulesDir, modulePath));
+                }
+            } else {
+                exitError(exitWhenFinish);
             }
+        } catch (IOException e) {
+            printError(errStream,
+                    "Error while reading the package json file: " + e.getMessage(),
+                    null,
+                    false);
+            getRuntime().exit(1);
         }
     }
 
@@ -341,7 +327,7 @@ public class CommandUtil {
      *
      * @param template template name
      */
-    public static Object findBalaTemplate(String template) {
+    public static Path findBalaTemplate(String template) {
         homeCache = RepoUtils.createAndGetHomeReposPath();
         Path balaCache = Paths.get(String.valueOf(homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
                 .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME).resolve(ProjectConstants.BALA_DIR_NAME)));
@@ -420,7 +406,7 @@ public class CommandUtil {
     }
 
     public static void writeBallerinaToml(Path balTomlPath, PackageJson packageJson, Path projectPlatform,
-                                          String orgName, String packageName, String version, String platform)
+                                          String platform)
             throws IOException {
 
         Files.writeString(balTomlPath, "[package]", StandardOpenOption.APPEND);
@@ -520,89 +506,6 @@ public class CommandUtil {
             platform = ANY_PLATFORM;
         }
         return platform;
-    }
-
-    /**
-     * Apply the template to the created module.
-     *
-     * @param modulePath path to the module
-     * @param template package template
-     */
-    public static void applyBalaTemplateForCentralPackages(Path modulePath, Path balaCache, String template) {
-        String packageName = findPkgName(template);
-        String orgName = findOrg(template);
-        String version = findPkgVersion(template);
-
-        if (version == null) {
-            Path balaToPkgPath = balaCache.resolve(orgName).resolve(packageName);
-            List<PackageVersion> packageVersions = getPackageVersions(balaToPkgPath);
-
-            if (packageVersions.size() == 1) {
-                version = String.valueOf(packageVersions.get(0));
-            } else {
-                version = String.valueOf(findLatest(packageVersions));
-            }
-        }
-
-        Path balaPath = balaCache.resolve(
-                ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
-        String platform = findPlatform(balaPath);
-        balaPath = balaCache.resolve(
-                ProjectUtils.getRelativeBalaPath(orgName, packageName, version, platform));
-        Gson gson = new Gson();
-        String packageJsonPath = String.valueOf(balaPath.resolve("package.json"));
-        try (FileReader packageReader = new FileReader(packageJsonPath)) {
-            PackageJson packageJson = gson.fromJson(packageReader, PackageJson.class);
-            boolean templateVal = packageJson.getTemplate();
-            if (Files.exists(balaPath.resolve("package.json"))) {
-                if (templateVal) {
-                    userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
-                    // Copy docs
-                    Path packageMDFilePath = balaPath.resolve("docs")
-                            .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
-                    Path toPackageMdPath = modulePath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
-                    if (Files.exists(packageMDFilePath)) {
-                        Files.copy(packageMDFilePath, toPackageMdPath, StandardCopyOption.REPLACE_EXISTING);
-                    }
-
-                    Path moduleMd = balaPath.resolve("docs").resolve("modules").resolve(packageName)
-                            .resolve(ProjectConstants.MODULE_MD_FILE_NAME);
-                    Path toModuleMd = modulePath.resolve(ProjectConstants.MODULE_MD_FILE_NAME);
-                    if (Files.exists(moduleMd)) {
-                        Files.copy(moduleMd, toModuleMd);
-                    }
-
-                    // Copy modules
-                    Path sourceModulesDir = balaPath.resolve("modules").resolve(packageName);
-                    if (Files.exists(sourceModulesDir)) {
-                        Files.walkFileTree(sourceModulesDir, new FileUtils.Copy(sourceModulesDir, modulePath));
-                    }
-
-                    // Copy platform library
-                    Path platformLibPath = balaPath.resolve("platform").resolve("java11");
-                    Path projectPlatform = modulePath.resolve("Platform");
-                    Path platformLibRelativePath = userDir.relativize(projectPlatform);
-                    if (Files.exists(platformLibPath)) {
-                        createDirectories(projectPlatform);
-                        Files.walkFileTree(platformLibPath, new FileUtils.Copy(platformLibPath, projectPlatform));
-                    }
-
-                    // Copy Package.json to Ballerina.toml
-                    Path balaToml = modulePath.resolve(ProjectConstants.BALLERINA_TOML);
-                    Files.createFile(balaToml);
-                    writeBallerinaToml(balaToml, packageJson, platformLibRelativePath, orgName, packageName,
-                            version, platform);
-                } else {
-                    exitError(exitWhenFinish);
-                }
-            }
-        } catch (IOException e) {
-            printError(errStream,
-                    "Error while reading the package json file: " + e.getMessage(),
-                    null,
-                    false);
-            getRuntime().exit(1);
-        }
     }
 
     /**

@@ -35,7 +35,6 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.CommandUtil.applyBalaTemplate;
-import static io.ballerina.cli.cmd.CommandUtil.applyBalaTemplateForCentralPackages;
 import static io.ballerina.cli.cmd.CommandUtil.findBalaTemplate;
 import static io.ballerina.cli.cmd.CommandUtil.pullPackageFromCentral;
 import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
@@ -146,7 +145,6 @@ public class NewCommand implements BLauncherCmd {
             errStream.println();
         }
 
-        // Apply suitable template
         try {
             homeCache = RepoUtils.createAndGetHomeReposPath();
             Path balaCache = homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
@@ -163,7 +161,7 @@ public class NewCommand implements BLauncherCmd {
                 } else {
                     // Pull pkg from central
                     pullPackageFromCentral(balaCache, path, template);
-                    applyBalaTemplateForCentralPackages(path, balaCache, template);
+                    applyBalaTemplate(path, balaCache, template);
                 }
             } else {
                 // create package with inbuilt template
