@@ -76,6 +76,8 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     private final LanguageServerContext languageServerContext;
 
     private CancelChecker cancelChecker;
+    
+    private static final boolean ON_DEBUG_MODE = System.getenv("BAL_JAVA_DEBUG") != null;
 
     AbstractDocumentServiceContext(LSOperation operation,
                                    String fileUri,
@@ -98,7 +100,10 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
                                    LanguageServerContext serverContext,
                                    CancelChecker cancelChecker) {
         this(operation, fileUri, wsManager, serverContext);
-        this.cancelChecker = cancelChecker;
+        // This is to facilitate the development in debug mode. 
+        if (!ON_DEBUG_MODE) {
+            this.cancelChecker = cancelChecker;
+        }
     }
 
     /**

@@ -1,40 +1,45 @@
 {
   "position": {
-    "line": 6,
-    "character": 13
+    "line": 10,
+    "character": 37
   },
-  "source": "action_node_context/source/client_remote_action_source1.bal",
+  "source": "expression_context/source/method_call_expression_ctx_source6.bal",
   "items": [
     {
-      "label": "module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "module1",
+      "label": "start",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "filterText": "start",
+      "insertText": "start ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
+      "label": "wait",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "filterText": "wait",
+      "insertText": "wait ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "flush",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "filterText": "flush",
+      "insertText": "flush ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "from clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
       "sortText": "R",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
+      "filterText": "from",
+      "insertText": "from ${1:var} ${2:item} in ${3}",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "ballerina/lang.array",
@@ -104,6 +109,14 @@
           "newText": "import ballerina/lang.value;\n"
         }
       ]
+    },
+    {
+      "label": "module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "ballerina/lang.runtime",
@@ -415,31 +428,8 @@
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
-      "sortText": "AN",
+      "sortText": "P",
       "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testFunction()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "testFunction",
-      "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "cl",
-      "kind": "Variable",
-      "detail": "module1:Client",
-      "sortText": "D",
-      "insertText": "cl",
       "insertTextFormat": "Snippet"
     },
     {
@@ -510,55 +500,100 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "start",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "start",
-      "insertText": "start ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "wait",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "wait",
-      "insertText": "wait ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "flush",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "flush",
-      "insertText": "flush ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "from clause",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
       "sortText": "R",
-      "filterText": "from",
-      "insertText": "from ${1:var} ${2:item} in ${3}",
+      "insertText": "test1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test as test1 ;\n"
+        }
+      ]
+    },
+    {
+      "label": "testFPointer",
+      "kind": "Variable",
+      "detail": "function (int) returns ()",
+      "sortText": "D",
+      "insertText": "testFPointer",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "testInt",
       "kind": "Variable",
       "detail": "int",
-      "sortText": "D",
+      "sortText": "AB",
       "insertText": "testInt",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "url",
+      "label": "arr",
       "kind": "Variable",
-      "detail": "string",
-      "sortText": "AB",
-      "insertText": "url",
+      "detail": "int[]",
+      "sortText": "D",
+      "insertText": "arr",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "test()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "test",
+      "insertText": "test()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestClass",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "M",
+      "insertText": "TestClass",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "utilizeInt(int hello)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` hello"
+        }
+      },
+      "sortText": "E",
+      "filterText": "utilizeInt",
+      "insertText": "utilizeInt(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "cls",
+      "kind": "Variable",
+      "detail": "TestClass",
+      "sortText": "D",
+      "insertText": "cls",
       "insertTextFormat": "Snippet"
     }
   ]

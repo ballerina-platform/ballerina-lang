@@ -1,24 +1,10 @@
 {
   "position": {
-    "line": 4,
-    "character": 21
+    "line": 10,
+    "character": 30
   },
-  "source": "action_node_context/source/client_remote_action_source2.bal",
+  "source": "expression_context/source/method_call_expression_ctx_source3.bal",
   "items": [
-    {
-      "label": "ENUM1_FIELD1",
-      "kind": "EnumMember",
-      "detail": "ENUM1_FIELD1",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
-      "sortText": "AH",
-      "insertText": "ENUM1_FIELD1",
-      "insertTextFormat": "Snippet"
-    },
     {
       "label": "TEST_INT_CONST1",
       "kind": "Variable",
@@ -29,7 +15,7 @@
           "value": ""
         }
       },
-      "sortText": "E",
+      "sortText": "AC",
       "insertText": "TEST_INT_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -43,8 +29,22 @@
           "value": ""
         }
       },
-      "sortText": "AC",
+      "sortText": "E",
       "insertText": "TEST_STRING_CONST1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ENUM1_FIELD1",
+      "kind": "EnumMember",
+      "detail": "ENUM1_FIELD1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "J",
+      "insertText": "ENUM1_FIELD1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -53,28 +53,6 @@
       "detail": "Record",
       "sortText": "O",
       "insertText": "AnnotationType",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ResponseMessage",
-      "kind": "Enum",
-      "detail": "Union",
-      "documentation": {
-        "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
-      },
-      "sortText": "K",
-      "insertText": "ResponseMessage",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "RequestMessage",
-      "kind": "Enum",
-      "detail": "Union",
-      "documentation": {
-        "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
-      },
-      "sortText": "K",
-      "insertText": "RequestMessage",
       "insertTextFormat": "Snippet"
     },
     {
@@ -134,11 +112,41 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ResponseMessage",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
+      },
+      "sortText": "K",
+      "insertText": "ResponseMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RequestMessage",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
+      },
+      "sortText": "K",
+      "insertText": "RequestMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Listener",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "M",
       "insertText": "Listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestClass1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "M",
+      "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -161,14 +169,6 @@
       },
       "sortText": "M",
       "insertText": "Response",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestClass1",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "M",
-      "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -219,7 +219,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Return** `int`   \n- Return Value Description  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "AA",
       "filterText": "function3",
       "insertText": "function3(${1})",
       "insertTextFormat": "Snippet",
