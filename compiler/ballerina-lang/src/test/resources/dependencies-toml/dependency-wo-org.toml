@@ -7,18 +7,6 @@
 dependencies-toml-version = "2"
 
 [[package]]
-org = "winery"
-name = "foo"
-version = "1.0.0"
-dependencies = [
-    {name = "foo1"},
-    {name = "foo2"}
-]
-modules = [
-    {org = "winery", packageName = "foo", moduleName = "foo"}
-]
-
-[[package]]
 name = "foo1"
 version = "0.1.0"
 
