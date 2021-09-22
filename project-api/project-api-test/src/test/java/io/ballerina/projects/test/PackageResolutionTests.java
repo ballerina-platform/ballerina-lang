@@ -177,6 +177,10 @@ public class PackageResolutionTests extends BaseTest {
 
     @Test(dependsOnMethods = "testProjectSaveWithEmptyBuildFile", description = "tests project with corrupt build file")
     public void testProjectSaveWithCorruptBuildFile() throws IOException {
+        // Skip test in windows due to file permission setting issue
+        if (isWindows()) {
+            throw new SkipException("Skipping tests on Windows");
+        }
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
         Path buildPath = loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
