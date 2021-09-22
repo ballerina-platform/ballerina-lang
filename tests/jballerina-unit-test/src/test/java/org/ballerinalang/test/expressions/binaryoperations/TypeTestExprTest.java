@@ -738,11 +738,6 @@ public class TypeTestExprTest {
     }
 
     @Test
-    public void testIfElseWithTypeTest() {
-        BRunUtil.invoke(result, "testIfElseWithTypeTest");
-    }
-
-    @Test
     public void testIfElseWithTypeTestMultipleVariables() {
         BRunUtil.invoke(result, "testIfElseWithTypeTestMultipleVariables");
     }

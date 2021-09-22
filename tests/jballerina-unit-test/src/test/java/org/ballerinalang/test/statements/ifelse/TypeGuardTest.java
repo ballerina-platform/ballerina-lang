@@ -714,6 +714,11 @@ public class TypeGuardTest {
         BRunUtil.invoke(result, "testTypeGuardRuntimeWithAlwaysTrueHint2");
     }
 
+    @Test
+    public void testIfElseWithTypeTest() {
+        BRunUtil.invoke(result, "testIfElseWithTypeTest");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

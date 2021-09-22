@@ -2350,8 +2350,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         Map<BVarSymbol, BType.NarrowedTypes> prevNarrowedTypeInfo = this.narrowedTypeInfo;
 
-        // This map keeps the narrowed types of inner if statements and propagate the false types to else block when
-        // flow goes from the if statement to else block in compile time.
+        // This map keeps the narrowed types of inner if statements and propagate the false types to the outer
+        // block when the flow goes from out of the else block in compile time.
         Map<BVarSymbol, BType.NarrowedTypes> falseTypesOfNarrowedTypes = new HashMap<>();
 
         SymbolEnv ifEnv = typeNarrower.evaluateTruth(ifNode.expr, ifNode.body, env);

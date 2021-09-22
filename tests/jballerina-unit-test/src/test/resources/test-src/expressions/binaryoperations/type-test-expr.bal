@@ -1283,20 +1283,6 @@ public type SomeRecord record {
     int intField;
 };
 
-public function testIfElseWithTypeTest() {
-    SomeRecord? c = {intField: 10};
-    SomeRecord? f = ();
-    any x = true;
-
-    if c is () {
-
-    } else if x is int {
-        c = f;
-    } else if (x is boolean) {
-        foo(c);
-    }
-}
-
 public function testIfElseWithTypeTestMultipleVariables() {
     SomeRecord? c = {intField: 10};
     SomeRecord? f = ();
