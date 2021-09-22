@@ -177,8 +177,8 @@ public class SymbolsWithinExprTest {
         assertEquals(symbol.get().getName().get(), expName);
     }
 
-    @DataProvider
-    public static Object[][] NewExprPosProvider() {
+    @DataProvider(name = "NewExprPosProvider")
+    public static Object[][] getNewExprPos() {
         return new Object[][]{
                 {57, 18, null, null},
                 {57, 22, VARIABLE, "name"},
@@ -245,7 +245,7 @@ public class SymbolsWithinExprTest {
                 {83, 24, TYPE, "Error1"},
                 {83, 31, VARIABLE, "msg"},
                 {83, 36, VARIABLE, "c"},
-//                {83, 39, RECORD_FIELD, "code"}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32808
+//                {83, 39, RECORD_FIELD, "code"}, TODO: github.com/ballerina-platform/ballerina-lang/issues/32808
                 {83, 46, VARIABLE, "hundred"},
                 {84, 24, TYPE, "Error2"},
                 {84, 39, null, null},
