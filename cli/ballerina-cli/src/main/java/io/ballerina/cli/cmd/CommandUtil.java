@@ -257,7 +257,6 @@ public class CommandUtil {
     public static void applyBalaTemplate(Path modulePath, Path balaCache, String template) {
         // find all balas matching org and package name.
         Path balaTemplate = (Path) findBalaTemplate(template);
-
         String packageName = findPkgName(template);
         String orgName = findOrg(template);
         String version = findPkgVersion(template);
@@ -275,16 +274,13 @@ public class CommandUtil {
 
         Path balaPath = balaCache.resolve(
                 ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
-
         //First we will check for a bala that match any platform
         String platform = findPlatform(balaPath);
-
         balaPath = balaCache.resolve(
                 ProjectUtils.getRelativeBalaPath(orgName, packageName, version, platform));
 
         Gson gson = new Gson();
         Path packageJsonPath = balaTemplate.resolve("package.json");
-
         if (balaTemplate != null) {
             try (FileReader packageReader = new FileReader(String.valueOf(packageJsonPath))) {
                 PackageJson packageJson = gson.fromJson(packageReader, PackageJson.class);
@@ -330,27 +326,6 @@ public class CommandUtil {
                 } else {
                     exitError(exitWhenFinish);
                 }
-
-//                // Copy platform library
-//                Path platformLibPath = balaTemplate.resolve("platform").resolve("java11");
-//                Path projectPlatform = modulePath.resolve("Platform");
-//                if (Files.exists(platformLibPath)) {
-//                    Files.createDirectories(projectPlatform);
-//                    Files.walkFileTree(platformLibPath, new FileUtils.Copy(platformLibPath, projectPlatform));
-//                }
-
-                // Copy Package.json to Ballerina.toml
-//                Gson gson = new Gson();
-//                Path packageJsonPath = balaTemplate.resolve("package.json");
-//                try (FileReader packageReader = new FileReader(String.valueOf(packageJsonPath))) {
-//                    PackageJson packageJson = gson.fromJson(packageReader, PackageJson.class);
-//                    if (Files.exists(packageJsonPath)) {
-//                        Path balaToml = modulePath.resolve(ProjectConstants.BALLERINA_TOML);
-//                        Files.createFile(balaToml);
-//                        writeBallerinaToml(balaToml, packageJson, projectPlatform, orgName, packageName, version,
-//                                platform);
-//                    }
-//                }
             } catch (IOException e) {
                 printError(errStream,
                         "Error while reading the package json file: " + e.getMessage(),
@@ -386,7 +361,6 @@ public class CommandUtil {
                     List<Path> balaList = walk
                             .filter(pathMatcher::matches)
                             .collect(Collectors.toList());
-
                     Collections.sort(balaList);
                     // get the latest
                     if (balaList.size() > 0) {
@@ -413,37 +387,36 @@ public class CommandUtil {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
         String packageName = findPkgName(template);
         String orgName = findOrg(template);
+        String version = findPkgVersion(template);
+        Path packagePathInBalaCache = balaCache.resolve(orgName).resolve(packageName);
+        // create directory path in bala cache
+        try {
+            createDirectories(packagePathInBalaCache);
+        } catch (IOException e) {
+            CommandUtil.exitError(exitWhenFinish);
+            throw createLauncherException(
+                    "unexpected error occurred while creating package repository in bala cache: " + e.getMessage());
+        }
 
-            String version = findPkgVersion(template);
-            Path packagePathInBalaCache = balaCache.resolve(orgName).resolve(packageName);
-            // create directory path in bala cache
+        for (String supportedPlatform : SUPPORTED_PLATFORMS) {
             try {
-                createDirectories(packagePathInBalaCache);
-            } catch (IOException e) {
-                CommandUtil.exitError(exitWhenFinish);
-                throw createLauncherException(
-                        "unexpected error occurred while creating package repository in bala cache: " + e.getMessage());
-            }
-
-            for (String supportedPlatform : SUPPORTED_PLATFORMS) {
+                Settings settings;
                 try {
-                    Settings settings;
-                    try {
-                        settings = readSettings();
-                        // Ignore Settings.toml diagnostics in the pull command
-                    } catch (SettingsTomlException e) {
-                        // Ignore 'Settings.toml' parsing errors and return empty Settings object
-                        settings = Settings.from();
-                    }
-                    CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                            initializeProxy(settings.getProxy()),
-                            getAccessTokenOfCLI(settings));
-                    client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
-                            RepoUtils.getBallerinaVersion(), false);
-                } catch (PackageAlreadyExistsException e) {
-                    applyBalaTemplate(projectPath, balaCache, template);
+                    settings = readSettings();
+                    // Ignore Settings.toml diagnostics in the pull command
+                } catch (SettingsTomlException e) {
+                    // Ignore 'Settings.toml' parsing errors and return empty Settings object
+                    settings = Settings.from();
                 }
+                CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                        initializeProxy(settings.getProxy()),
+                        getAccessTokenOfCLI(settings));
+                client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
+                        RepoUtils.getBallerinaVersion(), false);
+            } catch (PackageAlreadyExistsException e) {
+                applyBalaTemplate(projectPath, balaCache, template);
             }
+        }
     }
 
     public static void writeBallerinaToml(Path balTomlPath, PackageJson packageJson, Path projectPlatform,
@@ -482,7 +455,6 @@ public class CommandUtil {
                 String dependencyVersion = dependeciesObj.get("version").getAsString();
                 Files.writeString(balTomlPath, "\nversion = \"" + dependencyVersion + "\"\n",
                         StandardOpenOption.APPEND);
-
             }
         }
     }
@@ -574,11 +546,9 @@ public class CommandUtil {
 
         Path balaPath = balaCache.resolve(
                 ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
-
         String platform = findPlatform(balaPath);
         balaPath = balaCache.resolve(
                 ProjectUtils.getRelativeBalaPath(orgName, packageName, version, platform));
-
         Gson gson = new Gson();
         String packageJsonPath = String.valueOf(balaPath.resolve("package.json"));
         try (FileReader packageReader = new FileReader(packageJsonPath)) {
@@ -666,7 +636,6 @@ public class CommandUtil {
         if (packageVersions.isEmpty()) {
             return null;
         }
-
         PackageVersion latestVersion = packageVersions.get(0);
         for (PackageVersion pkgVersion : packageVersions) {
             latestVersion = getLatest(latestVersion, pkgVersion);
