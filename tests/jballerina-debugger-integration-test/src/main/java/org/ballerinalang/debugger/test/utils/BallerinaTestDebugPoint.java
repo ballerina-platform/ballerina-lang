@@ -53,6 +53,10 @@ public class BallerinaTestDebugPoint {
         this.logMessage = logMessage;
     }
 
+    public URI getSourceURI() {
+        return filePathUri;
+    }
+
     public Source getSource() {
         Source source = new Source();
         String fileSeparatorRegEx = File.separatorChar == '\\' ? "\\\\" : File.separator;

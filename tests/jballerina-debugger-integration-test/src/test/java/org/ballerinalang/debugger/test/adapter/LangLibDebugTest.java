@@ -19,6 +19,7 @@
 package org.ballerinalang.debugger.test.adapter;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.debugger.test.BaseTestCase;
 import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
 import org.ballerinalang.debugger.test.utils.DebugTestRunner;
 import org.ballerinalang.debugger.test.utils.DebugUtils;
@@ -34,10 +35,10 @@ import org.testng.annotations.Test;
  *
  * @since 2.0.0
  */
-public class LangLibDebugTest {
+public class LangLibDebugTest extends BaseTestCase {
 
     private DebugTestRunner debugTestRunner;
-    private static final String BALA_URI_SCHEME = "bala:";
+    private static final String BALA_URI_SCHEME = "bala";
 
     @BeforeClass
     public void setup() {
@@ -57,7 +58,7 @@ public class LangLibDebugTest {
         // Steps into `int` language library.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_IN);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().startsWith(BALA_URI_SCHEME));
+        Assert.assertEquals(debugHitInfo.getLeft().getSourceURI().getScheme(), BALA_URI_SCHEME);
         Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().replaceAll("\\\\", "/")
                 .endsWith("ballerina/lang.int/1.1.0/any/modules/lang.int/int.bal"));
 
@@ -69,7 +70,7 @@ public class LangLibDebugTest {
         // Steps into `float` language library.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_IN);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().startsWith(BALA_URI_SCHEME));
+        Assert.assertEquals(debugHitInfo.getLeft().getSourceURI().getScheme(), BALA_URI_SCHEME);
         Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().replaceAll("\\\\", "/")
                 .endsWith("ballerina/lang.float/1.0.0/any/modules/lang.float/float.bal"));
     }
