@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * EnumerableSubtype with enumerable subtype ops.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public abstract class EnumerableSubtype {
     static final int LT = -1;

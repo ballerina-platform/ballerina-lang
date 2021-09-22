@@ -20,7 +20,7 @@ package io.ballerina.types;
 /**
  * Represent a TypeAtom.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class TypeAtom implements Atom {
     public final long index;

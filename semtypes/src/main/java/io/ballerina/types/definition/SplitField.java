@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Holds the [string[], SemType[]] return type.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class SplitField {
     public final List<String> names;

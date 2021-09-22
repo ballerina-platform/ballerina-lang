@@ -20,7 +20,7 @@ package io.ballerina.types;
 /**
  * UniformTypeBitSet node.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class UniformTypeBitSet implements SemType {
     public final int bitset;

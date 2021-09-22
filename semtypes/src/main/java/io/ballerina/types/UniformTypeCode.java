@@ -26,7 +26,7 @@ import java.util.Map;
  * Regular types are divided longo mutable part and immutable part and these parts are called an uniform type.
  * 5th bit indicate mutability; 0 immutable, 1 mutable.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class UniformTypeCode {
     // Inherently immutable

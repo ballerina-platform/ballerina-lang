@@ -24,7 +24,7 @@ import io.ballerina.types.UniformTypeOps;
 /**
  * Default implementation for uniform subtypes that does not need type-ops.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class UniformTypeOpsPanicImpl implements UniformTypeOps {
     @Override

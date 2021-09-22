@@ -32,7 +32,7 @@ import java.util.NoSuchElementException;
 /**
  * Iteration implementation of `SubtypePairIterator`.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class SubtypePairIterator implements Iterator<SubtypePair> {
     private int i1;

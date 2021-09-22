@@ -24,7 +24,7 @@ import java.util.StringJoiner;
 /**
  * Contain predefined types used for constructing other types.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class PredefinedType {
     public static final UniformTypeBitSet NEVER = uniformTypeUnion(0);

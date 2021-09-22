@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Bdd node.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class BddNode implements Bdd {
     public final Atom atom;

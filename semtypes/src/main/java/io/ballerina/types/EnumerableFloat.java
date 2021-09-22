@@ -20,7 +20,7 @@ package io.ballerina.types;
 /**
  * Enumerable type wrapper for float.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class EnumerableFloat implements EnumerableType {
     public final double value;

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 /**
  * Float specific methods operate on SubtypeData.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class FloatOps extends CommonOps implements UniformTypeOps {
     @Override

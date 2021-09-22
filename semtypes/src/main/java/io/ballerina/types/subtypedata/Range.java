@@ -20,7 +20,7 @@ package io.ballerina.types.subtypedata;
 /**
  * Int Range node.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class Range {
     public final long min;

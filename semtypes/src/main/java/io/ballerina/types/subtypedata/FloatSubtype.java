@@ -32,7 +32,7 @@ import java.util.StringJoiner;
 /**
  * Represent FloatSubtype.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData {
     public boolean allowed;

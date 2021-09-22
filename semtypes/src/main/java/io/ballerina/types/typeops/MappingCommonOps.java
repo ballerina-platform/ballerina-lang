@@ -38,7 +38,7 @@ import java.util.Optional;
 /**
  * Common mapping related methods operate on SubtypeData.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public abstract class MappingCommonOps extends CommonOps implements UniformTypeOps {
 

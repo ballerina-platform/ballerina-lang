@@ -20,7 +20,7 @@ package io.ballerina.types;
 /**
  * Interface representing {@code isEmpty} operation.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public interface IsEmptyOp {
     boolean isEmpty(TypeCheckContext tc, SubtypeData t);

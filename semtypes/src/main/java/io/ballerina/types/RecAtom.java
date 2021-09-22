@@ -20,7 +20,7 @@ package io.ballerina.types;
 /**
  * Represent a recursive type atom.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class RecAtom implements Atom {
     public final int index;

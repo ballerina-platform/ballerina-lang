@@ -20,7 +20,7 @@ package io.ballerina.types;
 /**
  * Represent BDD node.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public interface Bdd extends ProperSubtypeData {
 }

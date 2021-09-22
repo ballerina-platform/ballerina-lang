@@ -22,7 +22,7 @@ import io.ballerina.types.Bdd;
 /**
  * Represent boolean subtype of Bdd type.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class BddAllOrNothing implements Bdd {
     private final boolean isAll;

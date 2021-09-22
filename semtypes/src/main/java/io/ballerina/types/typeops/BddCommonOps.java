@@ -27,7 +27,7 @@ import io.ballerina.types.subtypedata.BddNode;
 /**
  * Contain common BDD operations found in bdd.bal file.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public abstract class BddCommonOps {
 

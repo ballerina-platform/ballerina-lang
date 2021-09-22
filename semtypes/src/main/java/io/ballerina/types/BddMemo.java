@@ -20,7 +20,7 @@ package io.ballerina.types;
 /**
  * Represent BddMomo type used for memoization.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class BddMemo {
     public final Bdd bdd;
@@ -45,7 +45,7 @@ public class BddMemo {
     /**
      * Represent if BddMemo is null or not.
      *
-     * @since 2.0.0
+     * @since 3.0.0
      */
     public enum MemoStatus {
         NOT_SET, TRUE, FALSE;

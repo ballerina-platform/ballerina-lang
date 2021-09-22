@@ -25,7 +25,7 @@ import java.util.Iterator;
  * Ballerina iterator is similar to an iterable in Java.
  * This class implements the iterable for `MappingPairing`
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class FieldPairs implements Iterable<FieldPair> {
 

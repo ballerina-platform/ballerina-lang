@@ -35,7 +35,7 @@ import static java.lang.Long.MIN_VALUE;
 /**
  * Uniform subtype ops for int type.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class IntOps implements UniformTypeOps {
     @Override

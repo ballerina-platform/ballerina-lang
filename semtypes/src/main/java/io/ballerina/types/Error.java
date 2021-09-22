@@ -24,7 +24,7 @@ import io.ballerina.types.typeops.BddCommonOps;
 /**
  * Contain functions found in error.bal file.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class Error {
     public static SemType errorDetail(SemType detail) {

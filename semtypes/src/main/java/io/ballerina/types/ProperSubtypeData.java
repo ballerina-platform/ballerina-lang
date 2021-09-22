@@ -20,7 +20,7 @@ package io.ballerina.types;
 /**
  * ProperSubtypeData node.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public interface ProperSubtypeData extends SubtypeData {
 }
