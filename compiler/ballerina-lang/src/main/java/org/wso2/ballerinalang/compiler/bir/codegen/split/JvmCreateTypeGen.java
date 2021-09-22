@@ -469,6 +469,12 @@ public class JvmCreateTypeGen {
     public static List<Label> createLabelsForSwitch(MethodVisitor mv, int nameRegIndex,
                                                     List<? extends NamedNode> nodes, int start,
                                                     int length, Label defaultCaseLabel) {
+        return createLabelsForSwitch(mv, nameRegIndex, nodes, start, length, defaultCaseLabel, true);
+    }
+
+    public static List<Label> createLabelsForSwitch(MethodVisitor mv, int nameRegIndex,
+                                                    List<? extends NamedNode> nodes, int start,
+                                                    int length, Label defaultCaseLabel, boolean decodeCase) {
         mv.visitVarInsn(ALOAD, nameRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "hashCode", "()I", false);
 
@@ -480,7 +486,12 @@ public class JvmCreateTypeGen {
             NamedNode node = nodes.get(j);
             if (node != null) {
                 labels.add(i, new Label());
-                String name = node.getName().value;
+                String name;
+                if (decodeCase) {
+                    name = decodeIdentifier(node.getName().value);
+                } else {
+                    name = node.getName().value;
+                }
                 hashCodes[i] = name.hashCode();
                 i += 1;
             }
@@ -489,9 +500,15 @@ public class JvmCreateTypeGen {
         return labels;
     }
 
-    static List<Label> createLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
-                                                 List<? extends NamedNode> nodes, int start, int length,
-                                                 List<Label> labels, Label defaultCaseLabel) {
+    public static List<Label> createLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
+                                                        List<? extends NamedNode> nodes, int start, int length,
+                                                        List<Label> labels, Label defaultCaseLabel) {
+        return createLabelsForEqualCheck(mv,  nameRegIndex, nodes,  start,  length, labels,  defaultCaseLabel, true);
+    }
+
+   public static List<Label> createLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
+                                                       List<? extends NamedNode> nodes, int start, int length,
+                                                       List<Label> labels, Label defaultCaseLabel, boolean decodeCase) {
         List<Label> targetLabels = new ArrayList<>();
         int i = 0;
         for (int j = start; j < start + length; j++) {
@@ -501,7 +518,11 @@ public class JvmCreateTypeGen {
             }
             mv.visitLabel(labels.get(i));
             mv.visitVarInsn(ALOAD, nameRegIndex);
-            mv.visitLdcInsn(node.getName().value);
+            if (decodeCase) {
+                mv.visitLdcInsn(decodeIdentifier(node.getName().value));
+            } else {
+                mv.visitLdcInsn(node.getName().value);
+            }
             mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals",
                     String.format("(L%s;)Z", OBJECT), false);
             Label targetLabel = new Label();

@@ -24,28 +24,39 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.FieldNameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.objectweb.asm.Opcodes.AALOAD;
+import static org.objectweb.asm.Opcodes.ACC_PROTECTED;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
-import static org.objectweb.asm.Opcodes.GOTO;
-import static org.objectweb.asm.Opcodes.IFNE;
+import static org.objectweb.asm.Opcodes.ASTORE;
+import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.GETFIELD;
+import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.L2I;
+import static org.objectweb.asm.Opcodes.PUTFIELD;
+import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
+import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmSplitMethodUtil.castToJavaString;
 
 /**
  * Class for generate {@link io.ballerina.runtime.api.values.BObject} related methods.
@@ -56,10 +67,14 @@ public class JvmObjectGen {
 
     public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
 
+    static final FieldNameHashComparator FIELD_NAME_HASH_COMPARATOR = new FieldNameHashComparator();
+
     private static final int MAX_CALLS_PER_CLIENT_METHOD = 100;
 
-    public void createCallMethod(ClassWriter cw, List<BIRNode.BIRFunction> functions, String objClassName,
-                                  JvmCastGen jvmCastGen) {
+    private static final int MAX_FIELDS_PER_SPLIT_METHOD = 1000;
+
+    public void createAndSplitCallMethod(ClassWriter cw, List<BIRNode.BIRFunction> functions, String objClassName,
+                                         JvmCastGen jvmCastGen) {
 
         int bTypesCount = 0;
         int methodCount = 0;
@@ -73,10 +88,10 @@ public class JvmObjectGen {
         // case body
         int i = 0;
         List<Label> targetLabels = new ArrayList<>();
-        String callMethodName = "call";
+        String callMethod = "call";
         for (BIRNode.BIRFunction optionalFunc : functions) {
             if (bTypesCount % MAX_CALLS_PER_CLIENT_METHOD == 0) {
-                mv = cw.visitMethod(ACC_PUBLIC, callMethodName, String.format("(L%s;L%s;[L%s;)L%s;",
+                mv = cw.visitMethod(ACC_PUBLIC, callMethod, String.format("(L%s;L%s;[L%s;)L%s;",
                         STRAND_CLASS, STRING_VALUE, OBJECT, OBJECT), null, null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
@@ -85,11 +100,11 @@ public class JvmObjectGen {
                     remainingCases = MAX_CALLS_PER_CLIENT_METHOD;
                 }
                 List<Label> labels = JvmCreateTypeGen.createLabelsForSwitch(mv, funcNameRegIndex, functions,
-                        bTypesCount, remainingCases, defaultCaseLabel);
-                targetLabels = createLabelsForEqualCheck(mv, funcNameRegIndex, functions,
-                        bTypesCount, remainingCases, labels, defaultCaseLabel);
+                        bTypesCount, remainingCases, defaultCaseLabel, false);
+                targetLabels = JvmCreateTypeGen.createLabelsForEqualCheck(mv, funcNameRegIndex, functions,
+                        bTypesCount, remainingCases, labels, defaultCaseLabel, false);
                 i = 0;
-                callMethodName = "call" + ++methodCount;
+                callMethod = "call" + ++methodCount;
             }
             BIRNode.BIRFunction func = getFunction(optionalFunc);
             Label targetLabel = targetLabels.get(i);
@@ -113,7 +128,7 @@ public class JvmObjectGen {
                 // load parameters
                 mv.visitVarInsn(ALOAD, 3);
 
-                // load j'th parameter
+                // load j parameter
                 mv.visitLdcInsn((long) j);
                 mv.visitInsn(L2I);
                 mv.visitInsn(AALOAD);
@@ -156,36 +171,242 @@ public class JvmObjectGen {
         }
     }
 
-    static List<Label> createLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
-                                                 List<? extends NamedNode> nodes, int start, int length,
-                                                 List<Label> labels, Label defaultCaseLabel) {
-        List<Label> targetLabels = new ArrayList<>();
-        int i = 0;
-        for (int j = start; j < start + length; j++) {
-            NamedNode node = nodes.get(j);
-            if (node == null) {
-                continue;
-            }
-            mv.visitLabel(labels.get(i));
-            mv.visitVarInsn(ALOAD, nameRegIndex);
-            mv.visitLdcInsn(node.getName().value);
-            mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals",
-                    String.format("(L%s;)Z", OBJECT), false);
-            Label targetLabel = new Label();
-            mv.visitJumpInsn(IFNE, targetLabel);
-            mv.visitJumpInsn(GOTO, defaultCaseLabel);
-            targetLabels.add(i, targetLabel);
-            i += 1;
+    public void createAndSplitGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                        JvmCastGen jvmCastGen) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get", String.format("(L%s;)L%s;", B_STRING_VALUE, OBJECT),
+                String.format("(L%s;)TV;", OBJECT), null);
+        mv.visitCode();
+        int selfIndex = 0;
+        int fieldNameRegIndex = 1;
+        int strKeyVarIndex = 2;
+
+        // cast key to java.lang.String
+        castToJavaString(mv, fieldNameRegIndex, strKeyVarIndex);
+        if (!fields.isEmpty()) {
+            mv.visitVarInsn(ALOAD, selfIndex);
+            mv.visitVarInsn(ALOAD, strKeyVarIndex);
+            mv.visitMethodInsn(INVOKEVIRTUAL, className, "get",
+                    String.format("(L%s;)L%s;", STRING_VALUE, OBJECT), false);
+            mv.visitInsn(ARETURN);
+            mv.visitMaxs(0, 0);
+            mv.visitEnd();
+            splitObjectGetMethod(cw, fields, className, jvmCastGen);
+            return;
         }
-        return targetLabels;
+        Label defaultCaseLabel = new Label();
+        createDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void splitObjectGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                      JvmCastGen jvmCastGen) {
+
+        int bTypesCount = 0;
+        int methodCount = 0;
+        MethodVisitor mv = null;
+        int selfRegIndex = 0;
+        int strKeyVarIndex = 1;
+        Label defaultCaseLabel = new Label();
+
+        // sort the fields before generating switch case
+        List<BField> sortedFields = new ArrayList<>(fields.values());
+        sortedFields.sort(FIELD_NAME_HASH_COMPARATOR);
+
+        List<Label> targetLabels = new ArrayList<>();
+
+        int i = 0;
+        String getMethod = "get";
+        for (BField optionalField : sortedFields) {
+            if (bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
+                mv = cw.visitMethod(ACC_PUBLIC, getMethod, String.format("(L%s;)L%s;", STRING_VALUE, OBJECT),
+                        null, null);
+                mv.visitCode();
+                defaultCaseLabel = new Label();
+                int remainingCases = sortedFields.size() - bTypesCount;
+                if (remainingCases > MAX_FIELDS_PER_SPLIT_METHOD) {
+                    remainingCases = MAX_FIELDS_PER_SPLIT_METHOD;
+                }
+                List<Label> labels = JvmCreateTypeGen.createLabelsForSwitch(mv, strKeyVarIndex, sortedFields,
+                        bTypesCount, remainingCases, defaultCaseLabel);
+                targetLabels = JvmCreateTypeGen.createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields,
+                        bTypesCount, remainingCases, labels, defaultCaseLabel);
+                i = 0;
+                getMethod = "get" + ++methodCount;
+            }
+            Label targetLabel = targetLabels.get(i);
+            mv.visitLabel(targetLabel);
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitFieldInsn(GETFIELD, className, optionalField.name.value, getTypeDesc(optionalField.type));
+            jvmCastGen.addBoxInsn(mv, optionalField.type);
+            mv.visitInsn(ARETURN);
+            i += 1;
+            bTypesCount++;
+            if (bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
+                if (bTypesCount == sortedFields.size()) {
+                    createDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
+                } else {
+                    mv.visitLabel(defaultCaseLabel);
+                    mv.visitVarInsn(ALOAD, selfRegIndex);
+                    mv.visitVarInsn(ALOAD, strKeyVarIndex);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, className, getMethod, String.format("(L%s;)L%s;",
+                            STRING_VALUE, OBJECT), false);
+                    mv.visitInsn(ARETURN);
+                }
+                mv.visitMaxs(i + 10, i + 10);
+                mv.visitEnd();
+            }
+        }
+        if (methodCount != 0 && bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD != 0) {
+            createDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
+            mv.visitMaxs(i + 10, i + 10);
+            mv.visitEnd();
+        }
+    }
+
+    public void createAndSplitSetMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                        JvmCastGen jvmCastGen) {
+
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set", String.format("(L%s;L%s;)V", B_STRING_VALUE, OBJECT),
+                null, null);
+        mv.visitCode();
+        int selfIndex = 0;
+        int fieldNameRegIndex = 1;
+        int valueRegIndex = 2;
+        int strKeyVarIndex = 3;
+
+        // code gen type checking for inserted value
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD, String.format("()L%s;", STRING_VALUE),
+                true);
+        mv.visitInsn(DUP);
+        mv.visitVarInsn(ASTORE, strKeyVarIndex);
+        mv.visitVarInsn(ALOAD, valueRegIndex);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate", String.format("(L%s;L%s;)V", STRING_VALUE,
+                OBJECT), false);
+        if (!fields.isEmpty()) {
+            callFirstSetMethod(className, mv, selfIndex, fieldNameRegIndex, valueRegIndex,
+                    strKeyVarIndex);
+            splitObjectSplitMethod(cw, fields, className, jvmCastGen);
+            return;
+        }
+        Label defaultCaseLabel = new Label();
+        createDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    public void createAndSplitSetOnInitializationMethod(ClassWriter cw, Map<String, BField> fields,
+                                                        String className) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "setOnInitialization",
+                String.format("(L%s;L%s;)V", B_STRING_VALUE, OBJECT), null, null);
+        mv.visitCode();
+        int selfIndex = 0;
+        int fieldNameRegIndex = 1;
+        int valueRegIndex = 2;
+        int strKeyVarIndex = 3;
+
+        // cast key to java.lang.String
+        castToJavaString(mv, fieldNameRegIndex, strKeyVarIndex);
+        if (!fields.isEmpty()) {
+            callFirstSetMethod(className, mv, selfIndex, fieldNameRegIndex, valueRegIndex,
+                    strKeyVarIndex);
+            return;
+        }
+        Label defaultCaseLabel = new Label();
+        createDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void callFirstSetMethod(String className, MethodVisitor mv, int selfIndex, int fieldNameRegIndex,
+                                    int valueRegIndex, int strKeyVarIndex) {
+        mv.visitVarInsn(ALOAD, selfIndex);
+        mv.visitVarInsn(ALOAD, strKeyVarIndex);
+        mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+        mv.visitVarInsn(ALOAD, valueRegIndex);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "set", String.format("(L%s;L%s;L%s;)V", STRING_VALUE,
+                B_STRING_VALUE, OBJECT), false);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void splitObjectSplitMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                        JvmCastGen jvmCastGen) {
+        int bTypesCount = 0;
+        int methodCount = 0;
+        MethodVisitor mv = null;
+        int selfRegIndex = 0;
+        int strKeyVarIndex = 1;
+        int fieldNameRegIndex = 2;
+        int valueRegIndex = 3;
+        Label defaultCaseLabel = new Label();
+
+        // sort the fields before generating switch case
+        List<BField> sortedFields = new ArrayList<>(fields.values());
+        sortedFields.sort(FIELD_NAME_HASH_COMPARATOR);
+
+        List<Label> targetLabels = new ArrayList<>();
+
+        int i = 0;
+        String setMethod = "set";
+        for (BField optionalField : sortedFields) {
+            if (bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
+                mv = cw.visitMethod(ACC_PROTECTED, setMethod, String.format("(L%s;L%s;L%s;)V", STRING_VALUE,
+                        B_STRING_VALUE, OBJECT), null, null);
+                mv.visitCode();
+                defaultCaseLabel = new Label();
+                int remainingCases = sortedFields.size() - bTypesCount;
+                if (remainingCases > MAX_FIELDS_PER_SPLIT_METHOD) {
+                    remainingCases = MAX_FIELDS_PER_SPLIT_METHOD;
+                }
+                List<Label> labels = JvmCreateTypeGen.createLabelsForSwitch(mv, strKeyVarIndex, sortedFields,
+                        bTypesCount, remainingCases, defaultCaseLabel);
+                targetLabels = JvmCreateTypeGen.createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields,
+                        bTypesCount, remainingCases, labels, defaultCaseLabel);
+                i = 0;
+                setMethod = "set" + ++methodCount;
+            }
+            Label targetLabel = targetLabels.get(i);
+            mv.visitLabel(targetLabel);
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, valueRegIndex);
+            jvmCastGen.addUnboxInsn(mv, optionalField.type);
+            String filedName = optionalField.name.value;
+            mv.visitFieldInsn(PUTFIELD, className, filedName, getTypeDesc(optionalField.type));
+            mv.visitInsn(RETURN);
+            i += 1;
+            bTypesCount++;
+            if (bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
+                if (bTypesCount == sortedFields.size()) {
+                    createDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
+                } else {
+                    mv.visitLabel(defaultCaseLabel);
+                    mv.visitVarInsn(ALOAD, selfRegIndex);
+                    mv.visitVarInsn(ALOAD, strKeyVarIndex);
+                    mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+                    mv.visitVarInsn(ALOAD, valueRegIndex);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, className, setMethod, String.format("(L%s;L%s;L%s;)V",
+                            STRING_VALUE, B_STRING_VALUE, OBJECT), false);
+                    mv.visitInsn(RETURN);
+                }
+                mv.visitMaxs(0, 0);
+                mv.visitEnd();
+            }
+        }
+        if (methodCount != 0 && bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD != 0) {
+            createDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
+            mv.visitMaxs(0, 0);
+            mv.visitEnd();
+        }
     }
 
     private static BIRNode.BIRFunction getFunction(BIRNode.BIRFunction func) {
-
         if (func == null) {
             throw new BLangCompilerException("Invalid function");
         }
-
         return func;
     }
 }
