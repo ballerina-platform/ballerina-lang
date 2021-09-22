@@ -719,6 +719,21 @@ public class TypeGuardTest {
         BRunUtil.invoke(result, "testIfElseWithTypeTest");
     }
 
+    @Test
+    public void testIfElseWithTypeTestMultipleVariables() {
+        BRunUtil.invoke(result, "testIfElseWithTypeTestMultipleVariables");
+    }
+
+    @Test
+    public void testIfElseWithTypeTestMultipleVariablesInMultipleBlocks() {
+        BRunUtil.invoke(result, "testIfElseWithTypeTestMultipleVariablesInMultipleBlocks");
+    }
+
+    @Test
+    public void testIfElseWithTypeTestMultipleVariablesInNestedBlocks() {
+        BRunUtil.invoke(result, "testIfElseWithTypeTestMultipleVariablesInNestedBlocks");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
