@@ -779,17 +779,12 @@ public class ProjectUtils {
      *
      * @param buildJsonPath build file path
      * @return build json object
+     * @throws JsonSyntaxException incorrect json syntax
+     * @throws IOException if json read fails
      */
-    public static BuildJson readBuildJson(Path buildJsonPath) {
-        BuildJson buildJson;
-        try (BufferedReader bufferedReader = Files.newBufferedReader(buildJsonPath)) {
-            buildJson = new Gson().fromJson(bufferedReader, BuildJson.class);
-        } catch (JsonSyntaxException e) {
-            throw new ProjectException("Invalid '" + BUILD_FILE + "' file format");
-        } catch (IOException e) {
-            throw new ProjectException("Failed to read the '" + BUILD_FILE + "' file");
-        }
-        return buildJson;
+    public static BuildJson readBuildJson(Path buildJsonPath) throws JsonSyntaxException, IOException {
+        BufferedReader bufferedReader = Files.newBufferedReader(buildJsonPath);
+        return new Gson().fromJson(bufferedReader, BuildJson.class);
     }
 
     /**

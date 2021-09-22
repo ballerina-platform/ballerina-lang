@@ -18,6 +18,8 @@
 package io.ballerina.projects.test;
 
 import com.sun.management.UnixOperatingSystemMXBean;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
@@ -42,11 +44,14 @@ import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.environment.DefaultPackageResolver;
+import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.repos.TempDirCompilationCache;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -62,6 +67,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.ballerina.projects.test.TestUtils.isWindows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -114,6 +120,134 @@ public class PackageResolutionTests extends BaseTest {
         // Check direct package dependencies
         Assert.assertEquals(buildProject.currentPackage().packageDependencies().size(), 1,
                 "Unexpected number of dependencies");
+    }
+
+    @Test(description = "tests resolution with invalid build file")
+    public void testProjectwithInvalidBuildFile() throws IOException {
+        // Package path
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_0");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_2");
+
+        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder().experimental(true);
+        buildOptionsBuilder.sticky(false);
+        BuildOptions buildOptions = buildOptionsBuilder.build();
+
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
+
+        // Delete the build file
+        if (loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME).toFile().exists()) {
+            TestUtils.deleteDirectory(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME).toFile());
+        }
+
+        // Create empty build file
+        Files.createDirectory(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME));
+        Files.createFile(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE));
+
+        PackageCompilation compilation = loadProject.currentPackage().getCompilation();
+
+        DependencyGraph<ResolvedPackageDependency> dependencyGraph = compilation.getResolution().dependencyGraph();
+        for (ResolvedPackageDependency graphNode : dependencyGraph.getNodes()) {
+            Collection<ResolvedPackageDependency> directDeps = dependencyGraph.getDirectDependencies(graphNode);
+            PackageManifest manifest = graphNode.packageInstance().manifest();
+            if (manifest.name().value().equals("package_o")) {
+                Assert.assertEquals(manifest.version().toString(), "1.0.2");
+            }
+        }
+    }
+
+    @Test(dependsOnMethods = "testProjectwithInvalidBuildFile", description = "tests project with empty build file")
+    public void testProjectSaveWithEmptyBuildFile() throws IOException {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath);
+        Path buildPath = loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE);
+
+        Files.deleteIfExists(buildPath);
+        Files.createFile(buildPath); // Empty build file
+
+        loadProject.save();
+
+        Assert.assertTrue(Files.exists(buildPath));
+        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
+        Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
+    }
+
+    @Test(dependsOnMethods = "testProjectSaveWithEmptyBuildFile", description = "tests project with corrupt build file")
+    public void testProjectSaveWithCorruptBuildFile() throws IOException {
+        // Skip test in windows due to file permission setting issue
+        if (isWindows()) {
+            throw new SkipException("Skipping tests on Windows");
+        }
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath);
+        Path buildPath = loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE);
+
+        Files.deleteIfExists(buildPath);
+        Files.createFile(buildPath);
+        Files.writeString(buildPath, "Invalid"); // Invalid build file for JSONSyntaxException
+
+        loadProject.save();
+
+        Assert.assertTrue(Files.exists(buildPath));
+        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
+        Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
+    }
+
+    @Test(dependsOnMethods = "testProjectSaveWithCorruptBuildFile", description = "tests project with no read " +
+            "permissions")
+    public void testProjectSaveWithNoReadPermission() throws IOException {
+        // Skip test in windows due to file permission setting issue
+        if (isWindows()) {
+            throw new SkipException("Skipping tests on Windows");
+        }
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath);
+        Path buildPath = loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE);
+        boolean readable = buildPath.toFile().setReadable(false, false);
+        if (!readable) {
+            Assert.fail("could not set readable permission");
+        }
+
+        loadProject.save();
+
+        PackageCompilation compilation = loadProject.currentPackage().getCompilation();
+        Assert.assertTrue(Files.exists(buildPath));
+
+        readable = buildPath.toFile().setReadable(true, true);
+        if (!readable) {
+            Assert.fail("could not set readable permission");
+        }
+        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
+        Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
+    }
+
+    @Test(dependsOnMethods = "testProjectSaveWithNoReadPermission", description = "tests project with no write " +
+            "permissions")
+    public void testProjectSaveWithNoWritePermission() throws IOException {
+        // Skip test in windows due to file permission setting issue
+        if (isWindows()) {
+            throw new SkipException("Skipping tests on Windows");
+        }
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath);
+        Path buildPath = loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE);
+        boolean writable = buildPath.toFile().setWritable(false, false);
+        if (!writable) {
+            Assert.fail("could not set writable permission");
+        }
+
+        loadProject.save();
+
+        PackageCompilation compilation = loadProject.currentPackage().getCompilation();
+        Assert.assertTrue(Files.exists(buildPath));
+        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
+        Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
     }
 
     @Test(description = "tests resolution with one transitive dependency")
