@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 267,
+    "character": 22
+  },
+  "source": {
+    "file": "hover.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "Description for new test record for TestRecordType1  \n  \n---  \n  \n`TestRecordType1` testRecordType1"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

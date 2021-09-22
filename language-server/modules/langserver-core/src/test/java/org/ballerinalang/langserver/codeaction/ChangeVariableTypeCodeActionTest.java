@@ -41,12 +41,26 @@ public class ChangeVariableTypeCodeActionTest extends AbstractCodeActionTest {
         super.test(config, source);
     }
 
+    @Test(dataProvider = "negative-test-data-provider")
+    @Override
+    public void negativeTest(String config, String source) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config, source);
+    }
+
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
                 {"changeVarType1.json", "changeVarType.bal"},
                 {"changeVarType2.json", "changeVarType.bal"},
+        };
+    }
+
+    @DataProvider(name = "negative-test-data-provider")
+    public Object[][] negativeTestDataProvider() {
+        return new Object[][]{
+                {"negative_changeVarType1.json", "negative_changeVarType1.bal"},
+                {"negative_changeVarType2.json", "negative_changeVarType2.bal"},
         };
     }
 }

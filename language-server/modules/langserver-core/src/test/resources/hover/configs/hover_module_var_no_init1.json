@@ -1,16 +1,16 @@
 {
-  "source": {
-    "file": "hover.bal"
-  },
   "position": {
     "line": 6,
     "character": 7
+  },
+  "source": {
+    "file": "hover.bal"
   },
   "expected": {
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "Description for module variable with no init"
+        "value": "Description for module variable with no init  \n  \n---  \n  \n`int` modVar2"
       }
     },
     "id": {

@@ -15,6 +15,8 @@
 // under the License.
 
 import ballerina/lang.'int;
+import evaluation_tests.other;
+import ballerina/lang.'float as langFloat;
 
 type GradStudent record {
     string firstName;
@@ -169,6 +171,28 @@ var floatValue = 2.0;
 json jsonValue = {name: "John", age: 20};
 var '\ \/\:\@\[\`\{\~\u{03C0}_IL = "IL with global var";
 
+// let expression helper declarations
+const globalVar = 2;
+int k = let int x = 4 in 2 * x * globalVar;
+
+type SampleErrorData record {
+    string message?;
+    error cause?;
+    string info;
+    boolean fatal;
+};
+
+type SampleError error<SampleErrorData>;
+
+type Foo record {|
+    string message?;
+    error cause?;
+    string detailMsg;
+    boolean isFatal;
+|};
+
+type FooError error<Foo>;
+
 public function main() {
     //------------------------ basic, simple type variables ------------------------//
 
@@ -320,6 +344,11 @@ public function main() {
     Department d3 = {deptId: 3, deptName: "Chemistry"};
     GradStudent[] gradStudentList = [gs1, gs2, gs3, gs4];
     Department[] departmentList = [d1, d2, d3];
+
+    // Helper statements for qualified name/function/type evaluation tests
+    string constValue = other:publicConstant;
+    var location = new other:Place("", "");
+    var pi = langFloat:PI;
 }
 
 function printSalaryDetails(int baseSalary, int annualIncrement = 20, float bonusRate = 0.02) returns string {
@@ -346,4 +375,22 @@ function printDetails(string name, int age = 18, string... modules) returns stri
 
 function addition(int a, int b) returns int {
     return a + b;
+}
+
+function func(int k) returns int {
+    return k * 2;
+}
+
+function func2(string y) returns int {
+    return y.length();
+}
+
+function getSampleError() returns SampleError {
+    SampleError e = error SampleError("Sample Error", info = "Detail Msg", fatal = true);
+    return e;
+}
+
+function getRecordConstrainedError() returns FooError {
+    FooError e = error FooError("Some Error", detailMsg = "Failed Message", isFatal = true);
+    return e;
 }

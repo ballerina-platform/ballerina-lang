@@ -69,6 +69,13 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
                     || symbol.kind() == SymbolKind.FUNCTION;
             List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+        } else if (onSuggestionsAfterQualifiers(context, node.expression())) {
+            /*
+            Captures the following case.
+            (1) TypeName c = <qualifier(s)> <cursor>
+            Currently qualifier can be isolated, transactional, client, service.
+             */
+            completionItems.addAll(getCompletionItemsOnQualifiers(node.expression(), context));
         } else {
             /*
             Captures the following cases
@@ -80,7 +87,6 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
             completionItems.addAll(this.getNewExprCompletionItems(context, node));
         }
         this.sort(context, node, completionItems);
-
         return completionItems;
     }
 
@@ -102,7 +108,7 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
         TypeSymbol symbol = typeSymbolAtCursor.get();
         for (LSCompletionItem completionItem : completionItems) {
             completionItem.getCompletionItem()
-                    .setSortText(SortingUtil.genSortTextByAssignability(completionItem, symbol));
+                    .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
         }
     }
 

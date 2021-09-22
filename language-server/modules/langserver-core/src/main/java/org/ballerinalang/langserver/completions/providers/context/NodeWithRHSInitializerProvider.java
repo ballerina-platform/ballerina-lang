@@ -58,16 +58,17 @@ public abstract class NodeWithRHSInitializerProvider<T extends Node> extends Abs
             String sortText;
             if (contextType.isEmpty()) {
                 // Safety check. In general, should not reach this point
-                sortText = SortingUtil.genSortText(SortingUtil.toRank(lsCItem));
+                sortText = SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
             } else {
-                sortText = SortingUtil.genSortTextByAssignability(lsCItem, contextType.get());
+                sortText = SortingUtil.genSortTextByAssignability(context, lsCItem, contextType.get());
             }
 
             lsCItem.getCompletionItem().setSortText(sortText);
         }
     }
 
-    protected List<LSCompletionItem> initializerContextCompletions(BallerinaCompletionContext context, Node typeDsc) {
+    protected List<LSCompletionItem> initializerContextCompletions(BallerinaCompletionContext context, Node typeDesc,
+                                                                   Node initializer) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
@@ -82,6 +83,16 @@ public abstract class NodeWithRHSInitializerProvider<T extends Node> extends Abs
                     || symbol.kind() == SymbolKind.CLASS;
             List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
             return this.getCompletionItemList(moduleContent, context);
+        }
+
+        if (onSuggestionsAfterQualifiers(context, initializer)) {
+            /*
+                Covers the following
+                type x = <qualifier(s)> <cursor>
+                type x = <qualifier(s)>  x<cursor>
+                currently the qualifier can be isolated/transactional.
+             */
+            return getCompletionItemsOnQualifiers(initializer, context);
         }
         
         /*

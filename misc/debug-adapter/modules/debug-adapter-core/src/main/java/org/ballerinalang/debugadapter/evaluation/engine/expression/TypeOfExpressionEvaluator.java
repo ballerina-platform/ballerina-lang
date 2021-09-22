@@ -18,16 +18,18 @@ package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 
 import java.util.Collections;
 import java.util.List;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CHECKER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.GET_TYPEDESC_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_CLASS;
@@ -44,7 +46,7 @@ public class TypeOfExpressionEvaluator extends Evaluator {
     private final TypeofExpressionNode syntaxNode;
     private final Evaluator exprEvaluator;
 
-    public TypeOfExpressionEvaluator(SuspendedContext context, TypeofExpressionNode typeofExpressionNode,
+    public TypeOfExpressionEvaluator(EvaluationContext context, TypeofExpressionNode typeofExpressionNode,
                                      Evaluator exprEvaluator) {
         super(context);
         this.syntaxNode = typeofExpressionNode;
@@ -60,8 +62,7 @@ public class TypeOfExpressionEvaluator extends Evaluator {
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
-                    syntaxNode.toSourceCode().trim()));
+            throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
         }
     }
 

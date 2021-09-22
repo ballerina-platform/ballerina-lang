@@ -99,4 +99,12 @@ public class ModuleXMLNamespaceDeclarationNodeContext extends
         return !namespaceuri.isMissing() && cursor > namespaceuri.textRange().endOffset()
                 && (asKeyword.isEmpty() || asKeyword.get().isMissing());
     }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, ModuleXMLNamespaceDeclarationNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token xmlnsKeyword = node.xmlnsKeyword();
+        
+        return !xmlnsKeyword.isMissing() && cursor > xmlnsKeyword.textRange().endOffset();
+    }
 }

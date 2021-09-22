@@ -743,7 +743,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "invalid.usage.of.check.in.object.field.initializer.in.object.with.no.init.method"),
     INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_WITH_INIT_METHOD_RETURN_TYPE_MISMATCH("BCE4012",
             "invalid.usage.of.check.in.object.field.initializer.with.init.method.return.type.mismatch"),
-    NO_CLASS_DEF_FOUND("BCE4013", "no.class.def.found")
+    NO_CLASS_DEF_FOUND("BCE4013", "no.class.def.found"),
+
+    INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_LOOP("BCE4014", "invalid.assignment.to.narrowed.var.in.loop")
     ;
 
     private String diagnosticId;
