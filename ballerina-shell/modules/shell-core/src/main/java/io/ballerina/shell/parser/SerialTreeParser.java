@@ -34,12 +34,12 @@ import io.ballerina.shell.parser.trials.ParserRejectedException;
 import io.ballerina.shell.parser.trials.ParserTrialFailedException;
 import io.ballerina.shell.parser.trials.StatementTrial;
 import io.ballerina.shell.parser.trials.TreeParserTrial;
+import io.ballerina.shell.utils.FileUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * Parses the source code line using a trial based method.
@@ -49,8 +49,7 @@ import java.util.Set;
  * @since 2.0.0
  */
 public class SerialTreeParser extends TrialTreeParser {
-    private static final Set<String> RESTRICTED_FUNCTION_NAMES = Set.of("main", "init", "__java_recall",
-            "__java_memorize", "__recall_any", "__recall_any_error", "__memorize", "__stmts", "__run");
+    private static final List<String> RESTRICTED_FUNCTION_NAMES =  FileUtils.readKeywords("restricted.functions.txt");
     private static final String COMMAND_PREFIX = "/";
     private final List<TreeParserTrial> nodeParserTrials;
 
@@ -80,6 +79,7 @@ public class SerialTreeParser extends TrialTreeParser {
             } catch (InvalidMethodException e) {
                 errorMessage = e.getMessage();
                 addErrorDiagnostic(errorMessage);
+                throw new TreeParserException();
             } catch (Throwable e) {
                 errorMessage = "Code contains syntax error(s).";
             }
