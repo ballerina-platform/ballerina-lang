@@ -51,11 +51,9 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -72,8 +70,8 @@ import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 public class DebugTestRunner {
 
     public List<BallerinaTestDebugPoint> testBreakpoints = new ArrayList<>();
-    public String testProjectPath;
-    public String testEntryFilePath;
+    public Path testProjectPath;
+    public Path testEntryFilePath;
 
     private static Path testProjectBaseDir;
     private static Path testSingleFileBaseDir;
@@ -91,11 +89,11 @@ public class DebugTestRunner {
 
     public DebugTestRunner(String testProjectName, String testModuleFileName, boolean isProjectBasedTest) {
         if (isProjectBasedTest) {
-            testProjectPath = testProjectBaseDir.toString() + File.separator + testProjectName;
-            testEntryFilePath = Paths.get(testProjectPath, testModuleFileName).toString();
+            testProjectPath = testProjectBaseDir.resolve(testProjectName);
+            testEntryFilePath = testProjectPath.resolve(testModuleFileName);
         } else {
-            testProjectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
-            testEntryFilePath = Paths.get(testSingleFileBaseDir.toString(), testModuleFileName).toString();
+            testProjectPath = testProjectBaseDir.resolve(testProjectName);
+            testEntryFilePath = testSingleFileBaseDir.resolve(testModuleFileName);
         }
 
         // Hard assertions will be used by default.
@@ -139,7 +137,11 @@ public class DebugTestRunner {
      * @throws BallerinaTestException if any exception is occurred during initialization.
      */
     public void initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind) throws BallerinaTestException {
-        initDebugSession(executionKind, new HashMap<>());
+        HashMap<String, Object> launchConfigs = new HashMap<>();
+        HashMap<String, Object> extendedCapabilities = new HashMap<>();
+        extendedCapabilities.put("supportsReadOnlyEditors", true);
+        launchConfigs.put("capabilities", extendedCapabilities);
+        initDebugSession(executionKind, launchConfigs);
     }
 
     /**

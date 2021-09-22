@@ -21,25 +21,33 @@ import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.SourceBreakpoint;
 
 import java.io.File;
+import java.net.URI;
+import java.nio.file.Path;
 
 /**
  * Ballerina debug point (breakpoint/debug hit point) representation used for integration test scenarios.
  */
 public class BallerinaTestDebugPoint {
 
-    private final String filePath;
+    private final URI filePathUri;
     private final int line;
     private final String condition;
     private final String logMessage;
 
-    private static final String FILE_URI_SCHEME = "file://";
-
-    public BallerinaTestDebugPoint(String filePath, int line) {
+    public BallerinaTestDebugPoint(Path filePath, int line) {
         this(filePath, line, null, null);
     }
 
-    public BallerinaTestDebugPoint(String filePath, int line, String condition, String logMessage) {
-        this.filePath = getPathWithoutURIScheme(filePath);
+    public BallerinaTestDebugPoint(URI filePathUri, int line) {
+        this(filePathUri, line, null, null);
+    }
+
+    public BallerinaTestDebugPoint(Path filePath, int line, String condition, String logMessage) {
+        this(filePath.toAbsolutePath().toUri(), line, condition, logMessage);
+    }
+
+    public BallerinaTestDebugPoint(URI filePathUri, int line, String condition, String logMessage) {
+        this.filePathUri = filePathUri;
         this.line = line;
         this.condition = condition;
         this.logMessage = logMessage;
@@ -48,8 +56,8 @@ public class BallerinaTestDebugPoint {
     public Source getSource() {
         Source source = new Source();
         String fileSeparatorRegEx = File.separatorChar == '\\' ? "\\\\" : File.separator;
-        String[] paths = filePath.split(fileSeparatorRegEx);
-        source.setPath(filePath);
+        String[] paths = filePathUri.getPath().split(fileSeparatorRegEx);
+        source.setPath(filePathUri.getPath());
         source.setName(paths[paths.length - 1]);
         return source;
     }
@@ -71,27 +79,17 @@ public class BallerinaTestDebugPoint {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        BallerinaTestDebugPoint info = (BallerinaTestDebugPoint) o;
-        return filePath.equals(info.filePath) && line == info.line;
+        BallerinaTestDebugPoint other = (BallerinaTestDebugPoint) o;
+        return filePathUri.equals(other.filePathUri) && line == other.line;
     }
 
     @Override
     public int hashCode() {
-        return 7 * line + filePath.hashCode();
+        return 7 * line + filePathUri.hashCode();
     }
 
     @Override
     public String toString() {
-        return "Ballerina test breakpoint at line: " + line + " in " + filePath;
-    }
-
-    /**
-     * Since the debug server may return URIs of the source files, URI schemes should be ignored when asserting debug
-     * point locations.
-     *
-     * @param filePath file path with possible URI schemes
-     */
-    private String getPathWithoutURIScheme(String filePath) {
-        return filePath.startsWith(FILE_URI_SCHEME) ? filePath.replaceFirst(FILE_URI_SCHEME, "") : filePath;
+        return String.format("Ballerina test breakpoint at line: %d, in '%s'", line, filePathUri);
     }
 }

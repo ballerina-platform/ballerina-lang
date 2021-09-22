@@ -105,7 +105,7 @@ public class BallerinaStackFrame {
             DebugSourceType sourceType = sourcePathAndType.get().getValue();
             Source source = new Source();
             source.setName(jStackFrame.location().sourceName());
-            URI uri = frameLocationPath.toUri();
+            URI uri = frameLocationPath.toAbsolutePath().toUri();
 
             // If the corresponding source file of the stack frame is a bala source, the source should be readonly in
             // the editor side. Therefore adds a custom URI scheme to the file path, after verifying that the connected
@@ -118,9 +118,9 @@ public class BallerinaStackFrame {
                 // Note: Since we are using a Ballerina-specific custom URI scheme, the future DAP client
                 // implementations may have to implement custom editor providers in order to support URIs coming
                 // from the debug server.
-                source.setPath(URI.create(BALA_URI_SCHEME_NAME + uri.getPath()).normalize().toString());
+                source.setPath(URI.create(BALA_URI_SCHEME_NAME + uri.getPath()).toString());
             } else {
-                source.setPath(uri.normalize().toString());
+                source.setPath(uri.toString());
             }
             dapStackFrame.setSource(source);
             return dapStackFrame;

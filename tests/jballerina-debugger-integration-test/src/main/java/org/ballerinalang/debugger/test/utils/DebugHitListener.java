@@ -29,6 +29,9 @@ import org.eclipse.lsp4j.debug.ThreadsResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -109,7 +112,8 @@ public class DebugHitListener extends TimerTask {
             if (stackFrames.length == 0) {
                 return null;
             }
-            return new BallerinaTestDebugPoint(stackFrames[0].getSource().getPath(), stackFrames[0].getLine());
+            URI stackFrameLocation = URI.create(stackFrames[0].getSource().getPath());
+            return new BallerinaTestDebugPoint(stackFrameLocation, stackFrames[0].getLine());
         } catch (Exception e) {
             LOGGER.warn("Error occurred when fetching stack frames", e);
             throw new BallerinaTestException("Error occurred when fetching stack frames.", e);
