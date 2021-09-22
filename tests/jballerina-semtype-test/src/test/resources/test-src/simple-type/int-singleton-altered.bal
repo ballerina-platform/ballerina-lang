@@ -7,7 +7,7 @@
 
 const ONE = 1;
 const ZERO = 0;
-const INT_MIN = -9223372036854775808;
+const int INT_MIN = -9223372036854775808 - 1;
 
 type ZERO_OR_ONE ZERO|ONE;
 type Int int;
