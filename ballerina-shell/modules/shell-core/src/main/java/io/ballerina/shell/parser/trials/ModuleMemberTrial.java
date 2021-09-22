@@ -41,7 +41,7 @@ import java.util.List;
  */
 public class ModuleMemberTrial extends DualTreeParserTrial {
 
-    private static final List<String> RESTRICTED_FUNCTION_NAMES =  FileUtils.readKeywords("restricted.functions.txt");
+    private static final List<String> RESTRICTED_FUNCTION_NAMES = FileUtils.readKeywords("restricted.functions.txt");
 
     public ModuleMemberTrial(TrialTreeParser parentParser) {
         super(parentParser);

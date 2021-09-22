@@ -49,7 +49,7 @@ import java.util.Objects;
  * @since 2.0.0
  */
 public class SerialTreeParser extends TrialTreeParser {
-    private static final List<String> RESTRICTED_FUNCTION_NAMES =  FileUtils.readKeywords("restricted.functions.txt");
+    private static final List<String> RESTRICTED_FUNCTION_NAMES = FileUtils.readKeywords("restricted.functions.txt");
     private static final String COMMAND_PREFIX = "/";
     private final List<TreeParserTrial> nodeParserTrials;
 
