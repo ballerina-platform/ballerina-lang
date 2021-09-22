@@ -56,7 +56,7 @@ public class SyntaxInfo {
     }
 
     /**
-     * Checks whether a given string a valid ballerina identifier.
+     * Checks whether a given string is a valid ballerina identifier.
      * <p>
      * <a href="https://ballerina.io/spec/lang/2021R1/#identifier">identifier</a> :=
      * UnquotedIdentifier | QuotedIdentifier

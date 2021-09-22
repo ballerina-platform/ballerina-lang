@@ -519,6 +519,6 @@ public enum SyntaxKind {
     }
 
     public boolean isKeyword() {
-        return this.tag >= 50 && this.tag < 500;
+        return tag >= 50 && tag < 500;
     }
 }

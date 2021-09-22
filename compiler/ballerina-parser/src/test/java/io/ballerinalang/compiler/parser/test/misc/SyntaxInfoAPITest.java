@@ -29,7 +29,12 @@ import org.testng.annotations.Test;
 public class SyntaxInfoAPITest {
 
     @Test
-    public void testIsBallerinaKeyword() {
+    public void testBallerinaKeywordCount() {
+        Assert.assertEquals(SyntaxInfo.ballerinaKeywords().size(), 100);
+    }
+
+    @Test
+    public void testIsBallerinaKeywordMethod() {
         Assert.assertTrue(SyntaxInfo.isBallerinaKeyword("public"));
         Assert.assertTrue(SyntaxInfo.isBallerinaKeyword("fail"));
         Assert.assertTrue(SyntaxInfo.isBallerinaKeyword("function"));
@@ -37,6 +42,7 @@ public class SyntaxInfoAPITest {
         Assert.assertTrue(SyntaxInfo.isBallerinaKeyword("resource"));
         Assert.assertTrue(SyntaxInfo.isBallerinaKeyword("var"));
         Assert.assertTrue(SyntaxInfo.isBallerinaKeyword("!is"));
+        Assert.assertTrue(SyntaxInfo.isBallerinaKeyword("_"));
 
         Assert.assertFalse(SyntaxInfo.isBallerinaKeyword("{"));
         Assert.assertFalse(SyntaxInfo.isBallerinaKeyword("@"));
@@ -45,7 +51,7 @@ public class SyntaxInfoAPITest {
     }
 
     @Test
-    public void testIsIdentifier() {
+    public void testIsIdentifierMethod() {
         Assert.assertTrue(SyntaxInfo.isIdentifier("foo"));
         Assert.assertTrue(SyntaxInfo.isIdentifier("foo123Bar"));
         Assert.assertTrue(SyntaxInfo.isIdentifier("is\\ keyword"));
