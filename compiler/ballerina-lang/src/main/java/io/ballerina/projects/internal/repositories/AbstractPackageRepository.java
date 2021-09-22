@@ -208,7 +208,7 @@ public abstract class AbstractPackageRepository implements PackageRepository {
         return latestVersion;
     }
 
-    protected PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
+    public PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
         SemanticVersion semVer1 = v1.value();
         SemanticVersion semVer2 = v2.value();
         boolean isV1PreReleaseVersion = semVer1.isPreReleaseVersion();

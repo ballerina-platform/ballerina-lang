@@ -314,6 +314,14 @@ public class RemotePackageRepository implements PackageRepository {
 
             if (versionCompatibilityResult.equals(SemanticVersion.VersionCompatibilityResult.GREATER_THAN)) {
                 mergedResults.add(remote);
+            } else if (versionCompatibilityResult.equals(SemanticVersion.VersionCompatibilityResult.INCOMPATIBLE)) {
+                PackageVersion latest = this.fileSystemRepo.getLatest(remote.resolvedDescriptor().version(),
+                                                                      localDescriptor.resolvedDescriptor().version());
+                if (latest.equals(remote.resolvedDescriptor().version())) {
+                    mergedResults.add(remote);
+                } else {
+                    mergedResults.add(localDescriptor);
+                }
             } else {
                 mergedResults.add(localDescriptor);
             }
