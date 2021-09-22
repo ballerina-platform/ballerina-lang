@@ -139,19 +139,28 @@ public class RemotePackageRepositoryTests {
         // response should return resolution for same number of requests
         Assert.assertEquals(resolutionResponseDescriptors.size(), 3);
 
-        // if local is unresolved it should return remote
-        PackageMetadataResponse httpResult = resolutionResponseDescriptors.get(0);
-        Assert.assertEquals(httpResult.resolvedDescriptor().version().toString(), "1.2.2");
-        Assert.assertEquals(httpResult.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
-
-        // If remote is unresolved it should return local
-        PackageMetadataResponse covidResult =  resolutionResponseDescriptors.get(1);
-        Assert.assertEquals(covidResult.resolvedDescriptor().version().toString(), "1.5.9");
-        Assert.assertEquals(covidResult.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
-
-        // If both do not have a resolution it should return as unresolved
-        PackageMetadataResponse smtpResult =  resolutionResponseDescriptors.get(2);
-        Assert.assertEquals(smtpResult.resolutionStatus(), ResolutionResponse.ResolutionStatus.UNRESOLVED);
+        for (PackageMetadataResponse result : resolutionResponseDescriptors) {
+            switch (result.packageLoadRequest().packageName().value()) {
+                case "http": {
+                    Assert.assertEquals(result.resolvedDescriptor().version().toString(), "1.2.2");
+                    Assert.assertEquals(result.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
+                    continue;
+                }
+                case "covid": {
+                    Assert.assertEquals(result.resolvedDescriptor().version().toString(), "1.5.9");
+                    Assert.assertEquals(result.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
+                    continue;
+                }
+                case "smtp": {
+                    Assert.assertEquals(result.resolutionStatus(), ResolutionResponse.ResolutionStatus.UNRESOLVED);
+                    continue;
+                }
+                default: {
+                    Assert.fail("The response descriptors contain unexpected packages");
+                    break;
+                }
+            }
+        }
     }
 
     // Test request in offline
