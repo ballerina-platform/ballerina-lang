@@ -39,7 +39,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.ballerina.projects.DependencyGraph.DependencyGraphBuilder.getBuilder;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
@@ -283,41 +285,22 @@ public class RemotePackageRepository implements PackageRepository {
     private Collection<PackageMetadataResponse> mergeResolution(
             Collection<PackageMetadataResponse> remoteResolution,
             Collection<PackageMetadataResponse> filesystem) {
-        // accumulate the result to a new list
-        List<PackageMetadataResponse> mergedResults = new ArrayList<>();
-        // Iterate resolutions in original list
-        for (PackageMetadataResponse remote : remoteResolution) {
-            Optional<PackageMetadataResponse> local;
-            local = filesystem.stream().filter(d -> {
-                return d.packageLoadRequest().equals(remote.packageLoadRequest());
-            }).findFirst();
-
-            // if a local dependency is not found this case cannot be true
-            if (local.isEmpty()) {
-                // Both remote and local should have the same number of results
-                throw new AssertionError("Un resolved local dependency");
-            }
-            PackageMetadataResponse localDescriptor = local.get();
-            // if local is unresolved add remote
-            if (localDescriptor.resolutionStatus() == ResolutionResponse.ResolutionStatus.UNRESOLVED) {
-                mergedResults.add(remote);
-                continue;
-            }
-            if (remote.resolutionStatus() == ResolutionResponse.ResolutionStatus.UNRESOLVED) {
-                mergedResults.add(localDescriptor);
-                continue;
-            }
-            // pick the latest of both
-            SemanticVersion.VersionCompatibilityResult versionCompatibilityResult =
-                    remote.resolvedDescriptor().version().compareTo(
-                            localDescriptor.resolvedDescriptor().version());
-
-            if (versionCompatibilityResult.equals(SemanticVersion.VersionCompatibilityResult.GREATER_THAN)) {
-                mergedResults.add(remote);
-            } else {
-                mergedResults.add(localDescriptor);
-            }
-        }
+        List<PackageMetadataResponse> mergedResults = new ArrayList<>(
+                Stream.of(filesystem, remoteResolution)
+                        .flatMap(Collection::stream).collect(Collectors.toMap(
+                        PackageMetadataResponse::packageLoadRequest, Function.identity(),
+                        (PackageMetadataResponse x, PackageMetadataResponse y) -> {
+                            if (y.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
+                                return x;
+                            } else if (x.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
+                                return y;
+                            } else if (x.resolvedDescriptor().version().compareTo(
+                                    y.resolvedDescriptor().version()).equals(
+                                    SemanticVersion.VersionCompatibilityResult.LESS_THAN)) {
+                                return y;
+                            }
+                            return x;
+                        })).values());
         return mergedResults;
     }
 
