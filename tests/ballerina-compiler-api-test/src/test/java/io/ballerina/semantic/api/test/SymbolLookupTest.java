@@ -493,6 +493,37 @@ public class SymbolLookupTest {
         }
     }
 
+    @Test(dataProvider = "FieldSymbolPosProvider")
+    public void testSymbolLookupInFields(int line, int column, int expSymbols, List<String> expSymbolNames) {
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_in_fields.bal");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, srcFile, line, column, moduleID);
+        assertEquals(symbolsInFile.size(), expSymbols);
+
+        for (String symName : expSymbolNames) {
+            assertTrue(symbolsInFile.containsKey(symName), "Symbol not found: " + symName);
+        }
+    }
+
+    @DataProvider(name = "FieldSymbolPosProvider")
+    public Object[][] getFieldSymbolPositions() {
+        return new Object[][]{
+                {2, 4, 4, asList("Foo", "Bar", "Person", "PersonObj")},
+                {8, 4, 4, asList("Foo", "Bar", "Person", "PersonObj")},
+                {16, 8, 8, asList("Foo", "Bar", "Person", "PersonObj", "init", "inc", "self", "x")},
+                {22, 4, 4, asList("Foo", "Bar", "Person", "PersonObj")},
+                {27, 4, 4, asList("Foo", "Bar", "Person", "PersonObj")},
+        };
+    }
+
     @Test(dataProvider = "PositionProvider6")
     public void testTypeTest(int line, int col, List<String> expSymbolNames, TypeDescKind expVarType) {
         Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_type_test.bal");
