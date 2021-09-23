@@ -111,8 +111,8 @@ public class BallerinaSemanticModel implements SemanticModel {
         EnvironmentResolver envResolver = new EnvironmentResolver(pkgEnv);
 
         SymbolResolver symbolResolver = SymbolResolver.getInstance(this.compilerContext);
-        Map<Name, List<Scope.ScopeEntry>> scopeSymbols =
-                symbolResolver.getAllVisibleInScopeSymbols(envResolver.lookUp(compilationUnit, position));
+        SymbolEnv symbolEnv = envResolver.lookUp(compilationUnit, position);
+        Map<Name, List<Scope.ScopeEntry>> scopeSymbols = symbolResolver.getAllVisibleInScopeSymbols(symbolEnv);
 
         Location cursorPos = new BLangDiagnosticLocation(compilationUnit.name,
                                                          position.line(), position.line(),
@@ -123,9 +123,9 @@ public class BallerinaSemanticModel implements SemanticModel {
         for (Map.Entry<Name, List<Scope.ScopeEntry>> entry : scopeSymbols.entrySet()) {
             Name name = entry.getKey();
             List<Scope.ScopeEntry> scopeEntries = entry.getValue();
-
             for (Scope.ScopeEntry scopeEntry : scopeEntries) {
-                addToCompiledSymbols(compiledSymbols, scopeEntry, cursorPos, name, statesSet);
+                boolean isChildOfCurrentNode = symbolEnv.scope.owner.equals(scopeEntry.symbol.owner);
+                addToCompiledSymbols(compiledSymbols, scopeEntry, cursorPos, name, isChildOfCurrentNode, statesSet);
             }
         }
 
@@ -459,7 +459,7 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private void addToCompiledSymbols(Set<Symbol> compiledSymbols, Scope.ScopeEntry scopeEntry, Location cursorPos,
-                                      Name name, Set<DiagnosticState> states) {
+                                      Name name, boolean isChildOfCurrentNode, Set<DiagnosticState> states) {
         if (scopeEntry == null || scopeEntry.symbol == null || isFilteredVarSymbol(scopeEntry.symbol, states)) {
             return;
         }
@@ -474,20 +474,21 @@ public class BallerinaSemanticModel implements SemanticModel {
             } else {
                 compiledSymbol = symbolFactory.getBCompiledSymbol(symbol, symbol.getOriginalName().getValue());
             }
-            if (compiledSymbol == null || compiledSymbols.contains(compiledSymbol) || isFieldSymbol(compiledSymbol)) {
+            if (compiledSymbol == null || compiledSymbols.contains(compiledSymbol) || isFieldSymbol(compiledSymbol,
+                    isChildOfCurrentNode)) {
                 return;
             }
             compiledSymbols.add(compiledSymbol);
         }
-        addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name, states);
+        addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name, isChildOfCurrentNode, states);
     }
 
-    private boolean isFieldSymbol(Symbol compiledSymbol) {
+    private boolean isFieldSymbol(Symbol compiledSymbol, boolean isChildOfCurrentNode) {
         switch (compiledSymbol.kind()) {
             case CLASS_FIELD:
             case OBJECT_FIELD:
             case RECORD_FIELD:
-                return true;
+                return isChildOfCurrentNode;
             default:
                 return false;
         }
