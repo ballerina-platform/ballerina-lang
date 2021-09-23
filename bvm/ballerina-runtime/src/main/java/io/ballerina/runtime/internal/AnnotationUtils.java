@@ -55,7 +55,7 @@ public class AnnotationUtils {
             type.setAnnotations((MapValue<BString, Object>) globalAnnotMap.get(annotationKey));
         }
 
-        if (type.getTag() != TypeTags.OBJECT_TYPE_TAG) {
+        if (type.getTag() != TypeTags.OBJECT_TYPE_TAG && type.getTag() != TypeTags.SERVICE_TAG) {
             return;
         }
         BObjectType objectType = (BObjectType) type;
