@@ -69,7 +69,6 @@ public class ErrorCreator {
      * @param details error details
      * @return new error.
      */
-    @Deprecated
     public static BError createError(BString message, BString details) {
         MappingInitialValueEntry[] initialValues;
         if (details != null) {
@@ -116,7 +115,6 @@ public class ErrorCreator {
      * @param details error details
      * @return new error
      */
-    @Deprecated
     public static BError createError(Type type, BString message, BString details) {
         MappingInitialValueEntry[] initialValues;
         if (details != null) {
@@ -160,32 +158,7 @@ public class ErrorCreator {
     }
 
     /**
-     * Create an error value with given error type defined in the given module and reason, cause and details.
-     *
-     * @param module        module name
-     * @param errorTypeName error type name
-     * @param message       error message
-     * @param cause         error cause
-     * @param details       error details
-     * @return error value
-     */
-    @Deprecated
-    public static BError createError(Module module, String errorTypeName,
-                                     BString message, BError cause, BString details) {
-        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module));
-        MappingInitialValueEntry[] initialValues;
-        if (details != null) {
-            initialValues = new MappingInitialValueEntry[1];
-            initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD, details);
-        } else {
-            initialValues = new MappingInitialValueEntry[0];
-        }
-        MapValueImpl<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
-        return valueCreator.createErrorValue(errorTypeName, message, cause, detailMap);
-    }
-
-    /**
-     * Create an distinct error with given typeID, typeIdPkg and reason.
+     * Create a distinct error with given typeID, typeIdPkg and reason.
      *
      * @param typeIdName type id
      * @param typeIdPkg  type id module
@@ -200,7 +173,7 @@ public class ErrorCreator {
     }
 
     /**
-     * Create an distinct error with given typeID, typeIdPkg and reason.
+     * Create a distinct error with given typeID, typeIdPkg and reason.
      *
      * @param typeIdName type id
      * @param typeIdPkg  type id module
@@ -217,7 +190,7 @@ public class ErrorCreator {
     }
 
     /**
-     * Create an distinct error with given typeID, typeIdPkg and reason.
+     * Create a distinct error with given typeID, typeIdPkg and reason.
      *
      * @param typeIdName type id
      * @param typeIdPkg  type id module
