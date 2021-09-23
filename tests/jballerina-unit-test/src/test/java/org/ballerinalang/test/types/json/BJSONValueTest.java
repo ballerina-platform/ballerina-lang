@@ -205,7 +205,7 @@ public class BJSONValueTest {
     public void testGetNonExistingElement() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetNonExistingElement");
         String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "Key 'name' not found in JSON mapping");
+        Assert.assertEquals(errorMsg, "key 'name' not found in JSON mapping");
     }
 
     @Test

@@ -102,7 +102,7 @@ public class QueryExprWithQueryConstructTypeTest {
 
         BError expectedError = (BError) returnValues[0];
         Assert.assertEquals(expectedError.stringValue(), "{ballerina/lang.table}KeyConstraintViolation " +
-                "{\"message\":\"A value found for key '[1,\"Melina\"]'\"}");
+                "{\"message\":\"a value found for key '[1,\"Melina\"]'\"}");
     }
 
     @Test(description = "Test query expr with table having no duplicates and on conflict clause")

@@ -275,7 +275,7 @@ function testNonNilNonMappingJsonMerge() returns boolean {
 
     json|error mj = j1.mergeJson(j2);
     return mj is error && mj.message() == MERGE_JSON_ERROR_REASON &&
-        mj.detail()[MESSAGE] === "Cannot merge JSON values of types 'float' and 'json[]'";
+        mj.detail()[MESSAGE] === "cannot merge JSON values of types 'float' and 'json[]'";
 }
 
 function testMappingJsonAndNonMappingJsonMerge1() returns boolean {
@@ -284,7 +284,7 @@ function testMappingJsonAndNonMappingJsonMerge1() returns boolean {
 
     json|error mj = j1.mergeJson(j2);
     return mj is error && mj.message() == MERGE_JSON_ERROR_REASON &&
-        mj.detail()[MESSAGE] === "Cannot merge JSON values of types 'map<json>' and 'string'";
+        mj.detail()[MESSAGE] === "cannot merge JSON values of types 'map<json>' and 'string'";
 }
 
 function testMappingJsonAndNonMappingJsonMerge2() returns boolean {
@@ -293,7 +293,7 @@ function testMappingJsonAndNonMappingJsonMerge2() returns boolean {
 
     json|error mj = j1.mergeJson(j2);
     return mj is error && mj.message() == MERGE_JSON_ERROR_REASON &&
-        mj.detail()[MESSAGE] === "Cannot merge JSON values of types 'map<json>' and 'json[]'";
+        mj.detail()[MESSAGE] === "cannot merge JSON values of types 'map<json>' and 'json[]'";
 }
 
 function testMappingJsonNoIntersectionMergeSuccess() returns boolean {
@@ -327,7 +327,7 @@ function testMappingJsonWithIntersectionMergeFailure1() returns boolean {
     error err = <error> mj;
     error cause = <error> err.detail()["cause"];
     return cause.message() == MERGE_JSON_ERROR_REASON &&
-            cause.detail()[MESSAGE] === "Cannot merge JSON values of types 'string' and 'int'" &&
+            cause.detail()[MESSAGE] === "cannot merge JSON values of types 'string' and 'int'" &&
             j1 == j1Clone && j2 == j2Clone;
 }
 
@@ -348,7 +348,7 @@ function testMappingJsonWithIntersectionMergeFailure2() returns boolean {
     error err = <error> mj;
     error cause = <error> err.detail()["cause"];
     return cause.message() == MERGE_JSON_ERROR_REASON &&
-            cause.detail()[MESSAGE] === "Cannot merge JSON values of types 'map<json>' and 'boolean'" &&
+            cause.detail()[MESSAGE] === "cannot merge JSON values of types 'map<json>' and 'boolean'" &&
             j1 == j1Clone && j2 == j2Clone;
 }
 
@@ -1883,7 +1883,7 @@ function testEnsureTypeNegative() {
     assertEquality("error(\"{ballerina}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'float'\")", e3.toString());
     assertEquality("error(\"{ballerina}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'float[]'\")", e4.toString());
     assertEquality("error(\"{ballerina}TypeCastError\",message=\"incompatible types: '()' cannot be cast to 'int'\")", e5.toString());
-    assertEquality("error(\"{ballerina/lang.map}KeyNotFound\",message=\"Key 'children' not found in JSON mapping\")", e6.toString());
+    assertEquality("error(\"{ballerina/lang.map}KeyNotFound\",message=\"key 'children' not found in JSON mapping\")", e6.toString());
 }
 
 function testEnsureTypeWithInferredArgument() {

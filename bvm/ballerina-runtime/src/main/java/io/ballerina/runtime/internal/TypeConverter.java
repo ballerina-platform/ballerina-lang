@@ -119,7 +119,7 @@ public class TypeConverter {
                         ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_BYTE));
             default:
                 throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                               BLangExceptionHelper.getErrorMessage(
+                                               BLangExceptionHelper.getErrorDetails(
                                                           RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                                           inputType, inputValue, targetType));
         }
