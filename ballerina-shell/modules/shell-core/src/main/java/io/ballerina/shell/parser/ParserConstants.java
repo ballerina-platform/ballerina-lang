@@ -21,7 +21,7 @@ package io.ballerina.shell.parser;
 import java.util.Set;
 
 /**
- * Exception to denote that statement was rejected from trial parser.
+ * Class contains constant values related to shell parser trials.
  *
  * @since 2.0.0
  */
