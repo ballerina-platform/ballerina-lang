@@ -22,7 +22,6 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BMapType;
@@ -116,10 +115,8 @@ public class MapUtils {
     }
 
     public static BError createOpNotSupportedError(Type type, String op) {
-        return ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
-                                                                OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                                        StringUtils.fromString(String.format("%s not supported on type '%s'", op,
-                                                                             type)));
+        return ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER),
+                BLangExceptionHelper.getErrorDetails(RuntimeErrors.OPERATION_NOT_SUPPORTED_ERROR, op, type));
     }
 
     public static void checkIsMapOnlyOperation(Type mapType, String op) {

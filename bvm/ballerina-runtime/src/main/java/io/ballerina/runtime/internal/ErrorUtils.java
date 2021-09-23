@@ -155,7 +155,7 @@ public class ErrorUtils {
 
     public static BError createConversionError(Object inputValue, Type targetType) {
         return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
+                BLangExceptionHelper.getErrorDetails(INCOMPATIBLE_CONVERT_OPERATION,
                         TypeChecker.getType(inputValue), targetType));
     }
 
@@ -163,5 +163,11 @@ public class ErrorUtils {
         return createError(VALUE_LANG_LIB_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
                 INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
                 .concat(StringUtils.fromString(": " + detailMessage)));
+    }
+
+    public static BError createAmbiguousConversionError(Object inputValue, Type targetType) {
+        return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
+                BLangExceptionHelper.getErrorDetails(RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION_AMBIGUOUS_TARGET,
+                        TypeChecker.getType(inputValue), targetType));
     }
 }
