@@ -1671,7 +1671,7 @@ function testToJsonConversionError() {
    error err = <error> j;
    assert(err.message(), "{ballerina/lang.value}ConversionError");
    assert(<string> checkpanic err.detail()["message"], "'table<RecordWithHandleField>' value cannot be converted to " +
-                                      "'json': cannot construct the json object from 'handle' type data");
+                                      "'json': cannot construct json object from 'handle' type data");
 }
 
 ///////////////////////// Tests for `ensureType()` ///////////////////////////

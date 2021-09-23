@@ -166,7 +166,7 @@ public class TableJsonDataSource implements JsonDataSource {
                 jsonObject.put(key, strVal);
                 break;
             default:
-                throw new BallerinaException("cannot construct the json object from '" + type + "' type data");
+                throw new BallerinaException("cannot construct json object from '" + type + "' type data");
         }
     }
 
