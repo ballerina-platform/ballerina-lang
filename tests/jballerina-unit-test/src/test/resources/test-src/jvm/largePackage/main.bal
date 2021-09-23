@@ -23,6 +23,7 @@ import largePackage.errors as e;
 import largePackage.enums as en;
 import largePackage.unions as u;
 import largePackage.constants as cnt;
+import largePackage.tuples as t;
 
 public function main() {
     c:Client|error myClient = checkpanic new();
@@ -46,4 +47,5 @@ public function main() {
     test:assertEquals(bigRecord1.v2.toString(), "{\"a\":\"hello\",\"b1\":5,\"m1\":{\"a\":\"apple\"},\"d1\":[1,2,3],\"t\":[{\"id\":1,\"firstName\":\"Waruna\"}]}");
     test:assertEquals(bigRecord2?.'\/workers\/workAssignments\/assignmentStatus\/statusCode\/codeValue, "hello");
     test:assertEquals(bigRecord3?.'\/workers\/workAssignments\/assignmentStatus\/statusCode\/codeValue, "waruna");
+    test:assertTrue(t:getLargeTupleArray() is anydata);
 }
