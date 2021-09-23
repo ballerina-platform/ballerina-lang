@@ -93,12 +93,13 @@ public class TestRunnerUtils {
         String kindOfTestCase = getKindOfTest(headersOfTestCase.get(START_TEST_CASE));
         boolean isSkippedTestCase = isSkippedTestCase(selectedLabels, headersOfTestCase.get(LABELS));
 
-        Object[] testCase = new Object[8];
+        Object[] testCase = new Object[9];
         testCase[0] = kindOfTestCase;
         testCase[1] = TEMP_DIR + path + tempFileName + BAL_EXTENSION;
         testCase[4] = fileName;
         testCase[5] = absLineNum;
         testCase[6] = isSkippedTestCase;
+        testCase[8] = headersOfTestCase.containsKey(FAIL_ISSUE);
 
         return writeToBalFile(testCases, testCase, kindOfTestCase, tempDir, tempFileName, buffReader);
     }
@@ -140,13 +141,17 @@ public class TestRunnerUtils {
         Pattern pattern = Pattern.compile("(.*)//\\s*@\\s*(\\S+)\\s*(.*)");
         Matcher matcher = pattern.matcher(line);
         if (matcher.find()) {
-            if (!kindOfTestCase.equals(matcher.group(2).trim())) {
+            String outputHeader = matcher.group(2).trim();
+            if (!(kindOfTestCase.equals(outputHeader) ||
+                    (kindOfTestCase.equals(PARSER_ERROR) && outputHeader.equals(ERROR)))) {
                 reportDiagnostics("format of output is incorrect, It should be //@error, //@output and //@panic");
             }
             String output = matcher.group(3).trim();
             line = matcher.group(1);
             lineNumbers.add(relativeLineNum);
-            outputValues.add(output);
+            if (!output.isEmpty()) {
+                outputValues.add(output);
+            }
         }
         return line;
     }
@@ -189,7 +194,7 @@ public class TestRunnerUtils {
                 key = matcher.group(1);
                 if (!(key.equals(LABELS) || key.equals(DESCRIPTION) || key.equals(FAIL_ISSUE) ||
                                                                                         key.equals(START_TEST_CASE))) {
-                    reportDiagnostics(String.format("header %s is not defined", key));
+                    reportDiagnostics(String.format("%s header is not defined", key));
                 }
                 value = matcher.group(2);
             } else if (key != null) {
@@ -275,17 +280,21 @@ public class TestRunnerUtils {
         context.setAttribute("FormatErrors", diagnostics);
     }
 
-    public static void validateOutputOfTest(String path, String kind, List<String> outputValues,
+    public static void validateOutputOfTest(String path, String kind, List<String> outputValues, boolean isKnownIssue,
                                             List<Integer> lineNumbers, String fileName, int absLineNum,
                                             ITestContext context) {
         try {
             CompileResult compileResult = BCompileUtil.compile(path);
+            if (isKnownIssue) {
+                return; // todo: need to add known issues to separate report
+            }
             switch (kind) {
                 case ERROR:
                 case PANIC:
+                case PARSER_ERROR:
                     Collection<Diagnostic> errors = compileResult.getDiagnosticResult().errors();
                     if (!errors.isEmpty()) {
-                        validateError(errors, lineNumbers, outputValues, absLineNum, context);
+                        validateError(kind, errors, lineNumbers, outputValues, absLineNum, context);
                     } else {
                         validateRuntimeErrorOrPanic(compileResult, lineNumbers, outputValues, absLineNum, context);
                     }
@@ -323,9 +332,12 @@ public class TestRunnerUtils {
         return results;
     }
 
-    public static void validateError(Collection<Diagnostic> diagnostics, List<Integer> lineNumbers,
+    public static void validateError(String kind, Collection<Diagnostic> diagnostics, List<Integer> lineNumbers,
                                      List<String> outputValues, int absLineNum, ITestContext context) {
         setDetailsOfErrorKindTest(context, lineNumbers, outputValues, diagnostics);
+        if (kind.equals(PARSER_ERROR)) {
+            return;
+        }
         Iterator<Diagnostic> iterator = diagnostics.iterator();
         for (int i = 0; i < diagnostics.size(); i++) {
             Diagnostic diagnostic = iterator.next();
@@ -384,8 +396,8 @@ public class TestRunnerUtils {
             } catch (ArrayIndexOutOfBoundsException e) {
                 actualOutput = null;
             }
-            setResultsAttributes(context, actualOutput, expectedOutput, actualOutput,
-                                 String.valueOf(lineNumbers.get(i)));
+            String lineNo = String.valueOf(lineNumbers.get(i) + absLineNum);
+            setResultsAttributes(context, actualOutput, expectedOutput, lineNo, lineNo);
             Assert.assertEquals(expectedOutput, actualOutput);
         }
 
@@ -499,7 +511,8 @@ public class TestRunnerUtils {
 
     public static void setDetails(ITestContext context, ITestResult result, ReportGenerator reportGenerator) {
         List<String> detailsOfTest = getDetailsOfTest(context, result);
-        if (result.getStatus() != ITestResult.SKIP && detailsOfTest.get(1).equals(ERROR)) {
+        if (result.getStatus() != ITestResult.SKIP && detailsOfTest.get(1).equals(ERROR)
+                                                                                && detailsOfTest.get(3).isBlank()) {
             setDetailsOfErrorKindTests(context, reportGenerator, detailsOfTest);
         }
         switch (result.getStatus()) {

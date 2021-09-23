@@ -64,11 +64,12 @@ public class TestRunner {
 
     @Test(dataProvider = "spec-conformance-tests-file-provider")
     public void test(String kind, String path, List<String> outputValues, List<Integer> lineNumbers, String fileName,
-                     int absLineNum, boolean isSkippedTest, String diagnostics, ITestContext context) {
+                     int absLineNum, boolean isSkippedTest, String diagnostics, ITestContext context,
+                     boolean isKnownIssue) {
         setDetailsOfTest(context, kind, fileName, absLineNum, diagnostics);
         isSkippedTest(isSkippedTest);
         validateFormatOfTest(diagnostics);
-        validateOutputOfTest(path, kind, outputValues, lineNumbers, fileName, absLineNum, context);
+        validateOutputOfTest(path, kind, outputValues, isKnownIssue, lineNumbers, fileName, absLineNum, context);
     }
 
     @AfterMethod
