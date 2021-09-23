@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
+import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -36,6 +37,7 @@ import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -67,9 +69,11 @@ public class CompletionUtil {
         CompletionTriggerKind triggerKind = ctx.getCompletionParams().getContext().getTriggerKind();
         if (triggerKind == CompletionTriggerKind.TriggerCharacter
                 && triggerCharacter.equals(SyntaxKind.GT_TOKEN.stringValue())
-                && ctx.getTokenAtCursor().kind() != SyntaxKind.RIGHT_ARROW_TOKEN) {
+                && ctx.getTokenAtCursor().kind() != SyntaxKind.RIGHT_ARROW_TOKEN
+                || isWithinComment(ctx)) {
             return Collections.emptyList();
         }
+
         List<LSCompletionItem> items = route(ctx, nodeAtCursor);
 
         return items.stream()
@@ -137,5 +141,27 @@ public class CompletionUtil {
         NonTerminalNode nonTerminalNode = ((ModulePartNode) document.get().syntaxTree().rootNode()).findNode(range);
 
         context.setNodeAtCursor(nonTerminalNode);
+    }
+
+    /**
+     * Check whether the cursor is within a comment.
+     */
+    private static boolean isWithinComment(BallerinaCompletionContext ctx) {
+        Iterator<Minutiae> minutiaeIterator = Collections.emptyIterator();
+        if (ctx.getCursorPositionInTree() <= ctx.getTokenAtCursor().textRange().startOffset()) {
+            minutiaeIterator = ctx.getTokenAtCursor().leadingMinutiae().iterator();
+        } else if (ctx.getTokenAtCursor().textRange().endOffset() <= ctx.getCursorPositionInTree()) {
+            minutiaeIterator = ctx.getTokenAtCursor().trailingMinutiae().iterator();
+        }
+
+        while (minutiaeIterator.hasNext()) {
+            Minutiae minutiae = minutiaeIterator.next();
+            if (minutiae.kind() == SyntaxKind.COMMENT_MINUTIAE
+                    && minutiae.textRange().startOffset() < ctx.getCursorPositionInTree()
+                    && ctx.getCursorPositionInTree() <= minutiae.textRange().endOffset()) {
+                        return true;
+            }
+        }
+        return false;
     }
 }
