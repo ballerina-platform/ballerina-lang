@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.codeaction;
+package org.ballerinalang.langserver.completion;
 
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
@@ -24,29 +24,26 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 
 /**
- * Test Cases for CodeActions.
+ * Completion tests for comments.
  *
  * @since 2.0.0
  */
-public class ImportModuleCodeActionTest extends AbstractCodeActionTest {
+public class CommentContextTest extends CompletionTest {
+
+    @Test(dataProvider = "completion-data-provider")
     @Override
-    public String getResourceDir() {
-        return "import-module";
+    public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
+        super.test(config, configPath);
     }
 
-    @Override
-    @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
-    }
-
-    @DataProvider(name = "codeaction-data-provider")
+    @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
-        return new Object[][]{
-                {"importModule1a.json", "importModule1.bal"},
-                {"importModule1b.json", "importModule1.bal"},
-                {"importModule2.json", "importModule2.bal"},
-        };
+        return this.getConfigsList();
+    }
+
+    @Override
+    public String getTestResourceDir() {
+        return "comment_context";
     }
 }

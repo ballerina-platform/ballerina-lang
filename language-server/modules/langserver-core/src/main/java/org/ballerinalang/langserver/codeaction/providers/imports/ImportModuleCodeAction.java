@@ -78,7 +78,7 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
         packagesList.stream()
                 .filter(pkgEntry -> {
                     String pkgName = pkgEntry.packageName().value();
-                    return pkgName.endsWith("." + packageAlias) || pkgName.endsWith(packageAlias);
+                    return pkgName.endsWith("." + packageAlias) || pkgName.equals(packageAlias);
                 })
                 .forEach(pkgEntry -> {
                     String pkgName = pkgEntry.packageName().value();
