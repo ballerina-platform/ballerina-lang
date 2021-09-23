@@ -71,10 +71,21 @@ public class DefinitionTest {
 
     @Test(description = "Test goto definitions for standard libs", dataProvider = "testStdLibDataProvider")
     public void testStdLibDefinition(String configPath, String configDir) throws IOException, URISyntaxException {
+        performStdLibDefinitionTest(sourceRoot, configPath, configDir);
+    }
+
+    @Test(dataProvider = "testInterStdLibDataProvider")
+    public void testInterStdLibDefinition(String configPath, String configDir) throws IOException, URISyntaxException {
+        Path ballerinaHome = Paths.get(CommonUtil.BALLERINA_HOME);
+        performStdLibDefinitionTest(ballerinaHome, configPath, configDir);
+    }
+
+    private void performStdLibDefinitionTest(Path sourceRootPath, String configPath, String configDir)
+            throws IOException, URISyntaxException {
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
                 .resolve(configPath).toString());
         JsonObject source = configObject.getAsJsonObject("source");
-        Path sourcePath = sourceRoot.resolve(source.get("file").getAsString());
+        Path sourcePath = sourceRootPath.resolve(source.get("file").getAsString());
         Position position = gson.fromJson(configObject.get("position"), Position.class);
 
         TestUtil.openDocument(serviceEndpoint, sourcePath);
@@ -131,6 +142,15 @@ public class DefinitionTest {
                 {"defProject8.json", "project"},
                 {"def_error_config2.json", "project"},
                 {"def_retry_spec_config1.json", "project"}
+        };
+    }
+
+    @DataProvider
+    private Object[][] testInterStdLibDataProvider() throws IOException {
+        log.info("Test textDocument/definition for Inter Std Lib Cases");
+        return new Object[][]{
+                {"inter_stdlib_config1.json", "stdlib"},
+                {"inter_stdlib_config2.json", "stdlib"}
         };
     }
 
