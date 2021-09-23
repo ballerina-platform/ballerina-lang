@@ -9,7 +9,7 @@
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "Q",
+      "sortText": "O",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
@@ -221,7 +221,7 @@
       "label": "service",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "Q",
       "filterText": "service",
       "insertText": "service",
       "insertTextFormat": "Snippet"
@@ -230,7 +230,7 @@
       "label": "new",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "Q",
       "filterText": "new",
       "insertText": "new ",
       "insertTextFormat": "Snippet"
@@ -239,7 +239,7 @@
       "label": "isolated",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "Q",
       "filterText": "isolated",
       "insertText": "isolated ",
       "insertTextFormat": "Snippet"
@@ -248,7 +248,7 @@
       "label": "transactional",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "Q",
       "filterText": "transactional",
       "insertText": "transactional",
       "insertTextFormat": "Snippet"
@@ -257,7 +257,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "Q",
       "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
@@ -266,7 +266,7 @@
       "label": "let",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "Q",
       "filterText": "let",
       "insertText": "let",
       "insertTextFormat": "Snippet"
@@ -275,7 +275,7 @@
       "label": "typeof",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "Q",
       "filterText": "typeof",
       "insertText": "typeof ",
       "insertTextFormat": "Snippet"
@@ -284,7 +284,7 @@
       "label": "trap",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "Q",
       "filterText": "trap",
       "insertText": "trap",
       "insertTextFormat": "Snippet"
@@ -293,7 +293,7 @@
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "Q",
       "filterText": "client",
       "insertText": "client ",
       "insertTextFormat": "Snippet"
@@ -302,7 +302,7 @@
       "label": "true",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "Q",
       "filterText": "true",
       "insertText": "true",
       "insertTextFormat": "Snippet"
@@ -311,7 +311,7 @@
       "label": "false",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "Q",
       "filterText": "false",
       "insertText": "false",
       "insertTextFormat": "Snippet"
@@ -320,7 +320,7 @@
       "label": "check",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "Q",
       "filterText": "check",
       "insertText": "check ",
       "insertTextFormat": "Snippet"
@@ -329,7 +329,7 @@
       "label": "checkpanic",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "Q",
       "filterText": "checkpanic",
       "insertText": "checkpanic ",
       "insertTextFormat": "Snippet"
@@ -338,7 +338,7 @@
       "label": "is",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "Q",
       "filterText": "is",
       "insertText": "is",
       "insertTextFormat": "Snippet"
@@ -347,7 +347,7 @@
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "R",
+      "sortText": "P",
       "filterText": "error",
       "insertText": "error(\"${1}\")",
       "insertTextFormat": "Snippet"
@@ -356,7 +356,7 @@
       "label": "object constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "R",
+      "sortText": "P",
       "filterText": "object",
       "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
@@ -365,7 +365,7 @@
       "label": "base16",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "R",
+      "sortText": "P",
       "filterText": "base16",
       "insertText": "base16 `${1}`",
       "insertTextFormat": "Snippet"
@@ -374,7 +374,7 @@
       "label": "base64",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "R",
+      "sortText": "P",
       "filterText": "base64",
       "insertText": "base64 `${1}`",
       "insertTextFormat": "Snippet"
@@ -383,7 +383,7 @@
       "label": "from",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "Q",
       "filterText": "from",
       "insertText": "from ",
       "insertTextFormat": "Snippet"
@@ -392,7 +392,7 @@
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
-      "sortText": "P",
+      "sortText": "N",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
@@ -406,7 +406,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "E",
+      "sortText": "C",
       "filterText": "testObjectConstructor",
       "insertText": "testObjectConstructor()",
       "insertTextFormat": "Snippet"
@@ -421,7 +421,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
         }
       },
-      "sortText": "E",
+      "sortText": "C",
       "filterText": "testFunctionWithReturn1",
       "insertText": "testFunctionWithReturn1()",
       "insertTextFormat": "Snippet"
@@ -433,7 +433,7 @@
       "documentation": {
         "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "O",
+      "sortText": "M",
       "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
@@ -447,7 +447,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "AC",
+      "sortText": "C",
       "filterText": "testFunctionWithReturn2",
       "insertText": "testFunctionWithReturn2()",
       "insertTextFormat": "Snippet"
