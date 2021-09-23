@@ -1,35 +1,35 @@
 {
   "position": {
     "line": 2,
-    "character": 17
+    "character": 15
   },
-  "source": "module_var_context/source/source10.bal",
+  "source": "module_var_context/source/source11.bal",
   "items": [
     {
-      "label": "object",
+      "label": "isolated",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "Q",
-      "filterText": "object",
-      "insertText": "object ",
+      "filterText": "isolated",
+      "insertText": "isolated ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "class",
+      "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "Q",
-      "filterText": "class",
-      "insertText": "class ",
+      "filterText": "function",
+      "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "class",
+      "label": "function",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
-      "filterText": "class",
-      "insertText": "class ${1:className} {\n\t${2}\n}",
+      "filterText": "function",
+      "insertText": "function ${1:name}(${2})${3} {\n\t${4}\n}",
       "insertTextFormat": "Snippet"
     }
   ]
