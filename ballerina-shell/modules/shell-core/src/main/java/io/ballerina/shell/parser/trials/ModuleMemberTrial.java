@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.shell.parser.ParserConstants;
 import io.ballerina.shell.parser.TrialTreeParser;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
@@ -40,7 +41,7 @@ import java.util.Set;
  */
 public class ModuleMemberTrial extends DualTreeParserTrial {
 
-    private static final Set<String> RESTRICTED_FUNCTION_NAMES = Set.of("main", "init");
+    private static final Set<String> RESTRICTED_FUNCTION_NAMES = ParserConstants.RESTRICTED_FUNCTION_NAMES;
 
     public ModuleMemberTrial(TrialTreeParser parentParser) {
         super(parentParser);
@@ -72,10 +73,6 @@ public class ModuleMemberTrial extends DualTreeParserTrial {
             String functionName = ((FunctionDefinitionNode) declarationNode).functionName().text();
             if (RESTRICTED_FUNCTION_NAMES.contains(functionName)) {
                 String message = "Function name " + "'" + functionName + "'" + " not allowed in Ballerina Shell.\n";
-                throw new InvalidMethodException(message);
-            }
-            if (functionName.startsWith("__")) {
-                String message = "Functions starting with" + " '__' " + "not allowed in Ballerina Shell.\n";
                 throw new InvalidMethodException(message);
             }
         }
