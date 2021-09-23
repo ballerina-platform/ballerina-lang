@@ -110,8 +110,8 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.FUNC_BODY_BLOCK);
         STNode stmtsNode = parseStatements();
 
-        ArrayList<STNode> stmts = new ArrayList<>();
         STNodeList stmtNodeList = (STNodeList) stmtsNode;
+        ArrayList<STNode> stmts = new ArrayList<>(stmtNodeList.size() + 1);
 
         // add all stmts except last stmt
         for (int i = 0; i < stmtNodeList.size() - 1; i++) {
