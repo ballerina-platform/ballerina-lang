@@ -23,6 +23,7 @@ import org.eclipse.lsp4j.debug.SourceBreakpoint;
 import java.io.File;
 import java.net.URI;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Ballerina debug point (breakpoint/debug hit point) representation used for integration test scenarios.
@@ -60,8 +61,8 @@ public class BallerinaTestDebugPoint {
     public Source getSource() {
         Source source = new Source();
         String fileSeparatorRegEx = File.separatorChar == '\\' ? "\\\\" : File.separator;
-        String[] paths = filePathUri.getPath().split(fileSeparatorRegEx);
-        source.setPath(filePathUri.getPath());
+        String[] paths = Paths.get(filePathUri).toAbsolutePath().toString().split(fileSeparatorRegEx);
+        source.setPath(Paths.get(filePathUri).toAbsolutePath().toString());
         source.setName(paths[paths.length - 1]);
         return source;
     }
