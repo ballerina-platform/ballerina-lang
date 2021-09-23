@@ -18,6 +18,7 @@
 package io.ballerina.types;
 
 import io.ballerina.types.typeops.BooleanOps;
+import io.ballerina.types.typeops.DecimalOps;
 import io.ballerina.types.typeops.ErrorOps;
 import io.ballerina.types.typeops.FloatOps;
 import io.ballerina.types.typeops.FunctionOps;
@@ -50,7 +51,7 @@ public class OpsTable {
         OPS[i++] = PANIC_IMPL;          // RO object
         OPS[i++] = new IntOps();        // int
         OPS[i++] = new FloatOps();      // float
-        OPS[i++] = PANIC_IMPL;          // decimal
+        OPS[i++] = new DecimalOps();    // decimal
         OPS[i++] = new StringOps();     // string
         OPS[i++] = new ErrorOps();      // error
         OPS[i++] = new FunctionOps();   // function

@@ -189,6 +189,10 @@ public abstract class EnumerableSubtype {
             String s2 = ((EnumerableString) v2).value;
             String s1 = ((EnumerableString) v1).value;
             return Objects.equals(s1, s2) ? EQ : (Common.codePointCompare(s1, s2) ? LT : GT);
+        }if (v1 instanceof EnumerableDecimal) {
+            double d2 = ((EnumerableDecimal) v2).value;
+            double d1 = ((EnumerableDecimal) v1).value;
+            return d1 == d2 ? EQ : (d1 < d2 ? LT : GT);
         } else {
             double f1 = ((EnumerableFloat) v1).value;
             double f2 = ((EnumerableFloat) v2).value;

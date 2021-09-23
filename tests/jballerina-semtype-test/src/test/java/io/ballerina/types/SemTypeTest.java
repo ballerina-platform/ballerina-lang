@@ -58,7 +58,7 @@ public class SemTypeTest {
         // https://github.com/ballerina-platform/ballerina-lang/issues/32722
         ignore(testFiles, "float-singleton2.bal");
         ignore(testFiles, "function.bal");
-        /*
+
         include(testFiles,
                 "test-src/simple-type/type-test.bal",
                 "test-src/simple-type/list-type-test.bal",
@@ -67,8 +67,6 @@ public class SemTypeTest {
                 "test-src/simple-type/function-altered.bal",
                 "test-src/simple-type/float-altered.bal");
 
-
-         */
         return testFiles.toArray(new String[0]);
         //return new Object[]{"test-src/data/error2.bal"};
     }
