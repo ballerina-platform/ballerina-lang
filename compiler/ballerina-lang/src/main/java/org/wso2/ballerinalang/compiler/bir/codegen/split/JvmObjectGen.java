@@ -61,7 +61,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmSplitMethodUt
 /**
  * Class for generate {@link io.ballerina.runtime.api.values.BObject} related methods.
  *
- * @since 1.2.0
+ * @since 2.0.0
  */
 public class JvmObjectGen {
 
@@ -71,7 +71,7 @@ public class JvmObjectGen {
 
     private static final int MAX_CALLS_PER_CLIENT_METHOD = 100;
 
-    private static final int MAX_FIELDS_PER_SPLIT_METHOD = 1000;
+    private static final int MAX_FIELDS_PER_SPLIT_METHOD = 500;
 
     public void createAndSplitCallMethod(ClassWriter cw, List<BIRNode.BIRFunction> functions, String objClassName,
                                          JvmCastGen jvmCastGen) {

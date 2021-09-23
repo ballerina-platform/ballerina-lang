@@ -79,13 +79,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmSplitMethodUt
 /**
  * Class for generate {@link io.ballerina.runtime.api.values.BMap} related methods.
  *
- * @since 1.2.0
+ * @since 2.0.0
  */
 public class JvmRecordGen {
 
     static final FieldNameHashComparator FIELD_NAME_HASH_COMPARATOR = new FieldNameHashComparator();
 
-    private static final int MAX_FIELDS_PER_SPLIT_METHOD = 3;
+    private static final int MAX_FIELDS_PER_SPLIT_METHOD = 500;
 
     private final BType booleanType;
 
