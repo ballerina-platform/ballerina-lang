@@ -677,7 +677,7 @@ public class Desugar extends BLangNodeVisitor {
         userDefInitInvocation.requiredArgs = Collections.emptyList();
 
         BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
-//        returnStmt.pos = pkgNode.initFunction.pos;
+        returnStmt.pos = pkgNode.initFunction.pos;
         returnStmt.expr = userDefInitInvocation;
         initFnBody.stmts.add(returnStmt);
     }
