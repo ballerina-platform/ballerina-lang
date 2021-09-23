@@ -512,7 +512,7 @@ public class TestRunnerUtils {
     public static void setDetails(ITestContext context, ITestResult result, ReportGenerator reportGenerator) {
         List<String> detailsOfTest = getDetailsOfTest(context, result);
         if (result.getStatus() != ITestResult.SKIP && detailsOfTest.get(1).equals(ERROR)
-                                                                                && detailsOfTest.get(3).isBlank()) {
+                                                                                && detailsOfTest.get(3) == null) {
             setDetailsOfErrorKindTests(context, reportGenerator, detailsOfTest);
         }
         switch (result.getStatus()) {
