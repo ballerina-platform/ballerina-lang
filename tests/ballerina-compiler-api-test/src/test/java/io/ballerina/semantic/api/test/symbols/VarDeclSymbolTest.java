@@ -66,13 +66,13 @@ public class VarDeclSymbolTest {
         VariableSymbol symbol = (VariableSymbol) assertBasicsAndGetSymbol(model, srcFile, line, col,
                                                                           expName, SymbolKind.VARIABLE);
         // check docs (metadata)
-        Optional<Documentation> fieldDocs = symbol.documentation();
-        assertTrue(fieldDocs.isPresent());
+        assertTrue(symbol.documentation().isPresent());
+        Documentation fieldDocs = symbol.documentation().get();
         if (expDoc != null) {
-            assertTrue(fieldDocs.get().description().isPresent());
-            assertEquals(fieldDocs.get().description().get(), expDoc);
+            assertTrue(fieldDocs.description().isPresent());
+            assertEquals(fieldDocs.description().get(), expDoc);
         } else {
-            assertFalse(fieldDocs.get().description().isPresent());
+            assertFalse(fieldDocs.description().isPresent());
         }
 
         // check annotations (metadata)
