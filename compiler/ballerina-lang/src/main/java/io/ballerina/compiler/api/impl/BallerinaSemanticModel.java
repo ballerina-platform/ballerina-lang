@@ -474,12 +474,23 @@ public class BallerinaSemanticModel implements SemanticModel {
             } else {
                 compiledSymbol = symbolFactory.getBCompiledSymbol(symbol, symbol.getOriginalName().getValue());
             }
-            if (compiledSymbol == null || compiledSymbols.contains(compiledSymbol)) {
+            if (compiledSymbol == null || compiledSymbols.contains(compiledSymbol) || isFieldSymbol(compiledSymbol)) {
                 return;
             }
             compiledSymbols.add(compiledSymbol);
         }
         addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name, states);
+    }
+
+    private boolean isFieldSymbol(Symbol compiledSymbol) {
+        switch (compiledSymbol.kind()) {
+            case CLASS_FIELD:
+            case OBJECT_FIELD:
+            case RECORD_FIELD:
+                return true;
+            default:
+                return false;
+        }
     }
 
     private boolean isServiceDeclSymbol(BSymbol symbol) {
