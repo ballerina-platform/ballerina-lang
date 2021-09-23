@@ -152,8 +152,11 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
             default:
                 return Optional.empty();
         }
-        return Optional.ofNullable(createDocumentSymbol(name, symbolKind,
-                null, range, range, isDeprecated, Collections.emptyList(), this.context));
+        if (name == null || name.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(createDocumentSymbol(name, symbolKind, range, range, isDeprecated,
+                Collections.emptyList()));
     }
 
     @Override
@@ -163,8 +166,8 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
         Range range = DocumentSymbolUtil.generateNodeRange(methodDeclarationNode);
         Optional<MetadataNode> metadata = methodDeclarationNode.metadata();
         boolean isDeprecated = metadata.isPresent() && DocumentSymbolUtil.isDeprecated(metadata.get());
-        return Optional.ofNullable(createDocumentSymbol(name, symbolKind,
-                null, range, range, isDeprecated, Collections.emptyList(), this.context));
+        return Optional.of(createDocumentSymbol(name, symbolKind, range, range, isDeprecated,
+                Collections.emptyList()));
     }
 
     @Override
@@ -176,8 +179,7 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
         boolean isDeprecated = metadata.isPresent() &&
                 DocumentSymbolUtil.isDeprecated(metadata.get());
         List<DocumentSymbol> children = transformMembers(classDefinitionNode.members());
-        return Optional.ofNullable(createDocumentSymbol(name, symbolKind,
-                null, range, range, isDeprecated, children, this.context));
+        return Optional.of(createDocumentSymbol(name, symbolKind, range, range, isDeprecated, children));
     }
 
     @Override
@@ -191,8 +193,7 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
         boolean isDeprecated = metadata.isPresent() &&
                 DocumentSymbolUtil.isDeprecated(metadata.get());
         List<DocumentSymbol> children = transformMembers(serviceDeclarationNode.members());
-        return Optional.ofNullable(createDocumentSymbol(name.toString(), symbolKind, null,
-                range, range, isDeprecated, children, this.context));
+        return Optional.of(createDocumentSymbol(name.toString(), symbolKind, range, range, isDeprecated, children));
     }
 
     @Override
@@ -223,23 +224,24 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
         Optional<MetadataNode> metadata = typeDefinitionNode.metadata();
         boolean isDeprecated = metadata.isPresent() &&
                 DocumentSymbolUtil.isDeprecated(metadata.get());
-        return Optional.ofNullable(createDocumentSymbol(name, symbolKind, null,
-                range, range, isDeprecated, children, this.context));
+        return Optional.of(createDocumentSymbol(name, symbolKind, range, range, isDeprecated, children));
     }
 
     @Override
     public Optional<DocumentSymbol> transform(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
         BindingPatternNode bindingPatternNode = moduleVariableDeclarationNode.typedBindingPattern().bindingPattern();
         //Only capture binding pattern is considered. Wildcard and other binding patterns are ignored.
-        String name = bindingPatternNode.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN ?
-                bindingPatternNode.toSourceCode() : "";
+        if (bindingPatternNode.kind() != SyntaxKind.CAPTURE_BINDING_PATTERN) {
+            return Optional.empty();
+        }
+        String name = bindingPatternNode.toSourceCode();
         SymbolKind symbolKind = SymbolKind.Variable;
         Range range = DocumentSymbolUtil.generateNodeRange(moduleVariableDeclarationNode);
         Optional<MetadataNode> metadata = moduleVariableDeclarationNode.metadata();
         boolean isDeprecated = metadata.isPresent() &&
                 DocumentSymbolUtil.isDeprecated(metadata.get());
-        return Optional.ofNullable(createDocumentSymbol(name, symbolKind, null,
-                range, range, isDeprecated, Collections.emptyList(), this.context));
+        return Optional.of(createDocumentSymbol(name, symbolKind, range, range, isDeprecated,
+                Collections.emptyList()));
     }
 
     @Override
@@ -250,8 +252,8 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
         Optional<MetadataNode> metadata = constantDeclarationNode.metadata();
         boolean isDeprecated = metadata.isPresent() &&
                 DocumentSymbolUtil.isDeprecated(metadata.get());
-        return Optional.ofNullable(createDocumentSymbol(name, symbolKind, null,
-                range, range, isDeprecated, Collections.emptyList(), this.context));
+        return Optional.of(createDocumentSymbol(name, symbolKind, range, range, isDeprecated,
+                Collections.emptyList()));
     }
 
     @Override
@@ -263,8 +265,7 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
         List<DocumentSymbol> children = transformMembers(enumDeclarationNode.enumMemberList());
         boolean isDeprecated = metadata.isPresent() &&
                 DocumentSymbolUtil.isDeprecated(metadata.get());
-        return Optional.ofNullable(createDocumentSymbol(name, symbolKind, null,
-                range, range, isDeprecated, children, this.context));
+        return Optional.of(createDocumentSymbol(name, symbolKind, range, range, isDeprecated, children));
     }
 
     @Override
@@ -274,8 +275,7 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
                 + moduleXMLNamespaceDeclarationNode.namespaceuri().toSourceCode();
         SymbolKind symbolKind = SymbolKind.Namespace;
         Range range = DocumentSymbolUtil.generateNodeRange(moduleXMLNamespaceDeclarationNode);
-        return Optional.ofNullable(createDocumentSymbol(name, symbolKind, null,
-                range, range, false, Collections.emptyList(), this.context));
+        return Optional.of(createDocumentSymbol(name, symbolKind, range, range, Collections.emptyList()));
     }
 
     @Override
@@ -286,8 +286,8 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
         Optional<MetadataNode> metadata = listenerDeclarationNode.metadata();
         boolean isDeprecated = metadata.isPresent() &&
                 DocumentSymbolUtil.isDeprecated(metadata.get());
-        return Optional.ofNullable(createDocumentSymbol(name, symbolKind, null,
-                range, range, isDeprecated, Collections.emptyList(), this.context));
+        return Optional.of(createDocumentSymbol(name, symbolKind, range, range, isDeprecated,
+                Collections.emptyList()));
     }
 
     @Override
@@ -298,8 +298,8 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
         Optional<MetadataNode> metadata = annotationDeclarationNode.metadata();
         boolean isDeprecated = metadata.isPresent() &&
                 DocumentSymbolUtil.isDeprecated(metadata.get());
-        return Optional.ofNullable(createDocumentSymbol(name, symbolKind, null,
-                range, range, isDeprecated, Collections.emptyList(), this.context));
+        return Optional.of(createDocumentSymbol(name, symbolKind, range, range, isDeprecated,
+                Collections.emptyList()));
     }
 
     @Override
@@ -310,8 +310,8 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
         Optional<MetadataNode> metadata = objectFieldNode.metadata();
         boolean isDeprecated = metadata.isPresent() &&
                 DocumentSymbolUtil.isDeprecated(metadata.get());
-        return Optional.ofNullable(createDocumentSymbol(name, symbolKind, null,
-                range, range, isDeprecated, Collections.emptyList(), this.context));
+        return Optional.of(createDocumentSymbol(name, symbolKind, range, range, isDeprecated,
+                Collections.emptyList()));
     }
 
     @Override
@@ -322,8 +322,8 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
         Optional<MetadataNode> metadata = recordFieldNode.metadata();
         boolean isDeprecated = metadata.isPresent() &&
                 DocumentSymbolUtil.isDeprecated(metadata.get());
-        return Optional.ofNullable(createDocumentSymbol(name, symbolKind, null,
-                range, range, isDeprecated, Collections.emptyList(), this.context));
+        return Optional.of(createDocumentSymbol(name, symbolKind, range, range, isDeprecated,
+                Collections.emptyList()));
     }
 
     @Override
@@ -334,8 +334,8 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
         Optional<MetadataNode> metadata = recordFieldWithDefaultValueNode.metadata();
         boolean isDeprecated = metadata.isPresent() &&
                 DocumentSymbolUtil.isDeprecated(metadata.get());
-        return Optional.ofNullable(createDocumentSymbol(name, symbolKind, null,
-                range, range, isDeprecated, Collections.emptyList(), this.context));
+        return Optional.of(createDocumentSymbol(name, symbolKind, range, range, isDeprecated,
+                Collections.emptyList()));
     }
 
     @Override
@@ -344,8 +344,7 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
                 recordRestDescriptorNode.typeName().toSourceCode().trim();
         SymbolKind symbolKind = SymbolKind.Field;
         Range range = DocumentSymbolUtil.generateNodeRange(recordRestDescriptorNode);
-        return Optional.ofNullable(createDocumentSymbol(name, symbolKind, null,
-                range, range, false, Collections.emptyList(), this.context));
+        return Optional.of(createDocumentSymbol(name, symbolKind, range, range, Collections.emptyList()));
     }
 
     @Override
@@ -356,8 +355,8 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
         Optional<MetadataNode> metadata = enumMemberNode.metadata();
         boolean isDeprecated = metadata.isPresent() &&
                 DocumentSymbolUtil.isDeprecated(metadata.get());
-        return Optional.ofNullable(createDocumentSymbol(name, symbolKind, null,
-                range, range, isDeprecated, Collections.emptyList(), this.context));
+        return Optional.of(createDocumentSymbol(name, symbolKind, range, range, isDeprecated,
+                Collections.emptyList()));
     }
 
     /**
@@ -374,6 +373,17 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
         return childSymbols;
     }
 
+    private DocumentSymbol createDocumentSymbol(String name, SymbolKind kind, Range range,
+                                                Range selectionRange, List<DocumentSymbol> children) {
+        return createDocumentSymbol(name, kind, null, range, selectionRange, false, children);
+    }
+
+    private DocumentSymbol createDocumentSymbol(String name, SymbolKind kind, Range range,
+                                                Range selectionRange, boolean isDeprecated,
+                                                List<DocumentSymbol> children) {
+        return createDocumentSymbol(name, kind, null, range, selectionRange, isDeprecated, children);
+    }
+
     /**
      * Document symbol builder.
      *
@@ -384,26 +394,22 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
      * @param selectionRange selection range of the symbol.
      * @param isDeprecated   Whether the symbol is deprecated.
      * @param children       Child document symbols.
-     * @param context        Document symbol context.
      * @return
      */
-    public DocumentSymbol createDocumentSymbol(String name, SymbolKind kind,
-                                               String detail, Range range,
-                                               Range selectionRange, boolean isDeprecated,
-                                               List<DocumentSymbol> children, DocumentSymbolContext context) {
-        if (name == null || name.isEmpty()) {
-            return null;
-        }
+    private DocumentSymbol createDocumentSymbol(String name, SymbolKind kind,
+                                                String detail, Range range,
+                                                Range selectionRange, boolean isDeprecated,
+                                                List<DocumentSymbol> children) {
         DocumentSymbol documentSymbol = new DocumentSymbol();
         documentSymbol.setName(name);
         documentSymbol.setKind(kind);
         documentSymbol.setDetail(detail);
         documentSymbol.setRange(range);
         documentSymbol.setSelectionRange(selectionRange);
-        if (isDeprecated && context.deprecatedSupport()) {
+        if (isDeprecated && this.context.deprecatedSupport()) {
             documentSymbol.setTags(List.of(SymbolTag.Deprecated));
         }
-        if (context.getHierarchicalDocumentSymbolSupport()) {
+        if (this.context.getHierarchicalDocumentSymbolSupport()) {
             documentSymbol.setChildren(children);
         } else {
             this.documentSymbolStore.add(documentSymbol);
