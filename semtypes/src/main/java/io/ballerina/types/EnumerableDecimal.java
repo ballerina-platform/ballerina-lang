@@ -18,7 +18,7 @@
 package io.ballerina.types;
 
 /**
- * Enumerable type wrapper for float.
+ * Enumerable type wrapper for decimal.
  *
  * @since 2.0.0
  */
