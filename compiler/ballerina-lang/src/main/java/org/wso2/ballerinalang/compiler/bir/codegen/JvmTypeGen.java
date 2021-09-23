@@ -977,7 +977,7 @@ public class JvmTypeGen {
                            false);
     }
 
-    static String getTypeDesc(BType bType) {
+    public static String getTypeDesc(BType bType) {
 
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
