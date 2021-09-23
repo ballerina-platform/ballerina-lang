@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.DiagnosticState.REDECLARED;
 import static io.ballerina.compiler.api.symbols.DiagnosticState.UNKNOWN_TYPE;
@@ -515,16 +516,21 @@ public class SymbolLookupTest {
 
     @DataProvider(name = "FieldSymbolPosProvider")
     public Object[][] getFieldSymbolPositions() {
+        List<String> moduleSymbols = List.of("Foo", "Bar", "Person", "PersonObj");
         return new Object[][]{
-                {2, 4, 4, asList("Foo", "Bar", "Person", "PersonObj")},
-                {8, 4, 4, asList("Foo", "Bar", "Person", "PersonObj")},
-                {16, 8, 8, asList("Foo", "Bar", "Person", "PersonObj", "init", "inc", "self", "x")},
-                {22, 4, 4, asList("Foo", "Bar", "Person", "PersonObj")},
-                {27, 4, 4, asList("Foo", "Bar", "Person", "PersonObj")},
+                {2, 4, 4, moduleSymbols},
+                {8, 4, 4, moduleSymbols},
+                {16, 8, 10, concatSymbols(moduleSymbols, "init", "inc", "self", "x")},
+                {22, 4, 4, moduleSymbols},
+                {27, 4, 4, moduleSymbols},
         };
     }
 
     private String createSymbolString(Symbol symbol) {
         return (symbol.getName().isPresent() ? symbol.getName().get() : "") + symbol.kind();
+    }
+
+    private List<String> concatSymbols(List<String> moduleSymbols, String... symbols) {
+        return Stream.concat(moduleSymbols.stream(), Arrays.stream(symbols)).collect(Collectors.toList());
     }
 }
