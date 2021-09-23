@@ -24,12 +24,12 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.shell.parser.ParserConstants;
 import io.ballerina.shell.parser.TrialTreeParser;
-import io.ballerina.shell.utils.FileUtils;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Attempts to capture a module member declaration.
@@ -41,7 +41,7 @@ import java.util.List;
  */
 public class ModuleMemberTrial extends DualTreeParserTrial {
 
-    private static final List<String> RESTRICTED_FUNCTION_NAMES = FileUtils.readKeywords("restricted.functions.txt");
+    private static final Set<String> RESTRICTED_FUNCTION_NAMES = ParserConstants.RESTRICTED_FUNCTION_NAMES;
 
     public ModuleMemberTrial(TrialTreeParser parentParser) {
         super(parentParser);
