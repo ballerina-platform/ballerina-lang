@@ -2,13 +2,11 @@ package io.ballerina.types.typeops;
 
 import io.ballerina.types.Common;
 import io.ballerina.types.EnumerableDecimal;
-import io.ballerina.types.EnumerableFloat;
 import io.ballerina.types.EnumerableSubtype;
 import io.ballerina.types.SubtypeData;
 import io.ballerina.types.TypeCheckContext;
 import io.ballerina.types.UniformTypeOps;
 import io.ballerina.types.subtypedata.DecimalSubtype;
-import io.ballerina.types.subtypedata.FloatSubtype;
 
 import java.util.ArrayList;
 

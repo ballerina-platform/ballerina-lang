@@ -54,7 +54,7 @@ public class SemTypes {
     }
 
     public static SemType decimalConst(String value) {
-        double d = Double.parseDouble(value.substring(0, value.length()-1));
+        double d = Double.parseDouble(value.substring(0, value.length() - 1));
         return DecimalSubtype.decimalConst(d);
     }
 
