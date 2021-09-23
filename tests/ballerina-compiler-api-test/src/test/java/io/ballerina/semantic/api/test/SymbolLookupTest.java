@@ -518,11 +518,11 @@ public class SymbolLookupTest {
     public Object[][] getFieldSymbolPositions() {
         List<String> moduleSymbols = List.of("Foo", "Bar", "Person", "PersonObj");
         return new Object[][]{
-                {2, 4, 4, moduleSymbols},
-                {8, 4, 4, moduleSymbols},
-                {16, 8, 10, concatSymbols(moduleSymbols, "init", "inc", "self", "x")},
-                {22, 4, 4, moduleSymbols},
-                {27, 4, 4, moduleSymbols},
+                {18, 4, 4, moduleSymbols},
+                {24, 4, 4, moduleSymbols},
+                {32, 8, 10, concatSymbols(moduleSymbols, "init", "inc", "self", "x")},
+                {38, 4, 4, moduleSymbols},
+                {43, 4, 4, moduleSymbols},
         };
     }
 
