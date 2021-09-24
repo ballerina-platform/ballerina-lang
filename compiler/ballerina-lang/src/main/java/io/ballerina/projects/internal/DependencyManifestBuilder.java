@@ -20,11 +20,13 @@ package io.ballerina.projects.internal;
 
 import io.ballerina.projects.DependencyManifest;
 import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.exceptions.CorruptedDependenciesTomlException;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
@@ -49,8 +51,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.projects.internal.ManifestUtils.convertDiagnosticToString;
-import static io.ballerina.projects.internal.ManifestUtils.getBooleanFromTomlTableNode;
 import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTableNode;
+import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 
 /**
  * Build Dependency Manifest using Dependencies.toml file.
@@ -60,24 +62,24 @@ import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTabl
 public class DependencyManifestBuilder {
 
     private final Optional<TomlDocument> dependenciesToml;
+    private final PackageDescriptor packageDescriptor;
     private DiagnosticResult diagnostics;
     private final List<Diagnostic> diagnosticList;
     private final DependencyManifest dependencyManifest;
 
     private static final String LATEST_DEPS_TOML_VERSION = "2";
 
-    private DependencyManifestBuilder(TomlDocument dependenciesToml) {
+    private DependencyManifestBuilder(TomlDocument dependenciesToml,
+                                      PackageDescriptor packageDescriptor) {
         this.dependenciesToml = Optional.ofNullable(dependenciesToml);
+        this.packageDescriptor = packageDescriptor;
         this.diagnosticList = new ArrayList<>();
         this.dependencyManifest = parseAsDependencyManifest();
     }
 
-    public static DependencyManifestBuilder from(TomlDocument dependenciesToml) {
-        return new DependencyManifestBuilder(dependenciesToml);
-    }
-
-    public static DependencyManifestBuilder from() {
-        return new DependencyManifestBuilder(null);
+    public static DependencyManifestBuilder from(TomlDocument dependenciesToml,
+                                                 PackageDescriptor packageDescriptor) {
+        return new DependencyManifestBuilder(dependenciesToml, packageDescriptor);
     }
 
     public DiagnosticResult diagnostics() {
@@ -114,10 +116,20 @@ public class DependencyManifestBuilder {
         String dependenciesTomlVersion = getDependenciesTomlVersion();
 
         // Latest `Dependencies.toml`
-        if (dependenciesTomlVersion != null) {
-            validateDependenciesTomlAgainstSchema("dependencies-toml-schema.json");
-            List<DependencyManifest.Package> packages = getPackages();
-            return DependencyManifest.from(dependenciesTomlVersion, packages, diagnostics());
+        try {
+            if (dependenciesTomlVersion != null) {
+                validateDependenciesTomlAgainstSchema("dependencies-toml-schema.json");
+                List<DependencyManifest.Package> packages = getPackages();
+                return DependencyManifest.from(dependenciesTomlVersion, packages, diagnostics());
+            }
+        } catch (CorruptedDependenciesTomlException e) {
+            // Add warning and ignore this exception
+            reportDiagnostic(
+                    "Detected corrupted 'Dependencies.toml' file. This will be updated to latest dependencies.",
+                    ProjectDiagnosticErrorCode.CORRUPTED_DEPENDENCIES_TOML.diagnosticId(), DiagnosticSeverity.WARNING,
+                    dependenciesToml.get().toml().rootNode().location());
+            // Continue as an empty Dependencies.toml
+            return DependencyManifest.from(null, Collections.emptyList(), diagnostics());
         }
 
         // Old `Dependencies.toml`
@@ -184,20 +196,24 @@ public class DependencyManifestBuilder {
         if (packageEntries.kind() == TomlType.TABLE_ARRAY) {
             TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) packageEntries;
 
+            // Get direct dependencies of the root package
+            List<DependencyManifest.Dependency> directDependencies = getRootPackageDependencies(dependencyTableArray);
+
             for (TomlTableNode dependencyNode : dependencyTableArray.children()) {
                 String name = getStringValueFromDependencyNode(dependencyNode, "name");
                 String org = getStringValueFromDependencyNode(dependencyNode, "org");
                 String version = getStringValueFromDependencyNode(dependencyNode, "version");
-                String scope = getStringValueFromDependencyNode(dependencyNode, "scope");
-                boolean transitive = getBooleanValueFromDependencyNode(dependencyNode, "transitive");
-                List<DependencyManifest.Dependency> transDependencies = getTransDependenciesFromDependencyNode(
-                        dependencyNode);
-                List<DependencyManifest.Module> modules = getModulesFromDependencyNode(dependencyNode);
 
                 // If name, org or version, one of the value is null, ignore dependency
                 if (name == null || org == null || version == null) {
                     continue;
                 }
+
+                String scope = getStringValueFromDependencyNode(dependencyNode, "scope");
+                boolean transitive = isTransitive(directDependencies, packageDescriptor, org, name);
+                List<DependencyManifest.Dependency> transDependencies = getDependenciesFromDependencyNode(
+                        dependencyNode);
+                List<DependencyManifest.Module> modules = getModulesFromDependencyNode(dependencyNode);
 
                 PackageName depName = PackageName.from(name);
                 PackageOrg depOrg = PackageOrg.from(org);
@@ -287,15 +303,7 @@ public class DependencyManifestBuilder {
         return getStringFromTomlTableNode(topLevelNode);
     }
 
-    private boolean getBooleanValueFromDependencyNode(TomlTableNode pkgNode, String key) {
-        TopLevelNode topLevelNode = pkgNode.entries().get(key);
-        if (topLevelNode == null) {
-            return false;
-        }
-        return getBooleanFromTomlTableNode(topLevelNode);
-    }
-
-    private List<DependencyManifest.Dependency> getTransDependenciesFromDependencyNode(TomlTableNode pkgNode) {
+    private List<DependencyManifest.Dependency> getDependenciesFromDependencyNode(TomlTableNode pkgNode) {
         List<DependencyManifest.Dependency> transDependencies = new ArrayList<>();
         var topLevelNode = pkgNode.entries().get("dependencies");
         if (topLevelNode == null) {
@@ -373,5 +381,38 @@ public class DependencyManifestBuilder {
         var diagnosticInfo = new DiagnosticInfo(diagnosticErrorCode, message, severity);
         var diagnostic = DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
         this.diagnosticList.add(diagnostic);
+    }
+
+    private List<DependencyManifest.Dependency> getRootPackageDependencies(TomlTableArrayNode dependencyTableArray) {
+        for (TomlTableNode dependencyNode : dependencyTableArray.children()) {
+            String name = getStringValueFromDependencyNode(dependencyNode, "name");
+            String org = getStringValueFromDependencyNode(dependencyNode, "org");
+
+            // If name or org one of the value is null, ignore dependency
+            if (name == null || org == null) {
+                continue;
+            }
+
+            // If root package
+            if (packageDescriptor.org().value().equals(org) && packageDescriptor.name().value().equals(name)) {
+                return getDependenciesFromDependencyNode(dependencyNode);
+            }
+        }
+        throw new CorruptedDependenciesTomlException("Cannot find root package in the " + DEPENDENCIES_TOML);
+    }
+
+    private boolean isTransitive(List<DependencyManifest.Dependency> directDependencies,
+                                 PackageDescriptor packageDescriptor, String org, String name) {
+        // Check whether root package
+        if (packageDescriptor.org().value().equals(org) && packageDescriptor.name().value().equals(name)) {
+            return false;
+        }
+        // Check direct dependencies
+        for (DependencyManifest.Dependency dependency : directDependencies) {
+            if (dependency.org().value().equals(org) && dependency.name().value().equals(name)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

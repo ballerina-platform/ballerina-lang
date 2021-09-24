@@ -7,17 +7,6 @@
 dependencies-toml-version = "2"
 
 [[package]]
-org = "winery"
-name = "foo"
-version = "1.0.0"
-dependencies = [
-    {org = "wso2", name = "twitter"}
-]
-modules = [
-    {org = "winery", packageName = "foo", moduleName = "foo"}
-]
-
-[[package]]
 org = "wso2"
 name = "twitter"
 version = "2.3.4"
