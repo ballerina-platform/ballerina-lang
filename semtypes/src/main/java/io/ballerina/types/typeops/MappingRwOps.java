@@ -17,8 +17,8 @@
  */
 package io.ballerina.types.typeops;
 
-import io.ballerina.types.SubtypeData;
 import io.ballerina.types.Context;
+import io.ballerina.types.SubtypeData;
 
 /**
  * Mapping read/write specific methods operate on SubtypeData.
