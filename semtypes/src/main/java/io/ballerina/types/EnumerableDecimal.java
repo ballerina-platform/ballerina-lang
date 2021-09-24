@@ -17,19 +17,21 @@
  */
 package io.ballerina.types;
 
+import java.math.BigDecimal;
+
 /**
  * Enumerable type wrapper for decimal.
  *
  * @since 2.0.0
  */
 public class EnumerableDecimal implements EnumerableType {
-    public final double value;
+    public final BigDecimal value;
 
-    private EnumerableDecimal(double value) {
+    private EnumerableDecimal(BigDecimal value) {
         this.value = value;
     }
 
-    public static EnumerableDecimal from(double d) {
+    public static EnumerableDecimal from(BigDecimal d) {
         return new EnumerableDecimal(d);
     }
 }

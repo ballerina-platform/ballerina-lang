@@ -24,6 +24,8 @@ import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 
+import java.math.BigDecimal;
+
 /**
  * Public API for creating type values.
  *
@@ -54,7 +56,7 @@ public class SemTypes {
     }
 
     public static SemType decimalConst(String value) {
-        double d = Double.parseDouble(value.substring(0, value.length() - 1));
+        BigDecimal d = new BigDecimal(value.substring(0, value.length() - 1));
         return DecimalSubtype.decimalConst(d);
     }
 
