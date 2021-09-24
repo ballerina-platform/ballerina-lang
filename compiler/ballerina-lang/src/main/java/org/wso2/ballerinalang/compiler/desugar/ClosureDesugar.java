@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.desugar;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -601,9 +600,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
-        objectTypeNode.fields.forEach(field -> {
+        for (BLangSimpleVariable field : objectTypeNode.fields) {
             rewrite(field, env);
-        });
+        }
         result = objectTypeNode;
     }
 
@@ -674,6 +673,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorType errorType) {
+        errorType.detailType = rewrite(errorType.detailType, env);
         result = errorType;
     }
 
@@ -982,10 +982,11 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     public BPackageSymbol getPackageSymbol(BSymbol symbol) {
-        if (symbol.owner.getKind() == SymbolKind.PACKAGE) {
-            return (BPackageSymbol) symbol.owner;
+        BSymbol owner = symbol.owner;
+        if (owner.getKind() == SymbolKind.PACKAGE) {
+            return (BPackageSymbol) owner;
         }
-        return getPackageSymbol(symbol.owner);
+        return getPackageSymbol(owner);
     }
 
     @Override
@@ -996,23 +997,22 @@ public class ClosureDesugar extends BLangNodeVisitor {
     public void rewriteInvocationExpr(BLangInvocation invocation) {
         invocation.expr = rewriteExpr(invocation.expr);
         invocation.requiredArgs = rewriteExprs(invocation.requiredArgs);
-        BInvokableTypeSymbol invokableSymbol = (BInvokableTypeSymbol) invocation.symbol.type.tsymbol;
-        if (invokableSymbol == null) {
-            invocation.restArgs = rewriteExprs(invocation.restArgs);
+        BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) invocation.symbol.type.tsymbol;
+        if (invokableTypeSymbol == null) {
             result = invocation;
             return;
         }
         TreeMap<String, BLangExpression> arguments = new TreeMap<>();
-        Map<String, BLangLambdaFunction> defaultValues = invokableSymbol.defaultValues;
+        Map<String, BLangLambdaFunction> defaultValues = invokableTypeSymbol.defaultValues;
 
-        for (int i = 0; i < invokableSymbol.params.size(); i++) {
+        for (int i = 0; i < invokableTypeSymbol.params.size(); i++) {
             BLangExpression arg;
             if (invocation instanceof BLangInvocation.BLangAttachedFunctionInvocation) {
                 arg = invocation.requiredArgs.get(i + 1);
             } else {
                 arg = invocation.requiredArgs.get(i);
             }
-            BVarSymbol param = invokableSymbol.params.get(i);
+            BVarSymbol param = invokableTypeSymbol.params.get(i);
             String paramName = param.name.value;
             if (arg.getKind() != NodeKind.IGNORE_EXPR) {
                 arguments.put(paramName, arg);
@@ -1025,11 +1025,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
             BSymbol closureSymbol =
                     symResolver.lookupMainSpaceSymbolInPackage(pkgSymbol, invocation.pos, env, funcName);
             BLangInvocation closureInvocation = getInvocation((BInvokableSymbol) closureSymbol);
-            if (isLangLibModule(pkgSymbol.pkgID)) {
-                for (int m = 0; m < ((BInvokableSymbol) closureSymbol).params.size(); m++) {
-                    String langLibFuncParam = ((BInvokableSymbol) closureSymbol).params.get(m).name.value;
-                    closureInvocation.requiredArgs.add(arguments.get(langLibFuncParam));
-                }
+            for (int m = 0; m < ((BInvokableSymbol) closureSymbol).params.size(); m++) {
+                String langLibFuncParam = ((BInvokableSymbol) closureSymbol).params.get(m).name.value;
+                closureInvocation.requiredArgs.add(arguments.get(langLibFuncParam));
             }
             lambdaExpr.function.paramClosureMap.forEach((k, v) -> {
                 if (k < 0) {
@@ -1060,11 +1058,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
         invocation.restArgs = rewriteExprs(invocation.restArgs);
         result = invocation;
 
-    }
-
-    private boolean isLangLibModule(PackageID moduleID) {
-        return Names.BALLERINA_ORG.equals(moduleID.orgName)
-                && (moduleID.nameComps.size() == 2 && Names.LANG.equals(moduleID.nameComps.get(0)));
     }
 
     @Override

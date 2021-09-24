@@ -1395,7 +1395,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BLangExpression bLangExpression;
-        if (Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM)) {
+        if (Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM) && varNode.expr != null) {
             String closureName = generateName(env.node, varNode.symbol.name.value);
             bLangExpression = createClosureForDefaultValue(closureName, varNode.name.value, varNode,
                     (BInvokableTypeSymbol) env.node.getBType().tsymbol, env, varNode.symbol.owner);
@@ -7251,11 +7251,10 @@ public class Desugar extends BLangNodeVisitor {
         funcSymbol.params = paramSymbols;
         funcSymbol.restParam = getRestSymbol(funcNode);
         funcSymbol.retType = funcNode.returnTypeNode.getBType();
-        ((BInvokableTypeSymbol) funcSymbol.type.tsymbol).params = paramSymbols;
         // Create function type.
         List<BType> paramTypes = paramSymbols.stream().map(paramSym -> paramSym.type).collect(Collectors.toList());
-        funcNode.setBType(
-                new BInvokableType(paramTypes, getRestType(funcSymbol), funcNode.returnTypeNode.getBType(), null));
+        funcNode.setBType(new BInvokableType(paramTypes, getRestType(funcSymbol), funcNode.returnTypeNode.getBType(),
+                          funcSymbol.type.tsymbol));
 
         lambdaFunction.function.pos = bLangArrowFunction.pos;
         lambdaFunction.function.body.pos = bLangArrowFunction.pos;

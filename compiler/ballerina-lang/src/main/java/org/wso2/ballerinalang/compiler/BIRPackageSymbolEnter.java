@@ -739,14 +739,16 @@ public class BIRPackageSymbolEnter {
         Scope enclScope = this.env.pkgSymbol.scope;
         BVarSymbol varSymbol;
         if (varType.tag == TypeTags.INVOKABLE) {
-            // Here we don't set the required-params, defaultable params and the rest param of
-            // the symbol. Because, for the function pointers we directly read the param types
-            // from the varType (i.e: from InvokableType).
+            BInvokableTypeSymbol bInvokableTypeSymbol = (BInvokableTypeSymbol) varType.tsymbol;
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, names.fromString(varName),
                                              this.env.pkgSymbol.pkgID, varType, enclScope.owner, symTable.builtinPos,
                                              toOrigin(origin));
 
             invokableSymbol.kind = SymbolKind.FUNCTION;
+            if (bInvokableTypeSymbol != null) {
+                invokableSymbol.params = bInvokableTypeSymbol.params;
+                invokableSymbol.restParam = bInvokableTypeSymbol.restParam;
+            }
             invokableSymbol.retType = ((BInvokableType) invokableSymbol.type).retType;
             varSymbol = invokableSymbol;
         } else {
@@ -996,11 +998,13 @@ public class BIRPackageSymbolEnter {
                 BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName), tSymbol.pkgID,
                                                       fieldType, tSymbol, symTable.builtinPos,
                                                       COMPILED_SOURCE);
+
+                varSymbol.isDefaultable = ((fieldFlags & Flags.OPTIONAL) == Flags.OPTIONAL);
                 defineMarkDownDocAttachment(varSymbol, docBytes);
                 tSymbol.params.add(varSymbol);
             }
 
-            if (inputStream.readBoolean()) { //if rest param exist
+            if (inputStream.readBoolean()) { // if rest param exists
                 String fieldName = getStringCPEntryValue(inputStream);
                 var fieldFlags = inputStream.readLong();
                 byte[] docBytes = readDocBytes(inputStream);

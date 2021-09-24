@@ -101,18 +101,6 @@ function testReturnWithFunctionType() returns int {
     return func(bar);
 }
 
-// function testReturnWithFunctionType2() returns int {
-//     L func = baz;
-//     var value = func(10, 10, 8);
-//     return value(10);
-// }
-
-// function testRecordTypeWithFuncTypeField() returns int {
-//     K func = {d:bar};
-//     int val = func.d(2);
-//     return val;
-// }
-
 function testRecordTypeWithFuncTypeRestField() returns string {
     M func = {d:bar, "name": mat};
     var val = func["name"];
@@ -121,22 +109,6 @@ function testRecordTypeWithFuncTypeRestField() returns string {
     }
     return " ";
 }
-
-// function testRecordTypeWithFuncTypeInclusion() returns int {
-//     N func = {d:bar, "name": mat};
-
-//     return func.d(2);
-// }
-
-// function testMapWithFunctionType() returns int {
-//     K func = {d:bar};
-//     map<function(int, int e = 14, int f = 20) returns int> m = {"func": bar};
-//     var  val = m["func"];
-//     if !(val is ()) {
-//         return val(10);
-//     }
-//     return 0; 
-// }
 
 function testTypeDefWithMap() returns int {
     K func = {d:bar};
@@ -182,20 +154,8 @@ function testFunctionType() {
     int res5 = testReturnWithFunctionType();
     assertEquality(55, res5);
 
-    // int res6 = testReturnWithFunctionType2();
-    // assertEquality(35, res6);
-
-    // int res7 = testRecordTypeWithFuncTypeField();
-    // assertEquality(26, res7);
-
     string res8 = testRecordTypeWithFuncTypeRestField();
     assertEquality("Chiran Sachintha", res8);
-
-    // int res9 = testRecordTypeWithFuncTypeInclusion();
-    // assertEquality(26, res9);
-
-    // int res10 = testMapWithFunctionType();
-    // assertEquality(26, res10);
 
     int res11 = testTypeDefWithMap();
     assertEquality(40, res11);
