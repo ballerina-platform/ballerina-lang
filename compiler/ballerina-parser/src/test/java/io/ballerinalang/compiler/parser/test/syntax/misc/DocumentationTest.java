@@ -143,4 +143,9 @@ public class DocumentationTest extends AbstractMiscTest {
     public void testDocumentationEOF() {
         testFile("documentation/doc_source_26.bal", "documentation/doc_assert_26.json");
     }
+
+    @Test
+    public void testInvalidEscapeSequenceInDocParameter() {
+        testFile("documentation/doc_source_27.bal", "documentation/doc_assert_27.json");
+    }
 }

@@ -6159,9 +6159,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 tupleMemberTypes.add(paramType);
                 boolean required = requiredParams.contains(nonRestParam);
                 fieldSymbol = new BVarSymbol(Flags.asMask(new HashSet<Flag>() {{
-                                             add(required ? Flag.REQUIRED : Flag.OPTIONAL); }}), paramName,
-                                             nonRestParam.getOriginalName(), pkgID, paramType, recordSymbol, null,
-                                             VIRTUAL);
+                                            add(required ? Flag.REQUIRED : Flag.OPTIONAL); }}), paramName,
+                                            nonRestParam.getOriginalName(), pkgID, paramType, recordSymbol,
+                                            symTable.builtinPos, VIRTUAL);
                 fields.put(paramName.value, new BField(paramName, null, fieldSymbol));
             }
 

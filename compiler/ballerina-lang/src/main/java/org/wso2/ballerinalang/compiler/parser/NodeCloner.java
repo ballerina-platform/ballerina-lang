@@ -1308,11 +1308,6 @@ public class NodeCloner extends BLangNodeVisitor {
 
         BLangTypeConversionExpr clone = new BLangTypeConversionExpr();
         source.cloneRef = clone;
-
-        // Forcefully clone the expression since it may clash with the clone of type cast expression type
-        // checking.
-        source.expr.cloneAttempt++;
-
         clone.expr = clone(source.expr);
         clone.typeNode = clone(source.typeNode);
         clone.targetType = source.targetType;

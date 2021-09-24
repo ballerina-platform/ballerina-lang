@@ -204,8 +204,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
         SetBreakpointsResponse breakpointsResponse = new SetBreakpointsResponse();
         breakpointsResponse.setBreakpoints(breakpoints);
-        String path = args.getSource().getPath();
-        eventProcessor.setBreakpoints(path, breakpointsMap);
+        String sourcePath = args.getSource().getPath();
+        eventProcessor.setBreakpoints(sourcePath, breakpointsMap);
         return CompletableFuture.completedFuture(breakpointsResponse);
     }
 
@@ -249,7 +249,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             String hostName = configHolder.getHostName().orElse("");
             int portName = configHolder.getDebuggePort();
             attachToRemoteVM(hostName, portName);
-        } catch (IOException | IllegalConnectorArgumentsException | ClientConfigurationException e) {
+        } catch (Exception e) {
             String host = ((ClientAttachConfigHolder) clientConfigHolder).getHostName().orElse(LOCAL_HOST);
             String portName;
             try {
@@ -260,7 +260,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             LOGGER.error(e.getMessage());
             outputLogger.sendErrorOutput(String.format("Failed to attach to the target VM, address: '%s:%s'.",
                     host, portName));
-            return CompletableFuture.completedFuture(null);
         }
         return CompletableFuture.completedFuture(null);
     }
@@ -289,25 +288,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
-        stackTraceResponse.setStackFrames(new StackFrame[0]);
         try {
             activeThread = getAllThreads().get(args.getThreadId());
             if (loadedThreadFrames.containsKey(activeThread.uniqueID())) {
                 stackTraceResponse.setStackFrames(loadedThreadFrames.get(activeThread.uniqueID()));
             } else {
-                try {
-                    // If the active thread's top stack frame name is equal to `J_INIT_FRAME_NAME`, need to abort the
-                    // processing and send a `step-in` request to resume the VM to stop at its next state.
-                    // This is because the above state is related to java-level object initialisation and therefore
-                    // suspending the VM at that intermediate state does not provide any useful information to the user.
-                    if (activeThread.frames().get(0).location().method().name().equals(J_INIT_FRAME_NAME)) {
-                        prepareFor(DebugInstruction.STEP_IN);
-                        eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_INTO);
-                    }
-                } catch (Exception ignored) {
-                    // Ignore the exception and continue the flow.
-                    // This will result in having `J_INIT_FRAME_NAME` on the top of the call stack.
-                }
                 StackFrame[] validFrames = activeThread.frames().stream()
                         .map(this::toDapStackFrame)
                         .filter(JBallerinaDebugServer::isValidFrame)
@@ -316,8 +301,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 loadedThreadFrames.put(activeThread.uniqueID(), validFrames);
             }
             return CompletableFuture.completedFuture(stackTraceResponse);
-        } catch (JdiProxyException e) {
+        } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
+            stackTraceResponse.setStackFrames(new StackFrame[0]);
             return CompletableFuture.completedFuture(stackTraceResponse);
         }
     }
@@ -344,7 +330,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<VariablesResponse> variables(VariablesArguments args) {
         VariablesResponse variablesResponse = new VariablesResponse();
-        variablesResponse.setVariables(new Variable[0]);
         try {
             // 1. If frameId < 0, returns global variables.
             // 2. If frameId >= 0, returns local variables.

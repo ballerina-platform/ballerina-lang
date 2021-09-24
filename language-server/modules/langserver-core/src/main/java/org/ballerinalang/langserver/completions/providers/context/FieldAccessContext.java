@@ -107,10 +107,10 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                 case SYMBOL:
                     Optional<Symbol> symbol = ((SymbolCompletionItem) completionItem).getSymbol();
                     rank = (symbol.isPresent() && symbol.get().kind() == SymbolKind.XMLNS) ? 2
-                            : SortingUtil.toRank(completionItem, 2);
+                            : SortingUtil.toRank(context, completionItem, 2);
                     break;
                 default:
-                    rank = SortingUtil.toRank(completionItem, 2);
+                    rank = SortingUtil.toRank(context, completionItem, 2);
             }
 
             completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));

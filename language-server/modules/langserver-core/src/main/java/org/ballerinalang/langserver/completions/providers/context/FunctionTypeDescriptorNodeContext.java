@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
@@ -52,10 +52,12 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, FunctionTypeDescriptorNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-
-        if (this.onSuggestionsAfterQualifiers(context, node)) {
-            // Currently we consider the isolated qualifier only
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+        if (onSuggestionsAfterQualifiers(context, node)) {
+            /*
+             * Covers the following
+             * isolated <cursor> function
+             */
+            completionItems.addAll(getCompletionItemsOnQualifiers(node, context));
         } else if (this.withinParameterContext(context, node)) {
             /*
             Covers the completions when the cursor is within the parameter context
@@ -100,16 +102,17 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
                 || returnTypeDescNode.get().returnsKeyword().isMissing());
     }
 
-    private boolean onSuggestionsAfterQualifiers(BallerinaCompletionContext context, FunctionTypeDescriptorNode node) {
+    @Override
+    protected boolean onSuggestionsAfterQualifiers(BallerinaCompletionContext context, Node node) {
         int cursor = context.getCursorPositionInTree();
-        NodeList<Token> qualifiers = node.qualifierList();
-        Token functionKeyword = node.functionKeyword();
+        Token functionKeyword = ((FunctionTypeDescriptorNode) node).functionKeyword();
+        return super.onSuggestionsAfterQualifiers(context, node) &&
+                cursor < functionKeyword.textRange().startOffset();
+    }
 
-        if (qualifiers.isEmpty()) {
-            return false;
-        }
-        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
-        return cursor > lastQualifier.textRange().endOffset()
-                && (functionKeyword.isMissing() || cursor < functionKeyword.textRange().startOffset());
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, FunctionTypeDescriptorNode node) {
+        return !node.functionKeyword().isMissing() &&
+                context.getCursorPositionInTree() > node.functionKeyword().textRange().startOffset();
     }
 }

@@ -58,7 +58,7 @@ public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements 
             LangLibrary langLibrary = LangLibrary.getInstance(this.context);
             BFiniteType internalType = (BFiniteType) this.getBType();
             BType valueType = internalType.getValueSpace().iterator().next().getBType();
-            List<FunctionSymbol> functions = langLibrary.getMethods(valueType.getKind());
+            List<FunctionSymbol> functions = langLibrary.getMethods(valueType);
             this.langLibFunctions = filterLangLibMethods(functions, valueType);
         }
 

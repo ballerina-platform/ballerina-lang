@@ -1122,7 +1122,7 @@ public class BallerinaLexer extends AbstractLexer {
                             }
                             continue;
                         default:
-                            reportInvalidEscapeSequence(this.reader.peek(2));
+                            reportInvalidEscapeSequence(this.reader.peek(1));
                             this.reader.advance();
                             continue;
                     }
@@ -1421,6 +1421,8 @@ public class BallerinaLexer extends AbstractLexer {
                 case LexerTerminals.NEWLINE:
                 case LexerTerminals.CARRIAGE_RETURN:
                 case LexerTerminals.TAB:
+                    reader.advance();
+                    reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, "");
                     break;
                 case 'u':
                     // NumericEscape

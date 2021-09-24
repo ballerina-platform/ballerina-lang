@@ -49,13 +49,14 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
 /**
  * Test Cases for CodeActions.
  *
  * @since 2.0.0
  */
 public abstract class AbstractCodeActionTest {
-    private Endpoint serviceEndpoint;
+    public Endpoint serviceEndpoint;
 
     private final JsonParser parser = new JsonParser();
 
@@ -90,20 +91,20 @@ public abstract class AbstractCodeActionTest {
         CodeActionContext codeActionContext = new CodeActionContext(diags);
 
         Range range = new Range(pos, pos);
-        String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
+        String res = getResponse(sourcePath, range, codeActionContext);
 
         for (JsonElement element : configJsonObject.get("expected").getAsJsonArray()) {
             JsonObject expected = element.getAsJsonObject();
             String expTitle = expected.get("title").getAsString();
 
             boolean codeActionFound = false;
-            JsonObject responseJson = this.getResponseJson(res);
+            JsonObject responseJson = getResponseJson(res);
             for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
                 JsonObject right = jsonElement.getAsJsonObject().get("right").getAsJsonObject();
                 if (right == null) {
                     continue;
                 }
-                
+
                 // Match title
                 String actualTitle = right.get("title").getAsString();
                 if (!expTitle.equals(actualTitle)) {
@@ -130,7 +131,7 @@ public abstract class AbstractCodeActionTest {
                     if (!Objects.equals(actualCommand.get("title"), expectedCommand.get("title"))) {
                         continue;
                     }
-                    
+
                     JsonArray actualArgs = actualCommand.getAsJsonArray("arguments");
                     JsonArray expArgs = expectedCommand.getAsJsonArray("arguments");
                     if (!TestUtil.isArgumentsSubArray(actualArgs, expArgs)) {
@@ -160,10 +161,14 @@ public abstract class AbstractCodeActionTest {
             }
             String cursorStr = range.getStart().getLine() + ":" + range.getEnd().getCharacter();
             Assert.assertTrue(codeActionFound,
-                              "Cannot find expected Code Action for: " + expTitle + ", cursor at " + cursorStr
-                                      + " in " + sourcePath);
+                    "Cannot find expected Code Action for: " + expTitle + ", cursor at " + cursorStr
+                            + " in " + sourcePath);
         }
         TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
+    }
+
+    public String getResponse(Path sourcePath, Range range, CodeActionContext codeActionContext) {
+        return TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
     }
 
     /**

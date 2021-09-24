@@ -170,9 +170,8 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // service object variable test
         debugTestRunner.assertExpression(context, SERVICE_VAR, "service", "service");
 
-        // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/26139
-        // debugTestRunner.assertExpression(context, GL, "Ballerina", "string");
-        // debugTestRunner.assertExpression(context, "gv02_nameWithType", "Ballerina", "string");
+        debugTestRunner.assertExpression(context, "nameWithType", "\"Ballerina\"", "string");
+        debugTestRunner.assertExpression(context, "nameWithoutType", "\"Ballerina\"", "string");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "map (size = 1)", "map");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_04, "()", "nil");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_05, "()", "nil");
@@ -391,8 +390,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         // xml
         debugTestRunner.assertExpression(context, XML_VAR + ".getName()", "\"person\"", "string");
-        debugTestRunner.assertExpression(context, XML_VAR + ".children()", "XMLSequence (size = 2)",
-                "xml");
+        debugTestRunner.assertExpression(context, XML_VAR + ".children()", "XMLSequence (size = 2)", "xml");
     }
 
     @Override
@@ -409,7 +407,13 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void anonymousFunctionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // Implicit anonymous function expressions
+        debugTestRunner.assertExpression(context, "function(int x, int y) returns int => x + y;",
+                "isolated function (int,int) returns (int)", "function");
+
+        // Explicit anonymous function expressions
+        debugTestRunner.assertExpression(context, "function(string x, string y) returns (string) { return x + y; }",
+                "isolated function (string,string) returns (string)", "function");
     }
 
     @Override
