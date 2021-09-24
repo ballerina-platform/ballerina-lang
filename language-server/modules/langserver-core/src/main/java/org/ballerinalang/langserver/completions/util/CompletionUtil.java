@@ -56,6 +56,7 @@ public class CompletionUtil {
      * @return {@link List}         List of resolved completion Items
      */
     public static List<CompletionItem> getCompletionItems(BallerinaCompletionContext ctx) throws LSCompletionException {
+        ctx.checkCancelled();
         fillTokenInfoAtCursor(ctx);
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
         /*
@@ -88,6 +89,7 @@ public class CompletionUtil {
      */
     public static List<LSCompletionItem> route(BallerinaCompletionContext ctx, Node node)
             throws LSCompletionException {
+        ctx.checkCancelled();
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (node == null) {
             return completionItems;

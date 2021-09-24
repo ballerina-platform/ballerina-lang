@@ -126,6 +126,31 @@ public interface SemanticModel {
     List<Location> references(Document sourceDocument, LinePosition position, boolean withDefinition);
 
     /**
+     * Finds all the references of the specified symbol within the given target document.
+     *
+     * @param symbol         a {@link Symbol} instance
+     * @param targetDocument The given target document in which to lok up for references
+     * @param withDefinition Whether the definition should be counted as a reference or not
+     * @return A {@link List} of line ranges of all the references except the definition
+     */
+    List<Location> references(Symbol symbol, Document targetDocument, boolean withDefinition);
+
+    /**
+     * If there's an identifier associated with a symbol at the specified cursor position, finds all the references of
+     * the specified symbol within the given target document. This list excludes the reference in the definition.
+     *
+     * @param sourceDocument The source file document in which to look up the position
+     * @param targetDocument The given target document in which to lok up for references
+     * @param position       a cursor position in the source
+     * @param withDefinition Whether the definition should be counted as a reference or not
+     * @return A {@link List} of line ranges of all the references except the definition
+     */
+    List<Location> references(Document sourceDocument,
+                              Document targetDocument,
+                              LinePosition position,
+                              boolean withDefinition);
+
+    /**
      * Retrieves the type of the expression in the specified text range. If it's not a valid expression, returns an
      * empty {@link Optional} value!.
      *

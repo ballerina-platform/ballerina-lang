@@ -1,0 +1,5 @@
+[package]
+org = "debug_test_resources"
+name = "evaluation_tests"
+version = "0.1.0"
+

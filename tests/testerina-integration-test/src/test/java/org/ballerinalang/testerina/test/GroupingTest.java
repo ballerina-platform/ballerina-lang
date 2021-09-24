@@ -129,6 +129,11 @@ public class GroupingTest extends BaseTestCase {
         }
     }
 
+    /**
+     * Test before and after groups functions with other test configurations when there is a single group.
+     *
+     * @throws BallerinaTestException
+     */
     @Test
     public void beforeGroupsAfterGroups1() throws BallerinaTestException {
         String[] args = mergeCoverageArgs(new String[]{"before-groups-after-groups-test.bal"});
@@ -139,6 +144,11 @@ public class GroupingTest extends BaseTestCase {
         }
     }
 
+    /**
+     * Test before and after groups functions with other test configurations when there are multiple groups.
+     *
+     * @throws BallerinaTestException
+     */
     @Test
     public void beforeGroupsAfterGroups2() throws BallerinaTestException {
         String[] args = mergeCoverageArgs(new String[]{"before-groups-after-groups-test2.bal"});
@@ -156,6 +166,39 @@ public class GroupingTest extends BaseTestCase {
                 new HashMap<>(), projectPath, true);
         if (output.contains("[fail] afterSuiteFunc")) {
             Assert.fail("Test failed due to assertion failure in after suite function");
+        }
+    }
+
+    @Test
+    public void failedBeforeGroupTest() throws BallerinaTestException {
+        String[] args = mergeCoverageArgs(new String[]{"failed-before-groups-test.bal"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        if (output.contains("[fail] afterSuiteFunc")) {
+            Assert.fail("Test failed due to issue in handling before groups test failure");
+        }
+    }
+
+    @Test
+    public void failedBeforeEachTest() throws BallerinaTestException {
+        String[] args = mergeCoverageArgs(new String[]{"failed-before-each-with-groups.bal"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        if (output.contains("[fail] afterSuiteFunc")) {
+            Assert.fail("Test failed due to issue in handling before each failure with groups.");
+        }
+    }
+
+    @Test
+    public void testWhenAfterGroupsFails() throws BallerinaTestException {
+        String msg1 = "5 passing";
+        String msg2 = "0 failing";
+        String msg3 = "0 skipped";
+        String[] args = mergeCoverageArgs(new String[]{"failed-after-groups-test.bal"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
+            Assert.fail("Test failed due to error while skipping test when after groups fails.");
         }
     }
 

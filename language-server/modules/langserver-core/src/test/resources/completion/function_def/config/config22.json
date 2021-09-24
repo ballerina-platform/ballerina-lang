@@ -9,7 +9,7 @@
       "label": "MyError",
       "kind": "Event",
       "detail": "Error",
-      "sortText": "BL",
+      "sortText": "AL",
       "insertText": "MyError",
       "insertTextFormat": "Snippet"
     },

@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.ClassLoaderReference;
 import com.sun.jdi.InvalidStackFrameException;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -52,6 +53,7 @@ public class SuspendedContext {
     private Path breakPointSourcePath;
     private String fileName;
     private int lineNumber;
+    private Module module;
     private Document document;
     private ClassLoaderReference classLoader;
     private DebugExpressionCompiler debugCompiler;
@@ -163,6 +165,10 @@ public class SuspendedContext {
         return debugCompiler;
     }
 
+    public SemanticModel getSemanticInfo() {
+        return getDebugCompiler().getSemanticInfo();
+    }
+
     public Optional<String> getFileName() {
         if (fileName == null) {
             Optional<Path> breakPointPath = getBreakPointSourcePath();
@@ -185,11 +191,27 @@ public class SuspendedContext {
         return lineNumber;
     }
 
+    public Module getModule() {
+        if (module == null) {
+            loadModule();
+        }
+        return module;
+    }
+
     public Document getDocument() {
         if (document == null) {
             loadDocument();
         }
         return document;
+    }
+
+    private void loadModule() {
+        Optional<Path> breakPointSourcePath = getBreakPointSourcePath();
+        if (breakPointSourcePath.isEmpty()) {
+            return;
+        }
+        DocumentId documentId = project.documentId(breakPointSourcePath.get());
+        module = project.currentPackage().module(documentId.moduleId());
     }
 
     private void loadDocument() {
@@ -198,7 +220,7 @@ public class SuspendedContext {
             return;
         }
         DocumentId documentId = project.documentId(breakPointSourcePath.get());
-        Module module = project.currentPackage().module(documentId.moduleId());
+        module = project.currentPackage().module(documentId.moduleId());
         document = module.document(documentId);
     }
 }
