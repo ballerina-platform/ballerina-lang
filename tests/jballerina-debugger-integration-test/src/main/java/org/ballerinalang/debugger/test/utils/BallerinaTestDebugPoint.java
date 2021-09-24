@@ -17,13 +17,19 @@
  */
 package org.ballerinalang.debugger.test.utils;
 
+import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.SourceBreakpoint;
 
-import java.io.File;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static org.ballerinalang.debugger.test.utils.FileUtils.FILE_SEPARATOR;
+import static org.ballerinalang.debugger.test.utils.FileUtils.FILE_SEPARATOR_REGEX;
+import static org.ballerinalang.debugger.test.utils.FileUtils.URI_SCHEME_BALA;
+import static org.ballerinalang.debugger.test.utils.FileUtils.URI_SCHEME_FILE;
+import static org.ballerinalang.debugger.test.utils.FileUtils.URI_SEPARATOR;
 
 /**
  * Ballerina debug point (breakpoint/debug hit point) representation used for integration test scenarios.
@@ -58,12 +64,19 @@ public class BallerinaTestDebugPoint {
         return filePathUri;
     }
 
-    public Source getSource() {
+    public Source getSource() throws BallerinaTestException {
         Source source = new Source();
-        String fileSeparatorRegEx = File.separatorChar == '\\' ? "\\\\" : File.separator;
-        String[] paths = Paths.get(filePathUri).toAbsolutePath().toString().split(fileSeparatorRegEx);
-        source.setPath(Paths.get(filePathUri).toAbsolutePath().toString());
-        source.setName(paths[paths.length - 1]);
+        if (filePathUri.getScheme().equals(URI_SCHEME_FILE)) {
+            String[] paths = Paths.get(filePathUri).toAbsolutePath().toString().split(FILE_SEPARATOR_REGEX);
+            source.setName(paths[paths.length - 1]);
+            source.setPath(Paths.get(filePathUri).toAbsolutePath().toString());
+        } else if (filePathUri.getScheme().equals(URI_SCHEME_BALA)) {
+            String[] paths = filePathUri.getPath().split(URI_SEPARATOR);
+            source.setName(paths[paths.length - 1]);
+            source.setPath(String.join(FILE_SEPARATOR, paths));
+        } else {
+            throw new BallerinaTestException("unsupported URI scheme found: '" + filePathUri.getScheme() + "'");
+        }
         return source;
     }
 

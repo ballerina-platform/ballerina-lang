@@ -37,6 +37,8 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -62,6 +64,8 @@ public class PackageUtils {
     public static final String INIT_TYPE_INSTANCE_PREFIX = "$type$";
     public static final String GENERATED_VAR_PREFIX = "$";
     static final String MODULE_DIR_NAME = "modules";
+    private static final String URI_SCHEME_FILE = "file";
+    private static final String URI_SCHEME_BALA = "bala";
 
     private static final String FILE_SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
 
@@ -72,7 +76,7 @@ public class PackageUtils {
      * @param sourceProject      project instance of the detected debug source
      */
     public static Optional<Map.Entry<Path, DebugSourceType>> getStackFrameSourcePath(Location stackFrameLocation,
-                                                                           Project sourceProject) {
+                                                                                     Project sourceProject) {
         // Source resolving is processed according to the following order .
         // 1. Checks whether debug hit location resides within the current debug source project and if so, returns
         // the absolute path of the project file source.
@@ -296,6 +300,20 @@ public class PackageUtils {
             moduleParts = new String[]{path};
         }
         return moduleParts;
+    }
+
+    /**
+     * Converts a given file URI to a Ballerina-specific custom URI scheme.
+     *
+     * @param fileUri file URI
+     * @return bala URI
+     */
+    public static URI covertToBalaUri(URI fileUri) throws URISyntaxException, IllegalArgumentException {
+        if (fileUri.getScheme().equals(URI_SCHEME_FILE)) {
+            return new URI(URI_SCHEME_BALA, fileUri.getHost(), fileUri.getPath(), fileUri.getFragment());
+        }
+
+        throw new IllegalArgumentException("unsupported URI with scheme: " + fileUri.getScheme());
     }
 
     private static String replaceSeparators(String path) {

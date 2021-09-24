@@ -118,7 +118,7 @@ public class BallerinaStackFrame {
                 // Note: Since we are using a Ballerina-specific custom URI scheme, the future DAP client
                 // implementations may have to implement custom editor providers in order to support URIs coming
                 // from the debug server.
-                source.setPath(URI.create(BALA_URI_SCHEME_NAME + uri.getPath()).toString());
+                source.setPath(PackageUtils.covertToBalaUri(uri).toString());
             } else {
                 source.setPath(uri.toString());
             }

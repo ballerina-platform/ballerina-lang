@@ -60,7 +60,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 
@@ -260,8 +259,12 @@ public class DebugTestRunner {
      */
     public void addBreakPoint(BallerinaTestDebugPoint breakpoint) throws BallerinaTestException {
         testBreakpoints.add(breakpoint);
-        List<BallerinaTestDebugPoint> breakpointsToBeSent = testBreakpoints.stream().filter(bp ->
-            bp.getSource().getPath().equals(breakpoint.getSource().getPath())).collect(Collectors.toList());
+        List<BallerinaTestDebugPoint> breakpointsToBeSent = new ArrayList<>();
+        for (org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint bp : testBreakpoints) {
+            if (bp.getSource().getPath().equals(breakpoint.getSource().getPath())) {
+                breakpointsToBeSent.add(bp);
+            }
+        }
 
         if (debugClientConnector != null && debugClientConnector.isConnected()) {
             setBreakpoints(breakpointsToBeSent);
@@ -301,8 +304,12 @@ public class DebugTestRunner {
      */
     public void removeBreakPoint(BallerinaTestDebugPoint breakpoint) throws BallerinaTestException {
         testBreakpoints.remove(breakpoint);
-        List<BallerinaTestDebugPoint> breakpointsToBeSent = testBreakpoints.stream().filter(bp ->
-            bp.getSource().getPath().equals(breakpoint.getSource().getPath())).collect(Collectors.toList());
+        List<BallerinaTestDebugPoint> breakpointsToBeSent = new ArrayList<>();
+        for (org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint bp : testBreakpoints) {
+            if (bp.getSource().getPath().equals(breakpoint.getSource().getPath())) {
+                breakpointsToBeSent.add(bp);
+            }
+        }
 
         if (debugClientConnector != null && debugClientConnector.isConnected()) {
             setBreakpoints(breakpointsToBeSent);
