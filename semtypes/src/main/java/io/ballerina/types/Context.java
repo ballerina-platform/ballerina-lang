@@ -25,18 +25,18 @@ import java.util.Map;
  *
  * @since 3.0.0
  */
-public class TypeCheckContext {
+public class Context {
     private final Env env;
     public final Map<Bdd, BddMemo> functionMemo = new HashMap<>();
     public final Map<Bdd, BddMemo> listMemo = new HashMap<>();
     public final Map<Bdd, BddMemo> mappingMemo = new HashMap<>();
 
-    private TypeCheckContext(Env env) {
+    private Context(Env env) {
         this.env = env;
     }
 
-    static TypeCheckContext from(Env env) {
-        return new TypeCheckContext(env);
+    static Context from(Env env) {
+        return new Context(env);
     }
 
     public ListAtomicType listAtomType(Atom atom) {

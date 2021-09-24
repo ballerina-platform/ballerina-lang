@@ -4,7 +4,7 @@ import io.ballerina.types.Common;
 import io.ballerina.types.EnumerableFloat;
 import io.ballerina.types.EnumerableSubtype;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.TypeCheckContext;
+import io.ballerina.types.Context;
 import io.ballerina.types.UniformTypeOps;
 import io.ballerina.types.subtypedata.FloatSubtype;
 
@@ -43,7 +43,7 @@ public class FloatOps extends CommonOps implements UniformTypeOps {
     }
 
     @Override
-    public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
-        return Common.notIsEmpty(tc, t);
+    public boolean isEmpty(Context cx, SubtypeData t) {
+        return Common.notIsEmpty(cx, t);
     }
 }

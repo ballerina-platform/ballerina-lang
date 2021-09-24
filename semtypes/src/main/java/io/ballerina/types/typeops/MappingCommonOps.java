@@ -26,7 +26,7 @@ import io.ballerina.types.MappingAtomicType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.TypeCheckContext;
+import io.ballerina.types.Context;
 import io.ballerina.types.UniformTypeOps;
 
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public abstract class MappingCommonOps extends CommonOps implements UniformTypeO
 
     // This works the same as the tuple case, except that instead of
     // just comparing the lengths of the tuples we compare the sorted list of field names
-    public static boolean mappingFormulaIsEmpty(TypeCheckContext tc, Conjunction posList, Conjunction negList) {
+    public static boolean mappingFormulaIsEmpty(Context cx, Conjunction posList, Conjunction negList) {
         MappingAtomicType combined;
         if (posList == null) {
             combined = MappingAtomicType.from(new String[0], new SemType[0],
@@ -54,13 +54,13 @@ public abstract class MappingCommonOps extends CommonOps implements UniformTypeO
                     PredefinedType.TOP);
         } else {
             // combine all the positive atoms using intersection
-            combined = tc.mappingAtomType(posList.atom);
+            combined = cx.mappingAtomType(posList.atom);
             Conjunction p = posList.next;
             while (true) {
                 if (p == null) {
                     break;
                 } else {
-                    MappingAtomicType m = intersectMapping(combined, tc.mappingAtomType(p.atom));
+                    MappingAtomicType m = intersectMapping(combined, cx.mappingAtomType(p.atom));
                     if (m == null) {
                         return true;
                     } else {
@@ -70,20 +70,20 @@ public abstract class MappingCommonOps extends CommonOps implements UniformTypeO
                 }
             }
            for (SemType t : combined.types) {
-                if (Core.isEmpty(tc, t)) {
+                if (Core.isEmpty(cx, t)) {
                     return true;
                 }
             }
 
         }
-        return !mappingInhabited(tc, combined, negList);
+        return !mappingInhabited(cx, combined, negList);
     }
 
-    private static boolean mappingInhabited(TypeCheckContext tc, MappingAtomicType pos, Conjunction negList) {
+    private static boolean mappingInhabited(Context cx, MappingAtomicType pos, Conjunction negList) {
         if (negList == null) {
             return true;
         } else {
-            MappingAtomicType neg = tc.mappingAtomType(negList.atom);
+            MappingAtomicType neg = cx.mappingAtomType(negList.atom);
 
             FieldPairs pairing;
 
@@ -94,12 +94,12 @@ public abstract class MappingCommonOps extends CommonOps implements UniformTypeO
 
                 // Deal the easy case of two closed records fast.
                 if (Core.isNever(pos.rest) && Core.isNever(neg.rest)) {
-                    return mappingInhabited(tc, pos, negList.next);
+                    return mappingInhabited(cx, pos, negList.next);
                 }
                 pairing = new FieldPairs(pos, neg);
                 for (FieldPair fieldPair : pairing) {
                     if (Core.isNever(fieldPair.type1) || Core.isNever(fieldPair.type2)) {
-                        return mappingInhabited(tc, pos, negList.next);
+                        return mappingInhabited(cx, pos, negList.next);
                     }
                 }
                 pairing.itr.reset();
@@ -107,12 +107,12 @@ public abstract class MappingCommonOps extends CommonOps implements UniformTypeO
                 pairing = new FieldPairs(pos, neg);
             }
 
-            if (!Core.isEmpty(tc, Core.diff(pos.rest, neg.rest))) {
+            if (!Core.isEmpty(cx, Core.diff(pos.rest, neg.rest))) {
                 return true;
             }
             for (FieldPair fieldPair : pairing) {
                 SemType d = Core.diff(fieldPair.type1, fieldPair.type2);
-                if (!Core.isEmpty(tc, d)) {
+                if (!Core.isEmpty(cx, d)) {
                     MappingAtomicType mt;
                     Optional<Integer> i = pairing.itr.index1(fieldPair.name);
                     if (i.isEmpty()) {
@@ -123,7 +123,7 @@ public abstract class MappingCommonOps extends CommonOps implements UniformTypeO
                         posTypes[i.get()] = d;
                         mt = MappingAtomicType.from(pos.names, posTypes, pos.rest);
                     }
-                    if (mappingInhabited(tc, mt, negList.next)) {
+                    if (mappingInhabited(cx, mt, negList.next)) {
                         return true;
                     }
                 }
@@ -165,13 +165,13 @@ public abstract class MappingCommonOps extends CommonOps implements UniformTypeO
         return MappingAtomicType.from(names.toArray(new String[]{}), types.toArray(new SemType[]{}), rest);
     }
 
-    public static boolean mappingSubtypeIsEmpty(TypeCheckContext tc, SubtypeData t) {
+    public static boolean mappingSubtypeIsEmpty(Context cx, SubtypeData t) {
         Bdd b = (Bdd) t;
-        BddMemo mm = tc.mappingMemo.get(b);
+        BddMemo mm = cx.mappingMemo.get(b);
         BddMemo m;
         if (mm == null) {
             m = BddMemo.from(b);
-            tc.mappingMemo.put(b, m);
+            cx.mappingMemo.put(b, m);
         } else {
             m = mm;
             BddMemo.MemoStatus res = m.isEmpty;
@@ -185,7 +185,7 @@ public abstract class MappingCommonOps extends CommonOps implements UniformTypeO
                     return false;
             }
         }
-        boolean isEmpty = Common.bddEvery(tc, b, null, null, MappingCommonOps::mappingFormulaIsEmpty);
+        boolean isEmpty = Common.bddEvery(cx, b, null, null, MappingCommonOps::mappingFormulaIsEmpty);
         m.setIsEmpty(isEmpty);
         return isEmpty;
     }

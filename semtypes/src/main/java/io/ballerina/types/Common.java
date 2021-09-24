@@ -61,30 +61,30 @@ public class Common {
     // We walk the tree, accumulating the positive and negative conjunctions for a path as we go.
     // When we get to a leaf that is true, we apply the predicate to the accumulated conjunctions.
 
-    public static boolean bddEvery(TypeCheckContext tc,
+    public static boolean bddEvery(Context cx,
                                    Bdd b,
                                    Conjunction pos,
                                    Conjunction neg,
                                    BddPredicate predicate) {
         if (b instanceof BddAllOrNothing) {
-            return !((BddAllOrNothing) b).isAll() || predicate.apply(tc, pos, neg);
+            return !((BddAllOrNothing) b).isAll() || predicate.apply(cx, pos, neg);
         } else {
             BddNode bn = (BddNode) b;
-            return bddEvery(tc, bn.left, Conjunction.from(bn.atom, pos), neg, predicate)
-                    && bddEvery(tc, bn.middle, pos, neg, predicate)
-                    && bddEvery(tc, bn.right, pos, Conjunction.from(bn.atom, neg), predicate);
+            return bddEvery(cx, bn.left, Conjunction.from(bn.atom, pos), neg, predicate)
+                    && bddEvery(cx, bn.middle, pos, neg, predicate)
+                    && bddEvery(cx, bn.right, pos, Conjunction.from(bn.atom, neg), predicate);
         }
     }
 
-    public static boolean bddEveryPositive(TypeCheckContext tc, Bdd b, Conjunction pos, Conjunction neg,
+    public static boolean bddEveryPositive(Context cx, Bdd b, Conjunction pos, Conjunction neg,
                                            BddPredicate predicate) {
         if (b instanceof BddAllOrNothing) {
-            return !((BddAllOrNothing) b).isAll() || predicate.apply(tc, pos, neg);
+            return !((BddAllOrNothing) b).isAll() || predicate.apply(cx, pos, neg);
         } else {
             BddNode bn = (BddNode) b;
-            return bddEveryPositive(tc, bn.left, andIfPositive(bn.atom, pos), neg, predicate)
-                    && bddEveryPositive(tc, bn.middle, pos, neg, predicate)
-                    && bddEveryPositive(tc, bn.right, pos, andIfPositive(bn.atom, neg), predicate);
+            return bddEveryPositive(cx, bn.left, andIfPositive(bn.atom, pos), neg, predicate)
+                    && bddEveryPositive(cx, bn.middle, pos, neg, predicate)
+                    && bddEveryPositive(cx, bn.right, pos, andIfPositive(bn.atom, neg), predicate);
         }
     }
 
@@ -127,7 +127,7 @@ public class Common {
         return Arrays.copyOf(v, v.length);
     }
 
-    public static boolean notIsEmpty(TypeCheckContext tc, SubtypeData d) {
+    public static boolean notIsEmpty(Context cx, SubtypeData d) {
         return false;
     }
 
@@ -161,6 +161,6 @@ public class Common {
      * @since 3.0.0
      */
     public interface BddPredicate {
-        boolean apply(TypeCheckContext tc, Conjunction posList, Conjunction negList);
+        boolean apply(Context cx, Conjunction posList, Conjunction negList);
     }
 }

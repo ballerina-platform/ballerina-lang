@@ -112,7 +112,7 @@ public class SemTypeTest {
         BLangPackage bLangPackage = BCompileUtil.compileSemType(sourceFilePath);
         ensureNoErrors(bLangPackage);
 
-        TypeCheckContext typeCheckContext = TypeCheckContext.from(bLangPackage.semtypeEnv);
+        Context typeCheckContext = Context.from(bLangPackage.semtypeEnv);
         Map<String, SemType> typeMap = bLangPackage.semtypeEnv.geTypeNameSemTypeMap();
 
         List<TypeRel> subtypeRelations = new ArrayList<>();

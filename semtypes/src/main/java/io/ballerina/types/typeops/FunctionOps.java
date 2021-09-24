@@ -25,7 +25,7 @@ import io.ballerina.types.FunctionAtomicType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.TypeCheckContext;
+import io.ballerina.types.Context;
 import io.ballerina.types.UniformTypeOps;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
@@ -42,13 +42,13 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
     private static final PrintStream console = System.out;
 
     @Override
-    public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
+    public boolean isEmpty(Context cx, SubtypeData t) {
         Bdd b = (Bdd) t;
-        BddMemo mm = tc.functionMemo.get(b);
+        BddMemo mm = cx.functionMemo.get(b);
         BddMemo m;
         if (mm == null) {
             m = new BddMemo(b);
-            tc.functionMemo.put(b, m);
+            cx.functionMemo.put(b, m);
         } else {
             m = mm;
             BddMemo.MemoStatus res = m.isEmpty;
@@ -63,7 +63,7 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
                     return false;
             }
         }
-        boolean isEmpty = functionBddIsEmpty(tc, b, PredefinedType.NEVER, null, null);
+        boolean isEmpty = functionBddIsEmpty(cx, b, PredefinedType.NEVER, null, null);
         if (isEmpty) {
             m.isEmpty = BddMemo.MemoStatus.TRUE;
         } else {
@@ -72,7 +72,7 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
         return isEmpty;
     }
 
-    private boolean functionBddIsEmpty(TypeCheckContext tc, Bdd b, SemType s, Conjunction pos, Conjunction neg) {
+    private boolean functionBddIsEmpty(Context cx, Bdd b, SemType s, Conjunction pos, Conjunction neg) {
         if (b instanceof BddAllOrNothing) {
             if (!((BddAllOrNothing) b).isAll()) {
                 return true;
@@ -81,34 +81,34 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
                 return false;
             } else {
                 // replaces the SemType[2] [t0, t1] in nballerina where t0 = paramType, t1 = retType
-                FunctionAtomicType t = tc.functionAtomType(neg.atom);
+                FunctionAtomicType t = cx.functionAtomType(neg.atom);
                 SemType t0 = t.paramType;
                 SemType t1 = t.retType;
-                return (Core.isSubtype(tc, t0, s) && functionTheta(tc, t0, Core.complement(t1), pos))
-                        || functionBddIsEmpty(tc, BddAllOrNothing.bddAll(), s, pos, neg.next);
+                return (Core.isSubtype(cx, t0, s) && functionTheta(cx, t0, Core.complement(t1), pos))
+                        || functionBddIsEmpty(cx, BddAllOrNothing.bddAll(), s, pos, neg.next);
             }
         } else {
             BddNode bn = (BddNode) b;
-            FunctionAtomicType st = tc.functionAtomType(bn.atom);
+            FunctionAtomicType st = cx.functionAtomType(bn.atom);
             SemType sd = st.paramType;
             SemType sr = st.retType;
-            return functionBddIsEmpty(tc, bn.left, Core.union(s, sd), Conjunction.from(bn.atom, pos), neg)
-                    && functionBddIsEmpty(tc, bn.middle, s, pos, neg)
-                    && functionBddIsEmpty(tc, bn.right, s, pos, Conjunction.from(bn.atom, neg));
+            return functionBddIsEmpty(cx, bn.left, Core.union(s, sd), Conjunction.from(bn.atom, pos), neg)
+                    && functionBddIsEmpty(cx, bn.middle, s, pos, neg)
+                    && functionBddIsEmpty(cx, bn.right, s, pos, Conjunction.from(bn.atom, neg));
         }
     }
 
-    private boolean functionTheta(TypeCheckContext tc, SemType t0, SemType t1, Conjunction pos) {
+    private boolean functionTheta(Context cx, SemType t0, SemType t1, Conjunction pos) {
         if (pos == null) {
-            return Core.isEmpty(tc, t0) || Core.isEmpty(tc, t1);
+            return Core.isEmpty(cx, t0) || Core.isEmpty(cx, t1);
         } else {
             // replaces the SemType[2] [s0, s1] in nballerina where s0 = paramType, s1 = retType
-            FunctionAtomicType s = tc.functionAtomType(pos.atom);
+            FunctionAtomicType s = cx.functionAtomType(pos.atom);
             SemType s0 = s.paramType;
             SemType s1 = s.retType;
-            return (Core.isSubtype(tc, t0, s0) || functionTheta(tc, Core.diff(s0, t0), s1, pos.next))
-                    && (Core.isSubtype(tc, t1, Core.complement(s1))
-                    || functionTheta(tc, s0, Core.intersect(s1, t1), pos.next));
+            return (Core.isSubtype(cx, t0, s0) || functionTheta(cx, Core.diff(s0, t0), s1, pos.next))
+                    && (Core.isSubtype(cx, t1, Core.complement(s1))
+                    || functionTheta(cx, s0, Core.intersect(s1, t1), pos.next));
         }
     }
 }
