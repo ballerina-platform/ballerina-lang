@@ -5833,10 +5833,17 @@ public class Desugar extends BLangNodeVisitor {
             result = rewriteExpr(typedescExpr);
             return;
         }
-        tupleLiteral.exprs.forEach(expr -> {
+        List<BLangExpression> exprs = tupleLiteral.exprs;
+        BTupleType tupleType = (BTupleType) tupleLiteral.getBType();
+        List<BType> tupleMemberTypes = tupleType.tupleTypes;
+        int tupleMemberTypeSize = tupleMemberTypes.size();
+        int tupleExprSize = exprs.size();
+        for (int i = 0; i < tupleExprSize; i++) {
+            BLangExpression expr = exprs.get(i);
             BType expType = expr.impConversionExpr == null ? expr.getBType() : expr.impConversionExpr.getBType();
-            types.setImplicitCastExpr(expr, expType, symTable.anyType);
-        });
+            BType targetType = i < tupleMemberTypeSize ? tupleMemberTypes.get(i) : tupleType.restType;
+            types.setImplicitCastExpr(expr, expType, targetType);
+        }
         tupleLiteral.exprs = rewriteExprs(tupleLiteral.exprs);
         result = tupleLiteral;
     }
