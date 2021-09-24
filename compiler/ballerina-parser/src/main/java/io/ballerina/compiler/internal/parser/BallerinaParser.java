@@ -12593,10 +12593,12 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseFieldAccessIdentifier(boolean isInConditionalExpr) {
-        if (isEndOfStatements()) {
+        STToken nextToken = peek();
+        if (!isPredeclaredIdentifier(nextToken.kind)) {
+            // foo.<cursor>
             STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
                     DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER);
-            return STNodeFactory.createSimpleNameReferenceNode(identifier);
+            return parseQualifiedIdentifier(identifier, isInConditionalExpr);
         }
 
         return parseQualifiedIdentifier(ParserRuleContext.FIELD_ACCESS_IDENTIFIER, isInConditionalExpr);
