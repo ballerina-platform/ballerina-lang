@@ -39,9 +39,11 @@ public class TreeNodeClass {
 
     private final String externalClassName;
     private final String internalClassName;
+    private final String tsClassName;
 
     private final String externalSuperClassName;
     private final String internalSuperClassName;
+    private final String tsSuperClassName;
 
     public TreeNodeClass(String packageName,
                          String className,
@@ -58,9 +60,13 @@ public class TreeNodeClass {
 
         this.externalClassName = className;
         this.internalClassName = INTERNAL_NODE_CLASS_NAME_PREFIX + className;
+        this.tsClassName = className;
 
         this.externalSuperClassName = superClassName;
         this.internalSuperClassName = INTERNAL_NODE_CLASS_NAME_PREFIX + superClassName;
+        this.tsSuperClassName = "Node".equals(superClassName)
+                ? ("ST" + superClassName)
+                : superClassName;
     }
 
     public String packageName() {
@@ -122,5 +128,13 @@ public class TreeNodeClass {
             imports.add(new ImportClass(className));
         }
         Collections.sort(imports);
+    }
+
+    public String tsClassName() {
+        return tsClassName;
+    }
+
+    public String tsSuperClassName() {
+        return tsSuperClassName;
     }
 }

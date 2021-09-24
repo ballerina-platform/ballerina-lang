@@ -47,6 +47,9 @@ public class TreeGenConfig {
     public static final String EXTERNAL_NODE_FACTORY_TEMPLATE_KEY = "external.node.factory.template";
     public static final String EXTERNAL_NODE_PACKAGE_KEY = "external.node.package";
 
+    public static final String TS_NODE_TEMPLATE_KEY = "ts.node.template";
+    public static final String TS_NODE_OUTPUT_DIR_KEY = "ts.node.output.dir";
+
     private static final String TREE_GEN_CONFIG_PROPERTIES = "treegen_config.properties";
 
     private final Properties props;

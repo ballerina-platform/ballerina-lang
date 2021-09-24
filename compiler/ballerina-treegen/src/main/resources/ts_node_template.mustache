@@ -1,0 +1,65 @@
+// This is an auto-generated file. Do not edit.
+
+export interface VisibleEndpoint {
+  kind?: string;
+  isCaller: boolean;
+  isExternal: boolean;
+  isModuleVar: boolean;
+  moduleName: string;
+  name: string;
+  orgName: string;
+  typeName: string;
+  viewState?: any;
+}
+
+export interface NodePosition {
+  startLine?: number;
+  startColumn?: number;
+  endLine?: number;
+  endColumn?: number;
+}
+
+export interface ControlFlow {
+  isReached?: boolean;
+  isCompleted?: boolean;
+  numberOfIterations?: number;
+  executionTime?: number;
+}
+
+export interface STNode {
+  kind: string;
+  value?: any;
+  parent?: STNode;
+  viewState?: any;
+  dataMapperViewState?: any;
+  dataMapperTypeDescNode?: STNode;
+  position?: any;
+  typeData?: any;
+  VisibleEndpoints?: VisibleEndpoint[];
+  source: string;
+  configurablePosition?: NodePosition;
+  controlFlow?: ControlFlow;
+}
+
+{{#treeNodeClasses}}
+export interface {{tsClassName}} extends {{tsSuperClassName}} {
+{{#fields}}
+ {{#isList}}
+  {{#isOptional}}
+    {{fieldName}}?: {{#isRootTyped}}ST{{/isRootTyped}}{{fieldClassName}}[]{{^isLast}},{{/isLast}}
+  {{/isOptional}}
+  {{^isOptional}}
+    {{fieldName}}: {{#isRootTyped}}ST{{/isRootTyped}}{{fieldClassName}}[]{{^isLast}},{{/isLast}}
+  {{/isOptional}}
+ {{/isList}}
+ {{^isList}}
+  {{#isOptional}}
+    {{fieldName}}?: {{#isRootTyped}}ST{{/isRootTyped}}{{fieldClassName}}{{^isLast}},{{/isLast}}
+  {{/isOptional}}
+  {{^isOptional}}
+    {{fieldName}}: {{#isRootTyped}}ST{{/isRootTyped}}{{fieldClassName}}{{^isLast}},{{/isLast}}
+  {{/isOptional}}
+ {{/isList}}
+{{/fields}}
+}
+{{/treeNodeClasses}}

@@ -46,7 +46,7 @@ public abstract class Target {
     protected static final String EXTERNAL_BASE_NODE_CN = "Node";
     protected static final String EXTERNAL_BASE_NON_TERMINAL_NODE_CN = "NonTerminalNode";
 
-    private static final String DOT = ".";
+    protected static final String DOT = ".";
     private static final String JAVA_EXT = "java";
 
     protected final TreeGenConfig config;

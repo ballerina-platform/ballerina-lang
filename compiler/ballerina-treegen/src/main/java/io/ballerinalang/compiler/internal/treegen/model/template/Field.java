@@ -38,6 +38,7 @@ public class Field {
     private final boolean isNode;
     private final boolean isList;
     private final boolean isOptional;
+    private final boolean isRootTyped;
 
     private final OccurrenceKind occurrenceKind;
 
@@ -52,6 +53,7 @@ public class Field {
         this.index = index;
         this.occurrenceKind = occurrenceKind;
         this.isLast = isLast;
+        this.isRootTyped = "Node".equals(fieldClassName);
 
         this.isList = occurrenceKind == OccurrenceKind.MULTIPLE ||
                 occurrenceKind == OccurrenceKind.MULTIPLE_SEPARATED;
@@ -102,5 +104,9 @@ public class Field {
             throw new IllegalStateException("This method should only be invoked when the field type is a list");
         }
         return occurrenceKind == OccurrenceKind.MULTIPLE ? LIST_CN : SEPARATED_LIST_CN;
+    }
+
+    public boolean isRootTyped() {
+        return isRootTyped;
     }
 }
