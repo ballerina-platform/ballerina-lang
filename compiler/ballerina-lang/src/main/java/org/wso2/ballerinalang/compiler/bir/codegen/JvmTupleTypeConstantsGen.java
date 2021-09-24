@@ -25,7 +25,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -88,12 +87,7 @@ public class JvmTupleTypeConstantsGen {
         if (o1.tupleTypes.size() != o2.tupleTypes.size() || !o1.toString().equals(o2.toString())) {
             return false;
         }
-        for (BType type : o1.getTupleTypes()) {
-            if (!o2.getTupleTypes().contains(type)) {
-                return false;
-            }
-        }
-        return o1.flags == o2.flags;
+        return o1.flags == o2.flags && o1.isCyclic == o2.isCyclic;
     }
 
     public synchronized void setJvmCreateTypeGen(JvmCreateTypeGen jvmCreateTypeGen) {

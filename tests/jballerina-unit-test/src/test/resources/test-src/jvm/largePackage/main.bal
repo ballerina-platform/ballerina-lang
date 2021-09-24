@@ -48,4 +48,5 @@ public function main() {
     test:assertEquals(bigRecord2?.'\/workers\/workAssignments\/assignmentStatus\/statusCode\/codeValue, "hello");
     test:assertEquals(bigRecord3?.'\/workers\/workAssignments\/assignmentStatus\/statusCode\/codeValue, "waruna");
     // test:assertTrue(t:getLargeTupleArray() is anydata);
+    // test:assertTrue(t:getLargeTuple() is typedesc<anydata>);
 }
