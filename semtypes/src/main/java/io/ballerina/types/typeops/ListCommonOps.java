@@ -22,11 +22,11 @@ import io.ballerina.types.Bdd;
 import io.ballerina.types.BddMemo;
 import io.ballerina.types.Common;
 import io.ballerina.types.Conjunction;
+import io.ballerina.types.Context;
 import io.ballerina.types.Core;
 import io.ballerina.types.ListAtomicType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.Context;
 
 import java.util.ArrayList;
 import java.util.Arrays;
