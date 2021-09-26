@@ -22,7 +22,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -40,7 +39,7 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class ConditionResolver extends BLangNodeVisitor {
+public class ConditionResolver {
 
     static BooleanCondition checkConstCondition(Types types, SymbolTable symTable, BLangExpression condition) {
         switch (condition.getKind()) {
