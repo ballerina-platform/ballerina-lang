@@ -327,6 +327,7 @@ import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVaria
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariableRef;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 import static org.wso2.ballerinalang.compiler.util.Constants.INIT_METHOD_SPLIT_SIZE;
+import static org.wso2.ballerinalang.compiler.util.Names.GENERATED_INIT_SUFFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
 import static org.wso2.ballerinalang.compiler.util.Names.IS_TRANSACTIONAL;
@@ -1097,7 +1098,7 @@ public class Desugar extends BLangNodeVisitor {
             paramRefs.add(ASTBuilderUtil.createVariableRef(location, var.symbol));
         }
 
-        BLangInvocation invocation = ASTBuilderUtil.createInvocationExprMethod(location,
+        BLangInvocation invocation = ASTBuilderUtil.createInvocationExprMethod(null,
                 objectTypeSymbol.initializerFunc.symbol,
                 paramRefs, Collections.emptyList(), symResolver);
         if (generatedInitFunction.restParam != null) {
@@ -6522,7 +6523,7 @@ public class Desugar extends BLangNodeVisitor {
         if (typeInitExpr.initInvocation.getBType().tag == TypeTags.NIL) {
             BLangExpressionStmt initInvExpr = ASTBuilderUtil.createExpressionStmt(typeInitExpr.pos, blockStmt);
             initInvExpr.expr = typeInitExpr.initInvocation;
-            typeInitExpr.initInvocation.name.value = Names.GENERATED_INIT_SUFFIX.value;
+            typeInitExpr.initInvocation.name.value = GENERATED_INIT_SUFFIX.value;
             BLangStatementExpression stmtExpr = createStatementExpression(blockStmt, objVarRef);
             stmtExpr.setBType(objVarRef.symbol.type);
             return stmtExpr;
@@ -8258,18 +8259,23 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         //This will only check whether last statement is a return and just add a return statement.
-        //This won't analyse if else blocks etc to see whether return statements are present
+        //This won't analyse if else blocks etc. to see whether return statements are present.
         BLangBlockFunctionBody funcBody = (BLangBlockFunctionBody) invokableNode.body;
         if (invokableNode.workers.size() == 0 && invokableNode.symbol.type.getReturnType().isNullable()
                 && (funcBody.stmts.size() < 1 ||
                 funcBody.stmts.get(funcBody.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
-            Location invPos = invokableNode.pos;
-            Location returnStmtPos = new BLangDiagnosticLocation(invPos.lineRange().filePath(),
-                                                            invPos.lineRange().endLine().line(),
-                                                            invPos.lineRange().endLine().line(),
-                                                            invPos.lineRange().startLine().offset(),
-                                                            invPos.lineRange().startLine().offset());
-            BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(returnStmtPos, symTable.nilType);
+            BLangReturn returnStmt;
+            if (invokableNode.name.value.contains(GENERATED_INIT_SUFFIX.value)) {
+                returnStmt = ASTBuilderUtil.createNilReturnStmt(null, symTable.nilType);
+            } else {
+                Location invPos = invokableNode.pos;
+                Location returnStmtPos = new BLangDiagnosticLocation(invPos.lineRange().filePath(),
+                        invPos.lineRange().endLine().line(),
+                        invPos.lineRange().endLine().line(),
+                        invPos.lineRange().startLine().offset(),
+                        invPos.lineRange().startLine().offset(), 0, 0);
+                returnStmt = ASTBuilderUtil.createNilReturnStmt(returnStmtPos, symTable.nilType);
+            }
             funcBody.addStatement(returnStmt);
         }
     }
@@ -9833,10 +9839,10 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangFunction initFunction =
                 TypeDefBuilderHelper.createInitFunctionForStructureType(classDefinition.pos, classDefinition.symbol,
-                                                                        env, names, Names.GENERATED_INIT_SUFFIX,
+                                                                        env, names, GENERATED_INIT_SUFFIX,
                                                                         classDefinition.getBType(), returnType);
         BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) classDefinition.getBType().tsymbol);
-        typeSymbol.generatedInitializerFunc = new BAttachedFunction(Names.GENERATED_INIT_SUFFIX, initFunction.symbol,
+        typeSymbol.generatedInitializerFunc = new BAttachedFunction(GENERATED_INIT_SUFFIX, initFunction.symbol,
                                                                     (BInvokableType) initFunction.getBType(),
                                                                     classDefinition.pos);
         classDefinition.generatedInitFunction = initFunction;
