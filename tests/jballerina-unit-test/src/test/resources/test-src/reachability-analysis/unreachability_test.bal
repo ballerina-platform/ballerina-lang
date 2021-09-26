@@ -613,3 +613,19 @@ function testUnreachableCodeWithBinaryCondition4() {
         int a = 1;
     }
 }
+
+function testUnreachableCodeWithUnaryCondition3() {
+    if !false {
+        int a = 1;
+    } else {
+        int a = 2; // unreachable code
+    }
+}
+
+function testUnreachableCodeWithUnaryCondition4() {
+    while !false {
+        int a = 1;
+        return;
+    }
+    int b = 2; // unreachable code
+}
