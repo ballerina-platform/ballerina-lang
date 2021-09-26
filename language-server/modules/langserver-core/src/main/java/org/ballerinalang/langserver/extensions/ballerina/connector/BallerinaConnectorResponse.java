@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langserver.extensions.ballerina.connector;
 
+import org.ballerinalang.central.client.model.connector.BalConnector;
 import org.ballerinalang.diagramutil.connector.models.connector.Connector;
 
 /**
@@ -27,15 +28,15 @@ import org.ballerinalang.diagramutil.connector.models.connector.Connector;
  */
 public class BallerinaConnectorResponse {
 
-    private Connector connector;
+    private BalConnector connector;
     private final String error;
 
-    public BallerinaConnectorResponse(Connector connector, String error) {
+    public BallerinaConnectorResponse(BalConnector connector, String error) {
         this.connector = connector;
         this.error = error;
     }
 
-    public Connector getConnector() {
+    public BalConnector getConnector() {
         return connector;
     }
 

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langserver.extensions.ballerina.connector;
 
+import org.ballerinalang.central.client.model.connector.BalConnectorSearchResult;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
@@ -31,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 @JsonSegment("ballerinaConnector")
 public interface BallerinaConnectorService {
     @JsonRequest
-    CompletableFuture<BallerinaConnectorsResponse> connectors();
+    CompletableFuture<BalConnectorSearchResult> connectors(String query);
 
     @JsonRequest
     CompletableFuture<BallerinaConnectorResponse> connector(BallerinaConnectorRequest request);

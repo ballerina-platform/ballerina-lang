@@ -18,6 +18,8 @@
 package org.ballerinalang.diagramutil.connector.models.connector;
 
 import com.google.gson.annotations.Expose;
+import org.ballerinalang.central.client.model.connector.BalConnector;
+import org.ballerinalang.central.client.model.connector.BalFunction;
 
 import java.util.List;
 import java.util.Map;
@@ -25,48 +27,14 @@ import java.util.Map;
 /**
  * Connector model.
  */
-public class Connector {
-    @Expose
-    public String id;
-    @Expose
-    public String orgName;
-    @Expose
-    public String moduleName;
-    @Expose
-    public String packageName;
-    @Expose
-    public String version;
-    @Expose
-    public String name;
-    @Expose
-    public String documentation;
-    @Expose
-    public String platform;
-    @Expose
-    public String ballerinaVersion;
-    @Expose
-    public Map<String, String> displayAnnotation;
-    @Expose
-    public List<Function> functions;
+public class Connector extends BalConnector {
 
-    public Connector(String orgName, String moduleName, String version, String name) {
-        this.orgName = orgName;
-        this.moduleName = moduleName;
-        this.version = version;
-        this.name = name;
-    }
+//    public Connector(String id, String name, List<BalFunction> functions, Package packageInfo) {
+//        super(id, name, functions, packageInfo);
+//    }
 
     public Connector(String orgName, String moduleName, String packageName, String version, String name,
-                     String documentation, Map<String, String> displayAnnotation, List<Function> functions) {
-        this.orgName = orgName;
-        this.moduleName = moduleName;
-        this.packageName = packageName;
-        this.version = version;
-        this.name = name;
-        this.documentation = documentation;
-        this.displayAnnotation = displayAnnotation;
-        this.functions = functions;
+                     String documentation, Map<String, String> displayAnnotation, List<BalFunction> functions) {
+        super(orgName, moduleName, packageName, version, name, documentation, displayAnnotation, functions);
     }
-
-
 }
