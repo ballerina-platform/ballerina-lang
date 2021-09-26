@@ -237,6 +237,26 @@ public class TypeGuardTest {
     }
 
     @Test
+    public void testTypeTestExprTypeNarrowingNegative() {
+        CompileResult negativeResult =
+                BCompileUtil.compile("test-src/statements/ifelse/type_test_type_narrowing_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'SomeRecord', found 'SomeRecord?'", 49, 17);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected '(SomeRecord|int)', found '(SomeRecord|int)?'", 52, 21);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected '()', found 'SomeRecord'", 62, 13);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected '(SomeRecord|int)', found '(SomeRecord|int)?'", 68, 13);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected '(int|string)', found '(int|string)?'", 105, 24);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected '(int|string)', found '(int|string)?'", 106, 24);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
+    }
+
+    @Test
     public void testValueTypeInUnion() {
         BValue[] returns = BRunUtil.invoke(result, "testValueTypeInUnion");
         Assert.assertEquals(returns.length, 1);
@@ -693,6 +713,26 @@ public class TypeGuardTest {
         BAssertUtil.validateError(result, 1, "unreachable code", 26, 9);
         BAssertUtil.validateHint(result, 2, "unnecessary condition: expression will always evaluate to 'true'", 33, 8);
         BAssertUtil.validateError(result, 3, "unreachable code", 36, 9);
+    }
+
+    @Test
+    public void testIfElseWithTypeTest() {
+        BRunUtil.invoke(result, "testIfElseWithTypeTest");
+    }
+
+    @Test
+    public void testIfElseWithTypeTestMultipleVariables() {
+        BRunUtil.invoke(result, "testIfElseWithTypeTestMultipleVariables");
+    }
+
+    @Test
+    public void testIfElseWithTypeTestMultipleVariablesInMultipleBlocks() {
+        BRunUtil.invoke(result, "testIfElseWithTypeTestMultipleVariablesInMultipleBlocks");
+    }
+
+    @Test
+    public void testIfElseWithTypeTestMultipleVariablesInNestedBlocks() {
+        BRunUtil.invoke(result, "testIfElseWithTypeTestMultipleVariablesInNestedBlocks");
     }
 
     @AfterClass

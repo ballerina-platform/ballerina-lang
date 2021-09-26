@@ -21,8 +21,10 @@ import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
+import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.ErrorBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
@@ -30,7 +32,9 @@ import io.ballerina.compiler.syntax.tree.FieldBindingPatternFullNode;
 import io.ballerina.compiler.syntax.tree.FieldBindingPatternVarnameNode;
 import io.ballerina.compiler.syntax.tree.FromClauseNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.IncludedRecordParameterNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.InterpolationNode;
 import io.ballerina.compiler.syntax.tree.JoinClauseNode;
@@ -46,8 +50,10 @@ import io.ballerina.compiler.syntax.tree.OnConflictClauseNode;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestArgumentNode;
 import io.ballerina.compiler.syntax.tree.RestBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.SelectClauseNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
@@ -65,21 +71,21 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Syntax tree visitor implementation to capture all the "captured" variable references within a given Ballerina
- * expression.
+ * Syntax tree visitor implementation to capture all the external variable references (variable which were defined
+ * outside of the expression) within a given Ballerina expression.
  * <p>
  * All the variable references that are defined within the expressions (i.e internal variables)
  * will be ignored. (e.g. declared variables in let expressions, binding patterns in query expressions).
  *
  * @since 2.0.0
  */
-public class ExternalNameReferenceFinder extends NodeVisitor {
+public class ExternalVariableReferenceFinder extends NodeVisitor {
 
     private final ExpressionNode expressionNode;
     private final Set<String> internalVariables = new HashSet<>();
     private final Set<String> capturedVariables = new HashSet<>();
 
-    public ExternalNameReferenceFinder(ExpressionNode node) {
+    public ExternalVariableReferenceFinder(ExpressionNode node) {
         this.expressionNode = node;
     }
 
@@ -257,7 +263,19 @@ public class ExternalNameReferenceFinder extends NodeVisitor {
         letExpressionNode.expression().accept(this);
     }
 
-    // ############################### Function Argument Nodes ############################### //
+    @Override
+    public void visit(ImplicitAnonymousFunctionExpressionNode anonFunctionNode) {
+        anonFunctionNode.params().accept(this);
+        anonFunctionNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(ExplicitAnonymousFunctionExpressionNode anonFunctionNode) {
+        anonFunctionNode.functionSignature().parameters().forEach(parameterNode -> parameterNode.accept(this));
+        anonFunctionNode.functionBody().accept(this);
+    }
+
+    // ############################### Function Argument/Parameter Nodes ############################### //
 
     @Override
     public void visit(PositionalArgumentNode positionalArgumentNode) {
@@ -272,6 +290,34 @@ public class ExternalNameReferenceFinder extends NodeVisitor {
     @Override
     public void visit(RestArgumentNode restArgumentNode) {
         restArgumentNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(DefaultableParameterNode defaultableParameterNode) {
+        if (defaultableParameterNode.paramName().isPresent()) {
+            internalVariables.add(defaultableParameterNode.paramName().get().text().trim());
+        }
+    }
+
+    @Override
+    public void visit(RequiredParameterNode requiredParameterNode) {
+        if (requiredParameterNode.paramName().isPresent()) {
+            internalVariables.add(requiredParameterNode.paramName().get().text().trim());
+        }
+    }
+
+    @Override
+    public void visit(IncludedRecordParameterNode includedRecordParameterNode) {
+        if (includedRecordParameterNode.paramName().isPresent()) {
+            internalVariables.add(includedRecordParameterNode.paramName().get().text().trim());
+        }
+    }
+
+    @Override
+    public void visit(RestParameterNode restParameterNode) {
+        if (restParameterNode.paramName().isPresent()) {
+            internalVariables.add(restParameterNode.paramName().get().text().trim());
+        }
     }
 
     // ############################## Binding Pattern Nodes ############################## //

@@ -52,7 +52,7 @@ public class MultiModuleBuildDebugTest extends BaseTestCase {
     @Test
     public void testMultiModuleBuildDebugScenarios() throws BallerinaTestException {
         int port = findFreePort();
-        debugTestRunner.runDebuggeeProgram(debugTestRunner.testProjectPath, port);
+        debugTestRunner.runDebuggeeProgram(debugTestRunner.testProjectPath.toString(), port);
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 22));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.BUILD, port);
 

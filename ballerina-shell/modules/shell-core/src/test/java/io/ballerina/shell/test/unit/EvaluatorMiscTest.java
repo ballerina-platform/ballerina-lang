@@ -68,13 +68,36 @@ public class EvaluatorMiscTest {
         evaluator.evaluate("import ballerina/lang.'float as prefix2");
         Assert.assertEquals(new HashSet<>(evaluator.availableImports()),
                 Set.of(
-                        "(java) import ballerina/jballerina.java as java;",
+                        "(java) import ballerina/jballerina.java;",
                         "(prefix) import ballerina/lang.'int as prefix;",
                         "(prefix2) import ballerina/lang.'float as prefix2;"
                 )
         );
         Assert.assertTrue(evaluator.availableVariables().isEmpty());
         Assert.assertEquals(evaluator.availableImports().size(), 3);
+        Assert.assertTrue(evaluator.availableModuleDeclarations().isEmpty());
+    }
+
+    @Test
+    public void testEvaluatorLangImportList() throws BallerinaShellException {
+        Evaluator evaluator = new EvaluatorBuilder()
+                .treeParser(TestUtils.getTestTreeParser())
+                .build();
+        evaluator.initialize();
+        evaluator.evaluate("import ballerina/lang.'int");
+        evaluator.evaluate("import ballerina/lang.'float");
+        evaluator.evaluate("import ballerina/lang.'object");
+        evaluator.evaluate("import ballerina/lang.'boolean");
+        Assert.assertEquals(new HashSet<>(evaluator.availableImports()),
+                Set.of(
+                        "('int) import ballerina/lang.'int;",
+                        "('float) import ballerina/lang.'float;",
+                        "('object) import ballerina/lang.'object;",
+                        "('boolean) import ballerina/lang.'boolean;"
+                )
+        );
+        Assert.assertTrue(evaluator.availableVariables().isEmpty());
+        Assert.assertEquals(evaluator.availableImports().size(), 4);
         Assert.assertTrue(evaluator.availableModuleDeclarations().isEmpty());
     }
 

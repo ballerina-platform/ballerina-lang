@@ -60,11 +60,11 @@
     {
       "label": "filter(function () func)",
       "kind": "Function",
-      "detail": "stream<any|error, error?>",
+      "detail": "stream<int, error?>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.4.0_  \n  \nSelects the members from a stream for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `stream<any|error, error?>`   \n- new stream only containing members of parameter `stm` for which function `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.4.0_  \n  \nSelects the members from a stream for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `stream<int, error?>`   \n- new stream only containing members of parameter `stm` for which function `func` evaluates to true  \n  \n"
         }
       },
       "sortText": "E",

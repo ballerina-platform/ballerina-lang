@@ -49,7 +49,7 @@ import java.util.List;
  */
 public abstract class CompletionTest {
 
-    private Endpoint serviceEndpoint;
+    protected Endpoint serviceEndpoint;
 
     private final Path testRoot = FileUtils.RES_DIR.resolve("completion");
 
@@ -67,7 +67,6 @@ public abstract class CompletionTest {
         String configJsonPath = "completion" + File.separator + configPath
                 + File.separator + configDir + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-
         String response = getResponse(configJsonObject);
         JsonObject json = JsonParser.parseString(response).getAsJsonObject();
         Type collectionType = new TypeToken<List<CompletionItem>>() {
@@ -84,21 +83,22 @@ public abstract class CompletionTest {
         }
     }
 
-    String getResponse(JsonObject configJsonObject) throws IOException {
+    private String getResponse(JsonObject configJsonObject) throws IOException {
         Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
-        String responseString;
         Position position = new Position();
         JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();
         position.setLine(positionObj.get("line").getAsInt());
         position.setCharacter(positionObj.get("character").getAsInt());
         JsonElement triggerCharElement = configJsonObject.get("triggerCharacter");
         String triggerChar = triggerCharElement == null ? "" : triggerCharElement.getAsString();
+        return getResponse(sourcePath, position, triggerChar);
+    }
 
+    public String getResponse(Path sourcePath, Position position, String triggerChar) throws IOException {
         TestUtil.openDocument(serviceEndpoint, sourcePath);
-        responseString = TestUtil.getCompletionResponse(sourcePath.toString(), position,
+        String responseString = TestUtil.getCompletionResponse(sourcePath.toString(), position,
                 this.serviceEndpoint, triggerChar);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
-
         return responseString;
     }
 

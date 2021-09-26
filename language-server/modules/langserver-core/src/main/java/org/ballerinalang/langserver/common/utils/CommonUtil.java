@@ -36,16 +36,19 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -156,7 +159,7 @@ public class CommonUtil {
     private static final String SELF_KW = "self";
 
     private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
-    
+
     private static final int MAX_DEPTH = 1;
 
     static {
@@ -253,10 +256,10 @@ public class CommonUtil {
     public static Optional<String> getDefaultValueForType(TypeSymbol bType) {
         return getDefaultValueForType(bType, 1);
     }
-    
+
     private static Optional<String> getDefaultValueForType(TypeSymbol bType, int depth) {
         String typeString;
-        
+
         if (bType == null) {
             return Optional.empty();
         }
@@ -281,7 +284,7 @@ public class CommonUtil {
                 // Filler value of an array is []
                 ArrayTypeSymbol arrayType = (ArrayTypeSymbol) rawType;
                 if (arrayType.memberTypeDescriptor().typeKind() == TypeDescKind.ARRAY) {
-                    typeString = "[" + getDefaultValueForType(arrayType.memberTypeDescriptor(), depth + 1).orElse("") 
+                    typeString = "[" + getDefaultValueForType(arrayType.memberTypeDescriptor(), depth + 1).orElse("")
                             + "]";
                 } else {
                     typeString = "[]";
@@ -1342,18 +1345,37 @@ public class CommonUtil {
     public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
                                                                            PositionedOperationContext ctx,
                                                                            FunctionCallExpressionNode node) {
-        int cursorPosition = ctx.getCursorPositionInTree();
-        int argIndex = -1;
-        for (Node child : node.arguments()) {
-            if (child.textRange().endOffset() < cursorPosition) {
-                argIndex += 1;
-            }
-        }
-        Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
-        if (params.isEmpty() || params.get().size() < argIndex + 2) {
-            return Optional.empty();
-        }
-        return Optional.of(params.get().get(argIndex + 1));
+        return resolveParameterSymbol(functionTypeSymbol, ctx, node.arguments());
+    }
+
+    /**
+     * Given the cursor position information, returns the expected ParameterSymbol
+     * information corresponding to the FunctionTypeSymbol instance.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
+     * @param node               Remote method call action node.
+     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     */
+    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                           PositionedOperationContext ctx,
+                                                                           RemoteMethodCallActionNode node) {
+        return resolveParameterSymbol(functionTypeSymbol, ctx, node.arguments());
+    }
+
+    /**
+     * Given the cursor position information, returns the expected ParameterSymbol
+     * information corresponding to the FunctionTypeSymbol instance.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
+     * @param node               Method call expression node.
+     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     */
+    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                           PositionedOperationContext ctx,
+                                                                           MethodCallExpressionNode node) {
+        return resolveParameterSymbol(functionTypeSymbol, ctx, node.arguments());
     }
 
     /**
@@ -1365,11 +1387,31 @@ public class CommonUtil {
      */
     public static Boolean isInFunctionCallParameterContext(PositionedOperationContext ctx,
                                                            FunctionCallExpressionNode node) {
-        int cursorPosition = ctx.getCursorPositionInTree();
-        return (!node.openParenToken().isMissing())
-                && (node.openParenToken().textRange().endOffset() <= cursorPosition)
-                && (!node.closeParenToken().isMissing())
-                && (cursorPosition <= node.closeParenToken().textRange().startOffset());
+        return isWithinParenthesis(ctx, node.openParenToken(), node.closeParenToken());
+    }
+
+    /**
+     * Check if the cursor is positioned in a method call expression parameter context.
+     *
+     * @param ctx  PositionedOperationContext
+     * @param node MethodCallExpressionNode
+     * @return {@link Boolean} whether the cursor is in parameter context.
+     */
+    public static Boolean isInMethodCallParameterContext(PositionedOperationContext ctx,
+                                                         MethodCallExpressionNode node) {
+        return isWithinParenthesis(ctx, node.openParenToken(), node.closeParenToken());
+    }
+
+    /**
+     * Check if the cursor is positioned in a method call expression parameter context.
+     *
+     * @param ctx  PositionedOperationContext
+     * @param node RemoteMethodCallActionNode
+     * @return {@link Boolean} whether the cursor is in parameter context.
+     */
+    public static Boolean isInMethodCallParameterContext(PositionedOperationContext ctx,
+                                                         RemoteMethodCallActionNode node) {
+        return isWithinParenthesis(ctx, node.openParenToken(), node.closeParenToken());
     }
 
     /**
@@ -1479,5 +1521,30 @@ public class CommonUtil {
             qualifiers.addAll(node.leadingInvalidTokens());
         }
         return qualifiers;
+    }
+
+    private static boolean isWithinParenthesis(PositionedOperationContext ctx, Token openParen, Token closedParen) {
+        int cursorPosition = ctx.getCursorPositionInTree();
+        return (!openParen.isMissing())
+                && (openParen.textRange().endOffset() <= cursorPosition)
+                && (!closedParen.isMissing())
+                && (cursorPosition <= closedParen.textRange().startOffset());
+    }
+
+    private static Optional<ParameterSymbol> resolveParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                    PositionedOperationContext ctx,
+                                                                    SeparatedNodeList<FunctionArgumentNode> arguments) {
+        int cursorPosition = ctx.getCursorPositionInTree();
+        int argIndex = -1;
+        for (Node child : arguments) {
+            if (child.textRange().endOffset() < cursorPosition) {
+                argIndex += 1;
+            }
+        }
+        Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
+        if (params.isEmpty() || params.get().size() < argIndex + 2) {
+            return Optional.empty();
+        }
+        return Optional.of(params.get().get(argIndex + 1));
     }
 }
