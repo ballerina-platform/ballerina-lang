@@ -40,8 +40,7 @@ public class ReachabilityAnalysisTest {
     private static final String HINT_UNNECESSARY_CONDITION =
             "unnecessary condition: expression will always evaluate to 'true'";
     private static final String ALWAYS_FALSE_CONDITION = "expression will always evaluate to 'false'";
-    private static final String WARN_SHOULD_EXPLICITLY_RETURN_NIL =
-            "this function should explicitly return a 'nil' value";
+    private static final String WARN_SHOULD_EXPLICITLY_RETURN_NIL = "this function should explicitly return a value";
 
     private CompileResult result;
 
@@ -155,6 +154,12 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 540, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 553, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 560, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 568, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 576, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 586, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 595, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 604, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 611, 9);
         Assert.assertEquals(result.getErrorCount(), i - 16);
         Assert.assertEquals(result.getHintCount(), 15);
         Assert.assertEquals(result.getWarnCount(), 1);

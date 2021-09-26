@@ -562,3 +562,54 @@ function testUnreachableCodeWithConstRef8() {
 
     int x = 1;
 }
+
+function testUnreachableCodeWithUnaryCondition() {
+    if !true {
+        int a = 1; // unreachable code
+    } else {
+        int a = 2;
+    }
+}
+
+function testUnreachableCodeWithUnaryCondition2() {
+    while !true {
+        int a = 1; // unreachable code
+    }
+    int b = 2;
+}
+
+function testUnreachableCodeWithBinaryCondition() {
+    int x = 1;
+    if true || x < 2 {
+        int a = 1;
+    } else {
+        int a = 1; // unreachable code
+    }
+}
+
+function testUnreachableCodeWithBinaryCondition2() {
+    int x = 1;
+    if x < 2 || true {
+        int a = 1;
+    } else {
+        int a = 1; // unreachable code
+    }
+}
+
+function testUnreachableCodeWithBinaryCondition3() {
+    int x = 1;
+    if true || true {
+        int a = 1;
+    } else {
+        int a = 1; // unreachable code
+    }
+}
+
+function testUnreachableCodeWithBinaryCondition4() {
+    int x = 1;
+    if false || false {
+        int a = 1; // unreachable code
+    } else {
+        int a = 1;
+    }
+}

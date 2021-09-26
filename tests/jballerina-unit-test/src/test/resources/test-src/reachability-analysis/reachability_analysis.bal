@@ -519,6 +519,50 @@ function impossible() returns never {
     panic error("Something impossible happened.");
 }
 
+function testReachableCodeWithBinaryCondition() {
+    int x = 1;
+    if false || x < 2 {
+        int a = 1;
+    } else {
+        int a = 1;
+    }
+
+    int b = 2;
+}
+
+function testReachableCodeWithBinaryCondition2() {
+    int x = 1;
+    if x < 2 {
+        int a = 1;
+    } else if x < 4 || false {
+        int a = 1;
+    } else {
+        int a = 2;
+    }
+
+    int b = 2;
+}
+
+type BoolValue true|false;
+
+function testReachableCodeWithBinaryCondition3() {
+    int x = 1;
+    int y = 1;
+    BoolValue z = true;
+    boolean v = true;
+    if x < 1 && y < 1 {
+        int a = 1;
+    } else if x != 2 {
+        int a = 3;
+    } else if z {
+        int a = 2;
+    } else if v {
+        int a = 4;
+    }
+
+    int b = 1;
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;
