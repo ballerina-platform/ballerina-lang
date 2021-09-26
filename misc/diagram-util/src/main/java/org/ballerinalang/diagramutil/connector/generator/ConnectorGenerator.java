@@ -41,6 +41,7 @@ import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Project;
+import org.ballerinalang.central.client.model.connector.BalFunction;
 import org.ballerinalang.diagramutil.connector.models.connector.Connector;
 import org.ballerinalang.diagramutil.connector.models.connector.Function;
 import org.ballerinalang.diagramutil.connector.models.connector.Type;
@@ -92,7 +93,7 @@ public class ConnectorGenerator {
                         String description = getDocFromMetadata(classDefinition.metadata());
                         Map<String, String> connectorAnnotation =
                                 getDisplayAnnotationFromMetadataNode(classDefinition.metadata());
-                        List<Function> functions = new ArrayList<>();
+                        List<BalFunction> functions = new ArrayList<>();
                         for (Node member : classDefinition.members()) {
                             if (member instanceof FunctionDefinitionNode &&
                                     (Generator.containsToken(((FunctionDefinitionNode) member).qualifierList(),
@@ -100,7 +101,7 @@ public class ConnectorGenerator {
                                             Generator.containsToken(((FunctionDefinitionNode) member).qualifierList(),
                                                     SyntaxKind.REMOTE_KEYWORD))) {
                                 FunctionDefinitionNode functionDefinition = (FunctionDefinitionNode) member;
-                                List<Type> parameters = new ArrayList<>();
+                                List<org.ballerinalang.central.client.model.connector.BalType> parameters = new ArrayList<>();
 
                                 String functionName = functionDefinition.functionName().text();
                                 Map<String, String> funcAnnotation =
@@ -110,7 +111,7 @@ public class ConnectorGenerator {
                                 parameters.addAll(getFunctionParameters(functionSignature.parameters(),
                                         functionDefinition.metadata(), semanticModel));
 
-                                Type returnParam = null;
+                                org.ballerinalang.central.client.model.connector.BalType returnParam = null;
                                 if (functionSignature.returnTypeDesc().isPresent()) {
                                     returnParam = getReturnParameter(functionSignature.returnTypeDesc().get(),
                                             functionDefinition.metadata(), semanticModel);

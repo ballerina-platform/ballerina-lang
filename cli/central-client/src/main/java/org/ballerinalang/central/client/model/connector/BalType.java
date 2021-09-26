@@ -15,21 +15,28 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.diagramutil.connector.models.connector;
+package org.ballerinalang.central.client.model.connector;
 
 import com.google.gson.annotations.Expose;
-import org.ballerinalang.central.client.model.connector.BalFunction;
-import org.ballerinalang.central.client.model.connector.BalType;
 
-import java.util.List;
 import java.util.Map;
 
 /**
- * Function model.
+ * Type model.
  */
-public class Function extends BalFunction {
-    public Function(String name, List<BalType> parameters, BalType returnType,
-                    Map<String, String> displayAnnotation, boolean isRemote, String documentation) {
-        super(name, parameters, returnType, displayAnnotation, isRemote, documentation);
-    }
+public class BalType {
+    @Expose
+    public String name;
+    @Expose
+    public String typeName;
+    @Expose
+    public boolean optional;
+    @Expose
+    public BalTypeInfo typeInfo;
+    @Expose
+    public String defaultValue;
+    @Expose
+    public Map<String, String> displayAnnotation;
+    @Expose
+    public String documentation;
 }

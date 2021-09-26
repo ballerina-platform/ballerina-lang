@@ -52,6 +52,7 @@ dependencies {
     implementation project(':language-server:language-server-stdlib')
 
     implementation project(':ballerina-cli')
+    implementation project(':central-client')
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'

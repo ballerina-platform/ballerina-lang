@@ -33,6 +33,8 @@ import org.ballerinalang.central.client.exceptions.NoPackageException;
 import org.ballerinalang.central.client.model.Error;
 import org.ballerinalang.central.client.model.Package;
 import org.ballerinalang.central.client.model.PackageSearchResult;
+import org.ballerinalang.central.client.model.connector.BalConnector;
+import org.ballerinalang.central.client.model.connector.BalConnectorSearchResult;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -67,6 +69,7 @@ import static org.ballerinalang.central.client.Utils.isApplicationJsonContentTyp
 public class CentralAPIClient {
 
     private static final String PACKAGES = "packages";
+    private static final String CONNECTORS = "connectors";
     private static final String ERR_CANNOT_FIND_PACKAGE = "error: could not connect to remote repository to find " +
             "package: ";
     private static final String ERR_CANNOT_FIND_VERSIONS = "error: could not connect to remote repository to find " +
@@ -74,6 +77,7 @@ public class CentralAPIClient {
     private static final String ERR_CANNOT_PUSH = "error: failed to push the package: ";
     private static final String ERR_CANNOT_PULL_PACKAGE = "error: failed to pull the package: ";
     private static final String ERR_CANNOT_SEARCH = "error: failed to search packages: ";
+    private static final String ERR_CANNOT_GET_CONNECTOR = "error: failed to find connector: ";
     private final String baseUrl;
     private final Proxy proxy;
     private String accessToken;
@@ -475,6 +479,126 @@ public class CentralAPIClient {
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + query + "'. reason: " + e.getMessage());
         } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+    /**
+     * Get connectors with search filters
+     */
+    public BalConnectorSearchResult getConnectors(String query, String supportedPlatform, String ballerinaVersion)
+            throws CentralClientException {
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
+        try {
+            Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .get()
+                    .url(this.baseUrl + "/" + CONNECTORS + (query.equals("") ? "" : "/?package=" + query))
+                    .build();
+
+            Call httpRequestCall = client.newCall(searchReq);
+            Response searchResponse = httpRequestCall.execute();
+
+            body = Optional.ofNullable(searchResponse.body());
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
+                    // If searching was successful
+                    if (searchResponse.code() == HttpsURLConnection.HTTP_OK) {
+                        BalConnectorSearchResult searchResult = new Gson().fromJson(body.get().string(),
+                                BalConnectorSearchResult.class);
+                        return searchResult;
+                    }
+
+                    // If search request was sent wrongly
+                    if (searchResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new CentralClientException(error.getMessage());
+                        }
+                    }
+
+                    // If error occurred at remote repository
+                    if (searchResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new CentralClientException(ERR_CANNOT_GET_CONNECTOR + "'" + query + "' reason:" +
+                                    error.getMessage());
+                        }
+                    }
+                }
+            }
+
+            throw new CentralClientException(ERR_CANNOT_GET_CONNECTOR + "'" + query + "'.");
+        } catch (IOException e) {
+            throw new CentralClientException(ERR_CANNOT_GET_CONNECTOR + "'" + query + "'. reason: " + e.getMessage());
+        }
+        finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+    /**
+     * Get connector by id
+     */
+    public BalConnector getConnector(String id, String supportedPlatform, String ballerinaVersion)
+            throws CentralClientException {
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
+        try {
+            Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .get()
+                    .url(this.baseUrl + "/" + CONNECTORS + "/" + id)
+                    .build();
+
+            Call httpRequestCall = client.newCall(searchReq);
+            Response searchResponse = httpRequestCall.execute();
+
+            body = Optional.ofNullable(searchResponse.body());
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
+                    // If searching was successful
+                    if (searchResponse.code() == HttpsURLConnection.HTTP_OK) {
+                        BalConnector connectorResult = new Gson().fromJson(body.get().string(),
+                                BalConnector.class);
+                        return connectorResult;
+                    }
+
+                    // If search request was sent wrongly
+                    if (searchResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new CentralClientException(error.getMessage());
+                        }
+                    }
+
+                    // If error occurred at remote repository
+                    if (searchResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new CentralClientException(ERR_CANNOT_GET_CONNECTOR + "'" + id + "' reason:" +
+                                    error.getMessage());
+                        }
+                    }
+                }
+            }
+
+            throw new CentralClientException(ERR_CANNOT_GET_CONNECTOR + "'" + id + "'.");
+        } catch (IOException e) {
+            throw new CentralClientException(ERR_CANNOT_GET_CONNECTOR + "'" + id + "'. reason: " + e.getMessage());
+        }
+        finally {
             body.ifPresent(ResponseBody::close);
             try {
                 this.closeClient(client);
