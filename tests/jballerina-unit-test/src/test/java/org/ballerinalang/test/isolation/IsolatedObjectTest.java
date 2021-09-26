@@ -48,8 +48,7 @@ public class IsolatedObjectTest {
 
     private static final String ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC =
             "invalid access of mutable storage in an 'isolated' function";
-    private static final String WARN_FUNCTION_SHOULD_RETURN_NIL =
-            "this function should explicitly return a 'nil' value";
+    private static final String WARN_FUNCTION_SHOULD_RETURN_NIL = "this function should explicitly return a value";
 
     @Test
     public void testIsolatedObjectSemanticNegative() {

@@ -264,7 +264,7 @@ public class WhileStmtTest {
         BAssertUtil.validateError(onfailNegativeCompileResult, 3, "this function must return a result", 83, 1);
         BAssertUtil.validateError(onfailNegativeCompileResult, 4, "incompatible error definition type: " +
                 "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 102, 4);
-        validateWarning(onfailNegativeCompileResult, 5, "this function should explicitly return a 'nil' value",
+        validateWarning(onfailNegativeCompileResult, 5, "this function should explicitly return a value",
                 110, 41);
         BAssertUtil.validateError(onfailNegativeCompileResult, 6, "unreachable code", 116, 9);
         BAssertUtil.validateError(onfailNegativeCompileResult, 7, "unreachable code", 118, 5);
