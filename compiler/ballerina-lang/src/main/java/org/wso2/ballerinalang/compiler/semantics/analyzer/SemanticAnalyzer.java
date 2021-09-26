@@ -2395,8 +2395,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (ifNode.elseStmt == null && ifCompletionStatus) {
             BLangExpression expr = ifNode.expr;
             this.env = typeNarrower.evaluateFalsityForSingleIf(expr, env);
-            this.notCompletedNormally = (new ConditionResolver(types, symTable)).checkConstCondition(ifNode.expr)
-                    .equals(BooleanCondition.TRUE);
+            this.notCompletedNormally = ConditionResolver.checkConstCondition(types, symTable, ifNode.expr) ==
+                    BooleanCondition.TRUE;
         }
 
         if (ifNode.elseStmt != null) {
@@ -3562,8 +3562,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         boolean prevBreakFound = this.breakFound;
         SymbolEnv whileEnv = typeNarrower.evaluateTruth(whileNode.expr, whileNode.body, env);
         analyzeStmt(whileNode.body, whileEnv);
-        if (!(new ConditionResolver(types, symTable)).checkConstCondition(whileNode.expr)
-                .equals(BooleanCondition.TRUE) || this.breakFound) {
+        if (ConditionResolver.checkConstCondition(types, symTable, whileNode.expr) != BooleanCondition.TRUE
+                || this.breakFound) {
             this.notCompletedNormally = false;
         }
         this.breakFound = prevBreakFound;

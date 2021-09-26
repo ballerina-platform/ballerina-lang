@@ -23,7 +23,6 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
@@ -33,7 +32,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -47,18 +45,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -100,7 +93,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
@@ -628,96 +620,15 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     private void checkConditionInWhileOrIf(BLangStatement statement) {
         switch (statement.getKind()) {
             case WHILE:
-                setConstCondition(((BLangWhile) statement).expr, false);
+                this.booleanConstCondition = ConditionResolver.checkConstCondition(types, symTable,
+                        ((BLangWhile) statement).expr);
                 break;
             case IF:
-                setConstCondition(((BLangIf) statement).expr, statement.parent != null &&
-                        statement.parent.getKind() == NodeKind.IF);
-        }
-    }
-
-    private void setConstCondition(BLangExpression condition, boolean isElseIfStmt) {
-        this.unreachableBlock = isElseIfStmt && booleanConstCondition == BooleanCondition.TRUE;
-        switch (condition.getKind()) {
-            case GROUP_EXPR:
-                setConstCondition(((BLangGroupExpr) condition).expression, isElseIfStmt);
+                this.unreachableBlock = statement.parent != null && statement.parent.getKind() == NodeKind.IF
+                        && booleanConstCondition == BooleanCondition.TRUE;
+                this.booleanConstCondition = ConditionResolver.checkConstCondition(types, symTable,
+                        ((BLangIf) statement).expr);
                 break;
-            case LITERAL:
-                BLangLiteral literal = (BLangLiteral) condition;
-                if (!(literal.value instanceof Boolean)) {
-                    this.booleanConstCondition = BooleanCondition.NOT_CONST_BOOLEAN;
-                    break;
-                }
-                this.booleanConstCondition = literal.value.equals(true) ? BooleanCondition.TRUE :
-                        BooleanCondition.FALSE;
-                break;
-            case TYPE_TEST_EXPR:
-                BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) condition;
-                boolean isAssignable = types.isAssignable(typeTestExpr.expr.getBType(),
-                        typeTestExpr.typeNode.getBType());
-                if (typeTestExpr.isNegation) {
-                    this.booleanConstCondition = isAssignable ? BooleanCondition.FALSE :
-                            typeTestExpr.expr.getBType() == symTable.semanticError ? BooleanCondition.TRUE :
-                                    BooleanCondition.NOT_CONST_BOOLEAN;
-                } else {
-                    this.booleanConstCondition = isAssignable ? BooleanCondition.TRUE :
-                            typeTestExpr.expr.getBType() == symTable.semanticError ? BooleanCondition.FALSE :
-                                    BooleanCondition.NOT_CONST_BOOLEAN;
-                }
-                break;
-            case BINARY_EXPR:
-                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) condition;
-                if (binaryExpr.opKind != OperatorKind.AND && !(binaryExpr.lhsExpr.getKind() == NodeKind.LITERAL ||
-                        binaryExpr.lhsExpr.getKind() == NodeKind.TYPE_TEST_EXPR) &&
-                        !(binaryExpr.rhsExpr.getKind() == NodeKind.LITERAL ||
-                                binaryExpr.rhsExpr.getKind() == NodeKind.TYPE_TEST_EXPR)) {
-                    this.booleanConstCondition = BooleanCondition.NOT_CONST_BOOLEAN;
-                    break;
-                }
-                setConstCondition(binaryExpr.lhsExpr, isElseIfStmt);
-                BooleanCondition lhsConst = this.booleanConstCondition;
-                setConstCondition(binaryExpr.rhsExpr, isElseIfStmt);
-                if (lhsConst == BooleanCondition.FALSE ||
-                        booleanConstCondition == BooleanCondition.FALSE) {
-                    this.booleanConstCondition = BooleanCondition.FALSE;
-                } else if (lhsConst == BooleanCondition.NOT_CONST_BOOLEAN ||
-                        booleanConstCondition == BooleanCondition.NOT_CONST_BOOLEAN) {
-                    this.booleanConstCondition = BooleanCondition.NOT_CONST_BOOLEAN;
-                } else {
-                    this.booleanConstCondition = lhsConst == booleanConstCondition &&
-                            lhsConst == BooleanCondition.TRUE ? BooleanCondition.TRUE : BooleanCondition.FALSE;
-                }
-                break;
-            case UNARY_EXPR:
-                BLangUnaryExpr unaryExpr = (BLangUnaryExpr) condition;
-                if (unaryExpr.operator != OperatorKind.NOT) {
-                    this.booleanConstCondition = BooleanCondition.NOT_CONST_BOOLEAN;
-                    break;
-                }
-                setConstCondition(unaryExpr.expr, isElseIfStmt);
-                if (this.booleanConstCondition == BooleanCondition.TRUE) {
-                    this.booleanConstCondition = BooleanCondition.FALSE;
-                } else if (this.booleanConstCondition == BooleanCondition.FALSE) {
-                    this.booleanConstCondition = BooleanCondition.TRUE;
-                }
-                break;
-            case SIMPLE_VARIABLE_REF:
-                BLangSimpleVarRef simpleVarRef  = (BLangSimpleVarRef) condition;
-                BType type = (simpleVarRef.symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT ?
-                        simpleVarRef.symbol.type : condition.getBType();
-                if (type.tag != TypeTags.FINITE) {
-                    this.booleanConstCondition = BooleanCondition.NOT_CONST_BOOLEAN;
-                    break;
-                }
-                Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
-                if (valueSpace.size() != 1) {
-                    this.booleanConstCondition = BooleanCondition.NOT_CONST_BOOLEAN;
-                    break;
-                }
-                setConstCondition(valueSpace.iterator().next(), isElseIfStmt);
-                break;
-            default:
-                this.booleanConstCondition = BooleanCondition.NOT_CONST_BOOLEAN;
         }
     }
 

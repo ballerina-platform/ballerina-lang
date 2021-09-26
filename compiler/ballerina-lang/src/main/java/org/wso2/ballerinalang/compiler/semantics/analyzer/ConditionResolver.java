@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -42,43 +41,47 @@ import java.util.Set;
  * @since 2.0.0
  */
 public class ConditionResolver extends BLangNodeVisitor {
-    private final Types types;
-    private final SymbolTable symTable;
 
-    public ConditionResolver(Types types, SymbolTable symTable) {
-        this.types = types;
-        this.symTable = symTable;
-    }
-
-    BooleanCondition checkConstCondition(BLangExpression condition) {
+    static BooleanCondition checkConstCondition(Types types, SymbolTable symTable, BLangExpression condition) {
         switch (condition.getKind()) {
             case GROUP_EXPR:
-                return checkConstCondition(((BLangGroupExpr) condition).expression);
+                return checkConstCondition(types, symTable, ((BLangGroupExpr) condition).expression);
             case LITERAL:
-                return ((BLangLiteral) condition).value == Boolean.TRUE ? BooleanCondition.TRUE :
-                        BooleanCondition.FALSE;
-            case TYPE_TEST_EXPR:
-                BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) condition;
-                boolean isAssignable = types.isAssignable(typeTestExpr.expr.getBType(),
-                        typeTestExpr.typeNode.getBType());
-                if (typeTestExpr.isNegation) {
-                    return isAssignable ? BooleanCondition.FALSE :
-                            typeTestExpr.expr.getBType() == symTable.semanticError ? BooleanCondition.TRUE :
-                                    BooleanCondition.NOT_CONST_BOOLEAN;
-                }
-                return isAssignable ? BooleanCondition.TRUE :
-                        typeTestExpr.expr.getBType() == symTable.semanticError ? BooleanCondition.FALSE :
-                                BooleanCondition.NOT_CONST_BOOLEAN;
-            case BINARY_EXPR:
-                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) condition;
-                if (binaryExpr.opKind != OperatorKind.AND && !(binaryExpr.lhsExpr.getKind() == NodeKind.LITERAL ||
-                        binaryExpr.lhsExpr.getKind() == NodeKind.TYPE_TEST_EXPR) &&
-                        !(binaryExpr.rhsExpr.getKind() == NodeKind.LITERAL ||
-                                binaryExpr.rhsExpr.getKind() == NodeKind.TYPE_TEST_EXPR)) {
+                Object value = ((BLangLiteral) condition).value;
+                if (!(value instanceof Boolean)) {
                     return BooleanCondition.NOT_CONST_BOOLEAN;
                 }
-                BooleanCondition lhsConst = checkConstCondition(binaryExpr.lhsExpr);
-                BooleanCondition rhsConst = checkConstCondition(binaryExpr.rhsExpr);
+                return value == Boolean.TRUE ? BooleanCondition.TRUE : BooleanCondition.FALSE;
+            case TYPE_TEST_EXPR:
+                BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) condition;
+                BType exprType = typeTestExpr.expr.getBType();
+                boolean isAssignable = types.isAssignable(exprType, typeTestExpr.typeNode.getBType());
+                if (typeTestExpr.isNegation) {
+                    return isAssignable ? BooleanCondition.FALSE : exprType == symTable.semanticError ?
+                            BooleanCondition.TRUE : BooleanCondition.NOT_CONST_BOOLEAN;
+                }
+                return isAssignable ? BooleanCondition.TRUE : exprType == symTable.semanticError ?
+                        BooleanCondition.FALSE : BooleanCondition.NOT_CONST_BOOLEAN;
+            case BINARY_EXPR:
+                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) condition;
+                if (!checkAndOrOperator(binaryExpr.opKind)) {
+                    return BooleanCondition.NOT_CONST_BOOLEAN;
+                }
+                BooleanCondition lhsConst = checkConstCondition(types, symTable, binaryExpr.lhsExpr);
+                boolean operatorIsOR = binaryExpr.opKind == OperatorKind.OR;
+                if (operatorIsOR && lhsConst == BooleanCondition.TRUE) {
+                    return lhsConst;
+                }
+                BooleanCondition rhsConst = checkConstCondition(types, symTable, binaryExpr.rhsExpr);
+                if (operatorIsOR) {
+                    if (rhsConst == BooleanCondition.TRUE) {
+                        return rhsConst;
+                    }
+                    if (lhsConst == rhsConst && lhsConst == BooleanCondition.FALSE) {
+                        return lhsConst;
+                    }
+                    return BooleanCondition.NOT_CONST_BOOLEAN;
+                }
                 if (lhsConst == BooleanCondition.FALSE || rhsConst == BooleanCondition.FALSE) {
                     return BooleanCondition.FALSE;
                 }
@@ -89,11 +92,8 @@ public class ConditionResolver extends BLangNodeVisitor {
                 return lhsConst == rhsConst && lhsConst == BooleanCondition.TRUE ?
                         BooleanCondition.TRUE : BooleanCondition.FALSE;
             case UNARY_EXPR:
-                BLangUnaryExpr unaryExpr = (BLangUnaryExpr) condition;
-                if (unaryExpr.operator != OperatorKind.NOT) {
-                    return BooleanCondition.NOT_CONST_BOOLEAN;
-                }
-                BooleanCondition conditionValue = checkConstCondition(unaryExpr.expr);
+                BooleanCondition conditionValue = checkConstCondition(types, symTable,
+                        ((BLangUnaryExpr) condition).expr);
                 if (conditionValue == BooleanCondition.TRUE) {
                     return BooleanCondition.FALSE;
                 }
@@ -112,9 +112,13 @@ public class ConditionResolver extends BLangNodeVisitor {
                 if (valueSpace.size() != 1) {
                     return BooleanCondition.NOT_CONST_BOOLEAN;
                 }
-                return checkConstCondition(valueSpace.iterator().next());
+                return checkConstCondition(types, symTable, valueSpace.iterator().next());
             default:
                 return BooleanCondition.NOT_CONST_BOOLEAN;
         }
+    }
+
+    static boolean checkAndOrOperator(OperatorKind operatorKind) {
+        return operatorKind == OperatorKind.AND || operatorKind == OperatorKind.OR;
     }
 }

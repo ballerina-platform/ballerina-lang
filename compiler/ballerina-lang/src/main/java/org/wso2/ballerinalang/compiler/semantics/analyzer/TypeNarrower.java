@@ -158,31 +158,33 @@ public class TypeNarrower extends BLangNodeVisitor {
     }
 
     public SymbolEnv evaluateFalsityForSingleIf(BLangExpression expr, SymbolEnv currentEnv) {
-        NodeKind exprKind = expr.getKind();
-        if (!(exprKind == NodeKind.TYPE_TEST_EXPR || (exprKind == NodeKind.GROUP_EXPR &&
-                ((BLangGroupExpr) expr).expression.getKind() == NodeKind.TYPE_TEST_EXPR))) {
+        if (!checkIsTypeTestExpr(expr)) {
             return currentEnv;
         }
 
-        BLangExpression expression;
-        if (exprKind == NodeKind.GROUP_EXPR) {
-            expression = ((BLangGroupExpr) expr).expression;
-        } else {
-            expression = expr;
-        }
-
-        Map<BVarSymbol, NarrowedTypes> narrowedTypes = getNarrowedTypes(expression, currentEnv);
+        Map<BVarSymbol, NarrowedTypes> narrowedTypes = getNarrowedTypes(expr, currentEnv);
         if (narrowedTypes.isEmpty()) {
             return currentEnv;
         }
 
         for (Map.Entry<BVarSymbol, NarrowedTypes> narrowedType : narrowedTypes.entrySet()) {
             BVarSymbol originalSym = getOriginalVarSymbol(narrowedType.getKey());
-            symbolEnter.defineTypeNarrowedSymbol(expression.pos, currentEnv, originalSym,
+            symbolEnter.defineTypeNarrowedSymbol(expr.pos, currentEnv, originalSym,
                     narrowedType.getValue().falseType, originalSym.origin == VIRTUAL, true);
         }
 
         return currentEnv;
+    }
+
+    private boolean checkIsTypeTestExpr(BLangExpression expr) {
+        switch (expr.getKind()) {
+            case TYPE_TEST_EXPR:
+                return true;
+            case GROUP_EXPR:
+                return checkIsTypeTestExpr(((BLangGroupExpr) expr).expression);
+            default:
+                return false;
+        }
     }
 
     public SymbolEnv evaluateTruth(BLangExpression expr, BLangNode targetNode, SymbolEnv env) {
