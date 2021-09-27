@@ -122,7 +122,7 @@ rem ---------- Add jars to classpath ----------------
 set CMD_LINE_ARGS=-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\debug-adapter-heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% -Dballerina.home="%BALLERINA_HOME%" -Dexperimental="%ALLOW_EXPERIMENTAL%" -Djava.command="%JAVA_HOME%\bin\java" %JAVA_OPTS% -Dballerina.version=0.981.2-SNAPSHOT
 
 :runJava
-"%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% org.ballerinalang.debugadapter.DebugAdapterLauncher %CMD%
+"%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% org.ballerinalang.debugadapter.launcher.DebugAdapterLauncher %CMD%
 :end
 goto endlocal
 

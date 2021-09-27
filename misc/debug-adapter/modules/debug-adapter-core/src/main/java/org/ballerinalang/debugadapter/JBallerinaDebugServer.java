@@ -139,7 +139,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private static final String SCOPE_NAME_LOCAL = "Local";
     private static final String SCOPE_NAME_GLOBAL = "Global";
     private static final String VALUE_UNKNOWN = "unknown";
-    private static final String J_INIT_FRAME_NAME = "$init$";
     private static final String EVAL_ARGS_CONTEXT_VARIABLES = "variables";
     private static final String COMPILATION_ERROR_MESSAGE = "error: compilation contains errors";
 
@@ -888,10 +887,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     }
                     outputLogger.sendProgramOutput(line);
                 }
-            } catch (IOException ignored) {
-                // no-op
-            } catch (ClientConfigurationException | IllegalConnectorArgumentsException e) {
-                String host = ((ClientAttachConfigHolder) clientConfigHolder).getHostName().orElse(LOCAL_HOST);
+            } catch (Exception e) {
+                String host = clientConfigHolder instanceof ClientAttachConfigHolder ?
+                        ((ClientAttachConfigHolder) clientConfigHolder).getHostName().orElse(LOCAL_HOST) : LOCAL_HOST;
                 String portName;
                 try {
                     portName = Integer.toString(clientConfigHolder.getDebuggePort());
@@ -901,6 +899,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 LOGGER.error(e.getMessage());
                 outputLogger.sendDebugServerOutput(String.format("Failed to attach to the target VM, address: '%s:%s'.",
                         host, portName));
+                terminateServer(context.getDebuggeeVM() != null);
             }
         });
     }

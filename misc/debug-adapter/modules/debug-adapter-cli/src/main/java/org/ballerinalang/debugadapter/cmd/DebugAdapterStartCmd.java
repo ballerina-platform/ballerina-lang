@@ -17,14 +17,15 @@ package org.ballerinalang.debugadapter.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.LauncherUtils;
-import org.ballerinalang.debugadapter.DebugAdapterLauncher;
+import org.ballerinalang.debugadapter.launcher.DebugAdapterLauncher;
 import picocli.CommandLine;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class to implement "start debugger-adapter" command for ballerina. Ex: ballerina start-debugger-adapter [--debug
- * debugPort] [--help|-h]
+ * Class to implement `start-debugger-adapter` command for Ballerina.
+ * Ex: `bal start-debugger-adapter [--help|-h] <debugAdapterPort> `
  *
  * @since 1.1.0
  */
@@ -32,27 +33,25 @@ import java.util.List;
 public class DebugAdapterStartCmd implements BLauncherCmd {
 
     private static final String CMD_NAME = "start-debugger-adapter";
-    private static final String BALLERINA_HOME;
 
-    static {
-        BALLERINA_HOME = System.getProperty("ballerina.home");
-    }
-
+    @SuppressWarnings("unused")
     @CommandLine.Parameters
     private List<String> argList;
 
+    @SuppressWarnings("unused")
     @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
 
     @Override
     public void execute() {
         try {
-            // Set flags
-            System.setProperty("ballerina.home", BALLERINA_HOME);
-
+            List<String> debugLauncherArgs = new ArrayList<>();
+            if (argList != null && !argList.isEmpty()) {
+                String debugAdapterPort = argList.get(0);
+                debugLauncherArgs.add(debugAdapterPort);
+            }
             // Start Debug Adaptor
-            String[] args = (argList != null) ? argList.toArray(new String[0]) : new String[]{};
-            DebugAdapterLauncher.main(args);
+            DebugAdapterLauncher.main(debugLauncherArgs.toArray(new String[0]));
         } catch (Throwable e) {
             throw LauncherUtils.createLauncherException("Could not start debug adaptor");
         }

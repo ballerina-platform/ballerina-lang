@@ -44,8 +44,10 @@ public class SingleFileLauncher extends ProgramLauncher {
         }
 
         Map<String, String> env = processBuilder.environment();
-        env.put("BALLERINA_HOME", configHolder.getBallerinaHome());
-        // Adds environment variables defined by the user.
+        // Need to ignore the "BAL_JAVA_DEBUG" env variable, as otherwise the program compiler will also run in debug
+        // mode by honoring inherited environment variables.
+        env.remove(ENV_OPTION_BAL_JAVA_DEBUG);
+        // Adds environment variables configured by the user.
         if (configHolder.getEnv().isPresent()) {
             configHolder.getEnv().get().forEach(env::put);
         }

@@ -37,6 +37,7 @@ public abstract class ProgramLauncher {
     private static final String BAL_TEST_CMD = "test";
     private static final String CMD_OPTION_DEBUG = "--debug";
     private static final String CMD_OPTION_TESTS = "--tests";
+    protected static final String ENV_OPTION_BAL_JAVA_DEBUG = "BAL_JAVA_DEBUG";
 
     protected ProgramLauncher(ClientLaunchConfigHolder configHolder, String projectRoot) {
         this.configHolder = configHolder;

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.debugadapter;
+package org.ballerinalang.debugadapter.launcher;
 
+import org.ballerinalang.debugadapter.JBallerinaDebugServer;
 import org.eclipse.lsp4j.debug.launch.DSPLauncher;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.slf4j.Logger;
