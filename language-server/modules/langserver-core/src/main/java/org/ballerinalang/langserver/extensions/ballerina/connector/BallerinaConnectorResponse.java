@@ -19,7 +19,6 @@
 package org.ballerinalang.langserver.extensions.ballerina.connector;
 
 import org.ballerinalang.central.client.model.connector.BalConnector;
-import org.ballerinalang.diagramutil.connector.models.connector.Connector;
 
 /**
  * Represents with connector AST.

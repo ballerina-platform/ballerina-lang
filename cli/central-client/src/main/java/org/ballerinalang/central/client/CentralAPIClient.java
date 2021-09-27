@@ -489,7 +489,7 @@ public class CentralAPIClient {
     }
 
     /**
-     * Get connectors with search filters
+     * Get connectors with search filters.
      */
     public BalConnectorSearchResult getConnectors(String query, String supportedPlatform, String ballerinaVersion)
             throws CentralClientException {
@@ -537,8 +537,7 @@ public class CentralAPIClient {
             throw new CentralClientException(ERR_CANNOT_GET_CONNECTOR + "'" + query + "'.");
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_GET_CONNECTOR + "'" + query + "'. reason: " + e.getMessage());
-        }
-        finally {
+        } finally {
             body.ifPresent(ResponseBody::close);
             try {
                 this.closeClient(client);
@@ -549,7 +548,7 @@ public class CentralAPIClient {
     }
 
     /**
-     * Get connector by id
+     * Get connector by id.
      */
     public BalConnector getConnector(String id, String supportedPlatform, String ballerinaVersion)
             throws CentralClientException {
@@ -597,8 +596,7 @@ public class CentralAPIClient {
             throw new CentralClientException(ERR_CANNOT_GET_CONNECTOR + "'" + id + "'.");
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_GET_CONNECTOR + "'" + id + "'. reason: " + e.getMessage());
-        }
-        finally {
+        } finally {
             body.ifPresent(ResponseBody::close);
             try {
                 this.closeClient(client);
