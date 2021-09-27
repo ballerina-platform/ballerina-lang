@@ -294,20 +294,10 @@ public class RemotePackageRepository implements PackageRepository {
                                 return x;
                             } else if (x.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
                                 return y;
-                            } else if (x.resolvedDescriptor().version().compareTo(
-                                    y.resolvedDescriptor().version()).equals(
-                                    SemanticVersion.VersionCompatibilityResult.LESS_THAN)) {
+                            } else if (this.fileSystemRepo.getLatest(y.resolvedDescriptor().version(),
+                                                                     x.resolvedDescriptor().version())
+                                    .equals(y.resolvedDescriptor().version())) {
                                 return y;
-                            } else if (y.resolvedDescriptor().version().compareTo(x.resolvedDescriptor().version())
-                                    .equals(SemanticVersion.VersionCompatibilityResult.INCOMPATIBLE)) {
-                                PackageVersion latest =
-                                        this.fileSystemRepo.getLatest(y.resolvedDescriptor().version(),
-                                                                      x.resolvedDescriptor().version());
-                                if (latest.equals(y.resolvedDescriptor().version())) {
-                                    return y;
-                                } else {
-                                    return x;
-                                }
                             }
                             return x;
                         })).values());
