@@ -1296,11 +1296,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 return;
             }
             int index = paramClosureMap.firstKey();
-            if (index >= 0) {
-                paramClosureMap.putIfAbsent(-1, (BVarSymbol) varRefSym);
-            } else {
-                paramClosureMap.putIfAbsent(index - 1, (BVarSymbol) varRefSym);
-            }
+            paramClosureMap.putIfAbsent(index - 1, (BVarSymbol) varRefSym);
             result = localVarRef;
             return;
         }
@@ -1826,10 +1822,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @SuppressWarnings("unchecked")
     private <E extends BLangExpression> E rewriteExpr(E node, SymbolEnv env) {
-        if (node == null) {
-            return null;
-        }
-
         SymbolEnv previousEnv = this.env;
         this.env = env;
         BLangExpression expr = node;

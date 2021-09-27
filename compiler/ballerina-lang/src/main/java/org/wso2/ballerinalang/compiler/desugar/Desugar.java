@@ -1396,7 +1396,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangExpression bLangExpression;
         if (Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM) && varNode.expr != null) {
-            String closureName = generateName(env.node, varNode.symbol.name.value);
+            String closureName = generateName(varNode.symbol.name.value, env.node);
             bLangExpression = createClosureForDefaultValue(closureName, varNode.name.value, varNode,
                     (BInvokableTypeSymbol) env.node.getBType().tsymbol, env, varNode.symbol.owner);
         } else {
@@ -6052,18 +6052,6 @@ public class Desugar extends BLangNodeVisitor {
         return functionSymbol;
     }
 
-    private String generateName(BLangNode node, String name) {
-        if (node.getKind() == NodeKind.FUNCTION) {
-            return ((BLangFunction) node).symbol.name.value + UNDERSCORE + name;
-        } else if (node.getKind() == NodeKind.RESOURCE_FUNC) {
-            return ((BLangResourceFunction) node).symbol.name.value + UNDERSCORE + name;
-        } else if (node.parent == null) {
-            return generateName(env.enclInvokable, name);
-        } else {
-            return generateName(name, env.node.parent);
-        }
-    }
-
     private String generateName(String name, BLangNode parent) {
         if (parent == null) {
             return name;
@@ -6074,6 +6062,9 @@ public class Desugar extends BLangNodeVisitor {
                 return generateName(name, parent.parent);
             case FUNCTION:
                 name = ((BLangFunction) parent).symbol.name.value + UNDERSCORE + name;
+                return generateName(name, parent.parent);
+            case RESOURCE_FUNC:
+                name = ((BLangResourceFunction) parent).symbol.name.value + UNDERSCORE + name;
                 return generateName(name, parent.parent);
             case VARIABLE:
                 name = ((BLangSimpleVariable) parent).name.getValue() + UNDERSCORE + name;

@@ -3124,9 +3124,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkFieldFunctionPointer(BLangInvocation iExpr, SymbolEnv env) {
         BType type = checkExpr(iExpr.expr, env);
-        if (type == symTable.semanticError) {
-            return;
-        }
         checkIfLangLibMethodExists(iExpr, type, iExpr.name.pos, DiagnosticErrorCode.INVALID_FUNCTION_INVOCATION, type);
     }
 
