@@ -146,7 +146,6 @@ public class NativeConversionNegativeTest {
     @DataProvider(name = "testConversionFunctionList")
     public Object[] testConversionFunctions() {
         return new Object[] {
-                "testConvertJsonToNestedRecordsWithErrors",
                 "testConvertFromJsonWithCyclicValueReferences"
         };
     }
