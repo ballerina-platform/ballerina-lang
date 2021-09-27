@@ -106,8 +106,6 @@ function testAdditionWithTypes() {
     P a18 = "Cat";
     xml a19 = xml `abc`;
     xml:Text|xml a20 = xml `abdef`;
-    string:Char a21 = "d";
-    string|(string|string:Char) a22 = "efg";
 
     test:assertEquals(a14 + a15, "abcM");
     test:assertEquals(a15 + a16, "MEFG");
@@ -121,16 +119,6 @@ function testAdditionWithTypes() {
     test:assertEquals(a18 + a19, xml `Catabc`);
     test:assertEquals(a19 + a20, xml `abcabdef`);
     test:assertEquals(a20 + a19, xml `abdefabc`);
-    test:assertEquals(a14 + a21, "abcd");
-    test:assertEquals(a21 + a14, "dabc");
-    test:assertEquals(a18 + a21, "Catd");
-    test:assertEquals(a21 + a18, "dCat");
-    test:assertEquals(a21 + a22, "defg");
-    test:assertEquals(a22 + a21, "efgd");
-    test:assertEquals(a15 + a21, "Md");
-    test:assertEquals(a21 + a15, "dM");
-    test:assertEquals(a21 + a19, xml `dabc`);
-    test:assertEquals(a19 + a21, xml `abcd`);
 }
 
 function testAddSingleton() {
@@ -161,3 +149,37 @@ function testContextuallyExpectedTypeOfNumericLiteralInAdd() {
     test:assertEquals(a4, 25.0d);
 }
 
+type Strings "x"|"yz";
+
+function testStringCharAddition() {
+    string s = "abc";
+    string:Char c = "d";
+    string|(string|string:Char) a = "efg";
+    Strings b = "x";
+    Strings d = "yz";
+
+    test:assertEquals(s + c, "abcd");
+    test:assertEquals(c + s, "dabc");
+    test:assertEquals(s + a, "abcefg");
+    test:assertEquals(a + s, "efgabc");
+    test:assertEquals(c + a, "defg");
+    test:assertEquals(a + c, "efgd");
+    test:assertEquals(s + b, "abcx");
+    test:assertEquals(b + s, "xabc");
+    test:assertEquals(c + d, "dyz");
+    test:assertEquals(d + c, "yzd");
+}
+
+function testStringXmlSubtypesAddition() {
+    string s = "abc";
+    string:Char c = "d";
+    xml x1 = xml `efg`;
+    xml:Text x2 = xml `text`;
+
+    test:assertEquals(s + x2, xml `abctext`);
+    test:assertEquals(x2 + s, xml `textabc`);
+    test:assertEquals(c + x1, xml `defg`);
+    test:assertEquals(x1 + c, xml `efgd`);
+    test:assertEquals(c + x2, xml `dtext`);
+    test:assertEquals(x2 + c, xml `textd`);
+}
