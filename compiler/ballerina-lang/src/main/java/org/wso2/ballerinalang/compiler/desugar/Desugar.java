@@ -741,7 +741,6 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         observabilityDesugar.addObserveInternalModuleImport(pkgNode);
-        observabilityDesugar.addObserveModuleImport(pkgNode);
 
         code2CloudDesugar.addCode2CloudModuleImport(pkgNode);
 
@@ -3538,7 +3537,7 @@ public class Desugar extends BLangNodeVisitor {
             rewrite(matchStatement.onFailClause, env);
         }
 
-        String matchExprVarName = GEN_VAR_PREFIX.value;
+        String matchExprVarName = GEN_VAR_PREFIX.value + "t_match_var";
 
         BLangExpression matchExpr = matchStatement.expr;
         BLangSimpleVariable matchExprVar =

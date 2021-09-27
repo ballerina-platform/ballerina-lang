@@ -22,26 +22,11 @@ import io.ballerina.projects.Module;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
-import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.util.Name;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -107,85 +92,16 @@ public class FunctionGenerator {
     }
 
     /**
-     * Get the function arguments from the function.
-     *
-     * @param importsAcceptor imports accepter
-     * @param parent          Parent node
-     * @param context         {@link BallerinaCompletionContext}
-     * @return {@link List} List of arguments
-     */
-    @Deprecated
-    public static List<String> getFuncArguments(ImportsAcceptor importsAcceptor, BLangNode parent,
-                                                BallerinaCompletionContext context) {
-        List<String> list = new ArrayList<>();
-        if (parent instanceof BLangInvocation) {
-            BLangInvocation bLangInvocation = (BLangInvocation) parent;
-            if (bLangInvocation.argExprs.isEmpty()) {
-                return null;
-            }
-            int argCounter = 1;
-            for (BLangExpression bLangExpression : bLangInvocation.argExprs) {
-                // TODO: Fix
-//                Set<String> argNames = CommonUtil.getAllNameEntries(compilerContext);
-                Set<String> argNames = new HashSet<>();
-                if (bLangExpression instanceof BLangSimpleVarRef) {
-                    BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) bLangExpression;
-                    String varName = simpleVarRef.variableName.value;
-                    String argType = lookupVariableReturnType(importsAcceptor, varName, parent, context);
-                    list.add(argType + " " + varName);
-                    argNames.add(varName);
-                } else if (bLangExpression instanceof BLangInvocation) {
-//                    String argType = generateTypeDefinition(importsAcceptor, bLangExpression, context);
-                    String argName = CommonUtil.generateVariableName(bLangExpression, argNames);
-//                    list.add(argType + " " + argName);
-                    argNames.add(argName);
-                } else {
-//                    String argType = generateTypeDefinition(importsAcceptor, bLangExpression, context);
-                    String argName = CommonUtil.generateName(argCounter++, argNames);
-//                    list.add(argType + " " + argName);
-                    argNames.add(argName);
-                }
-            }
-        }
-        return (!list.isEmpty()) ? list : null;
-    }
-
-    private static String lookupVariableReturnType(ImportsAcceptor importsAcceptor,
-                                                   String variableName, BLangNode parent,
-                                                   DocumentServiceContext context) {
-        // Recursively find BLangBlockStmt to get scope-entries
-        if (parent instanceof BLangBlockStmt || parent instanceof BLangFunctionBody) {
-            Scope scope = parent instanceof BLangBlockStmt ? ((BLangBlockStmt) parent).scope
-                    : ((BLangFunctionBody) parent).scope;
-            if (scope != null) {
-                for (Map.Entry<Name, Scope.ScopeEntry> entry : scope.entries.entrySet()) {
-                    String key = entry.getKey().getValue();
-                    BSymbol symbol = entry.getValue().symbol;
-                    if (variableName.equals(key) && symbol instanceof BVarSymbol) {
-//                        return generateTypeDefinition(importsAcceptor, symbol.type, context);
-                        //TODO Fix this
-                        return null;
-                    }
-                }
-            }
-        }
-
-        return (parent != null && parent.parent != null)
-                ? lookupVariableReturnType(importsAcceptor, variableName, parent.parent, context)
-                : "any";
-    }
-
-    /**
      * Generates a function with the provided parameters.
      *
-     * @param context          Code action context
+     * @param context          Document service context
      * @param newLineAtStart   Whether to add an additional newline at the beginning of the function.
      * @param functionName     Name of the created function
      * @param args             Function arguments as a string list
      * @param returnTypeSymbol return type of the function
      * @return Created function as a string
      */
-    public static String generateFunction(CodeActionContext context, boolean newLineAtStart, String functionName,
+    public static String generateFunction(DocumentServiceContext context, boolean newLineAtStart, String functionName,
                                           List<String> args, TypeSymbol returnTypeSymbol) {
         Optional<String> returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeSymbol);
 
@@ -199,8 +115,10 @@ public class FunctionGenerator {
             // returns clause
             returnsClause = "returns " + returnType.get();
             // return statement
-            returnStmt = "return " + CommonUtil.getDefaultValueForType(returnTypeSymbol) +
-                    CommonKeys.SEMI_COLON_SYMBOL_KEY;
+            Optional<String> defaultReturnValue = CommonUtil.getDefaultValueForType(returnTypeSymbol);
+            if (defaultReturnValue.isPresent()) {
+                    returnStmt = "return " + defaultReturnValue.get() + CommonKeys.SEMI_COLON_SYMBOL_KEY;
+            }
         }
 
         // body

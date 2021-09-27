@@ -48,7 +48,7 @@ public class MockTest extends BaseTestCase {
 
     @Test()
     public void testFunctionMocking() throws BallerinaTestException {
-        String msg1 = "12 passing";
+        String msg1 = "13 passing";
         String msg2 = "3 failing";
         String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
@@ -60,8 +60,9 @@ public class MockTest extends BaseTestCase {
 
     @Test()
     public void testObjectMocking() throws BallerinaTestException {
-        String msg1 = "7 passing";
-        String msg2 = "6 failing";
+        String msg1 = "9 passing";
+        String msg2 = "7 failing";
+
         String[] args = mergeCoverageArgs(new String[]{"object-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -96,7 +97,9 @@ public class MockTest extends BaseTestCase {
                 {"return value provided does not match the return type of function 'get()'",
                         "object_mocking:testDefaultMockWrongAction"},
                 {"too many argument provided to mock the function 'get()'",
-                        "object_mocking:testDefaultTooManyArgs"}
+                        "object_mocking:testDefaultTooManyArgs"},
+                {"return value provided does not match the return type of function 'get_stream()'",
+                        "object_mocking:testMockInvalidStream"}
         };
     }
 }

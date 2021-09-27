@@ -59,6 +59,7 @@ dependencies {
         implementation "io.grpc:grpc-netty-shaded:${project.ext.grpcVersion}"
         implementation 'com.github.spullara.mustache.java:compiler:0.8.9'
         implementation 'org.bitbucket.cowwoc:diff-match-patch:1.2'
+        implementation 'guru.nidi:graphviz-java:0.18.1'
 
         implementation 'org.apache.commons:commons-lang3:3.8.1'
         implementation 'org.apache.commons:commons-text:1.9'

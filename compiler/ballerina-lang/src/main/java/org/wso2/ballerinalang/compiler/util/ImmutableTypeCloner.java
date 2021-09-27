@@ -193,7 +193,7 @@ public class ImmutableTypeCloner {
         }
 
         BIntersectionType immutableType = type.getImmutableType();
-        if (immutableType != null) {
+        if (immutableType != null && (env == null || immutableType.tsymbol.pkgID.equals(env.enclPkg.packageID))) {
             return immutableType;
         }
 

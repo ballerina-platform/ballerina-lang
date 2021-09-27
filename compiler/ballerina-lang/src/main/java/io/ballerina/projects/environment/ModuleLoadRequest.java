@@ -18,11 +18,8 @@
 package io.ballerina.projects.environment;
 
 import io.ballerina.projects.DependencyResolutionType;
-import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageDependencyScope;
-import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.PackageVersion;
 import io.ballerina.tools.diagnostics.Location;
 
 import java.util.ArrayList;
@@ -37,38 +34,28 @@ import java.util.Optional;
  */
 public class ModuleLoadRequest {
     private final PackageOrg orgName;
-    private final PackageName packageName;
-    private final ModuleName moduleName;
-    private final PackageVersion version;
+    private final String moduleName;
     private final PackageDependencyScope scope;
     private final DependencyResolutionType dependencyResolvedType;
     private final List<Location> locations = new ArrayList<>();
 
     public ModuleLoadRequest(PackageOrg orgName,
-                             PackageName packageName,
-                             ModuleName moduleName,
-                             PackageVersion version,
+                             String moduleName,
                              PackageDependencyScope scope,
                              DependencyResolutionType dependencyResolvedType) {
         this.orgName = orgName;
-        this.packageName = packageName;
         this.moduleName = moduleName;
-        this.version = version;
         this.scope = scope;
         this.dependencyResolvedType = dependencyResolvedType;
     }
 
     public ModuleLoadRequest(PackageOrg orgName,
-                             PackageName packageName,
-                             ModuleName moduleName,
-                             PackageVersion version,
+                             String moduleName,
                              PackageDependencyScope scope,
                              DependencyResolutionType dependencyResolvedType,
                              Location location) {
         this.orgName = orgName;
-        this.packageName = packageName;
         this.moduleName = moduleName;
-        this.version = version;
         this.scope = scope;
         this.dependencyResolvedType = dependencyResolvedType;
         this.locations.add(location);
@@ -78,16 +65,8 @@ public class ModuleLoadRequest {
         return Optional.ofNullable(orgName);
     }
 
-    public PackageName packageName() {
-        return packageName;
-    }
-
-    public ModuleName moduleName() {
+    public String moduleName() {
         return moduleName;
-    }
-
-    public Optional<PackageVersion> version() {
-        return Optional.ofNullable(version);
     }
 
     public PackageDependencyScope scope() {
@@ -99,7 +78,7 @@ public class ModuleLoadRequest {
     }
 
     public boolean injected() {
-        return dependencyResolvedType == DependencyResolutionType.INJECTED;
+        return dependencyResolvedType == DependencyResolutionType.PLATFORM_PROVIDED;
     }
 
     public List<Location> locations() {
@@ -122,13 +101,11 @@ public class ModuleLoadRequest {
 
         ModuleLoadRequest that = (ModuleLoadRequest) o;
         return Objects.equals(orgName, that.orgName) &&
-                packageName.equals(that.packageName) &&
-                moduleName.equals(that.moduleName) &&
-                Objects.equals(version, that.version);
+                moduleName.equals(that.moduleName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(orgName, packageName, moduleName, version);
+        return Objects.hash(orgName, moduleName);
     }
 }

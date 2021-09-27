@@ -67,7 +67,7 @@
           "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nCombines the members of an array using a combining function.\n\nThe combining function takes the combined value so far and a member of the array,\nand returns a new combined value.\n\nFor example\n```\nreduce([1, 2, 3], function (int total, int n) returns int { return total + n; }, 0)\n```\nis the same as `sum(1, 2, 3)`.\n  \n**Params**  \n- `function ()` func: combining function  \n- `any|error` initial: initial value for the first argument of combining parameter `func`  \n  \n**Return** `any|error`   \n- result of combining the members of parameter `arr` using parameter `func`  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "reduce",
       "insertText": "reduce(${1})",
       "insertTextFormat": "Snippet",
@@ -86,7 +86,7 @@
           "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nApplies a function to each member of an array.\n\nThe parameter `func` is applied to each member of parameter `arr` in order.\n  \n**Params**  \n- `function ()` func: a function to apply to each member"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "forEach",
       "insertText": "forEach(${1})",
       "insertTextFormat": "Snippet",
@@ -98,14 +98,14 @@
     {
       "label": "shift()",
       "kind": "Function",
-      "detail": "any|error",
+      "detail": "[string, int]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves and returns first member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `any|error`   \n- the value that was the first member of the array  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves and returns first member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `[string, int]`   \n- the value that was the first member of the array  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "shift",
       "insertText": "shift()",
       "insertTextFormat": "Snippet"
@@ -120,7 +120,7 @@
           "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the number of members of an array.\n  \n  \n  \n**Return** `int`   \n- number of members in parameter `arr`  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "length",
       "insertText": "length()",
       "insertTextFormat": "Snippet"
@@ -128,14 +128,14 @@
     {
       "label": "sort(array:SortDirection direction, function ()? key)",
       "kind": "Function",
-      "detail": "(any|error)[]",
+      "detail": "[string, int][]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nSorts an array.\n\nIf the member type of the array is not ordered, then the parameter `key` function\nmust be specified.\nSorting works the same as with the parameter `sort` clause of query expressions.\n  \n**Params**  \n- `array:SortDirection` direction: direction in which to sort(Defaultable)  \n- `function ()?` key: function that returns a key to use to sort the members(Defaultable)  \n  \n**Return** `(any|error)[]`   \n- a new array consisting of the members of parameter `arr` in sorted order  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nSorts an array.\n\nIf the member type of the array is not ordered, then the parameter `key` function\nmust be specified.\nSorting works the same as with the parameter `sort` clause of query expressions.\n  \n**Params**  \n- `array:SortDirection` direction: direction in which to sort(Defaultable)  \n- `function ()?` key: function that returns a key to use to sort the members(Defaultable)  \n  \n**Return** `[string, int][]`   \n- a new array consisting of the members of parameter `arr` in sorted order  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "sort",
       "insertText": "sort(${1})",
       "insertTextFormat": "Snippet",
@@ -147,14 +147,14 @@
     {
       "label": "reverse()",
       "kind": "Function",
-      "detail": "(any|error)[]",
+      "detail": "[string, int][]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReverses the order of the members of an array.\n  \n  \n  \n**Return** `(any|error)[]`   \n- parameter `arr` with its members in reverse order  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReverses the order of the members of an array.\n  \n  \n  \n**Return** `[string, int][]`   \n- parameter `arr` with its members in reverse order  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "reverse",
       "insertText": "reverse()",
       "insertTextFormat": "Snippet"
@@ -162,14 +162,14 @@
     {
       "label": "toStream()",
       "kind": "Function",
-      "detail": "stream<any|error>",
+      "detail": "stream<[string, int]>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a stream from the given array.\n  \n  \n  \n**Return** `stream<any|error>`   \n- The stream representation of the array `arr`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a stream from the given array.\n  \n  \n  \n**Return** `stream<[string, int]>`   \n- The stream representation of the array `arr`  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "toStream",
       "insertText": "toStream()",
       "insertTextFormat": "Snippet"
@@ -177,14 +177,14 @@
     {
       "label": "remove(int index)",
       "kind": "Function",
-      "detail": "any|error",
+      "detail": "[string, int]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves a member of an array.\n\nThis removes the member of parameter `arr` with index parameter `index` and returns it.\nIt panics if there is no such member.\n  \n**Params**  \n- `int` index: index of member to be removed from parameter `arr`  \n  \n**Return** `any|error`   \n- the member of parameter `arr` that was at parameter `index`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves a member of an array.\n\nThis removes the member of parameter `arr` with index parameter `index` and returns it.\nIt panics if there is no such member.\n  \n**Params**  \n- `int` index: index of member to be removed from parameter `arr`  \n  \n**Return** `[string, int]`   \n- the member of parameter `arr` that was at parameter `index`  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "remove",
       "insertText": "remove(${1})",
       "insertTextFormat": "Snippet",
@@ -194,16 +194,16 @@
       }
     },
     {
-      "label": "push(any|error... vals)",
+      "label": "push([string, int]... vals)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nAdds values to the end of an array.\n  \n**Params**  \n- `(any|error)[]` vals: values to add to the end of the array"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nAdds values to the end of an array.\n  \n**Params**  \n- `[string, int][]` vals: values to add to the end of the array"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "push",
       "insertText": "push(${1})",
       "insertTextFormat": "Snippet",
@@ -215,14 +215,14 @@
     {
       "label": "filter(function () func)",
       "kind": "Function",
-      "detail": "(any|error)[]",
+      "detail": "[string, int][]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nSelects the members from an array for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `(any|error)[]`   \n- new array only containing members of parameter `arr` for which parameter `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nSelects the members from an array for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `[string, int][]`   \n- new array only containing members of parameter `arr` for which parameter `func` evaluates to true  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "filter",
       "insertText": "filter(${1})",
       "insertTextFormat": "Snippet",
@@ -234,29 +234,29 @@
     {
       "label": "pop()",
       "kind": "Function",
-      "detail": "any|error",
+      "detail": "[string, int]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves and returns the last member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `any|error`   \n- removed member  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves and returns the last member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `[string, int]`   \n- removed member  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "pop",
       "insertText": "pop()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lastIndexOf(anydata val, int startIndex)",
+      "label": "lastIndexOf([string, int] val, int startIndex)",
       "kind": "Function",
       "detail": "int?",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the index of last member of an array that is equal to a given value if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `anydata` val: member to search for  \n- `int` startIndex: index to start searching backwards from(Defaultable)  \n  \n**Return** `int?`   \n- index of the member if found, else `()`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the index of last member of an array that is equal to a given value if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `[string, int]` val: member to search for  \n- `int` startIndex: index to start searching backwards from(Defaultable)  \n  \n**Return** `int?`   \n- index of the member if found, else `()`  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "lastIndexOf",
       "insertText": "lastIndexOf(${1})",
       "insertTextFormat": "Snippet",
@@ -275,7 +275,7 @@
           "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns an iterator over an array.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| any|error value; |}? ;}`   \n- a new iterator object that will iterate over the members of parameter `arr`.  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "iterator",
       "insertText": "iterator()",
       "insertTextFormat": "Snippet"
@@ -290,7 +290,7 @@
           "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves all members of an array.\n\nPanics if any member cannot be removed.  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "removeAll",
       "insertText": "removeAll()",
       "insertTextFormat": "Snippet"
@@ -305,7 +305,7 @@
           "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nChanges the length of an array.\n\n`setLength(arr, 0)` is equivalent to `removeAll(arr)`.\n  \n**Params**  \n- `int` length: new length"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "setLength",
       "insertText": "setLength(${1})",
       "insertTextFormat": "Snippet",
@@ -317,14 +317,14 @@
     {
       "label": "slice(int startIndex, int endIndex)",
       "kind": "Function",
-      "detail": "(any|error)[]",
+      "detail": "[string, int][]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a subarray using a start index (inclusive) and an end index (exclusive).\n  \n**Params**  \n- `int` startIndex: index of first member to include in the slice  \n- `int` endIndex: index of first member not to include in the slice(Defaultable)  \n  \n**Return** `(any|error)[]`   \n- array slice within specified range  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a subarray using a start index (inclusive) and an end index (exclusive).\n  \n**Params**  \n- `int` startIndex: index of first member to include in the slice  \n- `int` endIndex: index of first member not to include in the slice(Defaultable)  \n  \n**Return** `[string, int][]`   \n- array slice within specified range  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "slice",
       "insertText": "slice(${1})",
       "insertTextFormat": "Snippet",
@@ -336,29 +336,29 @@
     {
       "label": "enumerate()",
       "kind": "Function",
-      "detail": "[int, any|error][]",
+      "detail": "[int, [string, int]][]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a new array consisting of index and member pairs.\n  \n  \n  \n**Return** `[int, any|error][]`   \n- array of index, member pairs  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a new array consisting of index and member pairs.\n  \n  \n  \n**Return** `[int, [string, int]][]`   \n- array of index, member pairs  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "enumerate",
       "insertText": "enumerate()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "unshift(any|error... vals)",
+      "label": "unshift([string, int]... vals)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nAdds values to the start of an array.\n\nThe values newly added to the array will be in the same order\nas they are in parameter `vals`.\n  \n**Params**  \n- `(any|error)[]` vals: values to add to the start of the array"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nAdds values to the start of an array.\n\nThe values newly added to the array will be in the same order\nas they are in parameter `vals`.\n  \n**Params**  \n- `[string, int][]` vals: values to add to the start of the array"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "unshift",
       "insertText": "unshift(${1})",
       "insertTextFormat": "Snippet",
@@ -368,16 +368,16 @@
       }
     },
     {
-      "label": "indexOf(anydata val, int startIndex)",
+      "label": "indexOf([string, int] val, int startIndex)",
       "kind": "Function",
       "detail": "int?",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the index of first member of an array that is equal to a given value if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `anydata` val: member to search for  \n- `int` startIndex: index to start the search from(Defaultable)  \n  \n**Return** `int?`   \n- index of the member if found, else `()`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the index of first member of an array that is equal to a given value if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `[string, int]` val: member to search for  \n- `int` startIndex: index to start the search from(Defaultable)  \n  \n**Return** `int?`   \n- index of the member if found, else `()`  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "indexOf",
       "insertText": "indexOf(${1})",
       "insertTextFormat": "Snippet",
@@ -396,7 +396,7 @@
           "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConstructs a value with a specified type by cloning another value.\n\nWhen parameter `v` is a structural value, the inherent type of the value to be constructed\ncomes from parameter `t`. When parameter `t` is a union, it must be possible to determine which\nmember of the union to use for the inherent type by following the same rules\nthat are used by list constructor expressions and mapping constructor expressions\nwith the contextually expected type. If not, then an error is returned.\nThe `cloneWithType` operation is recursively applied to each member of parameter `v` using\nthe type descriptor that the inherent type requires for that member.\n\nLike the Clone abstract operation, this does a deep copy, but differs in\nthe following respects:\n- the inherent type of any structural values constructed comes from the specified\ntype descriptor rather than the value being constructed\n- the read-only bit of values and fields comes from the specified type descriptor\n- the graph structure of `v` is not preserved; the result will always be a tree;\nan error will be returned if `v` has cycles\n- immutable structural values are copied rather being returned as is; all\nstructural values in the result will be mutable.\n- numeric values can be converted using the NumericConvert abstract operation\n- if a record type descriptor specifies default values, these will be used\nto supply any missing members\n  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed(Defaultable)  \n  \n**Return** `t|error`   \n- a new value that belongs to type `t`, or an error if this cannot be done  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "cloneWithType",
       "insertText": "cloneWithType(${1})",
       "insertTextFormat": "Snippet",
@@ -408,14 +408,14 @@
     {
       "label": "cloneReadOnly()",
       "kind": "Function",
-      "detail": "CloneableType & readonly",
+      "detail": "value:CloneableType & readonly",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "cloneReadOnly",
       "insertText": "cloneReadOnly()",
       "insertTextFormat": "Snippet"
@@ -430,7 +430,7 @@
           "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "toBalString",
       "insertText": "toBalString()",
       "insertTextFormat": "Snippet"
@@ -445,7 +445,7 @@
           "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value of type `anydata` to `json`.\n\nThis does a deep copy of parameter `v` converting values that do\nnot belong to json into values that do.\nA value of type `xml` is converted into a string as if\nby the `toString` function.\nA value of type `table` is converted into a list of\nmappings one for each row.\nThe inherent type of arrays in the return value will be\n`json[]` and of mappings will be `map<json>`.\nA new copy is made of all structural values, including\nimmutable values.\nThis panics if parameter `v` has cycles.\n  \n  \n  \n**Return** `json`   \n- representation of `v` as value of type json  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "toJson",
       "insertText": "toJson()",
       "insertTextFormat": "Snippet"
@@ -460,7 +460,7 @@
           "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nTests whether a value is read-only, i.e., immutable.\n\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Return** `boolean`   \n- true if read-only, false otherwise  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "isReadOnly",
       "insertText": "isReadOnly()",
       "insertTextFormat": "Snippet"
@@ -475,7 +475,7 @@
           "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value of type json to a user-specified type.\n\nThis works the same as function `cloneWithType`,\nexcept that it also does the inverse of the conversions done by `toJson`.\n  \n**Params**  \n- `typedesc<anydata>` t: type to convert to(Defaultable)  \n  \n**Return** `t|error`   \n- value belonging to type parameter `t` or error if this cannot be done  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "fromJsonWithType",
       "insertText": "fromJsonWithType(${1})",
       "insertTextFormat": "Snippet",
@@ -494,7 +494,7 @@
           "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nMerges two `json` values.\n\nThe merge of parameter `j1` with parameter `j2` is defined as follows:\n- if parameter `j1` is `()`, then the result is parameter `j2`\n- if parameter `j2` is `()`, then the result is parameter `j1`\n- if parameter `j1` is a mapping and parameter `j2` is a mapping, then for each entry [k, j] in parameter `j2`, set `j1[k]` to the merge of `j1[k]` with `j`\n- if `j1[k]` is undefined, then set `j1[k]` to `j`\n- if any merge fails, then the merge of parameter `j1` with parameter `j2` fails\n- otherwise, the result is parameter `j1`.\n- otherwise, the merge fails\nIf the merge fails, then parameter `j1` is unchanged.\n  \n**Params**  \n- `json` j2: json value  \n  \n**Return** `json|error`   \n- the merge of parameter `j1` with parameter `j2` or an error if the merge fails  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "mergeJson",
       "insertText": "mergeJson(${1})",
       "insertTextFormat": "Snippet",
@@ -506,14 +506,14 @@
     {
       "label": "clone()",
       "kind": "Function",
-      "detail": "CloneableType",
+      "detail": "value:CloneableType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `CloneableType`   \n- clone of parameter `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType`   \n- clone of parameter `v`  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "clone",
       "insertText": "clone()",
       "insertTextFormat": "Snippet"
@@ -528,7 +528,7 @@
           "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it\nreturn - `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done(Defaultable)  \n  \n**Return** `t|error`   \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "ensureType",
       "insertText": "ensureType(${1})",
       "insertTextFormat": "Snippet",
@@ -547,7 +547,7 @@
           "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nPerforms a direct conversion of a value to a string.\n\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "toString",
       "insertText": "toString()",
       "insertTextFormat": "Snippet"
@@ -562,7 +562,7 @@
           "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns the string that represents a anydata value in JSON format.\n\nparameter `v` is first converted to `json` as if by the function `toJson`.\n  \n  \n  \n**Return** `string`   \n- string representation of parameter `v` converted to `json`  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
@@ -577,7 +577,7 @@
           "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nApplies a function to each member of an array and returns an array of the results.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `(any|error)[]`   \n- new array containing result of applying parameter `func` to each member of parameter `arr` in order  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "map",
       "insertText": "map(${1})",
       "insertTextFormat": "Snippet",

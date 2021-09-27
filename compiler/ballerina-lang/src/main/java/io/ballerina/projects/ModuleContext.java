@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayOutputStream;
@@ -49,7 +48,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.model.tree.SourceKind.REGULAR_SOURCE;
 import static org.ballerinalang.model.tree.SourceKind.TEST_SOURCE;
 
@@ -305,11 +303,11 @@ class ModuleContext {
     }
 
     private void addModuleDependency(PackageOrg org,
-                                     ModuleName moduleName,
+                                     String moduleName,
                                      PackageDependencyScope scope,
                                      Set<ModuleDependency> moduleDependencies,
                                      DependencyResolution dependencyResolution) {
-        Optional<ModuleContext> resolvedModuleOptional = dependencyResolution.getModule(org, moduleName.toString());
+        Optional<ModuleContext> resolvedModuleOptional = dependencyResolution.getModule(org, moduleName);
         if (resolvedModuleOptional.isEmpty()) {
             return;
         }
@@ -381,10 +379,7 @@ class ModuleContext {
                                                                        REGULAR_SOURCE));
         }
 
-        // Parse test source files if --skip-tests option is set to false
-        CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
-        if (!Boolean.parseBoolean(compilerOptions.get(SKIP_TESTS))
-                && !moduleContext.testSrcDocumentIds().isEmpty()) {
+        if (!moduleContext.testSrcDocumentIds().isEmpty()) {
             moduleContext.parseTestSources(pkgNode, moduleCompilationId, compilerContext);
         }
 

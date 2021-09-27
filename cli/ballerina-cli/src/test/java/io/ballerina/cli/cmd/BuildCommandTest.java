@@ -38,6 +38,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
+import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
 /**
@@ -599,7 +600,12 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala")
                                   .toFile().exists());
         // `Dependencies.toml` file should not get deleted
-        Assert.assertTrue(projectPath.resolve("Dependencies.toml").toFile().exists());
+        Assert.assertTrue(projectPath.resolve(DEPENDENCIES_TOML).toFile().exists());
+        // `dependencies-toml-version` should exists in `Dependencies.toml`
+        String expected = "[ballerina]\n"
+                + "dependencies-toml-version = \"2\"";
+        String actual = Files.readString(projectPath.resolve(DEPENDENCIES_TOML));
+        Assert.assertTrue(actual.contains(expected));
     }
 
     @Test(description = "Compile an empty package with compiler plugin")

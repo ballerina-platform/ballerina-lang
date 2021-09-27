@@ -256,8 +256,8 @@ function testTupleFromBalString() {
     [string, int, decimal, float] tupleVal = ["TOM", 10, 90.12, (0.0/0.0)];
     [string, int, decimal, float] tupleVal2 = [];
 
-    string s1 = "\"TOM\" 10 90.12d float:NaN";
-    string s2 = "\"\" 0 0.0d 0.0";
+    string s1 = "[\"TOM\",10,90.12d,float:NaN]";
+    string s2 = "[\"\",0,0.0d,0.0]";
 
     anydata|error result = s1.fromBalString();
 

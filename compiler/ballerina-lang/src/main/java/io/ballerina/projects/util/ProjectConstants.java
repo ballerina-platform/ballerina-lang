@@ -107,4 +107,5 @@ public class ProjectConstants {
     public static final String REPOSITORIES_DIR = "repositories";
     public static final String LOCAL_REPOSITORY_NAME = "local";
     public static final String CENTRAL_REPOSITORY_CACHE_NAME = "central.ballerina.io";
+    public static final String DEPENDENCIES_TOML_VERSION = "2";
 }

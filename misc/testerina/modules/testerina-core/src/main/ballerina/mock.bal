@@ -47,8 +47,8 @@ public type Error InvalidObjectError|FunctionNotFoundError|FunctionSignatureMism
 # + mockObject - Created default mock object
 # + return - Prepared object that allows a member function/field to register stubs
 public isolated function prepare(object {} mockObject) returns MockObject {
-    Error? result = validatePreparedObjExt(mockObject);
-    if (result is Error) {
+    error? result = validatePreparedObjExt(mockObject);
+    if (result is error) {
         panic result;
     }
     MockObject obj = new MockObject(mockObject);
@@ -72,8 +72,8 @@ public class MockObject {
     # + functionName - Function name to allow stubbing
     # + return - Object that allows stubbing calls to provided member function
     public isolated function when(string functionName) returns MemberFunctionStub {
-        Error? result = validateFunctionNameExt(java:fromString(functionName), self.mockObject);
-        if (result is Error) {
+        error? result = validateFunctionNameExt(java:fromString(functionName), self.mockObject);
+        if (result is error) {
              panic result;
         }
         MemberFunctionStub mockObjCaseMemFunc = new MemberFunctionStub(self.mockObject);
@@ -87,8 +87,8 @@ public class MockObject {
     # + return - Object that allows stubbing retrieval of provided member variable
     public isolated function getMember(string fieldName) returns MemberVariableStub {
         self.fieldName = fieldName;
-        Error? result = validateFieldNameExt(java:fromString(fieldName), self.mockObject);
-        if (result is Error) {
+        error? result = validateFieldNameExt(java:fromString(fieldName), self.mockObject);
+        if (result is error) {
              panic result;
         }
         MemberVariableStub memberVariableStub = new MemberVariableStub(self.mockObject);
@@ -124,8 +124,8 @@ public class MemberFunctionStub {
     # + return - Object that allows stubbing calls to provided member function
     public isolated function withArguments(anydata|error... args) returns MemberFunctionStub {
         self.args = args;
-        Error? result = validateArgumentsExt(self);
-        if (result is Error) {
+        error? result = validateArgumentsExt(self);
+        if (result is error) {
             panic result;
         }
         return self;
@@ -140,8 +140,8 @@ public class MemberFunctionStub {
              panic err;
         }
         self.returnValue = returnValue;
-        Error? thenReturnExtResult = thenReturnExt(self);
-        if (thenReturnExtResult is Error) {
+        error? thenReturnExtResult = thenReturnExt(self);
+        if (thenReturnExtResult is error) {
             panic thenReturnExtResult;
         }
     }
@@ -159,8 +159,8 @@ public class MemberFunctionStub {
             panic err;
         }
         self.returnValueSeq = returnValues;
-        Error? thenReturnSeqExtResult = thenReturnSeqExt(self);
-        if (thenReturnSeqExtResult is Error) {
+        error? thenReturnSeqExtResult = thenReturnSeqExt(self);
+        if (thenReturnSeqExtResult is error) {
             panic thenReturnSeqExtResult;
         }
     }
@@ -172,8 +172,8 @@ public class MemberFunctionStub {
              panic err;
         }
         self.returnValue = ();
-        Error? thenReturnExtResult = thenReturnExt(self);
-        if (thenReturnExtResult is Error) {
+        error? thenReturnExtResult = thenReturnExt(self);
+        if (thenReturnExtResult is error) {
             panic thenReturnExtResult;
         }
     }
@@ -204,8 +204,8 @@ public class MemberVariableStub {
              panic err;
         }
         self.returnValue = returnValue;
-        Error? thenReturnExtResult = thenReturnExt(self);
-        if (thenReturnExtResult is Error) {
+        error? thenReturnExtResult = thenReturnExt(self);
+        if (thenReturnExtResult is error) {
             panic thenReturnExtResult;
         }
     }
@@ -252,8 +252,8 @@ public class FunctionStub {
     # + returnValue - Value or error to return
     public isolated function thenReturn(any|error returnValue) {
         self.returnValue = returnValue;
-        Error? result = thenReturnFuncExt(self);
-        if (result is Error) {
+        error? result = thenReturnFuncExt(self);
+        if (result is error) {
             panic result;
         }
     }
@@ -269,8 +269,8 @@ public class FunctionStub {
 
     # Sets the function behavior to do nothing when called.
     public isolated function doNothing() {
-        Error? result = thenReturnFuncExt(self);
-        if (result is Error) {
+        error? result = thenReturnFuncExt(self);
+        if (result is error) {
             panic result;
         }
     }
@@ -280,8 +280,8 @@ public class FunctionStub {
     # + functionName - Mock function to call in place of the real
     public isolated function call(string functionName) {
         self.returnValue = "__CALL__" + functionName;
-        Error? result = thenReturnFuncExt(self);
-        if (result is Error) {
+        error? result = thenReturnFuncExt(self);
+        if (result is error) {
             panic result;
         }
     }
@@ -289,8 +289,8 @@ public class FunctionStub {
     # Sets the original function to be invoked.
     public isolated function callOriginal() {
         self.returnValue = "__ORIGINAL__";
-        Error? result = thenReturnFuncExt(self);
-        if (result is Error) {
+        error? result = thenReturnFuncExt(self);
+        if (result is error) {
             panic result;
         }
     }
@@ -309,7 +309,7 @@ public isolated function mock(typedesc<object{}> T, object{} mockObject = object
 #
 # + mockObject - Mock object
 # + return - Return Value Description
-isolated function validatePreparedObjExt(object{} mockObject) returns Error? = @java:Method {
+isolated function validatePreparedObjExt(object{} mockObject) returns error? = @java:Method {
     name: "validatePreparedObj",
     'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
@@ -318,8 +318,8 @@ isolated function validatePreparedObjExt(object{} mockObject) returns Error? = @
 #
 # + functionName - Function name provided
 # + mockObject - Object to validate against
-# + return - Error if function does not exist or in case of a signature mismatch
-isolated function validateFunctionNameExt(handle functionName, object{} mockObject) returns Error? = @java:Method {
+# + return - error if function does not exist or in case of a signature mismatch
+isolated function validateFunctionNameExt(handle functionName, object{} mockObject) returns error? = @java:Method {
     name: "validateFunctionName",
     'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
@@ -328,8 +328,8 @@ isolated function validateFunctionNameExt(handle functionName, object{} mockObje
 #
 # + fieldName - Field name provided
 # + mockObject - Object to validate against
-# + return - Error if field does not exist
-isolated function validateFieldNameExt(handle fieldName, object{} mockObject) returns Error? = @java:Method {
+# + return - error if field does not exist
+isolated function validateFieldNameExt(handle fieldName, object{} mockObject) returns error? = @java:Method {
     name: "validateFieldName",
     'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
@@ -337,8 +337,8 @@ isolated function validateFieldNameExt(handle fieldName, object{} mockObject) re
 # Inter-op to validate the arguments list.
 #
 # + case - Case to validate
-# + return - Error in case of an argument mismatch
-isolated function validateArgumentsExt(MemberFunctionStub case) returns Error? = @java:Method {
+# + return - error in case of an argument mismatch
+isolated function validateArgumentsExt(MemberFunctionStub case) returns error? = @java:Method {
     name: "validateArguments",
     'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
@@ -346,8 +346,8 @@ isolated function validateArgumentsExt(MemberFunctionStub case) returns Error? =
 # Inter-op to register the return value.
 #
 # + case - Case to register
-# + return - Error if the case registration fails
-isolated function thenReturnExt(MemberFunctionStub|MemberVariableStub case) returns Error? = @java:Method {
+# + return - error if the case registration fails
+isolated function thenReturnExt(MemberFunctionStub|MemberVariableStub case) returns error? = @java:Method {
     name: "thenReturn",
     'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
@@ -355,8 +355,8 @@ isolated function thenReturnExt(MemberFunctionStub|MemberVariableStub case) retu
 # Inter-op to register the sequence of return values.
 #
 # + case - Case to register
-# + return - Error if the case registration fails
-isolated function thenReturnSeqExt(MemberFunctionStub case) returns Error? = @java:Method {
+# + return - error if the case registration fails
+isolated function thenReturnSeqExt(MemberFunctionStub case) returns error? = @java:Method {
     name: "thenReturnSequence",
     'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
@@ -364,8 +364,8 @@ isolated function thenReturnSeqExt(MemberFunctionStub case) returns Error? = @ja
 # Inter-op to register return value.
 #
 # + case - Case to register
-# + return - Error if the case registration fails
-isolated function thenReturnFuncExt(FunctionStub case) returns Error? = @java:Method {
+# + return - error if the case registration fails
+isolated function thenReturnFuncExt(FunctionStub case) returns error? = @java:Method {
     name: "thenReturn",
     'class: "org.ballerinalang.testerina.natives.mock.FunctionMock"
 } external;
@@ -375,7 +375,7 @@ isolated function thenReturnFuncExt(FunctionStub case) returns Error? = @java:Me
 # + mockFunction - The `mockFunction` object
 # + args - Function arguments
 # + return - Function return value or an error if the case registration fails
-isolated function mockHandler(MockFunction mockFunction, (any|error)... args) returns any|Error = @java:Method {
+isolated function mockHandler(MockFunction mockFunction, (any|error)... args) returns any|error = @java:Method {
     name: "mockHandler",
     'class: "org.ballerinalang.testerina.natives.mock.FunctionMock"
 } external;

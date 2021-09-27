@@ -19,8 +19,34 @@ import ballerina/jballerina.java;
 public client class PublicClientObject {
     remote function getRemoteCounter(int num, decimal value, string msg = "test message") {
     }
+
+    public function testFunction(int num, decimal value, string msg = "test message") {
+    // do nothing
+    }
 }
 
-public function getParameters(PublicClientObject obj, string name) returns [string, boolean][] = @java:Method {
+public isolated service class Service {
+
+    isolated resource function get resourceFunction(string test) returns string {
+        return "foo";
+    }
+
+    isolated remote function remoteFunction(int num, decimal value, string msg = "test message") {
+    }
+}
+
+public function getParameters(PublicClientObject obj, string name) returns [string, boolean, string][] = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+public function getFunctionString(object {} obj, string name) returns string = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+public function getParamTypesString(function func) returns string = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+public function getConstituentTypes(any value) returns string[] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;

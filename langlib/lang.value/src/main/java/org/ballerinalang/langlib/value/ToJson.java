@@ -36,7 +36,6 @@ import io.ballerina.runtime.internal.JsonUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.ArrayList;
@@ -57,11 +56,7 @@ import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMP
 public class ToJson {
 
     public static Object toJson(Object value) {
-        try {
-            return convert(value, new ArrayList<>());
-        } catch (Exception e) {
-            return e;
-        }
+        return convert(value, new ArrayList<>());
     }
 
     private static Object convert(Object value, List<TypeValuePair> unresolvedValues) {
@@ -80,9 +75,7 @@ public class ToJson {
         TypeValuePair typeValuePair = new TypeValuePair(value, jsonType);
 
         if (unresolvedValues.contains(typeValuePair)) {
-            throw new BallerinaException(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR.getValue(),
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE,
-                            ((BRefValue) value).getType()).getValue());
+            throw createCyclicValueReferenceError(value);
         }
 
         unresolvedValues.add(typeValuePair);
@@ -167,5 +160,10 @@ public class ToJson {
         return createError(VALUE_LANG_LIB_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
                 INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
                 .concat(StringUtils.fromString(": ".concat(detailMessage))));
+    }
+
+    private static BError createCyclicValueReferenceError(Object value) {
+        return createError(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR, BLangExceptionHelper.getErrorMessage(
+                RuntimeErrors.CYCLIC_VALUE_REFERENCE, ((BRefValue) value).getType()));
     }
 }

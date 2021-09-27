@@ -1211,9 +1211,9 @@ public class BRunUtil {
             case io.ballerina.runtime.api.TypeTags.FUNCTION_POINTER_TAG:
                 io.ballerina.runtime.api.types.FunctionType jvmBFunctionType =
                         (io.ballerina.runtime.api.types.FunctionType) jvmType;
-                BType[] bParamTypes = new BType[jvmBFunctionType.getParameterTypes().length];
-                for (int i = 0; i < jvmBFunctionType.getParameterTypes().length; i++) {
-                    bParamTypes[i] = getBVMType(jvmBFunctionType.getParameterTypes()[i], selfTypeStack, visitedTypes,
+                BType[] bParamTypes = new BType[jvmBFunctionType.getParameters().length];
+                for (int i = 0; i < jvmBFunctionType.getParameters().length; i++) {
+                    bParamTypes[i] = getBVMType(jvmBFunctionType.getParameters()[i].type, selfTypeStack, visitedTypes,
                             newBTypes);
                 }
                 BType bRetType = getBVMType(jvmBFunctionType.getReturnType(), selfTypeStack, visitedTypes,

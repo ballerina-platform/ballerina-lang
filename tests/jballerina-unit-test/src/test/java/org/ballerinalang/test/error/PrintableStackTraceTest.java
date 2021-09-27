@@ -57,8 +57,7 @@ public class PrintableStackTraceTest {
                 "cause: error1\n" +
                 "\tat test_org.project.foo.0:errorFunc(foo.bal:22)\n" +
                 "\t   test_org.project.foo.0:testFunc(foo.bal:18)\n" +
-                "\t   test_org.project.0:testFunc(main.bal:24)\n" +
-                "\t   test_org.project.0:main(main.bal:20)");
+                "\t   ... 2 more");
     }
 
     @AfterClass

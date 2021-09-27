@@ -18,6 +18,7 @@
 
 package io.ballerina.projects.environment;
 
+import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
@@ -35,17 +36,36 @@ import java.util.Optional;
 public final class ResolutionRequest {
     private final PackageDescriptor packageDesc;
     private final PackageDependencyScope scope;
+
+    // TODO Why did we introduce the offline flag here.
+    private final DependencyResolutionType dependencyResolutionType;
     private final boolean offline;
 
-    private ResolutionRequest(PackageDescriptor packageDescriptor, PackageDependencyScope scope, boolean offline) {
+    // TODO rethink about this
+    private final PackageLockingMode packageLockingMode;
+
+    private ResolutionRequest(PackageDescriptor packageDescriptor,
+                              PackageDependencyScope scope,
+                              DependencyResolutionType dependencyResolutionType,
+                              boolean offline,
+                              PackageLockingMode packageLockingMode) {
         this.packageDesc = packageDescriptor;
         this.scope = scope;
+        this.dependencyResolutionType = dependencyResolutionType;
         this.offline = offline;
+        this.packageLockingMode = packageLockingMode;
     }
 
     public static ResolutionRequest from(PackageDescriptor packageDescriptor, PackageDependencyScope scope,
                                          boolean offline) {
-        return new ResolutionRequest(packageDescriptor, scope, offline);
+        return new ResolutionRequest(packageDescriptor, scope, DependencyResolutionType.SOURCE,
+                offline, PackageLockingMode.MEDIUM);
+    }
+
+    public static ResolutionRequest from(PackageDescriptor packageDescriptor, PackageDependencyScope scope,
+                                         DependencyResolutionType dependencyResolutionType, boolean offline,
+                                         PackageLockingMode packageLockingMode) {
+        return new ResolutionRequest(packageDescriptor, scope, dependencyResolutionType, offline, packageLockingMode);
     }
 
     public PackageOrg orgName() {
@@ -74,6 +94,14 @@ public final class ResolutionRequest {
 
     public boolean offline() {
         return offline;
+    }
+
+    public PackageLockingMode packageLockingMode() {
+        return packageLockingMode;
+    }
+
+    public DependencyResolutionType dependencyResolutionType() {
+        return dependencyResolutionType;
     }
 
     @Override

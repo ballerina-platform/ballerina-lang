@@ -791,10 +791,10 @@ function testSort4() {
         return [<float>val[1], 5.2];
     });
 
-    assertValueEquality(sortedArr[0].toString(), "C 2");
-    assertValueEquality(sortedArr[1].toString(), "A+ 2");
-    assertValueEquality(sortedArr[2].toString(), "A- 3");
-    assertValueEquality(sortedArr[3].toString(), "B 3");
+    assertValueEquality(sortedArr[0].toString(), "[\"C\",2]");
+    assertValueEquality(sortedArr[1].toString(), "[\"A+\",2]");
+    assertValueEquality(sortedArr[2].toString(), "[\"A-\",3]");
+    assertValueEquality(sortedArr[3].toString(), "[\"B\",3]");
     assertValueEquality(grades, sortedArr);
 }
 
@@ -1291,4 +1291,12 @@ function testReadOnlyArrayFilter() {
 
 function getRandomNumber(int i) returns int {
     return i + 2;
+}
+
+function testToStreamOnImmutableArray() {
+    (byte[])[] & readonly arr = [[1,2]];
+    var strm = arr.toStream();
+
+    stream<byte[] & readonly> castedstrm = <stream<byte[] & readonly>> strm;
+    assertValueEquality([1, 2], castedstrm.next()?.value);
 }

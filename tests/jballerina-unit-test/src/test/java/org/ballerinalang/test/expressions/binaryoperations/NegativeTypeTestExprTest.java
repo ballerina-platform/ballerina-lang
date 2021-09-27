@@ -46,75 +46,75 @@ public class NegativeTypeTestExprTest {
                 BCompileUtil.compile("test-src/expressions/binaryoperations/negative-type-test-expr-negative.bal");
         int i = 0;
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 19, 9);
+                "expression will always evaluate to 'false'", 19, 9);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'int' will not be matched to 'float'", 28,
                 9);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 37, 9);
+                "expression will always evaluate to 'false'", 37, 9);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'int' will not be matched to '(string|float)'", 46, 9);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 55, 9);
+                "expression will always evaluate to 'false'", 55, 9);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 64, 9);
+                "expression will always evaluate to 'false'", 64, 9);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: '(int|string)' will not be matched to '(boolean|float)'", 73, 9);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 91, 9);
+                "expression will always evaluate to 'false'", 91, 9);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 93, 16);
+                "expression will always evaluate to 'false'", 93, 16);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 118, 9);
+                "expression will always evaluate to 'false'", 118, 9);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 120, 16);
+                "expression will always evaluate to 'false'", 120, 16);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 131, 18);
+                "expression will always evaluate to 'false'", 131, 18);
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 131, 33);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'int[]' will not be matched to 'float[]'",
                 132, 18);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 133, 18);
+                "expression will always evaluate to 'false'", 133, 18);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 134, 18);
+                "expression will always evaluate to 'false'", 134, 18);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 135, 18);
+                "expression will always evaluate to 'false'", 135, 18);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 141, 18);
+                "expression will always evaluate to 'false'", 141, 18);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: '[int,string]' will not be matched to '[float,boolean]'", 142, 18);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 143, 18);
+                "expression will always evaluate to 'false'", 143, 18);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 144, 18);
+                "expression will always evaluate to 'false'", 144, 18);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 150, 18);
+                "expression will always evaluate to 'false'", 150, 18);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 151, 18);
+                "expression will always evaluate to 'false'", 151, 18);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 157, 18);
+                "expression will always evaluate to 'false'", 157, 18);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 158, 18);
+                "expression will always evaluate to 'false'", 158, 18);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 159, 18);
+                "expression will always evaluate to 'false'", 159, 18);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 160, 18);
+                "expression will always evaluate to 'false'", 160, 18);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 161, 18);
+                "expression will always evaluate to 'false'", 161, 18);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 177, 16);
+                "expression will always evaluate to 'false'", 177, 16);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 187, 13);
+                "expression will always evaluate to 'false'", 187, 13);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 187, 24);
+                "expression will always evaluate to 'false'", 187, 24);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 225, 8);
+                "expression will always evaluate to 'false'", 225, 8);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 229, 9);
+                "expression will always evaluate to 'false'", 229, 9);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 241, 9);
+                "expression will always evaluate to 'false'", 241, 9);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 246, 9);
+                "expression will always evaluate to 'false'", 246, 9);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'foo|bar' will not be matched to 'baz|2'", 255, 10);
         BAssertUtil.validateError(negativeResult, i++,

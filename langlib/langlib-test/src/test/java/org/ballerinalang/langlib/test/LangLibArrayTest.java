@@ -572,7 +572,8 @@ public class LangLibArrayTest {
                 "testSort10",
                 "testReadOnlyArrayFilter",
                 "testTupleFilter",
-                "testTupleReverse"
+                "testTupleReverse",
+                "testToStreamOnImmutableArray"
         };
     }
 }

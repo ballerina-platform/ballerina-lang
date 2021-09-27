@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -79,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -256,6 +258,11 @@ public class ReferenceFinder extends BaseVisitor {
                 && this.withDefinition) {
             this.referenceLocations.add(importPkgNode.alias.pos);
         }
+    }
+
+    @Override
+    public void visit(BLangCompilationUnit unit) {
+        unit.getTopLevelNodes().forEach(topLevelNode -> find((BLangNode) topLevelNode));
     }
 
     @Override
@@ -1048,6 +1055,9 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangArrayType arrayType) {
         find(arrayType.elemtype);
+        for (BLangExpression size : arrayType.sizes) {
+            find(size);
+        }
     }
 
     @Override

@@ -93,7 +93,7 @@ public class BindgenUnitTest {
     }
 
     @Test(description = "Test the bindings generated for a module level mapping.")
-    public void moduleLevelMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
+    public void moduleLevelMapping1() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
         BindgenEnv moduleBindgenEnv = new BindgenEnv();
         moduleBindgenEnv.setDirectJavaClass(true);
         moduleBindgenEnv.setModulesFlag(true);
@@ -101,10 +101,27 @@ public class BindgenUnitTest {
         moduleBindgenEnv.setPublicFlag(true);
         BindgenFileGenerator moduleBindingsGenerator = new BindgenFileGenerator(moduleBindgenEnv);
 
-        Path moduleMappingPath = Paths.get(resourceDirectory.toString(), "unit-test-resources", "moduleMapping.bal");
+        Path moduleMappingPath = Paths.get(resourceDirectory.toString(), "unit-test-resources", "moduleMapping1.bal");
         String moduleMappingValue = Files.readString(resourceDirectory.resolve(moduleMappingPath));
         SyntaxTree moduleSyntaxTree = moduleBindingsGenerator.generate(new JClass(this.getClass().getClassLoader()
                 .loadClass("java.io.FileInputStream"), moduleBindgenEnv));
+        Assert.assertEquals(Formatter.format(moduleSyntaxTree.toSourceCode()), Formatter.format(moduleMappingValue));
+        Assert.assertFalse(moduleSyntaxTree.hasDiagnostics());
+    }
+
+    @Test(description = "Test the bindings generated for a module level mapping.")
+    public void moduleLevelMapping2() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
+        BindgenEnv moduleBindgenEnv = new BindgenEnv();
+        moduleBindgenEnv.setDirectJavaClass(true);
+        moduleBindgenEnv.setModulesFlag(true);
+        moduleBindgenEnv.setPackageName("test");
+        moduleBindgenEnv.setPublicFlag(true);
+        BindgenFileGenerator moduleBindingsGenerator = new BindgenFileGenerator(moduleBindgenEnv);
+
+        Path moduleMappingPath = Paths.get(resourceDirectory.toString(), "unit-test-resources", "moduleMapping2.bal");
+        String moduleMappingValue = Files.readString(resourceDirectory.resolve(moduleMappingPath));
+        SyntaxTree moduleSyntaxTree = moduleBindingsGenerator.generate(new JClass(this.getClass().getClassLoader()
+                  .loadClass("org.ballerinalang.bindgen.ModuleMappingTest"), moduleBindgenEnv));
         Assert.assertEquals(Formatter.format(moduleSyntaxTree.toSourceCode()), Formatter.format(moduleMappingValue));
         Assert.assertFalse(moduleSyntaxTree.hasDiagnostics());
     }
@@ -153,6 +170,23 @@ public class BindgenUnitTest {
                 .loadClass("java.lang.Character$Subset"), bindgenEnv));
         Assert.assertEquals(Formatter.format(syntaxTree.toSourceCode()), Formatter.format(assertValue));
         Assert.assertFalse(syntaxTree.hasDiagnostics());
+    }
+
+    @Test(description = "Test the bindings generated for a Java interface.")
+    public void interfaceMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
+        BindgenEnv interfaceBindgenEnv = new BindgenEnv();
+        interfaceBindgenEnv.setDirectJavaClass(true);
+        interfaceBindgenEnv.setModulesFlag(true);
+        interfaceBindgenEnv.setPackageName("test");
+        interfaceBindgenEnv.setPublicFlag(true);
+        BindgenFileGenerator interfaceBindingsGenerator = new BindgenFileGenerator(interfaceBindgenEnv);
+
+        Path interfacePath = Paths.get(resourceDirectory.toString(), "unit-test-resources", "interfaceMapping.bal");
+        String interfaceValue = Files.readString(resourceDirectory.resolve(interfacePath));
+        SyntaxTree interfaceSyntaxTree = interfaceBindingsGenerator.generate(new JClass(this.getClass().getClassLoader()
+                  .loadClass("org.ballerinalang.bindgen.InterfaceTestResource"), interfaceBindgenEnv));
+        Assert.assertEquals(Formatter.format(interfaceSyntaxTree.toSourceCode()), Formatter.format(interfaceValue));
+        Assert.assertFalse(interfaceSyntaxTree.hasDiagnostics());
     }
 
     private BindgenEnv getBindgenEnv() {

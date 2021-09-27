@@ -121,6 +121,8 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(table<json> & " +
                 "readonly)'\n\t" +
                 "table constraint type '(json & readonly)' is not supported", 84, 1);
+        BAssertUtil.validateError(result, i++, "invalid constraint type. expected subtype of " +
+                "'map<any|error>' but found 'json'", 84, 20);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(json[] & " +
                 "readonly)'\n\t" +
                 "array element type 'json & readonly' is not supported", 87, 1);

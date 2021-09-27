@@ -29,7 +29,7 @@
           "value": ""
         }
       },
-      "sortText": "ACB",
+      "sortText": "ACC",
       "insertText": "TEST_INT_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -43,7 +43,7 @@
           "value": ""
         }
       },
-      "sortText": "ACB",
+      "sortText": "ACC",
       "insertText": "TEST_STRING_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -51,7 +51,7 @@
       "label": "listener1",
       "kind": "Variable",
       "detail": "module1:Listener",
-      "sortText": "ACB",
+      "sortText": "ACC",
       "insertText": "listener1",
       "insertTextFormat": "Snippet"
     },
@@ -65,7 +65,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n"
         }
       },
-      "sortText": "ACC",
+      "sortText": "ACA",
       "filterText": "function1",
       "insertText": "function1()",
       "insertTextFormat": "Snippet"
@@ -80,7 +80,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n"
         }
       },
-      "sortText": "ACC",
+      "sortText": "ACA",
       "filterText": "function2",
       "insertText": "function2()",
       "insertTextFormat": "Snippet"
@@ -95,7 +95,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Return** `int`   \n- Return Value Description  \n  \n"
         }
       },
-      "sortText": "AAC",
+      "sortText": "AAA",
       "filterText": "function3",
       "insertText": "function3(${1})",
       "insertTextFormat": "Snippet",
@@ -114,7 +114,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function4 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description"
         }
       },
-      "sortText": "ACC",
+      "sortText": "ACA",
       "filterText": "function4",
       "insertText": "function4(${1})",
       "insertTextFormat": "Snippet",

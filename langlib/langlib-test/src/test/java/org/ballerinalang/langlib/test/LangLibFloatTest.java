@@ -95,4 +95,9 @@ public class LangLibFloatTest {
                 "testFloatNotExactEquality"
         };
     }
+
+    @Test
+    public void testFromHexString() {
+        BRunUtil.invoke(compileResult, "testFromHexString");
+    }
 }

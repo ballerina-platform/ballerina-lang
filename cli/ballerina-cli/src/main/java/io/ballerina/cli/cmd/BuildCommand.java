@@ -186,6 +186,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-build-time", description = "calculate and dump build time")
     private Boolean dumpBuildTime;
 
+    @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
+    private Boolean sticky;
+
     public void execute() {
         long start = 0;
         if (this.helpFlag) {
@@ -356,6 +359,7 @@ public class BuildCommand implements BLauncherCmd {
                 .dumpBirFile(dumpBIRFile)
                 .listConflictedClasses(listConflictedClasses)
                 .dumpBuildTime(dumpBuildTime)
+                .sticky(sticky)
                 .build();
     }
 

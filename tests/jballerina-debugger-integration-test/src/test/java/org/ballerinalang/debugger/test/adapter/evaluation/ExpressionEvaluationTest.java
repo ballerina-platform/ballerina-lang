@@ -103,6 +103,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void newConstructorEvaluationTest() throws BallerinaTestException {
         debugTestRunner.assertExpression(context, "new Location(\"New York\",\"USA\")", "Location", "object");
+
+        // with qualified literals (i.e. imported modules)
+        debugTestRunner.assertExpression(context, "new other:Place(\"New York\",\"USA\")", "Place", "object");
     }
 
     @Override
@@ -127,7 +130,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // tuple variable test
         debugTestRunner.assertExpression(context, TUPLE_VAR, "tuple[int,string] (size = 2)", "tuple");
         // map variable test
-        debugTestRunner.assertExpression(context, MAP_VAR, "map<string> (size = 4)", "map");
+        debugTestRunner.assertExpression(context, MAP_VAR, "map (size = 4)", "map");
         // record variable test (Student record)
         debugTestRunner.assertExpression(context, RECORD_VAR, " /:@[`{~π_123_ƮέŞŢ_Student", "record");
         // anonymous record variable test
@@ -161,16 +164,15 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // never variable test
         debugTestRunner.assertExpression(context, NEVER_VAR, "XMLSequence (size = 0)", "xml");
         // json variable test
-        debugTestRunner.assertExpression(context, JSON_VAR, "map<json> (size = 3)", "json");
+        debugTestRunner.assertExpression(context, JSON_VAR, "json (size = 3)", "json");
         // anonymous object variable test (AnonPerson object)
         debugTestRunner.assertExpression(context, ANON_OBJECT_VAR, "Person_\\ /<>:@[`{~π_ƮέŞŢ", "object");
         // service object variable test
         debugTestRunner.assertExpression(context, SERVICE_VAR, "service", "service");
 
-        // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/26139
-        // debugTestRunner.assertExpression(context, GL, "Ballerina", "string");
-        // debugTestRunner.assertExpression(context, "gv02_nameWithType", "Ballerina", "string");
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "map<string> (size = 1)", "map");
+        debugTestRunner.assertExpression(context, "nameWithType", "\"Ballerina\"", "string");
+        debugTestRunner.assertExpression(context, "nameWithoutType", "\"Ballerina\"", "string");
+        debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "map (size = 1)", "map");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_04, "()", "nil");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_05, "()", "nil");
         // global variables
@@ -178,10 +180,15 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, GLOBAL_VAR_07, "100.0", "decimal");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_08, "2", "int");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_09, "2.0", "float");
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_10, "map<json> (size = 3)", "json");
+        debugTestRunner.assertExpression(context, GLOBAL_VAR_10, "json (size = 3)", "json");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_11, "\"IL with global var\"", "string");
 
-        // Todo - add test for qualified name references, after adding support
+        // with qualified literals (i.e. imported modules)
+        debugTestRunner.assertExpression(context, "other:publicConstant", "\"Ballerina\"", "string");
+        debugTestRunner.assertExpression(context, "other:constMap", "map (size = 1)", "map");
+        debugTestRunner.assertExpression(context, "int:MAX_VALUE", "9223372036854775807", "int");
+        // qualified name references with import alias
+        debugTestRunner.assertExpression(context, "langFloat:PI", "3.141592653589793", "float");
     }
 
     @Override
@@ -216,7 +223,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void annotationAccessEvaluationTest() throws BallerinaTestException {
-        debugTestRunner.assertExpression(context, "(typeof a).@v1", "variable_tests:Annot (size = 2)", "map");
+        debugTestRunner.assertExpression(context, "(typeof a).@v1", "map (size = 2)", "map");
         debugTestRunner.assertExpression(context, "(typeof a).@v2", "()", "nil");
         debugTestRunner.assertExpression(context, "(typeof a).@v1[\"foo\"]", "\"v1 value\"", "string");
         debugTestRunner.assertExpression(context, "(typeof a).@v1[\"bar\"]", "1", "int");
@@ -226,7 +233,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void memberAccessEvaluationTest() throws BallerinaTestException {
         // strings
-        debugTestRunner.assertExpression(context, STRING_VAR + "[0]", "\"\"", "string");
+        debugTestRunner.assertExpression(context, STRING_VAR + "[0]", "\"f\"", "string");
         // lists
         debugTestRunner.assertExpression(context, ARRAY_VAR + "[0]", "1", "int");
         // maps
@@ -244,9 +251,6 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void functionCallEvaluationTest() throws BallerinaTestException {
-
-        // Function which includes asynchronous calls.
-        debugTestRunner.assertExpression(context, "getSum(10, 20);", "30", "int");
 
         // ---------------------- Required Parameters + named arguments ---------------------------------
 
@@ -323,6 +327,15 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // function by passing each value separately.
         debugTestRunner.assertExpression(context, "printDetails(\"Diana\", 20, ...stringArrayVar);",
                 "\"[Diana, 20, Module(s): foo,bar,]\"", "string");
+
+        // ----------------------------  Other Scenarios  ------------------------------------------
+
+        // Function which includes asynchronous calls.
+        debugTestRunner.assertExpression(context, "getSum(10, 20);", "30", "int");
+
+        // with qualified literals (i.e. imported modules)
+        debugTestRunner.assertExpression(context, "other:sum(2,6)", "8", "int");
+        debugTestRunner.assertExpression(context, "int:abs(-6)", "6", "int");
     }
 
     @Override
@@ -367,8 +380,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         // xml
         debugTestRunner.assertExpression(context, XML_VAR + ".getName()", "\"person\"", "string");
-        debugTestRunner.assertExpression(context, XML_VAR + ".children()", "XMLSequence (size = 2)",
-                "xml");
+        debugTestRunner.assertExpression(context, XML_VAR + ".children()", "XMLSequence (size = 2)", "xml");
     }
 
     @Override
@@ -385,13 +397,46 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void anonymousFunctionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // Implicit anonymous function expressions
+        debugTestRunner.assertExpression(context, "function(int x, int y) returns int => x + y;",
+                "isolated function (int,int) returns (int)", "function");
+
+        // Explicit anonymous function expressions
+        debugTestRunner.assertExpression(context, "function(string x, string y) returns (string) { return x + y; }",
+                "isolated function (string,string) returns (string)", "function");
     }
 
     @Override
     @Test
     public void letExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // Basic let expression
+        debugTestRunner.assertExpression(context, "let int x = 4 in 2 * x * globalVar", "16", "int");
+        // Basic let expression with var
+        debugTestRunner.assertExpression(context, "let int x = 4 in 2 * x * globalVar", "16", "int");
+        // Multiple var Declarations
+        debugTestRunner.assertExpression(context, "let int x = globalVar*2, int z = 5 in z * x * globalVar", "40",
+                "int");
+        // Multiple var Declarations with reuse
+        debugTestRunner.assertExpression(context, "let int x = 2, int z = 5+x in z * x * globalVar;", "28", "int");
+        // Function calls in declarations
+        debugTestRunner.assertExpression(context, "let int x = 4, int y = 1, int z = func(y + y*2 + globalVar) in z *" +
+                " (x + globalVar + y)", "70", "int");
+        // Function calls in expression
+        debugTestRunner.assertExpression(context, "let int x = 4, int z = 10 in func(x * z)", "80", "int");
+        // Let expression as a function arg
+        debugTestRunner.assertExpression(context, "func2(let string x = \"aa\", string y = \"bb\" in x+y)", "4", "int");
+        // Let expression tuple
+        debugTestRunner.assertExpression(context, "let [[string, [int, [boolean, byte]]], [float, int]] " +
+                "v1 = [[\"Ballerina\", [3, [true, 34]]], [5.6, 45]], int x = 2 in v1[0][1][0] + x;", "5", "int");
+        // Let expression tuple binding
+        debugTestRunner.assertExpression(context, "let [[string, int], [boolean, float]] [[c1, c2],[c3, c4]] = " +
+                "[[\"Ballerina\", 34], [true, 6.7]], int x = 2 in c2 + x", "36", "int");
+        // Let expression with error binding
+        debugTestRunner.assertExpression(context, "let SampleError error(reason, info = info, fatal = fatal) = " +
+                "getSampleError(), int x = 1 in reason.length() + x;", "13", "int");
+        // Let expression with record constrained error binding
+        debugTestRunner.assertExpression(context, "let var error(_, detailMsg = detailMsg, isFatal = isFatal) = " +
+                "getRecordConstrainedError() in detailMsg", "\"Failed Message\"", "string");
     }
 
     @Override
@@ -401,18 +446,22 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, String.format("<float>%s", ANYDATA_VAR), "619.0", "float");
         // casting into a union type
         debugTestRunner.assertExpression(context, String.format("<float|boolean>%s", ANYDATA_VAR), "619.0", "float");
+
+        // with qualified literals (i.e. imported modules)
+        debugTestRunner.assertExpression(context, "<other:Place> location", "Place", "object");
+        debugTestRunner.assertExpression(context, "<other:Place> stringVar", "{ballerina}TypeCastError", "error");
     }
 
     @Override
     @Test
     public void typeOfExpressionEvaluationTest() throws BallerinaTestException {
         // primitive types
-        debugTestRunner.assertExpression(context, String.format("typeof %s", BOOLEAN_VAR), "boolean", "typedesc");
-        debugTestRunner.assertExpression(context, String.format("typeof %s", INT_VAR), "int", "typedesc");
-        debugTestRunner.assertExpression(context, String.format("typeof %s", FLOAT_VAR), "float", "typedesc");
+        debugTestRunner.assertExpression(context, String.format("typeof %s", BOOLEAN_VAR), "true", "typedesc");
+        debugTestRunner.assertExpression(context, String.format("typeof %s", INT_VAR), "20", "typedesc");
+        debugTestRunner.assertExpression(context, String.format("typeof %s", FLOAT_VAR), "-10.0", "typedesc");
         // reference types
         debugTestRunner.assertExpression(context, String.format("typeof %s", JSON_VAR), "map<json>", "typedesc");
-        debugTestRunner.assertExpression(context, String.format("typeof %s[0]", STRING_VAR), "string", "typedesc");
+        debugTestRunner.assertExpression(context, String.format("typeof %s[0]", STRING_VAR), "f", "typedesc");
         debugTestRunner.assertExpression(context, String.format("typeof typeof %s", BOOLEAN_VAR), "typedesc",
                 "typedesc");
     }
@@ -443,6 +492,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // unary negation operator
         // boolean
         debugTestRunner.assertExpression(context, String.format("!%s", BOOLEAN_VAR), "false", "boolean");
+
+        // with qualified literals (i.e. imported modules)
+        debugTestRunner.assertExpression(context, "-other:publicInt", "-10", "int");
     }
 
     @Override
@@ -650,7 +702,10 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // other named types
         debugTestRunner.assertExpression(context, String.format("%s is 'Person_\\\\\\ \\/\\<\\>\\:\\@\\[\\`\\{\\~" +
                 "\\u{03C0}_ƮέŞŢ", OBJECT_VAR), "true", "boolean");
-        // Todo: add tests for full qualified type resolving, after adding support
+
+        // with qualified literals (i.e. imported modules)
+        debugTestRunner.assertExpression(context, "location is other:Place", "true", "boolean");
+        debugTestRunner.assertExpression(context, "intVar is other:Place", "false", "boolean");
     }
 
     @Override
@@ -722,7 +777,79 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void queryExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+
+        // String from query evaluation
+        debugTestRunner.assertExpression(context, "from var student in studentList" +
+                        "    where student.score >= 2.0" +
+                        "    select student.firstName + \" \" + student.lastName",
+                "string[2]", "array");
+
+        // Query expression evaluation with multiple clauses
+        debugTestRunner.assertExpression(context, "from var student in studentList" +
+                        "    where student.score >= 2.0" +
+                        "    let string degreeName = \"Bachelor of Medicine\", " +
+                        "    int expectedGradYear = calGraduationYear(student.intakeYear)" +
+                        "    order by student.firstName descending" +
+                        "    limit 2" +
+                        "    select {" +
+                        "        name: student.firstName + \" \" + student.lastName," +
+                        "        degree: degreeName," +
+                        "        expectedGradYear: expectedGradYear" +
+                        "    };",
+                "map[2]", "array");
+
+        // Query stream evaluation
+        debugTestRunner.assertExpression(context, "stream from var student in studentList" +
+                        "    where student.score >= 2.0" +
+                        "    let string degreeName = \"Bachelor of Medicine\", " +
+                        "    int graduationYear = calGraduationYear(student.intakeYear)" +
+                        "    order by student.firstName descending" +
+                        "    limit 2" +
+                        "    select {" +
+                        "        name: student.firstName + \" \" + student.lastName," +
+                        "                degree: degreeName," +
+                        "                graduationYear: graduationYear" +
+                        "    };",
+                "stream<map>", "stream");
+
+        // Query join expression evaluation
+        debugTestRunner.assertExpression(context, "from var student in gradStudentList" +
+                        "    join var department in departmentList" +
+                        "    on student.deptId equals department.deptId" +
+                        "    limit 3" +
+                        "    select { " +
+                        "        name: student.firstName + \" \" + student.lastName, " +
+                        "        deptName: department.deptName, " +
+                        "        degree: \"Bachelor of Science\", " +
+                        "        intakeYear: student.intakeYear " +
+                        "    }",
+                "map[3]", "array");
+
+        // Table query with contextually expected type (type cast).
+        debugTestRunner.assertExpression(context,
+                "<CustomerTable|error> table key(id, name) from var customer in customerList" +
+                        "     select {" +
+                        "         id: customer.id," +
+                        "         name: customer.name," +
+                        "         noOfItems: customer.noOfItems" +
+                        "     }" +
+                        "     on conflict onConflictError;",
+                "table<Customer> (entries = 3)", "table");
+
+        // Table query with conflicts.
+        debugTestRunner.assertExpression(context,
+                "<CustomerTable|error> table key(id, name) from var customer in conflictedCustomerList" +
+                        "     select {" +
+                        "         id: customer.id," +
+                        "         name: customer.name," +
+                        "         noOfItems: customer.noOfItems" +
+                        "     }" +
+                        "     on conflict onConflictError;",
+                "Key Conflict", "error");
+
+        // Nested from clauses
+        debugTestRunner.assertExpression(context, "from var i in from var j in [1, 2, 3] select j select i",
+                "int[3]", "array");
     }
 
     @Override

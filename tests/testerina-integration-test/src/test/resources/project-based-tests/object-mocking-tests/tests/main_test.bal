@@ -60,6 +60,27 @@ function testProvideAReturnValue() {
     test:assertEquals(response, "provided return value");
 }
 
+@test:Config {
+}
+function testMockStreamSuccess() {
+    clientEndpoint = test:mock(TestHttpClient:HttpClient);  
+    test:prepare(clientEndpoint).when("get_stream").thenReturn(returnMockedAttributeDAOStream());
+    TestHttpClient:AttributeDAO|error result = getAttribute();
+    test:assertEquals(result, mockAttributeDAO);
+}
+
+@test:Config {}
+function testProvideErrorReturnValue() {
+    TestHttpClient:HttpClient mockClient = test:mock(TestHttpClient:HttpClient);
+
+    test:prepare(mockClient).when("getError").thenReturn(error("mocked error response"));
+    clientEndpoint = mockClient;
+
+    string|error response = getTheError();
+    test:assertTrue(response is error);
+    test:assertEquals((<error>response).message(), "mocked error response");
+}
+
 @test:Config {}
 function testProvideAReturnValueBasedOnInput() {
     TestHttpClient:HttpClient mockClient = test:mock(TestHttpClient:HttpClient);

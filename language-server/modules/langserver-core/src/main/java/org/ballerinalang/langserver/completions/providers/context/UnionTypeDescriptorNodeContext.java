@@ -16,8 +16,11 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.MinutiaeList;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
@@ -71,6 +74,32 @@ public class UnionTypeDescriptorNodeContext extends AbstractCompletionProvider<U
 
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, UnionTypeDescriptorNode node) {
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        Token pipeToken = node.pipeToken();
+        int cursor = context.getCursorPositionInTree();
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            /*
+            Handle the following. When the cursor is at this position we should not consider the context
+            as the union type descriptor context
+            1)  mod1:<cursor>
+    
+                Foo|error r1;
+            2) mod1:<cursor> F | int a = 12;
+             */
+            Node colonToken = ((QualifiedNameReferenceNode) nodeAtCursor).colon();
+            MinutiaeList trailingMinutiae = colonToken.trailingMinutiae();
+            
+            if (!trailingMinutiae.isEmpty() && cursor == colonToken.textRange().endOffset()
+                    && cursor < pipeToken.textRange().endOffset()) {
+                /*
+                Pipe token is considered in order to consider the following. This should be in the union type desc
+                eg: 
+                (1) int | mod1:<cursor>
+                    Test | int x = 12;
+                 */
+                return false;
+            }
+        }
         /*
           Validation added for
           function foo() {
@@ -79,6 +108,6 @@ public class UnionTypeDescriptorNodeContext extends AbstractCompletionProvider<U
           }
           This will recover as <code>i MISSING[|] int value5 = 12;</code>
          */
-        return !node.pipeToken().isMissing();
+        return !pipeToken.isMissing();
     }
 }

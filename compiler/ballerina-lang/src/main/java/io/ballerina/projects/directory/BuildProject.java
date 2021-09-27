@@ -19,28 +19,37 @@ package io.ballerina.projects.directory;
 
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageDependencyScope;
+import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.ProjectFiles;
+import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectUtils.getDependenciesTomlContent;
@@ -96,6 +105,7 @@ public class BuildProject extends Project {
                                     BuildOptions buildOptions) {
         PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath);
         BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(packageConfig, buildOptions, projectPath);
+
         BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions);
         buildProject.addPackage(packageConfig);
         return buildProject;
@@ -189,22 +199,120 @@ public class BuildProject extends Project {
     private void writeDependencies() {
         Package currentPackage = this.currentPackage();
         if (currentPackage != null) {
-            ResolvedPackageDependency resolvedPackageDependency =
-                    new ResolvedPackageDependency(currentPackage, PackageDependencyScope.DEFAULT);
-            Collection<ResolvedPackageDependency> pkgDependencies =
-                    currentPackage.getResolution().dependencyGraph().getDirectDependencies(resolvedPackageDependency);
+            Comparator<Dependency> comparator = (o1, o2) -> {
+                if (o1.getOrg().equals(o2.getOrg())) {
+                    return o1.getName().compareTo(o2.getName());
+                }
+                return o1.getOrg().compareTo(o2.getOrg());
+            };
 
-            String dependenciesContent = getDependenciesTomlContent(pkgDependencies,
-                                                                    currentPackage.manifest().dependencies());
-            if (!dependenciesContent.isEmpty()) {
+            List<Dependency> pkgDependencies = getPackageDependencies();
+            pkgDependencies.sort(comparator);
+
+            Path dependenciesTomlFile = currentPackage.project().sourceRoot().resolve(DEPENDENCIES_TOML);
+            String dependenciesContent = getDependenciesTomlContent(pkgDependencies);
+            if (!pkgDependencies.isEmpty()) {
                 // write content to Dependencies.toml file
-                createIfNotExistsAndWrite(currentPackage.project().sourceRoot().resolve(DEPENDENCIES_TOML),
-                                          dependenciesContent);
+                createIfNotExists(dependenciesTomlFile);
+                writeContent(dependenciesTomlFile, dependenciesContent);
+            } else {
+                // when there are no package dependencies to write
+                // if Dependencies.toml does not exists ---> Dependencies.toml will not be created
+                // if Dependencies.toml exists          ---> content will be written to existing Dependencies.toml
+                if (dependenciesTomlFile.toFile().exists()) {
+                    writeContent(dependenciesTomlFile, dependenciesContent);
+                }
             }
         }
     }
 
-    private static void createIfNotExistsAndWrite(Path filePath, String content) {
+    private List<Dependency> getPackageDependencies() {
+        PackageResolution packageResolution = this.currentPackage().getResolution();
+        ResolvedPackageDependency rootPkgNode = new ResolvedPackageDependency(this.currentPackage(),
+                                                                              PackageDependencyScope.DEFAULT);
+        DependencyGraph<ResolvedPackageDependency> dependencyGraph = packageResolution.dependencyGraph();
+        Collection<ResolvedPackageDependency> directDependencies = dependencyGraph.getDirectDependencies(rootPkgNode);
+
+        List<Dependency> dependencies = new ArrayList<>();
+        // 1. set direct dependencies
+        for (ResolvedPackageDependency directDependency : directDependencies) {
+            Package aPackage = directDependency.packageInstance();
+            Dependency dependency = new Dependency(aPackage.packageOrg().toString(), aPackage.packageName().value(),
+                                                   aPackage.packageVersion().toString());
+
+            // get modules of the direct dependency package
+            BalaFiles.DependencyGraphResult packageDependencyGraph = BalaFiles
+                    .createPackageDependencyGraph(directDependency.packageInstance().project().sourceRoot());
+            Set<ModuleDescriptor> moduleDescriptors = packageDependencyGraph.moduleDependencies().keySet();
+
+            List<Dependency.Module> modules = new ArrayList<>();
+            for (ModuleDescriptor moduleDescriptor : moduleDescriptors) {
+                Dependency.Module module = new Dependency.Module(moduleDescriptor.org().value(),
+                                                                 moduleDescriptor.packageName().value(),
+                                                                 moduleDescriptor.name().toString());
+                modules.add(module);
+            }
+            // sort modules
+            modules.sort(Comparator.comparing(Dependency.Module::moduleName));
+            dependency.setModules(modules);
+            // get transitive dependencies of the direct dependency package
+            dependency.setDependencies(getTransitiveDependencies(dependencyGraph, directDependency));
+            // set transitive and scope
+            dependency.setScope(directDependency.scope());
+            dependency.setTransitive(false);
+            dependencies.add(dependency);
+        }
+
+        // 2. set transitive dependencies
+        Collection<ResolvedPackageDependency> allDependencies = dependencyGraph.getNodes();
+        for (ResolvedPackageDependency transDependency : allDependencies) {
+            // check whether it's a direct dependency, skip it since it is already added
+            if (directDependencies.contains(transDependency)) {
+                continue;
+            }
+            if (transDependency.packageInstance() != this.currentPackage()
+                    && !transDependency.packageInstance().descriptor().isBuiltInPackage()
+                    && !transDependency.isPlatformProvided()) {
+                Package aPackage = transDependency.packageInstance();
+                Dependency dependency = new Dependency(aPackage.packageOrg().toString(),
+                                                       aPackage.packageName().value(),
+                                                       aPackage.packageVersion().toString());
+                // get transitive dependencies of the transitive dependency package
+                dependency.setDependencies(getTransitiveDependencies(dependencyGraph, transDependency));
+                // set transitive and scope
+                dependency.setScope(transDependency.scope());
+                dependency.setTransitive(true);
+                dependencies.add(dependency);
+            }
+        }
+
+        return dependencies;
+    }
+
+    private List<Dependency> getTransitiveDependencies(DependencyGraph<ResolvedPackageDependency> dependencyGraph,
+                                                       ResolvedPackageDependency directDependency) {
+        List<Dependency> dependencyList = new ArrayList<>();
+        Collection<ResolvedPackageDependency> pkgDependencies = dependencyGraph
+                .getDirectDependencies(directDependency);
+        for (ResolvedPackageDependency resolvedTransitiveDep : pkgDependencies) {
+            Package dependencyPkgContext = resolvedTransitiveDep.packageInstance();
+            Dependency dep = new Dependency(dependencyPkgContext.packageOrg().toString(),
+                                            dependencyPkgContext.packageName().value(),
+                                            dependencyPkgContext.packageVersion().toString());
+            dependencyList.add(dep);
+        }
+        // sort transitive dependencies list
+        Comparator<Dependency> comparator = (o1, o2) -> {
+            if (o1.getOrg().equals(o2.getOrg())) {
+                return o1.getName().compareTo(o2.getName());
+            }
+            return o1.getOrg().compareTo(o2.getOrg());
+        };
+        dependencyList.sort(comparator);
+        return dependencyList;
+    }
+
+    private static void createIfNotExists(Path filePath) {
         if (!filePath.toFile().exists()) {
             try {
                 Files.createFile(filePath);
@@ -212,12 +320,13 @@ public class BuildProject extends Project {
                 throw new ProjectException("Failed to create 'Dependencies.toml' file to write dependencies");
             }
         }
+    }
 
+    private static void writeContent(Path filePath, String content) {
         try {
             Files.write(filePath, Collections.singleton(content));
         } catch (IOException e) {
             throw new ProjectException("Failed to write dependencies to the 'Dependencies.toml' file");
         }
-
     }
 }

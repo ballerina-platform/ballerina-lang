@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.ClassLoaderReference;
 import com.sun.jdi.InvalidStackFrameException;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -27,15 +28,16 @@ import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
-import org.ballerinalang.debugadapter.utils.PackageUtils;
 
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.DebugSourceType.DEPENDENCY;
 import static org.ballerinalang.debugadapter.DebugSourceType.PACKAGE;
 import static org.ballerinalang.debugadapter.DebugSourceType.SINGLE_FILE;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.getStackFrameSourcePath;
 
 /**
  * Context holder for debug suspended state related information.
@@ -52,6 +54,7 @@ public class SuspendedContext {
     private Path breakPointSourcePath;
     private String fileName;
     private int lineNumber;
+    private Module module;
     private Document document;
     private ClassLoaderReference classLoader;
     private DebugExpressionCompiler debugCompiler;
@@ -147,7 +150,11 @@ public class SuspendedContext {
 
     private Optional<Path> getSourcePath(StackFrameProxyImpl frame) {
         try {
-            return PackageUtils.getSrcPathFromBreakpointLocation(frame.location(), project);
+            Optional<Map.Entry<Path, DebugSourceType>> pathAndType = getStackFrameSourcePath(frame.location(), project);
+            if (pathAndType.isEmpty()) {
+                return Optional.empty();
+            }
+            return Optional.ofNullable(pathAndType.get().getKey());
         } catch (InvalidStackFrameException | JdiProxyException e) {
             // Todo - How to handle InvalidStackFrameException?
             return Optional.empty();
@@ -161,6 +168,10 @@ public class SuspendedContext {
             debugCompiler = new DebugExpressionCompiler(this);
         }
         return debugCompiler;
+    }
+
+    public SemanticModel getSemanticInfo() {
+        return getDebugCompiler().getSemanticInfo();
     }
 
     public Optional<String> getFileName() {
@@ -185,11 +196,27 @@ public class SuspendedContext {
         return lineNumber;
     }
 
+    public Module getModule() {
+        if (module == null) {
+            loadModule();
+        }
+        return module;
+    }
+
     public Document getDocument() {
         if (document == null) {
             loadDocument();
         }
         return document;
+    }
+
+    private void loadModule() {
+        Optional<Path> breakPointSourcePath = getBreakPointSourcePath();
+        if (breakPointSourcePath.isEmpty()) {
+            return;
+        }
+        DocumentId documentId = project.documentId(breakPointSourcePath.get());
+        module = project.currentPackage().module(documentId.moduleId());
     }
 
     private void loadDocument() {
@@ -198,7 +225,7 @@ public class SuspendedContext {
             return;
         }
         DocumentId documentId = project.documentId(breakPointSourcePath.get());
-        Module module = project.currentPackage().module(documentId.moduleId());
+        module = project.currentPackage().module(documentId.moduleId());
         document = module.document(documentId);
     }
 }

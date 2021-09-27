@@ -8,7 +8,6 @@ module io.ballerina.language.server.commons {
     requires io.ballerina.toml;
     exports org.ballerinalang.langserver.commons;
     exports org.ballerinalang.langserver.commons.client;
-    exports org.ballerinalang.langserver.commons.semantichighlighter;
     exports org.ballerinalang.langserver.commons.service.spi;
     exports org.ballerinalang.langserver.commons.trace;
     exports org.ballerinalang.langserver.commons.workspace;

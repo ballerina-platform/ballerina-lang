@@ -23,11 +23,19 @@ package org.ballerinalang.debugadapter.evaluation;
  */
 public class EvaluationException extends Exception {
 
-    public EvaluationException(String message) {
+    private EvaluationException(String message) {
         this(message, null);
     }
 
-    public EvaluationException(String message, Throwable cause) {
+    private EvaluationException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    public static EvaluationException createEvaluationException(String reason) {
+        return createEvaluationException(EvaluationExceptionKind.CUSTOM_ERROR, reason);
+    }
+
+    public static EvaluationException createEvaluationException(EvaluationExceptionKind format, Object... details) {
+        return new EvaluationException(String.format(format.getString(), details));
     }
 }

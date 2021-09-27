@@ -59,6 +59,8 @@ public class AnyFunctionTypeTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'function () returns (string)', found 'function () " +
                         "returns ((int|never))'", 53, 37);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'function', found 'int'", 62, 30);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 

@@ -19,10 +19,13 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.DiagnosticState;
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
@@ -33,6 +36,8 @@ import org.testng.annotations.Test;
 
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.COMPILATION_ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
@@ -115,6 +120,10 @@ public class SymbolAtCursorTest {
                 {118, 74, "r"},
                 {122, 56, "myStr"},
                 {135, 5, "Atype"},
+                {150, 12, "ParseError"},
+                {161, 8, "name"},
+                {162, 8, "age"},
+                {163, 9, "foo"},
         };
     }
 
@@ -250,7 +259,7 @@ public class SymbolAtCursorTest {
     }
 
     @Test(dataProvider = "VarPosProvider")
-    public void testVarsWithFunctionType(int line, int col, String name) {
+    public void testVarsWithFunctionType(int line, int col, String name, SymbolKind symbolKind) {
         Project project = BCompileUtil.loadProject("test-src/regression-tests/field_with_function_type.bal");
         SemanticModel model = getDefaultModulesSemanticModel(project);
         Document srcFile = getDocumentForSingleSource(project);
@@ -258,17 +267,34 @@ public class SymbolAtCursorTest {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
 
         assertTrue(symbol.isPresent());
-        assertEquals(symbol.get().kind(), SymbolKind.FUNCTION);
+        assertEquals(symbol.get().kind(), symbolKind);
         assertEquals(symbol.get().getName().get(), name);
-        assertEquals(((FunctionSymbol) symbol.get()).typeDescriptor().typeKind(), TypeDescKind.FUNCTION);
+
+        TypeSymbol type;
+        switch (symbolKind) {
+            case RECORD_FIELD:
+                type = ((RecordFieldSymbol) symbol.get()).typeDescriptor();
+                break;
+            case OBJECT_FIELD:
+                type = ((ObjectFieldSymbol) symbol.get()).typeDescriptor();
+                break;
+            case VARIABLE:
+                type = ((VariableSymbol) symbol.get()).typeDescriptor();
+                break;
+            default:
+                throw new IllegalStateException("Unexpected symbol kind: " + symbolKind);
+        }
+
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), TypeDescKind.FUNCTION);
     }
 
     @DataProvider(name = "VarPosProvider")
     public Object[][] getVarPos() {
         return new Object[][]{
-                {19, 10, "union"},
-                {23, 10, "op"},
-                {27, 10, "op"}
+                {19, 10, "union", RECORD_FIELD},
+                {23, 10, "op", OBJECT_FIELD},
+                {27, 10, "op", VARIABLE}
         };
     }
 

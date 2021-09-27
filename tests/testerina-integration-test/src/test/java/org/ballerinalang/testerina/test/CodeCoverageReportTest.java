@@ -76,8 +76,8 @@ public class CodeCoverageReportTest extends BaseTestCase {
         }
         copyReportDTDFile(reportRoot);
         //Validate Package names in XML File
-        List<String> expectedPackageNames = Arrays.asList(new String[]{singleModuleTestRoot,
-                "report/codecov/0"});
+        List<String> expectedPackageNames = Arrays.asList(singleModuleTestRoot
+                , "report/codecov/0", "report/codecov/0/annotations", "report/codecov/0/types");
         if (validatePackageNames(expectedPackageNames)) {
             Assert.assertTrue(true);
         } else {
@@ -99,10 +99,18 @@ public class CodeCoverageReportTest extends BaseTestCase {
         }
         copyReportDTDFile(reportRoot);
         ArrayList<String> expectedPackageNames = new ArrayList<>();
-        Collections.addAll(expectedPackageNames, new String[]{"testerina_report/foo/0",
+        Collections.addAll(expectedPackageNames, "testerina_report/foo/0",
                 multiModuleTestRoot, "testerina_report/foo$0046math/0", multiModuleTestRoot + "/modules/bar",
                 "testerina_report/foo$0046bar/0", "testerina_report/foo$0046bar$0046tests/0",
-                multiModuleTestRoot + "/modules/math"});
+                "testerina_report/foo/0/annotations",
+                "testerina_report/foo$0046bar/0/annotations",
+                "testerina_report/foo$0046math/0/annotations",
+                "testerina_report/foo$0046bar$0046tests/0/annotations",
+                "testerina_report/foo/0/types",
+                "testerina_report/foo$0046bar/0/types",
+                "testerina_report/foo$0046math/0/types",
+                "testerina_report/foo$0046bar$0046tests/0/types",
+                multiModuleTestRoot + "/modules/math");
         // Validate Package names in XML File
         if (validatePackageNames(expectedPackageNames)) {
             Assert.assertTrue(true);

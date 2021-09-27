@@ -22,9 +22,11 @@ import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
 import io.ballerina.runtime.internal.BallerinaXmlSerializer;
+import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import java.io.OutputStream;
@@ -32,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
+
+import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 
 /**
  * {@code BXML} represents an XML in Ballerina. An XML could be one of:
@@ -51,6 +55,9 @@ import javax.xml.namespace.QName;
 public abstract class XmlValue implements RefValue, BXml, CollectionValue {
 
     Type type = PredefinedTypes.TYPE_XML;
+    protected BTypedesc typedesc = new TypedescValueImpl(type);
+
+    protected Type iteratorNextReturnType;
 
     public abstract int size();
 
@@ -238,4 +245,22 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
             handleXmlException("error occurred during writing the message to the output stream: ", t);
         }
     }
+
+    @Override
+    public BTypedesc getTypedesc() {
+        return typedesc;
+    }
+
+    protected void setTypedescValue(Type type) {
+        this.typedesc = getTypedescValue(type, this);
+    }
+
+    @Override
+    public Type getIteratorNextReturnType() {
+        if (iteratorNextReturnType == null) {
+            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(this.type);
+        }
+        return iteratorNextReturnType;
+    }
+
 }

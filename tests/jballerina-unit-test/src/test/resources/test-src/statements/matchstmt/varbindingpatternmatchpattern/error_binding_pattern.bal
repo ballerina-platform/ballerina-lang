@@ -196,11 +196,11 @@ function testErrorBindingPattern10() {
     assertEquals("message:Error cause:Invalid Op details:{\"code1\":12}", errorBindingPattern11(err3));
 
     any|error err4 = error("Error", code1 = 12, code2 = {a: "A", b: [1, 2]});
-    assertEquals("message:Error cause:No Cause details:{\"code1\":12,\"code2\":{\"a\":\"A\",\"b\":1 2}}",
+    assertEquals("message:Error cause:No Cause details:{\"code1\":12,\"code2\":{\"a\":\"A\",\"b\":[1,2]}}",
     errorBindingPattern11(err4));
 
     any|error err5 = error("Error", code1 = {a: "A", b: [1, 2]});
-    assertEquals("message:Error cause:No Cause details:{\"a\":\"A\",\"rest\":{\"b\":1 2}}",
+    assertEquals("message:Error cause:No Cause details:{\"a\":\"A\",\"rest\":{\"b\":[1,2]}}",
     errorBindingPattern12(err5));
 
     any|error err6 = error("Error", code1 = [12, "A", 10.5, 1]);
@@ -208,7 +208,8 @@ function testErrorBindingPattern10() {
     errorBindingPattern13(err6));
 
     any|error err7 = error("Error", error("Invalid Op"), code1 = [12, "A", 10.5, 1], code2 = {a: "A", b: [1, 2]});
-    assertEquals("message:Error cause:Invalid Op details:{\"a\":12 A 10.5 1,\"rest\":{\"code2\":{\"a\":\"A\",\"b\":1 2}}}",
+    assertEquals("message:Error cause:Invalid Op details:{\"a\":[12,\"A\",10.5,1],\"rest\":{\"code2\":{\"a\":\"A\"," +
+    "\"b\":[1,2]}}}",
     errorBindingPattern14(err7));
 }
 

@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -45,7 +46,7 @@ import static org.testng.Assert.assertNull;
 @Test
 public class LangLibValueTest {
 
-    private CompileResult compileResult, testFile;
+    private CompileResult compileResult, file;
 
     @BeforeClass
     public void setup() {
@@ -263,7 +264,7 @@ public class LangLibValueTest {
 
     @Test
     public void testToBalStringMethod() {
-        testFile = BCompileUtil.compile("test-src/valuelib_toBalString_test.bal");
+        CompileResult testFile = BCompileUtil.compile("test-src/valuelib_toBalString_test.bal");
         BRunUtil.invokeFunction(testFile, "testIntValueToBalString");
         BRunUtil.invokeFunction(testFile, "testStringValueToBalString");
         BRunUtil.invokeFunction(testFile, "testFloatingPointNumbersToBalString");
@@ -279,7 +280,7 @@ public class LangLibValueTest {
     }
 
     @Test
-    public void testXmlFromBalString() {
+    public void testFromBalString() {
         CompileResult file = BCompileUtil.compile("test-src/valuelib_fromBalString_test.bal");
         BRunUtil.invokeFunction(file, "testIntValueFromBalString");
         BRunUtil.invokeFunction(file, "testStringValueFromBalString");
@@ -380,7 +381,8 @@ public class LangLibValueTest {
 
     @Test(dataProvider = "fromJsonWithTypeFunctions")
     public void testFromJsonWithType(String function) {
-        BRunUtil.invoke(compileResult, function);
+        file = BCompileUtil.compile("test-src/valuelib_fromJson_test.bal");
+        BRunUtil.invoke(file, function);
     }
 
     @Test
@@ -420,7 +422,8 @@ public class LangLibValueTest {
 
     @Test(dataProvider = "fromJsonStringWithTypeFunctions")
     public void testFromJsonStringWithType(String function) {
-        BRunUtil.invoke(compileResult, function);
+        file = BCompileUtil.compile("test-src/valuelib_fromJson_test.bal");
+        BRunUtil.invoke(file, function);
     }
 
     @DataProvider(name = "fromJsonStringWithTypeFunctions")
@@ -454,7 +457,10 @@ public class LangLibValueTest {
                 { "testToJsonWithMapInt" },
                 { "testToJsonWithStringArray" },
                 { "testToJsonWithIntArray" },
-                { "testToJsonWithTable" }
+                { "testToJsonWithTable" },
+                { "testToJsonWithCyclicParameter" },
+                { "testTableToJsonConversion" },
+                { "testToJsonConversionError" }
         };
     }
 
@@ -474,5 +480,11 @@ public class LangLibValueTest {
     @Test
     public void testEnsureTypeNegative() {
         BRunUtil.invokeFunction(compileResult, "testEnsureTypeNegative");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        file = null;
     }
 }

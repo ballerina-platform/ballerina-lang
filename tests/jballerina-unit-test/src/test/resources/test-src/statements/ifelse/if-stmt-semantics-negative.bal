@@ -53,9 +53,9 @@ function testResetTypeNarrowingForCompoundAssignmentNegative() {
     }
 
     if a is int {
-        a += 5; // type should not reset
+        a += 5; // type should be reset to the original type
         int b = a;
-        a = "Hello"; // type should reset to original
+        a = "Hello";
         string c = a;
     }
 }

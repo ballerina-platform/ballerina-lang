@@ -55,6 +55,11 @@ test:MockFunction mock_intAdd3 = new();
 }
 test:MockFunction mock_foo = new();
 
+@test:Mock {
+    functionName: "helloFunc"
+}
+test:MockFunction mockHelloFunc = new;
+
 //
 //  MOCK FUNCTIONS
 //
@@ -248,4 +253,11 @@ public function mockReplace_Test1() {
 @test:Config {}
 public function mockReplace_Test2() {
     test:assertEquals(mock2:intSubtract7(10, 3, 2), 15);
+}
+
+@test:Config
+public function mockErrorResponse() {
+    test:when(mockHelloFunc).thenReturn(error("This is an error"));
+    string|error result = helloFunc();
+    test:assertTrue(result is error);
 }

@@ -1,0 +1,246 @@
+{
+    "root": "Node",
+    "type": "abstract",
+    "attributes": [
+        {
+            "name": "kind",
+            "type": "SyntaxKind"
+        },
+        {
+            "name": "width",
+            "type": "int"
+        }
+    ],
+    "nodes": [
+        {
+            "name": "DocumentNode",
+            "base": "Node",
+            "kind": "MODULE_PART",
+            "attributes": [
+                {
+                    "name": "members",
+                    "type": "DocumentMemberDeclarationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "eofToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "DocumentMemberDeclarationNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "ValueNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "TableNode",
+            "base": "DocumentMemberDeclarationNode",
+            "kind": "TABLE",
+            "attributes": [
+                {
+                    "name": "openBracket",
+                    "type": "Token"
+                },
+                {
+                    "name": "identifier",
+                    "type": "KeyNode"
+                },
+                {
+                    "name": "closeBracket",
+                    "type": "Token"
+                },
+                {
+                    "name": "fields",
+                    "type": "KeyValueNode",
+                    "occurrences": "MULTIPLE"
+                }
+            ]
+        },
+        {
+            "name": "TableArrayNode",
+            "base": "DocumentMemberDeclarationNode",
+            "kind": "TABLE_ARRAY",
+            "attributes": [
+                {
+                    "name": "firstOpenBracket",
+                    "type": "Token"
+                },
+                {
+                    "name": "secondOpenBracket",
+                    "type": "Token"
+                },
+                {
+                    "name": "identifier",
+                    "type": "KeyNode"
+                },
+                {
+                    "name": "firstCloseBracket",
+                    "type": "Token"
+                },
+                {
+                    "name": "secondCloseBracket",
+                    "type": "Token"
+                },
+                {
+                    "name": "fields",
+                    "type": "KeyValueNode",
+                    "occurrences": "MULTIPLE"
+                }
+            ]
+        },
+        {
+            "name": "KeyValueNode",
+            "base": "DocumentMemberDeclarationNode",
+            "kind": "KEY_VALUE",
+            "attributes": [
+                {
+                    "name": "identifier",
+                    "type": "KeyNode"
+                },
+                {
+                    "name": "assign",
+                    "type": "Token"
+                },
+                {
+                    "name": "value",
+                    "type": "ValueNode"
+                }
+            ]
+        },
+        {
+            "name": "ArrayNode",
+            "base": "ValueNode",
+            "kind": "ARRAY",
+            "attributes": [
+                {
+                    "name": "openBracket",
+                    "type": "Token"
+                },
+                {
+                    "name": "value",
+                    "type": "ValueNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeBracket",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "InlineTableNode",
+            "base": "ValueNode",
+            "kind": "INLINE_TABLE",
+            "attributes": [
+                {
+                    "name": "openBrace",
+                    "type": "Token"
+                },
+                {
+                    "name": "values",
+                    "type": "KeyValueNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeBrace",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "StringLiteralNode",
+            "base": "ValueNode",
+            "kind": "STRING_LITERAL",
+            "attributes": [
+                {
+                    "name": "startDoubleQuote",
+                    "type": "Token"
+                },
+                {
+                    "name": "content",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "endDoubleQuote",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "LiteralStringLiteralNode",
+            "base": "ValueNode",
+            "kind": "LITERAL_STRING",
+            "attributes": [
+                {
+                    "name": "startSingleQuote",
+                    "type": "Token"
+                },
+                {
+                    "name": "content",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "endSingleQuote",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "NumericLiteralNode",
+            "base": "ValueNode",
+            "attributes": [
+                {
+                    "name": "sign",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "value",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "BoolLiteralNode",
+            "base": "ValueNode",
+            "kind": "BOOLEAN",
+            "attributes": [
+                {
+                    "name": "value",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "IdentifierLiteralNode",
+            "base": "ValueNode",
+            "kind": "IDENTIFIER_LITERAL",
+            "attributes": [
+                {
+                    "name": "value",
+                    "type": "IdentifierToken"
+                }
+            ]
+        },
+        {
+            "name": "KeyNode",
+            "base": "Node",
+            "kind": "KEY",
+            "attributes": [
+                {
+                    "name": "value",
+                    "type": "ValueNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                }
+            ]
+        }
+    ]
+}

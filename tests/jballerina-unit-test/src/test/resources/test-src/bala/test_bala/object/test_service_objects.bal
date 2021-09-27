@@ -120,17 +120,20 @@ function assertEquality(any|error actual, any|error expected) {
 }
 
 function testServiceRemoteMethod(serv:Service serviceVal) {
-    [string, boolean][] parameters = getRemoteParameters(serviceVal, "getRemoteCounter");
+    [string, boolean, string][] parameters = getRemoteParameters(serviceVal, "getRemoteCounter");
     assertEquality(parameters.length(), 3);
     assertEquality(parameters[0][0], "num");
     assertEquality(parameters[0][1], false);
+    assertEquality(parameters[0][2], "int");
     assertEquality(parameters[1][0], "value");
     assertEquality(parameters[1][1], false);
+    assertEquality(parameters[1][2], "decimal");
     assertEquality(parameters[2][0], "msg");
     assertEquality(parameters[2][1], true);
+    assertEquality(parameters[2][2], "string");
 }
 
-public function getRemoteParameters(service object {} s, string name) returns [string, boolean][] = @java:Method {
+public function getRemoteParameters(service object {} s, string name) returns [string, boolean, string][] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values",
     name: "getParameters"
 } external;

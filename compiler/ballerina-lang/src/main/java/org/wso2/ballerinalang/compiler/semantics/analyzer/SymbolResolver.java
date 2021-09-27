@@ -1267,7 +1267,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BTypeSymbol typeSymbol = type.tsymbol;
         streamType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
                                                       typeSymbol.originalName, typeSymbol.pkgID, streamType,
-                                                      typeSymbol.owner, streamTypeNode.pos, SOURCE);
+                                                      env.scope.owner, streamTypeNode.pos, SOURCE);
 
         markParameterizedType(streamType, constraintType);
         if (error != null) {
@@ -1289,8 +1289,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         tableType.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet.noneOf(Flag.class)),
-                typeSymbol.name, typeSymbol.originalName, env.enclPkg.symbol.pkgID, tableType,
-                env.scope.owner, tableTypeNode.pos, SOURCE);
+                                                     typeSymbol.name, typeSymbol.originalName, typeSymbol.pkgID,
+                                                     tableType, env.scope.owner, tableTypeNode.pos, SOURCE);
         tableType.tsymbol.flags = typeSymbol.flags;
         tableType.constraintPos = tableTypeNode.constraint.pos;
         tableType.isTypeInlineDefined = tableTypeNode.isTypeInlineDefined;
@@ -1384,17 +1384,20 @@ public class SymbolResolver extends BLangNodeVisitor {
             errorTypeNode.flagSet.add(Flag.ANONYMOUS);
         }
 
+        // The builtin error type
+        BErrorType bErrorType = symTable.errorType;
+
         boolean distinctErrorDef = errorTypeNode.flagSet.contains(Flag.DISTINCT);
         if (detailType == symTable.detailType && !distinctErrorDef &&
                 !this.env.enclPkg.packageID.equals(PackageID.ANNOTATIONS)) {
-            resultType = symTable.errorType;
+            resultType = bErrorType;
             return;
         }
 
         // Define user define error type.
         BErrorTypeSymbol errorTypeSymbol = Symbols
-                .createErrorSymbol(Flags.asMask(errorTypeNode.flagSet), Names.EMPTY, env.enclPkg.symbol.pkgID,
-                                   null, env.scope.owner, errorTypeNode.pos, SOURCE);
+                .createErrorSymbol(Flags.asMask(errorTypeNode.flagSet), Names.EMPTY, bErrorType.tsymbol.pkgID, null,
+                        bErrorType.tsymbol.owner, errorTypeNode.pos, SOURCE);
 
         PackageID packageID = env.enclPkg.packageID;
         if (env.node.getKind() != NodeKind.PACKAGE) {

@@ -92,6 +92,12 @@ public class BindingsGenerator {
             outStream.println("\nGenerating bindings for: ");
             generateBindings(classNames, classLoader, modulePath);
 
+            // Generate bindings for super classes of directly specified Java classes.
+            if (!env.getSuperClasses().isEmpty()) {
+                env.setAllJavaClasses(env.getSuperClasses());
+                generateBindings(env.getSuperClasses(), classLoader, modulePath);
+            }
+
             // Generate bindings for dependent Java classes.
             if (!env.getClassListForLooping().isEmpty()) {
                 outStream.println("\nGenerating dependency bindings for: ");
@@ -100,6 +106,7 @@ public class BindingsGenerator {
             while (!env.getClassListForLooping().isEmpty()) {
                 Set<String> newSet = new HashSet<>(env.getClassListForLooping());
                 newSet.removeAll(classNames);
+                newSet.removeAll(env.getSuperClasses());
                 env.setAllJavaClasses(newSet);
                 env.clearClassListForLooping();
                 generateBindings(newSet, classLoader, dependenciesPath);
@@ -150,7 +157,7 @@ public class BindingsGenerator {
 
     private PackageManifest.Platform getPackagePlatform(TomlDocument tomlDocument) {
         if (tomlDocument != null) {
-            PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null, null,
+            PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null,
                     env.getProjectRoot()).packageManifest();
             if (packageManifest != null) {
                 return packageManifest.platform(JvmTarget.JAVA_11.code());

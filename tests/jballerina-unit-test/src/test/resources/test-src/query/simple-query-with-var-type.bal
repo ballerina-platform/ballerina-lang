@@ -371,6 +371,38 @@ function testSimpleSelectQueryWithTable() {
     assertEquality((table [{"id":1234},{"id":4567}]).toString(), t2.toString());
 }
 
+type User record {
+    readonly int id;
+    string firstName;
+    string lastName;
+    int age;
+};
+
+function testQueryConstructingTableWithVar() returns error? {
+    User u1 = {id: 1, firstName: "John", lastName: "Doe", age: 25};
+    User u2 = {id: 2, firstName: "Anne", lastName: "Frank", age: 30};
+
+    table<User> key(id) users = table [];
+    users.add(u1);
+    users.add(u2);
+
+    var result1 = check table key(user) from var user in users
+                  where user.age > 21 && user.age < 60
+                  select {user};
+
+    assertEquality(true, result1 is table<record {| User user; |}> key(user));
+    assertEquality({"user": u1}, result1.get(u1));
+
+    User[] userList = [u1, u2];
+
+    var result2 = check table key(user) from var user in userList
+                  where user.age > 21 && user.age < 60
+                  select {user};
+
+    assertEquality(true, result2 is table<record {| User user; |}> key(user));
+    assertEquality({"user": u1}, result2.get(u1));
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

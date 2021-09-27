@@ -264,7 +264,7 @@ public function testAccessOnGroupedExpressions() returns error|boolean {
     result = result && s == "msg";
 
     s = (typeof (12.5f)).toString();
-    result = result && s == "typedesc float";
+    result = result && s == "typedesc 12.5";
     return result;
 }
 

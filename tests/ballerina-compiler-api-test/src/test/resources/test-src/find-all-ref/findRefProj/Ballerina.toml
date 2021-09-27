@@ -1,0 +1,5 @@
+[package]
+org="testOrg"
+name="findRefProj"
+version="0.1.0"
+export = ["findRefProj", "findRefProj.refModule"]
