@@ -2573,7 +2573,7 @@ public class TypeChecker {
             Field targetField = targetType.getFields().get(fieldName);
 
             if (!(((MapValueImpl) sourceValue).containsKey(StringUtils.fromString(fieldName))) &&
-                    SymbolFlags.isFlagOn(targetField.getFlags(), SymbolFlags.REQUIRED)) {
+                    !SymbolFlags.isFlagOn(targetField.getFlags(), SymbolFlags.OPTIONAL)) {
                 addErrorMessage(0, "missing required field '" + fieldNameLong +
                         "' of type '" + targetField.getFieldType().toString() + "' in record '" + targetType + "'");
                 returnVal = false;
