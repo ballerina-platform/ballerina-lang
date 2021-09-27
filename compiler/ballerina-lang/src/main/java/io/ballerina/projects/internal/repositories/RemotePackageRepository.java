@@ -298,6 +298,16 @@ public class RemotePackageRepository implements PackageRepository {
                                     y.resolvedDescriptor().version()).equals(
                                     SemanticVersion.VersionCompatibilityResult.LESS_THAN)) {
                                 return y;
+                            } else if (y.resolvedDescriptor().version().compareTo(x.resolvedDescriptor().version())
+                                    .equals(SemanticVersion.VersionCompatibilityResult.INCOMPATIBLE)) {
+                                PackageVersion latest =
+                                        this.fileSystemRepo.getLatest(y.resolvedDescriptor().version(),
+                                                                      x.resolvedDescriptor().version());
+                                if (latest.equals(y.resolvedDescriptor().version())) {
+                                    return y;
+                                } else {
+                                    return x;
+                                }
                             }
                             return x;
                         })).values());
