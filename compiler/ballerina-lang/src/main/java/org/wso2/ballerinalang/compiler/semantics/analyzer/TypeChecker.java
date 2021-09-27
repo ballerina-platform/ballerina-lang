@@ -5864,7 +5864,7 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationParamAndReturnType(aInv);
     }
 
-    private boolean checkInvalidActionInvocation(BLangInvocation.BLangActionInvocation aInv){
+    private boolean checkInvalidActionInvocation(BLangInvocation.BLangActionInvocation aInv) {
         if (aInv.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
                 (((((BLangSimpleVarRef) aInv.expr).symbol.tag & SymTag.ENDPOINT) !=
                         SymTag.ENDPOINT) && !aInv.async)) {

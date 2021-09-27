@@ -3438,7 +3438,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     }
                 }
             } else if (clientNodeKind != NodeKind.SIMPLE_VARIABLE_REF &&
-                    clientNodeKind != NodeKind.GROUP_EXPR){
+                    clientNodeKind != NodeKind.GROUP_EXPR) {
                 dlog.error(pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION_AS_EXPR);
             }
         }
