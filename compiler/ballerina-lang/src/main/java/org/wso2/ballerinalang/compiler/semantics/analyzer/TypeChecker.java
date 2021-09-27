@@ -5800,20 +5800,18 @@ public class TypeChecker extends BLangNodeVisitor {
     // - start foo.bar(); or start foo->bar(); or start (new Foo()).foo();
     private void checkActionInvocation(BLangInvocation.BLangActionInvocation aInv, BObjectType expType) {
 
-        if (aInv.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
-                (((((BLangSimpleVarRef) aInv.expr).symbol.tag & SymTag.ENDPOINT) !=
-                        SymTag.ENDPOINT) && !aInv.async)) {
+        if (checkInvalidActionInvocation(aInv)) {
             dlog.error(aInv.pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION, aInv.expr.getBType());
             this.resultType = symTable.semanticError;
             aInv.symbol = symTable.notFoundSymbol;
             return;
         }
 
-        Name remoteMethodQName = names.
-                fromString(Symbols.getAttachedFuncSymbolName(expType.tsymbol.name.value, aInv.name.value));
+        Name remoteMethodQName = names
+                .fromString(Symbols.getAttachedFuncSymbolName(expType.tsymbol.name.value, aInv.name.value));
         Name actionName = names.fromIdNode(aInv.name);
-        BSymbol remoteFuncSymbol = symResolver.
-                resolveObjectMethod(aInv.pos, env, remoteMethodQName, (BObjectTypeSymbol) expType.tsymbol);
+        BSymbol remoteFuncSymbol = symResolver
+                .resolveObjectMethod(aInv.pos, env, remoteMethodQName, (BObjectTypeSymbol) expType.tsymbol);
 
         if (remoteFuncSymbol == symTable.notFoundSymbol) {
             BSymbol invocableField = symResolver.resolveInvocableObjectField(
@@ -5845,6 +5843,16 @@ public class TypeChecker extends BLangNodeVisitor {
 
         aInv.symbol = remoteFuncSymbol;
         checkInvocationParamAndReturnType(aInv);
+    }
+
+    private boolean checkInvalidActionInvocation(BLangInvocation.BLangActionInvocation aInv){
+        if (aInv.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                (((((BLangSimpleVarRef) aInv.expr).symbol.tag & SymTag.ENDPOINT) !=
+                        SymTag.ENDPOINT) && !aInv.async)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private boolean checkLangLibMethodInvocationExpr(BLangInvocation iExpr, BType bType) {
