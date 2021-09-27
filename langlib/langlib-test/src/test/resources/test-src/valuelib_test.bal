@@ -1392,7 +1392,6 @@ type Factory record {|
 |};
 
 type Person5 record {|
-    boolean flag = true;
     float value?;
     string name;
     int age;
@@ -1445,7 +1444,8 @@ json jsonVal = {
         "blue": 4,
         "white": true,
         "yellow": "color",
-        "green": 4
+        "green": 4,
+        "permanant": true
     };
 
 string errorMsgContent = "\n\t\tmissing required field 'grade' of type 'float' in record 'Factory'" +
