@@ -1125,6 +1125,11 @@ public class EqualAndNotEqualOperationsTest {
         };
     }
 
+    @Test(description = "Test equality with byte and int subtypes")
+    public void testByteEquality() {
+        BRunUtil.invoke(result, "testEqualityByteWithIntSubTypes");
+    }
+
     @Test(description = "Test equality with tables")
     public void testTableEquality() {
         BRunUtil.invoke(result, "testTableEquality");

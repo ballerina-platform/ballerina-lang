@@ -1600,3 +1600,40 @@ function assert(anydata actual, anydata expected) {
         panic e;
     }
 }
+
+function testEqualityByteWithIntSubTypes() {
+    byte a = 120;
+    int b = 120;
+    int:Unsigned8 c = 120;
+    int:Unsigned16 d = 120;
+    int:Unsigned32 e = 120;
+    int:Signed8 f = 120;
+    int:Signed16 g = 120;
+    int:Signed32 h = 120;
+
+    // == equals check
+    test:assertTrue((a == b) && (a == c) && (a == d) && (a == e) && 
+    (a == f) && (a == g) && (a == h));
+    test:assertTrue((b == a) && (c == a) && (d == a) && (e == a) && 
+    (f == a) && (g == a) && (h == a));
+
+    // != equals check
+    test:assertFalse((a != b) && (a != c) && (a != d) && (a != e) && 
+    (a != f) && (a != g) && (a != h));
+    test:assertFalse((b != a) && (c != a) && (d != a) && (e != a) && 
+    (f != a) && (g != a) && (h != a));
+
+    // === equals check
+    test:assertTrue((a === b) && (a === c) && (a === d) && (a === e) && 
+    (a === g) && (a === h));
+    test:assertTrue((b === a) && (c === a) && (d === a) && (e === a) && 
+    (g === a) && (h === a));
+    // Need to add (a === f) , (f === a) after fixing #32924
+
+    // !== equals check
+    test:assertFalse((a !== b) && (a !== c) && (a !== d) && (a !== e) && 
+    (a !== g) && (a !== h));
+    test:assertFalse((b !== a) && (c !== a) && (d !== a) && (e !== a) && 
+    (g !== a) && (h !== a));
+    // Need to add (a !== f) , (f !== a) after fixing #32924
+}
