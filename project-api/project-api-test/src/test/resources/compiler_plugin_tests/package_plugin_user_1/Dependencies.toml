@@ -8,5 +8,11 @@ dependencies-toml-version = "2"
 
 [[package]]
 org = "samjs"
-name = "package_comp_plugin_1"
+name = "package_plugin_user_1"
 version = "0.1.0"
+dependencies = [
+    {org = "samjs", name = "package_plugin_user_1"}
+]
+modules = [
+    {org = "samjs", packageName = "package_plugin_user_1", moduleName = "package_plugin_user_1"}
+]
