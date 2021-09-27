@@ -199,43 +199,161 @@ To do manual testing whether the added codeactions are working, you have to,
 
 ### Unit Testing
 
-_??? Need more information here ??? _
+In unit testing, we have to test 2 things:
+
+1. Given the cursor position on a source file, check if the expected codeaction is returned by our CodeAction.
+2. Assuming that the correct codeaction was returned, test the `DocumentEdit`s returned by the codeaction once executed.
+   That is, make sure the expected document(or documents) was updated as expected.
+
+While you can decide how exactly is to perform the checks, we suggest using the following methods.
+
+#### Get Codeactions for given cursor position
+
+**Note: The cursor position should be within the line range of a diagnostic listed by
+`CodeAction.supportedDiagnosticCodes()` for a given codeaction to be invoked by the language server.**
+
+To simulate the above diagnostic line range constraint, a `withinRange()` check is used to filter diagnostics in the
+following code.
 
 ```java
-public class CodeActionTest {
+public class CodeActionUtils {
 
-    @Test
-    public void testCodeActions() {
-        // Write a ballerina project which imports your package
-        Path projectRoot = RESOURCE_DIRECTORY.resolve("sample_codeaction_package_1");
-        // Load the project
-        BuildProject project = BuildProject.load(getEnvironmentBuilder(), projectRoot);
-        
-        Path filePath = projectRoot.resolve("service.bal");
-        DocumentId documentId = project.documentId(filePath);
-
+    /**
+     * Get codeactions for the provided cursor position in the provided source file.
+     *
+     * @param filePath  Source file path
+     * @param cursorPos Cursor position
+     * @param project   Project
+     * @return List of codeactions for the cursor position
+     */
+    public static List<CodeActionInfo> getCodeActions(Path filePath, LinePosition cursorPos, Project project) {
         Package currentPackage = project.currentPackage();
         PackageCompilation compilation = currentPackage.getCompilation();
+        // Codeaction manager is our interface to obtaining codeactions and executing them
         CodeActionManager codeActionManager = compilation.getCodeActionManager();
 
+        DocumentId documentId = project.documentId(filePath);
         Document document = currentPackage.getDefaultModule().document(documentId);
 
-        LinePosition cursorPos = LinePosition.from(20, 65);
-        List<CodeActionInfo> codeActions = compilation.diagnosticResult().diagnostics().stream()
+        return compilation.diagnosticResult().diagnostics().stream()
+                // Filter diagnostics available for the cursor position
                 .filter(diagnostic -> CodeActionUtil.isWithinRange(diagnostic.location().lineRange(), cursorPos) &&
                         filePath.endsWith(diagnostic.location().lineRange().filePath()))
                 .flatMap(diagnostic -> {
-                    CodeActionContextImpl context = CodeActionContextImpl.from(filePath.toUri().toString(),
+                    CodeActionContextImpl context = CodeActionContextImpl.from(
+                            filePath.toUri().toString(),
                             filePath,
                             cursorPos,
                             document,
                             compilation.getSemanticModel(documentId.moduleId()),
                             diagnostic);
+                    // Get codeactions for the diagnostic
                     return codeActionManager.codeActions(context).stream();
                 })
                 .collect(Collectors.toList());
-
-        Assert.assertTrue(codeActions.size() > 0);
     }
 }
+```
+
+This method accepts the source file path, cursor position and the project as arguments. You can get rid of the `porject`
+agument and use `ProjectLoader.loadProject()` with the source file path as a parameter to load the project.
+
+Once you have the list of codeactions, you can simply check for the _title_ and _arguments_. Note that the
+`CodeActionInfo` object has another attribute named `providerName`. This is for internal usage and formed in the
+following manner:
+
+```
+${DiagnosticCode}/${BalPackageOrgName}/${BalPackagePackageName}/${CodeAction.name()}
+```
+
+Here's an example:
+
+```jshelllanguage
+    // Load project
+    Project project = ProjectLoader.loadProject(filePath, getEnvironmentBuilder());
+    // Get codeactions for cursor position and assert
+    List < CodeActionInfo > codeActions = CodeActionUtils.getCodeActions(filePath, cursorPos, project);
+    Assert.assertTrue(codeActions.size() > 0, "Expect atleast 1 code action");
+
+    // Compare expected codeaction and received codeactions to check if we got the expected codeaction
+    // Here, we compare codeactions using JSON serialization. You can perform this manually by comparing each
+    // field of a codeaction as well.
+    JsonObject expectedCodeAction = GSON.toJsonTree(expected).getAsJsonObject();
+    Optional < CodeActionInfo > found = codeActions.stream()
+            .filter(codeActionInfo -> {
+                JsonObject actualCodeAction = GSON.toJsonTree(codeActionInfo).getAsJsonObject();
+                return actualCodeAction.equals(expectedCodeAction);
+            })
+            .findFirst();
+    Assert.assertTrue(found.isPresent(), "Codeaction not found:" + expectedCodeAction.toString());
+
+```
+
+#### Execute a codeaction
+
+You can use the following method to execute a codeaction and get the `DocumentEdit` list returned.
+
+```java
+public class CodeActionUtils {
+
+    /**
+     * Get the document edits returned when the provided codeaction is executed.
+     *
+     * @param project    Project
+     * @param filePath   Source file path
+     * @param codeAction Codeaction to be executed
+     * @return List of edits returned by the codeaction execution
+     */
+    private List<DocumentEdit> executeCodeAction(Project project, Path filePath, CodeActionInfo codeAction) {
+        Package currentPackage = project.currentPackage();
+        PackageCompilation compilation = currentPackage.getCompilation();
+
+        DocumentId documentId = project.documentId(filePath);
+        Document document = currentPackage.getDefaultModule().document(documentId);
+
+        // Need to convert the arguments to JsonElement because internally we convert
+        // JsonElements to objects via deserialization.
+        List<CodeActionArgument> codeActionArguments = codeAction.getArguments().stream()
+                .map(arg -> CodeActionArgument.from(GSON.toJsonTree(arg)))
+                .collect(Collectors.toList());
+
+        CodeActionExecutionContext executionContext = CodeActionExecutionContextImpl.from(
+                filePath.toUri().toString(),
+                filePath,
+                null,
+                document,
+                compilation.getSemanticModel(document.documentId().moduleId()),
+                codeActionArguments);
+
+        // Execute and get documents edits for the codeaction
+        return compilation.getCodeActionManager()
+                .executeCodeAction(codeAction.getProviderName(), executionContext);
+    }
+}
+```
+
+Since a `DocumentEdit` contains the `fileUri` and `SyntaxTree` (modified), you can perform any checks upon that to see
+if the expected changes were applied. For example, you can compare the expected source code
+with `syntaxTree.toSourceCode()`
+which is the simplest approach.
+
+```jshelllanguage
+    List < DocumentEdit > actualEdits = CodeActionUtils.executeCodeAction(project, filePath, found.get());
+    // Assert the number of files supposed to be changed
+    // A DocumentEdit is for a single document.
+    Assert.assertEquals(actualEdits.size(), n, "Expected changes to n files");
+
+    // Check if expected codeaction is there
+    String expectedFileUri = filePath.toUri().toString();
+    Optional < DocumentEdit > actualEdit = actualEdits.stream()
+            .filter(docEdit -> docEdit.getFileUri().equals(expectedFileUri))
+            .findFirst();
+
+    Assert.assertTrue(actualEdit.isPresent(), "Edits not found for fileUri: " + expectedFileUri);
+
+    // Compare expected source code and actual source code
+    String modifiedSourceCode = actualEdit.get().getModifiedSyntaxTree().toSourceCode();
+    String expectedSourceCode = Files.readString(expectedSrc);
+    Assert.assertEquals(modifiedSourceCode, expectedSourceCode,
+            "Actual source code didn't match expected source code");
 ```
