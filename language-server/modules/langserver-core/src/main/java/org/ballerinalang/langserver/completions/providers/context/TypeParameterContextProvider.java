@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
@@ -24,6 +26,8 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TypeParameterNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
@@ -40,6 +44,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -211,6 +216,38 @@ public class TypeParameterContextProvider<T extends Node> extends AbstractComple
 
     @Override
     public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
+        if (node.parent().kind() == SyntaxKind.KEY_TYPE_CONSTRAINT
+                && node.parent().parent().kind() == SyntaxKind.TABLE_TYPE_DESC) {
+            TableTypeDescriptorNode tableTypeDesc = (TableTypeDescriptorNode) node.parent().parent();
+            TypeParameterNode typeParameterNode = (TypeParameterNode) tableTypeDesc.rowTypeParameterNode();
+            // Get type of type parameter
+            Optional<Symbol> symbol = context.currentSemanticModel()
+                    .flatMap(semanticModel -> semanticModel.symbol(typeParameterNode.typeNode()));
+            if (symbol.isPresent()) {
+                TypeSymbol typeSymbol = CommonUtil.getRawType((TypeSymbol) symbol.get());
+                if (typeSymbol.typeKind() == TypeDescKind.RECORD) {
+                    RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeSymbol;
+                    Set<String> typeNames = recordTypeSymbol.fieldDescriptors().values().stream()
+                            .filter(recordFieldSymbol -> recordFieldSymbol.qualifiers().contains(Qualifier.READONLY))
+                            .map(recordFieldSymbol -> recordFieldSymbol.typeDescriptor().getName().orElse(
+                                    recordFieldSymbol.typeDescriptor().typeKind().getName()))
+                            .filter(name -> !name.isEmpty()).collect(Collectors.toSet());
+
+                    completionItems.forEach(lsCItem -> {
+                        String sortText;
+                        if (typeNames.contains(lsCItem.getCompletionItem().getInsertText())) {
+                            sortText = SortingUtil.genSortText(1) +
+                                    SortingUtil.genSortTextForTypeDescContext(context, lsCItem);
+                        } else {
+                            sortText = SortingUtil.genSortText(2) +
+                                    SortingUtil.genSortTextForTypeDescContext(context, lsCItem);
+                        }
+                        lsCItem.getCompletionItem().setSortText(sortText);
+                    });
+                    return;
+                }
+            }
+        }
         completionItems.forEach(lsCItem -> {
             String sortText = SortingUtil.genSortTextForTypeDescContext(context, lsCItem);
             lsCItem.getCompletionItem().setSortText(sortText);

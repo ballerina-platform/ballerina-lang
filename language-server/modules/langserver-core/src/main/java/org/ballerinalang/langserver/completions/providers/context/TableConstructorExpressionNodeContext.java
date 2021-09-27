@@ -15,10 +15,16 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.KeySpecifierNode;
 import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -28,6 +34,8 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link TableConstructorExpressionNode} context.
@@ -45,9 +53,11 @@ public class TableConstructorExpressionNodeContext extends AbstractCompletionPro
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, TableConstructorExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         int cursor = ctx.getCursorPositionInTree();
-        
-        if (this.withinKeySpecifier(ctx, node)) {
+
+        if (this.onKeySpecifier(ctx, node)) {
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_KEY.get()));
+        } else if (withInKeySpecifier(ctx, node)) {
+            completionItems.addAll(getKeyCompletionItems(ctx, node));
         } else if (node.keySpecifier().isPresent() && node.keySpecifier().get().textRange().endOffset() < cursor) {
             /*
             Covers the following
@@ -63,12 +73,53 @@ public class TableConstructorExpressionNodeContext extends AbstractCompletionPro
         return completionItems;
     }
 
-    private boolean withinKeySpecifier(BallerinaCompletionContext context, TableConstructorExpressionNode node) {
+    private boolean onKeySpecifier(BallerinaCompletionContext context, TableConstructorExpressionNode node) {
         int cursor = context.getCursorPositionInTree();
         Optional<KeySpecifierNode> keySpecifier = node.keySpecifier();
         Token tableKeyword = node.tableKeyword();
 
         return cursor > tableKeyword.textRange().endOffset()
-                && (!keySpecifier.isPresent() || cursor < keySpecifier.get().keyKeyword().textRange().startOffset());
+                && (keySpecifier.isEmpty() || cursor < keySpecifier.get().keyKeyword().textRange().startOffset());
+    }
+
+    private boolean withInKeySpecifier(BallerinaCompletionContext context, TableConstructorExpressionNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Optional<KeySpecifierNode> keySpecifier = node.keySpecifier();
+        return keySpecifier.isPresent() && keySpecifier.get().textRange().startOffset() <= cursor
+                && cursor <= keySpecifier.get().textRange().endOffset();
+    }
+
+    private List<LSCompletionItem> getKeyCompletionItems(BallerinaCompletionContext context,
+                                                         TableConstructorExpressionNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        Optional<TypeSymbol> typeSymbol = context.getContextType();
+        if (typeSymbol.isEmpty()) {
+            return completionItems;
+        }
+        TypeSymbol rawTypeSymbol = CommonUtil.getRawType(typeSymbol.get());
+        if (rawTypeSymbol.typeKind() != TypeDescKind.RECORD) {
+            return completionItems;
+        }
+        //Note: There is not a way to get the key constraint atm. 
+        // If the key constraint specifies only a single basic type,
+        // we should only suggest specifiers of that type.
+        RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) rawTypeSymbol;
+        // Get existing keys
+        Optional<KeySpecifierNode> keySpecifierNode = node.keySpecifier();
+        if (keySpecifierNode.isEmpty()) {
+            return completionItems;
+        }
+        Set<String> fieldNames = keySpecifierNode.get().fieldNames().stream()
+                .filter(identifierToken -> !identifierToken.isMissing())
+                .map(Token::text)
+                .collect(Collectors.toSet());
+        // Get field symbols which are readonly and not already specified
+        List<RecordFieldSymbol> symbols = recordTypeSymbol.fieldDescriptors().values().stream()
+                .filter(recordFieldSymbol -> recordFieldSymbol.qualifiers().contains(Qualifier.READONLY))
+                .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent() &&
+                        !fieldNames.contains(recordFieldSymbol.getName().get()))
+                .collect(Collectors.toList());
+        completionItems.addAll(this.getCompletionItemList(symbols, context));
+        return completionItems;
     }
 }

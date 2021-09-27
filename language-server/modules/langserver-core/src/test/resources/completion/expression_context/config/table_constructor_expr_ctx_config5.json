@@ -1,0 +1,25 @@
+{
+  "position": {
+    "line": 6,
+    "character": 45
+  },
+  "source": "expression_context/source/table_constructor_expr_ctx_source5.bal",
+  "items": [
+    {
+      "label": "firstname",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "G",
+      "insertText": "firstname",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lastname",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "G",
+      "insertText": "lastname",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
