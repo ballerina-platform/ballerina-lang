@@ -21,10 +21,10 @@ public type  MyRecordV10 record {
 
 public type  MyRecordV11 record {
     string a = "hello";
-    int b1;
-    map<anydata> m1;
-    int[] d1;
-    table<string> t;
+    int b1 = 5;
+    map<anydata> m1 = {a:"apple"};
+    int[] d1 = [1,2,3];
+    table<map<any|error>> t = table [{id: 1, firstName: "Waruna"}];
 };
 
 public type  MyRecordV12 record {

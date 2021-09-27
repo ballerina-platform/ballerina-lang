@@ -353,7 +353,7 @@ public class JvmCreateTypeGen {
         return funcNames;
     }
 
-    private void populateTuple(MethodVisitor mv, BTupleType bType) {
+    public void populateTuple(MethodVisitor mv, BTupleType bType) {
         mv.visitTypeInsn(CHECKCAST, TUPLE_TYPE_IMPL);
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
@@ -469,6 +469,12 @@ public class JvmCreateTypeGen {
     public static List<Label> createLabelsForSwitch(MethodVisitor mv, int nameRegIndex,
                                                     List<? extends NamedNode> nodes, int start,
                                                     int length, Label defaultCaseLabel) {
+        return createLabelsForSwitch(mv, nameRegIndex, nodes, start, length, defaultCaseLabel, true);
+    }
+
+    public static List<Label> createLabelsForSwitch(MethodVisitor mv, int nameRegIndex,
+                                                    List<? extends NamedNode> nodes, int start,
+                                                    int length, Label defaultCaseLabel, boolean decodeCase) {
         mv.visitVarInsn(ALOAD, nameRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "hashCode", "()I", false);
 
@@ -480,7 +486,12 @@ public class JvmCreateTypeGen {
             NamedNode node = nodes.get(j);
             if (node != null) {
                 labels.add(i, new Label());
-                String name = node.getName().value;
+                String name;
+                if (decodeCase) {
+                    name = decodeIdentifier(node.getName().value);
+                } else {
+                    name = node.getName().value;
+                }
                 hashCodes[i] = name.hashCode();
                 i += 1;
             }
@@ -489,9 +500,15 @@ public class JvmCreateTypeGen {
         return labels;
     }
 
-    static List<Label> createLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
-                                                 List<? extends NamedNode> nodes, int start, int length,
-                                                 List<Label> labels, Label defaultCaseLabel) {
+    public static List<Label> createLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
+                                                        List<? extends NamedNode> nodes, int start, int length,
+                                                        List<Label> labels, Label defaultCaseLabel) {
+        return createLabelsForEqualCheck(mv,  nameRegIndex, nodes,  start,  length, labels,  defaultCaseLabel, true);
+    }
+
+   public static List<Label> createLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
+                                                       List<? extends NamedNode> nodes, int start, int length,
+                                                       List<Label> labels, Label defaultCaseLabel, boolean decodeCase) {
         List<Label> targetLabels = new ArrayList<>();
         int i = 0;
         for (int j = start; j < start + length; j++) {
@@ -501,7 +518,11 @@ public class JvmCreateTypeGen {
             }
             mv.visitLabel(labels.get(i));
             mv.visitVarInsn(ALOAD, nameRegIndex);
-            mv.visitLdcInsn(node.getName().value);
+            if (decodeCase) {
+                mv.visitLdcInsn(decodeIdentifier(node.getName().value));
+            } else {
+                mv.visitLdcInsn(node.getName().value);
+            }
             mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals",
                     String.format("(L%s;)Z", OBJECT), false);
             Label targetLabel = new Label();
@@ -1164,7 +1185,7 @@ public class JvmCreateTypeGen {
             mv.visitLdcInsn(decodeIdentifier(optionalField.name.value));
 
             // create and load field type
-            createRecordField(mv, optionalField);
+            createField(mv, optionalField);
 
             // Add the field to the map
             mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put",
@@ -1177,30 +1198,6 @@ public class JvmCreateTypeGen {
 
         // Set the fields of the record
         mv.visitMethodInsn(INVOKEVIRTUAL, RECORD_TYPE_IMPL, "setFields", String.format("(L%s;)V", MAP), false);
-    }
-
-    /**
-     * Create a field information for records.
-     *
-     * @param mv    method visitor
-     * @param field field Parameter Description
-     */
-    private void createRecordField(MethodVisitor mv, BField field) {
-
-        mv.visitTypeInsn(NEW, FIELD_IMPL);
-        mv.visitInsn(DUP);
-
-        // Load the field type
-        jvmTypeGen.loadType(mv, field.type);
-
-        // Load field name
-        mv.visitLdcInsn(decodeIdentifier(field.name.value));
-
-        // Load flags
-        mv.visitLdcInsn(field.symbol.flags);
-
-        mv.visitMethodInsn(INVOKESPECIAL, FIELD_IMPL, JVM_INIT_METHOD, String.format("(L%s;L%s;J)V", TYPE,
-                                                                                     STRING_VALUE), false);
     }
 
     /**
@@ -1291,17 +1288,22 @@ public class JvmCreateTypeGen {
      * @param mv        method visitor
      * @param tupleType tuple type
      */
-    private void createTupleType(MethodVisitor mv, BTupleType tupleType) {
+    public void createTupleType(MethodVisitor mv, BTupleType tupleType) {
         mv.visitTypeInsn(NEW, TUPLE_TYPE_IMPL);
         mv.visitInsn(DUP);
 
         // Load type name
         BTypeSymbol typeSymbol = tupleType.tsymbol;
-        mv.visitLdcInsn(decodeIdentifier(typeSymbol.name.getValue()));
+        if (typeSymbol == null) {
+            mv.visitLdcInsn(decodeIdentifier(tupleType.name.getValue()));
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            mv.visitLdcInsn(decodeIdentifier(typeSymbol.name.getValue()));
 
-        String varName = jvmConstantsGen.getModuleConstantVar(tupleType.tsymbol.pkgID);
-        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
-                          String.format("L%s;", MODULE));
+            String varName = jvmConstantsGen.getModuleConstantVar(typeSymbol.pkgID);
+            mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
+                    String.format("L%s;", MODULE));
+        }
         mv.visitLdcInsn(jvmTypeGen.typeFlag(tupleType));
         jvmTypeGen.loadCyclicFlag(mv, tupleType);
         jvmTypeGen.loadReadonlyFlag(mv, tupleType);
@@ -1379,7 +1381,7 @@ public class JvmCreateTypeGen {
             mv.visitLdcInsn(decodeIdentifier(optionalField.name.value));
 
             // create and load field type
-            createObjectField(mv, optionalField);
+            createField(mv, optionalField);
 
             // Add the field to the map
             mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put",
@@ -1395,12 +1397,12 @@ public class JvmCreateTypeGen {
     }
 
     /**
-     * Create a field information for objects.
+     * Create a field information for objects and records.
      *
      * @param mv    method visitor
-     * @param field object field
+     * @param field field parameter description
      */
-    private void createObjectField(MethodVisitor mv, BField field) {
+    private void createField(MethodVisitor mv, BField field) {
 
         mv.visitTypeInsn(NEW, FIELD_IMPL);
         mv.visitInsn(DUP);

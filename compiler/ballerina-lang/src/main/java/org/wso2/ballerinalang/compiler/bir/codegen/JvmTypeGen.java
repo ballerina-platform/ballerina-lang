@@ -439,6 +439,7 @@ public class JvmTypeGen {
                         loadUserDefinedType(mv, bType);
                     } else {
                         loadTupleType(mv, (BTupleType) bType);
+//                        jvmConstantsGen.generateGetBTupleType(mv, jvmConstantsGen.getTupleConstantVar(tupleType));
                     }
                     return;
                 case TypeTags.FINITE:
@@ -856,9 +857,8 @@ public class JvmTypeGen {
         loadReadonlyFlag(mv, bType);
 
         mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE_IMPL, JVM_INIT_METHOD, String.format("(L%s;L%s;IZZ)V", LIST, TYPE),
-                           false);
+                false);
     }
-
     /**
      * Load a user defined type instance to the top of the stack.
      *
@@ -1021,7 +1021,7 @@ public class JvmTypeGen {
                            false);
     }
 
-    static String getTypeDesc(BType bType) {
+    public static String getTypeDesc(BType bType) {
 
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
