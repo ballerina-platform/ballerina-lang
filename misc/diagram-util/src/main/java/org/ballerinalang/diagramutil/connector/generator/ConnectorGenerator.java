@@ -101,7 +101,8 @@ public class ConnectorGenerator {
                                             Generator.containsToken(((FunctionDefinitionNode) member).qualifierList(),
                                                     SyntaxKind.REMOTE_KEYWORD))) {
                                 FunctionDefinitionNode functionDefinition = (FunctionDefinitionNode) member;
-                                List<org.ballerinalang.central.client.model.connector.BalType> parameters = new ArrayList<>();
+                                List<org.ballerinalang.central.client.model.connector.BalType> parameters =
+                                        new ArrayList<>();
 
                                 String functionName = functionDefinition.functionName().text();
                                 Map<String, String> funcAnnotation =

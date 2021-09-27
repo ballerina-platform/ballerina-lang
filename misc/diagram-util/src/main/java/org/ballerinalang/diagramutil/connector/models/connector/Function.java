@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.diagramutil.connector.models.connector;
 
-import com.google.gson.annotations.Expose;
 import org.ballerinalang.central.client.model.connector.BalFunction;
 import org.ballerinalang.central.client.model.connector.BalType;
 
