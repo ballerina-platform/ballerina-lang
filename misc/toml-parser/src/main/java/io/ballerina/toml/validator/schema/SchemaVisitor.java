@@ -44,4 +44,8 @@ public abstract class SchemaVisitor {
     public void visit(StringSchema stringSchema) {
         throw new AssertionError();
     }
+
+    public void visit(CompositionSchema compositionSchema) {
+        throw new AssertionError();
+    }
 }
