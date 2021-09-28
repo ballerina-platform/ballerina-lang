@@ -33,7 +33,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.List;
-import java.util.Optional;
 
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertBasicsAndGetSymbol;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
@@ -87,7 +86,7 @@ public class VarDeclSymbolTest {
         // check qualifiers
         List<Qualifier> qualifiers = symbol.qualifiers();
         if (expQuals.size() > 0) {
-            expQuals.forEach(qualifiers::contains);
+            expQuals.forEach(expQual -> assertTrue(qualifiers.contains(expQual)));
         } else {
             assertTrue(qualifiers.isEmpty());
         }
@@ -129,9 +128,9 @@ public class VarDeclSymbolTest {
                 {58, 52, "otherValues", TypeDescKind.ARRAY, null, null,
                         List.of(Qualifier.PUBLIC)},
                 {62, 25, "a1", TypeDescKind.STRING, null, null,
-                        List.of(Qualifier.PUBLIC)},
+                        List.of()},
                 {62, 34, "a3", TypeDescKind.FLOAT, null, null,
-                        List.of(Qualifier.PUBLIC)},
+                        List.of()},
                 {66, 34, "aValue", TypeDescKind.ANYDATA, null, null,
                         List.of(Qualifier.PUBLIC)},
                 {66, 42, "bValue", TypeDescKind.ANYDATA, null, null,

@@ -34,7 +34,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.List;
-import java.util.Optional;
 
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertBasicsAndGetSymbol;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
@@ -89,7 +88,7 @@ public class EnumDeclSymbolTest {
         // check qualifiers
         List<Qualifier> qualifiers = symbol.qualifiers();
         if (expQuals.size() > 0) {
-            expQuals.forEach(qualifiers::contains);
+            expQuals.forEach(expQual -> assertTrue(qualifiers.contains(expQual)));
         } else {
             assertTrue(qualifiers.isEmpty());
         }
