@@ -499,6 +499,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
         visit(objectConstructorExpression.typeInit);
+        addDependency(objectConstructorExpression.getBType().tsymbol, objectConstructorExpression.classNode.symbol);
     }
 
     @Override
