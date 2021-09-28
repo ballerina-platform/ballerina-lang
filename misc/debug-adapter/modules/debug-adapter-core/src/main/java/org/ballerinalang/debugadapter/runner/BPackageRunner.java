@@ -15,33 +15,26 @@
  */
 
 
-package org.ballerinalang.debugadapter.programrunner;
+package org.ballerinalang.debugadapter.runner;
 
 import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
 /**
- * Ballerina single file runner.
+ * Ballerina package runner.
  */
-public class BFileRunner extends BProgramRunner {
+public class BPackageRunner extends BProgramRunner {
 
-    public BFileRunner(ClientLaunchConfigHolder configHolder, String fileRoot) {
-        super(configHolder, fileRoot);
+    public BPackageRunner(ClientLaunchConfigHolder configHolder, String projectRoot) {
+        super(configHolder, projectRoot);
     }
 
-    @Override
     public Process start() throws Exception {
         ProcessBuilder processBuilder = new ProcessBuilder();
-        String balFilePath = configHolder.getSourcePath();
-        processBuilder.command(getBallerinaCommand(balFilePath));
-
-        Path singleFileRoot = Paths.get(projectRoot).getParent();
-        if (singleFileRoot != null) {
-            processBuilder.directory(singleFileRoot.toFile());
-        }
+        processBuilder.command(getBallerinaCommand(null));
+        processBuilder.directory(Paths.get(projectRoot).toFile());
 
         Map<String, String> env = processBuilder.environment();
         // Need to ignore the "BAL_JAVA_DEBUG" env variable, as otherwise the program compiler will also run in debug

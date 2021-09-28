@@ -39,18 +39,18 @@ public class DebugAdapterLauncher {
 
     public static void main(String[] args) {
         try {
-            // Configures debug server port
+            // Configures debug server port.
             int debugServerPort = args.length != 0 ? Integer.parseInt(args[0]) : DEFAULT_PORT;
             ServerSocket serverSocket = new ServerSocket(debugServerPort);
             PrintStream out = System.out;
             out.println("Debug server started on " + debugServerPort);
 
-            // Initializes I/O streams
+            // Initializes I/O streams.
             Socket clientSocket = serverSocket.accept();
             DataInputStream inputStream = new DataInputStream(clientSocket.getInputStream());
             DataOutputStream outputStream = new DataOutputStream(clientSocket.getOutputStream());
 
-            // Initializes LSP debug server launcher
+            // Initializes LSP debug server launcher.
             JBallerinaDebugServer debugServer = new JBallerinaDebugServer();
             Launcher<IDebugProtocolClient> serverLauncher = DSPLauncher.createServerLauncher(debugServer,
                     inputStream, outputStream);

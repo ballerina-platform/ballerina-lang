@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.debugadapter.programrunner;
+package org.ballerinalang.debugadapter.runner;
 
 import org.ballerinalang.debugadapter.config.ClientConfigurationException;
 import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Abstract implementation of Ballerina program launcher.
+ * Abstract implementation for Ballerina program runners.
  */
 public abstract class BProgramRunner {
 
