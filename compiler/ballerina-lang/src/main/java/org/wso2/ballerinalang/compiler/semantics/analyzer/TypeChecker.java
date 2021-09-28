@@ -6984,7 +6984,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (fieldType == symTable.semanticError) {
                 return fieldType;
             }
-            return BUnionType.create(null, fieldType, symTable.nilType);
+            return addNilForNillableAccessType(fieldType);
         }
 
         // If the type is not an record, it needs to be a union of records.
