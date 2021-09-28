@@ -2221,10 +2221,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             indexBasedAccess.expr = ((BLangGroupExpr) expression).expression;
             BLangGroupExpr group = (BLangGroupExpr) TreeBuilder.createGroupExpressionNode();
             group.expression = indexBasedAccess;
-            group.pos = getPosition(indexedExpressionNode);
+            group.pos = indexBasedAccess.pos;
             return group;
         } else if (containerExpr.kind() == SyntaxKind.XML_STEP_EXPRESSION) {
             // TODO : This check will be removed after changes are done for spec issue #536
+            expression.pos = indexBasedAccess.pos;
             ((BLangXMLNavigationAccess) expression).childIndex = indexBasedAccess.indexExpr;
             return expression;
         }
