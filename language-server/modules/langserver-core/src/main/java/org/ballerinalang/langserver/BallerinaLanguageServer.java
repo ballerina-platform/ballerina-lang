@@ -146,7 +146,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setFoldingRangeProvider(true);
         res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
         
-        // Hover, references and definition support will be registered dynamically is supported
+        // Hover, references and definition support will be registered dynamically if supported
         if (!LSClientUtil.isDynamicHoverRegistrationSupported(params.getCapabilities().getTextDocument())) {
                     res.getCapabilities().setHoverProvider(true);
         }
