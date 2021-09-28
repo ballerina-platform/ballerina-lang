@@ -23,6 +23,7 @@ import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
 import io.ballerina.projects.internal.ModuleContextDataHolder;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -433,6 +434,11 @@ class ModuleContext {
     private static void cacheBIR(ModuleContext moduleContext) {
         // Skip caching BIR if there are diagnostics
         if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
+            return;
+        }
+
+        if (moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT) && !ProjectUtils.isLangLibPackage(
+                moduleContext.descriptor().org(), moduleContext.descriptor().packageName())) {
             return;
         }
 
