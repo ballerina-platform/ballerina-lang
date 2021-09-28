@@ -164,3 +164,13 @@ function test(string name, int age) {
         [foo()]: "FOO"
     };
 }
+
+xmlns "foo" as ns;
+
+int indx = 0;
+
+function testXMLStepExpr() {
+    xml x1 = xml `<ns:root><ns:child></ns:child></ns:root>`;
+    xml x2 = x1/<ns:child>[indx];
+    string s = x1/**/<ns:child>.toString();
+}
