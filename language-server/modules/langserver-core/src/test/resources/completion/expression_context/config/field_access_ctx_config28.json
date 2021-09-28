@@ -98,11 +98,11 @@
     {
       "label": "shift()",
       "kind": "Function",
-      "detail": "any|error",
+      "detail": "NodeCredential",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves and returns first member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `any|error`   \n- the value that was the first member of the array  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves and returns first member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `NodeCredential`   \n- the value that was the first member of the array  \n  \n"
         }
       },
       "sortText": "E",
@@ -128,11 +128,11 @@
     {
       "label": "sort(array:SortDirection direction, function ()? key)",
       "kind": "Function",
-      "detail": "(any|error)[]",
+      "detail": "NodeCredential[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nSorts an array.\n\nIf the member type of the array is not ordered, then the parameter `key` function\nmust be specified.\nSorting works the same as with the parameter `sort` clause of query expressions.\n  \n**Params**  \n- `array:SortDirection` direction: direction in which to sort(Defaultable)  \n- `function ()?` key: function that returns a key to use to sort the members(Defaultable)  \n  \n**Return** `(any|error)[]`   \n- a new array consisting of the members of parameter `arr` in sorted order  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nSorts an array.\n\nIf the member type of the array is not ordered, then the parameter `key` function\nmust be specified.\nSorting works the same as with the parameter `sort` clause of query expressions.\n  \n**Params**  \n- `array:SortDirection` direction: direction in which to sort(Defaultable)  \n- `function ()?` key: function that returns a key to use to sort the members(Defaultable)  \n  \n**Return** `NodeCredential[]`   \n- a new array consisting of the members of parameter `arr` in sorted order  \n  \n"
         }
       },
       "sortText": "E",
@@ -147,11 +147,11 @@
     {
       "label": "reverse()",
       "kind": "Function",
-      "detail": "(any|error)[]",
+      "detail": "NodeCredential[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReverses the order of the members of an array.\n  \n  \n  \n**Return** `(any|error)[]`   \n- parameter `arr` with its members in reverse order  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReverses the order of the members of an array.\n  \n  \n  \n**Return** `NodeCredential[]`   \n- parameter `arr` with its members in reverse order  \n  \n"
         }
       },
       "sortText": "E",
@@ -162,11 +162,11 @@
     {
       "label": "toStream()",
       "kind": "Function",
-      "detail": "stream<any|error>",
+      "detail": "stream<NodeCredential>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a stream from the given array.\n  \n  \n  \n**Return** `stream<any|error>`   \n- The stream representation of the array `arr`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a stream from the given array.\n  \n  \n  \n**Return** `stream<NodeCredential>`   \n- The stream representation of the array `arr`  \n  \n"
         }
       },
       "sortText": "E",
@@ -177,11 +177,11 @@
     {
       "label": "remove(int index)",
       "kind": "Function",
-      "detail": "any|error",
+      "detail": "NodeCredential",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves a member of an array.\n\nThis removes the member of parameter `arr` with index parameter `index` and returns it.\nIt panics if there is no such member.\n  \n**Params**  \n- `int` index: index of member to be removed from parameter `arr`  \n  \n**Return** `any|error`   \n- the member of parameter `arr` that was at parameter `index`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves a member of an array.\n\nThis removes the member of parameter `arr` with index parameter `index` and returns it.\nIt panics if there is no such member.\n  \n**Params**  \n- `int` index: index of member to be removed from parameter `arr`  \n  \n**Return** `NodeCredential`   \n- the member of parameter `arr` that was at parameter `index`  \n  \n"
         }
       },
       "sortText": "E",
@@ -194,13 +194,13 @@
       }
     },
     {
-      "label": "push(any|error... vals)",
+      "label": "push(NodeCredential... vals)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nAdds values to the end of an array.\n  \n**Params**  \n- `(any|error)[]` vals: values to add to the end of the array"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nAdds values to the end of an array.\n  \n**Params**  \n- `NodeCredential[]` vals: values to add to the end of the array"
         }
       },
       "sortText": "E",
@@ -215,11 +215,11 @@
     {
       "label": "filter(function () func)",
       "kind": "Function",
-      "detail": "(any|error)[]",
+      "detail": "NodeCredential[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nSelects the members from an array for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `(any|error)[]`   \n- new array only containing members of parameter `arr` for which parameter `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nSelects the members from an array for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `NodeCredential[]`   \n- new array only containing members of parameter `arr` for which parameter `func` evaluates to true  \n  \n"
         }
       },
       "sortText": "E",
@@ -234,11 +234,11 @@
     {
       "label": "pop()",
       "kind": "Function",
-      "detail": "any|error",
+      "detail": "NodeCredential",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves and returns the last member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `any|error`   \n- removed member  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves and returns the last member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `NodeCredential`   \n- removed member  \n  \n"
         }
       },
       "sortText": "E",
@@ -247,13 +247,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lastIndexOf(anydata val, int startIndex)",
+      "label": "lastIndexOf(NodeCredential val, int startIndex)",
       "kind": "Function",
       "detail": "int?",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the index of last member of an array that is equal to a given value if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `anydata` val: member to search for  \n- `int` startIndex: index to start searching backwards from(Defaultable)  \n  \n**Return** `int?`   \n- index of the member if found, else `()`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the index of last member of an array that is equal to a given value if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `NodeCredential` val: member to search for  \n- `int` startIndex: index to start searching backwards from(Defaultable)  \n  \n**Return** `int?`   \n- index of the member if found, else `()`  \n  \n"
         }
       },
       "sortText": "E",
@@ -317,11 +317,11 @@
     {
       "label": "slice(int startIndex, int endIndex)",
       "kind": "Function",
-      "detail": "(any|error)[]",
+      "detail": "NodeCredential[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a subarray using a start index (inclusive) and an end index (exclusive).\n  \n**Params**  \n- `int` startIndex: index of first member to include in the slice  \n- `int` endIndex: index of first member not to include in the slice(Defaultable)  \n  \n**Return** `(any|error)[]`   \n- array slice within specified range  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a subarray using a start index (inclusive) and an end index (exclusive).\n  \n**Params**  \n- `int` startIndex: index of first member to include in the slice  \n- `int` endIndex: index of first member not to include in the slice(Defaultable)  \n  \n**Return** `NodeCredential[]`   \n- array slice within specified range  \n  \n"
         }
       },
       "sortText": "E",
@@ -336,11 +336,11 @@
     {
       "label": "enumerate()",
       "kind": "Function",
-      "detail": "[int, any|error][]",
+      "detail": "[int, NodeCredential][]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a new array consisting of index and member pairs.\n  \n  \n  \n**Return** `[int, any|error][]`   \n- array of index, member pairs  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a new array consisting of index and member pairs.\n  \n  \n  \n**Return** `[int, NodeCredential][]`   \n- array of index, member pairs  \n  \n"
         }
       },
       "sortText": "E",
@@ -349,13 +349,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "unshift(any|error... vals)",
+      "label": "unshift(NodeCredential... vals)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nAdds values to the start of an array.\n\nThe values newly added to the array will be in the same order\nas they are in parameter `vals`.\n  \n**Params**  \n- `(any|error)[]` vals: values to add to the start of the array"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nAdds values to the start of an array.\n\nThe values newly added to the array will be in the same order\nas they are in parameter `vals`.\n  \n**Params**  \n- `NodeCredential[]` vals: values to add to the start of the array"
         }
       },
       "sortText": "E",
@@ -368,13 +368,13 @@
       }
     },
     {
-      "label": "indexOf(anydata val, int startIndex)",
+      "label": "indexOf(NodeCredential val, int startIndex)",
       "kind": "Function",
       "detail": "int?",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the index of first member of an array that is equal to a given value if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `anydata` val: member to search for  \n- `int` startIndex: index to start the search from(Defaultable)  \n  \n**Return** `int?`   \n- index of the member if found, else `()`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the index of first member of an array that is equal to a given value if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `NodeCredential` val: member to search for  \n- `int` startIndex: index to start the search from(Defaultable)  \n  \n**Return** `int?`   \n- index of the member if found, else `()`  \n  \n"
         }
       },
       "sortText": "E",

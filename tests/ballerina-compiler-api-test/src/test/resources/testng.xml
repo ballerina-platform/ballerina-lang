@@ -28,16 +28,18 @@
             <class name="io.ballerina.semantic.api.test.ExpressionTypeTestNew" />
             <class name="io.ballerina.semantic.api.test.FieldSymbolTest" />
             <class name="io.ballerina.semantic.api.test.LangLibFunctionTest" />
+            <class name="io.ballerina.semantic.api.test.ServiceSemanticAPITest" />
             <class name="io.ballerina.semantic.api.test.SymbolAtCursorTest" />
             <class name="io.ballerina.semantic.api.test.SymbolBIRTest" />
             <class name="io.ballerina.semantic.api.test.SymbolEquivalenceTest" />
             <class name="io.ballerina.semantic.api.test.SymbolFlagToQualifierMappingTest" />
-            <class name="io.ballerina.semantic.api.test.TestSourcesTest" />
             <class name="io.ballerina.semantic.api.test.SymbolLookupTest" />
+            <class name="io.ballerina.semantic.api.test.SymbolOwnerTest" />
             <class name="io.ballerina.semantic.api.test.SymbolPositionTest" />
+            <class name="io.ballerina.semantic.api.test.TestSourcesTest" />
+            <class name="io.ballerina.semantic.api.test.TypeAssignabilityTest" />
             <class name="io.ballerina.semantic.api.test.TypedescriptorTest" />
             <class name="io.ballerina.semantic.api.test.WorkspaceSymbolLookupTest" />
-            <class name="io.ballerina.semantic.api.test.ServiceSemanticAPITest" />
 
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsWithinTargetDocumentTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.AnnotationRefsTest" />
@@ -120,6 +122,14 @@
             <class name="io.ballerina.semantic.api.test.symbols.TypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.VarDeclSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.XMLNamespaceDeclSymbolTest" />
+
+            <!--Langlib-->
+            <class name="io.ballerina.semantic.api.test.langlib.TypeParamBoundArrayFunctionsTest" />
+            <class name="io.ballerina.semantic.api.test.langlib.TypeParamBoundMapFunctionsTest" />
+            <class name="io.ballerina.semantic.api.test.langlib.TypeParamBoundStreamFunctionsTest" />
+            <class name="io.ballerina.semantic.api.test.langlib.TypeParamBoundTableFunctionsTest" />
+            <class name="io.ballerina.semantic.api.test.langlib.TypeParamBoundXMLFunctionsTest" />
+
         </classes>
     </test>
 </suite>

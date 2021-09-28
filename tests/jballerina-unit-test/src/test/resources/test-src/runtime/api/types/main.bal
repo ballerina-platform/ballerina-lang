@@ -23,6 +23,15 @@ public function main() {
     testRemoteFunctionParameters();
     testFunctionToString();
     testParamTypesString();
+    testConstituentTypes();
+}
+
+function testConstituentTypes() {
+    int[] arr = [1, 2, 3];
+    string[] types = objects:getConstituentTypes(arr.cloneReadOnly());
+    test:assertEquals(types.length(), 2);
+    test:assertEquals(types[0], "int[]");
+    test:assertEquals(types[1], "readonly");
 }
 
 function testFunctionToString() {

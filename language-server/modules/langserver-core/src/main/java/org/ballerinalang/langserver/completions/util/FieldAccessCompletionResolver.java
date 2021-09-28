@@ -36,6 +36,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
@@ -47,6 +48,8 @@ import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.XMLFilterExpressionNode;
+import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
@@ -93,6 +96,11 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
     }
 
     @Override
+    public Optional<TypeSymbol> transform(ErrorConstructorExpressionNode node) {
+        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.typeOf(node));
+    }
+
+    @Override
     public Optional<TypeSymbol> transform(FieldAccessExpressionNode node) {
         // First capture the expression and the respective symbols
         Optional<TypeSymbol> typeSymbol = node.expression().apply(this);
@@ -115,8 +123,9 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
     @Override
     public Optional<TypeSymbol> transform(OptionalFieldAccessExpressionNode node) {
         // First capture the expression and the respective symbols
-        // In future we should use the following approach and get rid of this resolver. 
-        Optional<TypeSymbol> resolvedType = this.context.currentSemanticModel().get().type(node);
+        // In future we should use the following approach and get rid of this resolver.
+        Optional<TypeSymbol> resolvedType = this.context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.typeOf(node));
         if (resolvedType.isPresent() && resolvedType.get().typeKind() != TypeDescKind.COMPILATION_ERROR) {
             return SymbolUtil.getTypeDescriptor(resolvedType.get());
         }
@@ -202,17 +211,27 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
 
     @Override
     public Optional<TypeSymbol> transform(AnnotAccessExpressionNode node) {
-        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.type(node));
+        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.typeOf(node));
     }
 
     @Override
     public Optional<TypeSymbol> transform(BasicLiteralNode node) {
-        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.type(node));
+        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.typeOf(node));
     }
 
     @Override
     public Optional<TypeSymbol> transform(BracedExpressionNode node) {
         return node.expression().apply(this);
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(XMLStepExpressionNode node) {
+        return this.context.currentSemanticModel().get().typeOf(node);
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(XMLFilterExpressionNode node) {
+        return this.context.currentSemanticModel().get().typeOf(node);
     }
 
     @Override

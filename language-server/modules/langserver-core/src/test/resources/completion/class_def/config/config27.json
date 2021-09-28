@@ -15,7 +15,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `int` port"
         }
       },
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "Listener(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -33,7 +33,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `string` url"
         }
       },
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "Client(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -44,7 +44,7 @@
     {
       "label": "Response()",
       "kind": "Function",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "Response()",
       "insertTextFormat": "Snippet"
     },
@@ -58,7 +58,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `int` field1  \n- `int` field2"
         }
       },
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "TestClass1(${1})",
       "insertTextFormat": "Snippet",
       "command": {

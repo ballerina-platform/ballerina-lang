@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,17 +63,19 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
              */
             List<Symbol> clientActions = this.getClientActions(expressionType.get());
             completionItems.addAll(this.getCompletionItemList(clientActions, context));
-        } else if (onSuggestFunctionParameters(node, context)) {
+        } else if (this.withinParameterContext(node, context)) {
             /*
              * Covers the following cases:
              * 1. a->func(<cursor>)
              * 2. a->func(mod1:<cursor>)
              */
             if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
-                QualifiedNameReferenceNode qualifiedNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
-                List<Symbol> exprCtxEntries = QNameReferenceUtil.getExpressionContextEntries(context, qualifiedNameRef);
-                completionItems.addAll(this.getCompletionItemList(exprCtxEntries, context));
+                QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
+                List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
+                List<LSCompletionItem> items = this.getCompletionItemList(exprEntries, context);
+                completionItems.addAll(items);
             } else {
+                completionItems.addAll(this.actionKWCompletions(context));
                 completionItems.addAll(this.expressionCompletions(context));
             }
         }
@@ -88,9 +91,29 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
                 (node.openParenToken().isMissing() || cursor <= node.openParenToken().textRange().startOffset());
     }
 
-    private boolean onSuggestFunctionParameters(RemoteMethodCallActionNode node, BallerinaCompletionContext context) {
+    private boolean withinParameterContext(RemoteMethodCallActionNode node, BallerinaCompletionContext context) {
         int cursor = context.getCursorPositionInTree();
         return !node.openParenToken().isMissing() && node.openParenToken().textRange().endOffset() <= cursor &&
                 (node.closeParenToken().isMissing() || cursor <= node.closeParenToken().textRange().startOffset());
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context,
+                     RemoteMethodCallActionNode node,
+                     List<LSCompletionItem> completionItems) {
+        if (!withinParameterContext(node, context)) {
+            super.sort(context, node, completionItems);
+            return;
+        }
+        Optional<TypeSymbol> parameterSymbol = context.getContextType();
+        if (parameterSymbol.isEmpty()) {
+            SortingUtil.toDefaultSorting(context, completionItems);
+            return;
+        }
+        TypeSymbol symbol = parameterSymbol.get();
+        for (LSCompletionItem completionItem : completionItems) {
+            completionItem.getCompletionItem()
+                    .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
+        }
     }
 }
