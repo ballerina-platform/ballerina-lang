@@ -37,6 +37,14 @@ public class CommandOutputUtils {
     private CommandOutputUtils() {
     }
 
+    static String readFileAsString(Path filePath) throws IOException {
+        if (isWindows()) {
+            return Files.readString(filePath).replaceAll("\r", "");
+        } else {
+            return Files.readString(filePath);
+        }
+    }
+
     static String getOutput(String outputFileName) throws IOException {
         if (isWindows()) {
             return Files.readString(commandOutputsDir.resolve("windows").resolve(outputFileName))
