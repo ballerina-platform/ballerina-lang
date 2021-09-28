@@ -49,7 +49,7 @@ public class DiagnosticsHelper {
     private final List<Diagnostic> emptyDiagnosticList = new ArrayList<>(0);
     private static final LanguageServerContext.Key<DiagnosticsHelper> DIAGNOSTICS_HELPER_KEY =
             new LanguageServerContext.Key<>();
-    private static final long DIAGNOSTIC_DELAY = 2;
+    private static final long DIAGNOSTIC_DELAY = 1;
     /**
      * Holds last sent diagnostics for the purpose of clear-off when publishing new diagnostics.
      */

@@ -119,6 +119,14 @@
             <class name="io.ballerina.semantic.api.test.symbols.TypeDefSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.TypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.UnionTypeSymbolTest" />
+
+            <!--Langlib-->
+            <class name="io.ballerina.semantic.api.test.langlib.TypeParamBoundArrayFunctionsTest" />
+            <class name="io.ballerina.semantic.api.test.langlib.TypeParamBoundMapFunctionsTest" />
+            <class name="io.ballerina.semantic.api.test.langlib.TypeParamBoundStreamFunctionsTest" />
+            <class name="io.ballerina.semantic.api.test.langlib.TypeParamBoundTableFunctionsTest" />
+            <class name="io.ballerina.semantic.api.test.langlib.TypeParamBoundXMLFunctionsTest" />
+
         </classes>
     </test>
 </suite>
