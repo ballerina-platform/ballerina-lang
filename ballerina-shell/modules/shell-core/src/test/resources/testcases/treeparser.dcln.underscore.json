@@ -1,6 +1,6 @@
 [
   {
-    "name": "Input invalid function name.",
-    "input": "function __foo(string value) { };"
+    "name": "Input reserved function name.",
+    "input": "function __run(string value) { };"
   }
 ]

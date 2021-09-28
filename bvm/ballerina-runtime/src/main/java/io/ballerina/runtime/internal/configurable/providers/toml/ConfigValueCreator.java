@@ -198,7 +198,7 @@ public class ConfigValueCreator {
             recordName = type.getName();
             recordType = (RecordType) type;
         } else {
-            recordType = (RecordType) ((BIntersectionType) type).getConstituentTypes().get(0);
+            recordType = (RecordType) ((BIntersectionType) type).constituentTypes.get(0);
             recordName = recordType.getName();
         }
         TomlTableNode tomlValue = (TomlTableNode) tomlNode;
@@ -226,7 +226,7 @@ public class ConfigValueCreator {
                 constraintType = ((IntersectionType) constraintType).getEffectiveType();
             }
             if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                tableType = (TableType) ((BIntersectionType) type).getConstituentTypes().get(0);
+                tableType = (TableType) ((BIntersectionType) type).constituentTypes.get(0);
             }
         } else {
             tableType = (TableType) type;

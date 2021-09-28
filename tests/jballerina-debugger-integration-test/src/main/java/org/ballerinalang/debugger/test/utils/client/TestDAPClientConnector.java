@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,8 +53,8 @@ public class TestDAPClientConnector {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestDAPClientConnector.class);
 
     private final String balHome;
-    private final String projectPath;
-    private final String entryFilePath;
+    private final Path projectPath;
+    private final Path entryFilePath;
     private final String host;
     private final int port;
     private DAPClient debugClient;
@@ -72,15 +73,11 @@ public class TestDAPClientConnector {
     private static final String CONFIG_BAL_HOME = "ballerina.home";
     private static final String CONFIG_IS_TEST_CMD = "debugTests";
 
-    public TestDAPClientConnector(String balHome, String projectPath,
-                                  String entryFilePath,
-                                  int port) {
+    public TestDAPClientConnector(String balHome, Path projectPath, Path entryFilePath, int port) {
         this(balHome, projectPath, entryFilePath, "localhost", port);
     }
 
-    public TestDAPClientConnector(String balHome, String projectPath,
-                                  String entryFilePath, String host,
-                                  int port) {
+    public TestDAPClientConnector(String balHome, Path projectPath, Path entryFilePath, String host, int port) {
         this.balHome = balHome;
         this.projectPath = projectPath;
         this.entryFilePath = entryFilePath;
@@ -95,7 +92,7 @@ public class TestDAPClientConnector {
         return requestManager;
     }
 
-    public String getProjectPath() {
+    public Path getProjectPath() {
         return projectPath;
     }
 
@@ -154,7 +151,7 @@ public class TestDAPClientConnector {
     public void attachToServer() throws BallerinaTestException {
         try {
             Map<String, Object> requestArgs = new HashMap<>();
-            requestArgs.put(CONFIG_SOURCE, entryFilePath);
+            requestArgs.put(CONFIG_SOURCE, entryFilePath.toString());
             requestArgs.put(CONFIG_DEBUGEE_HOST, host);
             requestArgs.put(CONFIG_DEBUGEE_PORT, Integer.toString(port));
             requestManager.attach(requestArgs);
@@ -168,7 +165,7 @@ public class TestDAPClientConnector {
             throws BallerinaTestException {
         try {
             Map<String, Object> requestArgs = new HashMap<>(args);
-            requestArgs.put(CONFIG_SOURCE, entryFilePath);
+            requestArgs.put(CONFIG_SOURCE, entryFilePath.toString());
             requestArgs.put(CONFIG_DEBUGEE_HOST, host);
             requestArgs.put(CONFIG_DEBUGEE_PORT, Integer.toString(port));
             requestArgs.put(CONFIG_BAL_HOME, balHome);
@@ -183,14 +180,10 @@ public class TestDAPClientConnector {
     }
 
     public void disconnectFromServer() throws Exception {
-        try {
-            DisconnectArguments disconnectArgs = new DisconnectArguments();
-            disconnectArgs.setTerminateDebuggee(true);
-            requestManager.disconnect(disconnectArgs);
-            stop();
-        } catch (Exception e) {
-            throw e;
-        }
+        DisconnectArguments disconnectArgs = new DisconnectArguments();
+        disconnectArgs.setTerminateDebuggee(true);
+        requestManager.disconnect(disconnectArgs);
+        stop();
     }
 
     public boolean isConnected() {
@@ -232,7 +225,7 @@ public class TestDAPClientConnector {
 
         processArgs.add(DebugUtils.JBAL_DEBUG_CMD_NAME);
         processArgs.add(Integer.toString(debugAdapterPort));
-        return new TestSocketStreamConnectionProvider(processArgs, projectPath, host, debugAdapterPort);
+        return new TestSocketStreamConnectionProvider(processArgs, projectPath.toString(), host, debugAdapterPort);
     }
 
     private enum ConnectionState {
