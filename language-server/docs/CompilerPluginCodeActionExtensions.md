@@ -29,14 +29,49 @@ This guide assumes that you are already familiar with compiler plugins.
 The `CodeAction` interface looks like below:
 
 ```java
+/**
+ * Represents an action (named <strong>code action</strong> that can be performed by the user when writing ballerina
+ * code using an IDE/editor with language server support. Usually these are used to provide quick fixes for
+ * diagnostics. This interface provides methods to get details of the code action for a provided diagnostic and to
+ * apply/execute the code action when the user clicks it.
+ *
+ * @since 2.0.0
+ */
 public interface CodeAction {
 
+    /**
+     * Set of interested diagnostic codes for this code action. This code action will be invoked only for diagnostics
+     * with matching diagnostic codes.
+     *
+     * @return List of interested diagnostic codes
+     */
     List<String> supportedDiagnosticCodes();
 
+    /**
+     * Returns the details of the code action depending on the current context (cursor position, surrounding syntax tree
+     * nodes, etc) and diagnostic information.
+     *
+     * @param context Context representing the document, syntax tree, cursor position and etc
+     * @return Optional code action details. Optional can be empty if the code action doesn't apply to the context
+     */
     Optional<CodeActionInfo> codeActionInfo(CodeActionContext context);
 
+    /**
+     * Once the user accepts the quickfix (code action), this method is invoked to perform the required changes to the
+     * document(s).
+     *
+     * @param context Code action context
+     *                returning this code action
+     * @return A list of document edits to be applied to the ballerina files in the project
+     */
     List<DocumentEdit> execute(CodeActionExecutionContext context);
 
+    /**
+     * A unique name (within the compiler plugin) representing this code action. It will be used to uniquely identify
+     * this code action during runtime.
+     *
+     * @return A unique (within the compiler plugin) name
+     */
     String name();
 }
 ```
@@ -67,6 +102,7 @@ In this scenario, within `CodeAnalyzer`, we have to check if the service doesn't
 ```java
 public class ServiceValidator implements AnalysisTask<SyntaxNodeAnalysisContext> {
 
+    @Override
     public void perform(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext) {
         ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) syntaxNodeAnalysisContext.node();
         NodeList<Node> members = serviceDeclarationNode.members();
@@ -99,6 +135,13 @@ public class CodeActionUtil {
     private CodeActionUtil() {
     }
 
+    /**
+     * Find a node in syntax tree by line range.
+     *
+     * @param syntaxTree Syntax tree
+     * @param lineRange  line range
+     * @return Node
+     */
     public static NonTerminalNode findNode(SyntaxTree syntaxTree, LineRange lineRange) {
         if (lineRange == null) {
             return null;
