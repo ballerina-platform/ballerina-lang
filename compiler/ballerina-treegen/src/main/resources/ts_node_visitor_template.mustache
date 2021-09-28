@@ -1,0 +1,24 @@
+// This is an auto-generated file. Do not edit.
+import * as Ballerina from './syntax-tree-interfaces';
+
+export interface Visitor {
+  beginVisitSTNode?(
+    node: Ballerina.STNode,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitSTNode?(
+    node: Ballerina.STNode,
+    parent?: Ballerina.STNode
+  ): void;
+  {{#treeNodeClasses}}
+
+  beginVisit{{tsClassName}}?(
+    node: Ballerina.{{tsClassName}},
+    parent?: Ballerina.STNode
+  ): void;
+  endVisit{{tsClassName}}?(
+      node: Ballerina.{{tsClassName}},
+      parent?: Ballerina.STNode
+  ): void;
+  {{/treeNodeClasses}}
+}

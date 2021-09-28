@@ -46,18 +46,18 @@ export interface {{tsClassName}} extends {{tsSuperClassName}} {
 {{#fields}}
  {{#isList}}
   {{#isOptional}}
-    {{fieldName}}?: {{#isRootTyped}}ST{{/isRootTyped}}{{fieldClassName}}[]{{^isLast}},{{/isLast}}
+    {{fieldName}}?: {{fieldTSClassName}}[]{{^isLast}},{{/isLast}}
   {{/isOptional}}
   {{^isOptional}}
-    {{fieldName}}: {{#isRootTyped}}ST{{/isRootTyped}}{{fieldClassName}}[]{{^isLast}},{{/isLast}}
+    {{fieldName}}: {{fieldTSClassName}}[]{{^isLast}},{{/isLast}}
   {{/isOptional}}
  {{/isList}}
  {{^isList}}
   {{#isOptional}}
-    {{fieldName}}?: {{#isRootTyped}}ST{{/isRootTyped}}{{fieldClassName}}{{^isLast}},{{/isLast}}
+    {{fieldName}}?: {{fieldTSClassName}}{{^isLast}},{{/isLast}}
   {{/isOptional}}
   {{^isOptional}}
-    {{fieldName}}: {{#isRootTyped}}ST{{/isRootTyped}}{{fieldClassName}}{{^isLast}},{{/isLast}}
+    {{fieldName}}: {{fieldTSClassName}}{{^isLast}},{{/isLast}}
   {{/isOptional}}
  {{/isList}}
 {{/fields}}

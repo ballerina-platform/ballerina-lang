@@ -60,13 +60,13 @@ public class TreeNodeClass {
 
         this.externalClassName = className;
         this.internalClassName = INTERNAL_NODE_CLASS_NAME_PREFIX + className;
-        this.tsClassName = className;
+        this.tsClassName = className.replaceAll("Node", "");
 
         this.externalSuperClassName = superClassName;
         this.internalSuperClassName = INTERNAL_NODE_CLASS_NAME_PREFIX + superClassName;
         this.tsSuperClassName = "Node".equals(superClassName)
                 ? ("ST" + superClassName)
-                : superClassName;
+                : superClassName.replaceAll("Node", "");
     }
 
     public String packageName() {

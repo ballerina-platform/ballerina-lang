@@ -1,0 +1,13 @@
+// This is an auto-generated file. Do not edit.
+import * as Ballerina from './syntax-tree-interfaces';
+
+export class STKindChecker {
+  {{#treeNodeClasses}}
+
+  public static is{{tsClassName}}(
+    node: Ballerina.STNode
+  ): node is Ballerina.{{tsClassName}} {
+    return node.kind === '{{tsClassName}}';
+  }
+  {{/treeNodeClasses}}
+}

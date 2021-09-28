@@ -30,6 +30,7 @@ public class Field {
     private static final String LIST_CN = "NodeList";
     private static final String SEPARATED_LIST_CN = "SeparatedNodeList";
     private final String fieldClassName;
+    private final String fieldTSClassName;
     private final String fieldName;
     private final int index;
     private final boolean isLast;
@@ -38,7 +39,6 @@ public class Field {
     private final boolean isNode;
     private final boolean isList;
     private final boolean isOptional;
-    private final boolean isRootTyped;
 
     private final OccurrenceKind occurrenceKind;
 
@@ -49,11 +49,13 @@ public class Field {
                  boolean isOptional,
                  boolean isLast) {
         this.fieldClassName = fieldClassName;
+        this.fieldTSClassName = "Node".equals(fieldClassName)
+                ? ("ST" + fieldClassName)
+                : fieldClassName.replaceAll("Node", "");
         this.fieldName = fieldName;
         this.index = index;
         this.occurrenceKind = occurrenceKind;
         this.isLast = isLast;
-        this.isRootTyped = "Node".equals(fieldClassName);
 
         this.isList = occurrenceKind == OccurrenceKind.MULTIPLE ||
                 occurrenceKind == OccurrenceKind.MULTIPLE_SEPARATED;
@@ -106,7 +108,7 @@ public class Field {
         return occurrenceKind == OccurrenceKind.MULTIPLE ? LIST_CN : SEPARATED_LIST_CN;
     }
 
-    public boolean isRootTyped() {
-        return isRootTyped;
+    public String fieldTSClassName() {
+        return fieldTSClassName;
     }
 }
