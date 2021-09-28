@@ -4,14 +4,14 @@
 
 The main goal is to allow ballerina packages to write their own code actions. Mainly the standard libraries have this
 requirement. With this introduction, standard libraries have the capability to show necessary code actions where
-required and apply desired changes once the user click them.
+required and apply desired changes once the user clicks on them.
 
 A code action operates in 2 stages:
 
 1. Showing the codeaction - This is when the users see the "bulb" icon in VSCode. It will have a title like
    `Create variable`, `Create function` or `Document this`.
 
-2. Executing the codeaction - This is when the user clicks on the title mentioned above. Changes (to the source code)
+2. Executing the codeaction - This is when the users click on the title mentioned above. Changes (to the source code)
    required to achieve the task mentioned in the "title" in previous stage should be done here.
 
 Codeactions are tightly coupled with diagnostics. That is, a compiler plugin should use `CodeAnalyzer`s to check source
@@ -22,7 +22,7 @@ codeactions. You can use `DiagnosticProperty` to pass additional details require
 
 Following sections describe how codeactions should be implemented in detail.
 
-This guide assumes that you already are familiar with compiler plugins.
+This guide assumes that you are already familiar with compiler plugins.
 
 ## Introduction to `CodeAction` interface
 
@@ -126,8 +126,8 @@ public class AddResourceMethod implements CodeAction {
     public Optional<CodeActionInfo> codeActionInfo(CodeActionContext context) {
         Diagnostic diagnostic = context.diagnostic();
 
-        // Arguments (should be json serializable) are received to execute() method when user click this code action
-        // An argument have a key (string) and a value (anything serializable)
+        // Arguments (should be json serializable) are passed to execute() method when user clicks on this code action
+        // An argument has a key (string) and a value (anything serializable)
         // Here, we pass the diagnostic location (= service declaration node's line range) as an argument, because we
         //   need it when executing the code action.
         CodeActionArgument locationArg = CodeActionArgument.from(CodeActionUtil.NODE_LOCATION_KEY,
@@ -255,7 +255,7 @@ public class CodeActionUtils {
 }
 ```
 
-This method accepts the source file path, cursor position and the project as arguments. You can get rid of the `porject`
+This method accepts the source file path, cursor position and the project as arguments. You can get rid of the `project`
 agument and use `ProjectLoader.loadProject()` with the source file path as a parameter to load the project.
 
 Once you have the list of codeactions, you can simply check for the _title_ and _arguments_. Note that the
