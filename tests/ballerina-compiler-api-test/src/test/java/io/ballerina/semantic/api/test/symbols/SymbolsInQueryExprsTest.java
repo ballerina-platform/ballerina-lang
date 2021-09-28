@@ -25,15 +25,16 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.BCompileUtil;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.Optional;
 
-import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
-import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
-import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
+import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
+import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
@@ -42,24 +43,57 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
- * Test cases for use of symbol() with object constructors.
+ * Test cases for use of symbol() with query expressions.
  *
  * @since 2.0.0
  */
-public class SymbolsInObjectConstructorTest {
+public class SymbolsInQueryExprsTest {
 
     private SemanticModel model;
     private Document srcFile;
 
     @BeforeClass
     public void setup() {
-        Project project = BCompileUtil.loadProject("test-src/symbols/symbols_in_object_constructor_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/symbols/symbols_in_query_exprs_test.bal");
         model = getDefaultModulesSemanticModel(project);
         srcFile = getDocumentForSingleSource(project);
     }
 
-    @Test(dataProvider = "SymbolPosProvider")
-    public void testFields(int line, int col, SymbolKind kind, String name) {
+    @Test(dataProvider = "QueryExprPosProvider")
+    public void testQueryExprs(int line, int col, SymbolKind kind, String name) {
+        assertSymbol(line, col, kind, name);
+    }
+
+    @DataProvider(name = "QueryExprPosProvider")
+    public Object[][] getQueryExprPos() {
+        return new Object[][]{
+                {21, 18, null, null},
+                {21, 27, VARIABLE, "st"},
+                {21, 33, VARIABLE, "students"},
+                {21, 50, RECORD_FIELD, "id"},
+                {21, 54, VARIABLE, "st"},
+                {21, 57, RECORD_FIELD, "id"},
+                {22, 45, TYPE, "Person"},
+                {26, 22, VARIABLE, "st"},
+                {26, 25, RECORD_FIELD, "fname"},
+                {31, 27, VARIABLE, "name"},
+                {31, 34, VARIABLE, "st"},
+                {31, 54, RECORD_FIELD, "lname"},
+                {36, 26, VARIABLE, "id"},
+                {36, 39, VARIABLE, "people"},
+                {36, 49, VARIABLE, "st"},
+                {36, 62, VARIABLE, "id"},
+                {41, 25, VARIABLE, "st"},
+                {42, 20, VARIABLE, "st"},
+                {46, 22, CONSTANT, "LIMIT"},
+                {50, 75, FUNCTION, "toStream"},
+                {52, 74, VARIABLE, "st"},
+        };
+    }
+
+    // utils
+
+    private void assertSymbol(int line, int col, SymbolKind kind, String name) {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
 
         if (kind == null) {
@@ -67,25 +101,8 @@ public class SymbolsInObjectConstructorTest {
             return;
         }
 
-        assertTrue(symbol.isPresent());
+        Assert.assertTrue(symbol.isPresent());
         assertEquals(symbol.get().kind(), kind);
         assertEquals(symbol.get().getName().get(), name);
-    }
-
-    @DataProvider(name = "SymbolPosProvider")
-    public Object[][] getSymbolPos() {
-        return new Object[][]{
-                {18, 12, CLASS_FIELD, "item2"},
-                {19, 23, CLASS_FIELD, "item1"},
-                {21, 24, METHOD, "init"},
-                {22, 17, CLASS_FIELD, "item1"},
-                {24, 5, null, null},
-                {26, 47, METHOD, "testFunction"},
-                {27, 16, VARIABLE, "x"},
-                {31, 15, ANNOTATION, "v1"},
-                {31, 25, TYPE, "Person"},
-                {32, 15, CLASS_FIELD, "name"},
-//                {32, 22, VARIABLE, "name"}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32736
-        };
     }
 }

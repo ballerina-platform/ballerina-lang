@@ -14,38 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function test() {
-    var helloVar = client object {
-        int item2 = 1;
-        private string item1 = "";
+function testAnonFuncs() {
+    string name = "Pubudu";
+    var greet = function () returns string => string `Hello ${name}`;
 
-        public function init() {
-            self.item1 = "Foo";
-            self.item2 = 10;
-        }
-
-        public isolated transactional function testFunction() returns int {
-            int x = self.item2;
-        }
+    var fn1 = @v1 function(int x, int y = 0, string... z) {
+        int total = x + y;
     };
 
-    var obj = @v1 object Person {
-        string name = name;
-
-        public function getName() returns string {
-            return self.name;
-        }
-    };
+    int c = 10;
+    function (int, int) returns int add = (a, b) => a + b + c;
 }
 
 // utils
 
-string name = "John Doe";
-
-annotation v1 on class;
-
-type Person object {
-    string name;
-
-    public function getName() returns string;
-};
+annotation v1 on function;

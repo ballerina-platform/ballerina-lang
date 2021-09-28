@@ -14,38 +14,33 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function test() {
-    var helloVar = client object {
-        int item2 = 1;
-        private string item1 = "";
+xmlns "foo" as ns;
+xmlns "bar" as k;
 
-        public function init() {
-            self.item1 = "Foo";
-            self.item2 = 10;
-        }
+function testXMLFilterExpr() {
+    xml x1 = xml `<ns:root></ns:root>`;
+    xml x2 = x1.<*>; // get all elements
+    x2 = x1.<ns:*>;
+    x2 = getXML().<ns:root>;
+    x2 = x1.<ns:other>;
+    x2 = x1.<other>;
+    x2 = x1.<k:*>;
+    x2 = getXML().<ns:*|k:*>;
+}
 
-        public isolated transactional function testFunction() returns int {
-            int x = self.item2;
-        }
-    };
-
-    var obj = @v1 object Person {
-        string name = name;
-
-        public function getName() returns string {
-            return self.name;
-        }
-    };
+function testXMLStepExpr() {
+    xml x1 = xml `<ns:root><ns:child></ns:child></ns:root>`;
+    xml x2 = x1/<ns:child>;
+    x2 = x1/*;
+    x2 = x1/<*>;
+    x2 = x1/**/<ns:child>;
+    x2 = x1/<ns:child>[indx];
+    x2 = x1/**/<ns:child|k:child>;
+    string s = x1/**/<ns:child>.toString();
 }
 
 // utils
 
-string name = "John Doe";
+int indx = 0;
 
-annotation v1 on class;
-
-type Person object {
-    string name;
-
-    public function getName() returns string;
-};
+function getXML() returns xml => xml `<greet>Hello World!</greet>`;

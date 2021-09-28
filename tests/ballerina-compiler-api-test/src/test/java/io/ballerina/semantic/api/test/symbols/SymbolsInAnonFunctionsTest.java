@@ -25,16 +25,14 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.BCompileUtil;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.Optional;
 
-import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
-import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
-import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
-import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
+import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
@@ -42,50 +40,53 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
- * Test cases for use of symbol() with object constructors.
+ * Test cases for use of symbol() with anonymous functions.
  *
  * @since 2.0.0
  */
-public class SymbolsInObjectConstructorTest {
+public class SymbolsInAnonFunctionsTest {
 
     private SemanticModel model;
     private Document srcFile;
 
     @BeforeClass
     public void setup() {
-        Project project = BCompileUtil.loadProject("test-src/symbols/symbols_in_object_constructor_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/symbols/symbols_in_anon_funcs_test.bal");
         model = getDefaultModulesSemanticModel(project);
         srcFile = getDocumentForSingleSource(project);
     }
 
-    @Test(dataProvider = "SymbolPosProvider")
-    public void testFields(int line, int col, SymbolKind kind, String name) {
+    @Test(dataProvider = "PosProvider")
+    public void testFuncs(int line, int col, SymbolKind kind, String name) {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
-
-        if (kind == null) {
-            assertTrue(symbol.isEmpty());
-            return;
-        }
-
-        assertTrue(symbol.isPresent());
+        Assert.assertTrue(symbol.isPresent());
         assertEquals(symbol.get().kind(), kind);
         assertEquals(symbol.get().getName().get(), name);
     }
 
-    @DataProvider(name = "SymbolPosProvider")
-    public Object[][] getSymbolPos() {
+    @DataProvider(name = "PosProvider")
+    public Object[][] getPos() {
         return new Object[][]{
-                {18, 12, CLASS_FIELD, "item2"},
-                {19, 23, CLASS_FIELD, "item1"},
-                {21, 24, METHOD, "init"},
-                {22, 17, CLASS_FIELD, "item1"},
-                {24, 5, null, null},
-                {26, 47, METHOD, "testFunction"},
-                {27, 16, VARIABLE, "x"},
-                {31, 15, ANNOTATION, "v1"},
-                {31, 25, TYPE, "Person"},
-                {32, 15, CLASS_FIELD, "name"},
-//                {32, 22, VARIABLE, "name"}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32736
+                {18, 62, VARIABLE, "name"},
+//                {20, 15, ANNOTATION, "v1"}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32809
+                {20, 31, PARAMETER, "x"},
+                {20, 38, PARAMETER, "y"},
+                {20, 55, PARAMETER, "z"},
+                {21, 12, VARIABLE, "total"},
+                {21, 20, PARAMETER, "x"},
+//                {25, 43, PARAMETER, "a"}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32810
+//                {25, 56, PARAMETER, "b"},
+                {25, 60, VARIABLE, "c"},
         };
+    }
+
+    @Test
+    public void testClosureVars() {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(17, 11));
+        Optional<Symbol> closureVar = model.symbol(srcFile, LinePosition.from(18, 62));
+
+        assertTrue(symbol.isPresent());
+        assertTrue(closureVar.isPresent());
+        assertEquals(symbol.get(), closureVar.get());
     }
 }
