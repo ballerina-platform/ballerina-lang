@@ -39,9 +39,9 @@ import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
-import org.ballerinalang.debugadapter.launch.PackageLauncher;
-import org.ballerinalang.debugadapter.launch.ProgramLauncher;
-import org.ballerinalang.debugadapter.launch.SingleFileLauncher;
+import org.ballerinalang.debugadapter.programrunner.BPackageRunner;
+import org.ballerinalang.debugadapter.programrunner.BProgramRunner;
+import org.ballerinalang.debugadapter.programrunner.BFileRunner;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
@@ -220,11 +220,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             clientConfigHolder = new ClientLaunchConfigHolder(args);
             context.setSourceProject(loadProject(clientConfigHolder.getSourcePath()));
             String sourceProjectRoot = context.getSourceProjectRoot();
-            ProgramLauncher programLauncher = context.getSourceProject() instanceof SingleFileProject ?
-                    new SingleFileLauncher((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
-                    new PackageLauncher((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot);
+            BProgramRunner programRunner = context.getSourceProject() instanceof SingleFileProject ?
+                    new BFileRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
+                    new BPackageRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot);
 
-            context.setLaunchedProcess(programLauncher.start());
+            context.setLaunchedProcess(programRunner.start());
             startListeningToProgramOutput();
             return CompletableFuture.completedFuture(null);
         } catch (Exception e) {

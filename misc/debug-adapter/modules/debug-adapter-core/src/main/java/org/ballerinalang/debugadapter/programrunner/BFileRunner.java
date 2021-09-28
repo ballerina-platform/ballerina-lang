@@ -15,7 +15,7 @@
  */
 
 
-package org.ballerinalang.debugadapter.launch;
+package org.ballerinalang.debugadapter.programrunner;
 
 import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
 
@@ -26,10 +26,10 @@ import java.util.Map;
 /**
  * Ballerina single file runner.
  */
-public class SingleFileLauncher extends ProgramLauncher {
+public class BFileRunner extends BProgramRunner {
 
-    public SingleFileLauncher(ClientLaunchConfigHolder configHolder, String projectRoot) {
-        super(configHolder, projectRoot);
+    public BFileRunner(ClientLaunchConfigHolder configHolder, String fileRoot) {
+        super(configHolder, fileRoot);
     }
 
     @Override

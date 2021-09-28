@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.debugadapter.launch;
+package org.ballerinalang.debugadapter.programrunner;
 
 import org.ballerinalang.debugadapter.config.ClientConfigurationException;
 import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * Abstract implementation of Ballerina program launcher.
  */
-public abstract class ProgramLauncher {
+public abstract class BProgramRunner {
 
     protected final String projectRoot;
     protected final ClientLaunchConfigHolder configHolder;
@@ -39,7 +39,7 @@ public abstract class ProgramLauncher {
     private static final String CMD_OPTION_TESTS = "--tests";
     protected static final String ENV_OPTION_BAL_JAVA_DEBUG = "BAL_JAVA_DEBUG";
 
-    protected ProgramLauncher(ClientLaunchConfigHolder configHolder, String projectRoot) {
+    protected BProgramRunner(ClientLaunchConfigHolder configHolder, String projectRoot) {
         this.configHolder = configHolder;
         this.projectRoot = projectRoot;
     }

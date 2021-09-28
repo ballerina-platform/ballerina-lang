@@ -47,13 +47,16 @@ public class DebugAdapterStartCmd implements BLauncherCmd {
         try {
             List<String> debugLauncherArgs = new ArrayList<>();
             if (argList != null && !argList.isEmpty()) {
-                String debugAdapterPort = argList.get(0);
-                debugLauncherArgs.add(debugAdapterPort);
+                int debugServerPort = Integer.parseInt(argList.get(0));
+                debugLauncherArgs.add(String.valueOf(debugServerPort));
             }
-            // Start Debug Adaptor
+            // Lunches the debug server
             DebugAdapterLauncher.main(debugLauncherArgs.toArray(new String[0]));
+        } catch (NumberFormatException e) {
+            throw LauncherUtils.createLauncherException("Failed to start debug adaptor due to the invalid port " +
+                    "specified: '" + argList.get(0) + "'");
         } catch (Throwable e) {
-            throw LauncherUtils.createLauncherException("Could not start debug adaptor");
+            throw LauncherUtils.createLauncherException("Failed to start debug adaptor due to: " + e.getMessage());
         }
     }
 

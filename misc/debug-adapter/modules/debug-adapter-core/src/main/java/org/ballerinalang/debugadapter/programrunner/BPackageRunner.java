@@ -15,7 +15,7 @@
  */
 
 
-package org.ballerinalang.debugadapter.launch;
+package org.ballerinalang.debugadapter.programrunner;
 
 import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
 
@@ -25,9 +25,9 @@ import java.util.Map;
 /**
  * Ballerina package runner.
  */
-public class PackageLauncher extends ProgramLauncher {
+public class BPackageRunner extends BProgramRunner {
 
-    public PackageLauncher(ClientLaunchConfigHolder configHolder, String projectRoot) {
+    public BPackageRunner(ClientLaunchConfigHolder configHolder, String projectRoot) {
         super(configHolder, projectRoot);
     }
 
