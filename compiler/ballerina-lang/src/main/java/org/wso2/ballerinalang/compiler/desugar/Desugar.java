@@ -6796,16 +6796,16 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        if (TypeTags.isStringTypeTag(lhsExprTypeTag) && TypeTags.isXMLTypeTag(rhsExprTypeTag)
-                && binaryExpr.opKind == OperatorKind.ADD) {
+        if (binaryExpr.opKind == OperatorKind.ADD && TypeTags.isStringTypeTag(lhsExprTypeTag) &&
+                (rhsExprTypeTag == TypeTags.XML || rhsExprTypeTag == TypeTags.XML_TEXT)) {
             // string + xml ==> (xml string) + xml
             binaryExpr.lhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.lhsExpr,
                     binaryExpr.lhsExpr.pos, symTable.xmlType);
             return;
         }
 
-        if (TypeTags.isStringTypeTag(rhsExprTypeTag) && TypeTags.isXMLTypeTag(lhsExprTypeTag) &&
-                binaryExpr.opKind == OperatorKind.ADD) {
+        if (binaryExpr.opKind == OperatorKind.ADD && TypeTags.isStringTypeTag(rhsExprTypeTag) &&
+                (lhsExprTypeTag == TypeTags.XML || lhsExprTypeTag == TypeTags.XML_TEXT)) {
             // xml + string ==> xml + (xml string)
             binaryExpr.rhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.rhsExpr,
                     binaryExpr.rhsExpr.pos, symTable.xmlType);
