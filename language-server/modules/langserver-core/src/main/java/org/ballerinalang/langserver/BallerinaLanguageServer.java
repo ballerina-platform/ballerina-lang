@@ -24,6 +24,9 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClientAware;
+import org.ballerinalang.langserver.commons.registration.BallerinaClientCapability;
+import org.ballerinalang.langserver.commons.registration.BallerinaInitializeParams;
+import org.ballerinalang.langserver.commons.registration.BallerinaInitializeResult;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.ballerinalang.langserver.config.ClientConfigListener;
 import org.ballerinalang.langserver.config.LSClientConfig;
@@ -33,8 +36,6 @@ import org.ballerinalang.langserver.extensions.AbstractExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorService;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorServiceImpl;
-import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentService;
-import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleService;
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageService;
@@ -86,7 +87,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     private ExtendedLanguageClient client = null;
     private final TextDocumentService textService;
     private final WorkspaceService workspaceService;
-    private final BallerinaDocumentService ballerinaDocumentService;
     private final BallerinaConnectorService ballerinaConnectorService;
     private final BallerinaExampleService ballerinaExampleService;
     private final BallerinaSymbolService ballerinaSymbolService;
@@ -104,7 +104,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         super(serverContext);
         this.textService = new BallerinaTextDocumentService(this, workspaceManager, this.serverContext);
         this.workspaceService = new BallerinaWorkspaceService(this, workspaceManager, this.serverContext);
-        this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(workspaceManager, this.serverContext);
         this.ballerinaConnectorService = new BallerinaConnectorServiceImpl(this.serverContext);
         this.ballerinaExampleService = new BallerinaExampleServiceImpl(this.serverContext);
         this.ballerinaSymbolService = new BallerinaSymbolServiceImpl(workspaceManager, this.serverContext);
@@ -245,10 +244,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         return this.workspaceService;
     }
 
-    public BallerinaDocumentService getBallerinaDocumentService() {
-        return this.ballerinaDocumentService;
-    }
-
     @Override
     public BallerinaConnectorService getBallerinaConnectorService() {
         return this.ballerinaConnectorService;
@@ -273,6 +268,20 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     @Override
     public BallerinaPackageService getBallerinaPackageService() {
         return this.ballerinaPackageService;
+    }
+
+    @Override
+    public CompletableFuture<BallerinaInitializeResult> initBalServices(BallerinaInitializeParams params) {
+        return CompletableFuture.supplyAsync(() -> {
+            BallerinaInitializeResult balInitResult = new BallerinaInitializeResult();
+            List<BallerinaClientCapability> balClientCapabilities =
+                    ExtendedClientCapabilityBuilder.get(params.getBallerinaClientCapabilities());
+            LSClientCapabilities capabilities = this.serverContext.get(LSClientCapabilities.class);
+            capabilities.setBallerinaClientCapabilities(balClientCapabilities);
+            balInitResult.setExtendedServerCapabilities(ExtendedServerCapabilityBuilder.get());
+
+            return balInitResult;
+        });
     }
 
     /**

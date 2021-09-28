@@ -101,9 +101,6 @@
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentServiceImpl" />
-    </Match>
-    <Match>
         <Class name="org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorServiceImpl" />
     </Match>
     <Match>
