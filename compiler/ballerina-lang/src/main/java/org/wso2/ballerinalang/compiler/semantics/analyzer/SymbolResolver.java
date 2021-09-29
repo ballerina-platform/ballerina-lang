@@ -1988,7 +1988,14 @@ public class SymbolResolver extends BLangNodeVisitor {
                     if ((types.get(i).getKind() == TypeKind.UNION) &&
                             (opType.paramTypes.get(i).getKind() == TypeKind.UNION)) {
                         if (types.get(i).isNullable() && opType.paramTypes.get(i).isNullable()) {
-                            BType nilLiftTypeOne = ((BUnionType) types.get(i)).getMemberTypes().iterator().next();
+                            Iterator<BType> nilLiftTypes = ((BUnionType) types.get(i)).getMemberTypes().iterator();
+                            BType nilLiftTypeOne = null;
+                            while (nilLiftTypes.hasNext()) {
+                                BType nilLiftType = nilLiftTypes.next();
+                                if (nilLiftType.tag != TypeTags.NIL) {
+                                    nilLiftTypeOne = nilLiftType;
+                                }
+                            }
                             BType nilLiftTypeTwo = ((BUnionType) opType.paramTypes.get(i)).
                                     getMemberTypes().iterator().next();
                             if (nilLiftTypeOne.tag == nilLiftTypeTwo.tag) {
