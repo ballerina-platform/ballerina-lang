@@ -408,11 +408,11 @@
     {
       "label": "slice(int startIndex, int endIndex)",
       "kind": "Function",
-      "detail": "xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>",
+      "detail": "xml<xml:Element>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns a subsequence of an xml value.\n  \n**Params**  \n- `int` startIndex: start index, inclusive  \n- `int` endIndex: end index, exclusive(Defaultable)  \n  \n**Return** `xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>`   \n- a subsequence of parameter `x` consisting of items with index >= parameter `startIndex` and < parameter `endIndex`  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns a subsequence of an xml value.\n  \n**Params**  \n- `int` startIndex: start index, inclusive  \n- `int` endIndex: end index, exclusive(Defaultable)  \n  \n**Return** `xml<xml:Element>`   \n- a subsequence of parameter `x` consisting of items with index >= parameter `startIndex` and < parameter `endIndex`  \n  \n"
         }
       },
       "sortText": "E",

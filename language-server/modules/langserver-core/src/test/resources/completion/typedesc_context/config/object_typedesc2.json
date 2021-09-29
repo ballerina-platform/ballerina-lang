@@ -22,6 +22,15 @@
       "filterText": "object",
       "insertText": "object ",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "isolated",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Z",
+      "filterText": "isolated",
+      "insertText": "isolated ",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

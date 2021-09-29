@@ -1556,7 +1556,7 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangXMLElementFilter xmlElementFilter) {
-        setEnclosingNode(xmlElementFilter.namespaceSymbol, xmlElementFilter.elemNamePos);
+        setEnclosingNode(xmlElementFilter.namespaceSymbol, xmlElementFilter.nsPos);
     }
 
     @Override
