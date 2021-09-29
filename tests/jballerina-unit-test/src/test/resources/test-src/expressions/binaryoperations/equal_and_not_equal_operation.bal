@@ -1712,10 +1712,10 @@ function testEqualityByteWithIntSubTypes() {
     (f == a) && (g == a) && (h == a));
 
     // != equals check
-    test:assertFalse((a != b) && (a != c) && (a != d) && (a != e) &&
-    (a != f) && (a != g) && (a != h));
-    test:assertFalse((b != a) && (c != a) && (d != a) && (e != a) &&
-    (f != a) && (g != a) && (h != a));
+    test:assertFalse((a != b) || (a != c) || (a != d) || (a != e) ||
+    (a != f) || (a != g) || (a != h));
+    test:assertFalse((b != a) || (c != a) || (d != a) || (e != a) ||
+    (f != a) || (g != a) || (h != a));
 
     // === equals check
     test:assertTrue((a === b) && (a === c) && (a === d) && (a === e) &&
@@ -1725,9 +1725,9 @@ function testEqualityByteWithIntSubTypes() {
     // Need to add (a === f) , (f === a) after fixing #32924
 
     // !== equals check
-    test:assertFalse((a !== b) && (a !== c) && (a !== d) && (a !== e) &&
-    (a !== g) && (a !== h));
-    test:assertFalse((b !== a) && (c !== a) && (d !== a) && (e !== a) &&
-    (g !== a) && (h !== a));
+    test:assertFalse((a !== b) || (a !== c) || (a !== d) || (a !== e) ||
+    (a !== g) || (a !== h));
+    test:assertFalse((b !== a) || (c !== a) || (d !== a) || (e !== a) ||
+    (g !== a) || (h !== a));
     // Need to add (a !== f) , (f !== a) after fixing #32924
 }
