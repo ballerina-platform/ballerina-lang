@@ -44,6 +44,7 @@ import static org.ballerinalang.model.elements.PackageID.JAVA;
 import static org.ballerinalang.model.elements.PackageID.MAP;
 import static org.ballerinalang.model.elements.PackageID.OBJECT;
 import static org.ballerinalang.model.elements.PackageID.QUERY;
+import static org.ballerinalang.model.elements.PackageID.RUNTIME;
 import static org.ballerinalang.model.elements.PackageID.STREAM;
 import static org.ballerinalang.model.elements.PackageID.STRING;
 import static org.ballerinalang.model.elements.PackageID.TABLE;
@@ -138,6 +139,11 @@ public class Bootstrap {
             symbolTable.langValueModuleSymbol = loadLangLibFromBala(VALUE, compilerContext);
         }
 
+        if (langLib.equals(RUNTIME)) {
+            symbolTable.langArrayModuleSymbol = loadLangLibFromBala(ARRAY, compilerContext);
+            symbolTable.langValueModuleSymbol = loadLangLibFromBala(VALUE, compilerContext);
+        }
+
         symResolver.bootstrapCloneableType();
         symResolver.defineOperators();
     }
@@ -174,6 +180,7 @@ public class Bootstrap {
         symbolTable.langBooleanModuleSymbol = loadLangLibFromBala(BOOLEAN, compilerContext);
         symbolTable.langQueryModuleSymbol = loadLangLibFromBala(QUERY, compilerContext);
         symbolTable.langTransactionModuleSymbol = loadLangLibFromBala(TRANSACTION, compilerContext);
+        symbolTable.langRuntimeModuleSymbol = loadLangLibFromBala(RUNTIME, compilerContext);
         symbolTable.loadPredeclaredModules();
         symResolver.bootstrapIntRangeType();
         symbolTable.updateBuiltinSubtypeOwners();

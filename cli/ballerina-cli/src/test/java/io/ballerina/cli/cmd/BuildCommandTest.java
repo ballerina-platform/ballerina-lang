@@ -38,7 +38,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
+import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
+import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
 /**
@@ -646,6 +648,24 @@ public class BuildCommandTest extends BaseCommandTest {
                 + "dependencies-toml-version = \"2\"";
         String actual = Files.readString(projectPath.resolve(DEPENDENCIES_TOML));
         Assert.assertTrue(actual.contains(expected));
+    }
+
+    @Test(description = "Compile a package without root package in Dependencies.toml")
+    public void testPackageWithoutRootPackageInDependenciesToml() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWoRootPkgInDepsToml");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                            getOutput("build-project-wo-root-pkg-in-deps-toml.txt"));
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-java11-0.1.0.bala")
+                                  .toFile().exists());
+
+        Assert.assertEquals(readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)).trim(), readFileAsString(
+                projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml")).trim());
     }
 
     @Test(description = "Compile an empty package with compiler plugin")

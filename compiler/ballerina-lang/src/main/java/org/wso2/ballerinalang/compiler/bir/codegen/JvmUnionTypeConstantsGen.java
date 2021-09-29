@@ -135,7 +135,7 @@ public class JvmUnionTypeConstantsGen {
             queue.remove();
             while (!queue.isEmpty()) {
                 TypeNamePair typeNamePair = queue.remove();
-                genPopulateMethod(typeNamePair.type, typeNamePair.varName);
+                genPopulateMethod((BUnionType) typeNamePair.type, typeNamePair.varName);
             }
         }
         return varName;
@@ -194,16 +194,6 @@ public class JvmUnionTypeConstantsGen {
         methodVisitor.visitInsn(RETURN);
         methodVisitor.visitMaxs(0, 0);
         methodVisitor.visitEnd();
-    }
-
-    private static class TypeNamePair {
-        BUnionType type;
-        String varName;
-
-        private TypeNamePair(BUnionType type, String varName) {
-            this.type = type;
-            this.varName = varName;
-        }
     }
 
 }

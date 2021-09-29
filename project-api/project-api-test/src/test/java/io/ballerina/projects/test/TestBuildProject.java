@@ -62,6 +62,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -90,6 +91,7 @@ import static org.testng.Assert.assertEquals;
  */
 public class TestBuildProject extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
+    static final PrintStream OUT = System.out;
     private final String dummyContent = "function foo() {\n}";
 
     @Test (description = "tests loading a valid build project")
@@ -986,14 +988,27 @@ public class TestBuildProject extends BaseTest {
 
         DependenciesToml newDependenciesToml = project.currentPackage().dependenciesToml()
                 .get().modify().withContent("" +
-                        "[ballerina]\n" +
-                        "dependencies-toml-version = \"2\"\n\n" +
-                        "[[package]]\n" +
-                        "org = \"foo\"\n" +
-                        "name = \"package_dep\"\n" +
-                        "version = \"0.1.1\"\n").apply();
+                "[ballerina]\n" +
+                "dependencies-toml-version = \"2\"\n" +
+                "\n" +
+                "[[package]]\n" +
+                "org = \"foo\"\n" +
+                "name = \"test_dependencies_package\"\n" +
+                "version = \"2.1.0\"\n" +
+                "dependencies = [\n" +
+                "    {org = \"foo\", name = \"package_dep\"}\n" +
+                "]\n" +
+                "modules = [\n" +
+                "    {org = \"foo\", " +
+                        "packageName = \"test_dependencies_package\", " +
+                        "moduleName = \"test_dependencies_package\"}\n" +
+                "]\n" +
+                "\n" +
+                "[[package]]\n" + "org = \"foo\"\n" +
+                "name = \"package_dep\"\n" +
+                "version = \"0.1.1\"").apply();
         TomlTableNode dependenciesToml = newDependenciesToml.tomlAstNode();
-        Assert.assertEquals(((TomlTableArrayNode) dependenciesToml.entries().get("package")).children().size(), 1);
+        Assert.assertEquals(((TomlTableArrayNode) dependenciesToml.entries().get("package")).children().size(), 2);
 
         PackageCompilation newCompilation = project.currentPackage().getCompilation();
         ResolvedPackageDependency packageDepNew =
@@ -1001,17 +1016,31 @@ public class TestBuildProject extends BaseTest {
                         .stream().filter(resolvedPackageDependency -> resolvedPackageDependency
                         .packageInstance().packageName().toString().equals("package_dep")).findFirst().get();
         Assert.assertEquals(packageDepNew.packageInstance().packageVersion().toString(), "0.1.1");
+        newCompilation.diagnosticResult().diagnostics().forEach(OUT::println);
         Assert.assertEquals(newCompilation.diagnosticResult().diagnosticCount(), 1);
 
         // Set the old version again
         project.currentPackage().dependenciesToml()
                 .get().modify().withContent("" +
                 "[ballerina]\n" +
-                "dependencies-toml-version = \"2\"\n\n" +
+                "dependencies-toml-version = \"2\"\n" +
+                "\n" +
                 "[[package]]\n" +
                 "org = \"foo\"\n" +
+                "name = \"test_dependencies_package\"\n" +
+                "version = \"2.1.0\"\n" +
+                "dependencies = [\n" +
+                "    {org = \"foo\", name = \"package_dep\"}\n" +
+                "]\n" +
+                "modules = [\n" +
+                "    {org = \"foo\", " +
+                "packageName = \"test_dependencies_package\", " +
+                "moduleName = \"test_dependencies_package\"}\n" +
+                "]\n" +
+                "\n" +
+                "[[package]]\n" + "org = \"foo\"\n" +
                 "name = \"package_dep\"\n" +
-                "version = \"0.1.0\"\n").apply();
+                "version = \"0.1.0\"").apply();
         PackageCompilation newCompilation2 = project.currentPackage().getCompilation();
         Assert.assertEquals(newCompilation2.diagnosticResult().diagnosticCount(), 0);
     }

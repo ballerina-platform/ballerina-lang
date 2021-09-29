@@ -68,6 +68,12 @@ public class BlendedManifest {
             Repository depInPkgManifestRepo = depInPkgManifest.repository() != null &&
                     depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME) ?
                     Repository.LOCAL : Repository.NOT_SPECIFIED;
+
+            if (!localPackageRepository.isPackageExists(depInPkgManifest.org(), depInPkgManifest.name(),
+                                                       depInPkgManifest.version())) {
+                continue;
+            }
+
             if (existingDepOptional.isEmpty()) {
                 depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(),
                         new Dependency(depInPkgManifest.org(),

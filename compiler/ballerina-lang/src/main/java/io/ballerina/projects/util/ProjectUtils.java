@@ -590,7 +590,7 @@ public class ProjectUtils {
         pkgGraphDependencies.forEach(graphDependency -> {
             PackageDescriptor descriptor = graphDependency.packageInstance().descriptor();
             addDependencyContent(content, descriptor.org().value(), descriptor.name().value(),
-                                 descriptor.version().value().toString(), null, false, Collections.emptyList(),
+                                 descriptor.version().value().toString(), null, Collections.emptyList(),
                                  Collections.emptyList());
             content.append("\n");
         });
@@ -615,15 +615,15 @@ public class ProjectUtils {
         // write dependencies from package dependency graph
         pkgDependencies.forEach(dependency -> {
             addDependencyContent(content, dependency.getOrg(), dependency.getName(), dependency.getVersion(),
-                                 getDependencyScope(dependency.getScope()), dependency.isTransitive(),
-                                 dependency.getDependencies(), dependency.getModules());
+                                 getDependencyScope(dependency.getScope()), dependency.getDependencies(),
+                                 dependency.getModules());
             content.append("\n");
         });
         return String.valueOf(content);
     }
 
     private static void addDependencyContent(StringBuilder content, String org, String name, String version,
-                                             String scope, boolean transitive, List<Dependency> dependencies,
+                                             String scope, List<Dependency> dependencies,
                                              List<Dependency.Module> modules) {
         content.append("[[package]]\n");
         content.append("org = \"").append(org).append("\"\n");
@@ -632,7 +632,6 @@ public class ProjectUtils {
         if (scope != null) {
             content.append("scope = \"").append(scope).append("\"\n");
         }
-        content.append("transitive = ").append(transitive).append("\n");
 
         // write dependencies
         if (!dependencies.isEmpty()) {
@@ -790,17 +789,12 @@ public class ProjectUtils {
      *
      * @param buildJsonPath build file path
      * @return build json object
+     * @throws JsonSyntaxException incorrect json syntax
+     * @throws IOException if json read fails
      */
-    public static BuildJson readBuildJson(Path buildJsonPath) {
-        BuildJson buildJson;
-        try (BufferedReader bufferedReader = Files.newBufferedReader(buildJsonPath)) {
-            buildJson = new Gson().fromJson(bufferedReader, BuildJson.class);
-        } catch (JsonSyntaxException e) {
-            throw new ProjectException("Invalid '" + BUILD_FILE + "' file format");
-        } catch (IOException e) {
-            throw new ProjectException("Failed to read the '" + BUILD_FILE + "' file");
-        }
-        return buildJson;
+    public static BuildJson readBuildJson(Path buildJsonPath) throws JsonSyntaxException, IOException {
+        BufferedReader bufferedReader = Files.newBufferedReader(buildJsonPath);
+        return new Gson().fromJson(bufferedReader, BuildJson.class);
     }
 
     /**

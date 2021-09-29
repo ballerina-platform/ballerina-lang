@@ -362,7 +362,7 @@ public class BallerinaTomlTests {
                 + "maximum length of 'name' is 256 characters");
     }
 
-    private PackageManifest getPackageManifest(Path tomlPath) throws IOException {
+    static PackageManifest getPackageManifest(Path tomlPath) throws IOException {
         String tomlContent = Files.readString(tomlPath);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
         return ManifestBuilder.from(ballerinaToml, null, tomlPath.getParent()).packageManifest();

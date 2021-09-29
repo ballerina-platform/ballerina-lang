@@ -17,6 +17,9 @@
  */
 package io.ballerina.projects.directory;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependencyGraph;
@@ -40,7 +43,6 @@ import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
-import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -201,24 +203,28 @@ public class BuildProject extends Project {
         Path buildFilePath = this.sourceRoot.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
         boolean shouldUpdate = this.currentPackage().getResolution().autoUpdate();
         // if build file does not exists
+
         if (!buildFilePath.toFile().exists()) {
-            // set both last build time and lat updated time as current timestamp
             createBuildFile(buildFilePath);
             writeBuildFile(buildFilePath);
             writeDependencies();
         } else {
-            // build file exists
-            BuildJson buildJson = readBuildJson(buildFilePath);
+            BuildJson buildJson = null;
+            try {
+                buildJson = readBuildJson(buildFilePath);
+            } catch (JsonSyntaxException | IOException e) {
+                // ignore
+            }
+
             // need to update Dependencies toml
             writeDependencies();
-            // check whether last updated time is expired
-            if (shouldUpdate) {
-                // update build json file
-                writeBuildFile(buildFilePath);
-            } else {
-                // only update build time
+
+            // check whether buildJson is null and last updated time has expired
+            if (buildJson != null && !shouldUpdate) {
                 buildJson.setLastBuildTime(System.currentTimeMillis());
-                ProjectUtils.writeBuildFile(buildFilePath, buildJson);
+                writeBuildFile(buildFilePath, buildJson);
+            } else {
+                writeBuildFile(buildFilePath);
             }
         }
     }
@@ -394,6 +400,21 @@ public class BuildProject extends Project {
 
     private static void writeBuildFile(Path buildFilePath) {
         BuildJson buildJson = new BuildJson(System.currentTimeMillis(), System.currentTimeMillis());
-        ProjectUtils.writeBuildFile(buildFilePath, buildJson);
+        writeBuildFile(buildFilePath, buildJson);
     }
+
+    private static void writeBuildFile(Path buildFilePath, BuildJson buildJson) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        // Check write permissions
+        if (!buildFilePath.toFile().canWrite()) {
+            return;
+        }
+        // write build file
+        try {
+            Files.write(buildFilePath, Collections.singleton(gson.toJson(buildJson)));
+        } catch (IOException e) {
+            // ignore
+        }
+    }
+
 }
