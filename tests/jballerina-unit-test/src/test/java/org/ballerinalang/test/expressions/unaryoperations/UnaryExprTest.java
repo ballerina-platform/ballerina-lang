@@ -27,6 +27,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -179,14 +180,18 @@ public class UnaryExprTest {
 
     }
 
-    @Test(description = "Test complement operator")
-    public void testComplementOperator() {
-        BRunUtil.invoke(result, "testComplementOperator");
+    @Test(dataProvider = "dataToTestUnaryOperations", description = "test unary operators with types")
+    public void testUnaryOperations(String functionName) {
+        BRunUtil.invoke(result, functionName);
     }
 
-    @Test(description = "Test unary operators with int sub types")
-    public void testUnaryOperationsWithIntSubtypes() {
-        BRunUtil.invoke(result, "testUnaryOperationsWithIntSubtypes");
+    @DataProvider(name = "dataToTestUnaryOperations")
+    public Object[] dataToTestUnaryOperations() {
+        return new String[] {
+                "testComplementOperator",
+                "testUnaryOperationsWithIntSubtypes",
+                "testUnaryOperationsWithNonBasicTypes"
+        };
     }
 
     @Test(description = "Test unary statement with errors")
