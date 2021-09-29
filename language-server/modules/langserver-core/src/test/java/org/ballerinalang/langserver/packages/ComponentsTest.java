@@ -60,7 +60,9 @@ public class ComponentsTest {
         Path configsPath = this.resourceRoot.resolve("configs");
         List<String> filePaths = new ArrayList<>();
         for (String project : projects) {
-            filePaths.add(configsPath.resolve(project).resolve("main.bal").toAbsolutePath().toString());
+            Path path = configsPath.resolve(project).resolve("main.bal").toAbsolutePath();
+            TestUtil.openDocument(serviceEndpoint, path);
+            filePaths.add(path.toString());
         }
 
         String response = TestUtil.getPackageComponentsResponse(serviceEndpoint, filePaths.iterator());
