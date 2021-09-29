@@ -131,7 +131,7 @@ public class BallerinaPackageServiceImpl implements BallerinaPackageService {
         }
         currentPackage.moduleIds().forEach(moduleId -> {
             JsonObject jsonModule = new JsonObject();
-            Module module = project.get().currentPackage().module(moduleId);
+            Module module = currentPackage.module(moduleId);
             if (module.moduleName().moduleNamePart() != null) {
                 jsonModule.addProperty(PackageServiceConstants.NAME, module.moduleName().moduleNamePart());
             }

@@ -82,6 +82,8 @@ public class ComponentsTest {
         JsonArray responseJsonArray =
                 JSON_PARSER.parse(response).getAsJsonObject().getAsJsonObject("result").getAsJsonArray("packages");
 
+        Assert.assertEquals(responseJsonArray.size(), expectedJsonArray.size(), "Package ComponentsTest fails with " +
+                "incorrect package count.");
         responseJsonArray.forEach(jsonPackage -> {
             JsonPrimitive name = jsonPackage.getAsJsonObject().getAsJsonPrimitive(NAME);
             if (name != null) {
