@@ -165,6 +165,11 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                         List.of(location(137, 18, 22),
                                 location(158, 15, 19))
                 },
+                // Constant expressions
+                {163, 6, location(163, 6, 12),
+                        List.of(location(166, 8, 14),
+                                location(163, 6, 12))
+                },
         };
     }
 

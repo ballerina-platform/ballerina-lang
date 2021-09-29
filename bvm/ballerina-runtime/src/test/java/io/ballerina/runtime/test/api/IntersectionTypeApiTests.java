@@ -23,11 +23,14 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.util.List;
 
 /**
  * Test cases for runtime APIs related to intersection type.
@@ -53,6 +56,7 @@ public class IntersectionTypeApiTests {
                 new BIntersectionType(module, new BType[]{}, arrayType, 0, true);
         Assert.assertEquals(bIntersectionType1.getTag(), TypeTags.INTERSECTION_TAG);
         Assert.assertEquals(bIntersectionType1.getEffectiveType(), arrayType);
+        Assert.assertTrue(arrayType.getIntersectionType().isPresent());
         Assert.assertEquals(arrayType.getIntersectionType().get(), bIntersectionType1);
     }
 
@@ -71,5 +75,17 @@ public class IntersectionTypeApiTests {
         Assert.assertEquals(arrayType.getIntersectionType().get(), bIntersectionType1);
         Assert.assertEquals(bIntersectionType1.getIntersectionType().get(), bIntersectionType2);
         Assert.assertNotEquals(arrayType.getIntersectionType().get(), bIntersectionType2);
+    }
+
+    @Test
+    public void getConstituentTypesAPITest() {
+        ArrayType arrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_INT);
+        IntersectionType intersectionType =
+                new BIntersectionType(module, new Type[]{arrayType, PredefinedTypes.TYPE_READONLY},
+                        arrayType, 0, true);
+        List<Type> constituentTypes = intersectionType.getConstituentTypes();
+        Assert.assertEquals(constituentTypes.size(), 2);
+        Assert.assertEquals(constituentTypes.get(0), arrayType);
+        Assert.assertEquals(constituentTypes.get(1), PredefinedTypes.TYPE_READONLY);
     }
 }

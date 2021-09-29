@@ -246,7 +246,10 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void anonymousFunctionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // Anonymous function with semantic errors
+        debugTestRunner.assertEvaluationError(context, "function(int x, string y) returns int => x + y;",
+                EvaluationExceptionKind.PREFIX + "compilation error(s) found while creating executables for " +
+                        "evaluation: " + System.lineSeparator() + "operator '+' not defined for 'int' and 'string'");
     }
 
     @Override
@@ -518,9 +521,8 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                 "Statement evaluation is not supported."));
 
         // unsupported expressions
-        debugTestRunner.assertEvaluationError(context, "function(int a) returns int {return a;};",
-                String.format(UNSUPPORTED_EXPRESSION.getString(), "'function(int a) returns int {return a;}' - " +
-                        "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION"));
+        debugTestRunner.assertEvaluationError(context, "[1, 2, 3]", String.format(UNSUPPORTED_EXPRESSION.getString(),
+                "'[1, 2, 3]' - LIST_CONSTRUCTOR"));
     }
 
     @Override

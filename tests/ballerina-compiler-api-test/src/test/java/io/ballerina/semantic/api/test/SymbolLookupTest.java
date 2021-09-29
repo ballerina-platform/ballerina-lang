@@ -494,6 +494,42 @@ public class SymbolLookupTest {
         }
     }
 
+    @Test(dataProvider = "PositionProvider6")
+    public void testTypeTest(int line, int col, List<String> expSymbolNames, TypeDescKind expVarType) {
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_type_test.bal");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, srcFile, line, col, moduleID);
+
+        assertEquals(symbolsInFile.size(), expSymbolNames.size());
+        for (String symName : expSymbolNames) {
+            assertTrue(symbolsInFile.containsKey(symName), "Symbol not found: " + symName);
+        }
+
+        Symbol getResultSym = symbolsInFile.get("getResult");
+
+        assertEquals(getResultSym.kind(), SymbolKind.VARIABLE);
+        assertEquals(((VariableSymbol) getResultSym).typeDescriptor().typeKind(), expVarType);
+    }
+
+    @DataProvider(name = "PositionProvider6")
+    public Object[][] getPosForTypeTest() {
+        List<String> expSymbolNames = List.of("getValue", "testTypeTest", "getResult");
+        return new Object[][]{
+                {18, 20, expSymbolNames, TypeDescKind.INT},
+                {19, 8, expSymbolNames, TypeDescKind.COMPILATION_ERROR},
+                {22, 24, expSymbolNames, TypeDescKind.INT},
+                {23, 8, expSymbolNames, TypeDescKind.COMPILATION_ERROR},
+        };
+    }
+
     @Test(dataProvider = "FieldSymbolPosProvider")
     public void testSymbolLookupInFields(int line, int column, int expSymbols, List<String> expSymbolNames) {
         Project project = BCompileUtil.loadProject("test-src/symbol_lookup_in_fields.bal");

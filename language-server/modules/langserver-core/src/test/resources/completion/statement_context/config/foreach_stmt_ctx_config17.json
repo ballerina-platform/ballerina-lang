@@ -147,11 +147,11 @@
     {
       "label": "remove(string k)",
       "kind": "Function",
-      "detail": "any|error",
+      "detail": "MyType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves a member of a map.\n\nThis removes the member of parameter `m` with key parameter `k` and returns it.\nIt panics if there is no such member.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `any|error`   \n- the member of parameter `m` that had key parameter `k`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves a member of a map.\n\nThis removes the member of parameter `m` with key parameter `k` and returns it.\nIt panics if there is no such member.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `MyType`   \n- the member of parameter `m` that had key parameter `k`  \n  \n"
         }
       },
       "sortText": "E",
@@ -166,11 +166,11 @@
     {
       "label": "filter(function () func)",
       "kind": "Function",
-      "detail": "map<any|error>",
+      "detail": "map<MyType>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nSelects the members from a map for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each element to test whether it should be included  \n  \n**Return** `map<any|error>`   \n- new map containing members for which function `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nSelects the members from a map for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each element to test whether it should be included  \n  \n**Return** `map<MyType>`   \n- new map containing members for which function `func` evaluates to true  \n  \n"
         }
       },
       "sortText": "E",
@@ -185,11 +185,11 @@
     {
       "label": "removeIfHasKey(string k)",
       "kind": "Function",
-      "detail": "any|error?",
+      "detail": "MyType?",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves a member of a map with a given key, if the map has member with the key.\n\nIf parameter `m` has a member with key parameter `k`, it removes and returns it;\notherwise it returns `()`.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `any|error?`   \n- the member of parameter `m` that had key parameter `k`, or `()` if parameter `m` does not have a key parameter `k`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves a member of a map with a given key, if the map has member with the key.\n\nIf parameter `m` has a member with key parameter `k`, it removes and returns it;\notherwise it returns `()`.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `MyType?`   \n- the member of parameter `m` that had key parameter `k`, or `()` if parameter `m` does not have a key parameter `k`  \n  \n"
         }
       },
       "sortText": "E",
@@ -219,11 +219,11 @@
     {
       "label": "entries()",
       "kind": "Function",
-      "detail": "map<[string, any|error]>",
+      "detail": "map<[string, MyType]>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a map containing [key, member] pair as the value for each key.\n  \n  \n  \n**Return** `map<[string, any|error]>`   \n- a new map of [key, member] pairs  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a map containing [key, member] pair as the value for each key.\n  \n  \n  \n**Return** `map<[string, MyType]>`   \n- a new map of [key, member] pairs  \n  \n"
         }
       },
       "sortText": "E",
@@ -249,11 +249,11 @@
     {
       "label": "get(string k)",
       "kind": "Function",
-      "detail": "any|error",
+      "detail": "MyType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns the member of a map with given key.\n\nThis for use in a case where it is known that the map has a specific key,\nand accordingly panics if parameter `m` does not have a member with parameter `k` key.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `any|error`   \n- member with parameter `k` key  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns the member of a map with given key.\n\nThis for use in a case where it is known that the map has a specific key,\nand accordingly panics if parameter `m` does not have a member with parameter `k` key.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `MyType`   \n- member with parameter `k` key  \n  \n"
         }
       },
       "sortText": "E",
@@ -268,11 +268,11 @@
     {
       "label": "toArray()",
       "kind": "Function",
-      "detail": "(any|error)[]",
+      "detail": "MyType[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a list of all the members of a map.\n  \n  \n  \n**Return** `(any|error)[]`   \n- an array whose members are the members of parameter `m`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a list of all the members of a map.\n  \n  \n  \n**Return** `MyType[]`   \n- an array whose members are the members of parameter `m`  \n  \n"
         }
       },
       "sortText": "E",

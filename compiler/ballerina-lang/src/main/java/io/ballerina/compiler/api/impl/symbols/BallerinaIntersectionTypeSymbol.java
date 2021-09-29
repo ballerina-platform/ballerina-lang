@@ -82,7 +82,8 @@ public class BallerinaIntersectionTypeSymbol extends AbstractTypeSymbol implemen
     public List<FunctionSymbol> langLibMethods() {
         if (this.langLibFunctions == null) {
             LangLibrary langLibrary = LangLibrary.getInstance(this.context);
-            List<FunctionSymbol> functions = langLibrary.getMethods(this.effectiveTypeDescriptor().typeKind());
+            List<FunctionSymbol> functions = langLibrary.getMethods(
+                    ((AbstractTypeSymbol) this.effectiveTypeDescriptor()).getBType());
             this.langLibFunctions = filterLangLibMethods(functions, this.getBType());
         }
 
