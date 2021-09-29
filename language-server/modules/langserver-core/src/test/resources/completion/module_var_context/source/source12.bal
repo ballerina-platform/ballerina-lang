@@ -1,6 +1,6 @@
 import ballerina/module1;
 
-isolated client o
+transactional isolated f
 
 function getIntValue() returns int {
     return 12;

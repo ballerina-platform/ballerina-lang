@@ -43,11 +43,14 @@ import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -126,7 +129,7 @@ import static org.ballerinalang.langserver.common.utils.CommonKeys.SEMI_COLON_SY
 import static org.ballerinalang.langserver.common.utils.CommonKeys.SLASH_KEYWORD_KEY;
 
 /**
- * Common utils to be reuse in language server implementation.
+ * Common utils to be reused in language server implementation.
  */
 public class CommonUtil {
 
@@ -155,6 +158,10 @@ public class CommonUtil {
             "lang.string", "lang.table", "lang.transaction", "lang.typedesc", "lang.xml");
 
     public static final List<String> BALLERINA_KEYWORDS;
+
+    public static final Set<SyntaxKind> QUALIFIER_KINDS = Set.of(SyntaxKind.SERVICE_KEYWORD,
+            SyntaxKind.CLIENT_KEYWORD, SyntaxKind.ISOLATED_KEYWORD, SyntaxKind.TRANSACTIONAL_KEYWORD,
+            SyntaxKind.PUBLIC_KEYWORD, SyntaxKind.PRIVATE_KEYWORD);
 
     private static final String SELF_KW = "self";
 
@@ -1506,20 +1513,83 @@ public class CommonUtil {
      * @param node node.
      * @return {@link List<Token>} qualifiers list.
      */
-    public static List<Token> getQualifiersOfNode(Node node) {
+    public static List<Token> getQualifiersOfNode(BallerinaCompletionContext context, Node node) {
         List<Token> qualifiers = new ArrayList<>();
         switch (node.kind()) {
             case FUNCTION_TYPE_DESC:
-                ((FunctionTypeDescriptorNode) node).qualifierList().forEach(qualifiers::add);
+                ((FunctionTypeDescriptorNode) node).qualifierList().stream().forEach(qualifiers::add);
+                break;
+            case OBJECT_TYPE_DESC:
+                ((ObjectTypeDescriptorNode) node).objectTypeQualifiers().stream().forEach(qualifiers::add);
+                break;
+            case OBJECT_FIELD:
+                ObjectFieldNode objectFieldNode = (ObjectFieldNode) node;
+                objectFieldNode.visibilityQualifier().ifPresent(qualifiers::add);
+                objectFieldNode.qualifierList().stream().forEach(qualifiers::add);
                 break;
             case MODULE_VAR_DECL:
-                ((ModuleVariableDeclarationNode) node).qualifiers().forEach(qualifiers::add);
+                ModuleVariableDeclarationNode moduleVar = (ModuleVariableDeclarationNode) node;
+                Optional<Token> visibilityQualifier = moduleVar.visibilityQualifier();
+                visibilityQualifier.ifPresent(qualifiers::add);
+                moduleVar.qualifiers().forEach(qualifiers::add);
+                Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
+                getQualifiersAtCursor(context).stream()
+                        .filter(qual -> !qualKinds.contains(qual.kind())).forEach(qualifiers::add);
+
+                //Add leading invalid tokens of type binding pattern if there are no visible qualifiers.
+                if (qualifiers.isEmpty()) {
+                    moduleVar.typedBindingPattern().leadingInvalidTokens().stream()
+                            .filter(token -> QUALIFIER_KINDS.contains(token.kind())).forEach(qualifiers::add);
+                }
                 break;
+            case MODULE_PART:
+                List<Token> qualsAtCursor = getQualifiersAtCursor(context);
+                Set<SyntaxKind> foundQuals = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
+                context.getNodeAtCursor().leadingInvalidTokens().stream()
+                        .filter(token -> QUALIFIER_KINDS.contains(token.kind())
+                                && !foundQuals.contains(token.kind())).forEach(qualifiers::add);
+                qualifiers.addAll(qualsAtCursor);
+                return qualifiers;
             default:
         }
-        if (qualifiers.isEmpty()) {
-            qualifiers.addAll(node.leadingInvalidTokens());
+        //Qualifiers are identified as invalid tokens by the parser in some cases.
+        Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
+        node.leadingInvalidTokens().stream()
+                .filter(token -> QUALIFIER_KINDS.contains(token.kind())
+                        && !qualKinds.contains(token.kind())).forEach(qualifiers::add);
+        return qualifiers;
+    }
+
+    /**
+     * Get the qualifiers of the module part context node.
+     *
+     * @param context completion context.
+     * @return {@link List<Token> } the list of qualifiers.
+     */
+    public static List<Token> getQualifiersAtCursor(BallerinaCompletionContext context) {
+        List<Token> qualifiers = new ArrayList<>();
+        Token tokenAtCursor = context.getTokenAtCursor();
+        if (CommonUtil.QUALIFIER_KINDS.contains(tokenAtCursor.kind())) {
+            qualifiers.add(tokenAtCursor);
+            return qualifiers;
         }
+        List<Minutiae> tokensFromMinutiae = new ArrayList<>();
+        context.getTokenAtCursor().leadingMinutiae().forEach(minutiae -> {
+            if (minutiae.kind() != SyntaxKind.WHITESPACE_MINUTIAE
+                    && minutiae.kind() != SyntaxKind.END_OF_LINE_MINUTIAE) {
+                tokensFromMinutiae.add(minutiae);
+            }
+        });
+        if (tokensFromMinutiae.isEmpty()) {
+            return qualifiers;
+        }
+        Minutiae tokenValueAtCursor = tokensFromMinutiae.get(tokensFromMinutiae.size() - 1);
+        tokenValueAtCursor.invalidTokenMinutiaeNode().ifPresent(invalidTokenMinutiaeNode -> {
+            Token token = invalidTokenMinutiaeNode.invalidToken();
+            if (CommonUtil.QUALIFIER_KINDS.contains(token.kind())) {
+                qualifiers.add(token);
+            }
+        });
         return qualifiers;
     }
 
