@@ -90,11 +90,53 @@ function testContextuallyExpectedTypeOfNumericLiteralInDivision() {
     float a2 = (10 / 5) / 2.0;
     decimal a3 = 30.0 / 15;
     decimal a4 = 9.0 / 3.0;
+    float? a5 = 10 / 2;
+    decimal a6 = 20 / 2.0;
 
     assertEqual(a1, 5.0);
     assertEqual(a2, 1.0);
     assertEqual(a3, 2.0d);
     assertEqual(a4, 3.0d);
+    assertEqual(a5, 5.0);
+    assertEqual(a6, 10.0d);
+}
+
+type Ints 1|2;
+
+function testDivisionNullable() {
+    int? a1 = 10;
+    int? a2 = 2;
+    int? a3 = 1;
+    int? a4 = ();
+    int a5 = 5;
+    float? a6 = 30.0;
+    float? a7 = 10.0;
+    float? a8 = ();
+    float a9 = 5.0;
+
+    int? a10 = (a1 / a2) / a5;
+    int? a11 = a5 / a3;
+    int? a12 = a4 / a1;
+    float? a13 = a6 / a7;
+    float? a14 = a6 / a9;
+    float? a15 = a6 / a8;
+
+    Ints a16 = 2;
+    int? a17 = 1;
+    int? a18 = a16 / a17;
+
+    int a19 = 30;
+    Ints? a20 = 2;
+    int? a21 = a19 / a20;
+
+    assertEqual(a10, 1);
+    assertEqual(a11, 5);
+    assertEqual(a12, ());
+    assertEqual(a13, 3.0);
+    assertEqual(a14, 6.0);
+    assertEqual(a15, ());
+    assertEqual(a16, 2);
+    assertEqual(a21, 15);
 }
 
 function assertEqual(any actual, any expected) {

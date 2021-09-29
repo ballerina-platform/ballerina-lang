@@ -161,8 +161,34 @@ function testBitwiseUnsignedRightShiftOp() {
     assertEqual(a6 >>> a4, 0x3);
 }
 
-function assertEqual(int actual, int expected) {
-    if (actual != expected) {
-        panic error(string `Assertion error: expected ${expected} found ${actual}`);
+function testBitWiseOperationsForNullable() {
+    int? a1 = 62;
+    int? a2 = 63;
+    int? a3 = 64;
+    int? a4 = -32;
+    int:Unsigned32? a5 = 15;
+    int? a6 = 2;
+
+    assertEqual(1 << a1, 0x4000000000000000);
+    assertEqual(1 << a2, -0x8000000000000000);
+    assertEqual(1 << a3, 0x1);
+    assertEqual(1 >> a1, 0x0);
+    assertEqual(1 >> a2, 0x0);
+    assertEqual(1 >> a3, 0x1);
+    assertEqual(a4 >>> 2, 0x3ffffffffffffff8);
+    assertEqual(a5 >>> a6, 0x3);
+}
+
+function assertEqual(any actual, any expected) {
+    if actual is anydata && expected is anydata && actual == expected {
+        return;
     }
+
+    if actual === expected {
+        return;
+    }
+
+    string actualValAsString = actual.toString();
+    string expectedValAsString = expected.toString();
+    panic error(string `Assertion error: expected ${expectedValAsString} found ${actualValAsString}`);
 }

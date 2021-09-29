@@ -151,6 +151,11 @@ public class AddOperationTest {
         BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInAdd");
     }
 
+    @Test(description = "Test addition of nullable values")
+    public void testAddNullable() {
+        BRunUtil.invoke(result, "testAddNullable");
+    }
+
     @DataProvider
     public Object[] dataToTestAdditionWithTypes() {
         return new Object[]{

@@ -80,11 +80,53 @@ function testContextuallyExpectedTypeOfNumericLiteralInMultiply() {
     float a2 = 5 * 3 * 2.0;
     decimal a3 = 15.0 * 2;
     decimal a4 = 5.0 * 3.0 * 2;
+    float? a5 = 10 * 5;
+    decimal? a6 = 2 * 10.0;
 
     assertEqual(a1, 20.0);
     assertEqual(a2, 30.0);
     assertEqual(a3, 30.0d);
     assertEqual(a4, 30.0d);
+    assertEqual(a5, 50.0);
+    assertEqual(a6, 20.0d);
+}
+
+type Ints 1|2;
+
+function testMultiplyNullable() {
+    int? a1 = 10;
+    int? a2 = 2;
+    int? a3 = 1;
+    int? a4 = ();
+    int a5 = 5;
+    float? a6 = 30.0;
+    float? a7 = 10.0;
+    float? a8 = ();
+    float a9 = 5.0;
+
+    int? a10 = (a1 * a2) * a5;
+    int? a11 = a5 * a3;
+    int? a12 = a4 * a1;
+    float? a13 = a6 * a7;
+    float? a14 = a6 * a9;
+    float? a15 = a6 * a8;
+
+    Ints a16 = 2;
+    int? a17 = 1;
+    int? a18 = a16 * a17;
+
+    int a19 = 25;
+    Ints? a20 = 2;
+    int? a21 = a19 * a20;
+
+    assertEqual(a10, 100);
+    assertEqual(a11, 5);
+    assertEqual(a12, ());
+    assertEqual(a13, 300.0);
+    assertEqual(a14, 150.0);
+    assertEqual(a15, ());
+    assertEqual(a18, 2);
+    assertEqual(a21, 50);
 }
 
 function assertEqual(any actual, any expected) {

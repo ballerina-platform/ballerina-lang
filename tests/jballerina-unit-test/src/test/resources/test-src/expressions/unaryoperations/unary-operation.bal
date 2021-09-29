@@ -151,9 +151,33 @@ function testUnaryOperationsWithIntSubtypes() {
     assertEquality(7, x17);
 }
 
-function assertEquality(anydata expected, anydata actual) {
-    if expected == actual {
+function testNullableUnaryExpressions() {
+    int? a1 = 10;
+    int? a2 = 5;
+    int a3 = 2;
+    float? a4 = 5.0;
+    float? a5 = 15.0;
+    float a6 = 4.0;
+
+    int? a7 = +((a1 + a2) * a3);
+    float? a8 = -((a4 + a5) / a6);
+    int? a9 = ~a1;
+
+    assertEquality(a7, 30);
+    assertEquality(a8, -5.0);
+    assertEquality(a9, -11);
+}
+
+function assertEquality(any actual, any expected) {
+    if actual is anydata && expected is anydata && actual == expected {
         return;
     }
-    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+
+    if actual === expected {
+        return;
+    }
+
+    string actualValAsString = actual.toString();
+    string expectedValAsString = expected.toString();
+    panic error(string `Assertion error: expected ${expectedValAsString} found ${actualValAsString}`);
 }

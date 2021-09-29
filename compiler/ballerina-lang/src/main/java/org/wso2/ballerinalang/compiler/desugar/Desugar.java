@@ -6728,6 +6728,12 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
+        if (isNullableBinaryExpr(binaryExpr)) {
+            BLangStatementExpression stmtExpr = createStmtExprForNullableBinaryExpr(binaryExpr);
+            result = rewrite(stmtExpr, env);
+            return;
+        }
+
         if (binaryExpr.opKind == OperatorKind.HALF_OPEN_RANGE || binaryExpr.opKind == OperatorKind.CLOSED_RANGE) {
             if (binaryExpr.opKind == OperatorKind.HALF_OPEN_RANGE) {
                 binaryExpr.rhsExpr = getModifiedIntRangeEndExpr(binaryExpr.rhsExpr);
@@ -6841,6 +6847,80 @@ public class Desugar extends BLangNodeVisitor {
         if (symResolver.isBinaryComparisonOperator(binaryOpKind)) {
             createTypeCastExprForRelationalExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
         }
+    }
+
+    private BLangStatementExpression createStmtExprForNullableBinaryExpr(BLangBinaryExpr binaryExpr) {
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(binaryExpr.pos);
+
+        BUnionType exprBType = (BUnionType) binaryExpr.getBType();
+        BType nilLiftType = exprBType.getMemberTypes().iterator().next();
+
+        if (binaryExpr.lhsExpr.getBType().isNullable()) {
+            binaryExpr.lhsExpr = rewriteExpr(binaryExpr.lhsExpr);
+        }
+
+        BLangSimpleVariableDef tempVarDef = createVarDef("result",
+                binaryExpr.getBType(), null, binaryExpr.pos);
+        BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, tempVarDef.var.symbol);
+        blockStmt.addStatement(tempVarDef);
+
+        BLangTypeTestExpr typeTestExprOne = createTypeCheckExpr(binaryExpr.pos, binaryExpr.lhsExpr,
+                getNillTypeNode());
+        typeTestExprOne.setBType(symTable.booleanType);
+
+        BLangTypeTestExpr typeTestExprTwo = createTypeCheckExpr(binaryExpr.pos,
+                binaryExpr.rhsExpr, getNillTypeNode());
+        typeTestExprTwo.setBType(symTable.booleanType);
+
+        BLangBinaryExpr ifBlockCondition = ASTBuilderUtil.createBinaryExpr(binaryExpr.pos, typeTestExprOne,
+                typeTestExprTwo, symTable.booleanType, OperatorKind.OR, binaryExpr.opSymbol);
+
+        BLangBlockStmt ifBody = ASTBuilderUtil.createBlockStmt(binaryExpr.pos);
+        BLangAssignment bLangAssignmentIf = ASTBuilderUtil.createAssignmentStmt(binaryExpr.pos, ifBody);
+        bLangAssignmentIf.varRef = tempVarRef;
+        bLangAssignmentIf.expr = createNilLiteral();
+
+        BLangBlockStmt elseBody = ASTBuilderUtil.createBlockStmt(binaryExpr.pos);
+        BLangAssignment bLangAssignmentElse = ASTBuilderUtil.createAssignmentStmt(binaryExpr.pos, elseBody);
+        bLangAssignmentElse.varRef = tempVarRef;
+
+        BLangBinaryExpr newBinaryExpr = ASTBuilderUtil.createBinaryExpr(binaryExpr.pos, binaryExpr.lhsExpr,
+                binaryExpr.rhsExpr, nilLiftType, binaryExpr.opKind, binaryExpr.opSymbol);
+        newBinaryExpr.lhsExpr = createTypeCastExpr(newBinaryExpr.lhsExpr, nilLiftType);
+        newBinaryExpr.rhsExpr = createTypeCastExpr(newBinaryExpr.rhsExpr, nilLiftType);
+        bLangAssignmentElse.expr = newBinaryExpr;
+
+        BLangIf ifStatement = ASTBuilderUtil.createIfStmt(binaryExpr.pos, blockStmt);
+        ifStatement.expr = ifBlockCondition;
+        ifStatement.body = ifBody;
+        ifStatement.elseStmt = elseBody;
+
+        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, tempVarRef);
+        stmtExpr.setBType(binaryExpr.getBType());
+
+        return stmtExpr;
+    }
+
+    private boolean isNullableBinaryExpr(BLangBinaryExpr binaryExpr) {
+        if ((binaryExpr.lhsExpr.getBType() != null && binaryExpr.rhsExpr.getBType() != null) &&
+                (binaryExpr.rhsExpr.getBType().isNullable() ||
+                        binaryExpr.lhsExpr.getBType().isNullable())) {
+            switch (binaryExpr.getOperatorKind()) {
+                case ADD:
+                case SUB:
+                case MUL:
+                case DIV:
+                case MOD:
+                case BITWISE_LEFT_SHIFT:
+                case BITWISE_RIGHT_SHIFT:
+                case BITWISE_UNSIGNED_RIGHT_SHIFT:
+                case BITWISE_AND:
+                case BITWISE_OR:
+                case BITWISE_XOR:
+                    return true;
+            }
+        }
+        return false;
     }
 
     private void createTypeCastExprForArithmeticExpr(BLangBinaryExpr binaryExpr, int lhsExprTypeTag,
@@ -7003,6 +7083,13 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangUnaryExpr unaryExpr) {
+
+        if (isNullableUnaryExpr(unaryExpr)) {
+            BLangStatementExpression statementExpression = createStmtExprForNullableUnaryExpr(unaryExpr);
+            result = rewrite(statementExpression, env);
+            return;
+        }
+
         if (OperatorKind.BITWISE_COMPLEMENT == unaryExpr.operator) {
             // If this is a bitwise complement (~) expression, then we desugar it to a binary xor expression with -1,
             // which is same as doing a bitwise 2's complement operation.
@@ -7039,6 +7126,61 @@ public class Desugar extends BLangNodeVisitor {
                     symTable.intType, symTable.intType);
         }
         result = rewriteExpr(binaryExpr);
+    }
+
+    private BLangStatementExpression createStmtExprForNullableUnaryExpr(BLangUnaryExpr unaryExpr) {
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(unaryExpr.pos);
+
+        BUnionType exprBType = (BUnionType) unaryExpr.getBType();
+        BType nilLiftType = exprBType.getMemberTypes().iterator().next();
+
+        unaryExpr.expr = rewriteExpr(unaryExpr.expr);
+
+        BLangSimpleVariableDef tempVarDef = createVarDef("$result",
+                unaryExpr.getBType(), createNilLiteral(), unaryExpr.pos);
+        BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(unaryExpr.pos, tempVarDef.var.symbol);
+
+        blockStmt.addStatement(tempVarDef);
+
+        BLangTypeTestExpr typeTestExpr = createTypeCheckExpr(unaryExpr.pos, unaryExpr.expr,
+                getNillTypeNode());
+        typeTestExpr.setBType(symTable.booleanType);
+
+        BLangBlockStmt ifBody = ASTBuilderUtil.createBlockStmt(unaryExpr.pos);
+        BLangAssignment bLangAssignmentIf = ASTBuilderUtil.createAssignmentStmt(unaryExpr.pos, ifBody);
+        bLangAssignmentIf.varRef = tempVarRef;
+        bLangAssignmentIf.expr = createNilLiteral();
+
+        BLangBlockStmt elseBody = ASTBuilderUtil.createBlockStmt(unaryExpr.pos);
+        BLangAssignment bLangAssignmentElse = ASTBuilderUtil.createAssignmentStmt(unaryExpr.pos, elseBody);
+        bLangAssignmentElse.varRef = tempVarRef;
+
+        BLangUnaryExpr newUnaryExpr = ASTBuilderUtil.createUnaryExpr(unaryExpr.pos, unaryExpr.expr,
+                nilLiftType, unaryExpr.operator, unaryExpr.opSymbol);
+        newUnaryExpr.expr = createTypeCastExpr(newUnaryExpr.expr, nilLiftType);
+        bLangAssignmentElse.expr = newUnaryExpr;
+
+        BLangIf ifStatement = ASTBuilderUtil.createIfStmt(unaryExpr.pos, blockStmt);
+        ifStatement.expr = typeTestExpr;
+        ifStatement.body = ifBody;
+        ifStatement.elseStmt = elseBody;
+
+        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, tempVarRef);
+        stmtExpr.setBType(unaryExpr.getBType());
+
+        return stmtExpr;
+    }
+
+    private boolean isNullableUnaryExpr(BLangUnaryExpr unaryExpr) {
+        if (unaryExpr.getBType() != null && unaryExpr.getBType().isNullable()) {
+            switch (unaryExpr.operator) {
+                case ADD:
+                case SUB:
+                case BITWISE_COMPLEMENT:
+                    return true;
+            }
+        }
+        return false;
     }
 
     @Override
