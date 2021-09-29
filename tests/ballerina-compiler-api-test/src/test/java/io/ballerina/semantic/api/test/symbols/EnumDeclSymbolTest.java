@@ -63,7 +63,6 @@ public class EnumDeclSymbolTest {
     @Test(dataProvider = "EnumDeclarationProvider")
     public void testEnumDeclarations(int line, int col, String expName,
                                      String expDoc, String expAnnot, List<Qualifier> expQuals, List<String> members) {
-
         EnumSymbol symbol = (EnumSymbol) assertBasicsAndGetSymbol(model, srcFile, line, col,
                                                                   expName, SymbolKind.ENUM);
         // check docs (metadata)
@@ -114,8 +113,7 @@ public class EnumDeclSymbolTest {
 
     @Test(dataProvider = "EnumMemberDeclarationProvider")
     public void testEnumMemberDeclarations(int line, int col, String expName, String expDoc,
-                                           String expAnnot, List<Qualifier> expQuals) {
-
+                                           String expAnnot, List<Qualifier> expQuals, TypeDescKind typeDescKind) {
         ConstantSymbol symbol = (ConstantSymbol) assertBasicsAndGetSymbol(model, srcFile, line, col,
                                                                           expName, SymbolKind.ENUM_MEMBER);
         // check docs (metadata)
@@ -140,25 +138,27 @@ public class EnumDeclSymbolTest {
         // check qualifiers
         List<Qualifier> qualifiers = symbol.qualifiers();
         if (expQuals.size() > 0) {
-            expQuals.forEach(qualifiers::contains);
+            expQuals.forEach(expQual -> assertTrue(qualifiers.contains(expQual)));
         } else {
             assertTrue(qualifiers.isEmpty());
         }
 
         // check type
-        assertEquals(symbol.typeDescriptor().typeKind(), TypeDescKind.SINGLETON);
+        assertEquals(symbol.typeKind(), TypeDescKind.SINGLETON);
+        assertEquals(symbol.typeDescriptor().typeKind(), typeDescKind);
     }
 
     @DataProvider(name = "EnumMemberDeclarationProvider")
     public Object[][] getEnumMemberDeclInfo() {
         return new Object[][]{
-                {18, 4, "RED", null, null, List.of()},
-                {19, 4, "BLUE", null, null, List.of()},
-                {28, 4, "TWO", "This kind two", null, List.of(Qualifier.PUBLIC)},
-                {30, 4, "THREE", null, "enumMemberDecl", List.of(Qualifier.PUBLIC)},
-                {38, 4, "AMERICA", null, "enumMemberDecl", List.of(Qualifier.PUBLIC)},
-                {41, 4, "AUSTRALIA", "Australia", "enumMemberDecl", List.of(Qualifier.PUBLIC)},
-                {44, 4, "OTHER", "Other", null, List.of(Qualifier.PUBLIC)},
+                {18, 4, "RED", null, null, List.of(), TypeDescKind.SINGLETON},
+                {19, 4, "BLUE", null, null, List.of(), TypeDescKind.SINGLETON},
+                {28, 4, "TWO", "This kind two", null, List.of(Qualifier.PUBLIC), TypeDescKind.SINGLETON},
+                {30, 4, "THREE", null, "enumMemberDecl", List.of(Qualifier.PUBLIC), TypeDescKind.SINGLETON},
+                {38, 4, "AMERICA", null, "enumMemberDecl", List.of(Qualifier.PUBLIC), TypeDescKind.SINGLETON},
+                {41, 4, "AUSTRALIA", "Australia", "enumMemberDecl", List.of(Qualifier.PUBLIC), TypeDescKind.SINGLETON},
+                {42, 4, "EUROPE", null, null, List.of(Qualifier.PUBLIC), TypeDescKind.STRING},
+                {44, 4, "OTHER", "Other", null, List.of(Qualifier.PUBLIC), TypeDescKind.SINGLETON},
         };
     }
 }

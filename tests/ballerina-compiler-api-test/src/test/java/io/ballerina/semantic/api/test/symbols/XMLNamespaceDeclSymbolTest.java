@@ -19,7 +19,9 @@
 package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.XMLNamespaceSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
@@ -52,7 +54,6 @@ public class XMLNamespaceDeclSymbolTest {
 
     @Test(dataProvider = "XMLNameSpaceDeclarationProvider")
     public void testXMLNameSpaceDeclarations(int line, int col, String expName, String nameSpaceUri) {
-
         XMLNamespaceSymbol symbol = (XMLNamespaceSymbol) assertBasicsAndGetSymbol(model, srcFile, line, col,
                                                                                   expName, SymbolKind.XMLNS);
         assertEquals(symbol.namespaceUri(), nameSpaceUri);
@@ -65,6 +66,21 @@ public class XMLNamespaceDeclSymbolTest {
                 {18, 16, "b7a", "http://ballerina.io"},
                 {20, 31, "blang", "http://ballerina.io"},
                 {26, 13, "ex", ""},
+        };
+    }
+
+    @Test(dataProvider = "XMLNameSpaceDeclarationWithConstRefProvider")
+    public void testConstRef(int line, int col, String expName) {
+        ConstantSymbol symbol = (ConstantSymbol) assertBasicsAndGetSymbol(model, srcFile, line, col, expName,
+                                                                          SymbolKind.CONSTANT);
+        assertEquals(symbol.typeDescriptor().typeKind(), TypeDescKind.SINGLETON);
+    }
+
+    @DataProvider(name = "XMLNameSpaceDeclarationWithConstRefProvider")
+    public Object[][] getConstRefInfo() {
+        return new Object[][]{
+                {26, 6, "uri"},
+                {30, 6, "intVal"},
         };
     }
 }

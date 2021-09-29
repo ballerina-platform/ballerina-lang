@@ -25,3 +25,7 @@ xml bar = foo.<blang:note>;
 const uri = "http://example.com";
 
 xmlns uri as ex;
+
+const intVal = 12;
+
+xmlns intVal as ns;

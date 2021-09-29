@@ -61,7 +61,6 @@ public class VarDeclSymbolTest {
     @Test(dataProvider = "VariableDeclarationProvider")
     public void testVarDeclarations(int line, int col, String expName, TypeDescKind expTypeKind,
                                     String expDoc, String expAnnot, List<Qualifier> expQuals) {
-
         VariableSymbol symbol = (VariableSymbol) assertBasicsAndGetSymbol(model, srcFile, line, col,
                                                                           expName, SymbolKind.VARIABLE);
         // check docs (metadata)

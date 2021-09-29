@@ -40,10 +40,12 @@ public enum Continents {
     # Australia
     @enumMemberDecl
     AUSTRALIA = "australia",
-    EUROPE,
+    EUROPE = EU,
     # Other
     OTHER
 }
+
+const EU = "eu";
 
 annotation enumMemberDecl;
 

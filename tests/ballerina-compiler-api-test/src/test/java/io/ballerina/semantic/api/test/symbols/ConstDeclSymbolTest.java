@@ -61,7 +61,6 @@ public class ConstDeclSymbolTest {
     @Test(dataProvider = "ConstDeclarationProvider")
     public void testConstDeclarations(int line, int col, String expName, String expDoc, String expAnnot,
                                       List<Qualifier> expQuals) {
-
         ConstantSymbol symbol = (ConstantSymbol) assertBasicsAndGetSymbol(model, srcFile, line, col,
                                                                           expName, SymbolKind.CONSTANT);
         // check docs (metadata)
@@ -86,7 +85,7 @@ public class ConstDeclSymbolTest {
         // check qualifiers
         List<Qualifier> qualifiers = symbol.qualifiers();
         if (expQuals.size() > 0) {
-            expQuals.forEach(qualifiers::contains);
+            expQuals.forEach(expQual -> assertTrue(qualifiers.contains(expQual)));
         } else {
             assertTrue(qualifiers.isEmpty());
         }
