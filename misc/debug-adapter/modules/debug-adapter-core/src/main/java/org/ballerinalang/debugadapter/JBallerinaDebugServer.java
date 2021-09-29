@@ -39,9 +39,9 @@ import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
-import org.ballerinalang.debugadapter.launch.PackageLauncher;
-import org.ballerinalang.debugadapter.launch.ProgramLauncher;
-import org.ballerinalang.debugadapter.launch.SingleFileLauncher;
+import org.ballerinalang.debugadapter.runner.BFileRunner;
+import org.ballerinalang.debugadapter.runner.BPackageRunner;
+import org.ballerinalang.debugadapter.runner.BProgramRunner;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
@@ -139,7 +139,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private static final String SCOPE_NAME_LOCAL = "Local";
     private static final String SCOPE_NAME_GLOBAL = "Global";
     private static final String VALUE_UNKNOWN = "unknown";
-    private static final String J_INIT_FRAME_NAME = "$init$";
     private static final String EVAL_ARGS_CONTEXT_VARIABLES = "variables";
     private static final String COMPILATION_ERROR_MESSAGE = "error: compilation contains errors";
 
@@ -221,11 +220,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             clientConfigHolder = new ClientLaunchConfigHolder(args);
             context.setSourceProject(loadProject(clientConfigHolder.getSourcePath()));
             String sourceProjectRoot = context.getSourceProjectRoot();
-            ProgramLauncher programLauncher = context.getSourceProject() instanceof SingleFileProject ?
-                    new SingleFileLauncher((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
-                    new PackageLauncher((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot);
+            BProgramRunner programRunner = context.getSourceProject() instanceof SingleFileProject ?
+                    new BFileRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
+                    new BPackageRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot);
 
-            context.setLaunchedProcess(programLauncher.start());
+            context.setLaunchedProcess(programRunner.start());
             startListeningToProgramOutput();
             return CompletableFuture.completedFuture(null);
         } catch (Exception e) {
@@ -888,10 +887,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     }
                     outputLogger.sendProgramOutput(line);
                 }
-            } catch (IOException ignored) {
-                // no-op
-            } catch (ClientConfigurationException | IllegalConnectorArgumentsException e) {
-                String host = ((ClientAttachConfigHolder) clientConfigHolder).getHostName().orElse(LOCAL_HOST);
+            } catch (Exception e) {
+                String host = clientConfigHolder instanceof ClientAttachConfigHolder ?
+                        ((ClientAttachConfigHolder) clientConfigHolder).getHostName().orElse(LOCAL_HOST) : LOCAL_HOST;
                 String portName;
                 try {
                     portName = Integer.toString(clientConfigHolder.getDebuggePort());
@@ -901,6 +899,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 LOGGER.error(e.getMessage());
                 outputLogger.sendDebugServerOutput(String.format("Failed to attach to the target VM, address: '%s:%s'.",
                         host, portName));
+                terminateServer(context.getDebuggeeVM() != null);
             }
         });
     }
