@@ -3,7 +3,7 @@
   "character": 12,
   "expected": [
     {
-      "title": "Convert module variable 'ln ' to listener declaration",
+      "title": "Convert module variable 'ln' to listener declaration",
       "edits": [
         {
           "range": {

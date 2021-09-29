@@ -23,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -112,23 +113,23 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
             return Collections.emptyList();
         }
 
-        Node matchedNode = CommonUtil.findNode(classSymbol, context.currentSyntaxTree().get());
-        if (matchedNode == null) {
+        Optional<NonTerminalNode> matchedNode = CommonUtil.findNode(classSymbol, context.currentSyntaxTree().get());
+        if (matchedNode.isEmpty()) {
             return Collections.emptyList();
         }
 
         LinePosition editPosition;
         NodeList<Node> members;
-        if (matchedNode.kind() == SyntaxKind.CLASS_DEFINITION) {
-            ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) matchedNode;
+        if (matchedNode.get().kind() == SyntaxKind.CLASS_DEFINITION) {
+            ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) matchedNode.get();
             members = classDefinitionNode.members();
             editPosition = classDefinitionNode.closeBrace().lineRange().startLine();
-        } else if (matchedNode.kind() == SyntaxKind.SERVICE_DECLARATION) {
-            ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) matchedNode;
+        } else if (matchedNode.get().kind() == SyntaxKind.SERVICE_DECLARATION) {
+            ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) matchedNode.get();
             members = serviceDeclarationNode.members();
             editPosition = serviceDeclarationNode.closeBraceToken().lineRange().startLine();
-        } else if (matchedNode.kind() == SyntaxKind.OBJECT_CONSTRUCTOR) {
-            ObjectConstructorExpressionNode objConstructor = (ObjectConstructorExpressionNode) matchedNode;
+        } else if (matchedNode.get().kind() == SyntaxKind.OBJECT_CONSTRUCTOR) {
+            ObjectConstructorExpressionNode objConstructor = (ObjectConstructorExpressionNode) matchedNode.get();
             members = objConstructor.members();
             editPosition = objConstructor.closeBraceToken().lineRange().startLine();
         } else {
@@ -148,7 +149,7 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
             offsetStr = StringUtils.repeat(' ', funcDefNode.location().lineRange().endLine().offset());
         } else {
             // Or else, adjust offset according to the parent class
-            offsetStr = StringUtils.repeat(' ', matchedNode.location().lineRange().startLine().offset() + 4);
+            offsetStr = StringUtils.repeat(' ', matchedNode.get().location().lineRange().startLine().offset() + 4);
         }
 
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);

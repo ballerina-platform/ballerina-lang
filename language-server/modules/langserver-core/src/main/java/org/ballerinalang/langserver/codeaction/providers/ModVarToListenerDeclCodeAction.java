@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -67,25 +68,23 @@ public class ModVarToListenerDeclCodeAction extends AbstractCodeActionProvider {
         if (matchedNode == null) {
             return Collections.emptyList();
         }
-        Optional<Pair<CaptureBindingPatternNode, String>> captureBindingPatternNodeFilePathPair =
+        Optional<Pair<CaptureBindingPatternNode, String>> nodeUriPair =
                 findCaptureBindingPattern(matchedNode, context);
-        if (captureBindingPatternNodeFilePathPair.isEmpty() ||
-                captureBindingPatternNodeFilePathPair.get().getLeft().parent().kind()
-                        != SyntaxKind.TYPED_BINDING_PATTERN) {
+        if (nodeUriPair.isEmpty() || nodeUriPair.get().getLeft().parent().kind() != SyntaxKind.TYPED_BINDING_PATTERN) {
             return Collections.emptyList();
         }
         TypedBindingPatternNode typedBindingPatternNode =
-                (TypedBindingPatternNode) captureBindingPatternNodeFilePathPair.get().getLeft().parent();
+                (TypedBindingPatternNode) nodeUriPair.get().getLeft().parent();
         List<CodeAction> actions = new ArrayList<>();
         List<TextEdit> textEdits = new ArrayList<>();
         Position pos = CommonUtil.toRange(typedBindingPatternNode.lineRange()).getStart();
         Position insertPos = new Position(pos.getLine(), pos.getCharacter());
         textEdits.add(new TextEdit(new Range(insertPos, insertPos),
-                SyntaxKind.LISTENER_KEYWORD.stringValue() + " "));
+                SyntaxKind.LISTENER_KEYWORD.stringValue().trim() + " "));
         String commandTitle = String.format(CommandConstants.CONVERT_MODULE_VAR_TO_LISTENER_DECLARATION,
-                matchedNode.toSourceCode());
+                matchedNode.toSourceCode().trim());
         actions.add(createQuickFixCodeAction(commandTitle, textEdits,
-                captureBindingPatternNodeFilePathPair.get().getRight()));
+                nodeUriPair.get().getRight()));
         return actions;
     }
 
@@ -93,10 +92,11 @@ public class ModVarToListenerDeclCodeAction extends AbstractCodeActionProvider {
                                                                                         CodeActionContext context) {
         Optional<Symbol> symbol = context.currentSemanticModel()
                 .flatMap(semanticModel -> semanticModel.symbol(matchedNode));
-        if (symbol.isEmpty() || context.currentSyntaxTree().isEmpty()) {
+        if (symbol.isEmpty() || context.currentSyntaxTree().isEmpty() 
+                || symbol.get().kind() != SymbolKind.VARIABLE) {
             return Optional.empty();
         }
-        NonTerminalNode foundNode;
+        Optional<NonTerminalNode> foundNode;
         String uri;
         if (matchedNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             //Todo: we need a proper API to get the syntax tree node. 
@@ -119,19 +119,14 @@ public class ModVarToListenerDeclCodeAction extends AbstractCodeActionProvider {
             foundNode = CommonUtil.findNode(symbol.get(), context.currentSyntaxTree().get());
             uri = context.fileUri();
         }
-        if (foundNode == null || foundNode.kind() != SyntaxKind.CAPTURE_BINDING_PATTERN) {
+        if (foundNode.isEmpty() || foundNode.get().kind() != SyntaxKind.CAPTURE_BINDING_PATTERN) {
             return Optional.empty();
         }
-        return Optional.of(Pair.of((CaptureBindingPatternNode) foundNode, uri));
-    }
-
-    @Override
-    public int priority() {
-        return super.priority();
+        return Optional.of(Pair.of((CaptureBindingPatternNode) foundNode.get(), uri));
     }
 
     @Override
     public String getName() {
-        return null;
+        return NAME;
     }
 }
