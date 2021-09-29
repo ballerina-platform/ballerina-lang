@@ -237,6 +237,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BLangMissingNodesHelper missingNodesHelper;
     private PackageCache packageCache;
     private List<BLangNode> intersectionTypes;
+    private Map<Name, Map<String, SemType>> modules;
 
     private SymbolEnv env;
     private final boolean projectAPIInitiatedCompilation;
@@ -274,6 +275,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.importedPackages = new ArrayList<>();
         this.unknownTypeRefs = new HashSet<>();
         this.intersectionTypes = new ArrayList<>();
+        this.modules = new HashMap<>();
 
         CompilerOptions options = CompilerOptions.getInstance(context);
         projectAPIInitiatedCompilation = Boolean.parseBoolean(
@@ -480,7 +482,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             modTable.put(getTypeOrClassName(typeAndClassDef), typeAndClassDef);
         }
         modTable = Collections.unmodifiableMap(modTable);
-
         constResolver.resolve(pkgEnv.enclPkg.constants, pkgEnv.enclPkg.packageID);
 
         for (BLangNode def : moduleDefs) {
@@ -493,6 +494,17 @@ public class SymbolEnter extends BLangNodeVisitor {
                 resolveTypeDefn(pkgEnv.enclPkg.semtypeEnv, modTable, typeDefinition, 0);
             }
         }
+        Map<String, SemType> modSemTable = new HashMap<>();
+        for (var entry : modTable.entrySet()) {
+            BLangNode def = entry.getValue();
+            if (def.getKind() == NodeKind.TYPE_DEFINITION) {
+                BLangTypeDefinition typDef = (BLangTypeDefinition) def;
+                if (typDef.getFlags().contains(Flag.PUBLIC)) {
+                    modSemTable.put(entry.getKey(), typDef.semType);
+                }
+            }
+        }
+        this.modules.put(pkgEnv.enclPkg.packageID.name, modSemTable);
     }
 
     private void resolveConstant(Env semtypeEnv, Map<String, BLangNode> modTable, BLangConstant constant) {
@@ -641,11 +653,19 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (td.pkgAlias.value.equals("int")) {
             return resolveIntSubtype(name);
         }
-
         BLangNode moduleLevelDef = mod.get(name);
         if (moduleLevelDef == null) {
-            dlog.error(td.pos, DiagnosticErrorCode.REFERENCE_TO_UNDEFINED_TYPE, td.typeName);
-            return null;
+            Map<String, SemType> impMod = modules.get(td.symbol.pkgID.name);
+            if (impMod == null) {
+                dlog.error(td.pos, DiagnosticErrorCode.MODULE_NOT_FOUND, td.typeName);
+                return null;
+            }
+            SemType semtype = impMod.get(name);
+            if (semtype == null) {
+                dlog.error(td.pos, DiagnosticErrorCode.REFERENCE_TO_UNDEFINED_TYPE, td.typeName);
+                return null;
+            }
+            return semtype;
         }
 
         if (moduleLevelDef.getKind() == NodeKind.TYPE_DEFINITION) {
@@ -864,7 +884,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         SymbolEnv prevEnv = this.env;
-        this.env = pkgEnv;
         this.env = prevEnv;
     }
 
