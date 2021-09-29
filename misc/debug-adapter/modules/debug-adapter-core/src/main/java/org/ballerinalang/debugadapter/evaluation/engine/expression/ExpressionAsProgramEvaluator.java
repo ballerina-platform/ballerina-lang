@@ -39,7 +39,7 @@ import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.ExternalNameReferenceFinder;
+import org.ballerinalang.debugadapter.evaluation.engine.ExternalVariableReferenceFinder;
 import org.ballerinalang.debugadapter.evaluation.engine.ModuleLevelDefinitionFinder;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.VariableUtils;
@@ -335,7 +335,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
 
     private void processSnippetFunctionParameters() throws EvaluationException {
         // Retrieves all the external (local + global) variables which are being used in the user expression.
-        List<String> capturedVarNames = new ArrayList<>(new ExternalNameReferenceFinder(syntaxNode)
+        List<String> capturedVarNames = new ArrayList<>(new ExternalVariableReferenceFinder(syntaxNode)
                 .getCapturedVariables());
         List<String> capturedTypes = new ArrayList<>();
         for (String name : capturedVarNames) {

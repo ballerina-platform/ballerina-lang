@@ -256,6 +256,51 @@
       "filterText": "on",
       "insertText": "on ",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "isolated",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "BQ",
+      "filterText": "isolated",
+      "insertText": "isolated ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "BQ",
+      "filterText": "object",
+      "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "BP",
+      "filterText": "object",
+      "insertText": "object {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "class",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "BQ",
+      "filterText": "class",
+      "insertText": "class ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "class",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "BP",
+      "filterText": "class",
+      "insertText": "class ${1:className} {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

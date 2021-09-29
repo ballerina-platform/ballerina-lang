@@ -610,8 +610,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
     }
 
     /**
-     * Provided a list of available qualifiers and the ultimate qualifier in a particular context,
-     * returns the possible completion items.
+     * Returns the completion items based on qualifiers of a given node.
      * <p>
      * Currently, isolated, transactional, client, service are considered qualifiers.
      *
@@ -620,28 +619,43 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      * @return
      */
     protected List<LSCompletionItem> getCompletionItemsOnQualifiers(Node node, BallerinaCompletionContext context) {
-        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(node);
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node);
+        if (qualifiers.isEmpty()) {
+            return completionItems;
+        }
         Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
         Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (lastQualifier.kind() == SyntaxKind.ISOLATED_KEYWORD) {
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SERVICE.get()));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
-            if (!qualKinds.contains(SyntaxKind.TRANSACTIONAL_KEYWORD)) {
+        switch (lastQualifier.kind()) {
+            case ISOLATED_KEYWORD:
+                if (qualKinds.contains(SyntaxKind.TRANSACTIONAL_KEYWORD)) {
+                    break;
+                }
+                //Objected type desc is added with type completion items in the following case.
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
+                if (qualKinds.contains(SyntaxKind.CLIENT_KEYWORD) ||
+                        qualKinds.contains(SyntaxKind.SERVICE_KEYWORD)) {
+                    break;
+                }
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SERVICE.get()));
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
                 completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
-            }
-        } else if (lastQualifier.kind() == SyntaxKind.TRANSACTIONAL_KEYWORD) {
-            if (!qualKinds.contains(SyntaxKind.ISOLATED_KEYWORD)) {
-                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
-            }
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
-        } else if (lastQualifier.kind() == SyntaxKind.CLIENT_KEYWORD ||
-                lastQualifier.kind() == SyntaxKind.SERVICE_KEYWORD) {
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()));
+                break;
+            case TRANSACTIONAL_KEYWORD:
+                if (!qualKinds.contains(SyntaxKind.ISOLATED_KEYWORD)) {
+                    completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
+                }
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+                break;
+            case CLIENT_KEYWORD:
+            case SERVICE_KEYWORD:
+                if (!qualKinds.contains(SyntaxKind.ISOLATED_KEYWORD)) {
+                    completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
+                }
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
+                completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()));
+                break;
+            default:
         }
         return completionItems;
     }
@@ -655,7 +669,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      */
     protected boolean onSuggestionsAfterQualifiers(BallerinaCompletionContext context, Node node) {
         int cursor = context.getCursorPositionInTree();
-        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(node);
+        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node);
         if (qualifiers.isEmpty()) {
             return false;
         }

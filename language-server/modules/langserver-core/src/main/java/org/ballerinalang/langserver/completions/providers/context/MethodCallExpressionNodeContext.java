@@ -15,16 +15,23 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link MethodCallExpressionNode} context.
@@ -41,8 +48,21 @@ public class MethodCallExpressionNodeContext extends FieldAccessContext<MethodCa
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, MethodCallExpressionNode node)
             throws LSCompletionException {
-        ExpressionNode expression = node.expression();
-        List<LSCompletionItem> completionItems = getEntries(context, expression);
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        if (this.withinParameterContext(context, node)) {
+            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+                QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
+                List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
+                List<LSCompletionItem> items = this.getCompletionItemList(exprEntries, context);
+                completionItems.addAll(items);
+            } else {
+                completionItems.addAll(this.actionKWCompletions(context));
+                completionItems.addAll(this.expressionCompletions(context));
+            }
+        } else {
+            ExpressionNode expression = node.expression();
+            completionItems = getEntries(context, expression);
+        }
         this.sort(context, node, completionItems);
 
         return completionItems;
@@ -54,11 +74,12 @@ public class MethodCallExpressionNodeContext extends FieldAccessContext<MethodCa
         Supports the following only
         eg:
         (1) abc.def.test<cursor>Method()
+        (2) abc.def.testMethod(<cursor>)
         With this check, the following example also will come to the methodCall navigating through the parent 
         hierarchy and skip properly
         eg:
-        (2) s<cursor>abc.def.testMethod()
-        (3) self.<cursor>Method()
+        (3) s<cursor>abc.def.testMethod()
+        (4) self.<cursor>Method()
          */
         int cursor = context.getCursorPositionInTree();
         NameReferenceNode nameRef = node.methodName();
@@ -66,5 +87,33 @@ public class MethodCallExpressionNodeContext extends FieldAccessContext<MethodCa
 
         return ((cursor >= nameRef.textRange().startOffset() && cursor <= nameRef.textRange().endOffset())
                 || (!dotToken.isMissing() && cursor > dotToken.textRange().startOffset()));
+    }
+
+    private boolean withinParameterContext(BallerinaCompletionContext context, MethodCallExpressionNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token openParen = node.openParenToken();
+        Token closeParen = node.closeParenToken();
+
+        return cursor > openParen.textRange().startOffset() && cursor < closeParen.textRange().endOffset();
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context,
+                     MethodCallExpressionNode node,
+                     List<LSCompletionItem> completionItems) {
+        if (!withinParameterContext(context, node)) {
+            super.sort(context, node, completionItems);
+            return;
+        }
+        Optional<TypeSymbol> parameterSymbol = context.getContextType();
+        if (parameterSymbol.isEmpty()) {
+            SortingUtil.toDefaultSorting(context, completionItems);
+            return;
+        }
+        TypeSymbol symbol = parameterSymbol.get();
+        for (LSCompletionItem completionItem : completionItems) {
+            completionItem.getCompletionItem()
+                    .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
+        }
     }
 }

@@ -2351,6 +2351,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         Map<BVarSymbol, BType.NarrowedTypes> prevNarrowedTypeInfo = this.narrowedTypeInfo;
 
+        // This map keeps the narrowed types of inner if statements and propagate the false types to the outer
+        // block when the flow goes from out of the else block in compile time.
+        Map<BVarSymbol, BType.NarrowedTypes> falseTypesOfNarrowedTypes = new HashMap<>();
+
         SymbolEnv ifEnv = typeNarrower.evaluateTruth(ifNode.expr, ifNode.body, env);
 
         this.narrowedTypeInfo = new HashMap<>();
@@ -2359,6 +2363,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (ifNode.expr.narrowedTypeInfo == null || ifNode.expr.narrowedTypeInfo.isEmpty()) {
             ifNode.expr.narrowedTypeInfo = this.narrowedTypeInfo;
+        } else {
+            Map<BVarSymbol, BType.NarrowedTypes> existingNarrowedTypeInfo = ifNode.expr.narrowedTypeInfo;
+            for (Map.Entry<BVarSymbol, BType.NarrowedTypes> entry : this.narrowedTypeInfo.entrySet()) {
+                BVarSymbol key = entry.getKey();
+                if (!existingNarrowedTypeInfo.containsKey(key)) {
+                    existingNarrowedTypeInfo.put(key, entry.getValue());
+                } else {
+                    BType.NarrowedTypes existingNarrowTypes = existingNarrowedTypeInfo.get(key);
+                    BUnionType unionType =
+                            BUnionType.create(null, existingNarrowTypes.trueType, existingNarrowTypes.falseType);
+                    BType.NarrowedTypes newPair = new BType.NarrowedTypes(existingNarrowTypes.trueType, unionType);
+                    falseTypesOfNarrowedTypes.put(key, newPair);
+                }
+            }
         }
 
         if (prevNarrowedTypeInfo != null) {
@@ -2370,6 +2388,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             analyzeStmt(ifNode.elseStmt, elseEnv);
         }
         this.narrowedTypeInfo = prevNarrowedTypeInfo;
+        if (narrowedTypeInfo != null) {
+            narrowedTypeInfo.putAll(falseTypesOfNarrowedTypes);
+        }
     }
 
     @Override

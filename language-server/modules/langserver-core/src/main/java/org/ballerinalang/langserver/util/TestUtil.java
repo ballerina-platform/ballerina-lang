@@ -519,7 +519,7 @@ public class TestUtil {
     public static Endpoint initializeLanguageSever(BallerinaLanguageServer languageServer) {
         return initializeLanguageSever(languageServer, OutputStream.nullOutputStream());
     }
-    
+
     public static Endpoint initializeLanguageSever(BallerinaLanguageServer languageServer, OutputStream out) {
         InputStream in = new ByteArrayInputStream(new byte[1024]);
         Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(languageServer,
