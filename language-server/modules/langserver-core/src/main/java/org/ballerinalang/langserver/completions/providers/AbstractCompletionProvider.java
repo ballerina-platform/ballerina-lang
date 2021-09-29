@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.completions.providers;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
@@ -49,6 +50,7 @@ import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -73,6 +75,7 @@ import org.ballerinalang.langserver.completions.builder.WorkerCompletionItemBuil
 import org.ballerinalang.langserver.completions.builder.XMLNSCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SnippetBlock;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -519,7 +522,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
-        // TODO: anon function expressions, 
+        completionItems.addAll(this.getAnonFunctionDefCompletions(context));
         return completionItems;
     }
 
@@ -684,5 +687,75 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         }
         Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
         return lastQualifier.textRange().endOffset() < cursor;
+    }
+
+    /**
+     * Get completions for anonymous function definition.
+     *
+     * @param context completion context.
+     * @return completion item
+     */
+    protected List<LSCompletionItem> getAnonFunctionDefCompletions(BallerinaCompletionContext context) {
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        Optional<TypeSymbol> typeSymbolAtCursor = context.getContextType();
+
+        if (typeSymbolAtCursor.isEmpty()) {
+            return Collections.emptyList();
+        }
+        
+        TypeSymbol symbol = typeSymbolAtCursor.get();
+        if (symbol.typeKind() == TypeDescKind.FUNCTION) {
+            FunctionTypeSymbol functionTypeSymbol = ((FunctionTypeSymbol) symbol);
+            List<String> args = new ArrayList<>();
+            int argIndex = 1;
+
+            Set<String> visibleSymbolNames = visibleSymbols
+                    .stream()
+                    .map(Symbol::getName)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toSet());
+                
+            if (functionTypeSymbol.params().isEmpty()) {
+                return Collections.emptyList();
+            }
+            // variable names
+            for (ParameterSymbol parameterSymbol : functionTypeSymbol.params().get()) {
+                String varName = "";
+                TypeSymbol parameterTypeSymbol = CommonUtil.getRawType(parameterSymbol.typeDescriptor());
+                varName = CommonUtil.generateParameterName(varName, argIndex, parameterTypeSymbol, 
+                        visibleSymbolNames);
+                args.add(FunctionGenerator.getParameterTypeAsString(context, parameterTypeSymbol) + " " + varName);
+                visibleSymbolNames.add(varName);
+                argIndex++;
+            }
+
+            Optional<TypeSymbol> returnTypeSymbol = functionTypeSymbol.returnTypeDescriptor();
+            if (returnTypeSymbol.isEmpty()) {
+                return Collections.emptyList();
+            }
+            
+            Optional<String> returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeSymbol.get());
+
+            String returnsClause = "";
+            String returnStmt = "";
+            if (returnType.isPresent()) {
+                // returns clause
+                returnsClause = "returns " + returnType.get();
+                // return statement
+                Optional<String> defaultReturnValue = CommonUtil.getDefaultValueForType(returnTypeSymbol.get());
+                if (defaultReturnValue.isPresent()) {
+                    returnStmt = "return " + defaultReturnValue.get() + CommonKeys.SEMI_COLON_SYMBOL_KEY;
+                }
+            }
+            String snippet = "function(" + String.join(", ", args) + ") " + returnsClause + " {" + 
+                    CommonUtil.LINE_SEPARATOR + "\t" + returnStmt + CommonUtil.LINE_SEPARATOR + "}${1}";
+            SnippetBlock snippetBlock = new SnippetBlock(ItemResolverConstants.ANON_FUNCTION, 
+                    ItemResolverConstants.ANON_FUNCTION, snippet, ItemResolverConstants.SNIPPET_TYPE, 
+                    SnippetBlock.Kind.SNIPPET);
+            completionItems.add(new SnippetCompletionItem(context, snippetBlock));
+        }
+        return completionItems;
     }
 }

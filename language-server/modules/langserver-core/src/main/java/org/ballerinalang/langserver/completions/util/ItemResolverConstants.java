@@ -60,6 +60,7 @@ public class ItemResolverConstants {
     public static final String DEFAULT = "default";
     public static final String ROLLBACK = "rollback";
 
+    public static final String ANON_FUNCTION = "anon function";
     public static final String FUNCTION = "function";
     public static final String FUNCTION_SIGNATURE = "function <name>();";
     public static final String MAIN_FUNCTION = "public main function";

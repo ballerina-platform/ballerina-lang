@@ -117,7 +117,8 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
                         && !symbol.getName().orElse("").equals(Names.ERROR.getValue()))
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
-
+        completionItems.addAll(this.getAnonFunctionDefCompletions(context));
+        
         return completionItems;
     }
 
