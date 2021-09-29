@@ -192,11 +192,12 @@ public class XMLLiteralTest {
                 "'xml:Text', found 'xml'", 122, 19);
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
                 "'xml:Text', found 'xml<xml>'", 124, 19);
+        BAssertUtil.validateError(negativeResult, index++, "missing xml CDATA end token", 128, 49);
 
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 
-    @Test(groups = {"disableOnOldParser"})
+    @Test
     public void testXMLSequence() {
         BRunUtil.invoke(result, "testXMLSequence");
     }
@@ -418,5 +419,10 @@ public class XMLLiteralTest {
     @Test
     public void testXMLTextValueAssignment() {
         BRunUtil.invoke(result, "testXMLTextValueAssignment");
+    }
+
+    @Test
+    public void testXMLCDATASection() {
+        BRunUtil.invoke(result, "testXMLCDATASection");
     }
 }

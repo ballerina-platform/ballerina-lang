@@ -82,11 +82,13 @@ dependencies {
 //    dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
 //    dist 'org.codehaus.woodstox:stax2-api:3.1.1'
 
+    dist project(':semtypes')
     dist project(':ballerina-core')
     dist project(':ballerina-lang')
     dist project(':ballerina-observability')
     dist project(':ballerina-cli')
     dist project(':ballerina-observability-internal')
+    dist project(':ballerina-io-internal')
 //    dist project(':ballerina-transactions')
     dist project(':ballerina-lang:jballerina.java')
     dist project(':metrics-extensions:ballerina-metrics-extension')

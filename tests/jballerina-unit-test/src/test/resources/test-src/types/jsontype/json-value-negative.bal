@@ -64,3 +64,11 @@ class Obj {
         self.i = 0;
     }
 }
+
+type MyJsonDiff ()|boolean|int|float|decimal|map<json>;
+
+public function testAssignabilityToUnion() {
+    MyJsonDiff|xml d = true;
+    json|xml e = d;
+    MyJsonDiff|xml f = e;
+}
