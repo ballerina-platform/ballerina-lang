@@ -4,4 +4,10 @@
         <Class name="org.ballerinalang.diagramutil.SyntaxTreeMapGenerator" />
         <Class name="org.ballerinalang.diagramutil.JSONGenerationException" />
     </Match>
+    <Match>
+        <Package name="org.ballerinalang.diagramutil.connector.*"/>
+    </Match>
+    <Match>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
 </FindBugsFilter>
