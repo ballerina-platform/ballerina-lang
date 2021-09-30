@@ -23,6 +23,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 
@@ -53,7 +54,6 @@ import static org.objectweb.asm.Opcodes.V1_8;
  */
 public class JvmTupleTypeConstantsGen {
 
-    private final Map<BTupleType, String> tupleTypeVarMap;
     private final String tupleVarConstantsClass;
     private int constantIndex = 0;
     private JvmCreateTypeGen jvmCreateTypeGen;
@@ -62,32 +62,16 @@ public class JvmTupleTypeConstantsGen {
     private int methodCount;
     private final List<String> funcNames;
     private final Queue<TypeNamePair> queue;
+    private final Map<BTupleType, String> tupleTypeVarMap;
 
     public JvmTupleTypeConstantsGen(PackageID packageID) {
-        tupleTypeVarMap = new ConcurrentSkipListMap<>(this::checkTupleEqualityInInts);
         tupleVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(
                 packageID, JvmConstants.BTUPLE_TYPE_CONSTANT_CLASS_NAME);
         generateTupleTypeConstantsClassInit();
         visitTupleTypeInitMethod();
         funcNames = new ArrayList<>();
         queue = new LinkedList<>();
-    }
-
-    private int checkTupleEqualityInInts(BTupleType o1, BTupleType o2) {
-        if (checkTupleEquality(o1, o2)) {
-            return 0;
-        }
-        return -1;
-    }
-
-    private boolean checkTupleEquality(BTupleType o1, BTupleType o2) {
-        if (o1 == o2) {
-            return true;
-        }
-        if (o1.tupleTypes.size() != o2.tupleTypes.size() || !o1.toString().equals(o2.toString())) {
-            return false;
-        }
-        return o1.flags == o2.flags && o1.isCyclic == o2.isCyclic;
+        tupleTypeVarMap = new ConcurrentSkipListMap<>(JvmConstantsGen.TYPE_HASH_COMPARATOR);
     }
 
     public synchronized void setJvmCreateTypeGen(JvmCreateTypeGen jvmCreateTypeGen) {
