@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.ClassLoaderReference;
 import com.sun.jdi.InvalidStackFrameException;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -162,6 +163,10 @@ public class SuspendedContext {
             debugCompiler = new DebugExpressionCompiler(this);
         }
         return debugCompiler;
+    }
+
+    public SemanticModel getSemanticInfo() {
+        return getDebugCompiler().getSemanticInfo();
     }
 
     public Optional<String> getFileName() {
