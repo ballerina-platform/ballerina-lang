@@ -1,0 +1,59 @@
+{
+  "endpoints": {
+    "-1047417278": {
+      "pkgID": "ballerina/http",
+      "name": "Client",
+      "baseUrl": "\"https://api.chucknorris.io/jokes/\"",
+      "pos": {
+        "filePath": "main.bal",
+        "startLine": {
+          "line": 8,
+          "offset": 12
+        },
+        "endLine": {
+          "line": 8,
+          "offset": 27
+        }
+      }
+    },
+    "-145416752": {
+      "pkgID": "ballerina/http",
+      "name": "Client",
+      "baseUrl": "\"https://api.chucknorris.io/jokes/\"",
+      "pos": {
+        "filePath": "giga.bal",
+        "startLine": {
+          "line": 2,
+          "offset": 12
+        },
+        "endLine": {
+          "line": 2,
+          "offset": 26
+        }
+      }
+    }
+  },
+  "actionInvocations": {
+    "nextNode": {
+      "endPointRef": -145416752,
+      "name": "get",
+      "path": "/random",
+      "pos": "main.bal(13:35,13:65)",
+      "nextNode": {
+        "ifBody": {
+          "ifBody": {
+            "endPointRef": -1047417278,
+            "name": "get",
+            "path": "/random3",
+            "pos": "main.bal(19:44,19:76)",
+            "nextNode": null
+          },
+          "elseBody": null,
+          "nextNode": null
+        },
+        "elseBody": null,
+        "nextNode": null
+      }
+    }
+  }
+}
