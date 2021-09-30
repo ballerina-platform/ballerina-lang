@@ -106,6 +106,7 @@
             <class name="io.ballerina.semantic.api.test.statements.SymbolsInMatchStmtTest" />
             <class name="io.ballerina.semantic.api.test.statements.SymbolsInLocalVarDeclStatements" />
             <class name="io.ballerina.semantic.api.test.statements.SymbolsInAssignmentStatements" />
+            <class name="io.ballerina.semantic.api.test.statements.SymbolsInCallStatements" />
 
             <!--Symbols-->
             <class name="io.ballerina.semantic.api.test.symbols.ClassSymbolTest" />
