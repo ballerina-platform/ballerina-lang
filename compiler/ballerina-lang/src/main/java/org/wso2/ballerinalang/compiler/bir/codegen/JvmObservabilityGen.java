@@ -249,7 +249,6 @@ class JvmObservabilityGen {
             if (desugaredPos != null && desugaredPos.lineRange().startLine().line() >= 0) {
                 BIRBasicBlock newBB = insertBasicBlock(func, i + 1);
                 swapBasicBlockContent(currentBB, newBB);
-                resetLocalVarEndBBs(func, currentBB, newBB);
                 injectCheckpointCall(func, currentBB, pkg, desugaredPos);
                 currentBB.terminator.thenBB = newBB;
                 // Fix error entries in the error entry table
@@ -423,7 +422,6 @@ class JvmObservabilityGen {
             BIRBasicBlock startBB = func.basicBlocks.get(0);    // Every non-abstract function should have function body
             BIRBasicBlock newStartBB = insertBasicBlock(func, 1);
             swapBasicBlockContent(startBB, newStartBB);
-            resetLocalVarEndBBs(func, startBB, newStartBB);
 
             if (isResource || isRemote) {
                 String resourcePathOrFunction = functionName;
@@ -540,7 +538,6 @@ class JvmObservabilityGen {
                 int newCurrentIndex = i + 2;
                 BIRBasicBlock newCurrentBB = insertBasicBlock(func, newCurrentIndex);
                 swapBasicBlockTerminator(currentBB, newCurrentBB);
-                resetLocalVarEndBBs(func, currentBB, newCurrentBB);
                 {   // Injecting the instrumentation points for invocations
                     BIROperand objectTypeOperand;
                     String action;
@@ -619,7 +616,6 @@ class JvmObservabilityGen {
                         BIRBasicBlock observeEndBB = insertBasicBlock(func, eeTargetIndex + 1);
                         BIRBasicBlock newTargetBB = insertBasicBlock(func, eeTargetIndex + 2);
                         swapBasicBlockContent(errorEntry.targetBB, newTargetBB);
-                        resetLocalVarEndBBs(func, errorEntry.targetBB, newTargetBB);
 
                         String uniqueId = String.format("%s$%s", INVOCATION_INSTRUMENTATION_TYPE,
                                 newCurrentBB.id.value); // Unique ID to work with EEs covering multiple BBs
@@ -884,22 +880,6 @@ class JvmObservabilityGen {
         BIRTerminator firstBBTerminator = firstBB.terminator;
         firstBB.terminator = secondBB.terminator;
         secondBB.terminator = firstBBTerminator;
-    }
-
-    /**
-     * Reset the endBBs of local variables after swap basic blocks content.
-     *
-     * @param func The function which have the local variables
-     * @param currentBB The current endBB of local variable
-     * @param newBB The new endBB of local variable
-     */
-
-    private void resetLocalVarEndBBs(BIRFunction func, BIRBasicBlock currentBB, BIRBasicBlock newBB) {
-        for (BIRVariableDcl localVar : func.localVars) {
-            if (localVar.endBB == currentBB) {
-                localVar.endBB = newBB;
-            }
-        }
     }
 
     /**
