@@ -96,8 +96,7 @@ public class BallerinaPackageServiceImpl implements BallerinaPackageService {
             try {
                 Arrays.stream(documentIdentifiers).iterator().forEachRemaining(documentIdentifier -> {
                     CommonUtil.getPathFromURI(documentIdentifier.getUri()).ifPresent(path -> {
-                        Optional<Project> project = this.workspaceManager.project(path);
-                        project.ifPresent(value -> jsonPackages.add(getPackageComponents(value)));
+                        jsonPackages.add(getPackageComponents(path));
                     });
                 });
                 response.setProjectPackages(jsonPackages);
@@ -112,26 +111,29 @@ public class BallerinaPackageServiceImpl implements BallerinaPackageService {
     /**
      * Generate a JSON Object with package component data including functions, services and resources.
      *
-     * @param project {@link Project}
+     * @param path {@link Path}
      * @return {@link JsonObject} with package components
      */
-    private JsonObject getPackageComponents(Project project) {
+    private JsonObject getPackageComponents(Path path) {
         JsonObject jsonPackage = new JsonObject();
+        Optional<Project> project = this.workspaceManager.project(path);
+        if (project.isEmpty()) {
+            return jsonPackage;
+        }
         JsonArray jsonModules = new JsonArray();
-        jsonPackage.addProperty(PackageServiceConstants.FILE_PATH, project.sourceRoot().toUri().toString());
-        Package currentPackage = project.currentPackage();
+        jsonPackage.addProperty(PackageServiceConstants.FILE_PATH, project.get().sourceRoot().toUri().toString());
+        Package currentPackage = project.get().currentPackage();
         jsonPackage.addProperty(PackageServiceConstants.NAME, currentPackage.packageName().value());
 
+        Optional<PackageCompilation> packageCompilation = this.workspaceManager.waitAndGetPackageCompilation(path);
+        if (packageCompilation.isEmpty()) {
+            return jsonPackage;
+        }
         currentPackage.moduleIds().forEach(moduleId -> {
             JsonObject jsonModule = new JsonObject();
-            Module module = project.currentPackage().module(moduleId);
+            Module module = currentPackage.module(moduleId);
             if (module.moduleName().moduleNamePart() != null) {
                 jsonModule.addProperty(PackageServiceConstants.NAME, module.moduleName().moduleNamePart());
-            }
-            Optional<PackageCompilation> packageCompilation =
-                    this.workspaceManager.waitAndGetPackageCompilation(project.sourceRoot());
-            if (packageCompilation.isEmpty()) {
-                return;
             }
             List<Symbol> symbolList = packageCompilation.get().getSemanticModel(moduleId).moduleSymbols();
 
