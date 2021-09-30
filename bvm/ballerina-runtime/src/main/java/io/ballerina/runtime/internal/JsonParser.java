@@ -167,7 +167,6 @@ public class JsonParser {
         private static final char BACKSPACE = 0x0008;
         private static final char FORMFEED = 0x000C;
         private static final char QUOTES = '"';
-        private static final char SINGLE_QUOTES = '\'';
         private static final char REV_SOL = '\\';
         private static final char SOL = '/';
         private static final char EOF = (char) -1;
@@ -375,7 +374,7 @@ public class JsonParser {
                     } else if (StateMachine.isWhitespace(ch)) {
                         state = this;
                         continue;
-                    } else if (ch == QUOTES || ch == SINGLE_QUOTES) {
+                    } else if (ch == QUOTES) {
                         sm.currentQuoteChar = ch;
                         state = STRING_VALUE_STATE;
                     } else if (ch == EOF) {
@@ -431,7 +430,7 @@ public class JsonParser {
                 for (; i < count; i++) {
                     ch = buff[i];
                     sm.processLocation(ch);
-                    if (ch == QUOTES || ch == SINGLE_QUOTES) {
+                    if (ch == QUOTES) {
                         state = FIELD_NAME_STATE;
                         sm.currentQuoteChar = ch;
                     } else if (StateMachine.isWhitespace(ch)) {
@@ -465,7 +464,7 @@ public class JsonParser {
                     if (StateMachine.isWhitespace(ch)) {
                         state = this;
                         continue;
-                    } else if (ch == QUOTES || ch == SINGLE_QUOTES) {
+                    } else if (ch == QUOTES) {
                         state = STRING_ARRAY_ELEMENT_STATE;
                         sm.currentQuoteChar = ch;
                     } else if (ch == '{') {
@@ -501,7 +500,7 @@ public class JsonParser {
                 for (; i < count; i++) {
                     ch = buff[i];
                     sm.processLocation(ch);
-                    if (ch == QUOTES || ch == SINGLE_QUOTES) {
+                    if (ch == QUOTES) {
                         sm.currentQuoteChar = ch;
                         state = FIELD_NAME_STATE;
                     } else if (StateMachine.isWhitespace(ch)) {
@@ -533,7 +532,7 @@ public class JsonParser {
                     if (StateMachine.isWhitespace(ch)) {
                         state = this;
                         continue;
-                    } else if (ch == QUOTES || ch == SINGLE_QUOTES) {
+                    } else if (ch == QUOTES) {
                         state = STRING_ARRAY_ELEMENT_STATE;
                         sm.currentQuoteChar = ch;
                     } else if (ch == '{') {
@@ -640,7 +639,7 @@ public class JsonParser {
                     if (StateMachine.isWhitespace(ch)) {
                         state = this;
                         continue;
-                    } else if (ch == QUOTES || ch == SINGLE_QUOTES) {
+                    } else if (ch == QUOTES) {
                         state = STRING_FIELD_VALUE_STATE;
                         sm.currentQuoteChar = ch;
                     } else if (ch == '{') {
