@@ -112,10 +112,12 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         SemanticModel semanticModel = context.workspace().semanticModel(filePath.get()).orElseThrow();
 
         FunctionCallExpressionTypeFinder typeFinder = new FunctionCallExpressionTypeFinder(semanticModel);
-        Optional<TypeSymbol> returnTypeSymbol = typeFinder.typeOf(fnCallExprNode.get());
+        fnCallExprNode.get().accept(typeFinder);
+        Optional<TypeSymbol> returnTypeSymbol = typeFinder.getReturnTypeSymbol();
+        Optional<TypeDescKind> returnTypeDescKind = typeFinder.getReturnTypeDescKind();
 
-        // Return type symbol of kind compilation error is treated as void
-        if (returnTypeSymbol.isEmpty()) {
+        // If both return type symbol and return type desc kind is empty, cannot proceed.
+        if (returnTypeSymbol.isEmpty() && returnTypeDescKind.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -189,9 +191,16 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             insertRange = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
         }
 
-        // Generate function
-        String function = FunctionGenerator.generateFunction(docServiceContext, !newLineAtEnd, functionName,
-                args, returnTypeSymbol.get());
+        // Generate function. We have to check if we have a return type symbol or a return type desc kind. Depending
+        // on that, we need to use separate APIs.
+        String function;
+        if (returnTypeSymbol.isPresent()) {
+            function = FunctionGenerator.generateFunction(docServiceContext, !newLineAtEnd, functionName,
+                    args, returnTypeSymbol.get());
+        } else {
+            function = FunctionGenerator.generateFunction(docServiceContext, !newLineAtEnd, functionName,
+                    args, returnTypeDescKind.get());
+        }
 
         edits.add(new TextEdit(insertRange, function));
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits);

@@ -23,7 +23,9 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerina.compiler.syntax.tree.LetExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -39,30 +41,20 @@ import java.util.Optional;
 
 /**
  * Finds the expected {@link TypeSymbol} of a provided {@link FunctionCallExpressionNode} node. This will try its
- * best to return a valid {@link TypeSymbol}. Else, the returned result will probably be a
- * {@link TypeDescKind#COMPILATION_ERROR}. Rarely, will return {@code null}.
+ * best to return a valid {@link TypeSymbol}. Else, it will try to find the {@link TypeDescKind} of the expected return
+ * type.
  *
  * @since 2.0.0
  */
 public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     private final SemanticModel semanticModel;
-    private TypeSymbol result;
+    private TypeSymbol returnTypeSymbol;
+    private TypeDescKind returnTypeDescKind;
     private boolean resultFound = false;
 
     public FunctionCallExpressionTypeFinder(SemanticModel semanticModel) {
         this.semanticModel = semanticModel;
-    }
-
-    /**
-     * Search for the type symbol of the provided function call expression node.
-     *
-     * @param fnCallExprNode function call expression node whose type requires to be found
-     * @return Optional of a valid type, compilation error type or null
-     */
-    public Optional<TypeSymbol> typeOf(FunctionCallExpressionNode fnCallExprNode) {
-        fnCallExprNode.accept(this);
-        return Optional.ofNullable(result);
     }
 
     @Override
@@ -89,11 +81,24 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     public void visit(VariableDeclarationNode variableDeclarationNode) {
         Symbol symbol = semanticModel.symbol(variableDeclarationNode).orElse(null);
         TypeSymbol typeDescriptor = SymbolUtil.getTypeDescriptor(symbol).orElse(null);
-        checkAndSetTypeResult(typeDescriptor);    }
+        checkAndSetTypeResult(typeDescriptor);
+    }
 
     @Override
     public void visit(SpecificFieldNode specificFieldNode) {
         TypeSymbol typeSymbol = semanticModel.type(specificFieldNode).orElse(null);
+        checkAndSetTypeResult(typeSymbol);
+    }
+
+    @Override
+    public void visit(BinaryExpressionNode binaryExpressionNode) {
+        TypeSymbol typeSymbol = semanticModel.typeOf(binaryExpressionNode.lhsExpr()).orElse(null);
+        checkAndSetTypeResult(typeSymbol);
+        if (resultFound) {
+            return;
+        }
+
+        typeSymbol = semanticModel.typeOf(binaryExpressionNode.rhsExpr()).orElse(null);
         checkAndSetTypeResult(typeSymbol);
     }
 
@@ -117,8 +122,8 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     @Override
     public void visit(StartActionNode startActionNode) {
         startActionNode.parent().accept(this);
-        if (resultFound && result.typeKind() == TypeDescKind.FUTURE) {
-            FutureTypeSymbol futureTypeSymbol = (FutureTypeSymbol) result;
+        if (resultFound && returnTypeSymbol.typeKind() == TypeDescKind.FUTURE) {
+            FutureTypeSymbol futureTypeSymbol = (FutureTypeSymbol) returnTypeSymbol;
             TypeSymbol typeSymbol = futureTypeSymbol.typeParameter().orElse(null);
             checkAndSetTypeResult(typeSymbol);
         }
@@ -131,7 +136,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
             return;
         }
 
-        TypeSymbol typeSymbol = semanticModel.type(fnCallExprNode).orElse(null);
+        TypeSymbol typeSymbol = semanticModel.typeOf(fnCallExprNode).orElse(null);
         checkAndSetTypeResult(typeSymbol);
         if (resultFound) {
             return;
@@ -147,6 +152,12 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     }
 
     @Override
+    public void visit(IfElseStatementNode ifElseStatementNode) {
+        this.returnTypeDescKind = TypeDescKind.BOOLEAN;
+        this.returnTypeSymbol = null;
+    }
+
+    @Override
     protected void visitSyntaxNode(Node node) {
         // Do nothing
     }
@@ -156,9 +167,17 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
             return;
         }
 
-        result = typeSymbol;
+        this.returnTypeSymbol = typeSymbol;
         if (typeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
             resultFound = true;
         }
+    }
+
+    public Optional<TypeSymbol> getReturnTypeSymbol() {
+        return Optional.ofNullable(returnTypeSymbol);
+    }
+
+    public Optional<TypeDescKind> getReturnTypeDescKind() {
+        return Optional.ofNullable(returnTypeDescKind);
     }
 }
