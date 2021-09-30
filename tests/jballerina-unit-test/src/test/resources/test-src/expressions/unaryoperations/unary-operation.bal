@@ -185,19 +185,39 @@ function testUnaryOperationsWithNonBasicTypes() {
     int? a2 = ++i;
     int? a3 = ~i;
     int? a4 = +~i;
+    anydata a5 = +i;
+    int|float a6 = -i;
 
     float f = -5.2;
-    float? a5 = +f;
+    float? a7 = +f;
+    anydata a8 = -f;
 
     decimal d = 7.45;
-    decimal? a6 = +d;
+    decimal? a9 = +d;
+    anydata a10 = -d;
+    decimal|int a11 = +-d;
+    anydata a12 = ++d;
+
+    int:Signed16 s = 16;
+    anydata a13 = ++s;
+    int? a14 = +-s;
+    int|decimal a15 = +~s;
 
     test:assertEquals(a1, 5);
     test:assertEquals(a2, 5);
     test:assertEquals(a3, -6);
     test:assertEquals(a4, -6);
-    test:assertEquals(a5, -5.2);
-    test:assertEquals(a6, 7.45d);
+    test:assertEquals(a5, 5);
+    test:assertEquals(a6, -5);
+    test:assertEquals(a7, -5.2);
+    test:assertEquals(a8, 5.2);
+    test:assertEquals(a9, 7.45d);
+    test:assertEquals(a10, -7.45d);
+    test:assertEquals(a11, -7.45d);
+    test:assertEquals(a12, 7.45d);
+    test:assertEquals(a13, 16);
+    test:assertEquals(a14, -16);
+    test:assertEquals(a15, -17);
 }
 
 function assertEquality(anydata expected, anydata actual) {
