@@ -45,7 +45,7 @@ import org.testng.annotations.Test;
 public class JSONTest {
 
     private CompileResult compileResult;
-    private static final String json1 = "{'name':{'fname':'Jack','lname':'Taylor'}, 'state':'CA', 'age':20}";
+    private static final String json1 = "{\"name\":{\"fname\":\"Jack\",\"lname\":\"Taylor\"}, \"state\":\"CA\", \"age\":20}";
 
     @BeforeClass
     public void setup() {
