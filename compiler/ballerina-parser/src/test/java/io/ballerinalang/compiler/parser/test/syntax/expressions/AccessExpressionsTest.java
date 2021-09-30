@@ -111,6 +111,8 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
     @Test
     public void testAccessExpressionRecovery() {
         test("x + a b() c. d", "access-expr/field_access_expr_assert_05.json");
+        testFile("access-expr/field_access_expr_source_06.bal", "access-expr/field_access_expr_assert_06.json");
+        testFile("access-expr/field_access_expr_source_07.bal", "access-expr/field_access_expr_assert_07.json");
     }
 
     @Test
