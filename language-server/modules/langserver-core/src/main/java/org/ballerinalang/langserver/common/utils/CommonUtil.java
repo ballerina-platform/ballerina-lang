@@ -386,14 +386,16 @@ public class CommonUtil {
                 return getDefaultValueForTypeDescKind(typeKind);
         }
         
-        return Optional.ofNullable(typeString);
+        return Optional.of(typeString);
     }
 
     /**
-     * Used to get the default values for a {@link TypeDescKind}.
-     * @see #getDefaultValueForType(TypeSymbol) which is preferred over this function. This function should be used as a compliment to .
+     * Used to get the default values for a {@link TypeDescKind}. {@link #getDefaultValueForType(TypeSymbol)}
+     * is preferred over this function. This function should be used as a compliment to .
+     *
      * @param typeKind Type desc kind
      * @return Optional default value
+     * @see #getDefaultValueForType(TypeSymbol)
      */
     public static Optional<String> getDefaultValueForTypeDescKind(TypeDescKind typeKind) {
         String defaultValue = null;
