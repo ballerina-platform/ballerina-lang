@@ -19,9 +19,11 @@ package org.ballerinalang.langserver.command.visitors;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
@@ -86,8 +88,9 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     @Override
     public void visit(SpecificFieldNode specificFieldNode) {
-        TypeSymbol typeSymbol = semanticModel.type(specificFieldNode).orElse(null);
-        checkAndSetTypeResult(typeSymbol);
+        semanticModel.symbol(specificFieldNode)
+                .map(symbol -> (RecordFieldSymbol) symbol)
+                .ifPresent(recordFieldSymbol -> checkAndSetTypeResult(recordFieldSymbol.typeDescriptor()));
     }
 
     @Override
@@ -104,7 +107,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     @Override
     public void visit(LetExpressionNode letExpressionNode) {
-        TypeSymbol typeSymbol = semanticModel.type(letExpressionNode).orElse(null);
+        TypeSymbol typeSymbol = semanticModel.typeOf(letExpressionNode).orElse(null);
         checkAndSetTypeResult(typeSymbol);
         if (resultFound) {
             return;
@@ -115,8 +118,11 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     @Override
     public void visit(LetVariableDeclarationNode letVariableDeclarationNode) {
-        TypeSymbol typeSymbol = semanticModel.type(letVariableDeclarationNode).orElse(null);
-        checkAndSetTypeResult(typeSymbol);
+        Optional<Symbol> symbol1 = semanticModel.symbol(letVariableDeclarationNode);
+
+        symbol1.map(symbol -> (VariableSymbol) symbol)
+                .map(VariableSymbol::typeDescriptor)
+                .ifPresent(this::checkAndSetTypeResult);
     }
 
     @Override
@@ -147,8 +153,9 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     @Override
     public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
-        TypeSymbol typeSymbol = semanticModel.type(simpleNameReferenceNode).orElse(null);
-        checkAndSetTypeResult(typeSymbol);
+        semanticModel.symbol(simpleNameReferenceNode)
+                .flatMap(SymbolUtil::getTypeDescriptor)
+                .ifPresent(this::checkAndSetTypeResult);
     }
 
     @Override

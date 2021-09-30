@@ -101,6 +101,7 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 {"create_function_in_if_statement1.json", "create_function_in_if_statement1.bal"},
                 {"create_function_in_if_statement2.json", "create_function_in_if_statement2.bal"},
                 {"create_function_in_if_statement3.json", "create_function_in_if_statement3.bal"},
+                {"create_function_in_if_statement4.json", "create_function_in_if_statement4.bal"},
                 
                 {"create_function_in_expression1.json", "create_function_in_expression1.bal"},
         };
