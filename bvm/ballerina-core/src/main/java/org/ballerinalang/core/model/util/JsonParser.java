@@ -205,7 +205,7 @@ public class JsonParser {
         }
         
         private static void throwExpected(String... chars) throws JsonParserException {
-            throw new JsonParserException("expected " + String.join(" or ", chars));
+            throw new JsonParserException("expected '" + String.join("' or '", chars) + "'");
         }
         
         private void processLocation(char ch) {
