@@ -36,7 +36,6 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
