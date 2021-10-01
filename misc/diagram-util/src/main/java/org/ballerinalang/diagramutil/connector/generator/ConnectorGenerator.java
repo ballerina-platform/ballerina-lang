@@ -189,9 +189,16 @@ public class ConnectorGenerator {
                 optDisplayAnnotation.get().annotValue().get().fields().forEach(mappingFieldNode -> {
                     if (mappingFieldNode instanceof SpecificFieldNode) {
                         SpecificFieldNode fieldNode = (SpecificFieldNode) mappingFieldNode;
-                        finalDisplayAnnotation.put(fieldNode.fieldName().toString(),
-                                fieldNode.valueExpr().isPresent() ? fieldNode.valueExpr().get()
-                                        .toSourceCode().replace("\"", "") : "");
+                        if (fieldNode.fieldName().toString().equals("label") ||
+                                fieldNode.fieldName().toString().equals("iconPath")) {
+                            finalDisplayAnnotation.put(fieldNode.fieldName().toString(),
+                                    fieldNode.valueExpr().isPresent() ?
+                                            fieldNode.valueExpr().get().toSourceCode().replace("\"", "") : "");
+                        } else {
+                            finalDisplayAnnotation.put(fieldNode.fieldName().toString(),
+                                    fieldNode.valueExpr().isPresent() ?
+                                            fieldNode.valueExpr().get().toSourceCode() : "");
+                        }
                     }
                 });
                 displayAnnotation = finalDisplayAnnotation;
