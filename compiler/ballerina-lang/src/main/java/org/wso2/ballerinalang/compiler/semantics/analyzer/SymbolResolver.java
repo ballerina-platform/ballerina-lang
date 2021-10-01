@@ -1799,6 +1799,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (validIntTypesExists) {
             switch (opKind) {
                 case BITWISE_LEFT_SHIFT:
+                    if (lhsType.isNullable() || rhsType.isNullable()) {
+                        BType intOptional = BUnionType.create(null, symTable.intType, symTable.nilType);
+                        return createBinaryOperator(opKind, lhsType, rhsType, intOptional);
+                    }
                     return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
                 case BITWISE_RIGHT_SHIFT:
                 case BITWISE_UNSIGNED_RIGHT_SHIFT:
@@ -1809,6 +1813,10 @@ public class SymbolResolver extends BLangNodeVisitor {
                         case TypeTags.BYTE:
                             return createBinaryOperator(opKind, lhsType, rhsType, lhsType);
                         default:
+                            if (lhsType.isNullable() || rhsType.isNullable()) {
+                                BType intOptional = BUnionType.create(null, symTable.intType, symTable.nilType);
+                                return createBinaryOperator(opKind, lhsType, rhsType, intOptional);
+                            }
                             return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
                     }
             }
@@ -1886,9 +1894,17 @@ public class SymbolResolver extends BLangNodeVisitor {
                         case TypeTags.UNSIGNED32_INT:
                             return createBinaryOperator(opKind, lhsType, rhsType, rhsType);
                     }
+                    if (lhsType.isNullable() || rhsType.isNullable()) {
+                        BType intOptional = BUnionType.create(null, symTable.intType, symTable.nilType);
+                        return createBinaryOperator(opKind, lhsType, rhsType, intOptional);
+                    }
                     return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
                 case BITWISE_OR:
                 case BITWISE_XOR:
+                    if (lhsType.isNullable() || rhsType.isNullable()) {
+                        BType intOptional = BUnionType.create(null, symTable.intType, symTable.nilType);
+                        return createBinaryOperator(opKind, lhsType, rhsType, intOptional);
+                    }
                     return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
             }
         }
@@ -1988,6 +2004,10 @@ public class SymbolResolver extends BLangNodeVisitor {
                     if ((types.get(i).getKind() == TypeKind.UNION) &&
                             (opType.paramTypes.get(i).getKind() == TypeKind.UNION)) {
                         if (types.get(i).isNullable() && opType.paramTypes.get(i).isNullable()) {
+                            if (((BUnionType) types.get(i)).getMemberTypes().size() > 2) {
+                                match = false;
+                                continue;
+                            }
                             Iterator<BType> nilLiftTypes = ((BUnionType) types.get(i)).getMemberTypes().iterator();
                             BType nilLiftTypeOne = null;
                             while (nilLiftTypes.hasNext()) {

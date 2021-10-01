@@ -6850,10 +6850,33 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangStatementExpression createStmtExprForNullableBinaryExpr(BLangBinaryExpr binaryExpr) {
+        /*
+         * int? x = 3;
+         * int? y = 5;
+         * int? z = x + y;
+         * Above is desugar to
+         * int? $result$;
+         * if (x is null or y is null) {
+         *    $result$ = null;
+         * } else {
+         *    $result$ = x + y;
+         * }
+         *
+         */
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(binaryExpr.pos);
 
         BUnionType exprBType = (BUnionType) binaryExpr.getBType();
         BType nilLiftType = exprBType.getMemberTypes().iterator().next();
+
+        BType rhsType = binaryExpr.rhsExpr.getBType();
+        if (rhsType.isNullable()) {
+            rhsType = getNilLiftType((BUnionType) rhsType);
+        }
+
+        BType lhsType = binaryExpr.lhsExpr.getBType();
+        if (lhsType.isNullable()) {
+            lhsType = getNilLiftType((BUnionType) lhsType);
+        }
 
         if (binaryExpr.lhsExpr.getBType().isNullable()) {
             binaryExpr.lhsExpr = rewriteExpr(binaryExpr.lhsExpr);
@@ -6886,8 +6909,8 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangBinaryExpr newBinaryExpr = ASTBuilderUtil.createBinaryExpr(binaryExpr.pos, binaryExpr.lhsExpr,
                 binaryExpr.rhsExpr, nilLiftType, binaryExpr.opKind, binaryExpr.opSymbol);
-        newBinaryExpr.lhsExpr = createTypeCastExpr(newBinaryExpr.lhsExpr, nilLiftType);
-        newBinaryExpr.rhsExpr = createTypeCastExpr(newBinaryExpr.rhsExpr, nilLiftType);
+        newBinaryExpr.lhsExpr = createTypeCastExpr(newBinaryExpr.lhsExpr, lhsType);
+        newBinaryExpr.rhsExpr = createTypeCastExpr(newBinaryExpr.rhsExpr, rhsType);
         bLangAssignmentElse.expr = newBinaryExpr;
 
         BLangIf ifStatement = ASTBuilderUtil.createIfStmt(binaryExpr.pos, blockStmt);
@@ -6971,6 +6994,22 @@ public class Desugar extends BLangNodeVisitor {
 
         binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
         binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+    }
+
+    private BType getNilLiftType(BUnionType type) {
+        if (type.getMemberTypes().size() > 2) {
+            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+            Iterator<BType> memberTypesIterator = type.getMemberTypes().iterator();
+            while (memberTypesIterator.hasNext()) {
+                BType memberType = memberTypesIterator.next();
+                if (memberType.tag != TypeTags.NIL) {
+                    memberTypes.add(memberType);
+                }
+            }
+            return BUnionType.create(null, memberTypes);
+        } else {
+            return ((BUnionType) type).getMemberTypes().iterator().next();
+        }
     }
 
     private void createTypeCastExprForRelationalExpr(BLangBinaryExpr binaryExpr, int lhsExprTypeTag,
@@ -7129,6 +7168,18 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangStatementExpression createStmtExprForNullableUnaryExpr(BLangUnaryExpr unaryExpr) {
+        /*
+         * int? x = 3;
+         * int? y = +x;
+         * Above is desugar to
+         * int? $result$;
+         * if (x is null) {
+         *    $result$ = null;
+         * } else {
+         *    $result$ = +x;
+         * }
+         *
+         */
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(unaryExpr.pos);
 
         BUnionType exprBType = (BUnionType) unaryExpr.getBType();

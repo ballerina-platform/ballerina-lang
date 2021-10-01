@@ -200,6 +200,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -4008,18 +4009,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
         checkDecimalCompatibilityForBinaryArithmeticOverLiteralValues(binaryExpr);
 
-        BType nilLiftType = null;
-
-        if (isNullableBinaryExpr(binaryExpr)) {
-            BUnionType exprBType = (BUnionType) binaryExpr.expectedType;
-            nilLiftType = exprBType.getMemberTypes().iterator().next();
-        }
-
         SymbolEnv rhsExprEnv;
         BType lhsType;
         if (binaryExpr.expectedType.tag == TypeTags.FLOAT || binaryExpr.expectedType.tag == TypeTags.DECIMAL ||
-                (isNullableBinaryExpr(binaryExpr) &&
-                        (nilLiftType.tag == TypeTags.FLOAT || nilLiftType.tag == TypeTags.DECIMAL))) {
+                checkExpectedTypeNillableFloatOrDecimal(binaryExpr)) {
             lhsType = checkAndGetType(binaryExpr.lhsExpr, env, binaryExpr);
         } else {
             lhsType = checkExpr(binaryExpr.lhsExpr, env);
@@ -4036,8 +4029,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType rhsType;
 
         if (binaryExpr.expectedType.tag == TypeTags.FLOAT || binaryExpr.expectedType.tag == TypeTags.DECIMAL ||
-                (isNullableBinaryExpr(binaryExpr) &&
-                        (nilLiftType.tag == TypeTags.FLOAT || nilLiftType.tag == TypeTags.DECIMAL))) {
+                checkExpectedTypeNillableFloatOrDecimal(binaryExpr)) {
             rhsType = checkAndGetType(binaryExpr.rhsExpr, rhsExprEnv, binaryExpr);
         } else {
             rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
@@ -4097,16 +4089,28 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(binaryExpr, actualType, expType);
     }
 
-    private boolean isNullableBinaryExpr(BLangBinaryExpr binaryExpr) {
-        if (binaryExpr.expectedType.isNullable() && binaryExpr.expectedType.tag != TypeTags.ANY) {
+    private boolean checkExpectedTypeNillableFloatOrDecimal(BLangBinaryExpr binaryExpr) {
+        boolean validOperator = false;
+        BType expectedType = binaryExpr.expectedType;
+        if (expectedType.isNullable() && expectedType.tag != TypeTags.ANY) {
             switch (binaryExpr.getOperatorKind()) {
                 case ADD:
                 case SUB:
                 case MUL:
                 case DIV:
                 case MOD:
-                    return true;
+                    validOperator = true;
             }
+        }
+        if (validOperator) {
+            Iterator<BType> memberTypeIterator = ((BUnionType) expectedType).getMemberTypes().iterator();
+            while (memberTypeIterator.hasNext()) {
+                BType memberType = memberTypeIterator.next();
+                if (memberType.tag == TypeTags.FLOAT || memberType.tag == TypeTags.DECIMAL) {
+                    return true;
+                }
+            }
+
         }
         return false;
     }

@@ -3672,7 +3672,7 @@ public class Types {
     boolean validNumericTypeExists(BType type) {
 
         if (type.isNullable() && type.tag != TypeTags.ANY && type.tag != TypeTags.NIL) {
-            type = ((BUnionType) type).getMemberTypes().iterator().next();
+            type = getNilLiftType((BUnionType) type);
         }
         if (isBasicNumericType(type)) {
             return true;
@@ -3720,6 +3720,22 @@ public class Types {
         }
     }
 
+    private BType getNilLiftType(BUnionType type) {
+        if (type.getMemberTypes().size() > 2) {
+            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+            Iterator<BType> memberTypesIterator = type.getMemberTypes().iterator();
+            while (memberTypesIterator.hasNext()) {
+                BType memberType = memberTypesIterator.next();
+                if (memberType.tag != TypeTags.NIL) {
+                    memberTypes.add(memberType);
+                }
+            }
+            return BUnionType.create(null, memberTypes);
+        } else {
+            return ((BUnionType) type).getMemberTypes().iterator().next();
+        }
+    }
+
     private boolean checkValidNumericTypesInUnion(BType memType, int firstTypeTag) {
         if (memType.tag != firstTypeTag && !checkTypesBelongToInt(memType.tag, firstTypeTag)) {
             return false;
@@ -3733,6 +3749,9 @@ public class Types {
     }
 
     boolean validIntegerTypeExists(BType type) {
+        if (type.isNullable() && type.tag != TypeTags.ANY && type.tag != TypeTags.NIL) {
+            type = getNilLiftType((BUnionType) type);
+        }
         if (TypeTags.isIntegerTypeTag(type.tag)) {
             return true;
         }
