@@ -111,16 +111,6 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
 
         SemanticModel semanticModel = context.workspace().semanticModel(filePath.get()).orElseThrow();
 
-        FunctionCallExpressionTypeFinder typeFinder = new FunctionCallExpressionTypeFinder(semanticModel);
-        fnCallExprNode.get().accept(typeFinder);
-        Optional<TypeSymbol> returnTypeSymbol = typeFinder.getReturnTypeSymbol();
-        Optional<TypeDescKind> returnTypeDescKind = typeFinder.getReturnTypeDescKind();
-
-        // If both return type symbol and return type desc kind is empty, cannot proceed.
-        if (returnTypeSymbol.isEmpty() && returnTypeDescKind.isEmpty()) {
-            return Collections.emptyList();
-        }
-
         LineRange rootLineRange = syntaxTree.rootNode().lineRange();
         int endLine = rootLineRange.endLine().line() + 1;
         int endCol = 0;
@@ -191,15 +181,22 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             insertRange = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
         }
 
+        FunctionCallExpressionTypeFinder typeFinder = new FunctionCallExpressionTypeFinder(semanticModel);
+        typeFinder.findTypeOf(fnCallExprNode.get());
+        Optional<TypeSymbol> returnTypeSymbol = typeFinder.getReturnTypeSymbol();
+        Optional<TypeDescKind> returnTypeDescKind = typeFinder.getReturnTypeDescKind();
+
         // Generate function. We have to check if we have a return type symbol or a return type desc kind. Depending
         // on that, we need to use separate APIs.
         String function;
         if (returnTypeSymbol.isPresent()) {
             function = FunctionGenerator.generateFunction(docServiceContext, !newLineAtEnd, functionName,
                     args, returnTypeSymbol.get());
-        } else {
+        } else if (returnTypeDescKind.isPresent()) {
             function = FunctionGenerator.generateFunction(docServiceContext, !newLineAtEnd, functionName,
                     args, returnTypeDescKind.get());
+        } else {
+            return Collections.emptyList();
         }
 
         edits.add(new TextEdit(insertRange, function));

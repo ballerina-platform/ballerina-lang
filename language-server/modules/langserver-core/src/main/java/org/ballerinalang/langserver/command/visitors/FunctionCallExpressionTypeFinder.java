@@ -59,6 +59,10 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
         this.semanticModel = semanticModel;
     }
 
+    public void findTypeOf(FunctionCallExpressionNode functionCallExpressionNode) {
+        functionCallExpressionNode.accept(this);
+    }
+
     @Override
     public void visit(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
         Symbol symbol = semanticModel.symbol(moduleVariableDeclarationNode).orElse(null);
@@ -180,10 +184,22 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
         }
     }
 
+    /**
+     * Get the type symbol of the return type of the function call expression provided to this instance. Should be
+     * invoked after invoking {@link #findTypeOf(FunctionCallExpressionNode)}.
+     *
+     * @return Optional type symbol of the return type of function call expression
+     */
     public Optional<TypeSymbol> getReturnTypeSymbol() {
         return Optional.ofNullable(returnTypeSymbol);
     }
 
+    /**
+     * Get the type descriptor kind of the return type of the function call expression. Should be used when
+     * {@link #getReturnTypeSymbol()} returns empty.
+     *
+     * @return Return type descriptor kind
+     */
     public Optional<TypeDescKind> getReturnTypeDescKind() {
         return Optional.ofNullable(returnTypeDescKind);
     }
