@@ -32,6 +32,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.nio.file.Path;
+
 /**
  * Test class for log points related debug scenarios.
  */
@@ -48,7 +50,7 @@ public class LogPointTest extends BaseTestCase {
 
     @Test
     public void testConditionalBreakpointScenarios() throws BallerinaTestException {
-        String filePath = debugTestRunner.testEntryFilePath;
+        Path filePath = debugTestRunner.testEntryFilePath;
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 29));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 34, "y == 3", "LogPoint: 1"));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 44, "capital == \"London\"", null));

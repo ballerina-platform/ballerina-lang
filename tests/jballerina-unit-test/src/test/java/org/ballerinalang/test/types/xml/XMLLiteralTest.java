@@ -21,7 +21,6 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.XmlFactory;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BIterator;
-import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.core.model.values.BXML;
@@ -43,7 +42,6 @@ import org.testng.annotations.Test;
 public class XMLLiteralTest {
 
     private CompileResult result;
-    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
@@ -52,7 +50,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testXMLNegativeSemantics() {
-        negativeResult = BCompileUtil.compile("test-src/types/xml/xml-literals-negative.bal");
+        CompileResult negativeResult = BCompileUtil.compile("test-src/types/xml/xml-literals-negative.bal");
         int index = 0;
         BAssertUtil.validateError(negativeResult, index++, "invalid namespace prefix 'xmlns'", 4, 19);
         BAssertUtil.validateError(negativeResult, index++, "invalid namespace prefix 'xmlns'", 4, 36);
@@ -336,7 +334,7 @@ public class XMLLiteralTest {
         StringBuilder builder = new StringBuilder();
         BIterator bIterator = ar.newIterator();
         while (bIterator.hasNext()) {
-            String str = ((BString) bIterator.getNext()).stringValue();
+            String str = bIterator.getNext().stringValue();
             builder.append(str);
         }
         return builder.toString();

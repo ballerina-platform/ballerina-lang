@@ -15,10 +15,12 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -26,7 +28,6 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -45,12 +46,8 @@ public class ObjectTypeDescriptorNodeContext
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ObjectTypeDescriptorNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-
-        if (this.onSuggestionsAfterQualifier(context, node)) {
-            completionItems.addAll(Arrays.asList(
-                    new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()),
-                    new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get())
-            ));
+        if (onSuggestionsAfterQualifiers(context, node)) {
+            completionItems.addAll(this.getCompletionItemsOnQualifiers(node, context));
         } else if (this.onSuggestionsWithinObjectBody(context, node)) {
             completionItems.addAll(this.getObjectBodyCompletions(context));
         }
@@ -59,19 +56,31 @@ public class ObjectTypeDescriptorNodeContext
         return completionItems;
     }
 
-    private boolean onSuggestionsAfterQualifier(BallerinaCompletionContext context, ObjectTypeDescriptorNode node) {
-        int cursor = context.getCursorPositionInTree();
-        NodeList<Token> qualifiers = node.objectTypeQualifiers();
-
-        if (qualifiers.isEmpty()) {
+    @Override
+    protected boolean onSuggestionsAfterQualifiers(BallerinaCompletionContext context, Node node) {
+        if (node.kind() != SyntaxKind.OBJECT_TYPE_DESC) {
             return false;
         }
-
-        Token objectKeyword = node.objectKeyword();
-        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
-
-        return cursor > lastQualifier.textRange().endOffset()
+        boolean isAfterQualifier = super.onSuggestionsAfterQualifiers(context, node);
+        int cursor = context.getCursorPositionInTree();
+        Token objectKeyword = ((ObjectTypeDescriptorNode) node).objectKeyword();
+        return isAfterQualifier
                 && (objectKeyword.isMissing() || cursor < objectKeyword.textRange().startOffset());
+    }
+
+    @Override
+    protected List<LSCompletionItem> getCompletionItemsOnQualifiers(Node node, BallerinaCompletionContext context) {
+        List<LSCompletionItem> completionItems = new ArrayList<>(super.getCompletionItemsOnQualifiers(node, context));
+        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node);
+        if (qualifiers.isEmpty()) {
+            return completionItems;
+        }
+        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
+        if (lastQualifier.kind() == SyntaxKind.ISOLATED_KEYWORD) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()));
+        }
+        return completionItems;
     }
 
     private boolean onSuggestionsWithinObjectBody(BallerinaCompletionContext context, ObjectTypeDescriptorNode node) {
