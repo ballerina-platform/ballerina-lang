@@ -47,6 +47,7 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -522,7 +523,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
-        completionItems.addAll(this.getAnonFunctionDefCompletions(context));
+        Optional<SnippetCompletionItem> anonFunctionDef = this.getAnonFunctionDefCompletions(context);
+        anonFunctionDef.ifPresent(completionItems::add);
         return completionItems;
     }
 
@@ -693,69 +695,87 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      * Get completions for anonymous function definition.
      *
      * @param context completion context.
-     * @return completion item
+     * @return snippet completion item
      */
-    protected List<LSCompletionItem> getAnonFunctionDefCompletions(BallerinaCompletionContext context) {
+    protected Optional<SnippetCompletionItem> getAnonFunctionDefCompletions(BallerinaCompletionContext context) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        List<LSCompletionItem> completionItems = new ArrayList<>();
         Optional<TypeSymbol> typeSymbolAtCursor = context.getContextType();
 
-        if (typeSymbolAtCursor.isEmpty()) {
-            return Collections.emptyList();
+        if (typeSymbolAtCursor.isEmpty() || typeSymbolAtCursor.get().typeKind() != TypeDescKind.FUNCTION) {
+            return Optional.empty();
         }
         
         TypeSymbol symbol = typeSymbolAtCursor.get();
-        if (symbol.typeKind() == TypeDescKind.FUNCTION) {
-            FunctionTypeSymbol functionTypeSymbol = ((FunctionTypeSymbol) symbol);
-            List<String> args = new ArrayList<>();
-            int argIndex = 1;
+        FunctionTypeSymbol functionTypeSymbol = ((FunctionTypeSymbol) symbol);
+        List<String> args = new ArrayList<>();
+        int argIndex = 1;
 
-            Set<String> visibleSymbolNames = visibleSymbols
-                    .stream()
-                    .map(Symbol::getName)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toSet());
+        Set<String> visibleSymbolNames = visibleSymbols
+                .stream()
+                .map(Symbol::getName)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
                 
-            if (functionTypeSymbol.params().isEmpty()) {
-                return Collections.emptyList();
-            }
+        if (functionTypeSymbol.params().isPresent()) {
             // variable names
             for (ParameterSymbol parameterSymbol : functionTypeSymbol.params().get()) {
                 String varName = "";
                 TypeSymbol parameterTypeSymbol = CommonUtil.getRawType(parameterSymbol.typeDescriptor());
-                varName = CommonUtil.generateParameterName(varName, argIndex, parameterTypeSymbol, 
+                varName = CommonUtil.generateParameterName(varName, argIndex, parameterTypeSymbol,
                         visibleSymbolNames);
                 args.add(FunctionGenerator.getParameterTypeAsString(context, parameterTypeSymbol) + " " + varName);
                 visibleSymbolNames.add(varName);
                 argIndex++;
             }
-
-            Optional<TypeSymbol> returnTypeSymbol = functionTypeSymbol.returnTypeDescriptor();
-            if (returnTypeSymbol.isEmpty()) {
-                return Collections.emptyList();
-            }
-            
-            Optional<String> returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeSymbol.get());
-
-            String returnsClause = "";
-            String returnStmt = "";
-            if (returnType.isPresent()) {
-                // returns clause
-                returnsClause = "returns " + returnType.get();
-                // return statement
-                Optional<String> defaultReturnValue = CommonUtil.getDefaultValueForType(returnTypeSymbol.get());
-                if (defaultReturnValue.isPresent()) {
-                    returnStmt = "return " + defaultReturnValue.get() + CommonKeys.SEMI_COLON_SYMBOL_KEY;
-                }
-            }
-            String snippet = "function(" + String.join(", ", args) + ") " + returnsClause + " {" + 
-                    CommonUtil.LINE_SEPARATOR + "\t" + returnStmt + CommonUtil.LINE_SEPARATOR + "}${1}";
-            SnippetBlock snippetBlock = new SnippetBlock(ItemResolverConstants.ANON_FUNCTION, 
-                    ItemResolverConstants.ANON_FUNCTION, snippet, ItemResolverConstants.SNIPPET_TYPE, 
-                    SnippetBlock.Kind.SNIPPET);
-            completionItems.add(new SnippetCompletionItem(context, snippetBlock));
         }
-        return completionItems;
+        Optional<TypeSymbol> returnTypeSymbol = functionTypeSymbol.returnTypeDescriptor();
+        if (returnTypeSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        Optional<String> returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeSymbol.get());
+        String returnsClause = "";
+        String returnStmt = "";
+        if (returnType.isPresent()) {
+            // returns clause
+            returnsClause = "returns " + returnType.get();
+            // return statement
+            Optional<String> defaultReturnValue = CommonUtil.getDefaultValueForType(returnTypeSymbol.get());
+            if (defaultReturnValue.isPresent()) {
+                returnStmt = "return " + defaultReturnValue.get() + CommonKeys.SEMI_COLON_SYMBOL_KEY;
+            }
+        }
+        
+        int padding = 4;
+        String paddingStr = StringUtils.repeat(" ", padding);
+        // body
+        String body;
+        if (!returnStmt.isEmpty()) {
+            body = paddingStr + returnStmt + CommonUtil.LINE_SEPARATOR;
+        } else {
+            body = paddingStr + CommonUtil.LINE_SEPARATOR;
+        }
+        
+        StringBuilder snippetBuilder = new StringBuilder();
+        snippetBuilder.append("function").append(" ")
+                .append(CommonKeys.OPEN_PARENTHESES_KEY)
+                .append(String.join(", ", args))
+                .append(CommonKeys.CLOSE_PARENTHESES_KEY);
+        
+        if (returnType.isPresent()) {
+            snippetBuilder.append(" ").append(returnsClause);
+        }
+
+        snippetBuilder.append(" ").append(CommonKeys.OPEN_BRACE_KEY)
+                .append(CommonUtil.LINE_SEPARATOR)
+                .append(body)
+                .append(CommonKeys.CLOSE_BRACE_KEY);
+        
+        SnippetBlock snippetBlock = new SnippetBlock(ItemResolverConstants.ANON_FUNCTION, 
+                ItemResolverConstants.ANON_FUNCTION, snippetBuilder.toString(), ItemResolverConstants.SNIPPET_TYPE, 
+                SnippetBlock.Kind.SNIPPET);
+        
+        return Optional.of(new SnippetCompletionItem(context, snippetBlock));
     }
 }
