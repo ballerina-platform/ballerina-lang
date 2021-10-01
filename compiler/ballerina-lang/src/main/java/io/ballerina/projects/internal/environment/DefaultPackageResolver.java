@@ -145,6 +145,9 @@ public class DefaultPackageResolver implements PackageResolver {
                             if (x.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
                                 return y;
                             }
+                            if (x.resolvedDescriptor().version().equals(y.resolvedDescriptor().version())) {
+                                return x;
+                            }
                             if (getLatest(x.resolvedDescriptor().version(), y.resolvedDescriptor().version())
                                     .equals(y.resolvedDescriptor().version())) {
                                 return y;
