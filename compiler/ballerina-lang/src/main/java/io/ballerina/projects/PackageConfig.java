@@ -42,7 +42,6 @@ public class PackageConfig {
     private final DependencyGraph<PackageDescriptor> packageDescDependencyGraph;
     private final Collection<ModuleConfig> otherModules;
     private final DocumentConfig packageMd;
-    private boolean template;
 
     private PackageConfig(PackageId packageId,
                           Path packagePath,
@@ -66,7 +65,6 @@ public class PackageConfig {
         this.otherModules = moduleConfigs;
         this.packageDescDependencyGraph = packageDescDependencyGraph;
         this.packageMd = packageMd;
-        this.template = template;
     }
 
     public static PackageConfig from(PackageId packageId,

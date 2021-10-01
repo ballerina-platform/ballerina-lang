@@ -22,6 +22,7 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
+import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -51,7 +52,10 @@ public class NewCommand implements BLauncherCmd {
     private Path userDir;
     private PrintStream errStream;
     private boolean exitWhenFinish;
-    private static Path homeCache;
+    Path homeCache = RepoUtils.createAndGetHomeReposPath();
+    Path balaCache = homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
+            .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
+            .resolve(ProjectConstants.BALA_DIR_NAME);
 
     @CommandLine.Parameters
     public List<String> argList;
@@ -61,7 +65,7 @@ public class NewCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = {"--template", "-t"}, description = "Acceptable values: [main, service, lib] " +
             "default: default")
-    private String template = "default";
+    public String template = "default";
 
     public NewCommand() {
         this.userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -146,27 +150,27 @@ public class NewCommand implements BLauncherCmd {
         }
 
         try {
-            homeCache = RepoUtils.createAndGetHomeReposPath();
-            Path balaCache = homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
-                    .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
-                    .resolve(ProjectConstants.BALA_DIR_NAME);
-            Path balaCachePkgPath = (Path) findBalaTemplate(template);
             Files.createDirectories(path);
             // check if the template matches with one of the inbuilt template types
             if (!CommandUtil.getTemplates().contains(template)) {
                 // Check if the package is available in local bala cache
-                if (balaCachePkgPath != null) {
+                if (findBalaTemplate(template) != null) {
                     // Pkg is available in the local cache
                     applyBalaTemplate(path, balaCache, template);
                 } else {
                     // Pull pkg from central
                     pullPackageFromCentral(balaCache, path, template);
-                    applyBalaTemplate(path, balaCache, template);
+//                    applyBalaTemplate(path, balaCache, template);
                 }
             } else {
                 // create package with inbuilt template
                 CommandUtil.initPackageByTemplate(path, packageName, template);
             }
+        } catch (PackageAlreadyExistsException e) {
+            applyBalaTemplate(path, balaCache, template);
+            errStream.println("Created new Ballerina package '" + guessPkgName(packageName)
+                    + "' at " + userDir.relativize(path) + ".");
+            CommandUtil.exitError(this.exitWhenFinish);
         } catch (AccessDeniedException e) {
             CommandUtil.printError(errStream,
                     "error occurred while creating project : " + "Insufficient Permission : " + e.getMessage(),

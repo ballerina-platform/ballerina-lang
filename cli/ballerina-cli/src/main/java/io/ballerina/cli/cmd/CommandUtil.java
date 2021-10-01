@@ -37,9 +37,12 @@ import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -52,7 +55,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -276,8 +278,9 @@ public class CommandUtil {
                 ProjectUtils.getRelativeBalaPath(orgName, packageName, version, platform));
         Gson gson = new Gson();
         Path packageJsonPath = balaPath.resolve("package.json");
-        try (FileReader packageReader = new FileReader(String.valueOf(packageJsonPath))) {
-            PackageJson packageJson = gson.fromJson(packageReader, PackageJson.class);
+        try (InputStream inputStream = new FileInputStream(String.valueOf(packageJsonPath))) {
+            Reader fileReader = new InputStreamReader(inputStream, "UTF-8");
+            PackageJson packageJson = gson.fromJson(fileReader, PackageJson.class);
             if (packageJson.getTemplate()) {
                 // Copy platform library
                 Path platformLibPath = balaPath.resolve("platform").resolve("java11");
@@ -311,7 +314,8 @@ public class CommandUtil {
                     Files.walkFileTree(sourceModulesDir, new FileUtils.Copy(sourceModulesDir, modulePath));
                 }
             } else {
-                exitError(exitWhenFinish);
+                Files.delete(modulePath);
+                getRuntime().exit(1);
             }
         } catch (IOException e) {
             printError(errStream,
@@ -342,20 +346,13 @@ public class CommandUtil {
             String balaGlob = "glob:**/" + orgName + "/" + packageName + "/" + version + "/" + platform;
             PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(balaGlob);
 
-            try (Stream<Path> walk = Files.walk(balaCache)) {
-                if (pathMatcher != null) {
-                    List<Path> balaList = walk
-                            .filter(pathMatcher::matches)
-                            .collect(Collectors.toList());
-                    Collections.sort(balaList);
-                    // get the latest
-                    if (balaList.size() > 0) {
-                        return balaList.get(balaList.size() - 1);
-                    } else {
-                        return null;
-                    }
+            if (pathMatcher.matches(Paths.get(balaGlob))) {
+                if (Files.exists(balaPath)) {
+                    return balaPath;
+                } else {
+                    return null;
                 }
-            } catch (IOException e) {
+            } else {
                 printError(errStream,
                         "Unable to read home cache",
                         null,
@@ -400,8 +397,19 @@ public class CommandUtil {
                 client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
                         RepoUtils.getBallerinaVersion(), false);
             } catch (PackageAlreadyExistsException e) {
-                applyBalaTemplate(projectPath, balaCache, template);
+//                applyBalaTemplate(projectPath, balaCache, template);
+                throw new PackageAlreadyExistsException(e.getMessage());
             }
+            try {
+                Files.createDirectories(projectPath);
+            } catch (IOException e) {
+                CommandUtil.printError(errStream,
+                        "error occurred while creating project directory : " + e.getMessage(),
+                        null,
+                        false);
+                CommandUtil.exitError(exitWhenFinish);
+            }
+            applyBalaTemplate(projectPath, balaCache, template);
         }
     }
 
@@ -469,8 +477,7 @@ public class CommandUtil {
      */
     public static String findOrg(String template) {
         String[] orgSplit = template.split("/");
-        String orgName = orgSplit[0].trim();
-        return orgName;
+        return orgSplit[0].trim();
     }
 
     /**
@@ -560,15 +567,13 @@ public class CommandUtil {
 
     public static List<PackageVersion> getPackageVersions(Path balaPackagePath) {
         List<Path> versions = new ArrayList<>();
+        Stream<Path> collectVersions = null;
         try {
-            if (Files.exists(balaPackagePath)) {
-                try (Stream<Path> collect = Files.list(balaPackagePath)) {
-                    versions.addAll(collect.collect(Collectors.toList()));
-                }
-            }
+            collectVersions = Files.list(balaPackagePath);
         } catch (IOException e) {
             throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
         }
+        versions.addAll(collectVersions.collect(Collectors.toList()));
         return pathToVersions(versions);
     }
 
