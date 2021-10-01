@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -237,9 +238,12 @@ public class RemotePackageRepositoryTests {
     }
 
     //Package name resolution data
-    ImportModuleRequest javaArrayReq = new ImportModuleRequest(PackageOrg.from("ballerina"), "java.array");
-    ImportModuleRequest covidReq = new ImportModuleRequest(PackageOrg.from("ballerina"), "covid.client");
-    ImportModuleRequest unknownReq = new ImportModuleRequest(PackageOrg.from("ballerina"), "unknown");
+    ImportModuleRequest javaArrayReq = new ImportModuleRequest(
+            PackageOrg.from("ballerina"), "java.array", Collections.emptyList());
+    ImportModuleRequest covidReq = new ImportModuleRequest(
+            PackageOrg.from("ballerina"), "covid.client", Collections.emptyList());
+    ImportModuleRequest unknownReq = new ImportModuleRequest(
+            PackageOrg.from("ballerina"), "unknown", Collections.emptyList());
 
     PackageDescriptor descJavaArray = PackageDescriptor
             .from(PackageOrg.from("ballerina"), PackageName.from("java.array"));
