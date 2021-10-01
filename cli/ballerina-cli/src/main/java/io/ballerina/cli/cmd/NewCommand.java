@@ -81,6 +81,14 @@ public class NewCommand implements BLauncherCmd {
         CommandUtil.initJarFs();
     }
 
+    public NewCommand(Path userDir, PrintStream errStream, boolean exitWhenFinish, Path homeCache) {
+        this.userDir = userDir;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        CommandUtil.initJarFs();
+        this.homeCache = homeCache;
+    }
+
     @Override
     public void execute() {
         // If help flag is given print the help message.
@@ -156,18 +164,31 @@ public class NewCommand implements BLauncherCmd {
                 // Check if the package is available in local bala cache
                 if (findBalaTemplate(template) != null) {
                     // Pkg is available in the local cache
-                    applyBalaTemplate(path, balaCache, template);
+                    try {
+                        applyBalaTemplate(path, balaCache, template);
+                    } catch (CentralClientException centralClientException) {
+                        try {
+                            throw new CentralClientException(centralClientException.getMessage());
+                        } catch (CentralClientException ignored) {
+                        }
+                    }
                 } else {
                     // Pull pkg from central
                     pullPackageFromCentral(balaCache, path, template);
-//                    applyBalaTemplate(path, balaCache, template);
                 }
             } else {
                 // create package with inbuilt template
                 CommandUtil.initPackageByTemplate(path, packageName, template);
             }
         } catch (PackageAlreadyExistsException e) {
-            applyBalaTemplate(path, balaCache, template);
+            try {
+                applyBalaTemplate(path, balaCache, template);
+            } catch (CentralClientException centralClientException) {
+                try {
+                    throw new CentralClientException(centralClientException.getMessage());
+                } catch (CentralClientException ignored) {
+                }
+            }
             errStream.println("Created new Ballerina package '" + guessPkgName(packageName)
                     + "' at " + userDir.relativize(path) + ".");
             CommandUtil.exitError(this.exitWhenFinish);

@@ -37,6 +37,7 @@ import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -254,7 +255,8 @@ public class CommandUtil {
      * @param balaCache path to balacache
      * @param template template name
      */
-    public static void applyBalaTemplate(Path modulePath, Path balaCache, String template) {
+    public static void applyBalaTemplate(Path modulePath, Path balaCache, String template)
+            throws CentralClientException {
         // find all balas matching org and package name.
         String packageName = findPkgName(template);
         String orgName = findOrg(template);
@@ -315,7 +317,7 @@ public class CommandUtil {
                 }
             } else {
                 Files.delete(modulePath);
-                getRuntime().exit(1);
+                throw new CentralClientException("Unable to create the package with the provided module");
             }
         } catch (IOException e) {
             printError(errStream,
@@ -343,7 +345,8 @@ public class CommandUtil {
             Path balaPath = balaCache.resolve(
                     ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
             String platform = findPlatform(balaPath);
-            String balaGlob = "glob:**/" + orgName + "/" + packageName + "/" + version + "/" + platform;
+            String balaGlob = "glob:**" + File.separator + orgName + File.separator + packageName + File.separator
+                    + version + File.separator + platform;
             PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(balaGlob);
 
             if (pathMatcher.matches(Paths.get(balaGlob))) {
