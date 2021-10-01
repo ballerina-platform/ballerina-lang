@@ -22,7 +22,6 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageVersion;
-import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.PackageRepository;
@@ -43,6 +42,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static io.ballerina.projects.util.ProjectUtils.getLatest;
 
 /**
  * Default Package resolver for Ballerina project.
@@ -144,9 +145,8 @@ public class DefaultPackageResolver implements PackageResolver {
                             if (x.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
                                 return y;
                             }
-                            if (x.resolvedDescriptor().version().compareTo(
-                                    y.resolvedDescriptor().version()).equals(
-                                    SemanticVersion.VersionCompatibilityResult.LESS_THAN)) {
+                            if (getLatest(x.resolvedDescriptor().version(), y.resolvedDescriptor().version())
+                                    .equals(y.resolvedDescriptor().version())) {
                                 return y;
                             }
                             return x;
