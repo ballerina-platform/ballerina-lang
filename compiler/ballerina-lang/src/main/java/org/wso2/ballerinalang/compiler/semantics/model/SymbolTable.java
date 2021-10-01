@@ -789,8 +789,8 @@ public class SymbolTable {
 
         BType intOptional = signedNilableIntTypes[0];
 
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
+        for (int i = 0; i < unsignedNilableIntTypes.length; i++) {
+            for (int j = 0; j < signedNilableIntTypes.length; j++) {
                 defineBinaryOperator(OperatorKind.BITWISE_AND, unsignedNilableIntTypes[i],
                         signedNilableIntTypes[j], unsignedNilableIntTypes[i]);
                 defineBinaryOperator(OperatorKind.BITWISE_AND, unsignedNilableIntTypes[i],
@@ -840,8 +840,8 @@ public class SymbolTable {
 
         BType intOptionalType = signedNilableIntTypes[0];
 
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
+        for (int i = 0; i < signedNilableIntTypes.length; i++) {
+            for (int j = 0; j < unsignedNilableIntTypes.length; j++) {
                 defineBinaryOperator(opKind, unsignedNilableIntTypes[i],
                         signedNilableIntTypes[j], intOptionalType);
                 defineBinaryOperator(opKind, unsignedNilableIntTypes[i],
