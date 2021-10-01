@@ -25,6 +25,7 @@ import io.ballerina.projects.internal.CompilerPhaseRunner;
 import io.ballerina.projects.internal.ModuleContextDataHolder;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -35,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayOutputStream;
@@ -422,7 +424,7 @@ class ModuleContext {
         }
 
         // Serialize the BIR  model
-        cacheBIR(moduleContext);
+        cacheBIR(moduleContext, compilerContext);
 
         // Skip the code generation phase if there are diagnostics
         if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
@@ -431,15 +433,19 @@ class ModuleContext {
         compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
     }
 
-    private static void cacheBIR(ModuleContext moduleContext) {
+    private static void cacheBIR(ModuleContext moduleContext, CompilerContext compilerContext) {
         // Skip caching BIR if there are diagnostics
         if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
             return;
         }
 
-        if (moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT) && !ProjectUtils.isLangLibPackage(
-                moduleContext.descriptor().org(), moduleContext.descriptor().packageName())) {
-            return;
+        // Skip caching BIR if it is a Build Project (current package) unless the --dump-bir-file flag is passed
+        if (moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT) && !ProjectUtils.isBuiltInPackage(
+                moduleContext.descriptor().org(), moduleContext.descriptor().packageName().toString())) {
+            CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
+            if (!Boolean.parseBoolean(compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE))) {
+                return;
+            }
         }
 
         // Can we improve this logic

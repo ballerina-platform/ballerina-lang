@@ -27,7 +27,7 @@ public class CompilationOptions {
     Boolean experimental;
     Boolean observabilityIncluded;
     Boolean dumpBir;
-    String dumpBirFile;
+    Boolean dumpBirFile;
     String cloud;
     Boolean listConflictedClasses;
     Boolean sticky;
@@ -35,7 +35,7 @@ public class CompilationOptions {
     Boolean dumpRawGraphs;
 
     CompilationOptions(Boolean offlineBuild, Boolean experimental,
-                       Boolean observabilityIncluded, Boolean dumpBir, String dumpBirFile,
+                       Boolean observabilityIncluded, Boolean dumpBir, Boolean dumpBirFile,
                        String cloud, Boolean listConflictedClasses, Boolean sticky,
                        Boolean dumpGraph, Boolean dumpRawGraphs) {
         this.offlineBuild = offlineBuild;
@@ -70,8 +70,8 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(this.dumpBir);
     }
 
-    public String getBirDumpFile() {
-        return this.dumpBirFile;
+    public Boolean dumpBirFile() {
+        return toBooleanDefaultIfNull(this.dumpBirFile);
     }
 
     public Boolean dumpGraph() {
@@ -117,6 +117,11 @@ public class CompilationOptions {
             compilationOptionsBuilder.dumpBir(theirOptions.dumpBir);
         } else {
             compilationOptionsBuilder.dumpBir(this.dumpBir);
+        }
+        if (theirOptions.dumpBirFile != null) {
+            compilationOptionsBuilder.dumpBirFile(theirOptions.dumpBirFile);
+        } else {
+            compilationOptionsBuilder.dumpBirFile(this.dumpBirFile);
         }
         if (theirOptions.dumpGraph != null) {
             compilationOptionsBuilder.dumpGraph(theirOptions.dumpGraph);

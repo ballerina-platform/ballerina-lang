@@ -860,7 +860,7 @@ public class TestBuildProject extends BaseTest {
 
         // Test module level symbols
         List<Symbol> symbols = semanticModel.moduleSymbols();
-        Assert.assertEquals(symbols.size(), 5);
+        Assert.assertEquals(symbols.size(), 4);
 
         // Test symbol
         Optional<Symbol> symbol = semanticModel.symbol(srcFile, LinePosition.from(4, 10));
