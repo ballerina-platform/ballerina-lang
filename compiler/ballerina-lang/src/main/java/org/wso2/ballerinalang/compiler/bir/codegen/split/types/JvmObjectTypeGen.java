@@ -213,6 +213,7 @@ public class JvmObjectTypeGen {
                 nonResourceFunctions.add(attachedFunc);
             }
         }
+        indexMap.addIfNotExists("$array", symbolTable.anyType);
         for (BAttachedFunction attachedFunc : nonResourceFunctions) {
             if (fTypeCount % MAX_TYPES_PER_METHOD == 0) {
                 mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, methodName + methodCount++,
@@ -312,6 +313,7 @@ public class JvmObjectTypeGen {
                 resourceFunctions.add(attachedFunc);
             }
         }
+        indexMap.addIfNotExists("$array", symbolTable.anyType);
         for (BAttachedFunction attachedFunc : resourceFunctions) {
             if (resourcesCount % MAX_TYPES_PER_METHOD == 0) {
                 mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, methodName + methodCount++,
