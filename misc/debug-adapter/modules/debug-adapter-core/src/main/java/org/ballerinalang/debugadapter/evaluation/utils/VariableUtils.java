@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.VARIABLE_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR_REGEX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
 
 /**
@@ -151,7 +151,7 @@ public class VariableUtils {
         StringJoiner classNameJoiner = new StringJoiner(".");
         classNameJoiner.add(moduleSymbol.id().orgName())
                 .add(encodeModuleName(moduleSymbol.id().moduleName()))
-                .add(moduleSymbol.id().version().split(MODULE_VERSION_SEPARATOR)[0])
+                .add(moduleSymbol.id().version().split(MODULE_VERSION_SEPARATOR_REGEX)[0])
                 .add(INIT_CLASS_NAME);
         return classNameJoiner.toString();
     }

@@ -160,7 +160,7 @@ public class EvaluationImportResolver extends NodeVisitor {
         private final String moduleName;
         private final String alias;
 
-        BImport(String orgName, String moduleName, String alias) {
+        private BImport(String orgName, String moduleName, String alias) {
             this.orgName = orgName;
             this.moduleName = moduleName;
             this.alias = alias;

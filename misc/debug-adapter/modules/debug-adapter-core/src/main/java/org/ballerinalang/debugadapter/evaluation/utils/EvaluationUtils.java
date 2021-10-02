@@ -165,7 +165,9 @@ public class EvaluationUtils {
     // Misc
     public static final String STRAND_VAR_NAME = "__strand";
     public static final String REST_ARG_IDENTIFIER = "...";
-    public static final String MODULE_VERSION_SEPARATOR = "\\.";
+    public static final String MODULE_NAME_SEPARATOR = ".";
+    public static final String MODULE_VERSION_SEPARATOR_REGEX = "\\.";
+    public static final String MODULE_NAME_SEPARATOR_REGEX = "\\.";
 
     private EvaluationUtils() {
     }
