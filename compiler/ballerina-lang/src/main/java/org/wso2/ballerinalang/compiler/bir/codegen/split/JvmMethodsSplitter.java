@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.split;
 
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 
 import java.util.Map;
@@ -33,6 +34,7 @@ public class JvmMethodsSplitter {
 
     private final JvmPackageGen jvmPackageGen;
     private final JvmCreateTypeGen jvmCreateTypeGen;
+    private final JvmValueCreatorGen jvmValueCreatorGen;
     private final JvmAnnotationsGen jvmAnnotationsGen;
     private final BIRNode.BIRPackage module;
     private final String moduleInitClass;
@@ -45,14 +47,15 @@ public class JvmMethodsSplitter {
         JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID);
         this.jvmCreateTypeGen = new JvmCreateTypeGen(jvmTypeGen, jvmConstantsGen, module.packageID);
         this.jvmAnnotationsGen = new JvmAnnotationsGen(module, jvmPackageGen, jvmTypeGen);
+        this.jvmValueCreatorGen = new JvmValueCreatorGen(module.packageID);
         jvmConstantsGen.setJvmCreateTypeGen(jvmCreateTypeGen);
     }
 
     public void generateMethods(Map<String, byte[]> jarEntries) {
         jvmCreateTypeGen.generateTypeClass(jvmPackageGen, module, jarEntries, moduleInitClass,
-                                           jvmPackageGen.symbolTable);
-        jvmCreateTypeGen.generateValueCreatorClasses(jvmPackageGen, module, moduleInitClass, jarEntries,
-                                                     jvmPackageGen.symbolTable);
+                jvmPackageGen.symbolTable);
+        jvmValueCreatorGen.generateValueCreatorClasses(jvmPackageGen, module, moduleInitClass, jarEntries,
+                jvmPackageGen.symbolTable);
         jvmCreateTypeGen.generateAnonTypeClass(jvmPackageGen, module, moduleInitClass, jarEntries);
         jvmAnnotationsGen.generateAnnotationsClass(jarEntries);
     }

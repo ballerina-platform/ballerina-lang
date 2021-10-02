@@ -16,16 +16,20 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen;
+package org.wso2.ballerinalang.compiler.bir.codegen.split.constants;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
+import org.wso2.ballerinalang.compiler.bir.codegen.TypeNamePair;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmTupleTypeGen;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -48,68 +52,65 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 
 /**
- * Generates Jvm class for the ballerina union types as constants for a given module.
+ * Generates Jvm class for the ballerina tuple types as constants for a given module.
  *
  * @since 2.0.0
  */
-public class JvmUnionTypeConstantsGen {
+public class JvmTupleTypeConstantsGen {
 
-    private final Map<BUnionType, String> unionTypeVarMap;
-    private final String unionVarConstantsClass;
+    private final Map<BTupleType, String> tupleTypeVarMap;
+    private final String tupleVarConstantsClass;
     private int constantIndex = 0;
-    private JvmCreateTypeGen jvmCreateTypeGen;
+    private JvmTupleTypeGen jvmTupleTypeGen;
     private ClassWriter cw;
     private MethodVisitor mv;
     private int methodCount;
     private final List<String> funcNames;
     private final Queue<TypeNamePair> queue;
 
-    /**
-     * Stack keeps track of recursion in union types. The method creation is performed only if recursion is completed.
-     */
-    public JvmUnionTypeConstantsGen(PackageID packageID) {
-        unionTypeVarMap = new ConcurrentSkipListMap<>(this::checkUnionEqualityInInts);
-        unionVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(
-                packageID, JvmConstants.BUNION_TYPE_CONSTANT_CLASS_NAME);
-        generateUnionTypeConstantsClassInit();
-        visitUnionTypeInitMethod();
+    public JvmTupleTypeConstantsGen(PackageID packageID) {
+        tupleTypeVarMap = new ConcurrentSkipListMap<>(this::checkTupleEqualityInInts);
+        tupleVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(
+                packageID, JvmConstants.BTUPLE_TYPE_CONSTANT_CLASS_NAME);
+        generateTupleTypeConstantsClassInit();
+        visitTupleTypeInitMethod();
         funcNames = new ArrayList<>();
         queue = new LinkedList<>();
     }
 
-    private int checkUnionEqualityInInts(BUnionType o1, BUnionType o2) {
-        if (checkUnionsEquality(o1, o2)) {
+    private int checkTupleEqualityInInts(BTupleType o1, BTupleType o2) {
+        if (checkTupleEquality(o1, o2)) {
             return 0;
         }
         return -1;
     }
 
-    private boolean checkUnionsEquality(BUnionType o1, BUnionType o2) {
+    private boolean checkTupleEquality(BTupleType o1, BTupleType o2) {
         if (o1 == o2) {
             return true;
         }
-        if (o1.getMemberTypes().size() != o2.getMemberTypes().size() || !o1.toString().equals(o2.toString())) {
+        if (o1.tupleTypes.size() != o2.tupleTypes.size() || !o1.toString().equals(o2.toString())) {
             return false;
         }
-        for (BType type : o1.getMemberTypes()) {
-            if (!o2.getMemberTypes().contains(type)) {
+        for (BType type : o1.getTupleTypes()) {
+            if (!o2.getTupleTypes().contains(type)) {
                 return false;
             }
         }
         return o1.flags == o2.flags;
     }
 
-    public synchronized void setJvmCreateTypeGen(JvmCreateTypeGen jvmCreateTypeGen) {
-        this.jvmCreateTypeGen = jvmCreateTypeGen;
+    public synchronized void setJvmTupleTypeGen(JvmTupleTypeGen jvmTupleTypeGen) {
+        this.jvmTupleTypeGen = jvmTupleTypeGen;
     }
 
-    public synchronized String add(BUnionType type) {
-        return unionTypeVarMap.computeIfAbsent(type, str -> generateBUnionInits(type));
+    public synchronized String add(BTupleType type) {
+        return tupleTypeVarMap.computeIfAbsent(type, str -> generateBTupleInits(type));
     }
 
-    private void generateUnionTypeConstantsClassInit() {
+    private void generateTupleTypeConstantsClassInit() {
         cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC | ACC_SUPER, unionVarConstantsClass, null, JvmConstants.OBJECT, null);
+        cw.visit(V1_8, ACC_PUBLIC | ACC_SUPER, tupleVarConstantsClass, null, JvmConstants.OBJECT, null);
 
         MethodVisitor methodVisitor = cw.visitMethod(ACC_PRIVATE, JvmConstants.JVM_INIT_METHOD, "()V", null, null);
         methodVisitor.visitCode();
@@ -118,74 +119,76 @@ public class JvmUnionTypeConstantsGen {
         genMethodReturn(methodVisitor);
     }
 
-    private void visitUnionTypeInitMethod() {
-        mv = cw.visitMethod(ACC_STATIC, JvmConstants.B_UNION_TYPE_INIT_METHOD_PREFIX + methodCount++,
-                            "()V", null, null);
+    private void visitTupleTypeInitMethod() {
+        mv = cw.visitMethod(ACC_STATIC, JvmConstants.B_TUPLE_TYPE_INIT_METHOD_PREFIX + methodCount++,
+                "()V", null, null);
     }
 
-    private String generateBUnionInits(BUnionType type) {
-        String varName = JvmConstants.UNION_TYPE_VAR_PREFIX + constantIndex++;
-        visitBUnionField(varName);
-        createBunionType(mv, type, varName);
-        // Queue is used here to avoid recursive calls to the genPopulateMethod. This can happen when a union
-        // contains a union inside it.
+    /**
+     * Stack keeps track of recursion in tuple types. The method creation is performed only if recursion is completed.
+     */
+    private String generateBTupleInits(BTupleType type) {
+        String varName = JvmConstants.TUPLE_TYPE_VAR_PREFIX + constantIndex++;
+        visitBTupleField(varName);
+        createBTupleType(mv, type, varName);
+        // Queue is used here to avoid recursive calls to the genPopulateMethod. This can happen when a tuple
+        // contains a tuple inside it.
         queue.add(new TypeNamePair(type, varName));
         if (queue.size() == 1) {
             genPopulateMethod(type, varName);
             queue.remove();
             while (!queue.isEmpty()) {
                 TypeNamePair typeNamePair = queue.remove();
-                genPopulateMethod((BUnionType) typeNamePair.type, typeNamePair.varName);
+                genPopulateMethod((BTupleType) typeNamePair.type, typeNamePair.varName);
             }
         }
         return varName;
     }
 
-    private void genPopulateMethod(BUnionType type, String varName) {
+    private void genPopulateMethod(BTupleType type, String varName) {
         String methodName = String.format("$populate%s", varName);
         funcNames.add(methodName);
         MethodVisitor methodVisitor = cw.visitMethod(ACC_STATIC, methodName, "()V", null, null);
         methodVisitor.visitCode();
-        generateGetBUnionType(methodVisitor, varName);
-        jvmCreateTypeGen.populateUnion(cw, methodVisitor, type, unionVarConstantsClass, varName);
+        generateGetBTupleType(methodVisitor, varName);
+        jvmTupleTypeGen.populateTuple(methodVisitor, type);
         genMethodReturn(methodVisitor);
     }
 
-    private void createBunionType(MethodVisitor mv, BUnionType unionType, String varName) {
-        jvmCreateTypeGen.createUnionType(mv, unionType);
-        mv.visitFieldInsn(Opcodes.PUTSTATIC, unionVarConstantsClass, varName,
-                          String.format("L%s;", JvmConstants.UNION_TYPE_IMPL));
+    private void createBTupleType(MethodVisitor mv, BTupleType tupleType, String varName) {
+        jvmTupleTypeGen.createTupleType(mv, tupleType);
+        mv.visitFieldInsn(Opcodes.PUTSTATIC, tupleVarConstantsClass, varName,
+                String.format("L%s;", JvmConstants.TUPLE_TYPE_IMPL));
     }
 
-    private void visitBUnionField(String varName) {
+    private void visitBTupleField(String varName) {
         FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, varName,
-                                        String.format("L%s;", JvmConstants.UNION_TYPE_IMPL), null, null);
+                String.format("L%s;", JvmConstants.TUPLE_TYPE_IMPL), null, null);
         fv.visitEnd();
     }
 
-    public void generateGetBUnionType(MethodVisitor mv, String varName) {
-        mv.visitFieldInsn(GETSTATIC, unionVarConstantsClass, varName,
-                          String.format("L%s;", JvmConstants.UNION_TYPE_IMPL));
+    public void generateGetBTupleType(MethodVisitor mv, String varName) {
+        mv.visitFieldInsn(GETSTATIC, tupleVarConstantsClass, varName, String.format("L%s;",
+                JvmConstants.TUPLE_TYPE_IMPL));
     }
 
     public synchronized void generateClass(Map<String, byte[]> jarEntries) {
         genMethodReturn(mv);
-        visitUnionTypeInitMethod();
+        visitTupleTypeInitMethod();
         for (String funcName : funcNames) {
-            mv.visitMethodInsn(INVOKESTATIC, unionVarConstantsClass, funcName, "()V", false);
+            mv.visitMethodInsn(INVOKESTATIC, tupleVarConstantsClass, funcName, "()V", false);
         }
         genMethodReturn(mv);
         generateStaticInitializer(cw);
         cw.visitEnd();
-        jarEntries.put(unionVarConstantsClass + ".class", cw.toByteArray());
+        jarEntries.put(tupleVarConstantsClass + ".class", cw.toByteArray());
     }
 
     private void generateStaticInitializer(ClassWriter cw) {
         MethodVisitor methodVisitor = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
         for (int i = 0; i < methodCount; i++) {
-            methodVisitor.visitMethodInsn(INVOKESTATIC, unionVarConstantsClass,
-                                          JvmConstants.B_UNION_TYPE_INIT_METHOD_PREFIX + i,
-                                          "()V", false);
+            methodVisitor.visitMethodInsn(INVOKESTATIC, tupleVarConstantsClass,
+                    JvmConstants.B_TUPLE_TYPE_INIT_METHOD_PREFIX + i, "()V", false);
         }
         genMethodReturn(methodVisitor);
     }
@@ -195,5 +198,4 @@ public class JvmUnionTypeConstantsGen {
         methodVisitor.visitMaxs(0, 0);
         methodVisitor.visitEnd();
     }
-
 }

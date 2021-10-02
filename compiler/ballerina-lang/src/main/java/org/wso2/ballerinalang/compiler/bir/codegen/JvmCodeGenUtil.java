@@ -32,11 +32,12 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
@@ -113,6 +114,7 @@ public class JvmCodeGenUtil {
     public static final String INITIAL_METHOD_DESC = String.format("(L%s;", STRAND_CLASS);
     private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[\\.:/<>]");
     public static final String SCOPE_PREFIX = "_SCOPE_";
+    public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
 
     static void visitInvokeDynamic(MethodVisitor mv, String currentClass, String lambdaName, int size) {
         String mapDesc = getMapsDesc(size);

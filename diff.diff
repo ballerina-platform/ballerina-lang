@@ -1,0 +1,180 @@
+diff --git a/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/bir/BIRGen.java b/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/bir/BIRGen.java
+index f6880ae974d3..557a21ccae9a 100644
+--- a/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/bir/BIRGen.java
++++ b/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/bir/BIRGen.java
+@@ -1096,21 +1096,11 @@ public void visit(BLangBlockStmt astBlockStmt) {
+         this.varDclsByBlock.get(astBlockStmt).forEach(birVariableDcl ->
+                 birVariableDcl.endBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1)
+         );
+-        if (astBlockStmt.isLetExprStmt) {
+-            breakBBForLetExprVariables(astBlockStmt.pos);
+-        }
+         this.env.enclInnerOnFailEndBB = currentWithinOnFailEndBB;
+         this.env.enclOnFailEndBB = currentOnFailEndBB;
+         this.currentBlock = prevBlock;
+     }
+ 
+-    private void breakBBForLetExprVariables(Location pos) {
+-        BIRBasicBlock letExprEndBB = new BIRBasicBlock(this.env.nextBBId(names));
+-        this.env.enclBB.terminator = new BIRTerminator.GOTO(pos, letExprEndBB, this.currentScope);
+-        this.env.enclBasicBlocks.add(letExprEndBB);
+-        this.env.enclBB = letExprEndBB;
+-    }
+-
+     @Override
+     public void visit(BLangFail failNode) {
+         if (failNode.expr == null) {
+@@ -1589,7 +1579,7 @@ public void visit(BLangIf astIfStmt) {
+                             astIfStmt.elseStmt.pos.lineRange().endLine().line(),
+                             astIfStmt.elseStmt.pos.lineRange().endLine().line(),
+                             astIfStmt.elseStmt.pos.lineRange().endLine().offset(),
+-                            astIfStmt.elseStmt.pos.lineRange().endLine().offset(), 0, 0);
++                            astIfStmt.elseStmt.pos.lineRange().endLine().offset());
+                     this.env.enclBB.terminator = new BIRTerminator.GOTO(newLocation, nextBB, this.currentScope);
+                 } else {
+                     this.env.enclBB.terminator = new BIRTerminator.GOTO(null, nextBB, this.currentScope);
+@@ -1645,14 +1635,7 @@ public void visit(BLangWhile astWhileStmt) {
+         astWhileStmt.body.accept(this);
+         this.env.unlockVars.pop();
+         if (this.env.enclBB.terminator == null) {
+-            Location newLocation = new BLangDiagnosticLocation(
+-                    astWhileStmt.body.pos.lineRange().filePath(),
+-                    astWhileStmt.body.pos.lineRange().endLine().line(),
+-                    astWhileStmt.body.pos.lineRange().endLine().line(),
+-                    astWhileStmt.body.pos.lineRange().endLine().offset(),
+-                    astWhileStmt.body.pos.lineRange().endLine().offset(), 0, 0
+-            );
+-            this.env.enclBB.terminator = new BIRTerminator.GOTO(newLocation, whileExprBB, this.currentScope);
++            this.env.enclBB.terminator = new BIRTerminator.GOTO(null, whileExprBB, this.currentScope);
+         }
+ 
+         this.env.enclBasicBlocks.add(whileEndBB);
+diff --git a/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/bir/codegen/JvmObservabilityGen.java b/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/bir/codegen/JvmObservabilityGen.java
+index 951e637415aa..1d9b00236dfb 100644
+--- a/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/bir/codegen/JvmObservabilityGen.java
++++ b/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/bir/codegen/JvmObservabilityGen.java
+@@ -249,7 +249,6 @@ private void rewriteControlFlowInvocation(BIRFunction func, BIRPackage pkg) {
+             if (desugaredPos != null && desugaredPos.lineRange().startLine().line() >= 0) {
+                 BIRBasicBlock newBB = insertBasicBlock(func, i + 1);
+                 swapBasicBlockContent(currentBB, newBB);
+-                resetLocalVarEndBBs(func, currentBB, newBB);
+                 injectCheckpointCall(func, currentBB, pkg, desugaredPos);
+                 currentBB.terminator.thenBB = newBB;
+                 // Fix error entries in the error entry table
+@@ -423,7 +422,6 @@ private void rewriteObservableFunctionBody(BIRFunction func, BIRPackage pkg, BIR
+             BIRBasicBlock startBB = func.basicBlocks.get(0);    // Every non-abstract function should have function body
+             BIRBasicBlock newStartBB = insertBasicBlock(func, 1);
+             swapBasicBlockContent(startBB, newStartBB);
+-            resetLocalVarEndBBs(func, startBB, newStartBB);
+ 
+             if (isResource || isRemote) {
+                 String resourcePathOrFunction = functionName;
+@@ -540,7 +538,6 @@ private void rewriteObservableFunctionInvocations(BIRFunction func, BIRPackage p
+                 int newCurrentIndex = i + 2;
+                 BIRBasicBlock newCurrentBB = insertBasicBlock(func, newCurrentIndex);
+                 swapBasicBlockTerminator(currentBB, newCurrentBB);
+-                resetLocalVarEndBBs(func, currentBB, newCurrentBB);
+                 {   // Injecting the instrumentation points for invocations
+                     BIROperand objectTypeOperand;
+                     String action;
+@@ -619,7 +616,6 @@ private void rewriteObservableFunctionInvocations(BIRFunction func, BIRPackage p
+                         BIRBasicBlock observeEndBB = insertBasicBlock(func, eeTargetIndex + 1);
+                         BIRBasicBlock newTargetBB = insertBasicBlock(func, eeTargetIndex + 2);
+                         swapBasicBlockContent(errorEntry.targetBB, newTargetBB);
+-                        resetLocalVarEndBBs(func, errorEntry.targetBB, newTargetBB);
+ 
+                         String uniqueId = String.format("%s$%s", INVOCATION_INSTRUMENTATION_TYPE,
+                                 newCurrentBB.id.value); // Unique ID to work with EEs covering multiple BBs
+@@ -886,22 +882,6 @@ private void swapBasicBlockTerminator(BIRBasicBlock firstBB, BIRBasicBlock secon
+         secondBB.terminator = firstBBTerminator;
+     }
+ 
+-    /**
+-     * Reset the endBBs of local variables after swap basic blocks content.
+-     *
+-     * @param func The function which have the local variables
+-     * @param currentBB The current endBB of local variable
+-     * @param newBB The new endBB of local variable
+-     */
+-
+-    private void resetLocalVarEndBBs(BIRFunction func, BIRBasicBlock currentBB, BIRBasicBlock newBB) {
+-        for (BIRVariableDcl localVar : func.localVars) {
+-            if (localVar.endBB == currentBB) {
+-                localVar.endBB = newBB;
+-            }
+-        }
+-    }
+-
+     /**
+      * Fix the ending BB of error entries in the error table of a function.
+      *
+diff --git a/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/bir/codegen/methodgen/MethodGen.java b/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/bir/codegen/methodgen/MethodGen.java
+index 5978c53bbf5e..a31f83d771dc 100644
+--- a/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/bir/codegen/methodgen/MethodGen.java
++++ b/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/bir/codegen/methodgen/MethodGen.java
+@@ -895,6 +895,7 @@ private void createLocalVariableTable(BIRFunction func, BIRVarToJVMIndexMap inde
+         if (func.receiver != null) {
+             mv.visitLocalVariable("self", String.format("L%s;", B_OBJECT), null, methodStartLabel, methodEndLabel, 0);
+         }
++        BIRBasicBlock endBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
+         for (int i = localVarOffset; i < func.localVars.size(); i++) {
+             BIRVariableDcl localVar = func.localVars.get(i);
+             Label startLabel = methodStartLabel;
+@@ -908,7 +909,7 @@ private void createLocalVariableTable(BIRFunction func, BIRVarToJVMIndexMap inde
+                     startLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + localVar.insScope.id);
+                 }
+                 if (localVar.endBB != null) {
+-                    endLabel = labelGen.getLabel(funcName + localVar.endBB.id.value + "beforeTerm");
++                    endLabel = labelGen.getLabel(funcName + endBB.id.value + "beforeTerm");
+                 }
+             }
+             String metaVarName = localVar.metaVarName;
+diff --git a/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/desugar/Desugar.java b/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/desugar/Desugar.java
+index 8fc47ad63f3a..2e4548840104 100644
+--- a/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/desugar/Desugar.java
++++ b/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/desugar/Desugar.java
+@@ -1411,7 +1411,6 @@ public void visit(BLangLetExpression letExpression) {
+         BLangExpression expr = letExpression.expr;
+         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(letExpression.pos);
+         blockStmt.scope = letExpression.env.scope;
+-        blockStmt.isLetExprStmt = true;
+ 
+         for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
+             BLangNode node  = rewrite((BLangNode) letVariable.definitionNode, env);
+diff --git a/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/tree/statements/BLangBlockStmt.java b/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/tree/statements/BLangBlockStmt.java
+index f77e0c8982f1..a1bd930201dc 100644
+--- a/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/tree/statements/BLangBlockStmt.java
++++ b/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/tree/statements/BLangBlockStmt.java
+@@ -39,8 +39,6 @@
+ 
+     public FailureBreakMode failureBreakMode = FailureBreakMode.NOT_BREAKABLE;
+ 
+-    public boolean isLetExprStmt = false;
+-
+     /**
+      * We need to keep a reference to the block statements scope here.
+      * This is the only place where we have a link from the node to a scope
+diff --git a/tests/jballerina-debugger-integration-test/src/test/java/org/ballerinalang/debugger/test/adapter/ControlFlowDebugTest.java b/tests/jballerina-debugger-integration-test/src/test/java/org/ballerinalang/debugger/test/adapter/ControlFlowDebugTest.java
+index 72d410996798..1b3b9603cc17 100644
+--- a/tests/jballerina-debugger-integration-test/src/test/java/org/ballerinalang/debugger/test/adapter/ControlFlowDebugTest.java
++++ b/tests/jballerina-debugger-integration-test/src/test/java/org/ballerinalang/debugger/test/adapter/ControlFlowDebugTest.java
+@@ -104,9 +104,6 @@ public void testControlFlowDebugScenarios() throws BallerinaTestException {
+         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 35));
+         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
+         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 36));
+-        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
+-        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 31));
+ 
+         // Test for stepping over on the break statements inside 'while' loops.
+@@ -133,9 +130,6 @@ public void testControlFlowDebugScenarios() throws BallerinaTestException {
+         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 42));
+         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
+         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 43));
+-        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
+-        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 41));
+ 
+         // Test for debug engage in 'match' statement

@@ -25,7 +25,7 @@ import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
@@ -126,10 +126,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_TYPE_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ANON_TYPES_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ERRORS_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ERRORS_CREATOR_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_OBJECTS_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORDS_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_OBJECTS_CREATOR_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORDS_CREATOR_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NEVER_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NULL_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
@@ -182,9 +182,9 @@ public class JvmTypeGen {
         isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
         typeHashVisitor = new TypeHashVisitor();
         this.anonTypesClass = getModuleLevelClassName(packageID, MODULE_ANON_TYPES_CLASS_NAME);
-        this.recordsClass = getModuleLevelClassName(packageID, MODULE_RECORDS_CLASS_NAME);
-        this.objectsClass = getModuleLevelClassName(packageID, MODULE_OBJECTS_CLASS_NAME);
-        this.errorsClass = getModuleLevelClassName(packageID, MODULE_ERRORS_CLASS_NAME);
+        this.recordsClass = getModuleLevelClassName(packageID, MODULE_RECORDS_CREATOR_CLASS_NAME);
+        this.objectsClass = getModuleLevelClassName(packageID, MODULE_OBJECTS_CREATOR_CLASS_NAME);
+        this.errorsClass = getModuleLevelClassName(packageID, MODULE_ERRORS_CREATOR_CLASS_NAME);
     }
 
     /**

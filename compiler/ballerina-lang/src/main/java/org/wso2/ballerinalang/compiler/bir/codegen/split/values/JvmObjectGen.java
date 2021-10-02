@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen.split;
+package org.wso2.ballerinalang.compiler.bir.codegen.split.values;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.ClassWriter;
@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.FieldNameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;

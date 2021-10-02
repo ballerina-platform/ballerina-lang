@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen.split;
+package org.wso2.ballerinalang.compiler.bir.codegen.split.constants;
 
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.model.elements.PackageID;
