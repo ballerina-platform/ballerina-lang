@@ -85,7 +85,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
             // fetch local project connectors
             Path filePath = Paths.get(request.getFile());
-            List<BalConnector> localConnectors = fetchLocalConnectors(filePath);
+            List<BalConnector> localConnectors = fetchLocalConnectors(filePath, false);
 
             BallerinaConnectorListResponse connectorListResponse = new BallerinaConnectorListResponse(
                     connectorSearchResult.getConnectors(), localConnectors);
@@ -120,14 +120,22 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 + packageDescriptor.toString() + "'");
     }
 
-    private List<BalConnector> fetchLocalConnectors(Path filePath) throws IOException {
+    /**
+     * Fetch ballerina connector form local file.
+     *
+     * @param filePath file path
+     * @param detailed detailed connector out put or not
+     * @return connector list
+     * @throws IOException
+     */
+    private List<BalConnector> fetchLocalConnectors(Path filePath, boolean detailed) throws IOException {
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
         Project balaProject = ProjectLoader.loadProject(filePath, defaultBuilder);
 
-        List<Connector> connectors = ConnectorGenerator.generateConnectorModel(balaProject);
-        List<BalConnector> localConnectors = new ArrayList<>();
+        List<Connector> connectors = ConnectorGenerator.getProjectConnectors(balaProject, detailed);
 
+        List<BalConnector> localConnectors = new ArrayList<>();
         for (BalConnector conn : connectors) {
             localConnectors.add(conn);
         }
@@ -158,7 +166,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         if (connector == null) {
             try {
                 Path balaPath = resolveBalaPath(request.getOrgName(), request.getModuleName(), request.getVersion());
-                List<BalConnector> connectors = fetchLocalConnectors(balaPath);
+                List<BalConnector> connectors = fetchLocalConnectors(balaPath, true);
                 for (BalConnector conn : connectors) {
                     if (conn.name.equals(request.getName())) {
                         connector = conn;
