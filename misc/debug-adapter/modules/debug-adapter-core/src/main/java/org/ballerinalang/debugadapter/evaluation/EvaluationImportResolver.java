@@ -18,11 +18,11 @@ package org.ballerinalang.debugadapter.evaluation;
 
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LinePosition;
@@ -41,36 +41,63 @@ import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.Ident
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeIdentifier;
 
 /**
- * Import resolver implementation to capture imported modules within a given user expression (syntax node).
+ * Import resolver implementation to capture imported modules within a given code block (syntax node).
  *
  * @since 2.0.0
  */
 public class EvaluationImportResolver extends NodeVisitor {
 
     private final SuspendedContext context;
-    private final Map<String, ModuleSymbol> capturedImports = new HashMap<>();
+    private final Map<String, BImport> capturedImports = new HashMap<>();
     private final Map<String, BImport> visibleImports = new HashMap<>();
     private final List<ModuleSymbol> visibleModuleSymbols = new ArrayList<>();
     private final List<EvaluationException> capturedErrors = new ArrayList<>();
 
-    EvaluationImportResolver(SuspendedContext context) {
+    public EvaluationImportResolver(SuspendedContext context) {
         this.context = context;
     }
 
     /**
-     * Returns a map of detected module symbols within the given expression node, against their module prefixes.
+     * Returns a map of all the imports declared in the current debug source, against their module prefix/alias.
      *
-     * @param expressionNode syntax node of the expression
-     * @return a map of detected module symbols within the given expression node, against their module prefixes
+     * @return a map of all the imports declared in the current debug source.
      */
-    public Map<String, ModuleSymbol> detectImportedModules(ExpressionNode expressionNode) throws EvaluationException {
-        loadVisibleImports();
-        loadVisibleModuleSymbols();
-        expressionNode.accept(this);
+    public Map<String, BImport> getAllImports() throws EvaluationException {
+        resolveVisibleImports();
+        return Map.copyOf(visibleImports);
+    }
+
+    /**
+     * Returns a map of detected imports within a given code snippet, against their module prefix/alias.
+     *
+     * @param syntaxNode syntax node of the code snippet
+     * @return a map of detected imports within the given node, against their module prefix.
+     */
+    public Map<String, BImport> detectUsedImports(NonTerminalNode syntaxNode) throws EvaluationException {
+        return detectUsedImports(syntaxNode, null);
+    }
+
+    /**
+     * Returns a map of detected imports within a given code snippet, against their module prefix/alias.
+     *
+     * @param syntaxNode      syntax node of the code snippet
+     * @param resolvedImports a list of already resolved imports, to avoid redundant processing.
+     * @return a map of detected imports within the given syntax node.
+     */
+    public Map<String, BImport> detectUsedImports(NonTerminalNode syntaxNode, Map<String, BImport> resolvedImports)
+            throws EvaluationException {
+
+        if (resolvedImports == null) {
+            resolveVisibleImports();
+        } else {
+            visibleImports.clear();
+            visibleImports.putAll(resolvedImports);
+        }
+        syntaxNode.accept(this);
         if (!capturedErrors.isEmpty()) {
             throw capturedErrors.get(0);
         }
-        return capturedImports;
+        return Map.copyOf(capturedImports);
     }
 
     @Override
@@ -82,23 +109,14 @@ public class EvaluationImportResolver extends NodeVisitor {
         }
 
         BImport bImport = visibleImports.get(modulePrefix);
-        List<ModuleSymbol> matchingModuleSymbols = visibleModuleSymbols.stream().filter(moduleSymbol ->
-                moduleSymbol.id().orgName().equals(bImport.orgName())
-                        && moduleSymbol.id().moduleName().equals(bImport.moduleName()))
-                .collect(Collectors.toList());
-
-        if (matchingModuleSymbols.isEmpty()) {
-            capturedErrors.add(createEvaluationException(IMPORT_RESOLVING_ERROR, modulePrefix));
-            return;
-        } else if (matchingModuleSymbols.size() > 1) {
-            capturedErrors.add(createEvaluationException("Multiple modules found for import '" + modulePrefix + "'"));
-            return;
-        }
-
-        capturedImports.put(bImport.alias(), matchingModuleSymbols.get(0));
+        capturedImports.put(bImport.alias(), bImport);
     }
 
-    private void loadVisibleImports() {
+    /**
+     * Pre-processing task to resolve module information for all the import declarations in the debug hit source.
+     */
+    private void resolveVisibleImports() {
+        loadVisibleModuleSymbols();
         if (!this.visibleImports.isEmpty()) {
             return;
         }
@@ -117,6 +135,21 @@ public class EvaluationImportResolver extends NodeVisitor {
             if (orgName.isPresent() && moduleName.isPresent()) {
                 String importAlias = resolveImportAlias(importNode, moduleName.get());
                 BImport bImport = new BImport(orgName.get(), moduleName.get(), importAlias);
+
+                List<ModuleSymbol> matchingModuleSymbols = visibleModuleSymbols.stream()
+                        .filter(moduleSymbol -> moduleSymbol.id().orgName().equals(bImport.orgName())
+                                && moduleSymbol.id().moduleName().equals(bImport.moduleName()))
+                        .collect(Collectors.toList());
+
+                if (matchingModuleSymbols.isEmpty()) {
+                    capturedErrors.add(createEvaluationException(IMPORT_RESOLVING_ERROR, importAlias));
+                    return;
+                } else if (matchingModuleSymbols.size() > 1) {
+                    capturedErrors.add(createEvaluationException(String.format("Multiple modules found for import '%s'",
+                            importAlias)));
+                    return;
+                }
+                bImport.setResolvedModuleSymbol(matchingModuleSymbols.get(0));
                 visibleImports.put(importAlias, bImport);
             }
         }
@@ -148,34 +181,6 @@ public class EvaluationImportResolver extends NodeVisitor {
         } else {
             String[] moduleNameParts = moduleName.split("\\.");
             return moduleNameParts[moduleNameParts.length - 1];
-        }
-    }
-
-    /**
-     * Helper class to hold information of resolved imports.
-     */
-    private static class BImport {
-
-        private final String orgName;
-        private final String moduleName;
-        private final String alias;
-
-        private BImport(String orgName, String moduleName, String alias) {
-            this.orgName = orgName;
-            this.moduleName = moduleName;
-            this.alias = alias;
-        }
-
-        public String orgName() {
-            return orgName;
-        }
-
-        public String moduleName() {
-            return moduleName;
-        }
-
-        public String alias() {
-            return alias;
         }
     }
 }

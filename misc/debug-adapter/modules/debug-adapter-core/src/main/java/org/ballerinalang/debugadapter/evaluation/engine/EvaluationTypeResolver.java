@@ -21,7 +21,6 @@ import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -29,6 +28,7 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
+import org.ballerinalang.debugadapter.evaluation.BImport;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.IdentifierModifier;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
@@ -67,7 +67,7 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_TYPE_INSTAN
 public abstract class EvaluationTypeResolver<T> {
 
     protected final SuspendedContext context;
-    protected final Map<String, ModuleSymbol> resolvedImports;
+    protected final Map<String, BImport> resolvedImports;
 
     protected EvaluationTypeResolver(EvaluationContext evaluationContext) {
         this.context = evaluationContext.getSuspendedContext();
@@ -122,7 +122,7 @@ public abstract class EvaluationTypeResolver<T> {
     }
 
     protected Optional<Symbol> getQualifiedTypeDefinitionSymbol(String modulePrefix, String typeName) {
-        return this.resolvedImports.get(modulePrefix).allSymbols().stream()
+        return this.resolvedImports.get(modulePrefix).getModuleSymbol().allSymbols().stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS)
                 .filter(symbol -> encodeIdentifier(symbol.getName().get(), IdentifierModifier.IdentifierType.OTHER)
                         .equals(typeName))

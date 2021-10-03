@@ -102,7 +102,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
             if (!resolvedImports.containsKey(modulePrefix.get())) {
                 throw createEvaluationException(IMPORT_RESOLVING_ERROR, modulePrefix.get());
             }
-            functionMatches = resolvedImports.get(modulePrefix.get()).functions().stream()
+            functionMatches = resolvedImports.get(modulePrefix.get()).getModuleSymbol().functions().stream()
                     .filter(symbol -> symbol.getName().isPresent() &&
                             modifyName(symbol.getName().get()).equals(functionName))
                     .collect(Collectors.toList());

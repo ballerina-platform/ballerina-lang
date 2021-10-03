@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
+import org.ballerinalang.debugadapter.evaluation.BImport;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 
 import java.util.Map;
@@ -33,7 +34,7 @@ public abstract class Evaluator {
 
     protected final EvaluationContext evaluationContext;
     protected final SuspendedContext context;
-    protected final Map<String, ModuleSymbol> resolvedImports;
+    protected final Map<String, BImport> resolvedImports;
 
     public Evaluator(EvaluationContext evaluationContext) {
         this.context = evaluationContext.getSuspendedContext();
@@ -56,7 +57,7 @@ public abstract class Evaluator {
         return null;
     }
 
-    public Map<String, ModuleSymbol> getResolvedImports() {
+    public Map<String, BImport> getResolvedImports() {
         return resolvedImports;
     }
 }

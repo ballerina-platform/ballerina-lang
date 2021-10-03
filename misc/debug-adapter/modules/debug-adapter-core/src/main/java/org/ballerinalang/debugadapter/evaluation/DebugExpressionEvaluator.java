@@ -16,7 +16,6 @@
 
 package org.ballerinalang.debugadapter.evaluation;
 
-import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
@@ -55,10 +54,11 @@ public class DebugExpressionEvaluator extends Evaluator {
             SerialExpressionValidator expressionValidator = new SerialExpressionValidator();
             ExpressionNode parsedExpression = expressionValidator.validateAndParse(expression);
 
-            // Validates the import prefixes (qualified name references) in the expression.
             EvaluationImportResolver importResolver = new EvaluationImportResolver(context);
-            Map<String, ModuleSymbol> resolvedImports = importResolver.detectImportedModules(parsedExpression);
+            Map<String, BImport> resolvedImports = importResolver.getAllImports();
             evaluationContext.setResolvedImports(resolvedImports);
+            // Validates the import prefixes (qualified name references) within the expression.
+            importResolver.detectUsedImports(parsedExpression);
 
             // Uses `ExpressionIdentifierModifier` to modify and encode all the identifiers within the expression.
             parsedExpression = (ExpressionNode) parsedExpression.apply(new IdentifierModifier());
