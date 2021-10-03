@@ -26,7 +26,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmErrorTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmObjectTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmRecordTypeGen;

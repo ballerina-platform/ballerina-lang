@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.bir.codegen.split;
 
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 
 import java.util.Map;
