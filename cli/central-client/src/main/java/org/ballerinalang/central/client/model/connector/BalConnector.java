@@ -28,6 +28,7 @@ import java.util.Map;
  * BalConnector model.
  */
 public class BalConnector {
+    public static final String JSON_PROPERTY_PACKAGE = "package";
     @Expose
     public String id;
     @Expose
@@ -50,21 +51,38 @@ public class BalConnector {
     public Map<String, String> displayAnnotation;
     @Expose
     public List<BalFunction> functions;
+    @SerializedName(JSON_PROPERTY_PACKAGE)
+    public Package packageInfo;
 
-    public static final String JSON_PROPERTY_PACKAGE = "package";
-    @SerializedName(JSON_PROPERTY_PACKAGE) public Package packageInfo;
+    public BalConnector() {
+    }
 
-    public BalConnector() { }
+    public BalConnector(String orgName, String moduleName, String packageName, String version, String name,
+                        String documentation, Map<String, String> displayAnnotation) {
+        this.moduleName = moduleName;
+        this.name = name;
+        this.documentation = documentation;
+        this.displayAnnotation = displayAnnotation;
+
+        Package packageInfo = new Package();
+        packageInfo.setOrganization(orgName);
+        packageInfo.setName(packageName);
+        packageInfo.setVersion(version);
+        this.packageInfo = packageInfo;
+    }
 
     public BalConnector(String orgName, String moduleName, String packageName, String version, String name,
                         String documentation, Map<String, String> displayAnnotation, List<BalFunction> functions) {
-        this.orgName = orgName;
         this.moduleName = moduleName;
-        this.packageName = packageName;
-        this.version = version;
         this.name = name;
         this.documentation = documentation;
         this.displayAnnotation = displayAnnotation;
         this.functions = functions;
+
+        Package packageInfo = new Package();
+        packageInfo.setOrganization(orgName);
+        packageInfo.setName(packageName);
+        packageInfo.setVersion(version);
+        this.packageInfo = packageInfo;
     }
 }

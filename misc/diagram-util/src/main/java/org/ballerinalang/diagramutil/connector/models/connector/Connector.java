@@ -29,6 +29,11 @@ import java.util.Map;
 public class Connector extends BalConnector {
 
     public Connector(String orgName, String moduleName, String packageName, String version, String name,
+                     String documentation, Map<String, String> displayAnnotation) {
+        super(orgName, moduleName, packageName, version, name, documentation, displayAnnotation);
+    }
+
+    public Connector(String orgName, String moduleName, String packageName, String version, String name,
                      String documentation, Map<String, String> displayAnnotation, List<BalFunction> functions) {
         super(orgName, moduleName, packageName, version, name, documentation, displayAnnotation, functions);
     }

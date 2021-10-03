@@ -40,6 +40,7 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import org.ballerinalang.central.client.model.connector.BalFunction;
 import org.ballerinalang.diagramutil.connector.models.connector.Connector;
@@ -61,6 +62,54 @@ import java.util.Optional;
  * Generator used to generate the Connector model.
  */
 public class ConnectorGenerator {
+
+    public static List<Connector> getProjectConnectors(Project project, boolean detailed) throws IOException {
+        List<Connector> connectorsList = new ArrayList<>();
+        Package currentPackage = project.currentPackage();
+        String packageName = currentPackage.packageName().toString();
+        String version = currentPackage.packageVersion().toString();
+        String orgName = currentPackage.packageOrg().toString();
+
+        currentPackage.modules().forEach(module -> {
+            module.documentIds().forEach(documentId -> {
+                SyntaxTree syntaxTree = module.document(documentId).syntaxTree();
+                SemanticModel semanticModel = module.getCompilation().getSemanticModel();
+                String moduleName = module.moduleName().toString();
+
+                if (syntaxTree.containsModulePart()) {
+                    ModulePartNode modulePartNode = syntaxTree.rootNode();
+                    for (Node node : modulePartNode.members()) {
+                        if (node.kind() == SyntaxKind.CLASS_DEFINITION) {
+                            ClassDefinitionNode classDefinition = (ClassDefinitionNode) node;
+                            if (classDefinition.visibilityQualifier().isPresent()
+                                    && classDefinition.visibilityQualifier().get()
+                                    .kind().equals(SyntaxKind.PUBLIC_KEYWORD) && Generator
+                                    .containsToken(classDefinition.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD)) {
+                                String connectorName = classDefinition.className().text();
+                                String description = getDocFromMetadata(classDefinition.metadata());
+                                Map<String, String> connectorAnnotation =
+                                        getDisplayAnnotationFromMetadataNode(classDefinition.metadata());
+                                if (!connectorAnnotation.get("label").isEmpty()) {
+                                    connectorName = connectorAnnotation.get("label");
+                                }
+
+                                if (detailed) {
+                                    List<BalFunction> functions = getConnectorFunctions(semanticModel, classDefinition);
+                                    connectorsList.add(new Connector(orgName, moduleName, packageName, version,
+                                            connectorName, description, connectorAnnotation, functions));
+                                } else {
+                                    connectorsList.add(new Connector(orgName, moduleName, packageName, version,
+                                            connectorName, description, connectorAnnotation));
+                                }
+                            }
+                        }
+                    }
+                }
+
+            });
+        });
+        return connectorsList;
+    }
 
     public static List<Connector> generateConnectorModel(Project project) throws IOException {
         List<Connector> connectors = new ArrayList<>();
@@ -93,43 +142,52 @@ public class ConnectorGenerator {
                         String description = getDocFromMetadata(classDefinition.metadata());
                         Map<String, String> connectorAnnotation =
                                 getDisplayAnnotationFromMetadataNode(classDefinition.metadata());
-                        List<BalFunction> functions = new ArrayList<>();
-                        for (Node member : classDefinition.members()) {
-                            if (member instanceof FunctionDefinitionNode &&
-                                    (Generator.containsToken(((FunctionDefinitionNode) member).qualifierList(),
-                                            SyntaxKind.PUBLIC_KEYWORD) ||
-                                            Generator.containsToken(((FunctionDefinitionNode) member).qualifierList(),
-                                                    SyntaxKind.REMOTE_KEYWORD))) {
-                                FunctionDefinitionNode functionDefinition = (FunctionDefinitionNode) member;
-                                List<org.ballerinalang.central.client.model.connector.BalType> parameters =
-                                        new ArrayList<>();
-
-                                String functionName = functionDefinition.functionName().text();
-                                Map<String, String> funcAnnotation =
-                                        getDisplayAnnotationFromMetadataNode(functionDefinition.metadata());
-
-                                FunctionSignatureNode functionSignature = functionDefinition.functionSignature();
-                                parameters.addAll(getFunctionParameters(functionSignature.parameters(),
-                                        functionDefinition.metadata(), semanticModel));
-
-                                org.ballerinalang.central.client.model.connector.BalType returnParam = null;
-                                if (functionSignature.returnTypeDesc().isPresent()) {
-                                    returnParam = getReturnParameter(functionSignature.returnTypeDesc().get(),
-                                            functionDefinition.metadata(), semanticModel);
-                                }
-                                functions.add(new Function(functionName, parameters, returnParam, funcAnnotation,
-                                        Generator.containsToken(((FunctionDefinitionNode) member).qualifierList(),
-                                                SyntaxKind.REMOTE_KEYWORD),
-                                        getDocFromMetadata(functionDefinition.metadata())));
-                            }
+                        if (!connectorAnnotation.get("label").isEmpty()) {
+                            connectorName = connectorAnnotation.get("label");
                         }
-                        connectorsList.add(new Connector(orgName, moduleName, packageName, version, connectorName,
-                                description, connectorAnnotation, functions));
+                        List<BalFunction> functions = getConnectorFunctions(semanticModel, classDefinition);
+                        connectorsList.add(new Connector(orgName, moduleName, packageName, version,
+                                connectorName, description, connectorAnnotation, functions));
                     }
                 }
             }
         }
         return connectorsList;
+    }
+
+    private static List<BalFunction> getConnectorFunctions(SemanticModel semanticModel,
+                                                           ClassDefinitionNode classDefinition) {
+        List<BalFunction> functions = new ArrayList<>();
+        for (Node member : classDefinition.members()) {
+            if (member instanceof FunctionDefinitionNode &&
+                    (Generator.containsToken(((FunctionDefinitionNode) member).qualifierList(),
+                            SyntaxKind.PUBLIC_KEYWORD) ||
+                            Generator.containsToken(((FunctionDefinitionNode) member).qualifierList(),
+                                    SyntaxKind.REMOTE_KEYWORD))) {
+                FunctionDefinitionNode functionDefinition = (FunctionDefinitionNode) member;
+                List<org.ballerinalang.central.client.model.connector.BalType> parameters =
+                        new ArrayList<>();
+
+                String functionName = functionDefinition.functionName().text();
+                Map<String, String> funcAnnotation =
+                        getDisplayAnnotationFromMetadataNode(functionDefinition.metadata());
+
+                FunctionSignatureNode functionSignature = functionDefinition.functionSignature();
+                parameters.addAll(getFunctionParameters(functionSignature.parameters(),
+                        functionDefinition.metadata(), semanticModel));
+
+                org.ballerinalang.central.client.model.connector.BalType returnParam = null;
+                if (functionSignature.returnTypeDesc().isPresent()) {
+                    returnParam = getReturnParameter(functionSignature.returnTypeDesc().get(),
+                            functionDefinition.metadata(), semanticModel);
+                }
+                functions.add(new Function(functionName, parameters, returnParam, funcAnnotation,
+                        Generator.containsToken(((FunctionDefinitionNode) member).qualifierList(),
+                                SyntaxKind.REMOTE_KEYWORD),
+                        getDocFromMetadata(functionDefinition.metadata())));
+            }
+        }
+        return functions;
     }
 
     public static List<Type> getFunctionParameters(SeparatedNodeList<ParameterNode> parameterNodes,

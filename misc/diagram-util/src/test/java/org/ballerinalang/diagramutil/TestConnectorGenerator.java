@@ -65,10 +65,9 @@ public class TestConnectorGenerator {
         Assert.assertEquals(connectors.size(), 1);
         Connector connector = connectors.get(0);
 
-        Assert.assertEquals(connector.orgName, orgName);
         Assert.assertEquals(connector.moduleName, moduleName);
-        Assert.assertEquals(connector.version, version);
         Assert.assertEquals(connector.documentation, "Test Client documentation\n\n");
+        Assert.assertEquals(connector.packageInfo.getOrganization(), orgName);
         Assert.assertTrue(connector.displayAnnotation.containsKey("label"));
         Assert.assertTrue(connector.displayAnnotation.containsKey("iconPath"));
         Assert.assertEquals(connector.displayAnnotation.get("label"), "Test Client");
@@ -100,7 +99,7 @@ public class TestConnectorGenerator {
 
         Assert.assertEquals(modelFromSyntaxTree.size(), 1);
         Assert.assertEquals(modelFromSyntaxTree.get(0).moduleName, moduleName);
-        Assert.assertEquals(modelFromSyntaxTree.get(0).version, version);
+        Assert.assertEquals(modelFromSyntaxTree.get(0).packageInfo.getVersion(), version);
 
         Assert.assertEquals(modelFromSyntaxTree.get(0).functions.size(), 3);
         Assert.assertEquals(modelFromSyntaxTree.get(0).functions.get(0).name, initFunc);

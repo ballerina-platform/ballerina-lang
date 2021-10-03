@@ -96,10 +96,9 @@ public class TestConnectorModels {
 
     @Test(description = "Test ballerina connector object")
     public void getBalConnector() {
-        Assert.assertEquals(connector.orgName, orgName);
         Assert.assertEquals(connector.moduleName, moduleName);
-        Assert.assertEquals(connector.packageName, packageName);
-        Assert.assertEquals(connector.version, version);
+        Assert.assertEquals(connector.packageInfo.getName(), packageName);
+        Assert.assertEquals(connector.packageInfo.getOrganization(), orgName);
         Assert.assertEquals(connector.functions.size(), 1);
         Assert.assertEquals(connector.functions.get(0).name, initFunc);
     }
@@ -107,7 +106,7 @@ public class TestConnectorModels {
     @Test(description = "Test ballerina connector search results object")
     public void getBalConnectorSearchResult() {
         Assert.assertEquals(searchResult.getConnectors().size(), 1);
-        Assert.assertEquals(searchResult.getConnectors().get(0).packageName, packageName);
+        Assert.assertEquals(searchResult.getConnectors().get(0).packageInfo.getName(), packageName);
         Assert.assertEquals(searchResult.getConnectors().get(0).documentation, documentation);
         Assert.assertEquals(searchResult.getCount(), 1);
         Assert.assertEquals(searchResult.getLimit(), 10);

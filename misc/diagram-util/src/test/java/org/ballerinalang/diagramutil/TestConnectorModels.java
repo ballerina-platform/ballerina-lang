@@ -85,10 +85,9 @@ public class TestConnectorModels {
 
     @Test(description = "Test ballerina connector object")
     public void getConnector() {
-        Assert.assertEquals(connector.orgName, orgName);
         Assert.assertEquals(connector.moduleName, moduleName);
-        Assert.assertEquals(connector.packageName, packageName);
-        Assert.assertEquals(connector.version, version);
+        Assert.assertEquals(connector.packageInfo.getOrganization(), orgName);
+        Assert.assertEquals(connector.packageInfo.getName(), packageName);
         Assert.assertEquals(connector.functions.size(), 1);
         Assert.assertEquals(connector.functions.get(0).name, initFunc);
     }
