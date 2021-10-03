@@ -94,6 +94,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_FIELDS_PER_SPLIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_TYPES_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ANON_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TYPES_CLASS_NAME;
@@ -120,8 +122,6 @@ public class JvmCreateTypeGen {
     private final JvmUnionTypeGen jvmUnionTypeGen;
     private final JvmTupleTypeGen jvmTupleTypeGen;
     private final TypeHashVisitor typeHashVisitor = new TypeHashVisitor();
-    public static final int MAX_TYPES_PER_METHOD = 3;
-    public static final int MAX_FIELDS_PER_SPLIT_METHOD = 3;
     private final String typesClass;
     private final String anonTypesClass;
     private final ClassWriter typesCw;

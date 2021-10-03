@@ -52,12 +52,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_TYPES_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ERRORS_CREATOR_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeFieldName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.MAX_TYPES_PER_METHOD;
 
 /**
  * Ballerina error value creation related JVM byte code generation class.

@@ -54,6 +54,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.castToJ
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CALLS_PER_CLIENT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_FIELDS_PER_SPLIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
@@ -68,13 +70,8 @@ public class JvmObjectGen {
 
     static final FieldNameHashComparator FIELD_NAME_HASH_COMPARATOR = new FieldNameHashComparator();
 
-    private static final int MAX_CALLS_PER_CLIENT_METHOD = 100;
-
-    private static final int MAX_FIELDS_PER_SPLIT_METHOD = 500;
-
     public void createAndSplitCallMethod(ClassWriter cw, List<BIRNode.BIRFunction> functions, String objClassName,
                                          JvmCastGen jvmCastGen) {
-
         int bTypesCount = 0;
         int methodCount = 0;
         MethodVisitor mv = null;

@@ -68,6 +68,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_TYPES_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.METHOD_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.METHOD_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
@@ -81,7 +82,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_T
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_TYPEID_SET_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ID_SET;
-import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.MAX_TYPES_PER_METHOD;
 
 /**
  * BIR object type to JVM byte code generation class.

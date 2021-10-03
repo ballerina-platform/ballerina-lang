@@ -68,6 +68,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_SIMPLE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_FIELDS_PER_SPLIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
@@ -85,8 +86,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.isOptional
 public class JvmRecordGen {
 
     static final FieldNameHashComparator FIELD_NAME_HASH_COMPARATOR = new FieldNameHashComparator();
-
-    private static final int MAX_FIELDS_PER_SPLIT_METHOD = 500;
 
     private final BType booleanType;
 
