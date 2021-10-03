@@ -104,9 +104,10 @@
 
             <!--Statements-->
             <class name="io.ballerina.semantic.api.test.statements.SymbolsInMatchStmtTest" />
-            <class name="io.ballerina.semantic.api.test.statements.SymbolsInLocalVarDeclStatements" />
-            <class name="io.ballerina.semantic.api.test.statements.SymbolsInAssignmentStatements" />
-            <class name="io.ballerina.semantic.api.test.statements.SymbolsInCallStatements" />
+            <class name="io.ballerina.semantic.api.test.statements.SymbolsInLocalVarDeclStatementsTest" />
+            <class name="io.ballerina.semantic.api.test.statements.SymbolsInAssignmentStatementsTest" />
+            <class name="io.ballerina.semantic.api.test.statements.SymbolsInCallStatementsTest" />
+            <class name="io.ballerina.semantic.api.test.statements.SymbolsInTransactionStatements" />
 
             <!--Symbols-->
             <class name="io.ballerina.semantic.api.test.symbols.ClassSymbolTest" />

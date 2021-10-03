@@ -48,7 +48,7 @@ import static org.testng.Assert.assertTrue;
  *
  * @since 2.0.0
  */
-public class SymbolsInLocalVarDeclStatements {
+public class SymbolsInLocalVarDeclStatementsTest {
 
     private SemanticModel model;
     private Document srcFile;

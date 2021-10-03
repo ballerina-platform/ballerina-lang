@@ -57,7 +57,7 @@ import static org.testng.Assert.assertTrue;
  *
  * @since 2.0.0
  */
-public class SymbolsInCallStatements {
+public class SymbolsInCallStatementsTest {
 
     private SemanticModel model;
     private Document srcFile;
