@@ -29,7 +29,7 @@ public class CompilationOptionsBuilder {
     private Boolean experimental;
     private Boolean observabilityIncluded;
     private Boolean dumpBir;
-    private String dumpBirFile;
+    private Boolean dumpBirFile;
     private String cloud;
     private Boolean listConflictedClasses;
     private Boolean sticky;
@@ -64,7 +64,7 @@ public class CompilationOptionsBuilder {
         return this;
     }
 
-    CompilationOptionsBuilder dumpBirFile(String value) {
+    CompilationOptionsBuilder dumpBirFile(Boolean value) {
         dumpBirFile = value;
         return this;
     }
