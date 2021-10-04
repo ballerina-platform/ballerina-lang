@@ -249,7 +249,7 @@ public class JvmCreateTypeGen {
     private Map<String, String> populateTypes(ClassWriter cw, List<BIRTypeDefinition> typeDefs, String typeOwnerClass,
                                               SymbolTable symbolTable) {
 
-        Map<String, String> funcNamesMap = new HashMap<>();
+        Map<String, String> funcTypeClassMap = new HashMap<>();
         String fieldName;
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
@@ -263,13 +263,13 @@ public class JvmCreateTypeGen {
             MethodVisitor mv;
             switch (bType.tag) {
                 case TypeTags.RECORD:
-                    funcNamesMap.put(methodName, jvmRecordTypeGen.recordTypesClass);
+                    funcTypeClassMap.put(methodName, jvmRecordTypeGen.recordTypesClass);
                     mv = createPopulateTypeMethod(jvmRecordTypeGen.recordTypesCw, methodName, typeOwnerClass,
                             fieldName);
                     jvmRecordTypeGen.populateRecord(mv, methodName, (BRecordType) bType);
                     break;
                 case TypeTags.OBJECT:
-                    funcNamesMap.put(methodName, jvmObjectTypeGen.objectTypesClass);
+                    funcTypeClassMap.put(methodName, jvmObjectTypeGen.objectTypesClass);
                     mv = createPopulateTypeMethod(jvmObjectTypeGen.objectTypesCw, methodName,
                             typeOwnerClass, fieldName);
                     jvmObjectTypeGen.populateObject(cw, mv, methodName, symbolTable, fieldName, (BObjectType) bType,
@@ -277,17 +277,17 @@ public class JvmCreateTypeGen {
                     break;
                 case TypeTags.ERROR:
                     // populate detail field
-                    funcNamesMap.put(methodName, jvmErrorTypeGen.errorTypesClass);
+                    funcTypeClassMap.put(methodName, jvmErrorTypeGen.errorTypesClass);
                     mv = createPopulateTypeMethod(jvmErrorTypeGen.errorTypesCw, methodName, typeOwnerClass, fieldName);
                     jvmErrorTypeGen.populateError(mv, (BErrorType) bType);
                     break;
                 case TypeTags.TUPLE:
-                    funcNamesMap.put(methodName, jvmTupleTypeGen.tupleTypesClass);
+                    funcTypeClassMap.put(methodName, jvmTupleTypeGen.tupleTypesClass);
                     mv = createPopulateTypeMethod(jvmTupleTypeGen.tupleTypesCw, methodName, typeOwnerClass, fieldName);
                     jvmTupleTypeGen.populateTuple(mv, (BTupleType) bType);
                     break;
                 default:
-                    funcNamesMap.put(methodName, jvmUnionTypeGen.unionTypesClass);
+                    funcTypeClassMap.put(methodName, jvmUnionTypeGen.unionTypesClass);
                     mv = createPopulateTypeMethod(jvmUnionTypeGen.unionTypesCw, methodName, typeOwnerClass, fieldName);
                     jvmUnionTypeGen.populateUnion(cw, mv, (BUnionType) bType, typesClass, fieldName);
                     break;
@@ -298,7 +298,7 @@ public class JvmCreateTypeGen {
             mv.visitEnd();
         }
 
-        return funcNamesMap;
+        return funcTypeClassMap;
     }
 
     private MethodVisitor createPopulateTypeMethod(ClassWriter cw, String methodName, String typeOwnerClass,
