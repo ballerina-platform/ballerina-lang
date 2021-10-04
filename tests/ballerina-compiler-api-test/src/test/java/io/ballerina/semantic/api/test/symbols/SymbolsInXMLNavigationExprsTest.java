@@ -82,7 +82,6 @@ public class SymbolsInXMLNavigationExprsTest {
 
     @Test(dataProvider = "StepExprPosProvider")
     public void testXMLStepExprs(int line, int col, SymbolKind kind, String name) {
-        // TODO: Commented tests are due to: https://github.com/ballerina-platform/ballerina-lang/issues/32835
         assertSymbol(line, col, kind, name);
     }
 
@@ -96,10 +95,10 @@ public class SymbolsInXMLNavigationExprsTest {
                 {34, 13, null, null},
                 {35, 12, null, null},
                 {35, 16, XMLNS, "ns"},
-//                {36, 23, VARIABLE, "indx"},
+                {36, 23, VARIABLE, "indx"},
                 {37, 16, XMLNS, "ns"},
                 {37, 25, XMLNS, "k"},
-//                {38, 28, FUNCTION, "toString"},
+                {38, 32, FUNCTION, "toString"},
         };
     }
 
