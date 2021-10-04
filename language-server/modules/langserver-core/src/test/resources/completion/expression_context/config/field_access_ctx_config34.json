@@ -46,11 +46,11 @@
     {
       "label": "shift()",
       "kind": "Function",
-      "detail": "array:Type",
+      "detail": "array:Type1",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves and returns first member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `array:Type`   \n- the value that was the first member of the array  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves and returns first member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `array:Type1`   \n- the value that was the first member of the array  \n  \n"
         }
       },
       "sortText": "E",
@@ -76,11 +76,11 @@
     {
       "label": "sort(array:SortDirection direction, function ()? key)",
       "kind": "Function",
-      "detail": "array:Type[]",
+      "detail": "array:Type1[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nSorts an array.\n\nIf the member type of the array is not ordered, then the parameter `key` function\nmust be specified.\nSorting works the same as with the parameter `sort` clause of query expressions.\n  \n**Params**  \n- `array:SortDirection` direction: direction in which to sort(Defaultable)  \n- `function ()?` key: function that returns a key to use to sort the members(Defaultable)  \n  \n**Return** `array:Type[]`   \n- a new array consisting of the members of parameter `arr` in sorted order  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nSorts an array.\n\nIf the member type of the array is not ordered, then the parameter `key` function\nmust be specified.\nSorting works the same as with the parameter `sort` clause of query expressions.\n  \n**Params**  \n- `array:SortDirection` direction: direction in which to sort(Defaultable)  \n- `function ()?` key: function that returns a key to use to sort the members(Defaultable)  \n  \n**Return** `array:Type1[]`   \n- a new array consisting of the members of parameter `arr` in sorted order  \n  \n"
         }
       },
       "sortText": "E",
@@ -95,11 +95,11 @@
     {
       "label": "reverse()",
       "kind": "Function",
-      "detail": "array:Type[]",
+      "detail": "array:Type1[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReverses the order of the members of an array.\n  \n  \n  \n**Return** `array:Type[]`   \n- parameter `arr` with its members in reverse order  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReverses the order of the members of an array.\n  \n  \n  \n**Return** `array:Type1[]`   \n- parameter `arr` with its members in reverse order  \n  \n"
         }
       },
       "sortText": "E",
@@ -110,11 +110,11 @@
     {
       "label": "toStream()",
       "kind": "Function",
-      "detail": "stream<array:Type>",
+      "detail": "stream<array:Type1>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a stream from the given array.\n  \n  \n  \n**Return** `stream<array:Type>`   \n- The stream representation of the array `arr`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a stream from the given array.\n  \n  \n  \n**Return** `stream<array:Type1>`   \n- The stream representation of the array `arr`  \n  \n"
         }
       },
       "sortText": "E",
@@ -125,11 +125,11 @@
     {
       "label": "remove(int index)",
       "kind": "Function",
-      "detail": "array:Type",
+      "detail": "array:Type1",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves a member of an array.\n\nThis removes the member of parameter `arr` with index parameter `index` and returns it.\nIt panics if there is no such member.\n  \n**Params**  \n- `int` index: index of member to be removed from parameter `arr`  \n  \n**Return** `array:Type`   \n- the member of parameter `arr` that was at parameter `index`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves a member of an array.\n\nThis removes the member of parameter `arr` with index parameter `index` and returns it.\nIt panics if there is no such member.\n  \n**Params**  \n- `int` index: index of member to be removed from parameter `arr`  \n  \n**Return** `array:Type1`   \n- the member of parameter `arr` that was at parameter `index`  \n  \n"
         }
       },
       "sortText": "E",
@@ -142,13 +142,13 @@
       }
     },
     {
-      "label": "push(array:Type... vals)",
+      "label": "push(array:Type1... vals)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nAdds values to the end of an array.\n  \n**Params**  \n- `array:Type[]` vals: values to add to the end of the array"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nAdds values to the end of an array.\n  \n**Params**  \n- `array:Type1[]` vals: values to add to the end of the array"
         }
       },
       "sortText": "E",
@@ -163,11 +163,11 @@
     {
       "label": "filter(function () func)",
       "kind": "Function",
-      "detail": "array:Type[]",
+      "detail": "array:Type1[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nSelects the members from an array for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `array:Type[]`   \n- new array only containing members of parameter `arr` for which parameter `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nSelects the members from an array for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `array:Type1[]`   \n- new array only containing members of parameter `arr` for which parameter `func` evaluates to true  \n  \n"
         }
       },
       "sortText": "E",
@@ -182,11 +182,11 @@
     {
       "label": "pop()",
       "kind": "Function",
-      "detail": "array:Type",
+      "detail": "array:Type1",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves and returns the last member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `array:Type`   \n- removed member  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves and returns the last member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `array:Type1`   \n- removed member  \n  \n"
         }
       },
       "sortText": "E",
@@ -197,11 +197,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {| array:Type value; |}? ;}",
+      "detail": "array:$anonType$_3",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns an iterator over an array.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| array:Type value; |}? ;}`   \n- a new iterator object that will iterate over the members of parameter `arr`.  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns an iterator over an array.\n  \n  \n  \n**Return** `array:$anonType$_3`   \n- a new iterator object that will iterate over the members of parameter `arr`.  \n  \n"
         }
       },
       "sortText": "E",
@@ -246,11 +246,11 @@
     {
       "label": "slice(int startIndex, int endIndex)",
       "kind": "Function",
-      "detail": "array:Type[]",
+      "detail": "array:Type1[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a subarray using a start index (inclusive) and an end index (exclusive).\n  \n**Params**  \n- `int` startIndex: index of first member to include in the slice  \n- `int` endIndex: index of first member not to include in the slice(Defaultable)  \n  \n**Return** `array:Type[]`   \n- array slice within specified range  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a subarray using a start index (inclusive) and an end index (exclusive).\n  \n**Params**  \n- `int` startIndex: index of first member to include in the slice  \n- `int` endIndex: index of first member not to include in the slice(Defaultable)  \n  \n**Return** `array:Type1[]`   \n- array slice within specified range  \n  \n"
         }
       },
       "sortText": "E",
@@ -265,11 +265,11 @@
     {
       "label": "enumerate()",
       "kind": "Function",
-      "detail": "[int, array:Type][]",
+      "detail": "[int, array:Type1][]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a new array consisting of index and member pairs.\n  \n  \n  \n**Return** `[int, array:Type][]`   \n- array of index, member pairs  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a new array consisting of index and member pairs.\n  \n  \n  \n**Return** `[int, array:Type1][]`   \n- array of index, member pairs  \n  \n"
         }
       },
       "sortText": "E",
@@ -278,13 +278,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "unshift(array:Type... vals)",
+      "label": "unshift(array:Type1... vals)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nAdds values to the start of an array.\n\nThe values newly added to the array will be in the same order\nas they are in parameter `vals`.\n  \n**Params**  \n- `array:Type[]` vals: values to add to the start of the array"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nAdds values to the start of an array.\n\nThe values newly added to the array will be in the same order\nas they are in parameter `vals`.\n  \n**Params**  \n- `array:Type1[]` vals: values to add to the start of the array"
         }
       },
       "sortText": "E",

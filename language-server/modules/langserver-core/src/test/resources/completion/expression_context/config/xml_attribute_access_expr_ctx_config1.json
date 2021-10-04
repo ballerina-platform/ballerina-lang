@@ -385,11 +385,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {| xml:ItemType value; |}? ;}",
+      "detail": "xml:$anonType$_8",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns an iterator over the xml items of an xml sequence.\n\n# Each item is represented by an xml singleton.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| xml:ItemType value; |}? ;}`   \n- iterator object  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns an iterator over the xml items of an xml sequence.\n\n# Each item is represented by an xml singleton.\n  \n  \n  \n**Return** `xml:$anonType$_8`   \n- iterator object  \n  \n"
         }
       },
       "sortText": "E",
@@ -415,11 +415,11 @@
     {
       "label": "slice(int startIndex, int endIndex)",
       "kind": "Function",
-      "detail": "xml<xml:ItemType>",
+      "detail": "xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns a subsequence of an xml value.\n  \n**Params**  \n- `int` startIndex: start index, inclusive  \n- `int` endIndex: end index, exclusive(Defaultable)  \n  \n**Return** `xml<xml:ItemType>`   \n- a subsequence of parameter `x` consisting of items with index >= parameter `startIndex` and < parameter `endIndex`  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns a subsequence of an xml value.\n  \n**Params**  \n- `int` startIndex: start index, inclusive  \n- `int` endIndex: end index, exclusive(Defaultable)  \n  \n**Return** `xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>`   \n- a subsequence of parameter `x` consisting of items with index >= parameter `startIndex` and < parameter `endIndex`  \n  \n"
         }
       },
       "sortText": "E",
