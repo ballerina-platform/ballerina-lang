@@ -557,6 +557,15 @@
       "filterText": "arg3",
       "insertText": "arg3 = ${1:{line: 0, offset: 0}}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "filterText": "null",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

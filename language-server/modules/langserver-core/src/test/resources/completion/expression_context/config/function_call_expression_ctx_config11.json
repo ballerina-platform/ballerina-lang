@@ -650,6 +650,15 @@
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "a = ...",
+      "kind": "Snippet",
+      "detail": "a = {a: 0, b: 0}",
+      "sortText": "AR",
+      "filterText": "a",
+      "insertText": "a = ${1:{a: 0, b: 0}}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
