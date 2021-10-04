@@ -773,7 +773,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 .append(CommonKeys.CLOSE_BRACE_KEY);
         
         SnippetBlock snippetBlock = new SnippetBlock(ItemResolverConstants.ANON_FUNCTION, 
-                ItemResolverConstants.ANON_FUNCTION, snippetBuilder.toString(), ItemResolverConstants.SNIPPET_TYPE, 
+                ItemResolverConstants.FUNCTION, snippetBuilder.toString(), ItemResolverConstants.SNIPPET_TYPE, 
                 SnippetBlock.Kind.SNIPPET);
         
         return Optional.of(new SnippetCompletionItem(context, snippetBlock));
