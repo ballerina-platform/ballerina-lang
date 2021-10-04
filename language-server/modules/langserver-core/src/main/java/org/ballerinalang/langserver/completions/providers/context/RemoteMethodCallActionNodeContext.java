@@ -15,11 +15,15 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -63,7 +67,7 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
              */
             List<Symbol> clientActions = this.getClientActions(expressionType.get());
             completionItems.addAll(this.getCompletionItemList(clientActions, context));
-        } else if (this.withinParameterContext(node, context)) {
+        } else if (CommonUtil.isInMethodCallParameterContext(context, node)) {
             /*
              * Covers the following cases:
              * 1. a->func(<cursor>)
@@ -77,12 +81,27 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
             } else {
                 completionItems.addAll(this.actionKWCompletions(context));
                 completionItems.addAll(this.expressionCompletions(context));
+                completionItems.addAll(this.getNamedArgExpressionCompletionItems(context, node));
             }
         }
 
         this.sort(context, node, completionItems);
-
         return completionItems;
+    }
+
+    private List<LSCompletionItem> getNamedArgExpressionCompletionItems(BallerinaCompletionContext context,
+                                                                        RemoteMethodCallActionNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (semanticModel.isEmpty()) {
+            return completionItems;
+        }
+        Optional<Symbol> symbol = semanticModel.get().symbol(node);
+        if (symbol.isEmpty() || !(symbol.get().kind() == SymbolKind.METHOD)) {
+            return completionItems;
+        }
+        FunctionSymbol functionSymbol = (FunctionSymbol) symbol.get();
+        return getNamedArgCompletionItems(context, functionSymbol, node.arguments());
     }
 
     private boolean onSuggestClientActions(RemoteMethodCallActionNode node, BallerinaCompletionContext context) {
@@ -91,29 +110,14 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
                 (node.openParenToken().isMissing() || cursor <= node.openParenToken().textRange().startOffset());
     }
 
-    private boolean withinParameterContext(RemoteMethodCallActionNode node, BallerinaCompletionContext context) {
-        int cursor = context.getCursorPositionInTree();
-        return !node.openParenToken().isMissing() && node.openParenToken().textRange().endOffset() <= cursor &&
-                (node.closeParenToken().isMissing() || cursor <= node.closeParenToken().textRange().startOffset());
-    }
-
     @Override
     public void sort(BallerinaCompletionContext context,
                      RemoteMethodCallActionNode node,
                      List<LSCompletionItem> completionItems) {
-        if (!withinParameterContext(node, context)) {
-            super.sort(context, node, completionItems);
-            return;
-        }
-        Optional<TypeSymbol> parameterSymbol = context.getContextType();
-        if (parameterSymbol.isEmpty()) {
+        if (!CommonUtil.isInMethodCallParameterContext(context, node)) {
             SortingUtil.toDefaultSorting(context, completionItems);
             return;
         }
-        TypeSymbol symbol = parameterSymbol.get();
-        for (LSCompletionItem completionItem : completionItems) {
-            completionItem.getCompletionItem()
-                    .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
-        }
+        super.sort(context, node, completionItems);
     }
 }
