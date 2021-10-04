@@ -85,6 +85,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -502,6 +503,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRUE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FALSE.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NIL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IS.get()));
@@ -606,5 +608,73 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 }).forEach(completionItems::add);
 
         return completionItems;
+    }
+
+    /**
+     * Returns the completion items based on qualifiers of a given node.
+     * <p>
+     * Currently, isolated, transactional, client, service are considered qualifiers.
+     *
+     * @param node    node of which the qualifiers are checked.
+     * @param context completion context.
+     * @return
+     */
+    protected List<LSCompletionItem> getCompletionItemsOnQualifiers(Node node, BallerinaCompletionContext context) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node);
+        if (qualifiers.isEmpty()) {
+            return completionItems;
+        }
+        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
+        Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
+        switch (lastQualifier.kind()) {
+            case ISOLATED_KEYWORD:
+                if (qualKinds.contains(SyntaxKind.TRANSACTIONAL_KEYWORD)) {
+                    break;
+                }
+                //Objected type desc is added with type completion items in the following case.
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
+                if (qualKinds.contains(SyntaxKind.CLIENT_KEYWORD) ||
+                        qualKinds.contains(SyntaxKind.SERVICE_KEYWORD)) {
+                    break;
+                }
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SERVICE.get()));
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
+                break;
+            case TRANSACTIONAL_KEYWORD:
+                if (!qualKinds.contains(SyntaxKind.ISOLATED_KEYWORD)) {
+                    completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
+                }
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+                break;
+            case CLIENT_KEYWORD:
+            case SERVICE_KEYWORD:
+                if (!qualKinds.contains(SyntaxKind.ISOLATED_KEYWORD)) {
+                    completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
+                }
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
+                completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()));
+                break;
+            default:
+        }
+        return completionItems;
+    }
+
+    /**
+     * Check if the cursor is positioned immediately after a qualifier.
+     *
+     * @param context completion context.
+     * @param node    node.
+     * @return {@link Boolean}
+     */
+    protected boolean onSuggestionsAfterQualifiers(BallerinaCompletionContext context, Node node) {
+        int cursor = context.getCursorPositionInTree();
+        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node);
+        if (qualifiers.isEmpty()) {
+            return false;
+        }
+        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
+        return lastQualifier.textRange().endOffset() < cursor;
     }
 }

@@ -6162,9 +6162,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 tupleMemberTypes.add(paramType);
                 boolean required = requiredParams.contains(nonRestParam);
                 fieldSymbol = new BVarSymbol(Flags.asMask(new HashSet<Flag>() {{
-                                             add(required ? Flag.REQUIRED : Flag.OPTIONAL); }}), paramName,
-                                             nonRestParam.getOriginalName(), pkgID, paramType, recordSymbol, null,
-                                             VIRTUAL);
+                                            add(required ? Flag.REQUIRED : Flag.OPTIONAL); }}), paramName,
+                                            nonRestParam.getOriginalName(), pkgID, paramType, recordSymbol,
+                                            symTable.builtinPos, VIRTUAL);
                 fields.put(paramName.value, new BField(paramName, null, fieldSymbol));
             }
 
@@ -6984,7 +6984,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (fieldType == symTable.semanticError) {
                 return fieldType;
             }
-            return BUnionType.create(null, fieldType, symTable.nilType);
+            return addNilForNillableAccessType(fieldType);
         }
 
         // If the type is not an record, it needs to be a union of records.

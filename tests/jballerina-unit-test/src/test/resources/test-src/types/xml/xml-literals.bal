@@ -280,6 +280,10 @@ function testXMLCDATASection() {
     xml x6 = xml `<![CDATA[]]>`;
     assert(x6.toString(), "");
     assert(x6 is xml:Text, true);
+
+   xml x7 = xml `<![CDATA[ abc --> <!-- --> some more text ]]>`;
+   assert(x7.toString(), " abc --&gt; &lt;!-- --&gt; some more text ");
+   assert(x7 is xml:Text, true);
 }
 
 function assert(anydata actual, anydata expected) {

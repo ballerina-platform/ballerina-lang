@@ -99,7 +99,7 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
         }
 
         // Add type guard code action
-        String commandTitle = CommandConstants.TYPE_GUARD_TITLE;
+        String commandTitle = String.format(CommandConstants.TYPE_GUARD_TITLE, varName.get());
         Range range = CommonUtil.toRange(matchedNode.lineRange());
         List<TextEdit> edits = CodeActionUtil.getTypeGuardCodeActionEdits(varName.get(), range, varTypeSymbol, context);
         if (edits.isEmpty()) {

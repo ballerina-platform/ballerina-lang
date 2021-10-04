@@ -391,7 +391,7 @@ public class MarkdownDocumentationTest {
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        Assert.assertEquals(compileResult.getWarnCount(), 48);
+        Assert.assertEquals(compileResult.getWarnCount(), 53);
 
         int index = 0;
 
@@ -459,7 +459,12 @@ public class MarkdownDocumentationTest {
         BAssertUtil.validateWarning(compileResult, index++,
                 "invalid usage of parameter reference outside of function definition 'invalidParameter'", 126, 3);
         BAssertUtil.validateWarning(compileResult, index++, "undocumented parameter 'val1'", 132, 39);
-        BAssertUtil.validateWarning(compileResult, index, "undocumented parameter 'val2'", 139, 32);
+        BAssertUtil.validateWarning(compileResult, index++, "undocumented parameter 'val2'", 139, 32);
+        BAssertUtil.validateWarning(compileResult, index++, "invalid escape sequence '\\'", 144, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'v\\'", 144, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "invalid escape sequence '\\'", 145, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'a\\'", 145, 5);
+        BAssertUtil.validateWarning(compileResult, index, "missing hyphen token", 146, 1);
     }
 
     @Test(description = "Test doc service")

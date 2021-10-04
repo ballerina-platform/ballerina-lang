@@ -244,6 +244,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_MATCH_PATTERN("BCE0526", "error.missing.match.pattern"),
     ERROR_MISSING_TYPE_REFERENCE("BCE0527", "error.missing.type.reference"),
     ERROR_MISSING_BACKTICK_STRING("BCE0528", "error.missing.backtick.string"),
+    ERROR_MISSING_NAMED_ARG("BCE0529", "error.missing.named.arg"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),

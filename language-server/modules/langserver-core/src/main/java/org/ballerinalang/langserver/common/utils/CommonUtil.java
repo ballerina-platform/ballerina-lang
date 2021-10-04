@@ -36,14 +36,22 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -121,7 +129,7 @@ import static org.ballerinalang.langserver.common.utils.CommonKeys.SEMI_COLON_SY
 import static org.ballerinalang.langserver.common.utils.CommonKeys.SLASH_KEYWORD_KEY;
 
 /**
- * Common utils to be reuse in language server implementation.
+ * Common utils to be reused in language server implementation.
  */
 public class CommonUtil {
 
@@ -151,10 +159,14 @@ public class CommonUtil {
 
     public static final List<String> BALLERINA_KEYWORDS;
 
+    public static final Set<SyntaxKind> QUALIFIER_KINDS = Set.of(SyntaxKind.SERVICE_KEYWORD,
+            SyntaxKind.CLIENT_KEYWORD, SyntaxKind.ISOLATED_KEYWORD, SyntaxKind.TRANSACTIONAL_KEYWORD,
+            SyntaxKind.PUBLIC_KEYWORD, SyntaxKind.PRIVATE_KEYWORD);
+
     private static final String SELF_KW = "self";
 
     private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
-    
+
     private static final int MAX_DEPTH = 1;
 
     static {
@@ -251,10 +263,10 @@ public class CommonUtil {
     public static Optional<String> getDefaultValueForType(TypeSymbol bType) {
         return getDefaultValueForType(bType, 1);
     }
-    
+
     private static Optional<String> getDefaultValueForType(TypeSymbol bType, int depth) {
         String typeString;
-        
+
         if (bType == null) {
             return Optional.empty();
         }
@@ -279,7 +291,7 @@ public class CommonUtil {
                 // Filler value of an array is []
                 ArrayTypeSymbol arrayType = (ArrayTypeSymbol) rawType;
                 if (arrayType.memberTypeDescriptor().typeKind() == TypeDescKind.ARRAY) {
-                    typeString = "[" + getDefaultValueForType(arrayType.memberTypeDescriptor(), depth + 1).orElse("") 
+                    typeString = "[" + getDefaultValueForType(arrayType.memberTypeDescriptor(), depth + 1).orElse("")
                             + "]";
                 } else {
                     typeString = "[]";
@@ -1340,18 +1352,37 @@ public class CommonUtil {
     public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
                                                                            PositionedOperationContext ctx,
                                                                            FunctionCallExpressionNode node) {
-        int cursorPosition = ctx.getCursorPositionInTree();
-        int argIndex = -1;
-        for (Node child : node.arguments()) {
-            if (child.textRange().endOffset() < cursorPosition) {
-                argIndex += 1;
-            }
-        }
-        Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
-        if (params.isEmpty() || params.get().size() < argIndex + 2) {
-            return Optional.empty();
-        }
-        return Optional.of(params.get().get(argIndex + 1));
+        return resolveParameterSymbol(functionTypeSymbol, ctx, node.arguments());
+    }
+
+    /**
+     * Given the cursor position information, returns the expected ParameterSymbol
+     * information corresponding to the FunctionTypeSymbol instance.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
+     * @param node               Remote method call action node.
+     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     */
+    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                           PositionedOperationContext ctx,
+                                                                           RemoteMethodCallActionNode node) {
+        return resolveParameterSymbol(functionTypeSymbol, ctx, node.arguments());
+    }
+
+    /**
+     * Given the cursor position information, returns the expected ParameterSymbol
+     * information corresponding to the FunctionTypeSymbol instance.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
+     * @param node               Method call expression node.
+     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     */
+    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                           PositionedOperationContext ctx,
+                                                                           MethodCallExpressionNode node) {
+        return resolveParameterSymbol(functionTypeSymbol, ctx, node.arguments());
     }
 
     /**
@@ -1363,11 +1394,31 @@ public class CommonUtil {
      */
     public static Boolean isInFunctionCallParameterContext(PositionedOperationContext ctx,
                                                            FunctionCallExpressionNode node) {
-        int cursorPosition = ctx.getCursorPositionInTree();
-        return (!node.openParenToken().isMissing())
-                && (node.openParenToken().textRange().endOffset() <= cursorPosition)
-                && (!node.closeParenToken().isMissing())
-                && (cursorPosition <= node.closeParenToken().textRange().startOffset());
+        return isWithinParenthesis(ctx, node.openParenToken(), node.closeParenToken());
+    }
+
+    /**
+     * Check if the cursor is positioned in a method call expression parameter context.
+     *
+     * @param ctx  PositionedOperationContext
+     * @param node MethodCallExpressionNode
+     * @return {@link Boolean} whether the cursor is in parameter context.
+     */
+    public static Boolean isInMethodCallParameterContext(PositionedOperationContext ctx,
+                                                         MethodCallExpressionNode node) {
+        return isWithinParenthesis(ctx, node.openParenToken(), node.closeParenToken());
+    }
+
+    /**
+     * Check if the cursor is positioned in a method call expression parameter context.
+     *
+     * @param ctx  PositionedOperationContext
+     * @param node RemoteMethodCallActionNode
+     * @return {@link Boolean} whether the cursor is in parameter context.
+     */
+    public static Boolean isInMethodCallParameterContext(PositionedOperationContext ctx,
+                                                         RemoteMethodCallActionNode node) {
+        return isWithinParenthesis(ctx, node.openParenToken(), node.closeParenToken());
     }
 
     /**
@@ -1454,5 +1505,116 @@ public class CommonUtil {
                 symbol.kind() == SymbolKind.CLASS || symbol.kind() == SymbolKind.ENUM
                 || symbol.kind() == SymbolKind.ENUM_MEMBER || symbol.kind() == SymbolKind.CONSTANT)
                 && !Names.ERROR.getValue().equals(symbol.getName().orElse(""));
+    }
+
+    /**
+     * Provided a node, returns the list of possible qualifiers of that node.
+     *
+     * @param node node.
+     * @return {@link List<Token>} qualifiers list.
+     */
+    public static List<Token> getQualifiersOfNode(BallerinaCompletionContext context, Node node) {
+        List<Token> qualifiers = new ArrayList<>();
+        switch (node.kind()) {
+            case FUNCTION_TYPE_DESC:
+                ((FunctionTypeDescriptorNode) node).qualifierList().stream().forEach(qualifiers::add);
+                break;
+            case OBJECT_TYPE_DESC:
+                ((ObjectTypeDescriptorNode) node).objectTypeQualifiers().stream().forEach(qualifiers::add);
+                break;
+            case OBJECT_FIELD:
+                ObjectFieldNode objectFieldNode = (ObjectFieldNode) node;
+                objectFieldNode.visibilityQualifier().ifPresent(qualifiers::add);
+                objectFieldNode.qualifierList().stream().forEach(qualifiers::add);
+                break;
+            case MODULE_VAR_DECL:
+                ModuleVariableDeclarationNode moduleVar = (ModuleVariableDeclarationNode) node;
+                Optional<Token> visibilityQualifier = moduleVar.visibilityQualifier();
+                visibilityQualifier.ifPresent(qualifiers::add);
+                moduleVar.qualifiers().forEach(qualifiers::add);
+                Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
+                getQualifiersAtCursor(context).stream()
+                        .filter(qual -> !qualKinds.contains(qual.kind())).forEach(qualifiers::add);
+
+                //Add leading invalid tokens of type binding pattern if there are no visible qualifiers.
+                if (qualifiers.isEmpty()) {
+                    moduleVar.typedBindingPattern().leadingInvalidTokens().stream()
+                            .filter(token -> QUALIFIER_KINDS.contains(token.kind())).forEach(qualifiers::add);
+                }
+                break;
+            case MODULE_PART:
+                List<Token> qualsAtCursor = getQualifiersAtCursor(context);
+                Set<SyntaxKind> foundQuals = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
+                context.getNodeAtCursor().leadingInvalidTokens().stream()
+                        .filter(token -> QUALIFIER_KINDS.contains(token.kind())
+                                && !foundQuals.contains(token.kind())).forEach(qualifiers::add);
+                qualifiers.addAll(qualsAtCursor);
+                return qualifiers;
+            default:
+        }
+        //Qualifiers are identified as invalid tokens by the parser in some cases.
+        Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
+        node.leadingInvalidTokens().stream()
+                .filter(token -> QUALIFIER_KINDS.contains(token.kind())
+                        && !qualKinds.contains(token.kind())).forEach(qualifiers::add);
+        return qualifiers;
+    }
+
+    /**
+     * Get the qualifiers of the module part context node.
+     *
+     * @param context completion context.
+     * @return {@link List<Token> } the list of qualifiers.
+     */
+    public static List<Token> getQualifiersAtCursor(BallerinaCompletionContext context) {
+        List<Token> qualifiers = new ArrayList<>();
+        Token tokenAtCursor = context.getTokenAtCursor();
+        if (CommonUtil.QUALIFIER_KINDS.contains(tokenAtCursor.kind())) {
+            qualifiers.add(tokenAtCursor);
+            return qualifiers;
+        }
+        List<Minutiae> tokensFromMinutiae = new ArrayList<>();
+        context.getTokenAtCursor().leadingMinutiae().forEach(minutiae -> {
+            if (minutiae.kind() != SyntaxKind.WHITESPACE_MINUTIAE
+                    && minutiae.kind() != SyntaxKind.END_OF_LINE_MINUTIAE) {
+                tokensFromMinutiae.add(minutiae);
+            }
+        });
+        if (tokensFromMinutiae.isEmpty()) {
+            return qualifiers;
+        }
+        Minutiae tokenValueAtCursor = tokensFromMinutiae.get(tokensFromMinutiae.size() - 1);
+        tokenValueAtCursor.invalidTokenMinutiaeNode().ifPresent(invalidTokenMinutiaeNode -> {
+            Token token = invalidTokenMinutiaeNode.invalidToken();
+            if (CommonUtil.QUALIFIER_KINDS.contains(token.kind())) {
+                qualifiers.add(token);
+            }
+        });
+        return qualifiers;
+    }
+
+    private static boolean isWithinParenthesis(PositionedOperationContext ctx, Token openParen, Token closedParen) {
+        int cursorPosition = ctx.getCursorPositionInTree();
+        return (!openParen.isMissing())
+                && (openParen.textRange().endOffset() <= cursorPosition)
+                && (!closedParen.isMissing())
+                && (cursorPosition <= closedParen.textRange().startOffset());
+    }
+
+    private static Optional<ParameterSymbol> resolveParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                    PositionedOperationContext ctx,
+                                                                    SeparatedNodeList<FunctionArgumentNode> arguments) {
+        int cursorPosition = ctx.getCursorPositionInTree();
+        int argIndex = -1;
+        for (Node child : arguments) {
+            if (child.textRange().endOffset() < cursorPosition) {
+                argIndex += 1;
+            }
+        }
+        Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
+        if (params.isEmpty() || params.get().size() < argIndex + 2) {
+            return Optional.empty();
+        }
+        return Optional.of(params.get().get(argIndex + 1));
     }
 }

@@ -150,10 +150,10 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
                         && ((VariableSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.FUTURE) {
                     rank = 2;
                 } else {
-                    rank = SortingUtil.toRank(lsCompletionItem, 2);
+                    rank = SortingUtil.toRank(context, lsCompletionItem, 2);
                 }
             } else {
-                rank = SortingUtil.toRank(lsCompletionItem, 2);
+                rank = SortingUtil.toRank(context, lsCompletionItem, 2);
             }
             completionItem.setSortText(SortingUtil.genSortText(rank));
         }
