@@ -27,7 +27,7 @@ import java.util.Comparator;
  *
  * @since 2.0.0
  */
-public class TypeHashComparator implements Comparator<BIRTypeDefinition> {
+public class TypeDefHashComparator implements Comparator<BIRTypeDefinition> {
 
     private final TypeHashVisitor typeHashVisitor = new TypeHashVisitor();
 

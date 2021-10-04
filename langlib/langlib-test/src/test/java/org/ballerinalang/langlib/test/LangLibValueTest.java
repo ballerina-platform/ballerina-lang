@@ -353,7 +353,8 @@ public class LangLibValueTest {
                 { "testCloneWithTypeWithFiniteArrayTypeFromIntArray" },
                 { "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray" },
                 { "testCloneWithTypeWithUnionTypeArrayFromIntArray" },
-                { "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative" }
+                { "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative" },
+                { "testConvertJsonToNestedRecordsWithErrors" }
         };
     }
 
@@ -478,9 +479,17 @@ public class LangLibValueTest {
         };
     }
 
-    @Test
-    public void testEnsureTypeNegative() {
-        BRunUtil.invokeFunction(compileResult, "testEnsureTypeNegative");
+    @Test(dataProvider = "ensureTypeNegativeFunctions")
+    public void testEnsureTypeNegative(String function) {
+        BRunUtil.invokeFunction(compileResult, function);
+    }
+
+    @DataProvider(name = "ensureTypeNegativeFunctions")
+    public Object[][] ensureTypeNegativeFunctions() {
+        return new Object[][] {
+                { "testEnsureTypeNegative" },
+                { "testEnsureTypeJsonToNestedRecordsWithErrors" }
+        };
     }
 
     @AfterClass

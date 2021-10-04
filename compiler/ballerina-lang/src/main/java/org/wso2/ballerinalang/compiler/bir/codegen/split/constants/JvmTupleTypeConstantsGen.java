@@ -27,9 +27,9 @@ import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.TypeNamePair;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmTupleTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -58,7 +58,6 @@ import static org.objectweb.asm.Opcodes.V1_8;
  */
 public class JvmTupleTypeConstantsGen {
 
-    private final Map<BTupleType, String> tupleTypeVarMap;
     private final String tupleVarConstantsClass;
     private int constantIndex = 0;
     private JvmTupleTypeGen jvmTupleTypeGen;
@@ -67,37 +66,16 @@ public class JvmTupleTypeConstantsGen {
     private int methodCount;
     private final List<String> funcNames;
     private final Queue<TypeNamePair> queue;
+    private final Map<BTupleType, String> tupleTypeVarMap;
 
     public JvmTupleTypeConstantsGen(PackageID packageID) {
-        tupleTypeVarMap = new ConcurrentSkipListMap<>(this::checkTupleEqualityInInts);
         tupleVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(
                 packageID, JvmConstants.BTUPLE_TYPE_CONSTANT_CLASS_NAME);
         generateTupleTypeConstantsClassInit();
         visitTupleTypeInitMethod();
         funcNames = new ArrayList<>();
         queue = new LinkedList<>();
-    }
-
-    private int checkTupleEqualityInInts(BTupleType o1, BTupleType o2) {
-        if (checkTupleEquality(o1, o2)) {
-            return 0;
-        }
-        return -1;
-    }
-
-    private boolean checkTupleEquality(BTupleType o1, BTupleType o2) {
-        if (o1 == o2) {
-            return true;
-        }
-        if (o1.tupleTypes.size() != o2.tupleTypes.size() || !o1.toString().equals(o2.toString())) {
-            return false;
-        }
-        for (BType type : o1.getTupleTypes()) {
-            if (!o2.getTupleTypes().contains(type)) {
-                return false;
-            }
-        }
-        return o1.flags == o2.flags;
+        tupleTypeVarMap = new ConcurrentSkipListMap<>(JvmConstantsGen.TYPE_HASH_COMPARATOR);
     }
 
     public synchronized void setJvmTupleTypeGen(JvmTupleTypeGen jvmTupleTypeGen) {

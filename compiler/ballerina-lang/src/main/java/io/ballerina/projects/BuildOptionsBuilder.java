@@ -90,7 +90,7 @@ public class BuildOptionsBuilder {
         return this;
     }
 
-    public BuildOptionsBuilder dumpBirFile(String value) {
+    public BuildOptionsBuilder dumpBirFile(Boolean value) {
         compilationOptionsBuilder.dumpBirFile(value);
         return this;
     }

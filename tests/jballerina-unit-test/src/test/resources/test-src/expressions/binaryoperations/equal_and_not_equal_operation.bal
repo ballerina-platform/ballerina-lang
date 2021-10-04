@@ -56,60 +56,90 @@ type ClosedRecordWithOptionalFieldTwo record {|
     int two?;
 |};
 
-function checkBooleanEqualityPositive(boolean a, boolean b) returns boolean {
-    return (a == b) && !(a != b);
+function checkBooleanEquality() {
+    boolean a = true;
+    boolean b = false;
+    test:assertTrue((a == a) && !(a != a));
+    test:assertTrue((b == b) && !(b != b));
+    test:assertFalse((a == b) || !(a != b));
+    test:assertFalse((b == a) || !(b != a));
 }
 
-function checkBooleanEqualityNegative(boolean a, boolean b) returns boolean {
-    return (a == b) || !(a != b);
+function checkIntEquality() {
+    int a = 10;
+    int b = 20193746;
+    test:assertTrue((a == a) && !(a != a));
+    test:assertTrue((b == b) && !(b != b));
+    test:assertFalse((a == b) || !(a != b));
+    test:assertFalse((b == a) || !(b != a));
 }
 
-function checkIntEqualityPositive(int a, int b) returns boolean {
-    return (a == b) && !(a != b);
+function checkByteEquality() {
+    byte a = 0;
+    byte b = 10;
+    byte c = 255;
+    test:assertTrue((a == a) && !(a != a));
+    test:assertTrue((b == b) && !(b != b));
+    test:assertTrue((c == c) && !(c != c));
+    test:assertFalse((a == b) || !(a != b));
+    test:assertFalse((b == a) || !(b != a));
+    test:assertFalse((a == c) || !(a != c));
+    test:assertFalse((c == a) || !(c != a));
+    test:assertFalse((b == c) || !(b != c));
+    test:assertFalse((c == b) || !(c != b));
 }
 
-function checkIntEqualityNegative(int a, int b) returns boolean {
-    return (a == b) || !(a != b);
+function checkFloatEquality() {
+    float a = 5.3;
+    float b = 201937.46;
+    test:assertTrue((a == a) && !(a != a));
+    test:assertTrue((b == b) && !(b != b));
+    test:assertFalse((a == b) || !(a != b));
+    test:assertFalse((b == a) || !(b != a));
 }
 
-function checkByteEqualityPositive(byte a, byte b) returns boolean {
-    return (a == b) && !(a != b);
+function checkStringEquality() {
+    string a = "a";
+    string b = "Hello, from Ballerina!";
+    test:assertTrue((a == a) && !(a != a));
+    test:assertTrue((b == b) && !(b != b));
+    test:assertFalse((a == b) || !(a != b));
+    test:assertFalse((b == a) || !(b != a));
 }
 
-function checkByteEqualityNegative(byte a, byte b) returns boolean {
-    return (a == b) || !(a != b);
+function checkEqualityToNil() {
+    any a = ();
+    test:assertTrue((a == ()) && !(a != ()));
+    a = true;
+    test:assertFalse((a == ()) || !(a != ()));
+    a = false;
+    test:assertFalse((a == ()) || !(a != ()));
+    a = 5;
+    test:assertFalse((a == ()) || !(a != ()));
+    a = 5.0;
+    test:assertFalse((a == ()) || !(a != ()));
+    a = "Hi from Ballerina!";
+    test:assertFalse((a == ()) || !(a != ()));
+    a = {name: "John Doe"};
+    test:assertFalse((a == ()) || !(a != ()));
 }
 
-function checkFloatEqualityPositive(float a, float b) returns boolean {
-    return (a == b) && !(a != b);
-}
+function checkAnyDataEquality() {
+    anydata a = 10;
+    anydata b = 10;
+    int c = 10;
+    byte d = 10;
 
-function checkFloatEqualityNegative(float a, float b) returns boolean {
-    return (a == b) || !(a != b);
-}
+    test:assertTrue((a == b) && !(a != b));
+    test:assertTrue((a == c) && !(a != c));
+    test:assertTrue((a == d) && !(a != d));
 
-function checkStringEqualityPositive(string a, string b) returns boolean {
-    return (a == b) && !(a != b);
-}
-
-function checkStringEqualityNegative(string a, string b) returns boolean {
-    return (a == b) || !(a != b);
-}
-
-function checkEqualityToNilPositive(any a) returns boolean {
-    return (a == ()) && !(a != ());
-}
-
-function checkEqualityToNilNegative(any a) returns boolean {
-    return (a == ()) || !(a != ());
-}
-
-function checkAnyDataEqualityPositive(anydata a, anydata b) returns boolean {
-    return (a == b) && !(a != b);
-}
-
-function checkAnyDataEqualityNegative(anydata a, anydata b) returns boolean {
-    return (a == b) || !(a != b);
+    float e = 10;
+    decimal f = 10;
+    anydata g = 12;
+    test:assertFalse((a == e) || !(a != e));
+    test:assertFalse((a == f) || !(a != f));
+    test:assertFalse((a == g) || !(a != g));
 }
 
 type ErrorDetail record {
@@ -118,118 +148,117 @@ type ErrorDetail record {
     int intVal?;
 };
 
-function checkOpenRecordEqualityPositive() returns boolean {
-    OpenEmployee e1 = { name: "Em", id: 4000 };
+function checkOpenRecordEqualityPositive() {
+    OpenEmployee e1 = {name: "Em", id: 4000};
     OpenEmployee e2 = e1;
 
-    OpenEmployee e3 = { name: "Em" };
-    OpenPerson e4 = { name: "Em", "id": 0 };
+    OpenEmployee e3 = {name: "Em"};
+    OpenPerson e4 = {name: "Em", "id": 0};
 
-    OpenEmployee e5 = { name: "Em", id: 4000, "dept": "finance" };
-    OpenEmployee e6 = { name: "Em", id: 4000, "dept": "finance" };
+    OpenEmployee e5 = {name: "Em", id: 4000, "dept": "finance"};
+    OpenEmployee e6 = {name: "Em", id: 4000, "dept": "finance"};
 
     OpenEmployee e7 = {};
     OpenEmployee e8 = {};
 
-    return (e1 == e2) && !(e1 != e2) && isEqual(e3, e4) && (e5 == e6) && !(e5 != e6) && (e7 == e8) && !(e7 != e8);
+    test:assertTrue((e1 == e2) && !(e1 != e2) && isEqual(e3, e4) && (e5 == e6) && !(e5 != e6) && (e7 == e8) &&
+    !(e7 != e8));
 }
 
-function checkOpenRecordEqualityNegative() returns boolean {
-    OpenEmployee e1 = { name: "Em", id: 4000 };
+function checkOpenRecordEqualityNegative() {
+    OpenEmployee e1 = {name: "Em", id: 4000};
     OpenEmployee e2 = {};
 
-    OpenEmployee e3 = { name: "Em", id: 4000 };
-    OpenEmployee e4 = { name: "Em", "area": 51 };
+    OpenEmployee e3 = {name: "Em", id: 4000};
+    OpenEmployee e4 = {name: "Em", "area": 51};
 
-    OpenEmployee e5 = { name: "Em" };
-    OpenPerson e6 = { name: "Em" };
+    OpenEmployee e5 = {name: "Em"};
+    OpenPerson e6 = {name: "Em"};
 
-    OpenEmployee e7 = { name: "Em", id: 4000, "dept": "finance" };
-    OpenEmployee e8 = { name: "Em", id: 4000, "dept": "hr" };
+    OpenEmployee e7 = {name: "Em", id: 4000, "dept": "finance"};
+    OpenEmployee e8 = {name: "Em", id: 4000, "dept": "hr"};
 
-    return (e1 == e2) || !(e1 != e2) || (e3 == e4) || !(e3 != e4) || isEqual(e5, e6) || (e7 == e8) || !(e7 != e8);
+    test:assertFalse((e1 == e2) || !(e1 != e2) || (e3 == e4) || !(e3 != e4) || isEqual(e5, e6) || (e7 == e8) || !(e7 != e8));
 }
 
-function testOpenRecordWithOptionalFieldsEqualityPositive() returns boolean {
-    OpenRecordWithOptionalFieldOne e1 = { name: "Em", one: 4000, "two": 3000 };
+function testOpenRecordWithOptionalFieldsEqualityPositive() {
+    OpenRecordWithOptionalFieldOne e1 = {name: "Em", one: 4000, "two": 3000};
     OpenRecordWithOptionalFieldOne e2 = e1;
 
-    OpenRecordWithOptionalFieldOne e3 = { name: "Em" };
-    OpenRecordWithOptionalFieldTwo e4 = { name: "Em" };
+    OpenRecordWithOptionalFieldOne e3 = {name: "Em"};
+    OpenRecordWithOptionalFieldTwo e4 = {name: "Em"};
 
-    OpenRecordWithOptionalFieldOne e5 = { name: "Em", one: 4000, "two": 3000 };
-    OpenRecordWithOptionalFieldTwo e6 = { name: "Em", two: 3000, "one": 4000 };
+    OpenRecordWithOptionalFieldOne e5 = {name: "Em", one: 4000, "two": 3000};
+    OpenRecordWithOptionalFieldTwo e6 = {name: "Em", two: 3000, "one": 4000};
 
-    return (e1 == e2) && !(e1 != e2) && isEqual(e3, e4) && (e5 == e6) && !(e5 != e6);
+    test:assertTrue((e1 == e2) && !(e1 != e2) && isEqual(e3, e4) && (e5 == e6) && !(e5 != e6));
 }
 
-function testOpenRecordWithOptionalFieldsEqualityNegative() returns boolean {
-    OpenRecordWithOptionalFieldOne e1 = { name: "Em" };
-    OpenRecordWithOptionalFieldTwo e2 = { name: "Zee" };
+function testOpenRecordWithOptionalFieldsEqualityNegative() {
+    OpenRecordWithOptionalFieldOne e1 = {name: "Em"};
+    OpenRecordWithOptionalFieldTwo e2 = {name: "Zee"};
 
-    OpenRecordWithOptionalFieldOne e3 = { name: "Em", one: 4000 };
-    OpenRecordWithOptionalFieldTwo e4 = { name: "Em", two: 4000 };
+    OpenRecordWithOptionalFieldOne e3 = {name: "Em", one: 4000};
+    OpenRecordWithOptionalFieldTwo e4 = {name: "Em", two: 4000};
 
-    return (e1 == e2) || !(e1 != e2) || (e3 == e4) || !(e3 != e4);
+    test:assertFalse((e1 == e2) || !(e1 != e2) || (e3 == e4) || !(e3 != e4));
 }
 
-function testClosedRecordWithOptionalFieldsEqualityPositive() returns boolean {
-    ClosedRecordWithOptionalFieldOne e1 = { name: "Em", one: 4000 };
+function testClosedRecordWithOptionalFieldsEqualityPositive() {
+    ClosedRecordWithOptionalFieldOne e1 = {name: "Em", one: 4000};
     ClosedRecordWithOptionalFieldOne e2 = e1;
 
-    ClosedRecordWithOptionalFieldOne e3 = { name: "Em" };
-    ClosedRecordWithOptionalFieldTwo e4 = { name: "Em" };
+    ClosedRecordWithOptionalFieldOne e3 = {name: "Em"};
+    ClosedRecordWithOptionalFieldTwo e4 = {name: "Em"};
 
-    return (e1 == e2) && !(e1 != e2) && isEqual(e3, e4);
+    test:assertTrue((e1 == e2) && !(e1 != e2) && isEqual(e3, e4));
 }
 
-function testClosedRecordWithOptionalFieldsEqualityNegative() returns boolean {
-    ClosedRecordWithOptionalFieldOne e1 = { name: "Em" };
-    ClosedRecordWithOptionalFieldTwo e2 = { name: "Zee" };
+function testClosedRecordWithOptionalFieldsEqualityNegative() {
+    ClosedRecordWithOptionalFieldOne e1 = {name: "Em"};
+    ClosedRecordWithOptionalFieldTwo e2 = {name: "Zee"};
 
-    ClosedRecordWithOptionalFieldOne e3 = { name: "Em", one: 4000 };
-    ClosedRecordWithOptionalFieldTwo e4 = { name: "Em", two: 4000 };
+    ClosedRecordWithOptionalFieldOne e3 = {name: "Em", one: 4000};
+    ClosedRecordWithOptionalFieldTwo e4 = {name: "Em", two: 4000};
 
-    return (e1 == e2) || !(e1 != e2) || (e3 == e4) || !(e3 != e4);
+    test:assertFalse((e1 == e2) || !(e1 != e2) || (e3 == e4) || !(e3 != e4));
 }
 
-function checkClosedRecordEqualityPositive() returns boolean {
-    ClosedEmployee e1 = { name: "Em", id: 4000 };
-    ClosedEmployee e2 = { name: "Em", id: 4000 };
+function checkClosedRecordEqualityPositive() {
+    ClosedEmployee e1 = {name: "Em", id: 4000};
+    ClosedEmployee e2 = {name: "Em", id: 4000};
 
-    ClosedEmployee e3 = { name: "Em" };
-    ClosedEmployee e4 = { name: "Em" };
+    ClosedEmployee e3 = {name: "Em"};
+    ClosedEmployee e4 = {name: "Em"};
 
     ClosedEmployee e5 = {};
     ClosedEmployee e6 = {};
 
-    return isEqual(e1, e2) && (e3 == e4) && !(e3 != e4) && (e5 == e6) && !(e5 != e6);
+    test:assertTrue(isEqual(e1, e2) && (e3 == e4) && !(e3 != e4) && (e5 == e6) && !(e5 != e6));
 }
 
-function checkClosedRecordEqualityNegative() returns boolean {
-    ClosedEmployee e1 = { name: "Em", id: 4000 };
+function checkClosedRecordEqualityNegative() {
+    ClosedEmployee e1 = {name: "Em", id: 4000};
     ClosedEmployee e2 = {};
 
-    ClosedEmployee e3 = { name: "Em", id: 4000 };
-    ClosedEmployee e4 = { name: "Em" };
+    ClosedEmployee e3 = {name: "Em", id: 4000};
+    ClosedEmployee e4 = {name: "Em"};
 
-    ClosedEmployee e5 = { name: "Em" };
-    ClosedEmployee e6 = { name: "Em", id: 4100 };
+    ClosedEmployee e5 = {name: "Em"};
+    ClosedEmployee e6 = {name: "Em", id: 4100};
 
-    return (e1 == e2) || !(e1 != e2) || isEqual(e3, e4) || (e5 == e6) || !(e5 != e6);
+    test:assertFalse((e1 == e2) || !(e1 != e2) || isEqual(e3, e4) || (e5 == e6) || !(e5 != e6));
 }
 
-function check1DArrayEqualityPositive(boolean[]|int[]|float[]|string[] a, boolean[]|int[]|float[]|string[] b)
-             returns boolean {
-    return (a == b) && !(a != b);
+function check1DArrayEqualityPositive(boolean[]|int[]|float[]|string[] a, boolean[]|int[]|float[]|string[] b) {
+    test:assertTrue((a == b) && !(a != b));
 }
 
-function check1DArrayEqualityNegative(boolean[]|int[]|float[]|string[] a, boolean[]|int[]|float[]|string[] b)
-             returns boolean {
-    return (a == b) || !(a != b);
+function check1DArrayEqualityNegative(boolean[]|int[]|float[]|string[] a, boolean[]|int[]|float[]|string[] b) {
+    test:assertFalse((a == b) || !(a != b));
 }
 
-function check1DClosedArrayEqualityPositive() returns boolean {
+function check1DClosedArrayEqualityPositive() {
     boolean[4] b1 = [false, false, false, false];
     boolean[4] b2 = [false, false, false, false];
 
@@ -263,24 +292,24 @@ function check1DClosedArrayEqualityPositive() returns boolean {
     anydata[7] a1 = [(), (), (), (), (), (), ()];
     anydata[7] a2 = [(), (), (), (), (), (), ()];
 
-    json j1 = { hello: "world", lang: "ballerina" };
-    json j2 = { hello: "world",lang: "ballerina" };
+    json j1 = {hello: "world", lang: "ballerina"};
+    json j2 = {hello: "world", lang: "ballerina"};
 
-    map<anydata> m1 = { key1: "val1", key2: 2, key3: 3.1 };
-    map<anydata> m2 = { key1: "val1", key2: 2, key3: 3.1 };
+    map<anydata> m1 = {key1: "val1", key2: 2, key3: 3.1};
+    map<anydata> m2 = {key1: "val1", key2: 2, key3: 3.1};
 
     anydata[6] a3 = ["hi", 1, true, 54.3, j1, m1];
     anydata[6] a4 = ["hi", 1, true, 54.3, j2, m2];
 
-    return (b1 == b2) && !(b1 != b2) && (b3 == b4) && !(b3 != b4) &&
+    test:assertTrue((b1 == b2) && !(b1 != b2) && (b3 == b4) && !(b3 != b4) &&
         (i1 == i2) && !(i1 != i2) && (i3 == i4) && !(i3 != i4) &&
         (by1 == by2) && !(by1 != by2) && (by3 == by4) && !(by3 != by4) &&
         isEqual(f1, f2) && (f3 == f4) && !(f3 != f4) &&
         (s1 == s2) && !(s1 != s2) && isEqual(s3, s4) &&
-        (a1 == a2) && !(a1 != a2) && (a3 == a4) && !(a3 != a4);
+        (a1 == a2) && !(a1 != a2) && (a3 == a4) && !(a3 != a4));
 }
 
-function check1DClosedArrayEqualityNegative() returns boolean {
+function check1DClosedArrayEqualityNegative() {
     boolean[3] b1 = [true, false, false];
     boolean[*] b2 = [true, false, true];
 
@@ -296,151 +325,151 @@ function check1DClosedArrayEqualityNegative() returns boolean {
     string[3] s1 = ["hello", "from", "ballerina"];
     string[3] s2 = ["hello", "from", "ball"];
 
-    json j1 = { hello: "world", lang: "ball" };
-    json j2 = { hello: "world",lang: "ballerina" };
+    json j1 = {hello: "world", lang: "ball"};
+    json j2 = {hello: "world", lang: "ballerina"};
 
-    map<anydata> m1 = { key1: "val1", key2: 2, key3: 3.1 };
-    map<anydata> m2 = { key1: "val1", key2: 2, key3: 3.1 };
+    map<anydata> m1 = {key1: "val1", key2: 2, key3: 3.1};
+    map<anydata> m2 = {key1: "val1", key2: 2, key3: 3.1};
 
     anydata[6] a1 = ["hi", 1, true, 54.3, j1, m1];
     anydata[6] a2 = ["hi", 1, true, 54.3, j2, m2];
 
-    return (b1 == b2) || !(b1 != b2) || (i1 == i2) || !(i1 != i2) || (by1 == by2) || !(by1 != by2) ||
-        (f1 == f2) || !(f1 != f2) || isEqual(s1, s2) || (a1 == a2) || !(a1 != a2);
+    test:assertFalse((b1 == b2) || !(b1 != b2) || (i1 == i2) || !(i1 != i2) || (by1 == by2) || !(by1 != by2) ||
+        (f1 == f2) || !(f1 != f2) || isEqual(s1, s2) || (a1 == a2) || !(a1 != a2));
 }
 
-function check1DAnyArrayEqualityPositive() returns boolean {
-    json j1 = { hello: "world", lang: "ballerina" };
-    json j2 = { hello: "world",lang: "ballerina" };
+function check1DAnyArrayEqualityPositive() {
+    json j1 = {hello: "world", lang: "ballerina"};
+    json j2 = {hello: "world", lang: "ballerina"};
 
-    map<anydata> m1 = { key1: "val1", key2: 2, key3: 3.1 };
-    map<anydata> m2 = { key1: "val1", key2: 2, key3: 3.1 };
+    map<anydata> m1 = {key1: "val1", key2: 2, key3: 3.1};
+    map<anydata> m2 = {key1: "val1", key2: 2, key3: 3.1};
 
     anydata[] a = ["hi", 1, j1, 2.3, false, m1];
     anydata[] b = ["hi", 1, j2, 2.3, false, m2];
 
-    return (a == b) && !(a != b);
+    test:assertTrue((a == b) && !(a != b));
 }
 
-function check1DAnyArrayEqualityNegative() returns boolean {
-    json j1 = { hello: "world", lang: "ballerina" };
-    json j2 = { hello: "world",lang: "ballerina" };
+function check1DAnyArrayEqualityNegative() {
+    json j1 = {hello: "world", lang: "ballerina"};
+    json j2 = {hello: "world", lang: "ballerina"};
 
-    map<anydata> m1 = { key1: "val1", key2: 2, key3: 3.1 };
-    map<anydata> m2 = { key1: "val1", key2: 2, key3: 3.1 };
+    map<anydata> m1 = {key1: "val1", key2: 2, key3: 3.1};
+    map<anydata> m2 = {key1: "val1", key2: 2, key3: 3.1};
 
     anydata[] a = ["hi", 1, j1, 2.1, false, m1];
     anydata[] b = ["hi", 1, j2, 2.3, false, m2];
 
-    return (a == b) || !(a != b);
+    test:assertFalse((a == b) || !(a != b));
 }
 
-function checkOpenClosedArrayEqualityPositive() returns boolean {
+function checkOpenClosedArrayEqualityPositive() {
     string[*] a = ["a", "bcd", "ef"];
     string[] b = ["a", "bcd", "ef"];
 
     (int|float)?[] c = [5, 4.12, 54, 23.1];
     (float|int)?[4] d = [5, 4.12, 54, 23.1];
 
-    return (a == b) && !(a != b) && (c == d) && !(c != d);
+    test:assertTrue((a == b) && !(a != b) && (c == d) && !(c != d));
 }
 
-function checkOpenClosedArrayEqualityNegative() returns boolean {
+function checkOpenClosedArrayEqualityNegative() {
     boolean[] a = [true, false];
     boolean[3] b = [true, false, false];
 
     string[] c = ["true", "false", "false", "true"];
     string[4] d = ["true", "false", "false", "false"];
 
-    return (a == b) || !(a != b) || (c == d) || !(c != d);
+    test:assertFalse((a == b) || !(a != b) || (c == d) || !(c != d));
 }
 
-function check2DBooleanArrayEqualityPositive() returns boolean {
+function check2DBooleanArrayEqualityPositive() {
     boolean[][] b1 = [[], [true, false, false], [false]];
     boolean[][] b2 = [[], [true, false, false], [false]];
 
-    return b1 == b2 && !(b1 != b2);
+    test:assertTrue(b1 == b2 && !(b1 != b2));
 }
 
-function check2DBooleanArrayEqualityNegative() returns boolean {
+function check2DBooleanArrayEqualityNegative() {
     boolean[][] b1 = [[], [true, false, false], [false]];
     boolean[][] b2 = [[], [false, false, false], [false]];
 
     boolean[][] b3 = [[], [true, false, false], [false]];
     boolean[][] b4 = [[], [true, false, false]];
 
-    return b1 == b2 || !(b1 != b2) || b3 == b4 || !(b3 != b4);
+    test:assertFalse(b1 == b2 || !(b1 != b2) || b3 == b4 || !(b3 != b4));
 }
 
-function check2DIntArrayEqualityPositive() returns boolean {
+function check2DIntArrayEqualityPositive() {
     int[][] i1 = [[1], [], [100, 1200000, 9475883]];
     int[][] i2 = [[1], [], [100, 1200000, 9475883]];
 
-    return i1 == i2 && !(i1 != i2);
+    test:assertTrue(i1 == i2 && !(i1 != i2));
 }
 
-function check2DIntArrayEqualityNegative() returns boolean {
+function check2DIntArrayEqualityNegative() {
     int[][] i1 = [[], [100, 2222, 111102], [294750]];
     int[][] i2 = [[], [100, 2222, 2349586], [294750]];
 
     int[][] i3 = [[1], [], [100, 1200000, 9475883]];
     int[][] i4 = [[1], []];
 
-    return i1 == i2 || !(i1 != i2) || i3 == i4 || !(i3 != i4);
+    test:assertFalse(i1 == i2 || !(i1 != i2) || i3 == i4 || !(i3 != i4));
 }
 
-function check2DByteArrayEqualityPositive() returns boolean {
+function check2DByteArrayEqualityPositive() {
     byte[][] b1 = [[1, 100], [0, 255, 45], []];
     byte[][] b2 = [[1, 100], [0, 255, 45], []];
 
-    return b1 == b2 && !(b1 != b2);
+    test:assertTrue(b1 == b2 && !(b1 != b2));
 }
 
-function check2DByteArrayEqualityNegative() returns boolean {
+function check2DByteArrayEqualityNegative() {
     byte[][] b1 = [[1, 100], [0, 255, 145], []];
     byte[][] b2 = [[1, 100], [0, 255, 45], []];
 
     byte[][] b3 = [[1, 100], [0, 255, 45], [23, 234]];
     byte[][] b4 = [[1, 100], [0, 255, 45]];
 
-    return b1 == b2 || !(b1 != b2) || b3 == b4 || !(b3 != b4);
+    test:assertFalse(b1 == b2 || !(b1 != b2) || b3 == b4 || !(b3 != b4));
 }
 
-function check2DFloatArrayEqualityPositive() returns boolean {
+function check2DFloatArrayEqualityPositive() {
     float[][] f1 = [[1.221], [], [10.0, 123.45, 9.475883]];
     float[][] f2 = [[1.221], [], [10.0, 123.45, 9.475883]];
 
-    return f1 == f2 && !(f1 != f2);
+    test:assertTrue(f1 == f2 && !(f1 != f2));
 }
 
-function check2DFloatArrayEqualityNegative() returns boolean {
+function check2DFloatArrayEqualityNegative() {
     float[][] f1 = [[1.221], [], [10.0, 123.45, 9.475883]];
     float[][] f2 = [[1.221], [], [10.0, 1.2, 9.475883]];
 
     float[][] f3 = [[1.221], [], [10.0, 123.45, 9.475883]];
     float[][] f4 = [[1.221], []];
 
-    return f1 == f2 || !(f1 != f2) || f3 == f4 || !(f3 != f4);
+    test:assertFalse(f1 == f2 || !(f1 != f2) || f3 == f4 || !(f3 != f4));
 }
 
-function check2DStringArrayEqualityPositive() returns boolean {
+function check2DStringArrayEqualityPositive() {
     string[][] s1 = [[], ["hello world", "from", "ballerina"], ["ballet shoes"]];
     string[][] s2 = [[], ["hello world", "from", "ballerina"], ["ballet shoes"]];
 
-    return s1 == s2 && !(s1 != s2);
+    test:assertTrue(s1 == s2 && !(s1 != s2));
 }
 
-function check2DStringArrayEqualityNegative() returns boolean {
+function check2DStringArrayEqualityNegative() {
     string[][] s1 = [[], ["hello", "from", "ballerina"], ["ballet shoes"]];
     string[][] s2 = [[], ["hi", "from", "ballerina"], ["ballet shoes"]];
 
     string[][] s3 = [[], ["hello", "from", "ballerina"], ["ballet shoes"]];
     string[][] s4 = [[], ["hello", "from", "ballerina"]];
 
-    return s1 == s2 || !(s1 != s2) || s3 == s4 || !(s3 != s4);
+    test:assertFalse(s1 == s2 || !(s1 != s2) || s3 == s4 || !(s3 != s4));
 }
 
-function checkComplex2DArrayEqualityPositive() returns boolean {
+function checkComplex2DArrayEqualityPositive() {
     [int, float][][] a = [];
     [int|string, float]?[][] b = [];
 
@@ -450,10 +479,10 @@ function checkComplex2DArrayEqualityPositive() returns boolean {
     b[0] = [[1, 3.0]];
     b[1] = [[123, 65.4], [234, 23.22]];
 
-    return 'equals && a == b && !(a != b);
+    test:assertTrue('equals && a == b && !(a != b));
 }
 
-function checkComplex2DArrayEqualityNegative() returns boolean {
+function checkComplex2DArrayEqualityNegative() {
     [int, float][][] a = [[[123, 65.4], [234, 23.22]]];
     [int|string, float]?[][] b = [[[124, 65.4], [234, 23.22]]];
 
@@ -462,10 +491,10 @@ function checkComplex2DArrayEqualityNegative() returns boolean {
     b = [[[123, 65.4], [234, 23.22]]];
     b[2] = [[123, 65.4], [234, 23.22]];
 
-    return 'equals || a == b || !(a != b);
+    test:assertFalse('equals || a == b || !(a != b));
 }
 
-function checkMapEqualityPositive() returns boolean {
+function checkMapEqualityPositive() {
     map<anydata> m1 = {};
     map<anydata> m2 = {};
 
@@ -493,10 +522,10 @@ function checkMapEqualityPositive() returns boolean {
     m6["one"] = 1.0;
 
     'equals = 'equals && m1 == m2 && !(m1 != m2) && m3 == m4 && !(m3 != m4);
-    return 'equals;
+    test:assertTrue('equals);
 }
 
-function checkMapEqualityNegative() returns boolean {
+function checkMapEqualityNegative() {
     map<anydata> m1 = {};
     map<anydata> m2 = {};
 
@@ -509,16 +538,16 @@ function checkMapEqualityNegative() returns boolean {
     m3["one"] = 1;
     m4["two"] = 2;
 
-    return m1 == m2 || !(m1 != m2) || m3 == m4 || !(m3 != m4);
+    test:assertFalse(m1 == m2 || !(m1 != m2) || m3 == m4 || !(m3 != m4));
 }
 
-function checkComplexMapEqualityPositive() returns boolean {
+function checkComplexMapEqualityPositive() {
     map<map<[boolean, string|float]>> m1 = {};
     map<map<[boolean, float]|int>> m2 = {};
 
     boolean 'equals = m1 == m2 && !(m1 != m2);
 
-    map<[boolean, string|float]> m3 = { one: [true, 3.8], two: [false, 13.8] };
+    map<[boolean, string|float]> m3 = {one: [true, 3.8], two: [false, 13.8]};
     m1["one"] = m3;
 
     map<[boolean, float]|int> m4 = {};
@@ -526,46 +555,46 @@ function checkComplexMapEqualityPositive() returns boolean {
     m4["two"] = [false, 13.8];
     m2["one"] = m4;
 
-    return 'equals && m1 == m2 && !(m1 != m2);
+    test:assertTrue('equals && m1 == m2 && !(m1 != m2));
 }
 
-function checkComplexMapEqualityNegative() returns boolean {
+function checkComplexMapEqualityNegative() {
     map<map<[boolean, string|float]>> m1 = {};
     map<map<[boolean, float]|int>> m2 = {};
 
-    map<[boolean, string|float]> m3 = { one: [true, "3.8"], two: [false, 13.8] };
+    map<[boolean, string|float]> m3 = {one: [true, "3.8"], two: [false, 13.8]};
     m1["x"] = m3;
 
-    map<[boolean, float]|int> m4 = { one: [true, 3.8], two: [false, 13.8] };
+    map<[boolean, float]|int> m4 = {one: [true, 3.8], two: [false, 13.8]};
     m2["x"] = m4;
 
-    return m1 == m2 || !(m1 != m2);
+    test:assertFalse(m1 == m2 || !(m1 != m2));
 }
 
-function checkTupleEqualityPositive() returns boolean {
+function checkTupleEqualityPositive() {
     [string, int] t1 = ["", 0];
     [string, int] t2 = ["", 0];
 
-    [string, int, OpenEmployee] t3 = ["hi", 0, { name: "Em" }];
-    [string, int, OpenEmployee] t4 = ["hi", 0, { name: "Em" }];
+    [string, int, OpenEmployee] t3 = ["hi", 0, {name: "Em"}];
+    [string, int, OpenEmployee] t4 = ["hi", 0, {name: "Em"}];
 
-    return t1 == t2 && !(t1 != t2) && t3 == t4 && !(t3 != t4);
+    test:assertTrue(t1 == t2 && !(t1 != t2) && t3 == t4 && !(t3 != t4));
 }
 
-function checkTupleEqualityNegative() returns boolean {
+function checkTupleEqualityNegative() {
     [boolean, int] t1 = [false, 0];
     [boolean, int] t2 = [true, 0];
 
     [float, int, float] t3 = [1.0, 0, 1.1];
     [float, int, float] t4 = [1.1, 0, 1.0];
 
-    [string, ClosedEmployee] t5 = ["hi", { name: "EmZee" }];
-    [string, ClosedEmployee] t6 = ["hi", { name: "Em" }];
+    [string, ClosedEmployee] t5 = ["hi", {name: "EmZee"}];
+    [string, ClosedEmployee] t6 = ["hi", {name: "Em"}];
 
-    return t1 == t2 || !(t1 != t2) || t3 == t4 || !(t3 != t4) || t5 == t6 || !(t5 != t6);
+    test:assertFalse(t1 == t2 || !(t1 != t2) || t3 == t4 || !(t3 != t4) || t5 == t6 || !(t5 != t6));
 }
 
-function checkUnionConstrainedMapsPositive() returns boolean {
+function checkUnionConstrainedMapsPositive() {
     map<string|int> m1 = {};
     map<int> m2 = {};
 
@@ -592,7 +621,7 @@ function checkUnionConstrainedMapsPositive() returns boolean {
 
     'equals = 'equals && m3 == m4 && !(m3 != m4);
 
-    map<[string|int, float]>|[string,int] m5;
+    map<[string|int, float]>|[string, int] m5;
     map<[string, float]> m6 = {};
 
     map<[string|int, float]> m7 = {
@@ -603,10 +632,10 @@ function checkUnionConstrainedMapsPositive() returns boolean {
     m6["two"] = ["hello", 21.1];
     m6["one"] = ["hi", 100.0];
 
-    return 'equals && m5 == m6 && !(m5 != m6);
+    test:assertTrue('equals && m5 == m6 && !(m5 != m6));
 }
 
-function checkUnionConstrainedMapsNegative() returns boolean {
+function checkUnionConstrainedMapsNegative() {
     map<int|boolean> m1 = {};
     map<int> m2 = {};
 
@@ -619,7 +648,7 @@ function checkUnionConstrainedMapsNegative() returns boolean {
 
     'equals = 'equals || m1 == m2 || !(m1 != m2);
 
-    map<[string|int, float]>|[string,int] m3;
+    map<[string|int, float]>|[string, int] m3;
     map<[string, float]> m4 = {};
 
     map<[string|int, float]> m5 = {
@@ -630,10 +659,10 @@ function checkUnionConstrainedMapsNegative() returns boolean {
     m4["two"] = ["hello", 21.1];
     m4["one"] = ["hi", 100.0];
 
-    return 'equals || m3 == m4 || !(m3 != m4);
+    test:assertFalse('equals || m3 == m4 || !(m3 != m4));
 }
 
-function checkUnionArrayPositive() returns boolean {
+function checkUnionArrayPositive() {
     (string|int)?[] a1 = [];
     int[] a2 = [];
 
@@ -666,10 +695,10 @@ function checkUnionArrayPositive() returns boolean {
     a6[0] = ["hi", 1];
     a6[1] = 3.0;
 
-    return 'equals && a5 == a6 && !(a5 != a6);
+    test:assertTrue('equals && a5 == a6 && !(a5 != a6));
 }
 
-function checkUnionArrayNegative() returns boolean {
+function checkUnionArrayNegative() {
     (string|int)?[] a1 = [];
     int[] a2 = [];
 
@@ -685,10 +714,10 @@ function checkUnionArrayNegative() returns boolean {
     ([string, int]|float)?[] a5 = [["hi", 1], 3.0];
     ([string, int|boolean]|float)?[] a6 = [["hi", true], 3.0];
 
-    return 'equals || a5 == a6 || !(a5 != a6);
+    return test:assertFalse('equals || a5 == a6 || !(a5 != a6));
 }
 
-function checkTupleWithUnionPositive() returns boolean {
+function checkTupleWithUnionPositive() {
     [int, string|int, boolean] t1 = [1, "ballerina", false];
     [int, string|int, boolean] t2 = [1, "ballerina", false];
 
@@ -697,10 +726,10 @@ function checkTupleWithUnionPositive() returns boolean {
     [int, string|int, boolean] t3 = [1000, "ballerina", true];
     [int, int|string, OpenEmployee|boolean|int] t4 = [1000, "ballerina", true];
 
-    return 'equals && t3 == t4 && !(t3 != t4);
+    test:assertTrue('equals && t3 == t4 && !(t3 != t4));
 }
 
-function checkTupleWithUnionNegative() returns boolean {
+function checkTupleWithUnionNegative() {
     [int, string|int, boolean] t1 = [1, "hi", false];
     [int, string|int, boolean] t2 = [1, "ballerina", false];
 
@@ -709,18 +738,43 @@ function checkTupleWithUnionNegative() returns boolean {
     [int, string|int, boolean] t3 = [1000, "ballerina", true];
     [int, int|string, OpenEmployee|boolean|string] t4 = [1000, "ballerina", "true"];
 
-    return 'equals || t3 == t4 || !(t3 != t4);
+    test:assertFalse('equals || t3 == t4 || !(t3 != t4));
 }
 
-function checkJsonEqualityPositive(json a, json b) returns boolean {
-    return (a == b) && !(a != b);
+function checkJsonEquality() {
+    int a = 1000;
+    float b = 12.34;
+    string c = "Hello Ballerina";
+    boolean d = true;
+    boolean e = false;
+    anydata f = ();
+
+    test:assertTrue((a == a) && !(a != a));
+    test:assertTrue((b == b) && !(b != b));
+    test:assertTrue((c == c) && !(c != c));
+    test:assertTrue((d == d) && !(d != d));
+    test:assertTrue((e == e) && !(e != e));
+    test:assertTrue((f == f) && !(f != f));
+
+    int a1 = 50;
+    float b1 = 12224.1;
+    string c1 = "Hi Ballerina";
+
+    test:assertFalse((a == a1) || !(a != a1));
+    test:assertFalse((b == b1) || !(b != b1));
+    test:assertFalse((c == c1) || !(c != c1));
+    test:assertFalse((d == e) || !(d != e));
 }
 
-function checkJsonEqualityNegative(json a, json b) returns boolean {
-    return (a == b) || !(a != b);
+function checkJsonEqualityPositive(json a, json b) {
+    test:assertTrue((a == b) && !(a != b));
 }
 
-function testIntByteEqualityPositive() returns boolean {
+function checkJsonEqualityNegative(json a, json b) {
+    test:assertFalse((a == b) || !(a != b));
+}
+
+function testIntByteEqualityPositive() {
     int a = 0;
     byte b = 0;
 
@@ -756,10 +810,10 @@ function testIntByteEqualityPositive() returns boolean {
     h["one"] = [100, true];
     g["two"] = [1, false];
 
-    return 'equals && (g == h) && !(g != h);
+    test:assertTrue('equals && (g == h) && !(g != h));
 }
 
-function testIntByteEqualityNegative() returns boolean {
+function testIntByteEqualityNegative() {
     int a = 15;
     byte b = 5;
 
@@ -788,10 +842,10 @@ function testIntByteEqualityNegative() returns boolean {
     h["one"] = [100, true];
     g["two"] = [1, false];
 
-    return 'equals && (g == h) && !(g != h);
+    test:assertFalse('equals && (g == h) && !(g != h));
 }
 
-function testPrimitiveAndJsonEqualityPositive() returns boolean {
+function testPrimitiveAndJsonEqualityPositive() {
     json a = ();
     () b = ();
 
@@ -820,10 +874,10 @@ function testPrimitiveAndJsonEqualityPositive() returns boolean {
     OpenEmployee? h = ();
     a = ();
 
-    return 'equals && (a == h) && !(a != h);
+    test:assertTrue('equals && (a == h) && !(a != h));
 }
 
-function testPrimitiveAndJsonEqualityNegative() returns boolean {
+function testPrimitiveAndJsonEqualityNegative() {
     json a = ();
     int? b = 5;
 
@@ -852,10 +906,10 @@ function testPrimitiveAndJsonEqualityNegative() returns boolean {
     OpenEmployee? h = ();
     a = 10;
 
-    return 'equals || (a == h) || !(a != h);
+    test:assertFalse('equals || (a == h) || !(a != h));
 }
 
-function testSimpleXmlPositive() returns boolean {
+function testSimpleXmlPositive() {
     xml x1 = xml `<book>The Lost World</book>`;
     xml x2 = xml `<book>The Lost World</book>`;
     xml x3 = xml `Hello, world!`;
@@ -870,28 +924,26 @@ function testSimpleXmlPositive() returns boolean {
     boolean x12 = x3 == xml `Hello, world!`;
     boolean x13 = x5 == xml `<?target data?>`;
     boolean x14 = x7 == xml `<!-- I'm a comment -->`;
-    return x1 == x2 && !(x1 != x2) && x3 == x4 && !(x3 != x4) && x5 == x6 && !(x5 != x6) && x7 == x8 && !(x7 != x8) &&
-    x9 && x10 && x12 && x13 && x14 && x11 != x8 && x3 != x5 && x7 != x1 && x6 != x7;
+    test:assertTrue(x1 == x2 && !(x1 != x2) && x3 == x4 && !(x3 != x4) && x5 == x6 && !(x5 != x6) && x7 == x8 &&
+    !(x7 != x8) && x9 && x10 && x12 && x13 && x14 && x11 != x8 && x3 != x5 && x7 != x1 && x6 != x7);
 }
 
 function testReferenceEqualityXml() {
-    assert(xml`abc` === xml`abc`, true);
-    assert(xml`<book>The Lost World</book>` === xml`<book>The Lost World</book>`, false);
-    assert(xml`<!--comment-->` === xml`<!--comment-->`, false);
-    assert(xml`<?target data?>` === xml`<?target data?>`, false);
-    //assert(xml`<?target data?><!--comment--><root>test</root>` === xml`<?target data?><!--comment--><root>test</root>`,
-    //true);
-    assert(xml`<?target data?><!--comment--><root>test</root>` === xml`<?target data?><!--comment-->test`,
-    false);
+    test:assertTrue(xml `abc` === xml `abc`);
+    test:assertFalse(xml `<book>The Lost World</book>` === xml `<book>The Lost World</book>`);
+    test:assertFalse(xml `<!--comment-->` === xml `<!--comment-->`);
+    test:assertFalse(xml `<?target data?>` === xml `<?target data?>`);
+    //test:assertTrue(xml`<?target data?><!--comment--><root>test</root>` === xml`<?target data?><!--comment-->
+    //<root>test</root>`);
+    test:assertFalse(xml `<?target data?><!--comment--><root>test</root>` === xml `<?target data?><!--comment-->test`);
 
-    assert(xml`abc` !== xml`abc`, false);
-    assert(xml`<book>The Lost World</book>` !== xml`<book>The Lost World</book>`, true);
-    assert(xml`<!--comment-->` !== xml`<!--comment-->`, true);
-    assert(xml`<?target data?>` !== xml`<?target data?>`, true);
-    //assert(xml`<?target data?><!--comment--><root>test</root>` !== xml`<?target data?><!--comment--><root>test</root>`,
-    //false);
-    assert(xml`<?target data?><!--comment--><root>test</root>` !== xml`<?target data?><!--comment-->test`,
-    true);
+    test:assertFalse(xml `abc` !== xml `abc`);
+    test:assertTrue(xml `<book>The Lost World</book>` !== xml `<book>The Lost World</book>`);
+    test:assertTrue(xml `<!--comment-->` !== xml `<!--comment-->`);
+    test:assertTrue(xml `<?target data?>` !== xml `<?target data?>`);
+    //test:assertFalse(xml`<?target data?><!--comment--><root>test</root>` !== xml`<?target data?><!--comment-->
+    //<root>test</root>`);
+    test:assertTrue(xml `<?target data?><!--comment--><root>test</root>` !== xml `<?target data?><!--comment-->test`);
 }
 
 function testXmlNeverAndXmlSequenceEquality() {
@@ -903,39 +955,39 @@ function testXmlNeverAndXmlSequenceEquality() {
     xml:Text l = xml ``;
     xml<never> b = xml ``;
     xml c = 'xml:concat();
-    xml<never> d = <xml<never>> c;
+    xml<never> d = <xml<never>>c;
     xml<xml:Element> f = xml `<ele></ele>`;
     xml e = f/*;
 
     xml m = xml `<authors><name>Enid Blyton</name></authors>`;
-    xml n = m.filter(function (xml x2) returns boolean {
+    xml n = m.filter(function(xml x2) returns boolean {
         xml elements = (x2/*).elements();
         return (elements/*).toString() == "Anne North";
     });
 
-    assert(a == b, true);
-    assert(a != c, false);
-    assert(b == c, true);
-    assert(c == d, true);
-    assert(b == d, true);
-    assert(d != b, false);
-    assert(a == h, true);
-    assert(h != a, false);
-    assert(a == i, true);
-    assert(a == j, true);
-    assert(a == k, true);
-    assert(a == l, true);
-    assert(b == h, true);
-    assert(h != b, false);
-    assert(b == i, true);
-    assert(b == j, true);
-    assert(b == k, true);
-    assert(b == l, true);
-    assert(e != b, false);
-    assert(n == b, true);
+    test:assertTrue(a == b);
+    test:assertFalse(a != c);
+    test:assertTrue(b == c);
+    test:assertTrue(c == d);
+    test:assertTrue(b == d);
+    test:assertFalse(d != b);
+    test:assertTrue(a == h);
+    test:assertFalse(h != a);
+    test:assertTrue(a == i);
+    test:assertTrue(a == j);
+    test:assertTrue(a == k);
+    test:assertTrue(a == l);
+    test:assertTrue(b == h);
+    test:assertFalse(h != b);
+    test:assertTrue(b == i);
+    test:assertTrue(b == j);
+    test:assertTrue(b == k);
+    test:assertTrue(b == l);
+    test:assertFalse(e != b);
+    test:assertTrue(n == b);
 }
 
-function testSimpleXmlNegative() returns boolean {
+function testSimpleXmlNegative() {
     xml x1 = xml `<book>The Lot World</book>`;
     xml x2 = xml `<book>The Lost World</book>`;
     xml x3 = xml `Hello, world!`;
@@ -944,104 +996,105 @@ function testSimpleXmlNegative() returns boolean {
     xml x6 = xml `<?target data?>`;
     xml x7 = xml `<!-- I'm comment one -->`;
     xml x8 = xml `<!-- I'm comment two -->`;
-    return x1 == x2 || !(x1 != x2) || x3 == x4 || !(x3 != x4) || x5 == x6 || !(x5 != x6) || x7 == x8 || !(x7 != x8);
+    test:assertFalse(x1 == x2 || !(x1 != x2) || x3 == x4 || !(x3 != x4) || x5 == x6 || !(x5 != x6) || x7 == x8
+    || !(x7 != x8));
 }
 
-public function testEqualNestedXml() returns boolean {
+public function testEqualNestedXml() {
     xml x1 = xml `<book><name>The Lost World<year>1912</year></name></book>`;
     xml x2 = xml `<book><name>The Lost World<year>1912</year></name></book>`;
-    return x1 == x2 && !(x1 != x2);
+    test:assertTrue(x1 == x2 && !(x1 != x2));
 }
 
-public function testUnequalNestedXml() returns boolean {
+public function testUnequalNestedXml() {
     xml x1 = xml `<book><name>The Lost World<year>1920</year></name></book>`;
     xml x2 = xml `<book><name>The Lost World<year>1912</year></name></book>`;
-    return x1 == x2 || !(x1 != x2);
+    test:assertFalse(x1 == x2 || !(x1 != x2));
 }
 
-public function testEqualXmlWithComments() returns boolean {
+public function testEqualXmlWithComments() {
     xml x1 = xml `<book><name>The Lost World<!-- I'm a comment --></name></book>`;
     xml x2 = xml `<book><name>The Lost World<!-- I'm a comment --></name></book>`;
-    return x1 == x2 && !(x1 != x2);
+    test:assertTrue(x1 == x2 && !(x1 != x2));
 }
 
-public function testUnequalXmlWithUnequalComment() returns boolean {
+public function testUnequalXmlWithUnequalComment() {
     xml x1 = xml `<book><name>The Lost World<!-- Don't Ignore me --></name></book>`;
     xml x2 = xml `<book><name>The Lost World<!-- Ignore me --></name></book>`;
-    return x1 == x2 || !(x1 != x2);
+    test:assertFalse(x1 == x2 || !(x1 != x2));
 }
 
-public function testEqualXmlIgnoringAttributeOrder() returns boolean {
+public function testEqualXmlIgnoringAttributeOrder() {
     xml x1 = xml `<book><name category="fiction" year="1912">The Lost World<author>Doyle</author></name></book>`;
     xml x2 = xml `<book><name year="1912" category="fiction">The Lost World<author>Doyle</author></name></book>`;
-    return x1 == x2 && !(x1 != x2);
+    test:assertTrue(x1 == x2 && !(x1 != x2));
 }
 
-public function testUnequalXmlIgnoringAttributeOrder() returns boolean {
+public function testUnequalXmlIgnoringAttributeOrder() {
     xml x1 = xml `<book><name category="fantasy" year="1912">The Lost World<author>Doyle</author></name></book>`;
     xml x2 = xml `<book><name year="1912" category="fiction">The Lost World<author>Doyle</author></name></book>`;
-    return x1 == x2 || !(x1 != x2);
+    test:assertFalse(x1 == x2 || !(x1 != x2));
 }
 
-public function testEqualXmlWithPI() returns boolean {
+public function testEqualXmlWithPI() {
     xml x1 = xml `<book><?target data?><name>The Lost World</name><?target_two data_two?></book>`;
     xml x2 = xml `<book><?target data?><name>The Lost World</name><?target_two data_two?></book>`;
-    return x1 == x2 && !(x1 != x2);
+    test:assertTrue(x1 == x2 && !(x1 != x2));
 }
 
-public function testUnequalXmlWithUnequalPI() returns boolean {
+public function testUnequalXmlWithUnequalPI() {
     xml x1 = xml `<book><?target data?><name>The Lost World</name></book>`;
     xml x2 = xml `<book><?target dat?><name>The Lost World</name></book>`;
-    return x1 == x2 || !(x1 != x2);
+    test:assertFalse(x1 == x2 || !(x1 != x2));
 }
 
-public function testUnequalXmlWithPIInWrongOrder() returns boolean {
+public function testUnequalXmlWithPIInWrongOrder() {
     xml x1 = xml `<book><?target data?><name>The Lost World</name></book>`;
     xml x2 = xml `<book><name>The Lost World</name><?target data?></book>`;
-    return x1 == x2 || !(x1 != x2);
+    test:assertFalse(x1 == x2 || !(x1 != x2));
 }
 
-public function testUnequalXmlWithMultiplePIInWrongOrder() returns boolean {
+public function testUnequalXmlWithMultiplePIInWrongOrder() {
     xml x1 = xml `<book><?target data?><?target_two data_two?><name>The Lost World</name></book>`;
     xml x2 = xml `<book><?target_two data_two?><?target data?><name>The Lost World</name></book>`;
-    return x1 == x2 || !(x1 != x2);
+    test:assertFalse(x1 == x2 || !(x1 != x2));
 }
 
-public function testUnequalXmlWithMissingPI() returns boolean {
+public function testUnequalXmlWithMissingPI() {
     xml x1 = xml `<book><?target data?><name>The Lost World</name></book>`;
     xml x2 = xml `<book><name>The Lost World</name></book>`;
-    return x1 == x2 || !(x1 != x2);
+    test:assertFalse(x1 == x2 || !(x1 != x2));
 }
 
-public function testXmlWithNamespacesPositive() returns boolean {
+public function testXmlWithNamespacesPositive() {
     xml x1 = xml `<book xmlns="http://wso2.com"><name>The Lost World<year>1912</year></name></book>`;
     xml x2 = xml `<book xmlns="http://wso2.com"><name>The Lost World<year>1912</year></name></book>`;
 
     xmlns "http://wso2.com";
     xml x3 = xml `<book><name>The Lost World<year>1912</year></name></book>`;
 
-    return x1 == x2 && !(x1 != x2) && x2 == x3 && !(x2 != x3);
+    test:assertTrue(x1 == x2 && !(x1 != x2) && x2 == x3 && !(x2 != x3));
 }
 
-public function testXmlWithNamespacesNegative() returns boolean {
+public function testXmlWithNamespacesNegative() {
     xml x1 = xml `<book xmlns="http://wso2.com"><name>The Lost World<year>1912</year></name></book>`;
     xml x2 = xml `<book xmlns="http://wsotwo.com"><name>The Lost World<year>1912</year></name></book>`;
     xml x3 = xml `<book><name>The Lost World<year>1912</year></name></book>`;
 
-    return x1 == x2 || !(x1 != x2) || x2 == x3 && !(x2 != x3);
+    test:assertFalse(x1 == x2 || !(x1 != x2) || x2 == x3 && !(x2 != x3));
 }
 
-public function testXmlSequenceAndXmlItemEqualityPositive() returns boolean {
+public function testXmlSequenceAndXmlItemEqualityPositive() {
     xml x1 = xml `<name>Book One</name>`;
     xml x2 = x1.get(0);
-    return x1 == x2 && !(x1 != x2) && x2 == x1 && !(x2 != x1);
+    test:assertTrue(x1 == x2 && !(x1 != x2) && x2 == x1 && !(x2 != x1));
 }
 
-public function testXmlSequenceAndXmlItemEqualityNegative() returns boolean {
+public function testXmlSequenceAndXmlItemEqualityNegative() {
     xml x1 = xml `<name>Book One</name>`;
     xml x2 = xml `<name>Book Two</name>`;
     xml x3 = x2.get(0);
-    return x1 == x3 || !(x1 != x3) || x3 == x1 || !(x3 != x1);
+    test:assertFalse(x1 == x3 || !(x1 != x3) || x3 == x1 || !(x3 != x1));
 }
 
 function testXmlStringNegative() {
@@ -1053,36 +1106,36 @@ function testXmlStringNegative() {
     anydata x6 = "<?target data?>";
     anydata x7 = xml `<!-- I'm comment -->`;
     anydata x8 = "<!-- I'm comment -->";
-    boolean result =  x1 == x2 || !(x1 != x2) || x3 == x4 || !(x3 != x4) || x5 == x6 || !(x5 != x6) || x7 == x8 || !(x7
-     != x8) || x2 == x1 || !(x2 != x1) || x4 == x3 || !(x4 != x3) || x6 == x5 || !(x6 != x5) || x8 == x7 || !(x8 != x7);
-     assert(result, false);
+    boolean result = x1 == x2 || !(x1 != x2) || x3 == x4 || !(x3 != x4) || x5 == x6 || !(x5 != x6) || x7 == x8 || !(x7
+    != x8) || x2 == x1 || !(x2 != x1) || x4 == x3 || !(x4 != x3) || x6 == x5 || !(x6 != x5) || x8 == x7 || !(x8 != x7);
+    test:assertFalse(result);
 }
 
-public function testJsonRecordMapEqualityPositive() returns boolean {
-    OpenEmployeeTwo e = { name: "Maryam", "id": 1000 };
+public function testJsonRecordMapEqualityPositive() {
+    OpenEmployeeTwo e = {name: "Maryam", "id": 1000};
 
-    json j = { name: "Maryam", id: 1000 };
+    json j = {name: "Maryam", id: 1000};
     json j2 = j;
 
-    map<string|int> m = { name: "Maryam", id: 1000 };
+    map<string|int> m = {name: "Maryam", id: 1000};
     map<anydata> m2 = m;
 
-    return e == m && !(m != e) && e == m2 && !(m2 != e) && e == j && !(j != e) && e == j2 && !(j2 != e);
+    test:assertTrue(e == m && !(m != e) && e == m2 && !(m2 != e) && e == j && !(j != e) && e == j2 && !(j2 != e));
 }
 
-public function testJsonRecordMapEqualityNegative() returns boolean {
-    OpenEmployeeTwo e = { name: "Zee", "id": 1000 };
+public function testJsonRecordMapEqualityNegative() {
+    OpenEmployeeTwo e = {name: "Zee", "id": 1000};
 
-    json j = { name: "Maryam", id: 122 };
+    json j = {name: "Maryam", id: 122};
     json j2 = j;
 
-    map<string|int> m = { name: "Maryam" };
+    map<string|int> m = {name: "Maryam"};
     map<anydata> m2 = m;
 
-    return e == m || !(m != e) || e == m2 || !(m2 != e) || e == j || !(j != e) || e == j2 || !(j2 != e);
+    test:assertFalse(e == m || !(m != e) || e == m2 || !(m2 != e) || e == j || !(j != e) || e == j2 || !(j2 != e));
 }
 
-public function testArrayTupleEqualityPositive() returns boolean {
+public function testArrayTupleEqualityPositive() {
     int[] a = [1, 2, 3];
     [int, json, int] b = [1, 2, 3];
 
@@ -1091,14 +1144,14 @@ public function testArrayTupleEqualityPositive() returns boolean {
     int[3] c = [1, 2, 3];
     'equals = 'equals && isEqual(b, c);
 
-    OpenEmployeeTwo e = { name: "Maryam", "id": 1000 };
+    OpenEmployeeTwo e = {name: "Maryam", "id": 1000};
     (OpenEmployeeTwo|json)?[] f = [1, e, true, 3.2];
     [int, OpenEmployeeTwo, boolean, float] g = [1, e, true, 3.2];
 
-    return 'equals && g == f && !(f != g);
+    test:assertTrue('equals && g == f && !(f != g));
 }
 
-public function testArrayTupleEqualityNegative() returns boolean {
+public function testArrayTupleEqualityNegative() {
     (boolean|float)?[] a = [true, 2.0, 1.23];
     [json, json, float] b = [false, 2.0, 1.23];
 
@@ -1107,126 +1160,126 @@ public function testArrayTupleEqualityNegative() returns boolean {
     (string|boolean|float|int)?[3] c = [false, 2, 1.23];
     'equals = 'equals && c == b && !(b != c);
 
-    OpenEmployeeTwo e = { name: "Maryam", "id": 1000 };
-    OpenEmployeeTwo e2 = { name: "Ziyad", "id": 1000 };
+    OpenEmployeeTwo e = {name: "Maryam", "id": 1000};
+    OpenEmployeeTwo e2 = {name: "Ziyad", "id": 1000};
     (OpenEmployeeTwo|json)?[] f = [1, e, true, 3.2];
     [int|OpenEmployee, OpenEmployeeTwo, boolean|string, float] g = [1, e2, true, 3.2];
 
-    return 'equals || isEqual(g, f);
+    test:assertFalse('equals || isEqual(g, f));
 }
 
-public function testSelfAndCyclicReferencingMapEqualityPositive() returns boolean {
-    map<anydata> m = { "3": "three", "0": 0 };
+public function testSelfAndCyclicReferencingMapEqualityPositive() {
+    map<anydata> m = {"3": "three", "0": 0};
     m["1"] = m;
 
-    map<anydata> n = { "0": 0, "3": "three" };
+    map<anydata> n = {"0": 0, "3": "three"};
     n["1"] = n;
 
     boolean 'equals = isEqual(m, n);
 
-    map<anydata> o = { "0": 0 };
+    map<anydata> o = {"0": 0};
     o["1"] = m;
 
-    map<anydata> p = { "0": 0 };
+    map<anydata> p = {"0": 0};
     p["1"] = n;
 
     'equals = 'equals && o == p && !(o != p);
 
-    map<anydata> q = { one: 1 };
-    map<anydata> r = { one: 1 };
+    map<anydata> q = {one: 1};
+    map<anydata> r = {one: 1};
     q["r"] = r;
     r["q"] = q;
     r["r"] = r;
     q["q"] = q;
 
-    return 'equals && isEqual(q, r);
+    test:assertTrue('equals && isEqual(q, r));
 }
 
-public function testSelfAndCyclicReferencingMapEqualityNegative() returns boolean {
-    map<anydata> m = { "3": "three", "0": 0 };
+public function testSelfAndCyclicReferencingMapEqualityNegative() {
+    map<anydata> m = {"3": "three", "0": 0};
     m["1"] = m;
 
-    map<anydata> n = { "0": 0, "3": "three" };
+    map<anydata> n = {"0": 0, "3": "three"};
     n["2"] = n;
 
     boolean 'equals = m == n || !(n != m);
 
     n["1"] = m;
-    map<anydata> o = { "0": 0 };
+    map<anydata> o = {"0": 0};
     o["1"] = m;
 
-    map<anydata> p = { "0": "zero" };
+    map<anydata> p = {"0": "zero"};
     p["1"] = n;
 
     'equals = 'equals || o == p || !(o != p);
 
-    map<anydata> q = { one: 1 };
-    map<anydata> r = { one: 1 };
-    map<anydata> s = { one: 2 };
+    map<anydata> q = {one: 1};
+    map<anydata> r = {one: 1};
+    map<anydata> s = {one: 2};
     q["r"] = r;
     r["q"] = q;
     r["r"] = r;
     q["q"] = s;
 
-    return 'equals || isEqual(q, r);
+    test:assertFalse('equals || isEqual(q, r));
 }
 
-public function testSelfAndCyclicReferencingJsonEqualityPositive() returns boolean {
-    map<json> m = { "3": "three", "0": 0 };
+public function testSelfAndCyclicReferencingJsonEqualityPositive() {
+    map<json> m = {"3": "three", "0": 0};
     m["1"] = m;
 
-    map<json> n = { "0": 0, "3": "three" };
+    map<json> n = {"0": 0, "3": "three"};
     n["1"] = n;
 
     boolean 'equals = isEqual(m, n);
 
-    map<json> o = { "0": 0 };
+    map<json> o = {"0": 0};
     o["1"] = m;
 
-    map<json> p = { "0": 0 };
+    map<json> p = {"0": 0};
     p["1"] = n;
 
     'equals = 'equals && o == p && !(o != p);
 
-    map<json> q = { one: 1 };
-    map<json> r = { one: 1 };
+    map<json> q = {one: 1};
+    map<json> r = {one: 1};
     q["r"] = r;
     r["q"] = q;
     r["r"] = r;
     q["q"] = q;
 
-    return 'equals && isEqual(q, r);
+    test:assertTrue('equals && isEqual(q, r));
 }
 
-public function testSelfAndCyclicReferencingJsonEqualityNegative() returns boolean {
-    map<json> m = { "3": "three", "0": 0 };
+public function testSelfAndCyclicReferencingJsonEqualityNegative() {
+    map<json> m = {"3": "three", "0": 0};
     m["1"] = m;
 
-    map<json> n = { "0": 0, "3": "three" };
+    map<json> n = {"0": 0, "3": "three"};
     n["2"] = n;
 
     boolean 'equals = m == n || !(n != m);
 
     n["1"] = m;
-    map<json> o = { "0": 0 };
+    map<json> o = {"0": 0};
     o["1"] = m;
 
-    map<json> p = { "0": "zero" };
+    map<json> p = {"0": "zero"};
     p["1"] = n;
 
     'equals = 'equals || o == p || !(o != p);
 
-    map<json> q = { one: 1, t: 2 };
-    map<json> r = { one: 1, t: 23 };
+    map<json> q = {one: 1, t: 2};
+    map<json> r = {one: 1, t: 23};
     q["r"] = r;
     r["q"] = q;
     r["r"] = r;
     q["q"] = q;
 
-    return 'equals || isEqual(q, r);
+    test:assertFalse('equals || isEqual(q, r));
 }
 
-public function testSelfAndCyclicReferencingArrayEqualityPositive() returns boolean {
+public function testSelfAndCyclicReferencingArrayEqualityPositive() {
     anydata[] m = [1, "hi"];
     m[2] = m;
 
@@ -1243,10 +1296,10 @@ public function testSelfAndCyclicReferencingArrayEqualityPositive() returns bool
     o[5] = m;
     p[5] = m;
 
-    return 'equals && o == p && !(o != p);
+    test:assertTrue('equals && o == p && !(o != p));
 }
 
-public function testSelfAndCyclicReferencingArrayEqualityNegative() returns boolean {
+public function testSelfAndCyclicReferencingArrayEqualityNegative() {
     anydata[] m = [1, "hi", 3, "ballerina"];
     m[2] = m;
 
@@ -1263,10 +1316,10 @@ public function testSelfAndCyclicReferencingArrayEqualityNegative() returns bool
     o[4] = m;
     p[4] = n;
 
-    return 'equals || o == p || !(o != p);
+    test:assertFalse('equals || o == p || !(o != p));
 }
 
-public function testSelfAndCyclicReferencingTupleEqualityPositive() returns boolean {
+public function testSelfAndCyclicReferencingTupleEqualityPositive() {
     [int, string, anydata] m = [1, "hi", false];
     m[2] = m;
 
@@ -1283,10 +1336,10 @@ public function testSelfAndCyclicReferencingTupleEqualityPositive() returns bool
     o[4] = m;
     p[4] = m;
 
-    return 'equals && o == p && !(o != p);
+    test:assertTrue('equals && o == p && !(o != p));
 }
 
-public function testSelfAndCyclicReferencingTupleEqualityNegative() returns boolean {
+public function testSelfAndCyclicReferencingTupleEqualityNegative() {
     [int, string, anydata, string] m = [1, "hi", 3, "ballerina"];
     m[2] = m;
 
@@ -1303,13 +1356,13 @@ public function testSelfAndCyclicReferencingTupleEqualityNegative() returns bool
     o[3] = m;
     p[3] = n;
 
-    return 'equals || o == p || !(o != p);
+    test:assertFalse('equals || o == p || !(o != p));
 }
 
-function testEmptyMapAndRecordEquality() returns boolean {
+function testEmptyMapAndRecordEquality() {
     map<string> m = {};
-    record {| string s?; int...; |} r = {};
-    return m == r;
+    record {|string s?;int...; |} r = {};
+    test:assertTrue(m == r);
 }
 
 type Student record {
@@ -1323,66 +1376,115 @@ type Teacher record {
 };
 
 type StudentTable table<Student> key(name);
+
 type TeacherTable table<Teacher>;
 
 function testTableEquality() {
     table<Student> key(name) tbl1 = table [
-        {name: "Amy", id: 1234},
-        {name: "John", id: 4567}
-    ];
+            {name: "Amy", id: 1234},
+            {name: "John", id: 4567}
+        ];
     table<Student> key(name) tbl2 = table [
-        {name: "Amy", id: 1234},
-        {name: "John", id: 4567}
-    ];
+            {name: "Amy", id: 1234},
+            {name: "John", id: 4567}
+        ];
     var tbl3 = table key(name) [
-        {name: "Amy", id: 1234},
-        {name: "John", id: 4567}
-    ];
+            {name: "Amy", id: 1234},
+            {name: "John", id: 4567}
+        ];
     var tbl4 = tbl2;
     anydata tbl5 = table key(name) [
-        {name: "Amy", id: 1234},
-        {name: "John", id: 4567}
-    ];
-    var ids = checkpanic table key(id) from var {id} in tbl1 select {id};
-    table<record {| int id; |}> key(id) tbl6 = ids;
+            {name: "Amy", id: 1234},
+            {name: "John", id: 4567}
+        ];
+    var ids = checkpanic table key(id) from var {id} in tbl1
+        select {id};
+    table<record {|int id;|}> key(id) tbl6 = ids;
     StudentTable tbl7 = table key(name) [
-        {name: "Amy", id: 1234},
-        {name: "John", id: 4567}
-    ];
+            {name: "Amy", id: 1234},
+            {name: "John", id: 4567}
+        ];
     StudentTable|int tbl8 = tbl7;
-    map<anydata> a1 = {"a": table key(id) [{"id": 1234}, {"id": 4567}], "b": 12};
-    record {| int id; anydata tbl9; |} a2 = {id: 1, tbl9: table key(id) [{"id": 1234}, {"id": 4567}]};
-    anydata[] a3 = [12, "A", table key(id) [{"id": 1234}, {"id": 4567}]];
-    [StudentTable, int, string] a4 = [table key(name) [{name: "Amy", id: 1234}, {name: "John", id: 4567}], 12, "A"];
-    TeacherTable tbl10 = table [{name: "Amy", id: 1234}, {name: "John", id: 4567}];
-    var tbl11 = table [{name: "Amy", id: 1234}, {name: "John", id: 4567}];
-    table<record {| string name; int id; |}> tbl12 = table [{name: "Amy", id: 1234}, {name: "John", id: 4567}];
-    var tbl13 = table [{name: "Amber", id: 1234}, {name: "John", id: 4567}];
-    TeacherTable tbl14 = table [{name: "John", id: 4567}, {name: "Amber", id: 1234}];
+    map<anydata> a1 = {
+        "a": table key(id) [
+                {"id": 1234},
+                {"id": 4567}
+            ],
+        "b": 12
+    };
+    record {|int id; anydata tbl9;|} a2 = {
+        id: 1,
+        tbl9: table key(id) [
+                {"id": 1234},
+                {"id": 4567}
+            ]
+    };
+    anydata[] a3 = [
+        12,
+        "A",
+        table key(id) [
+                {"id": 1234},
+                {"id": 4567}
+            ]
+    ];
+    [StudentTable, int, string] a4 = [
+        table key(name) [
+                {name: "Amy", id: 1234},
+                {name: "John", id: 4567}
+            ],
+        12,
+        "A"
+    ];
+    TeacherTable tbl10 = table [
+            {name: "Amy", id: 1234},
+            {name: "John", id: 4567}
+        ];
+    var tbl11 = table [
+            {name: "Amy", id: 1234},
+            {name: "John", id: 4567}
+        ];
+    table<record {|string name; int id;|}> tbl12 = table [
+            {name: "Amy", id: 1234},
+            {name: "John", id: 4567}
+        ];
+    var tbl13 = table [
+            {name: "Amber", id: 1234},
+            {name: "John", id: 4567}
+        ];
+    TeacherTable tbl14 = table [
+            {name: "John", id: 4567},
+            {name: "Amber", id: 1234}
+        ];
 
-    assert(tbl1 == tbl2, true);
-    assert(tbl1 == tbl3, true);
-    assert(tbl3 == tbl4, true);
-    assert(tbl2 == tbl5, true);
-    assert(tbl3 == tbl5, true);
-    assert(table key(id) [{"id": 1234}, {"id": 4567}] == tbl6, true);
-    assert(tbl1 == tbl7, true);
-    assert(tbl3 == tbl7, true);
-    assert(tbl5 == tbl7, true);
-    assert(tbl1 == tbl8, true);
-    assert(a1["a"] == tbl6, true);
-    assert(a1["a"] == a2.tbl9, true);
-    assert(a2.tbl9 == a3[2], true);
-    assert(tbl1 == a4[0], true);
-    assert(tbl10 == tbl11, true);
-    assert(tbl10 == tbl12, true);
-    assert(tbl3 != tbl11, true);
-    assert(tbl5 != tbl6, true);
-    assert(tbl2 != tbl10, true);
-    assert(a1["a"] != tbl12, true);
-    assert(tbl11 != tbl13, true);
-    assert(tbl10 != tbl14, true);
-    assert(table key(id) [{"id": 4567}, {"id": 1234}] != tbl6, true);
+    test:assertTrue(tbl1 == tbl2);
+    test:assertTrue(tbl1 == tbl3);
+    test:assertTrue(tbl3 == tbl4);
+    test:assertTrue(tbl2 == tbl5);
+    test:assertTrue(tbl3 == tbl5);
+    test:assertTrue(table key(id) [
+            {"id": 1234},
+            {"id": 4567}
+        ] == tbl6);
+    test:assertTrue(tbl1 == tbl7);
+    test:assertTrue(tbl3 == tbl7);
+    test:assertTrue(tbl5 == tbl7);
+    test:assertTrue(tbl1 == tbl8);
+    test:assertTrue(a1["a"] == tbl6);
+    test:assertTrue(a1["a"] == a2.tbl9);
+    test:assertTrue(a2.tbl9 == a3[2]);
+    test:assertTrue(tbl1 == a4[0]);
+    test:assertTrue(tbl10 == tbl11);
+    test:assertTrue(tbl10 == tbl12);
+    test:assertTrue(tbl3 != tbl11);
+    test:assertTrue(tbl5 != tbl6);
+    test:assertTrue(tbl2 != tbl10);
+    test:assertTrue(a1["a"] != tbl12);
+    test:assertTrue(tbl11 != tbl13);
+    test:assertTrue(tbl10 != tbl14);
+    test:assertTrue(table key(id) [
+            {"id": 4567},
+            {"id": 1234}
+        ] != tbl6);
 }
 
 function isEqual(anydata a, anydata b) returns boolean {
@@ -1393,78 +1495,81 @@ function testTupleJSONEquality() {
     [string, int] t = ["Hi", 1];
     json j = "Hi 1";
     boolean bool1 = t == j && t != j;
-    assert(bool1, false);
+    test:assertFalse(bool1);
 
     [string, int][] e = [["Hi", 1]];
     bool1 = e == j && e != j;
-    assert(bool1, false);
+    test:assertFalse(bool1);
 
     [string, int...] k = ["Hi", 1];
     bool1 = k == j && k != j;
-    assert(bool1, false);
+    test:assertFalse(bool1);
 
     j = ["Hi", 1];
-    assert(j == t, true);
-    assert(j == k, true);
+    test:assertTrue(j == t);
+    test:assertTrue(j == k);
     j = [["Hi", 1]];
-    assert(j == e, true);
+    test:assertTrue(j == e);
     j = true;
     [boolean, string|()] l = [true];
-    assert(j != l, true);
+    test:assertTrue(j != l);
 }
 
 function testIntersectingUnionEquality() {
     string:Char? a = "a";
     string b = "a";
-    assert(a == b, true);
-    assert(a != b, false);
-    assert(b == a, true);
-    assert(b != a, false);
-    assert(a == "a", true);
-    assert(a != "a", false);
-    assert("a" == a, true);
-    assert("a" != a, false);
+    test:assertTrue(a == b);
+    test:assertFalse(a != b);
+    test:assertTrue(b == a);
+    test:assertFalse(b != a);
+    test:assertTrue(a == "a");
+    test:assertFalse(a != "a");
+    test:assertTrue("a" == a);
+    test:assertFalse("a" != a);
 
     string c = "x";
-    assert(a == c, false);
-    assert(a != c, true);
-    assert(c == a, false);
-    assert(c != a, true);
-    assert(a == "x", false);
-    assert(a != "x", true);
-    assert("abc" == a, false);
-    assert("abc" != a, true);
+    test:assertFalse(a == c);
+    test:assertTrue(a != c);
+    test:assertFalse(c == a);
+    test:assertTrue(c != a);
+    test:assertFalse(a == "x");
+    test:assertTrue(a != "x");
+    test:assertFalse("abc" == a);
+    test:assertTrue("abc" != a);
 }
 
-class MyObj2 {}
-type MyObject1 object {};
+class MyObj2 {
+}
+
+type MyObject1 object {
+};
 
 function testEqualityWithNonAnydataType() {
-    map<int|string> a = { one: 1, two: "two" };
-    map<any> b = { one: 1, two: "two" };
-    assert(a == b, true);
-    assert(a != b, false);
+    map<int|string> a = {one: 1, two: "two"};
+    map<any> b = {one: 1, two: "two"};
+    test:assertTrue(a == b);
+    test:assertFalse(a != b);
 
     any c = 5;
     int d = 5;
-    assert(c == d, true);
-    assert(c != d, false);
+    test:assertTrue(c == d);
+    test:assertFalse(c != d);
 
     MyObject1? obj1 = ();
-    assert(obj1 == (), true);
-    assert(obj1 != (), false);
+    test:assertTrue(obj1 == ());
+    test:assertFalse(obj1 != ());
 
     MyObj2? obj2 = new;
-    assert(obj2 == (), false);
-    assert(obj2 != (), true);
+    test:assertFalse(obj2 == ());
+    test:assertTrue(obj2 != ());
 }
 
 type FloatOrInt float|int;
 
 FloatOrInt n1 = 0.0;
 FloatOrInt n2 = -0.0;
-FloatOrInt n3 = 0.0/0.0;
-FloatOrInt n4 = -0.0/0.0;
+FloatOrInt n3 = 0.0 / 0.0;
+FloatOrInt n4 = -0.0 / 0.0;
 FloatOrInt n5 = 2.0;
 FloatOrInt n6 = 2.00;
 FloatOrInt n7 = 2;
@@ -1539,9 +1644,9 @@ function testEqualityWithUnionOfSimpleTypes() {
     VALUE_TYPE e = true;
     VALUE_TYPE f = false;
 
-    VALUE_TYPE g = <byte> 1;
-    VALUE_TYPE h = <byte> 1;
-    VALUE_TYPE i = <byte> 2;
+    VALUE_TYPE g = <byte>1;
+    VALUE_TYPE h = <byte>1;
+    VALUE_TYPE i = <byte>2;
 
     VALUE_TYPE j = 2;
     VALUE_TYPE k = 2;
@@ -1581,7 +1686,7 @@ function testExactEqualityWithUnionOfNonSimpleTypes() {
     T h2 = java:fromString("abc");
     T h3 = java:fromString("bcd");
     T x1 = xml `<book>Book One</book>`;
-    T x2 = xml`abc`;
+    T x2 = xml `abc`;
 
     test:assertTrue(h1 === h2);
     test:assertFalse(h1 === h3);
@@ -1590,13 +1695,39 @@ function testExactEqualityWithUnionOfNonSimpleTypes() {
     test:assertFalse(x2 === h1);
 }
 
-function assert(anydata actual, anydata expected) {
-    if (expected != actual) {
-        typedesc<anydata> expT = typeof expected;
-        typedesc<anydata> actT = typeof actual;
-        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
-                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
-        error e = error(reason);
-        panic e;
-    }
+function testEqualityByteWithIntSubTypes() {
+    byte a = 120;
+    int b = 120;
+    int:Unsigned8 c = 120;
+    int:Unsigned16 d = 120;
+    int:Unsigned32 e = 120;
+    int:Signed8 f = 120;
+    int:Signed16 g = 120;
+    int:Signed32 h = 120;
+
+    // == equals check
+    test:assertTrue((a == b) && (a == c) && (a == d) && (a == e) &&
+    (a == f) && (a == g) && (a == h));
+    test:assertTrue((b == a) && (c == a) && (d == a) && (e == a) &&
+    (f == a) && (g == a) && (h == a));
+
+    // != equals check
+    test:assertFalse((a != b) || (a != c) || (a != d) || (a != e) ||
+    (a != f) || (a != g) || (a != h));
+    test:assertFalse((b != a) || (c != a) || (d != a) || (e != a) ||
+    (f != a) || (g != a) || (h != a));
+
+    // === equals check
+    test:assertTrue((a === b) && (a === c) && (a === d) && (a === e) &&
+    (a === g) && (a === h));
+    test:assertTrue((b === a) && (c === a) && (d === a) && (e === a) &&
+    (g === a) && (h === a));
+    // Need to add (a === f) , (f === a) after fixing #32924
+
+    // !== equals check
+    test:assertFalse((a !== b) || (a !== c) || (a !== d) || (a !== e) ||
+    (a !== g) || (a !== h));
+    test:assertFalse((b !== a) || (c !== a) || (d !== a) || (e !== a) ||
+    (g !== a) || (h !== a));
+    // Need to add (a !== f) , (f !== a) after fixing #32924
 }

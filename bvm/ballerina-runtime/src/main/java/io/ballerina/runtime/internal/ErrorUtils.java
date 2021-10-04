@@ -113,6 +113,12 @@ public class ErrorUtils {
 
     }
 
+    public static BError createTypeCastError(Object sourceVal, Type targetType, String detailMessage) {
+        return createError(BallerinaErrorReasons.TYPE_CAST_ERROR, BLangExceptionHelper.getErrorMessage(
+                RuntimeErrors.TYPE_CAST_ERROR, TypeChecker.getType(sourceVal), targetType)
+                .concat(StringUtils.fromString(": " + detailMessage)));
+    }
+
     public static BError createBToJTypeCastError(Object sourceVal, String targetType) {
         throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
                           BLangExceptionHelper.getErrorMessage(RuntimeErrors.J_TYPE_CAST_ERROR,

@@ -358,8 +358,7 @@ function testErrorCastPositive() returns boolean {
 function testErrorCastNegative() {
     error e1 = error("test my error");
     any|error e2 = e1;
-    assertTypeCastFailureWithMessage(trap <MyErrorTwo> e2, "incompatible types: 'error' cannot be cast to " +
-    "'MyErrorTwo'");
+    assertTypeCastFailureWithMessage(trap <MyErrorTwo> e2, "incompatible types: 'error' cannot be cast to 'MyErrorTwo'");
 }
 
 function testFunctionCastPositive() returns boolean {

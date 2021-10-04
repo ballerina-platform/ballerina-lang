@@ -827,9 +827,7 @@ public class TypesTest {
         TupleValueImpl tupleValue = (TupleValueImpl) returnedValue;
         assertName(getReturnType(tupleValue.getRefValue(0)), "MyEnum", "testorg/types:1:MyEnum");
         assertName(getReturnType(tupleValue.getRefValue(1)), "", "");
-        // https://github.com/ballerina-platform/ballerina-lang/issues/30120
-        // assertName(getReturnType(tupleValue.getRefValue(2)), "MyTuple", "testorg/types:1:MyTuple");
-        assertName(getReturnType(tupleValue.getRefValue(2)), "", "");
+        assertName(getReturnType(tupleValue.getRefValue(2)), "MyTuple", "testorg/types:1:MyTuple");
         assertName(getReturnType(tupleValue.getRefValue(3)), "", "");
     }
 

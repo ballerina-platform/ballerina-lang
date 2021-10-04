@@ -114,6 +114,7 @@ public class BuildOptions {
         buildOptionsBuilder.experimental(compilationOptions.experimental);
         buildOptionsBuilder.observabilityIncluded(compilationOptions.observabilityIncluded);
         buildOptionsBuilder.dumpBir(compilationOptions.dumpBir);
+        buildOptionsBuilder.dumpBirFile(compilationOptions.dumpBirFile);
         buildOptionsBuilder.dumpGraph(compilationOptions.dumpGraph);
         buildOptionsBuilder.dumpRawGraphs(compilationOptions.dumpRawGraphs);
         buildOptionsBuilder.cloud(compilationOptions.cloud);
