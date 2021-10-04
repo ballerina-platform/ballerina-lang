@@ -110,6 +110,7 @@
             <class name="io.ballerina.semantic.api.test.statements.SymbolsInTransactionStatements" />
             <class name="io.ballerina.semantic.api.test.statements.SymbolsInConditionalStatementsTest" />
             <class name="io.ballerina.semantic.api.test.statements.SymbolsInRegularCompoundStatements" />
+            <class name="io.ballerina.semantic.api.test.statements.SymbolsInFailRetryStatements" />
 
             <!--Symbols-->
             <class name="io.ballerina.semantic.api.test.symbols.ClassSymbolTest" />
