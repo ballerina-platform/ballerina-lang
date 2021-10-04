@@ -27,10 +27,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
  */
 public class TypeNamePair {
 
-    BType type;
-    String varName;
+    public BType type;
+    public String varName;
 
-    TypeNamePair(BType type, String varName) {
+    public TypeNamePair(BType type, String varName) {
         this.type = type;
         this.varName = varName;
     }

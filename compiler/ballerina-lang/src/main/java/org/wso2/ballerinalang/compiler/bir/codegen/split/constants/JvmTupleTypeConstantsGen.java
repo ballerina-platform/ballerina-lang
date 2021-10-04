@@ -16,15 +16,19 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen;
+package org.wso2.ballerinalang.compiler.bir.codegen.split.constants;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
+import org.wso2.ballerinalang.compiler.bir.codegen.TypeNamePair;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmTupleTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 
 import java.util.ArrayList;
@@ -56,7 +60,7 @@ public class JvmTupleTypeConstantsGen {
 
     private final String tupleVarConstantsClass;
     private int constantIndex = 0;
-    private JvmCreateTypeGen jvmCreateTypeGen;
+    private JvmTupleTypeGen jvmTupleTypeGen;
     private ClassWriter cw;
     private MethodVisitor mv;
     private int methodCount;
@@ -74,8 +78,8 @@ public class JvmTupleTypeConstantsGen {
         tupleTypeVarMap = new ConcurrentSkipListMap<>(JvmConstantsGen.TYPE_HASH_COMPARATOR);
     }
 
-    public synchronized void setJvmCreateTypeGen(JvmCreateTypeGen jvmCreateTypeGen) {
-        this.jvmCreateTypeGen = jvmCreateTypeGen;
+    public synchronized void setJvmTupleTypeGen(JvmTupleTypeGen jvmTupleTypeGen) {
+        this.jvmTupleTypeGen = jvmTupleTypeGen;
     }
 
     public synchronized String add(BTupleType type) {
@@ -125,12 +129,12 @@ public class JvmTupleTypeConstantsGen {
         MethodVisitor methodVisitor = cw.visitMethod(ACC_STATIC, methodName, "()V", null, null);
         methodVisitor.visitCode();
         generateGetBTupleType(methodVisitor, varName);
-        jvmCreateTypeGen.populateTuple(methodVisitor, type);
+        jvmTupleTypeGen.populateTuple(methodVisitor, type);
         genMethodReturn(methodVisitor);
     }
 
     private void createBTupleType(MethodVisitor mv, BTupleType tupleType, String varName) {
-        jvmCreateTypeGen.createTupleType(mv, tupleType);
+        jvmTupleTypeGen.createTupleType(mv, tupleType);
         mv.visitFieldInsn(Opcodes.PUTSTATIC, tupleVarConstantsClass, varName,
                 String.format("L%s;", JvmConstants.TUPLE_TYPE_IMPL));
     }

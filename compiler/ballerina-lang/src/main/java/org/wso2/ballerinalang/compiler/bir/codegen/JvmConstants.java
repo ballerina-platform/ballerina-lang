@@ -273,10 +273,15 @@ public class JvmConstants {
     public static final String MODULE_CONSTANT_CLASS_NAME = "constants/$_module_constants";
     public static final String CONSTANTS_CLASS_NAME = "constants/$_constants";
     public static final String MODULE_TYPES_CLASS_NAME = "types/$_types";
+    public static final String MODULE_RECORD_TYPES_CLASS_NAME = "types/$_record_types";
+    public static final String MODULE_OBJECT_TYPES_CLASS_NAME = "types/$_object_types";
+    public static final String MODULE_ERROR_TYPES_CLASS_NAME = "types/$_error_types";
+    public static final String MODULE_UNION_TYPES_CLASS_NAME = "types/$_union_types";
+    public static final String MODULE_TUPLE_TYPES_CLASS_NAME = "types/$_tuple_types";
     public static final String MODULE_ANON_TYPES_CLASS_NAME = "types/$_anon_types";
-    public static final String MODULE_RECORDS_CLASS_NAME = "types/$_records";
-    public static final String MODULE_OBJECTS_CLASS_NAME = "types/$_objects";
-    public static final String MODULE_ERRORS_CLASS_NAME = "types/$_errors";
+    public static final String MODULE_RECORDS_CREATOR_CLASS_NAME = "creators/$_records";
+    public static final String MODULE_OBJECTS_CREATOR_CLASS_NAME = "creators/$_objects";
+    public static final String MODULE_ERRORS_CREATOR_CLASS_NAME = "creators/$_errors";
     public static final String MODULE_ANNOTATIONS_CLASS_NAME = "annotations/$_annotations";
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
     public static final String B_UNION_TYPE_INIT_METHOD_PREFIX = "$union_type_init";
@@ -379,6 +384,19 @@ public class JvmConstants {
     public static final String TYPE_NOT_SUPPORTED_MESSAGE = "JVM generation is not supported for type ";
 
     public static final int MAX_MEMBERS_PER_METHOD = 100;
+    public static final int MAX_TYPES_PER_METHOD = 100;
+    public static final int MAX_FIELDS_PER_SPLIT_METHOD = 500;
+    public static final int MAX_MODULES_PER_METHOD = 100;
+    public static final int MAX_CALLS_PER_CLIENT_METHOD = 100;
+    public static final int MAX_CONSTANTS_PER_METHOD = 100;
+    /*
+    MAX_STRINGS_PER_METHOD is calculated as below.
+    No of instructions required for create ballerina string constant object = 12
+    Java method limit = 64000
+    Max strings constant initializations per method = 64000/12 -> 5000
+    */
+    public static final int MAX_STRINGS_PER_METHOD = 5000;
+
 
     private JvmConstants() {
     }

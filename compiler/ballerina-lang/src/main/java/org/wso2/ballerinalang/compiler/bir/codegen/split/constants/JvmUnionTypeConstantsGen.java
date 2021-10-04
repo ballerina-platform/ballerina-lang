@@ -16,15 +16,19 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen;
+package org.wso2.ballerinalang.compiler.bir.codegen.split.constants;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
+import org.wso2.ballerinalang.compiler.bir.codegen.TypeNamePair;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmUnionTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 
 import java.util.ArrayList;
@@ -56,7 +60,7 @@ public class JvmUnionTypeConstantsGen {
 
     private final String unionVarConstantsClass;
     private int constantIndex = 0;
-    private JvmCreateTypeGen jvmCreateTypeGen;
+    private JvmUnionTypeGen jvmUnionTypeGen;
     private ClassWriter cw;
     private MethodVisitor mv;
     private int methodCount;
@@ -77,8 +81,8 @@ public class JvmUnionTypeConstantsGen {
         unionTypeVarMap = new ConcurrentSkipListMap<>(JvmConstantsGen.TYPE_HASH_COMPARATOR);
     }
 
-    public synchronized void setJvmCreateTypeGen(JvmCreateTypeGen jvmCreateTypeGen) {
-        this.jvmCreateTypeGen = jvmCreateTypeGen;
+    public synchronized void setJvmUnionTypeGen(JvmUnionTypeGen jvmUnionTypeGen) {
+        this.jvmUnionTypeGen = jvmUnionTypeGen;
     }
 
     public synchronized String add(BUnionType type) {
@@ -125,12 +129,12 @@ public class JvmUnionTypeConstantsGen {
         MethodVisitor methodVisitor = cw.visitMethod(ACC_STATIC, methodName, "()V", null, null);
         methodVisitor.visitCode();
         generateGetBUnionType(methodVisitor, varName);
-        jvmCreateTypeGen.populateUnion(cw, methodVisitor, type, unionVarConstantsClass, varName);
+        jvmUnionTypeGen.populateUnion(cw, methodVisitor, type, unionVarConstantsClass, varName);
         genMethodReturn(methodVisitor);
     }
 
     private void createBunionType(MethodVisitor mv, BUnionType unionType, String varName) {
-        jvmCreateTypeGen.createUnionType(mv, unionType);
+        jvmUnionTypeGen.createUnionType(mv, unionType);
         mv.visitFieldInsn(Opcodes.PUTSTATIC, unionVarConstantsClass, varName,
                           String.format("L%s;", JvmConstants.UNION_TYPE_IMPL));
     }

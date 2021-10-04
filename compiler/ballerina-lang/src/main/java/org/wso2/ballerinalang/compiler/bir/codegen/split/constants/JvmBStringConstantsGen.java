@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen.split;
+package org.wso2.ballerinalang.compiler.bir.codegen.split.constants;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -55,6 +55,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_STRINGS_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STRING_CONSTANT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NON_BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
@@ -72,14 +73,6 @@ public class JvmBStringConstantsGen {
     private final String stringConstantsClass;
 
     private final AtomicInteger constantIndex = new AtomicInteger();
-
-    /*
-     MAX_STRINGS_PER_METHOD is calculated as below.
-        No of instructions required for create ballerina string constant object = 12
-        Java method limit = 64000
-        Max strings constant initializations per method = 64000/12 -> 5000
-     */
-    private static final int MAX_STRINGS_PER_METHOD = 5000;
 
     public JvmBStringConstantsGen(PackageID module) {
         this.bStringVarMap = new ConcurrentHashMap<>();
