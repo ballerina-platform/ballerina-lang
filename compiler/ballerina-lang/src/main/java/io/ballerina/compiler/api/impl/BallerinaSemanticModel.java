@@ -20,6 +20,7 @@ package io.ballerina.compiler.api.impl;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -437,6 +438,9 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private BSymbol getInternalSymbol(Symbol symbol) {
         if (symbol.kind() == TYPE) {
+            if (symbol instanceof BallerinaTypeReferenceTypeSymbol) {
+                return ((BallerinaTypeReferenceTypeSymbol) symbol).tSymbol;
+            }
             return ((AbstractTypeSymbol) symbol).getBType().tsymbol;
         }
 

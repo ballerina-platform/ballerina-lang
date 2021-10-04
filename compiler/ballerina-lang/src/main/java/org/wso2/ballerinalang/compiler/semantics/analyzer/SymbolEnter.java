@@ -60,7 +60,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLAttributeSymbol;
@@ -499,10 +501,11 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             BLangIntersectionTypeNode typeNode = (BLangIntersectionTypeNode) typeDefinition.typeNode;
             for (BLangType constituentTypeNode : typeNode.getConstituentTypeNodes()) {
-                if (constituentTypeNode.getBType().tag != TypeTags.OBJECT) {
+                BType constituentType = types.getReferredType(constituentTypeNode.getBType());
+                if (constituentType.tag != TypeTags.OBJECT) {
                     continue;
                 }
-                definigObjType.typeIdSet.add(((BObjectType) constituentTypeNode.getBType()).typeIdSet);
+                definigObjType.typeIdSet.add(((BObjectType) constituentType).typeIdSet);
             }
         } else if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
             BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDefinition.typeNode;
@@ -1535,16 +1538,23 @@ public class SymbolEnter extends BLangNodeVisitor {
             isLabel = false;
             definedType.tsymbol.name = names.fromIdNode(typeDefinition.name);
             definedType.tsymbol.originalName = names.fromIdNode(typeDefinition.name);
-            definedType.tsymbol.flags |= typeDefSymbol.flags;
-            definedType.tsymbol.pos = typeDefSymbol.pos;
+
+//            definedType.tsymbol.flags |= typeDefSymbol.flags;
+//            definedType.tsymbol.pos = typeDefSymbol.pos;
             definedType.tsymbol.markdownDocumentation = typeDefSymbol.markdownDocumentation;
             definedType.tsymbol.pkgID = env.enclPkg.packageID;
             if (definedType.tsymbol instanceof BErrorTypeSymbol) {
                 definedType.tsymbol.owner = env.scope.owner;
             }
         }
+        if (definedType.tsymbol.kind == SymbolKind.OBJECT || definedType.tsymbol.kind == SymbolKind.RECORD) {
+            ((BStructureTypeSymbol) definedType.tsymbol).typeDefinitionSymbol = (BTypeDefinitionSymbol) typeDefSymbol;
+            definedType.tsymbol.flags |= typeDefSymbol.flags;
+        }
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
             typeDefSymbol = definedType.tsymbol;
+//            definedType.tsymbol.name = names.fromIdNode(typeDefinition.name);
+//            definedType.tsymbol.originalName = names.fromIdNode(typeDefinition.name);
         }
 
         boolean isErrorIntersection = isErrorIntersection(definedType);
@@ -2147,10 +2157,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                 constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
                 constantSymbol.literalType = constant.expr.getBType();
             }
+            if (constantSymbol.type.tag != TypeTags.TYPEREFDESC) {
+                constantSymbol.type.tsymbol.flags |= constant.associatedTypeDefinition.symbol.flags;
+            }
+
         } else if (constant.typeNode != null) {
             constantSymbol.type = constantSymbol.literalType = staticType;
         }
-
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
         if (isDeprecated(constant.annAttachments)) {
             constantSymbol.flags |= Flags.DEPRECATED;
@@ -3083,7 +3096,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         switch (varType.tag) {
             case TypeTags.UNION:
                 BUnionType unionType = ((BUnionType) varType);
-                List<BErrorType> possibleTypes = types.getAllTypes(unionType).stream()
+                List<BErrorType> possibleTypes = types.getAllTypes(unionType, true).stream()
                         .filter(type -> TypeTags.ERROR == type.tag)
                         .map(BErrorType.class::cast)
                         .collect(Collectors.toList());

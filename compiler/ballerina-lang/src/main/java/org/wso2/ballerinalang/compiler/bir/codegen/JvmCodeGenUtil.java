@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmBStringConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -490,6 +491,11 @@ public class JvmCodeGenUtil {
     }
 
     public static String toNameString(BType t) {
+        if (t.tsymbol instanceof BStructureTypeSymbol &&
+                ((BStructureTypeSymbol) t.tsymbol).typeDefinitionSymbol != null) {
+            return IdentifierUtils.encodeNonFunctionIdentifier(((BStructureTypeSymbol) t.tsymbol)
+                    .typeDefinitionSymbol.name.value);
+        }
         return IdentifierUtils.encodeNonFunctionIdentifier(t.tsymbol.name.value);
     }
 

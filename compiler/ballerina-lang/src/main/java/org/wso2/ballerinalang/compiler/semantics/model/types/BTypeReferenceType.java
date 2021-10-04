@@ -45,7 +45,8 @@ public class BTypeReferenceType extends BType implements ReferenceType {
 
     @Override
     public String toString() {
-        return definitionName.equals(referredType.name.getValue()) ? referredType.toString() : tsymbol.toString();
+        return definitionName.equals(referredType.name.getValue()) || definitionName.startsWith("$anonType$")
+                ? referredType.toString() : tsymbol.toString();
     }
 
     @Override

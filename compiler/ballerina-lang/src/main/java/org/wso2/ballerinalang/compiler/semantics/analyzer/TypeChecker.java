@@ -544,7 +544,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     return valueType;
                 }
             } else if (expectedType.tag == TypeTags.UNION) {
-                Set<BType> memberTypes = new LinkedHashSet<>(types.getAllTypes(expectedType));
+                Set<BType> memberTypes = new LinkedHashSet<>(types.getAllTypes(expectedType, true));
                 BType intSubType = null;
                 boolean intOrIntCompatibleTypeFound = false;
                 for (BType memType : memberTypes) {
@@ -657,7 +657,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 return symTable.charStringType;
             }
             if (expectedType.tag == TypeTags.UNION) {
-                Set<BType> memberTypes = new HashSet<>(types.getAllTypes(expectedType));
+                Set<BType> memberTypes = new HashSet<>(types.getAllTypes(expectedType, true));
                 for (BType memType : memberTypes) {
                     memType = types.getReferredType(memType);
                     if (TypeTags.isStringTypeTag(memType.tag)) {
@@ -686,7 +686,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             } else if (expectedType.tag == TypeTags.UNION) {
                 BUnionType unionType = (BUnionType) expectedType;
-                boolean foundMember = types.getAllTypes(unionType)
+                boolean foundMember = types.getAllTypes(unionType, true)
                         .stream()
                         .anyMatch(memberType -> types.isAssignableToFiniteType(memberType, literalExpr));
                 if (foundMember) {
@@ -705,7 +705,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType getAndSetAssignableUnionMember(BLangLiteral literalExpr, BUnionType expType, BType desiredType) {
-        List<BType> members = types.getAllTypes(expType);
+        List<BType> members = types.getAllTypes(expType, true);
         Set<BType> memberTypes = new HashSet<>();
         members.forEach(member -> memberTypes.addAll(members));
         if (memberTypes.stream()
@@ -786,7 +786,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType getFiniteTypeWithValuesOfSingleType(BUnionType unionType, BType matchType) {
-        List<BFiniteType> finiteTypeMembers = types.getAllTypes(unionType).stream()
+        List<BFiniteType> finiteTypeMembers = types.getAllTypes(unionType, true).stream()
                 .filter(memType -> memType.tag == TypeTags.FINITE)
                 .map(memFiniteType -> (BFiniteType) memFiniteType)
                 .collect(Collectors.toList());
@@ -1970,7 +1970,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BUnionType unionType = (BUnionType) expType;
-        BType[] memberTypes = types.getAllTypes(unionType).toArray(new BType[0]);
+        BType[] memberTypes = types.getAllTypes(unionType, true).toArray(new BType[0]);
 
         // Special case handling for `T?` where T is a record type. This is done to give more user friendly error
         // messages for this common scenario.
@@ -2251,7 +2251,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 BType symbolType = symbol.type;
                 BType expectedType = types.getReferredType(expType);
                 if (symbolType != symTable.noType && expectedType.tag == TypeTags.FINITE ||
-                        (expectedType.tag == TypeTags.UNION && types.getAllTypes(expectedType).stream()
+                        (expectedType.tag == TypeTags.UNION && types.getAllTypes(expectedType, true).stream()
                                 .anyMatch(memType -> memType.tag == TypeTags.FINITE &&
                                         types.isAssignable(symbolType, memType)))) {
                     actualType = symbolType;
@@ -2799,7 +2799,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         List<BType> errorDetailTypes = new ArrayList<>();
         for (BType expandedCandidate : expandedCandidates) {
-            BType detailType = ((BErrorType) expandedCandidate).detailType;
+            BType detailType = ((BErrorType) types.getReferredType(expandedCandidate)).detailType;
             errorDetailTypes.add(types.getReferredType(detailType));
         }
 
@@ -2818,7 +2818,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (selectedCandidate != symTable.semanticError
                 && (userProvidedTypeRef == null
-                || types.getReferredType(userProvidedTypeRef.getBType()) == selectedCandidate)) {
+                || types.getReferredType(userProvidedTypeRef.getBType()) == types.getReferredType(selectedCandidate))) {
             checkProvidedErrorDetails(errorConstructorExpr, inferredDetailType);
             resultType = types.checkType(errorConstructorExpr.pos, selectedCandidate, expType,
                     DiagnosticErrorCode.INCOMPATIBLE_TYPES);
@@ -2836,7 +2836,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 && types.getReferredType(userProvidedTypeRef.getBType()).tag == TypeTags.ERROR) {
             errorType = (BErrorType) types.getReferredType(userProvidedTypeRef.getBType());
         } else if (expandedCandidates.size() == 1) {
-            errorType = (BErrorType) expandedCandidates.get(0);
+            errorType = (BErrorType) types.getReferredType(expandedCandidates.get(0));
         } else {
             errorType = symTable.errorType;
         }
@@ -2950,7 +2950,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (errorTypeRef == null) {
             // If contextually expected type for error constructor without type-ref contain errors take it.
             // Else take default error type as the contextually expected type.
-            if (expType.tag == TypeTags.ERROR) {
+            if (types.getReferredType(expType).tag == TypeTags.ERROR) {
                 return List.of(expType);
             } else if (types.isAssignable(expType, symTable.errorType) || expType.tag == TypeTags.UNION) {
                 return expandExpectedErrorTypes(expType);
@@ -2971,10 +2971,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private List<BType> expandExpectedErrorTypes(BType candidateType) {
-        candidateType = types.getReferredType(candidateType);
+        BType referredType = types.getReferredType(candidateType);
         List<BType> expandedCandidates = new ArrayList<>();
-        if (candidateType.tag == TypeTags.UNION) {
-            for (BType memberType : ((BUnionType) candidateType).getMemberTypes()) {
+        if (referredType.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) referredType).getMemberTypes()) {
                 memberType = types.getReferredType(memberType);
                 if (types.isAssignable(memberType, symTable.errorType)) {
                     if (memberType.tag == TypeTags.INTERSECTION) {
@@ -2985,8 +2985,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
         } else if (types.isAssignable(candidateType, symTable.errorType)) {
-            if (candidateType.tag == TypeTags.INTERSECTION) {
-                expandedCandidates.add(((BIntersectionType) candidateType).effectiveType);
+            if (referredType.tag == TypeTags.INTERSECTION) {
+                expandedCandidates.add(((BIntersectionType) referredType).effectiveType);
             } else {
                 expandedCandidates.add(candidateType);
             }
@@ -3484,7 +3484,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         LinkedHashSet<BType> retTypeMembers = new LinkedHashSet<>();
         retTypeMembers.add(recordType);
-        retTypeMembers.addAll(types.getAllTypes(streamType.completionType));
+        retTypeMembers.addAll(types.getAllTypes(streamType.completionType, true));
 
         BUnionType unionType = BUnionType.create(null);
         unionType.addAll(retTypeMembers);
@@ -5027,7 +5027,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType resolveQueryType(SymbolEnv env, BLangExpression selectExp, BType collectionType,
                                    BType targetType, BLangQueryExpr queryExpr) {
-        List<BType> resultTypes = types.getAllTypes(targetType).stream()
+        List<BType> resultTypes = types.getAllTypes(targetType, true).stream()
                 .filter(t -> !types.isAssignable(t, symTable.errorType))
                 .filter(t -> !types.isAssignable(t, symTable.nilType))
                 .collect(Collectors.toList());
@@ -5162,11 +5162,12 @@ public class TypeChecker extends BLangNodeVisitor {
                     return null;
                 }
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) itrSymbol;
-                returnType = types.getResultTypeOfNextInvocation((BObjectType) invokableSymbol.retType);
+                returnType = types.getResultTypeOfNextInvocation(
+                        (BObjectType) types.getReferredType(invokableSymbol.retType));
         }
         List<BType> errorTypes = new ArrayList<>();
         if (returnType != null) {
-            types.getAllTypes(returnType).stream()
+            types.getAllTypes(returnType, true).stream()
                     .filter(t -> types.isAssignable(t, symTable.errorType))
                     .forEach(errorTypes::add);
         }
@@ -5533,7 +5534,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType addDefaultErrorIfNoErrorComponentFound(BType type) {
-        for (BType t : types.getAllTypes(type)) {
+        for (BType t : types.getAllTypes(type, true)) {
             if (types.isAssignable(t, symTable.errorType)) {
                 return type;
             }
@@ -7619,8 +7620,8 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.UNION:
                 // address the case where we have a union of finite types
                 List<BFiniteType> finiteTypes = ((BUnionType) indexExprType).getMemberTypes().stream()
-                        .filter(memType -> memType.tag == TypeTags.FINITE)
-                        .map(matchedType -> (BFiniteType) matchedType)
+                        .filter(memType -> types.getReferredType(memType).tag == TypeTags.FINITE)
+                        .map(matchedType -> (BFiniteType) types.getReferredType(matchedType))
                         .collect(Collectors.toList());
 
                 BFiniteType finiteType;
@@ -7885,7 +7886,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.UNION:
                 LinkedHashSet<BType> possibleTypesByMember = new LinkedHashSet<>();
                 List<BFiniteType> finiteTypes = new ArrayList<>();
-                types.getAllTypes(currentType).forEach(memType -> {
+                types.getAllTypes(currentType, true).forEach(memType -> {
                     if (memType.tag == TypeTags.FINITE) {
                         finiteTypes.add((BFiniteType) memType);
                     } else {

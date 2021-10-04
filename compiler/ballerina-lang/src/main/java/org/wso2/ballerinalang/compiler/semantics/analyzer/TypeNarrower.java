@@ -335,8 +335,8 @@ public class TypeNarrower extends BLangNodeVisitor {
     }
 
     private BType getTypeUnion(BType currentType, BType targetType) {
-        LinkedHashSet<BType> union = new LinkedHashSet<>(types.getAllTypes(currentType));
-        List<BType> targetComponentTypes = types.getAllTypes(targetType);
+        LinkedHashSet<BType> union = new LinkedHashSet<>(types.getAllTypes(currentType, true));
+        List<BType> targetComponentTypes = types.getAllTypes(targetType, true);
         for (BType newType : targetComponentTypes) {
             if (newType.tag != TypeTags.NULL_SET) {
                 for (BType existingType : union) {

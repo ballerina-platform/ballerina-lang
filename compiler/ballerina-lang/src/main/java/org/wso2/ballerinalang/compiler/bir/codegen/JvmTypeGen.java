@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -915,7 +916,13 @@ public class JvmTypeGen {
         BType typeToLoad = bType.tsymbol.isTypeParamResolved ? typeSymbol.type : bType;
         PackageID packageID = typeSymbol.pkgID;
         String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
-        String fieldName = getTypeFieldName(toNameString(typeToLoad));
+        String defName = "";
+        if (typeSymbol instanceof BStructureTypeSymbol && typeSymbol.name.value.isEmpty()) {
+            defName = IdentifierUtils
+                    .encodeNonFunctionIdentifier(((BStructureTypeSymbol) typeSymbol).typeDefinitionSymbol.name.value);
+        }
+        String fieldName = defName.isEmpty() ? getTypeFieldName(toNameString(typeToLoad)) : defName;
+
 
         // if name contains $anon and doesn't belong to the same package, load type using getAnonType() method.
         if (!this.packageID.equals(packageID) &&

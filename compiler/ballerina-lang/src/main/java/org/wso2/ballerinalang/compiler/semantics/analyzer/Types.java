@@ -1286,6 +1286,13 @@ public class Types {
         return constraint.tag == TypeTags.TYPEREFDESC ? getReferredType(constraint) : constraint;
     }
 
+    public BType getReferredForAnonType(BType type) {
+        if (anonymousModelHelper.isAnonymousType(type.tsymbol)) {
+            return getReferredType(type);
+        }
+        return type;
+    }
+
     boolean isSelectivelyImmutableType(BType type) {
         return isSelectivelyImmutableType(type, new HashSet<>(), false);
     }
@@ -1727,7 +1734,7 @@ public class Types {
                     break;
                 }
                 varType = streamType.constraint;
-                List<BType> completionType = getAllTypes(streamType.completionType);
+                List<BType> completionType = getAllTypes(streamType.completionType, true);
                 if (completionType.stream().anyMatch(type -> type.tag != TypeTags.NIL)) {
                     BType actualType = BUnionType.create(null, varType, streamType.completionType);
                     dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
@@ -1791,7 +1798,7 @@ public class Types {
         BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
                 names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
         BUnionType nextMethodReturnType =
-                (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
+                (BUnionType) getResultTypeOfNextInvocation((BObjectType) getReferredType(iteratorSymbol.retType));
         bLangInputClause.varType = varType;
         bLangInputClause.resultType = getRecordType(nextMethodReturnType);
         bLangInputClause.nillableResultType = nextMethodReturnType;
@@ -1926,7 +1933,7 @@ public class Types {
             return false;
         }
 
-        List<BType> types = getAllTypes(returnType);
+        List<BType> types = getAllTypes(returnType, true);
         boolean containsCompletionType = types.removeIf(type -> type.tag == TypeTags.NIL);
         containsCompletionType = types.removeIf(type -> type.tag == TypeTags.ERROR) || containsCompletionType;
         if (!containsCompletionType) {
@@ -1962,8 +1969,8 @@ public class Types {
 
     private BRecordType getRecordType(BUnionType type) {
         for (BType member : type.getMemberTypes()) {
-            if (member.tag == TypeTags.RECORD) {
-                return (BRecordType) member;
+            if (getReferredType(member).tag == TypeTags.RECORD) {
+                return (BRecordType) getReferredType(member);
             }
         }
         return null;
@@ -1971,6 +1978,7 @@ public class Types {
 
     public BErrorType getErrorType(BUnionType type) {
         for (BType member : type.getMemberTypes()) {
+            member = getReferredType(member);
             member = getEffectiveTypeForIntersection(member);
 
             if (member.tag == TypeTags.ERROR) {
@@ -2350,9 +2358,10 @@ public class Types {
                 return true;
             case TypeTags.UNION:
                 for (BType memType : ((BUnionType) sourceType).getMemberTypes()) {
-                    if (isBasicNumericType(memType) ||
-                            (memType.tag == TypeTags.FINITE &&
-                                    finiteTypeContainsNumericTypeValues((BFiniteType) memType))) {
+                    BType referredType = getReferredType(memType);
+                    if (isBasicNumericType(referredType) ||
+                            (referredType.tag == TypeTags.FINITE &&
+                                    finiteTypeContainsNumericTypeValues((BFiniteType) referredType))) {
                         return true;
                     }
                 }
@@ -2754,6 +2763,11 @@ public class Types {
             return isSameType(sType.paramValueType, t.paramValueType) && sType.paramSymbol.equals(t.paramSymbol);
         }
 
+//        @Override
+//        public Boolean visit(BTypeReferenceType t, BType s) {
+//            return this.visit(getReferredType(t), t);
+//        }
+
     };
 
     private class BOrderedTypeVisitor implements BTypeVisitor<BType, Boolean> {
@@ -2979,6 +2993,11 @@ public class Types {
         public Boolean visit(BTypedescType t, BType s) {
             return false;
         }
+
+//        @Override
+//        public Boolean visit(BTypeReferenceType t, BType s) {
+//            return this.visit(getReferredType(t), t);
+//        }
 
         @Override
         public Boolean visit(BParameterizedType t, BType s) {
@@ -3372,7 +3391,7 @@ public class Types {
         }
 
         if (targetType.tag == TypeTags.UNION) {
-            List<BType> unionMemberTypes = getAllTypes(targetType);
+            List<BType> unionMemberTypes = getAllTypes(targetType, true);
             return finiteType.getValueSpace().stream()
                     .allMatch(valueExpr -> unionMemberTypes.stream()
                             .anyMatch(targetMemType ->
@@ -4217,9 +4236,9 @@ public class Types {
     public BType getRemainingMatchExprType(BType originalType, BType typeToRemove) {
         switch (originalType.tag) {
             case TypeTags.UNION:
-                return getRemainingType((BUnionType) originalType, getAllTypes(typeToRemove));
+                return getRemainingType((BUnionType) originalType, getAllTypes(typeToRemove, true));
             case TypeTags.FINITE:
-                return getRemainingType((BFiniteType) originalType, getAllTypes(typeToRemove));
+                return getRemainingType((BFiniteType) originalType, getAllTypes(typeToRemove, true));
             case TypeTags.TUPLE:
                 return getRemainingType((BTupleType) originalType, typeToRemove);
             default:
@@ -4280,9 +4299,9 @@ public class Types {
     public BType getRemainingType(BType originalType, BType typeToRemove) {
         switch (originalType.tag) {
             case TypeTags.UNION:
-                return getRemainingType((BUnionType) originalType, getAllTypes(typeToRemove));
+                return getRemainingType((BUnionType) originalType, getAllTypes(typeToRemove, true));
             case TypeTags.FINITE:
-                return getRemainingType((BFiniteType) originalType, getAllTypes(typeToRemove));
+                return getRemainingType((BFiniteType) originalType, getAllTypes(typeToRemove, true));
             case TypeTags.READONLY:
                 return getRemainingType((BReadonlyType) originalType, typeToRemove);
             case TypeTags.TYPEREFDESC:
@@ -4309,7 +4328,7 @@ public class Types {
     private BType getTypeIntersection(IntersectionContext intersectionContext, BType lhsType, BType rhsType,
                                      SymbolEnv env,
                                      LinkedHashSet<BType> visitedTypes) {
-        List<BType> rhsTypeComponents = getAllTypes(rhsType);
+        List<BType> rhsTypeComponents = getAllTypes(rhsType, false);
         LinkedHashSet<BType> intersection = new LinkedHashSet<>(rhsTypeComponents.size());
         for (BType rhsComponent : rhsTypeComponents) {
             BType it = getIntersection(intersectionContext, lhsType, env, rhsComponent,
@@ -4346,6 +4365,8 @@ public class Types {
                 return lhsType;
             }
         }
+        type = getReferredType(type);
+        lhsType = getReferredType(lhsType);
         if (type.tag == TypeTags.ERROR && lhsType.tag == TypeTags.ERROR) {
             BType intersectionType = getIntersectionForErrorTypes(intersectionContext, lhsType, type, env,
                                                             visitedTypes);
@@ -4475,7 +4496,7 @@ public class Types {
     private BType getEffectiveTypeForIntersection(BType bType) {
         BType type = getReferredType(bType);
         if (type.tag != TypeTags.INTERSECTION) {
-            return type;
+            return bType;
         }
 
         BType effectiveType = ((BIntersectionType) type).effectiveType;
@@ -4982,7 +5003,7 @@ public class Types {
     }
 
     private BType getRemainingType(BUnionType originalType, List<BType> removeTypes) {
-        List<BType> remainingTypes = getAllTypes(originalType);
+        List<BType> remainingTypes = getAllTypes(originalType, true);
         boolean hasErrorToRemove = false;
         for (BType removeType : removeTypes) {
             remainingTypes.removeIf(type -> isAssignable(type, removeType));
@@ -5106,17 +5127,17 @@ public class Types {
         return errorLiftedType;
     }
 
-    public List<BType> getAllTypes(BType type) {
+    public List<BType> getAllTypes(BType type, boolean getReference) {
         if (type.tag != TypeTags.UNION) {
-            if (type.tag == TypeTags.TYPEREFDESC) {
-                return getAllTypes(((BTypeReferenceType) type).referredType);
+            if (getReference && type.tag == TypeTags.TYPEREFDESC) {
+                return getAllTypes(((BTypeReferenceType) type).referredType, true);
             } else {
                 return Lists.of(type);
             }
         }
 
         List<BType> memberTypes = new LinkedList<>();
-        ((BUnionType) type).getMemberTypes().forEach(memberType -> memberTypes.addAll(getAllTypes(memberType)));
+        ((BUnionType) type).getMemberTypes().forEach(memberType -> memberTypes.addAll(getAllTypes(memberType, true)));
         return memberTypes;
     }
 
@@ -5363,7 +5384,7 @@ public class Types {
         boolean hasFillerValue = false;
         boolean defaultValuePresent = false;
         boolean finiteTypePresent = false;
-        for (BType member : getAllTypes(type)) {
+        for (BType member : getAllTypes(type, true)) {
             if (member.tag == TypeTags.FINITE) {
                 Set<BType> uniqueValues = getValueTypes(((BFiniteType) member).getValueSpace());
                 memberTypes.addAll(uniqueValues);

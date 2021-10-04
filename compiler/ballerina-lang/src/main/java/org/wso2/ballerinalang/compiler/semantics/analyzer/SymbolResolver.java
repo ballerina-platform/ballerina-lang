@@ -1601,10 +1601,11 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         userDefinedTypeNode.symbol = symbol;
 
-        if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
+        if (symbol.kind == SymbolKind.TYPE_DEF) {
             if (((BTypeDefinitionSymbol) symbol).referenceType == null) {
                 BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_DEF, symbol.flags, symbol.name, symbol.pkgID,
                         symbol.type, symbol.owner, symbol.pos, symbol.origin);
+                typeSymbol.markdownDocumentation = symbol.markdownDocumentation;
                 BTypeReferenceType refType = new BTypeReferenceType(symbol.type, typeSymbol, symbol.type.flags);
                 ((BTypeDefinitionSymbol) symbol).referenceType = refType;
                 resultType = refType;

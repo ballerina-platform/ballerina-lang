@@ -31,9 +31,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -223,15 +226,24 @@ public class LangLibrary {
             BInvokableSymbol invSymbol = (BInvokableSymbol) symbol;
 
             if (Symbols.isFlagOn(invSymbol.flags, Flags.PUBLIC) &&
-                    (!invSymbol.params.isEmpty() &&
-                            basicType.compareToIgnoreCase(invSymbol.params.get(0).type.getKind().name()) == 0 ||
-                    invSymbol.restParam != null && basicType.compareToIgnoreCase(((BArrayType) invSymbol.restParam.type)
+                    (!invSymbol.params.isEmpty()
+                            && basicType.compareToIgnoreCase(getReferredType(invSymbol.params.get(0).type)
+                            .getKind().name()) == 0 || invSymbol.restParam != null
+                            && basicType.compareToIgnoreCase(((BArrayType) invSymbol.restParam.type)
                             .eType.tsymbol.getName().getValue()) == 0)) {
                 methods.put(invSymbol.name.value, invSymbol);
             }
         }
 
         langLibMethods.put(basicType, methods);
+    }
+
+    private static BType getReferredType(BType type) {
+        BType constraint = type;
+        if (type.tag == TypeTags.TYPEREFDESC) {
+            constraint = ((BTypeReferenceType) type).referredType;
+        }
+        return constraint.tag == TypeTags.TYPEREFDESC ? getReferredType(constraint) : constraint;
     }
 
     private static void populateLangValueLibrary(BPackageSymbol langValue,

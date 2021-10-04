@@ -426,8 +426,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 continue;
             }
 
-            if (this.function != null && member.tag == TypeTags.PARAMETERIZED_TYPE) {
-                BParameterizedType parameterizedType = (BParameterizedType) member;
+            if (this.function != null && types.getReferredType(member).tag == TypeTags.PARAMETERIZED_TYPE) {
+                BParameterizedType parameterizedType = (BParameterizedType) types.getReferredType(member);
                 BType paramConstraint = getParamConstraintTypeIfInferred(this.function, parameterizedType);
                 if (paramConstraint != symbolTable.noType && !isDisjointMemberType(parameterizedType, originalType)) {
                     dlog.error(this.function.returnTypeNode.pos,
@@ -882,8 +882,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     }
 
     private boolean hasSameBasicType(BType t1, BType t2) {
-        int tag1 = t1.tag;
-        int tag2 = t2.tag;
+        int tag1 = types.getReferredType(t1).tag;
+        int tag2 = types.getReferredType(t2).tag;
 
         if (tag1 == tag2) {
             return true;
@@ -1102,12 +1102,12 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return null;
         }
 
-        if (expType.tag != TypeTags.UNION) {
+        if (types.getReferredType(expType).tag != TypeTags.UNION) {
             return expType;
         }
 
         LinkedHashSet<BType> types = new LinkedHashSet<>();
-        for (BType expMemType : ((BUnionType) expType).getMemberTypes()) {
+        for (BType expMemType : ((BUnionType) this.types.getReferredType(expType)).getMemberTypes()) {
             boolean hasMatchWithOtherType = false;
             for (BType origMemType : originalType.getMemberTypes()) {
                 if (origMemType == member) {

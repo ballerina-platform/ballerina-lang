@@ -1460,11 +1460,13 @@ public class JvmInstructionGen {
 
     private void visitNewRecordArray(BType type) {
         BType elementType = JvmCodeGenUtil.getReferredType(type);
+        elementType = elementType.tag == TypeTags.INTERSECTION ?
+                ((BIntersectionType) elementType).effectiveType : elementType;
         BTypeSymbol tsymbol = elementType.tag == TypeTags.RECORD ? elementType.tsymbol :
                 ((BIntersectionType) elementType).effectiveType.tsymbol;
-        String typeOwner = JvmCodeGenUtil.getPackageName(elementType.tsymbol.pkgID) + MODULE_INIT_CLASS_NAME;
+        String typeOwner = JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID) + MODULE_INIT_CLASS_NAME;
         String typedescFieldName =
-                jvmTypeGen.getTypedescFieldName(IdentifierUtils.encodeNonFunctionIdentifier(tsymbol.name.value));
+                jvmTypeGen.getTypedescFieldName(toNameString(elementType));
         this.mv.visitFieldInsn(GETSTATIC, typeOwner, typedescFieldName, "L" + TYPEDESC_VALUE + ";");
         this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD, String.format("(L%s;J[L%s;" +
                 "L%s;)V", ARRAY_TYPE, B_LIST_INITIAL_VALUE_ENTRY, TYPEDESC_VALUE), false);
@@ -1938,6 +1940,20 @@ public class JvmInstructionGen {
         }
         this.storeToVar(newTypeDesc.lhsOp.variableDcl);
     }
+
+//    void generateNewTypedescIns(BIRNonTerminator.NewTypeDesc newTypeDesc) {
+//        List<BIROperand> closureVars = newTypeDesc.closureVars;
+//        BType type = JvmCodeGenUtil.getReferredType(newTypeDesc.type);
+//        if (type.tag == TypeTags.RECORD && closureVars.isEmpty() && type.tsymbol != null) {
+//            PackageID packageID = newTypeDesc.type.tsymbol.pkgID;
+//            String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
+//            String fieldName = jvmTypeGen.getTypedescFieldName(toNameString(newTypeDesc.type));
+//            mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, String.format("L%s;", TYPEDESC_VALUE));
+//        } else {
+//            generateNewTypedescCreate(newTypeDesc.type, closureVars);
+//        }
+//        this.storeToVar(newTypeDesc.lhsOp.variableDcl);
+//    }
 
     private void generateNewTypedescCreate(BType btype, List<BIROperand> closureVars) {
         BType type = JvmCodeGenUtil.getReferredType(btype);
