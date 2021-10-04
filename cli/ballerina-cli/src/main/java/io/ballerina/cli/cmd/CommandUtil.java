@@ -311,13 +311,14 @@ public class CommandUtil {
                     Files.copy(moduleMd, toModuleMd);
                 }
                 // Copy modules
+                // Copy modules
                 Path sourceModulesDir = balaPath.resolve("modules").resolve(packageName);
                 if (Files.exists(sourceModulesDir)) {
                     Files.walkFileTree(sourceModulesDir, new FileUtils.Copy(sourceModulesDir, modulePath));
                 }
             } else {
                 Files.delete(modulePath);
-                throw new CentralClientException("Unable to create the package with the provided module");
+                throw new CentralClientException("unable to create the package: specified package is not a template");
             }
         } catch (IOException e) {
             printError(errStream,
@@ -345,7 +346,9 @@ public class CommandUtil {
             Path balaPath = balaCache.resolve(
                     ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
             String platform = findPlatform(balaPath);
-            String balaGlob = "glob:**" + File.separator + orgName + File.separator + packageName + File.separator
+            balaPath = balaCache.resolve(
+                    ProjectUtils.getRelativeBalaPath(orgName, packageName, version, platform));
+            String balaGlob = "glob:**/" + orgName + File.separator + packageName + File.separator
                     + version + File.separator + platform;
             PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(balaGlob);
 
@@ -400,7 +403,6 @@ public class CommandUtil {
                 client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
                         RepoUtils.getBallerinaVersion(), false);
             } catch (PackageAlreadyExistsException e) {
-//                applyBalaTemplate(projectPath, balaCache, template);
                 throw new PackageAlreadyExistsException(e.getMessage());
             }
             try {
@@ -444,14 +446,18 @@ public class CommandUtil {
                 Files.writeString(balTomlPath, "\npath = \"" + projectPlatform + "\"", StandardOpenOption.APPEND);
 
                 String artifactId = dependeciesObj.get("artifactId").getAsString();
-                Files.writeString(balTomlPath, "\nartifactId = \"" + artifactId + "\"", StandardOpenOption.APPEND);
-
+                if (artifactId != null) {
+                    Files.writeString(balTomlPath, "\nartifactId = \"" + artifactId + "\"", StandardOpenOption.APPEND);
+                }
                 String groupId = dependeciesObj.get("groupId").getAsString();
-                Files.writeString(balTomlPath, "\ngroupId = \"" + groupId + "\"", StandardOpenOption.APPEND);
-
+                if (groupId != null) {
+                    Files.writeString(balTomlPath, "\ngroupId = \"" + groupId + "\"", StandardOpenOption.APPEND);
+                }
                 String dependencyVersion = dependeciesObj.get("version").getAsString();
-                Files.writeString(balTomlPath, "\nversion = \"" + dependencyVersion + "\"\n",
-                        StandardOpenOption.APPEND);
+                if (dependencyVersion != null) {
+                    Files.writeString(balTomlPath, "\nversion = \"" + dependencyVersion + "\"\n",
+                            StandardOpenOption.APPEND);
+                }
             }
         }
     }

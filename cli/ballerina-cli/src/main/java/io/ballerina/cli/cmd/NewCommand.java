@@ -199,8 +199,13 @@ public class NewCommand implements BLauncherCmd {
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
         } catch (CentralClientException e) {
-            CommandUtil.printError(errStream,
-                    "error occurred while pulling the package : " + e.getMessage(),
+            if (Files.exists(path)) {
+                try {
+                    Files.delete(path);
+                } catch (IOException ignored) {
+                }
+            }
+            CommandUtil.printError(errStream, e.getMessage(),
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
