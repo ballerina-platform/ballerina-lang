@@ -19,9 +19,12 @@ package io.ballerina.types;
 
 import io.ballerina.types.definition.ListDefinition;
 import io.ballerina.types.subtypedata.BooleanSubtype;
+import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
+
+import java.math.BigDecimal;
 
 /**
  * Public API for creating type values.
@@ -50,6 +53,14 @@ public class SemTypes {
 
     public static SemType booleanConst(boolean value) {
         return BooleanSubtype.booleanConst(value);
+    }
+
+    public static SemType decimalConst(String value) {
+        if (value.contains("d")) {
+            value = value.substring(0, value.length() - 1);
+        }
+        BigDecimal d = new BigDecimal(value);
+        return DecimalSubtype.decimalConst(d);
     }
 
     public static SemType union(SemType t1, SemType t2) {
