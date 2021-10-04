@@ -248,7 +248,9 @@ public class BIROptimizer {
         }
 
         public void optimizeTerm(BIRTerminator term, OptimizerEnv env) {
+            this.env.isTerminator = true;
             this.optimizeNode(term, env);
+            this.env.isTerminator = false;
         }
 
         public void optimizeNonTerm(BIRNonTerminator nonTerm, OptimizerEnv env) {
@@ -344,7 +346,7 @@ public class BIROptimizer {
                 }
                 BIRVariableDcl reusableVar = removableVarVsReplacementVarMap.get(variableDcl);
                 Set<BIRVariableDcl> reusableList = typeVsReusableVarsMap.get(variableDcl.type);
-                // Same var can be used by multiple operands. We need to collect all and then replace the it
+                // Same var can be used by multiple operands. We need to collect all and then replace them with
                 // variable declarations.
                 if (reusableVar != null) {
                     removableOpsMap.put(birOperand, reusableVar);
@@ -377,9 +379,7 @@ public class BIROptimizer {
             this.env.newInstructions = new ArrayList<>();
             birBasicBlock.instructions.forEach(i -> this.optimizeNonTerm(i, this.env));
             birBasicBlock.instructions = this.env.newInstructions;
-            this.env.isTerminator = true;
             this.optimizeTerm(birBasicBlock.terminator, this.env);
-            this.env.isTerminator = false;
         }
 
         //////////////////////////////////////////////
