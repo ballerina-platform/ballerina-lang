@@ -2233,7 +2233,6 @@ public class TypeChecker extends BLangNodeVisitor {
                                                         env.enclType.getBType().tsymbol);
             }
 
-
             // TODO: call to isInLocallyDefinedRecord() is a temporary fix done to disallow local var references in
             //  locally defined record type defs. This check should be removed once local var referencing is supported.
             if (((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE)) {
@@ -5897,27 +5896,23 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationParamAndReturnType(iExpr);
     }
 
-    // Here, an action invocation can be either of the following two forms:
+    // Here, an action invocation can be either of the following three forms:
     // - foo->bar();
-    // - start foo.bar(); or start foo->bar()
+    // - start foo.bar(); or start foo->bar(); or start (new Foo()).foo();
     private void checkActionInvocation(BLangInvocation.BLangActionInvocation aInv, BObjectType expType) {
-        BLangValueExpression varRef = (BLangValueExpression) aInv.expr;
 
-        if (((varRef.symbol.tag & SymTag.ENDPOINT) != SymTag.ENDPOINT) && !aInv.async) {
-            dlog.error(aInv.pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION, varRef.getBType());
+        if (checkInvalidActionInvocation(aInv)) {
+            dlog.error(aInv.pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION, aInv.expr.getBType());
             this.resultType = symTable.semanticError;
             aInv.symbol = symTable.notFoundSymbol;
             return;
         }
 
-        BVarSymbol epSymbol = (BVarSymbol) varRef.symbol;
-
         Name remoteMethodQName = names
                 .fromString(Symbols.getAttachedFuncSymbolName(expType.tsymbol.name.value, aInv.name.value));
         Name actionName = names.fromIdNode(aInv.name);
-        BSymbol remoteFuncSymbol = symResolver.lookupMemberSymbol(aInv.pos,
-                types.getReferredType(epSymbol.type).tsymbol.scope,
-                env, remoteMethodQName, SymTag.FUNCTION);
+        BSymbol remoteFuncSymbol = symResolver.resolveObjectMethod(aInv.pos, env,
+                remoteMethodQName, (BObjectTypeSymbol) types.getReferredType(expType).tsymbol);
 
         if (remoteFuncSymbol == symTable.notFoundSymbol) {
             BSymbol invocableField = symResolver.resolveInvocableObjectField(
@@ -5949,6 +5944,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
         aInv.symbol = remoteFuncSymbol;
         checkInvocationParamAndReturnType(aInv);
+    }
+
+    private boolean checkInvalidActionInvocation(BLangInvocation.BLangActionInvocation aInv) {
+        return aInv.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                (((((BLangSimpleVarRef) aInv.expr).symbol.tag & SymTag.ENDPOINT) !=
+                        SymTag.ENDPOINT) && !aInv.async);
     }
 
     private boolean checkLangLibMethodInvocationExpr(BLangInvocation iExpr, BType bType) {
@@ -6251,9 +6252,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 tupleMemberTypes.add(paramType);
                 boolean required = requiredParams.contains(nonRestParam);
                 fieldSymbol = new BVarSymbol(Flags.asMask(new HashSet<Flag>() {{
-                                             add(required ? Flag.REQUIRED : Flag.OPTIONAL); }}), paramName,
-                                             nonRestParam.getOriginalName(), pkgID, paramType, recordSymbol, null,
-                                             VIRTUAL);
+                                            add(required ? Flag.REQUIRED : Flag.OPTIONAL); }}), paramName,
+                                            nonRestParam.getOriginalName(), pkgID, paramType, recordSymbol,
+                                            symTable.builtinPos, VIRTUAL);
                 fields.put(paramName.value, new BField(paramName, null, fieldSymbol));
             }
 
@@ -7079,7 +7080,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (fieldType == symTable.semanticError) {
                 return fieldType;
             }
-            return BUnionType.create(null, fieldType, symTable.nilType);
+            return addNilForNillableAccessType(fieldType);
         }
 
         // If the type is not an record, it needs to be a union of records.

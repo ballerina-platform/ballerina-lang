@@ -703,7 +703,7 @@ public class TomlProvider implements ConfigProvider {
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             recordType = (RecordType) type;
         } else {
-            recordType = (RecordType) ((BIntersectionType) type).getConstituentTypes().get(0);
+            recordType = (RecordType) ((BIntersectionType) type).constituentTypes.get(0);
         }
         if (tomlNode.kind() != getEffectiveTomlType(recordType, variableName)) {
             invalidTomlLines.add(tomlNode.location().lineRange());
