@@ -176,12 +176,10 @@ public class TypesFactory {
         if (isTypeReference(bType, tSymbol, rawTypeOnly)) {
             return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID,
                     types.getReferredType(bType), tSymbol, typeRefFromIntersectType);
-        } else {
-            BTypeSymbol typeSymbol = tSymbol instanceof BTypeDefinitionSymbol ? tSymbol.type.tsymbol
-                    : (BTypeSymbol) tSymbol;
-            return createTypeDescriptor(bType, typeSymbol, moduleID);
         }
-
+        BTypeSymbol typeSymbol = tSymbol instanceof BTypeDefinitionSymbol ? tSymbol.type.tsymbol
+                : (BTypeSymbol) tSymbol;
+        return createTypeDescriptor(bType, typeSymbol, moduleID);
     }
 
     private TypeSymbol createTypeDescriptor(BType bType, BTypeSymbol tSymbol, ModuleID moduleID) {

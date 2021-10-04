@@ -1150,7 +1150,6 @@ public class BIRPackageSymbolEnter {
                             symTable.builtinPos, COMPILED_SOURCE);
                     BTypeReferenceType typeReferenceType = new BTypeReferenceType(null,
                             typeSymbol, flags);
-                    typeReferenceType.flags |= flags;
                     addShapeCP(typeReferenceType, cpI);
                     compositeStack.push(typeReferenceType);
                     typeReferenceType.referredType = readTypeFromCp();

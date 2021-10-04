@@ -1318,7 +1318,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private  boolean isTypeConstructorAvailable(NodeKind unresolvedType) {
+    private boolean isTypeConstructorAvailable(NodeKind unresolvedType) {
         switch (unresolvedType) {
             case OBJECT_TYPE:
             case RECORD_TYPE:

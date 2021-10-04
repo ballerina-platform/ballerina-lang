@@ -1113,7 +1113,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         for (BVarSymbol symbol : symbols) {
             BType type = symbol.type;
             String key = symbol.name.value;
-            if (types.getReferredType(type).tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
+            BType structureType = types.getReferredType(type);
+            if (structureType.tag == TypeTags.RECORD || structureType.tag == TypeTags.OBJECT) {
                 List<BVarSymbol> nestedSymbols = new ArrayList<>();
                 for (BField field : ((BStructureType) types.getReferredType(type)).fields.values()) {
                     nestedSymbols.add(field.symbol);
