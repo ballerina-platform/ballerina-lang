@@ -203,6 +203,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+import org.wso2.ballerinalang.compiler.util.FieldKind;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -840,6 +841,15 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        if (fieldAccessExpr.fieldKind == FieldKind.WITH_NS) {
+            BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess =
+                    (BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) fieldAccessExpr;
+
+            if (setEnclosingNode(nsPrefixedFieldBasedAccess.nsSymbol, nsPrefixedFieldBasedAccess.nsPrefix.pos)) {
+                return;
+            }
+        }
+
         if (setEnclosingNode(fieldAccessExpr.symbol, fieldAccessExpr.field.pos)) {
             return;
         }
