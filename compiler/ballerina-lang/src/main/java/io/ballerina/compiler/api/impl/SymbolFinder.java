@@ -1117,7 +1117,10 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangAnnotAccessExpr annotAccessExpr) {
-
+        lookupNode(annotAccessExpr.expr);
+        if (annotAccessExpr.annotationName != null) {
+            setEnclosingNode(annotAccessExpr.annotationSymbol, annotAccessExpr.annotationName.pos);
+        }
     }
 
     @Override
