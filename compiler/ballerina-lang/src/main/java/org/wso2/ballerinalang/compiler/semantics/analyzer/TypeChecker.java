@@ -5865,13 +5865,9 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean checkInvalidActionInvocation(BLangInvocation.BLangActionInvocation aInv) {
-        if (aInv.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+        return aInv.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
                 (((((BLangSimpleVarRef) aInv.expr).symbol.tag & SymTag.ENDPOINT) !=
-                        SymTag.ENDPOINT) && !aInv.async)) {
-            return true;
-        } else {
-            return false;
-        }
+                        SymTag.ENDPOINT) && !aInv.async);
     }
 
     private boolean checkLangLibMethodInvocationExpr(BLangInvocation iExpr, BType bType) {
