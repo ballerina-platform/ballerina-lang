@@ -56,7 +56,10 @@ public class SemTypes {
     }
 
     public static SemType decimalConst(String value) {
-        BigDecimal d = new BigDecimal(value.substring(0, value.length() - 1));
+        if (value.contains("d")) {
+            value = value.substring(0, value.length() - 1);
+        }
+        BigDecimal d = new BigDecimal(value);
         return DecimalSubtype.decimalConst(d);
     }
 

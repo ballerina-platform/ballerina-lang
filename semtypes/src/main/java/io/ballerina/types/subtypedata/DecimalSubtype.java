@@ -33,7 +33,7 @@ import java.util.StringJoiner;
 /**
  * Represent DecimalSubtype.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 public class DecimalSubtype extends EnumerableSubtype implements ProperSubtypeData {
     public boolean allowed;
@@ -49,8 +49,8 @@ public class DecimalSubtype extends EnumerableSubtype implements ProperSubtypeDa
     }
 
     public static SemType decimalConst(BigDecimal value) {
-        return PredefinedType.uniformSubtype(UniformTypeCode.UT_DECIMAL, new DecimalSubtype(true,
-                EnumerableDecimal.from(value)));
+        return PredefinedType.uniformSubtype(UniformTypeCode.UT_DECIMAL,
+                new DecimalSubtype(true, EnumerableDecimal.from(value)));
     }
 
     public static Optional<BigDecimal> decimalSubtypeSingleValue(SubtypeData d) {
@@ -59,7 +59,7 @@ public class DecimalSubtype extends EnumerableSubtype implements ProperSubtypeDa
         }
 
         DecimalSubtype f = (DecimalSubtype) d;
-        if (f.allowed) {
+        if (!f.allowed) {
             return Optional.empty();
         }
 
