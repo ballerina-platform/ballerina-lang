@@ -1575,7 +1575,7 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
                 endPointRef = resolveReference(endPointRef);
             }
 
-            String pos = actionPos.filePath() + actionPos;
+            String pos = actionPos.filePath() + "/" + actionPos;
             ActionInvocationNode actionNode = new ActionInvocationNode(endPointRef, actionName, actionPath, pos);
             this.currentNode.setNextNode(actionNode);
             this.setChildNode(actionNode);
