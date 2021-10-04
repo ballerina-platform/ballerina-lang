@@ -631,6 +631,15 @@
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myStr = ...",
+      "kind": "Snippet",
+      "detail": "myStr = \"\"",
+      "sortText": "AR",
+      "filterText": "myStr",
+      "insertText": "myStr = ${1:\"\"}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

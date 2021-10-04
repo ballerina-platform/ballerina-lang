@@ -15,18 +15,18 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ import java.util.Optional;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class FunctionCallExpressionNodeContext extends AbstractCompletionProvider<FunctionCallExpressionNode> {
+public class FunctionCallExpressionNodeContext extends InvocationNodeContextProvider<FunctionCallExpressionNode> {
 
     public FunctionCallExpressionNodeContext() {
         super(FunctionCallExpressionNode.class);
@@ -54,6 +54,7 @@ public class FunctionCallExpressionNodeContext extends AbstractCompletionProvide
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(this.actionKWCompletions(ctx));
         completionItems.addAll(this.expressionCompletions(ctx));
+        completionItems.addAll(this.getNamedArgExpressionCompletionItems(ctx, node));
         this.sort(ctx, node, completionItems);
         return completionItems;
     }
@@ -67,19 +68,20 @@ public class FunctionCallExpressionNodeContext extends AbstractCompletionProvide
         return cursor > openParen.textRange().startOffset() && cursor < closeParen.textRange().endOffset();
     }
 
-    @Override
-    public void sort(BallerinaCompletionContext context,
-                     FunctionCallExpressionNode node,
-                     List<LSCompletionItem> completionItems) {
-        Optional<TypeSymbol> parameterSymbol = context.getContextType();
-        if (parameterSymbol.isEmpty() || !CommonUtil.isInFunctionCallParameterContext(context, node)) {
-            super.sort(context, node, completionItems);
-            return;
+    private List<LSCompletionItem> getNamedArgExpressionCompletionItems(BallerinaCompletionContext context,
+                                                                        FunctionCallExpressionNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (semanticModel.isEmpty()) {
+            return completionItems;
         }
-        TypeSymbol symbol = parameterSymbol.get();
-        for (LSCompletionItem completionItem : completionItems) {
-            completionItem.getCompletionItem()
-                    .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
+        Optional<Symbol> symbol = semanticModel.get().symbol(node);
+        if (symbol.isEmpty() || !(symbol.get().kind() == SymbolKind.FUNCTION
+                || symbol.get().kind() == SymbolKind.METHOD
+                || symbol.get().kind() == SymbolKind.RESOURCE_METHOD)) {
+            return completionItems;
         }
+        FunctionSymbol functionSymbol = (FunctionSymbol) symbol.get();
+        return getNamedArgCompletionItems(context, functionSymbol, node.arguments());
     }
 }

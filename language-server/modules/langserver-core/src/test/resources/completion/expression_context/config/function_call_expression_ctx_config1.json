@@ -580,6 +580,24 @@
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "a = ...",
+      "kind": "Snippet",
+      "detail": "a = 0",
+      "sortText": "AR",
+      "filterText": "a",
+      "insertText": "a = ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "b = ...",
+      "kind": "Snippet",
+      "detail": "b = 0",
+      "sortText": "AR",
+      "filterText": "b",
+      "insertText": "b = ${1:0}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
