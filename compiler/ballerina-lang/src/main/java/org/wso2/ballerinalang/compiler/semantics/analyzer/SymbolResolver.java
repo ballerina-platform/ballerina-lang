@@ -1844,8 +1844,20 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         if (validNumericOrStringTypeExists) {
-            BType compatibleType1 = types.findCompatibleType(lhsType);
-            BType compatibleType2 = types.findCompatibleType(rhsType);
+            BType compatibleType1;
+            BType compatibleType2;
+            if (lhsType.isNullable()) {
+                compatibleType1 = types.findCompatibleType(types.getNilLiftType((BUnionType) lhsType));
+            } else {
+                compatibleType1 = types.findCompatibleType(lhsType);
+            }
+
+            if (rhsType.isNullable()) {
+                compatibleType2 = types.findCompatibleType(types.getNilLiftType((BUnionType) rhsType));
+            } else {
+                compatibleType2 = types.findCompatibleType(rhsType);
+            }
+
             if (types.isBasicNumericType(compatibleType1) && compatibleType1 != compatibleType2) {
                 return symTable.notFoundSymbol;
             }

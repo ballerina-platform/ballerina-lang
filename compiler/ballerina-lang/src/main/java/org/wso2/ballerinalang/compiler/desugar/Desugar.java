@@ -6868,14 +6868,16 @@ public class Desugar extends BLangNodeVisitor {
         BUnionType exprBType = (BUnionType) binaryExpr.getBType();
         BType nilLiftType = exprBType.getMemberTypes().iterator().next();
 
-        BType rhsType = binaryExpr.rhsExpr.getBType();
-        if (rhsType.isNullable()) {
-            rhsType = getNilLiftType((BUnionType) rhsType);
+        boolean isArithmeticOperator = symResolver.isArithmeticOperator(binaryExpr.opKind);
+
+        BType rhsType = nilLiftType;
+        if (!isArithmeticOperator && binaryExpr.rhsExpr.getBType().isNullable()) {
+            rhsType = getNilLiftType((BUnionType) binaryExpr.rhsExpr.getBType());
         }
 
-        BType lhsType = binaryExpr.lhsExpr.getBType();
-        if (lhsType.isNullable()) {
-            lhsType = getNilLiftType((BUnionType) lhsType);
+        BType lhsType = nilLiftType;
+        if (!isArithmeticOperator && binaryExpr.lhsExpr.getBType().isNullable()) {
+            lhsType = getNilLiftType((BUnionType) binaryExpr.lhsExpr.getBType());
         }
 
         if (binaryExpr.lhsExpr.getBType().isNullable()) {
@@ -7008,7 +7010,15 @@ public class Desugar extends BLangNodeVisitor {
             }
             return BUnionType.create(null, memberTypes);
         } else {
-            return ((BUnionType) type).getMemberTypes().iterator().next();
+            Iterator<BType> memberTypesIterator = type.getMemberTypes().iterator();
+            BType memberType = null;
+            while (memberTypesIterator.hasNext()) {
+                memberType = memberTypesIterator.next();
+                if (memberType.tag != TypeTags.NIL) {
+                    break;
+                }
+            }
+            return memberType;
         }
     }
 

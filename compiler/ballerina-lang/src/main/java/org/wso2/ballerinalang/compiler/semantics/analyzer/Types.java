@@ -3720,8 +3720,8 @@ public class Types {
         }
     }
 
-    private BType getNilLiftType(BUnionType type) {
-        if (type.getMemberTypes().size() > 2) {
+    BType getNilLiftType(BUnionType type) {
+        if (type.getMemberTypes().size() > 1) {
             LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
             Iterator<BType> memberTypesIterator = type.getMemberTypes().iterator();
             while (memberTypesIterator.hasNext()) {
