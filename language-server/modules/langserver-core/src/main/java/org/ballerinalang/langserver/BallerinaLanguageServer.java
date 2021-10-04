@@ -218,43 +218,42 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         LSClientLogger clientLogger = LSClientLogger.getInstance(this.serverContext);
         clientLogger.logMessage("LS offline source compilation set to " + CommonUtil.COMPILE_OFFLINE);
 
-        registerBalaUriScheme();
+        // Register dynamic capabilities
+        registerDynamicCapabilities();
         
         startListeningFileChanges();
-
-        // If the client support dynamic registration of commands, we register the capability here
-        if (LSClientUtil.isDynamicCommandRegistrationSupported(serverContext)) {
-            List<String> commandsList = LSCommandExecutorProvidersHolder.getInstance(serverContext).getCommandsList();
-            LSClientUtil.registerCommands(serverContext, commandsList);
-        }
-
-        // Register LS semantic tokens capabilities if dynamic registration is available
-        LSClientCapabilities capabilities = this.serverContext.get(LSClientCapabilities.class);
-        if (LSClientUtil.isDynamicSemanticTokensRegistrationSupported(capabilities.getTextDocCapabilities())) {
-            registerSemanticTokensConfigListener();
-            if (capabilities.getWorkspaceCapabilities().getDidChangeConfiguration() == null &&
-                    capabilities.getInitializationOptions().isEnableSemanticTokens()) {
-                SemanticTokensUtils.registerSemanticTokensCapability(serverContext.get(ExtendedLanguageClient.class));
-            }
-        }
     }
 
     /**
-     * "bala" URI scheme is used to make stdlib and langlib files readonly at the editor. 
+     * Checks and registers required dynamic capabilities.
      */
-    private void registerBalaUriScheme() {
-        LanguageClient client = serverContext.get(ExtendedLanguageClient.class);
-        LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
-        if (clientCapabilities == null) {
-            return;
-        }
-
+    private void registerDynamicCapabilities() {
+        registerTextSynchronizationForBalaUriScheme();
+        
         DocumentFilter balaFilter = new DocumentFilter();
         balaFilter.setScheme(CommonUtil.URI_SCHEME_BALA);
         DocumentFilter fileFilter = new DocumentFilter();
         fileFilter.setScheme(CommonUtil.URI_SCHEME_FILE);
         fileFilter.setLanguage(CommonUtil.LANGUAGE_ID_BALLERINA);
         List<DocumentFilter> documentSelectors = List.of(balaFilter, fileFilter);
+
+        registerDynamicHoverSupport(documentSelectors);
+        registerDynamicDefinitionSupport(documentSelectors);
+        registerDynamicReferencesSupport(documentSelectors);
+
+        registerDynamicCommandsSupport();
+        registerDynamicSemanticTokenSupport();
+    }
+
+    /**
+     * "bala" URI scheme is used to make stdlib and langlib files readonly at the editor. 
+     */
+    private void registerTextSynchronizationForBalaUriScheme() {
+        LanguageClient client = serverContext.get(ExtendedLanguageClient.class);
+        LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
+
+        DocumentFilter balaFilter = new DocumentFilter();
+        balaFilter.setScheme(CommonUtil.URI_SCHEME_BALA);
 
         // Register text synchronization for bala scheme
         if (LSClientUtil.isDynamicSynchronizationRegistrationSupported(clientCapabilities.getTextDocCapabilities())) {
@@ -278,32 +277,61 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
             client.registerCapability(new RegistrationParams(List.of(changeRegistration)));
             client.registerCapability(new RegistrationParams(List.of(closeRegistration)));
         }
+        
+        // TODO Server capabilities in server context are out of sync now.
+    }
 
-        if (LSClientUtil.isDynamicDefinitionRegistrationSupported(clientCapabilities.getTextDocCapabilities())) {
-            DefinitionRegistrationOptions definitionRegistrationOptions = new DefinitionRegistrationOptions();
-            definitionRegistrationOptions.setDocumentSelector(documentSelectors);
-            Registration definitionRegistration = new Registration(UUID.randomUUID().toString(), 
-                    "textDocument/definition", definitionRegistrationOptions);
-            client.registerCapability(new RegistrationParams(List.of(definitionRegistration)));
-        }
-
-        if (LSClientUtil.isDynamicReferencesRegistrationSupported(clientCapabilities.getTextDocCapabilities())) {
-            ReferenceRegistrationOptions referencesRegOptions = new ReferenceRegistrationOptions();
-            referencesRegOptions.setDocumentSelector(documentSelectors);
-            Registration referencesRegistration = new Registration(UUID.randomUUID().toString(), 
-                    "textDocument/references", referencesRegOptions);
-            client.registerCapability(new RegistrationParams(List.of(referencesRegistration)));
-        }
-
+    private void registerDynamicHoverSupport(List<DocumentFilter> documentSelectors) {
+        LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
         if (LSClientUtil.isDynamicHoverRegistrationSupported(clientCapabilities.getTextDocCapabilities())) {
             HoverRegistrationOptions hoverRegOptions = new HoverRegistrationOptions();
             hoverRegOptions.setDocumentSelector(documentSelectors);
-            Registration hoverRegistration = new Registration(UUID.randomUUID().toString(), 
+            Registration hoverRegistration = new Registration(UUID.randomUUID().toString(),
                     "textDocument/hover", hoverRegOptions);
             client.registerCapability(new RegistrationParams(List.of(hoverRegistration)));
         }
-        
-        // TODO Server capabilities in server context are out of sync now.
+    }
+
+    private void registerDynamicDefinitionSupport(List<DocumentFilter> documentSelectors) {
+        LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
+        if (LSClientUtil.isDynamicDefinitionRegistrationSupported(clientCapabilities.getTextDocCapabilities())) {
+            DefinitionRegistrationOptions definitionRegistrationOptions = new DefinitionRegistrationOptions();
+            definitionRegistrationOptions.setDocumentSelector(documentSelectors);
+            Registration definitionRegistration = new Registration(UUID.randomUUID().toString(),
+                    "textDocument/definition", definitionRegistrationOptions);
+            client.registerCapability(new RegistrationParams(List.of(definitionRegistration)));
+        }
+    }
+
+    private void registerDynamicReferencesSupport(List<DocumentFilter> documentSelectors) {
+        LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
+        if (LSClientUtil.isDynamicReferencesRegistrationSupported(clientCapabilities.getTextDocCapabilities())) {
+            ReferenceRegistrationOptions referencesRegOptions = new ReferenceRegistrationOptions();
+            referencesRegOptions.setDocumentSelector(documentSelectors);
+            Registration referencesRegistration = new Registration(UUID.randomUUID().toString(),
+                    "textDocument/references", referencesRegOptions);
+            client.registerCapability(new RegistrationParams(List.of(referencesRegistration)));
+        }
+    }
+    
+    private void registerDynamicCommandsSupport() {
+        // If the client support dynamic registration of commands, we register the capability here
+        if (LSClientUtil.isDynamicCommandRegistrationSupported(serverContext)) {
+            List<String> commandsList = LSCommandExecutorProvidersHolder.getInstance(serverContext).getCommandsList();
+            LSClientUtil.registerCommands(serverContext, commandsList);
+        }
+    }
+    
+    private void registerDynamicSemanticTokenSupport() {
+        // Register LS semantic tokens capabilities if dynamic registration is available
+        LSClientCapabilities capabilities = this.serverContext.get(LSClientCapabilities.class);
+        if (LSClientUtil.isDynamicSemanticTokensRegistrationSupported(capabilities.getTextDocCapabilities())) {
+            registerSemanticTokensConfigListener();
+            if (capabilities.getWorkspaceCapabilities().getDidChangeConfiguration() == null &&
+                    capabilities.getInitializationOptions().isEnableSemanticTokens()) {
+                SemanticTokensUtils.registerSemanticTokensCapability(serverContext.get(ExtendedLanguageClient.class));
+            }
+        }
     }
 
     public CompletableFuture<Object> shutdown() {
