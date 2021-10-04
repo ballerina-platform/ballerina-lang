@@ -288,7 +288,6 @@ public class RemotePackageRepositoryTests {
             super(environment, cacheDirectory);
         }
 
-        @Override
         public PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
             SemanticVersion semVer1 = v1.value();
             SemanticVersion semVer2 = v2.value();
