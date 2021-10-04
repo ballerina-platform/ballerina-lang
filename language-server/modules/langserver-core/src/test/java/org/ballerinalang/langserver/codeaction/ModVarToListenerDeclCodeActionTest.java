@@ -25,7 +25,7 @@ import java.io.IOException;
 
 /**
  * Test cases for ModVarToListenerDeclCodeAction.
- * 
+ *
  * @since 2.0.0
  */
 public class ModVarToListenerDeclCodeActionTest extends AbstractCodeActionTest {
@@ -36,12 +36,25 @@ public class ModVarToListenerDeclCodeActionTest extends AbstractCodeActionTest {
         super.test(config, source);
     }
 
+    @Test(dataProvider = "negative-test-data-provider")
+    @Override
+    public void negativeTest(String config, String source) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config, source);
+    }
+
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
                 {"modVarToListenerDecl1.json", "modVarToListenerDecl1.bal"},
                 {"modVarToListenerDecl2.json", "project/main.bal"}
+        };
+    }
+
+    @DataProvider(name = "negative-test-data-provider")
+    public Object[][] negativeTestDataProvider() {
+        return new Object[][]{
+                {"negative_modVarToListnerDecl1.json", "negative_modVarToListnerDecl1.bal"},
         };
     }
 

@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -31,6 +30,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
@@ -59,13 +59,9 @@ public class ModVarToListenerDeclCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!(DiagnosticErrorCode.INVALID_LISTENER_ATTACHMENT.diagnosticId()
-                .equals(diagnostic.diagnosticInfo().code()))) {
-            return Collections.emptyList();
-        }
-
         Node matchedNode = positionDetails.matchedNode();
-        if (matchedNode == null) {
+        if (!(DiagnosticErrorCode.INVALID_LISTENER_ATTACHMENT.diagnosticId()
+                .equals(diagnostic.diagnosticInfo().code())) || matchedNode == null) {
             return Collections.emptyList();
         }
         Optional<Pair<CaptureBindingPatternNode, String>> nodeUriPair =
@@ -92,8 +88,8 @@ public class ModVarToListenerDeclCodeAction extends AbstractCodeActionProvider {
                                                                                         CodeActionContext context) {
         Optional<Symbol> symbol = context.currentSemanticModel()
                 .flatMap(semanticModel -> semanticModel.symbol(matchedNode));
-        if (symbol.isEmpty() || context.currentSyntaxTree().isEmpty() 
-                || symbol.get().kind() != SymbolKind.VARIABLE) {
+        if (symbol.isEmpty() || context.currentSyntaxTree().isEmpty()
+                || !SymbolUtil.isListener(symbol.get())) {
             return Optional.empty();
         }
         Optional<NonTerminalNode> foundNode;
