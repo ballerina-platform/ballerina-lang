@@ -330,6 +330,18 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
 
+    @Test(description = "Test new command by pulling a central template without specifying version")
+    public void testNewCommandWithTemplateUntagged() throws IOException {
+        // Test if no arguments was passed in
+        String templateArg = "ballerinax/twitter";
+        String[] args = {"sample_pull_twitter", "-t", templateArg};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+
+        Assert.assertTrue(readOutput().contains("Unable to create the package with the provided module"));
+    }
+
     @Test(description = "Test new command without arguments")
     public void testNewCommandNoArgs() throws IOException {
         // Test if no arguments was passed in
