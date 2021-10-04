@@ -6795,25 +6795,19 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        if (TypeTags.isStringTypeTag(lhsExprTypeTag) && binaryExpr.opKind == OperatorKind.ADD) {
+        if (binaryExpr.opKind == OperatorKind.ADD && TypeTags.isStringTypeTag(lhsExprTypeTag) &&
+                (rhsExprTypeTag == TypeTags.XML || rhsExprTypeTag == TypeTags.XML_TEXT)) {
             // string + xml ==> (xml string) + xml
-            if (TypeTags.isXMLTypeTag(rhsExprTypeTag)) {
-                binaryExpr.lhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.lhsExpr,
-                        binaryExpr.lhsExpr.pos, symTable.xmlType);
-                return;
-            }
-            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.lhsExpr.getBType());
+            binaryExpr.lhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.lhsExpr,
+                    binaryExpr.lhsExpr.pos, symTable.xmlType);
             return;
         }
 
-        if (TypeTags.isStringTypeTag(rhsExprTypeTag) && binaryExpr.opKind == OperatorKind.ADD) {
+        if (binaryExpr.opKind == OperatorKind.ADD && TypeTags.isStringTypeTag(rhsExprTypeTag) &&
+                (lhsExprTypeTag == TypeTags.XML || lhsExprTypeTag == TypeTags.XML_TEXT)) {
             // xml + string ==> xml + (xml string)
-            if (TypeTags.isXMLTypeTag(lhsExprTypeTag)) {
-                binaryExpr.rhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.rhsExpr,
-                        binaryExpr.rhsExpr.pos, symTable.xmlType);
-                return;
-            }
-            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.rhsExpr.getBType());
+            binaryExpr.rhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.rhsExpr,
+                    binaryExpr.rhsExpr.pos, symTable.xmlType);
             return;
         }
 
