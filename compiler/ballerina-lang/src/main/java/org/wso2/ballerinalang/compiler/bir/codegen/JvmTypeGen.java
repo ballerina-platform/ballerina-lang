@@ -85,7 +85,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANYDATA_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
@@ -119,7 +118,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JSON_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_SET;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_TYPE_IMPL;
@@ -147,7 +145,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_TY
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
@@ -438,8 +435,7 @@ public class JvmTypeGen {
                     if (tupleType.isCyclic) {
                         loadUserDefinedType(mv, bType);
                     } else {
-                        loadTupleType(mv, (BTupleType) bType);
-//                        jvmConstantsGen.generateGetBTupleType(mv, jvmConstantsGen.getTupleConstantVar(tupleType));
+                        jvmConstantsGen.generateGetBTupleType(mv, jvmConstantsGen.getTupleConstantVar(tupleType));
                     }
                     return;
                 case TypeTags.FINITE:
@@ -819,46 +815,6 @@ public class JvmTypeGen {
         methodVisitor.visitTypeInsn(ANEWARRAY, TYPE);
     }
 
-    /**
-     * Load a Tuple type instance to the top of the stack.
-     *
-     * @param mv    method visitor
-     * @param bType tuple type to be loaded
-     */
-    private void loadTupleType(MethodVisitor mv, BTupleType bType) {
-
-        mv.visitTypeInsn(NEW, TUPLE_TYPE_IMPL);
-        mv.visitInsn(DUP);
-        //new arraylist
-        mv.visitTypeInsn(NEW, ARRAY_LIST);
-        mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, JVM_INIT_METHOD, "()V", false);
-
-        List<BType> tupleTypes = bType.tupleTypes;
-        for (BType tupleType : tupleTypes) {
-            mv.visitInsn(DUP);
-            loadType(mv, tupleType);
-            mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", String.format("(L%s;)Z", OBJECT), true);
-            mv.visitInsn(POP);
-        }
-
-        BType restType = bType.restType;
-        if (restType == null) {
-            mv.visitInsn(ACONST_NULL);
-        } else {
-            loadType(mv, restType);
-        }
-
-        // Load type flags
-        mv.visitLdcInsn(typeFlag(bType));
-
-        loadCyclicFlag(mv, bType);
-
-        loadReadonlyFlag(mv, bType);
-
-        mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE_IMPL, JVM_INIT_METHOD, String.format("(L%s;L%s;IZZ)V", LIST, TYPE),
-                false);
-    }
     /**
      * Load a user defined type instance to the top of the stack.
      *
