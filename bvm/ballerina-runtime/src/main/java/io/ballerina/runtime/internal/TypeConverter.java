@@ -405,8 +405,9 @@ public class TypeConverter {
             }
             Field targetField = targetType.getFields().get(fieldName);
             if (SymbolFlags.isFlagOn(targetField.getFlags(), SymbolFlags.REQUIRED)) {
-                addErrorMessage(0, errors, "missing required field '" + fieldNameLong + "' of type '" +
-                        targetField.getFieldType().toString() + "' in record '" + targetType + "'");
+                addErrorMessage((errors == null) ? 0 : errors.size(), "missing required field '" + fieldNameLong +
+                                "' of type '" + targetField.getFieldType().toString() + "' in record '" + targetType +
+                                "'", errors);
                 returnVal = false;
             }
         }
@@ -415,50 +416,48 @@ public class TypeConverter {
             Map.Entry valueEntry = (Map.Entry) object;
             String fieldName = valueEntry.getKey().toString();
             String fieldNameLong = getLongFieldName(varName, fieldName);
-            int initialErrorCount = errors.size();
+            int initialErrorCount = (errors == null) ? 0 : errors.size();
 
             if (isFromJson) {
                 if (targetFieldTypes.containsKey(fieldName)) {
                     if (getConvertibleTypesFromJson(valueEntry.getValue(), targetFieldTypes.get(fieldName),
                             fieldNameLong, unresolvedValues, errors).size() != 1) {
-                        addErrorMessage(errors.size() - initialErrorCount, errors, "field '" +
-                                fieldNameLong + "' in record '" + targetType + "' should be of type '" +
-                                targetFieldTypes.get(fieldName) + "'");
+                        addErrorMessage(initialErrorCount, "field '" + fieldNameLong + "' in record '" + targetType +
+                                "' should be of type '" + targetFieldTypes.get(fieldName) + "'", errors);
                         returnVal = false;
                     }
                 } else if (!targetType.sealed) {
                     if (getConvertibleTypesFromJson(valueEntry.getValue(), restFieldType, fieldNameLong,
                             unresolvedValues, errors).size() != 1) {
-                        addErrorMessage(errors.size() - initialErrorCount, errors, "value of field '" +
-                                valueEntry.getKey() + "' adding to the record '" +
-                                targetType + "' should be of type '" + restFieldType + "'");
+                        addErrorMessage(initialErrorCount, "value of field '" + valueEntry.getKey() +
+                                "' adding to the record '" + targetType + "' should be of type '" + restFieldType +
+                                "'", errors);
                         returnVal = false;
                     }
                 } else {
-                    addErrorMessage(0, errors, "field '" + fieldNameLong + "' cannot be added to the closed record '" +
-                            targetType + "'");
+                    addErrorMessage(initialErrorCount, "field '" + fieldNameLong +
+                            "' cannot be added to the closed record '" + targetType + "'", errors);
                     returnVal = false;
                 }
             } else {
                 if (targetFieldTypes.containsKey(fieldName)) {
                     if (getConvertibleTypes(valueEntry.getValue(), targetFieldTypes.get(fieldName),
                             fieldNameLong, false, unresolvedValues, errors).size() != 1) {
-                        addErrorMessage(errors.size() - initialErrorCount, errors, "field '" +
-                                fieldNameLong + "' in record '" + targetType + "' should be of type '" +
-                                targetFieldTypes.get(fieldName) + "'");
+                        addErrorMessage(initialErrorCount, "field '" + fieldNameLong + "' in record '" + targetType +
+                                "' should be of type '" + targetFieldTypes.get(fieldName) + "'", errors);
                         returnVal = false;
                     }
                 } else if (!targetType.sealed) {
                     if (getConvertibleTypes(valueEntry.getValue(), restFieldType, fieldNameLong,
                             false, unresolvedValues, errors).size() != 1) {
-                        addErrorMessage(errors.size() - initialErrorCount, errors, "value of field '" +
-                                valueEntry.getKey() + "' adding to the record '" +
-                                targetType + "' should be of type '" + restFieldType + "'");
+                        addErrorMessage(initialErrorCount, "value of field '" + valueEntry.getKey() +
+                                "' adding to the record '" + targetType + "' should be of type '" + restFieldType +
+                                "'", errors);
                         returnVal = false;
                     }
                 } else {
-                    addErrorMessage(0 , errors, "field '" + fieldNameLong + "' cannot be added to the closed record '" +
-                            targetType + "'");
+                    addErrorMessage(initialErrorCount, "field '" + fieldNameLong +
+                            "' cannot be added to the closed record '" + targetType + "'", errors);
                     returnVal = false;
                 }
             }
@@ -474,8 +473,9 @@ public class TypeConverter {
         }
     }
 
-    private static void addErrorMessage(int errorCountDifference, List<String> errors, String errorMessage) {
-        if ((errors.size() <= MAX_CONVERSION_ERROR_COUNT) && (errorCountDifference == 0)) {
+    private static void addErrorMessage(int initialErrorCount, String errorMessage, List<String> errors) {
+        if ((errors != null) && (errors.size() <= MAX_CONVERSION_ERROR_COUNT) &&
+                ((errors.size() - initialErrorCount) == 0)) {
             errors.add(errorMessage);
         }
     }
@@ -498,7 +498,7 @@ public class TypeConverter {
         }
         for (Object mapEntry : ((MapValueImpl) sourceValue).values()) {
             if (getConvertibleTypes(mapEntry, targetType.getConstrainedType(), null, false,
-                    unresolvedValues, new ArrayList<>()).size() != 1) {
+                    unresolvedValues, null).size() != 1) {
                 return false;
             }
         }
@@ -560,7 +560,7 @@ public class TypeConverter {
     private static boolean isConvertibleToArrayInstance(Object sourceElement, Type targetType,
                                                         List<TypeValuePair> unresolvedValues) {
         Set<Type> convertibleTypes = getConvertibleTypes(sourceElement, targetType, null, false,
-                unresolvedValues, new ArrayList<>());
+                unresolvedValues, null);
         if (convertibleTypes.isEmpty() || !isConvertible(convertibleTypes, sourceElement)) {
             return false;
         }
