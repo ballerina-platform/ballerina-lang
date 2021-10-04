@@ -165,12 +165,20 @@ function test(string name, int age) {
     };
 }
 
-xmlns "foo" as ns;
-
-int indx = 0;
-
-function testXMLStepExpr() {
-    xml x1 = xml `<ns:root><ns:child></ns:child></ns:root>`;
-    xml x2 = x1/<ns:child>[indx];
-    string s = x1/**/<ns:child>.toString();
+function testAnnotTagReference() {
+    Annot? annot = FooRec.@v5;
 }
+
+@v5 {
+    foo: "bar"
+}
+type FooRec record {
+    int x;
+    string y;
+};
+
+type AnnotRec record {
+    string foo;
+};
+
+public annotation AnnotRec v5 on type;

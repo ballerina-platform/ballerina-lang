@@ -31,6 +31,7 @@ import org.eclipse.lsp4j.debug.EvaluateResponse;
 import org.eclipse.lsp4j.debug.NextArguments;
 import org.eclipse.lsp4j.debug.OutputEventArguments;
 import org.eclipse.lsp4j.debug.OutputEventArgumentsCategory;
+import org.eclipse.lsp4j.debug.PauseArguments;
 import org.eclipse.lsp4j.debug.ScopesArguments;
 import org.eclipse.lsp4j.debug.ScopesResponse;
 import org.eclipse.lsp4j.debug.SetBreakpointsArguments;
@@ -361,6 +362,22 @@ public class DebugTestRunner {
                 LOGGER.warn("Step over request failed", e);
                 throw new BallerinaTestException("Step over request failed", e);
             }
+        }
+    }
+
+    /**
+     * Pauses(suspends) the execution of the debuggee program.
+     *
+     * @throws BallerinaTestException if an error occurs when resuming program.
+     */
+    public void pauseProgram(int threadId) throws BallerinaTestException {
+        PauseArguments pauseArgs = new PauseArguments();
+        pauseArgs.setThreadId(threadId);
+        try {
+            debugClientConnector.getRequestManager().pause(pauseArgs);
+        } catch (Exception e) {
+            LOGGER.warn("Pause request failed", e);
+            throw new BallerinaTestException("Pause request failed", e);
         }
     }
 

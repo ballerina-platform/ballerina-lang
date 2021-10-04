@@ -21,16 +21,21 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
@@ -87,6 +92,21 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
             completionItems.addAll(this.getNewExprCompletionItems(context, node));
         }
         this.sort(context, node, completionItems);
+        return completionItems;
+    }
+
+    @Override
+    protected List<LSCompletionItem> getCompletionItemsOnQualifiers(Node node, BallerinaCompletionContext context) {
+        List<LSCompletionItem> completionItems = new ArrayList<>(super.getCompletionItemsOnQualifiers(node, context));
+        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node);
+        if (qualifiers.isEmpty()) {
+            return completionItems;
+        }
+        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
+        if (lastQualifier.kind() == SyntaxKind.ISOLATED_KEYWORD) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()));
+        }
         return completionItems;
     }
 

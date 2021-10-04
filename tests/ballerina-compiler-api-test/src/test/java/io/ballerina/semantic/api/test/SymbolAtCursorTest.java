@@ -124,8 +124,7 @@ public class SymbolAtCursorTest {
                 {161, 8, "name"},
                 {162, 8, "age"},
                 {163, 9, "foo"},
-                {173, 27, "indx"},
-                {174, 32, "toString"},
+                {168, 27, "v5"},
         };
     }
 
