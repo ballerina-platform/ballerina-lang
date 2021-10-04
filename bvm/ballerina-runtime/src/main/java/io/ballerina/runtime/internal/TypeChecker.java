@@ -2589,6 +2589,9 @@ public class TypeChecker {
                 addErrorMessage((errors == null) ? 0 : errors.size(), "missing required field '" + fieldNameLong +
                         "' of type '" + targetField.getFieldType().toString() + "' in record '" + targetType + "'",
                         errors);
+                if ((errors == null) || (errors.size() >= MAX_TYPECAST_ERROR_COUNT + 1)) {
+                    return false;
+                }
                 returnVal = false;
             }
         }
@@ -2620,6 +2623,9 @@ public class TypeChecker {
                             "' cannot be added to the closed record '" + targetType + "'", errors);
                     returnVal = false;
                 }
+            }
+            if ((!returnVal) && ((errors == null) || (errors.size() >= MAX_TYPECAST_ERROR_COUNT + 1))) {
+                return false;
             }
         }
         return returnVal;
