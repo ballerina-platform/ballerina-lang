@@ -322,16 +322,17 @@ public class JSONLibraryTest {
     }
 
     @Test
-    public void testQuoteInArrayElements() {
-        String json = "{\"fruits\":[\"apple\", \"orange\", \"grapes\"]}";
+    public void testSingleQuoteInArrayElements() {
+        String json = "{'fruits':['apple', 'orange', \"grapes\"]}";
         BValue node = JsonParser.parse(json);
         Assert.assertEquals(node.toString(), "{\"fruits\":[\"apple\", \"orange\", \"grapes\"]}");
     }
 
     @Test(expectedExceptions = {BallerinaException.class},
-          expectedExceptionsMessageRegExp = "expected '\"' or '}' at line: 1 column: 2")
+          expectedExceptionsMessageRegExp = "expected , or ] at line: 1 column: 32")
     public void testMismatchQuotes() {
         String json = "{'fruits':[\"apple', 'orange', \"grapes\"]}";
         BValue node = JsonParser.parse(json);
+        Assert.assertEquals(node.toString(), "{\"fruits\":[\"apple\", \"orange\", \"grapes\"]}");
     }
 }
