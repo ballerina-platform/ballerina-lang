@@ -493,6 +493,33 @@
       "sortText": "R",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "new(int field1, int field2)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `int` field1  \n- `int` field2"
+        }
+      },
+      "sortText": "C",
+      "insertText": "new(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "null",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

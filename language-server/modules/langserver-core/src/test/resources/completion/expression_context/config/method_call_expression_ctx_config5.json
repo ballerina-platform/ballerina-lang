@@ -595,6 +595,15 @@
       "sortText": "D",
       "insertText": "cls",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "filterText": "null",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
