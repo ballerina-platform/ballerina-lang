@@ -1531,6 +1531,63 @@ public class TestBuildProject extends BaseTest {
         Assert.assertFalse(thirdBuildJson.isExpiredLastUpdateTime());
     }
 
+    @Test(description = "test auto updating dependencies with build file after removing Dependencies.toml")
+    public void testAutoUpdateWithBuildFileWithoutDepsToml() throws IOException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        // Delete build file and Dependencies.toml file if already exists
+        Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+
+        // Set sticky false, to imitate the default build command behavior
+        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        buildOptionsBuilder.sticky(false);
+        BuildOptions buildOptions = buildOptionsBuilder.build();
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = TestUtils.loadBuildProject(projectPath, buildOptions);
+            project.save();
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
+        Path buildFile = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        Assert.assertTrue(buildFile.toFile().exists());
+        BuildJson initialBuildJson = readBuildJson(buildFile);
+        Assert.assertTrue(initialBuildJson.lastBuildTime() > 0);
+        Assert.assertTrue(initialBuildJson.lastUpdateTime() > 0);
+        Assert.assertFalse(initialBuildJson.isExpiredLastUpdateTime());
+        Assert.assertEquals(
+                readFileAsString(projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml")),
+                readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)));
+
+
+        // 2) Build project again with build file after removing Dependencies.toml
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+        Assert.assertTrue(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists());
+        BuildProject projectSecondBuild = null;
+        try {
+            projectSecondBuild = TestUtils.loadBuildProject(projectPath, buildOptions);
+            projectSecondBuild.save();
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        Assert.assertTrue(buildFile.toFile().exists());
+        BuildJson secondBuildJson = readBuildJson(buildFile);
+        Assert.assertTrue(secondBuildJson.lastBuildTime() > initialBuildJson.lastBuildTime());
+        assertEquals(initialBuildJson.lastUpdateTime(), secondBuildJson.lastUpdateTime());
+        Assert.assertFalse(secondBuildJson.isExpiredLastUpdateTime());
+        Assert.assertFalse(projectSecondBuild.currentPackage().getResolution().autoUpdate());
+        Assert.assertEquals(
+                readFileAsString(projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml")),
+                readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)));
+
+        // Remove generated files
+        Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+    }
+
+
     @Test(description = "test build package without dependencies")
     public void testPackageWithoutDependencies() throws IOException {
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_wo_deps");
