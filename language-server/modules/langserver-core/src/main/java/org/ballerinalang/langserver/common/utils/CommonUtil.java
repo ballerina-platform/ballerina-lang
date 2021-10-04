@@ -36,10 +36,12 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
@@ -47,10 +49,12 @@ import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -1386,6 +1390,41 @@ public class CommonUtil {
     }
 
     /**
+     * Given the cursor position information, returns the expected ParameterSymbol
+     * information corresponding to the FunctionTypeSymbol instance.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
+     * @param node               Implicit new expression node.
+     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     */
+    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                           PositionedOperationContext ctx,
+                                                                           ImplicitNewExpressionNode node) {
+        Optional<ParenthesizedArgList> args = node.parenthesizedArgList();
+        if (args.isEmpty()) {
+            return Optional.empty();
+        }
+        return resolveParameterSymbol(functionTypeSymbol, ctx, args.get().arguments());
+    }
+
+    /**
+     * Given the cursor position information, returns the expected ParameterSymbol
+     * information corresponding to the FunctionTypeSymbol instance.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
+     * @param node               Explicit new expression node.
+     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     */
+    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                           PositionedOperationContext ctx,
+                                                                           ExplicitNewExpressionNode node) {
+        ParenthesizedArgList args = node.parenthesizedArgList();
+        return resolveParameterSymbol(functionTypeSymbol, ctx, args.arguments());
+    }
+
+    /**
      * Check if the cursor is positioned in a function call expression parameter context.
      *
      * @param ctx  PositionedOperationContext
@@ -1419,6 +1458,35 @@ public class CommonUtil {
     public static Boolean isInMethodCallParameterContext(PositionedOperationContext ctx,
                                                          RemoteMethodCallActionNode node) {
         return isWithinParenthesis(ctx, node.openParenToken(), node.closeParenToken());
+    }
+
+    /**
+     * Check if the cursor is positioned in a method call expression parameter context.
+     *
+     * @param ctx  PositionedOperationContext
+     * @param node RemoteMethodCallActionNode
+     * @return {@link Boolean} whether the cursor is in parameter context.
+     */
+    public static Boolean isInNewExpressionParameterContext(PositionedOperationContext ctx,
+                                                            ImplicitNewExpressionNode node) {
+        Optional<ParenthesizedArgList> argList = node.parenthesizedArgList();
+        if (argList.isEmpty()) {
+            return false;
+        }
+        return isWithinParenthesis(ctx, argList.get().openParenToken(), argList.get().closeParenToken());
+    }
+
+    /**
+     * Check if the cursor is positioned in a method call expression parameter context.
+     *
+     * @param ctx  PositionedOperationContext
+     * @param node RemoteMethodCallActionNode
+     * @return {@link Boolean} whether the cursor is in parameter context.
+     */
+    public static Boolean isInNewExpressionParameterContext(PositionedOperationContext ctx,
+                                                            ExplicitNewExpressionNode node) {
+        ParenthesizedArgList argList = node.parenthesizedArgList();
+        return isWithinParenthesis(ctx, argList.openParenToken(), argList.closeParenToken());
     }
 
     /**
@@ -1505,6 +1573,37 @@ public class CommonUtil {
                 symbol.kind() == SymbolKind.CLASS || symbol.kind() == SymbolKind.ENUM
                 || symbol.kind() == SymbolKind.ENUM_MEMBER || symbol.kind() == SymbolKind.CONSTANT)
                 && !Names.ERROR.getValue().equals(symbol.getName().orElse(""));
+    }
+
+    /**
+     * Provided a set of arguments and parameters, returns the list of argument names that has been already defined.
+     *
+     * @param context          Completion context.
+     * @param params           List of expected parameter symbols.
+     * @param argumentNodeList Argument list.
+     * @return {@link List<String>} already defined argument names.
+     */
+    public static List<String> getDefinedArgumentNames(BallerinaCompletionContext context,
+                                                       List<ParameterSymbol> params,
+                                                       SeparatedNodeList<FunctionArgumentNode> argumentNodeList) {
+        List<String> existingArgNames = new ArrayList<>();
+        int cursorPosition = context.getCursorPositionInTree();
+        int index = 1;
+        for (Node child : argumentNodeList) {
+            TextRange textRange = child.textRange();
+            int startOffset = textRange.startOffset();
+            int endOffset = textRange.endOffset();
+            if ((startOffset > cursorPosition || endOffset < cursorPosition)) {
+                if (child.kind() == SyntaxKind.NAMED_ARG) {
+                    existingArgNames.add(((NamedArgumentNode) child).argumentName().name().text());
+                } else if (child.kind() == SyntaxKind.POSITIONAL_ARG && index - 1 < params.size()) {
+                    ParameterSymbol parameterSymbol = params.get(index - 1);
+                    existingArgNames.add(parameterSymbol.getName().orElse(""));
+                }
+            }
+            index++;
+        }
+        return existingArgNames;
     }
 
     /**
@@ -1616,5 +1715,27 @@ public class CommonUtil {
             return Optional.empty();
         }
         return Optional.of(params.get().get(argIndex + 1));
+    }
+
+    /**
+     * Check if the cursor is positioned in call expression context so that named arg
+     * completions can be suggested.
+     *
+     * @param context          completion context.
+     * @param argumentNodeList argument node list.
+     * @return {@link Boolean} whether the cursor is positioned so that the named arguments can  be suggested.
+     */
+    public static boolean isValidNamedArgContext(BallerinaCompletionContext context,
+                                                 SeparatedNodeList<FunctionArgumentNode> argumentNodeList) {
+        int cursorPosition = context.getCursorPositionInTree();
+        for (Node child : argumentNodeList) {
+            TextRange textRange = child.textRange();
+            int startOffset = textRange.startOffset();
+            if (startOffset > cursorPosition
+                    && child.kind() == SyntaxKind.POSITIONAL_ARG || child.kind() == SyntaxKind.REST_ARG) {
+                return false;
+            }
+        }
+        return true;
     }
 }

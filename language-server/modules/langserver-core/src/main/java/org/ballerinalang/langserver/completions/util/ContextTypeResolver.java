@@ -17,9 +17,11 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
@@ -30,11 +32,13 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
@@ -265,6 +269,27 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     @Override
+    public Optional<TypeSymbol> transform(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
+        /*
+         * For error constructor node we return the detailed type descriptor of the error type desc.
+         */
+        Optional<TypeDescriptorNode> typeRef = errorConstructorExpressionNode.typeReference();
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (typeRef.isEmpty() || semanticModel.isEmpty()) {
+            return Optional.empty();
+        }
+        Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(typeRef.get());
+        if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.TYPE) {
+            return Optional.empty();
+        }
+        TypeSymbol typeSymbol = ((TypeReferenceTypeSymbol) symbol.get()).typeDescriptor();
+        if (typeSymbol.typeKind() != TypeDescKind.ERROR) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(CommonUtil.getRawType(((ErrorTypeSymbol) typeSymbol).detailTypeDescriptor()));
+    }
+
+    @Override
     public Optional<TypeSymbol> transform(FunctionDefinitionNode node) {
         /*
         For the function definition, we consider the return type. In order to support the record-type-descriptor
@@ -330,11 +355,59 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         Optional<ParameterSymbol> paramSymbol =
                 CommonUtil.resolveFunctionParameterSymbol(
                         ((FunctionSymbol) funcSymbol.get()).typeDescriptor(), context, node);
-
         if (paramSymbol.isEmpty()) {
             return Optional.empty();
         }
+        return SymbolUtil.getTypeDescriptor(paramSymbol.get());
+    }
 
+    @Override
+    public Optional<TypeSymbol> transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
+
+        Optional<TypeSymbol> classSymbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.typeOf(implicitNewExpressionNode))
+                .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol))).stream().findFirst();
+        if (classSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        if (!CommonUtil.isInNewExpressionParameterContext(context, implicitNewExpressionNode)
+                || !(classSymbol.get() instanceof ClassSymbol)) {
+            return SymbolUtil.getTypeDescriptor(classSymbol.get());
+        }
+        Optional<ParenthesizedArgList> args = implicitNewExpressionNode.parenthesizedArgList();
+        if (args.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Optional<MethodSymbol> methodSymbol = ((ClassSymbol) classSymbol.get()).initMethod();
+        Optional<ParameterSymbol> paramSymbol =
+                CommonUtil.resolveFunctionParameterSymbol(methodSymbol.get().typeDescriptor(),
+                        context, implicitNewExpressionNode);
+        if (paramSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        return SymbolUtil.getTypeDescriptor(paramSymbol.get());
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(ExplicitNewExpressionNode explicitNewExpressionNode) {
+        Optional<TypeSymbol> classSymbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.typeOf(explicitNewExpressionNode))
+                .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol))).stream().findFirst();
+        if (classSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        if (!CommonUtil.isInNewExpressionParameterContext(context, explicitNewExpressionNode)
+                || !(classSymbol.get() instanceof ClassSymbol)) {
+            return SymbolUtil.getTypeDescriptor(classSymbol.get());
+        }
+        Optional<MethodSymbol> methodSymbol = ((ClassSymbol) classSymbol.get()).initMethod();
+        Optional<ParameterSymbol> paramSymbol =
+                CommonUtil.resolveFunctionParameterSymbol(methodSymbol.get().typeDescriptor(),
+                        context, explicitNewExpressionNode);
+        if (paramSymbol.isEmpty()) {
+            return Optional.empty();
+        }
         return SymbolUtil.getTypeDescriptor(paramSymbol.get());
     }
 

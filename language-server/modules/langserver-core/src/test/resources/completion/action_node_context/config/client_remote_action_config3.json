@@ -1,24 +1,16 @@
 {
   "position": {
-    "line": 6,
-    "character": 13
+    "line": 9,
+    "character": 38
   },
-  "source": "action_node_context/source/client_remote_action_source1.bal",
+  "source": "action_node_context/source/client_remote_action_source3.bal",
   "items": [
     {
-      "label": "module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "insertText": "test",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -32,7 +24,53 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
         }
       ]
     },
@@ -83,11 +121,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.value",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "insertText": "value",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -101,30 +139,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -412,15 +427,15 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "AN",
-      "insertText": "Thread",
+      "label": "clientEndpoint",
+      "kind": "Variable",
+      "detail": "Client",
+      "sortText": "D",
+      "insertText": "clientEndpoint",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunction()",
+      "label": "main()",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -430,16 +445,16 @@
         }
       },
       "sortText": "E",
-      "filterText": "testFunction",
-      "insertText": "testFunction()",
+      "filterText": "main",
+      "insertText": "main()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "cl",
-      "kind": "Variable",
-      "detail": "module1:Client",
-      "sortText": "D",
-      "insertText": "cl",
+      "label": "Client",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "M",
+      "insertText": "Client",
       "insertTextFormat": "Snippet"
     },
     {
@@ -451,6 +466,22 @@
       },
       "sortText": "O",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "AN",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "resp",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "AB",
+      "insertText": "resp",
       "insertTextFormat": "Snippet"
     },
     {
@@ -510,6 +541,33 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "path = ...",
+      "kind": "Snippet",
+      "detail": "path = \"\"",
+      "sortText": "AR",
+      "filterText": "path",
+      "insertText": "path = ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name = ...",
+      "kind": "Snippet",
+      "detail": "name = \"\"",
+      "sortText": "AR",
+      "filterText": "name",
+      "insertText": "name = ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "count = ...",
+      "kind": "Snippet",
+      "detail": "count = 0",
+      "sortText": "AR",
+      "filterText": "count",
+      "insertText": "count = ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "start",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -546,55 +604,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testInt",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "D",
-      "insertText": "testInt",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "url",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "AB",
-      "insertText": "url",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "null",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "S",
       "filterText": "null",
       "insertText": "null",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "path = ...",
-      "kind": "Snippet",
-      "detail": "path = \"\"",
-      "sortText": "AR",
-      "filterText": "path",
-      "insertText": "path = ${1:\"\"}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "message = ...",
-      "kind": "Snippet",
-      "detail": "message = \"\"",
-      "sortText": "AR",
-      "filterText": "message",
-      "insertText": "message = ${1:\"\"}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "targetType = ...",
-      "kind": "Snippet",
-      "detail": "targetType = \"\"",
-      "sortText": "AR",
-      "filterText": "targetType",
-      "insertText": "targetType = ${1:\"\"}",
       "insertTextFormat": "Snippet"
     }
   ]
