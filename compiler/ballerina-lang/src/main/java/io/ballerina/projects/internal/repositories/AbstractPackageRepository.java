@@ -40,6 +40,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.ballerina.projects.util.ProjectUtils.getLatest;
+
 /**
  * This class provides convenient utility methods to PackageRepository implementations.
  *
@@ -206,22 +208,6 @@ public abstract class AbstractPackageRepository implements PackageRepository {
             latestVersion = getLatest(latestVersion, pkgVersion);
         }
         return latestVersion;
-    }
-
-    protected PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
-        SemanticVersion semVer1 = v1.value();
-        SemanticVersion semVer2 = v2.value();
-        boolean isV1PreReleaseVersion = semVer1.isPreReleaseVersion();
-        boolean isV2PreReleaseVersion = semVer2.isPreReleaseVersion();
-        if (isV1PreReleaseVersion ^ isV2PreReleaseVersion) {
-            // Only one version is a pre-release version
-            // Return the version which is not a pre-release version
-            return isV1PreReleaseVersion ? v2 : v1;
-        } else {
-            // Both versions are pre-release versions or both are not pre-release versions
-            // Find the the latest version
-            return semVer1.greaterThanOrEqualTo(semVer2) ? v1 : v2;
-        }
     }
 
     private CompatibleRange getCompatibilityRange(PackageVersion minVersion,

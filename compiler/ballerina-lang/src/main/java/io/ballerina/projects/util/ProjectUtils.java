@@ -34,6 +34,7 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
@@ -816,6 +817,29 @@ public class ProjectUtils {
             Files.write(buildFilePath, Collections.singleton(gson.toJson(buildJson)));
         } catch (IOException e) {
             throw new ProjectException("Failed to write to the '" + BUILD_FILE + "' file");
+        }
+    }
+
+    /**
+     * Compare and get latest of two package versions.
+     *
+     * @param v1 package version 1
+     * @param v2 package version 2
+     * @return latest package version from given two package versions
+     */
+    public static PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
+        SemanticVersion semVer1 = v1.value();
+        SemanticVersion semVer2 = v2.value();
+        boolean isV1PreReleaseVersion = semVer1.isPreReleaseVersion();
+        boolean isV2PreReleaseVersion = semVer2.isPreReleaseVersion();
+        if (isV1PreReleaseVersion ^ isV2PreReleaseVersion) {
+            // Only one version is a pre-release version
+            // Return the version which is not a pre-release version
+            return isV1PreReleaseVersion ? v2 : v1;
+        } else {
+            // Both versions are pre-release versions or both are not pre-release versions
+            // Find the latest version
+            return semVer1.greaterThanOrEqualTo(semVer2) ? v1 : v2;
         }
     }
 }

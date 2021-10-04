@@ -8,7 +8,6 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageLockingMode;
@@ -45,6 +44,7 @@ import java.util.stream.Stream;
 
 import static io.ballerina.projects.DependencyGraph.DependencyGraphBuilder.getBuilder;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
+import static io.ballerina.projects.util.ProjectUtils.getLatest;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
@@ -294,9 +294,8 @@ public class RemotePackageRepository implements PackageRepository {
                                 return x;
                             } else if (x.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
                                 return y;
-                            } else if (x.resolvedDescriptor().version().compareTo(
-                                    y.resolvedDescriptor().version()).equals(
-                                    SemanticVersion.VersionCompatibilityResult.LESS_THAN)) {
+                            } else if (getLatest(x.resolvedDescriptor().version(), y.resolvedDescriptor().version())
+                                    .equals(y.resolvedDescriptor().version())) {
                                 return y;
                             }
                             return x;

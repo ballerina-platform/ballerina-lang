@@ -91,7 +91,7 @@ public class PackageCompilation {
         options.put(EXPERIMENTAL, Boolean.toString(compilationOptions.experimental()));
         options.put(OBSERVABILITY_INCLUDED, Boolean.toString(compilationOptions.observabilityIncluded()));
         options.put(DUMP_BIR, Boolean.toString(compilationOptions.dumpBir()));
-        options.put(DUMP_BIR_FILE, compilationOptions.getBirDumpFile());
+        options.put(DUMP_BIR_FILE, Boolean.toString(compilationOptions.dumpBirFile()));
         options.put(CLOUD, compilationOptions.getCloud());
     }
 

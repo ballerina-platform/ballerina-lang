@@ -145,7 +145,7 @@ public class BuildCommand implements BLauncherCmd {
     private boolean dumpBIR;
 
     @CommandLine.Option(names = "--dump-bir-file", hidden = true)
-    private String dumpBIRFile;
+    private Boolean dumpBIRFile;
 
     @CommandLine.Option(names = "--dump-graph", hidden = true)
     private boolean dumpGraph;

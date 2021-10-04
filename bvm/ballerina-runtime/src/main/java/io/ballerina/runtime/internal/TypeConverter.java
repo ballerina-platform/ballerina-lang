@@ -466,7 +466,7 @@ public class TypeConverter {
         return returnVal;
     }
 
-    private static String getLongFieldName(String varName, String fieldName) {
+    protected static String getLongFieldName(String varName, String fieldName) {
         if (varName == null) {
             return fieldName;
         } else {

@@ -1,5 +1,6 @@
 package io.ballerina.projects;
 
+import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
@@ -21,6 +22,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,7 +42,7 @@ import static org.mockito.Mockito.when;
 public class RemotePackageRepositoryTests {
     private RemotePackageRepository remotePackageRepository;
     CentralAPIClient centralAPIClient = mock(CentralAPIClient.class);
-    FileSystemRepository fileSystemRepository = mock(FileSystemRepository.class);
+    FileSystemRepositoryMock fileSystemRepository = mock(FileSystemRepositoryMock.class);
 
     // Mock data
     // - Package descriptors
@@ -94,6 +96,11 @@ public class RemotePackageRepositoryTests {
         // Mock response from file system
         when(fileSystemRepository.getPackageMetadata(anyList(), any(ResolutionOptions.class)))
                 .thenReturn(Arrays.asList(fileHttp120, fileCovid159));
+        // Mock getLatest response from FileSystemRepository
+        when(fileSystemRepository.getLatest(http121.version(), PackageVersion.from(http122.version()))).thenReturn(
+                PackageVersion.from(http122.version()));
+        when(fileSystemRepository.getLatest(covid159.version(), PackageVersion.from("1.5.7"))).thenReturn(
+                covid159.version());
 
         // Test call to remote repository
         List<PackageMetadataResponse> resolutionResponseDescriptors = new ArrayList<>(
@@ -270,5 +277,31 @@ public class RemotePackageRepositoryTests {
 
         ImportModuleResponse unknown = response.get(2);
         Assert.assertEquals(unknown.resolutionStatus(), ResolutionResponse.ResolutionStatus.UNRESOLVED);
+    }
+
+    /**
+     * Mock class for FileSystemRepository.
+     */
+    static class FileSystemRepositoryMock extends FileSystemRepository {
+
+        public FileSystemRepositoryMock(Environment environment, Path cacheDirectory) {
+            super(environment, cacheDirectory);
+        }
+
+        public PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
+            SemanticVersion semVer1 = v1.value();
+            SemanticVersion semVer2 = v2.value();
+            boolean isV1PreReleaseVersion = semVer1.isPreReleaseVersion();
+            boolean isV2PreReleaseVersion = semVer2.isPreReleaseVersion();
+            if (isV1PreReleaseVersion ^ isV2PreReleaseVersion) {
+                // Only one version is a pre-release version
+                // Return the version which is not a pre-release version
+                return isV1PreReleaseVersion ? v2 : v1;
+            } else {
+                // Both versions are pre-release versions or both are not pre-release versions
+                // Find the latest version
+                return semVer1.greaterThanOrEqualTo(semVer2) ? v1 : v2;
+            }
+        }
     }
 }

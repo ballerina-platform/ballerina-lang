@@ -1411,7 +1411,6 @@ public class Desugar extends BLangNodeVisitor {
         BLangExpression expr = letExpression.expr;
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(letExpression.pos);
         blockStmt.scope = letExpression.env.scope;
-        blockStmt.isLetExprStmt = true;
 
         for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
             BLangNode node  = rewrite((BLangNode) letVariable.definitionNode, env);
@@ -6772,12 +6771,12 @@ public class Desugar extends BLangNodeVisitor {
                                                          binaryExpr.opKind == OperatorKind.NOT_EQUAL ||
                                                          binaryExpr.opKind == OperatorKind.REF_EQUAL ||
                                                          binaryExpr.opKind == OperatorKind.REF_NOT_EQUAL)) {
-            if (lhsExprTypeTag == TypeTags.INT && rhsExprTypeTag == TypeTags.BYTE) {
+            if (TypeTags.isIntegerTypeTag(lhsExprTypeTag) && rhsExprTypeTag == TypeTags.BYTE) {
                 binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
                 return;
             }
 
-            if (lhsExprTypeTag == TypeTags.BYTE && rhsExprTypeTag == TypeTags.INT) {
+            if (lhsExprTypeTag == TypeTags.BYTE && TypeTags.isIntegerTypeTag(rhsExprTypeTag)) {
                 binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
                 return;
             }
