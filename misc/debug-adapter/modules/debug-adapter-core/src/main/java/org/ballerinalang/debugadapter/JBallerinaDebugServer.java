@@ -80,6 +80,7 @@ import org.eclipse.lsp4j.debug.StackTraceArguments;
 import org.eclipse.lsp4j.debug.StackTraceResponse;
 import org.eclipse.lsp4j.debug.StepInArguments;
 import org.eclipse.lsp4j.debug.StepOutArguments;
+import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
 import org.eclipse.lsp4j.debug.TerminateArguments;
 import org.eclipse.lsp4j.debug.Thread;
 import org.eclipse.lsp4j.debug.ThreadsResponse;
@@ -278,6 +279,17 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> pause(PauseArguments args) {
+        VirtualMachineProxyImpl debuggeeVM = context.getDebuggeeVM();
+        // Checks if the program VM is a read-only VM. (If a method which would modify the state of the VM is called
+        // on a read-only VM, a `VMCannotBeModifiedException` will be thrown.
+        if (!debuggeeVM.canBeModified()) {
+            getOutputLogger().sendConsoleOutput("Failed to suspend the remote VM due to: pause requests are not " +
+                    "supported on read-only VMs");
+            return CompletableFuture.completedFuture(null);
+        }
+        // Suspends all the threads and notify the `stopped` event to client.
+        debuggeeVM.suspend();
+        eventProcessor.notifyStopEvent(StoppedEventArgumentsReason.PAUSE, args.getThreadId());
         return CompletableFuture.completedFuture(null);
     }
 

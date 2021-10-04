@@ -440,17 +440,25 @@ public class JDIEventProcessor {
      * Notifies DAP client that the remote VM is stopped due to a breakpoint hit / step event.
      */
     private void notifyStopEvent(Event event) {
+        if (event instanceof BreakpointEvent) {
+            notifyStopEvent(StoppedEventArgumentsReason.BREAKPOINT, ((BreakpointEvent) event).thread().uniqueID());
+        } else if (event instanceof StepEvent) {
+            notifyStopEvent(StoppedEventArgumentsReason.STEP, ((StepEvent) event).thread().uniqueID());
+        }
+    }
+
+    /**
+     * Notifies DAP client that the remote VM is stopped.
+     *
+     * @param reason   reason to stop. (Possible values include - but not limited to those defined in
+     *                 {@link StoppedEventArgumentsReason})
+     * @param threadId relevant thread ID
+     */
+    void notifyStopEvent(String reason, long threadId) {
         context.getEventManager().deleteEventRequests(stepEventRequests);
         StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
-
-        if (event instanceof BreakpointEvent) {
-            stoppedEventArguments.setReason(StoppedEventArgumentsReason.BREAKPOINT);
-            stoppedEventArguments.setThreadId((int) ((BreakpointEvent) event).thread().uniqueID());
-        } else if (event instanceof StepEvent) {
-            stoppedEventArguments.setReason(StoppedEventArgumentsReason.STEP);
-            stoppedEventArguments.setThreadId((int) ((StepEvent) event).thread().uniqueID());
-        }
-
+        stoppedEventArguments.setReason(reason);
+        stoppedEventArguments.setThreadId((int) threadId);
         stoppedEventArguments.setAllThreadsStopped(true);
         context.getClient().stopped(stoppedEventArguments);
     }
