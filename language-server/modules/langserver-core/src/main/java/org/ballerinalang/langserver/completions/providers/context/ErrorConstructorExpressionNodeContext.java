@@ -108,7 +108,7 @@ public class ErrorConstructorExpressionNodeContext extends
 
         completionItems.addAll(this.expressionCompletions(ctx));
         completionItems.addAll(this.getNamedArgExpressionCompletionItems(ctx, node));
-
+        completionItems.addAll(this.actionKWCompletions(ctx));
         return completionItems;
     }
 
