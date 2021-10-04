@@ -278,12 +278,6 @@ public class CommonUtil {
         TypeSymbol rawType = getRawType(bType);
         TypeDescKind typeKind = rawType.typeKind();
         switch (typeKind) {
-            case FLOAT:
-                typeString = Float.toString(0);
-                break;
-            case BOOLEAN:
-                typeString = Boolean.toString(false);
-                break;
             case TUPLE:
                 TupleTypeSymbol tupleType = (TupleTypeSymbol) rawType;
                 String memberTypes = tupleType.memberTypeDescriptors().stream()
@@ -314,9 +308,6 @@ public class CommonUtil {
                                 getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1).orElse(""))
                         .collect(Collectors.joining(", "));
                 typeString += "}";
-                break;
-            case MAP:
-                typeString = "{}";
                 break;
             case OBJECT:
                 if (depth > MAX_DEPTH) {
@@ -389,29 +380,60 @@ public class CommonUtil {
                 errorString.append(")");
                 typeString = errorString.toString();
                 break;
+            case MAP:
+            case FLOAT:
+            case BOOLEAN:
             case STREAM:
-                typeString = "new ()";
+            case XML:
+            case DECIMAL:
+            default:
+                return getDefaultValueForTypeDescKind(typeKind);
+        }
+        
+        return Optional.of(typeString);
+    }
+
+    /**
+     * Used to get the default values for a {@link TypeDescKind}. {@link #getDefaultValueForType(TypeSymbol)}
+     * is preferred over this function. This function should be used as a compliment to .
+     *
+     * @param typeKind Type desc kind
+     * @return Optional default value
+     * @see #getDefaultValueForType(TypeSymbol)
+     */
+    public static Optional<String> getDefaultValueForTypeDescKind(TypeDescKind typeKind) {
+        String defaultValue = null;
+        switch (typeKind) {
+            case FLOAT:
+                defaultValue = Float.toString(0);
+                break;
+            case BOOLEAN:
+                defaultValue = Boolean.toString(false);
+                break;
+            case MAP:
+                defaultValue = "{}";
+                break;
+            case STREAM:
+                defaultValue = "new ()";
                 break;
             case XML:
-                typeString = "xml ``";
+                defaultValue = "xml ``";
                 break;
             case DECIMAL:
-                typeString = Integer.toString(0);
+                defaultValue = Integer.toString(0);
                 break;
             default:
                 if (typeKind.isIntegerType()) {
-                    typeString = Integer.toString(0);
+                    defaultValue = Integer.toString(0);
                     break;
                 }
 
                 if (typeKind.isStringType()) {
-                    typeString = "\"\"";
+                    defaultValue = "\"\"";
                     break;
                 }
-
-                return Optional.empty();
         }
-        return Optional.ofNullable(typeString);
+        return Optional.ofNullable(defaultValue);
     }
 
     /**
