@@ -122,7 +122,7 @@ public abstract class EvaluationTypeResolver<T> {
     }
 
     protected Optional<Symbol> getQualifiedTypeDefinitionSymbol(String modulePrefix, String typeName) {
-        return this.resolvedImports.get(modulePrefix).getModuleSymbol().allSymbols().stream()
+        return this.resolvedImports.get(modulePrefix).getResolvedSymbol().allSymbols().stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS)
                 .filter(symbol -> encodeIdentifier(symbol.getName().get(), IdentifierModifier.IdentifierType.OTHER)
                         .equals(typeName))

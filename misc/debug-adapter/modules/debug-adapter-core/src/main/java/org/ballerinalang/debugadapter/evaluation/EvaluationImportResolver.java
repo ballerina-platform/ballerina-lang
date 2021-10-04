@@ -113,7 +113,8 @@ public class EvaluationImportResolver extends NodeVisitor {
     }
 
     /**
-     * Pre-processing task to resolve module information for all the import declarations in the debug hit source.
+     * Pre-processing task to resolve semantic API symbol information for all the import declarations within the debug
+     * hit source.
      */
     private void resolveVisibleImports() {
         loadVisibleModuleSymbols();
@@ -149,7 +150,7 @@ public class EvaluationImportResolver extends NodeVisitor {
                             importAlias)));
                     return;
                 }
-                bImport.setResolvedModuleSymbol(matchingModuleSymbols.get(0));
+                bImport.setResolvedSymbol(matchingModuleSymbols.get(0));
                 visibleImports.put(importAlias, bImport);
             }
         }

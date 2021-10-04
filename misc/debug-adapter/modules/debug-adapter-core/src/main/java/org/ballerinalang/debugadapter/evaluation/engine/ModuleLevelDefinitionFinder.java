@@ -60,7 +60,7 @@ public class ModuleLevelDefinitionFinder extends NodeVisitor {
      *
      * @return any function definitions with the specified name, if present.
      */
-    public List<ModuleMemberDeclarationNode> getModuleDeclarations() {
+    public List<ModuleMemberDeclarationNode> getCurrentModuleDeclarations() {
         return getModuleDeclarations(context.getModule());
     }
 

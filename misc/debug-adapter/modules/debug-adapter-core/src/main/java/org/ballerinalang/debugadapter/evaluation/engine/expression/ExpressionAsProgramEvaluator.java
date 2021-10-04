@@ -39,7 +39,6 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageManifest;
-import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.model.Target;
@@ -68,7 +67,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -112,12 +110,13 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
     protected final ExpressionNode syntaxNode;
     private final List<String> externalVariableNames = new ArrayList<>();
     private final List<Value> externalVariableValues = new ArrayList<>();
+    private final List<BImport> capturedImports = new ArrayList<>();
 
     private static final String TEMP_DIR_PREFIX = "evaluation-executable-dir-";
     private static final String MAIN_FILE_PREFIX = "main-";
     private static final String EVALUATION_PACKAGE_ORG = "jballerina_debugger";
     private static final String EVALUATION_PACKAGE_NAME = "evaluation_executor";
-    private static final String TEMP_PACKAGE_VERSION = "1.0.0";
+    private static final String EVALUATION_PACKAGE_VERSION = "1.0.0";
     public static final String EVALUATION_FUNCTION_NAME = "__getEvaluationResult";
 
     private static final String EVALUATION_IMPORT_TEMPLATE = "import %s/%s as %s;";
@@ -125,7 +124,8 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
     // return non-public types.
     private static final String EVALUATION_FUNCTION_TEMPLATE = "function %s(%s) returns any|error { return %s; }";
     // Format: ${imports} ${declarations} ${evaluation_function}
-    private static final String EVALUATION_SNIPPET_TEMPLATE = "%s %s %s";
+    private static final String EVALUATION_SNIPPET_TEMPLATE = String.format("%%s %1$s %%s %1$s %%s",
+            System.lineSeparator());
 
     public ExpressionAsProgramEvaluator(EvaluationContext evaluationContext, ExpressionNode syntaxNode) {
         super(evaluationContext);
@@ -181,7 +181,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
      */
     private String generateEvaluationSnippet() throws EvaluationException {
         // Generates top level declarations snippet
-        String moduleDeclarations = generateModuleLevelDeclarations();
+        String moduleDeclarations = extractModuleDefinitions(context.getModule());
 
         // Generates function signature (parameter definitions) for the snippet function template.
         processSnippetFunctionParameters();
@@ -223,21 +223,32 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             balTomlContent.add("[package]");
             balTomlContent.add(String.format("org = \"%s\"", EVALUATION_PACKAGE_ORG));
             balTomlContent.add(String.format("name = \"%s\"", EVALUATION_PACKAGE_NAME));
-            balTomlContent.add(String.format("version = \"%s\"", TEMP_PACKAGE_VERSION));
+            balTomlContent.add(String.format("version = \"%s\"", EVALUATION_PACKAGE_VERSION));
             BallerinaToml newBallerinaToml = buildProject.currentPackage().ballerinaToml().get()
                     .modify()
                     .withContent(balTomlContent.toString())
                     .apply();
             buildProject = (BuildProject) newBallerinaToml.packageInstance().project();
 
-            // If the user expression contains module prefixes in the same package, we need to include all the
-            // definitions from those modules in the evaluation project.
-            buildProject = fillOtherModuleDefinitions(buildProject);
+            // If the user expression contains any import usages of other modules in the same package, we need
+            // to include all the definitions from those modules, in our temporary evaluation project.
+            if (containsOtherModuleImports()) {
+                buildProject = fillOtherModuleDefinitions(buildProject);
+            }
             return buildProject;
         } catch (Exception e) {
             throw createEvaluationException(String.format("error occurred while creating a temporary evaluation " +
                     "project at: %s, due to: %s", this.tempProjectDir, e.getMessage()));
         }
+    }
+
+    /**
+     * Indicates whether detected imports within the user expression contains modules within the same package.
+     */
+    private boolean containsOtherModuleImports() {
+        return capturedImports.stream().anyMatch(bImport -> context.getPackageOrg().isPresent()
+                && bImport.orgName().equals(context.getPackageOrg().get())
+                && bImport.packageName().equals(context.getModule().packageInstance().packageName().value()));
     }
 
     /**
@@ -283,7 +294,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         classNameJoiner.add(EVALUATION_PACKAGE_ORG);
         classNameJoiner.add(EVALUATION_PACKAGE_NAME);
         // Generated class name will only contain the major version.
-        classNameJoiner.add(TEMP_PACKAGE_VERSION.split(MODULE_VERSION_SEPARATOR_REGEX)[0]);
+        classNameJoiner.add(EVALUATION_PACKAGE_VERSION.split(MODULE_VERSION_SEPARATOR_REGEX)[0]);
         classNameJoiner.add(getFileNameWithoutExtension(document.name()));
 
         return classNameJoiner.toString();
@@ -328,6 +339,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         // the detected import usages.
         EvaluationImportResolver importResolver = new EvaluationImportResolver(context);
         Map<String, BImport> usedImports = importResolver.detectUsedImports(functionNode.rootNode(), resolvedImports);
+        this.capturedImports.addAll(usedImports.values());
 
         StringBuilder importBuilder = new StringBuilder(System.lineSeparator());
         for (Map.Entry<String, BImport> importEntry : usedImports.entrySet()) {
@@ -338,14 +350,14 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
     }
 
     private String constructImportStatement(Map.Entry<String, BImport> importEntry) {
-        String orgName = importEntry.getValue().getModuleSymbol().id().orgName();
+        String orgName = importEntry.getValue().getResolvedSymbol().id().orgName();
         // If the import belongs to a module inside the current package, replace the original org name name with
         // temporary evaluation project org name.
         if (context.getPackageOrg().isPresent() && orgName.equals(context.getPackageOrg().get())) {
             orgName = EVALUATION_PACKAGE_ORG;
         }
 
-        String moduleName = getModuleName(importEntry.getValue().getModuleSymbol().id());
+        String moduleName = getModuleName(importEntry.getValue().getResolvedSymbol().id());
         String[] moduleNameParts = moduleName.split(MODULE_NAME_SEPARATOR_REGEX);
         // If the import belongs to a module inside the current package, replace the original package name with
         // temporary evaluation project package name.
@@ -358,7 +370,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             moduleName = newModuleName.toString();
         }
 
-        decodeIdentifier(importEntry.getValue().getModuleSymbol().id().moduleName());
+        decodeIdentifier(importEntry.getValue().getResolvedSymbol().id().moduleName());
         String alias = importEntry.getKey();
         return String.format(EVALUATION_IMPORT_TEMPLATE, orgName, moduleName, alias);
     }
@@ -374,83 +386,27 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         }
     }
 
-    private String generateModuleLevelDeclarations() {
-        ModuleLevelDefinitionFinder moduleDefinitionFinder = new ModuleLevelDefinitionFinder(context);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.FUNCTION_DEFINITION);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.TYPE_DEFINITION);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_VAR_DECL);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.LISTENER_DECLARATION);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CONST_DECLARATION);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.ANNOTATION_DECLARATION);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.ENUM_DECLARATION);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CLASS_DEFINITION);
-
-        List<ModuleMemberDeclarationNode> declarationList = moduleDefinitionFinder.getModuleDeclarations();
-        return declarationList.stream()
-                .map(Node::toSourceCode)
-                .reduce((s, s2) -> s + System.lineSeparator() + s2)
-                .map(s -> s + System.lineSeparator())
-                .orElse("");
-    }
-
     /**
      * Updates the given build project(package) with all the definitions from the modules which were used within the
      * user expression.
      */
     private BuildProject fillOtherModuleDefinitions(BuildProject evaluationProject) {
-        for (BImport bImport : resolvedImports.values()) {
-            ModuleID moduleId = bImport.getModuleSymbol().id();
-            if (context.getPackageOrg().isPresent() && moduleId.orgName().equals(context.getPackageOrg().get())
-                    && moduleId.packageName().equals(context.getModule().packageInstance().packageName().value())) {
-                Project updatedProject = addModuleDefinitions(evaluationProject, moduleId).project();
-                return (BuildProject) updatedProject;
+        ModuleId currentModuleId = context.getModule().moduleId();
+        ModuleId defaultModuleId = context.getModule().packageInstance().getDefaultModule().moduleId();
+        Package currentPackage = evaluationProject.currentPackage();
+        for (Module module : context.getModule().packageInstance().modules()) {
+            if (module.moduleId() != defaultModuleId && module.moduleId() != currentModuleId) {
+                currentPackage = updateModuleDefinitions(currentPackage, module);
             }
         }
-        return evaluationProject;
+        return (BuildProject) currentPackage.project();
     }
 
-    private Package addModuleDefinitions(BuildProject evaluationProject, ModuleID moduleID) {
-        Package currentPackage = context.getModule().packageInstance();
-        Collection<ModuleId> moduleIds = currentPackage.moduleIds();
-        ModuleId matchedModuleId = null;
-        for (ModuleId moduleId : moduleIds) {
-            if (moduleId.moduleName().equals(moduleID.moduleName())) {
-                matchedModuleId = moduleId;
-                break;
-            }
-        }
-
-        if (matchedModuleId == null) {
-            return currentPackage;
-        }
-        Module matchedModule = currentPackage.module(matchedModuleId);
-
-        ModuleLevelDefinitionFinder moduleDefinitionFinder = new ModuleLevelDefinitionFinder(context);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.FUNCTION_DEFINITION);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.TYPE_DEFINITION);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_VAR_DECL);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.LISTENER_DECLARATION);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CONST_DECLARATION);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.ANNOTATION_DECLARATION);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.ENUM_DECLARATION);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CLASS_DEFINITION);
-
-        List<ModuleMemberDeclarationNode> declarationList = moduleDefinitionFinder.getModuleDeclarations(matchedModule);
-        String definitions = declarationList.stream()
-                .map(Node::toSourceCode)
-                .reduce((s, s2) -> s + System.lineSeparator() + s2)
-                .map(s -> s + System.lineSeparator())
-                .orElse("");
-
-        String[] moduleNameParts = matchedModule.moduleId().moduleName().split("\\.");
+    private Package updateModuleDefinitions(Package currentPackage, Module module) {
+        String[] moduleNameParts = module.moduleId().moduleName().split("\\.");
         // We don't need the 0th element (as its the default module name).
         moduleNameParts = Arrays.copyOfRange(moduleNameParts, 1, moduleNameParts.length);
-        return addModuleWithContent(evaluationProject, moduleNameParts, definitions);
-    }
 
-    private Package addModuleWithContent(Project evaluationProject, String[] moduleNameParts, String mainContent) {
         Path filePath = tempProjectDir;
         if (moduleNameParts.length > 0) {
             filePath = tempProjectDir.resolve(ProjectConstants.MODULES_ROOT);
@@ -459,18 +415,38 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             }
         }
 
-        Package oldPackage = evaluationProject.currentPackage();
-        PackageManifest pkgManifest = oldPackage.manifest();
-        ModuleId newModuleId = ModuleId.create(filePath.toString(), oldPackage.packageId());
-        ModuleName moduleName = ModuleName.from(oldPackage.packageName(), filePath.getFileName().toString());
+        PackageManifest pkgManifest = currentPackage.manifest();
+        ModuleId newModuleId = ModuleId.create(filePath.toString(), currentPackage.packageId());
+        ModuleName moduleName = ModuleName.from(currentPackage.packageName(), filePath.getFileName().toString());
         ModuleDescriptor moduleDesc = ModuleDescriptor.from(moduleName, pkgManifest.descriptor());
         DocumentId documentId = DocumentId.create(filePath.resolve("main" + BAL_FILE_EXT).toString(), newModuleId);
 
+        String mainContent = extractModuleDefinitions(module);
         DocumentConfig documentConfig = DocumentConfig.from(documentId, mainContent, filePath.getFileName().toString());
         ModuleConfig newModuleConfig = ModuleConfig.from(newModuleId, moduleDesc,
                 Collections.singletonList(documentConfig), Collections.emptyList(), null, Collections.emptyList());
 
-        return oldPackage.modify().addModule(newModuleConfig).apply();
+        return currentPackage.modify().addModule(newModuleConfig).apply();
+    }
+
+    private String extractModuleDefinitions(Module module) {
+        ModuleLevelDefinitionFinder moduleDefinitionFinder = new ModuleLevelDefinitionFinder(context);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.FUNCTION_DEFINITION);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.TYPE_DEFINITION);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_VAR_DECL);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.LISTENER_DECLARATION);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CONST_DECLARATION);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.ANNOTATION_DECLARATION);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.ENUM_DECLARATION);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CLASS_DEFINITION);
+
+        List<ModuleMemberDeclarationNode> declarationList = moduleDefinitionFinder.getModuleDeclarations(module);
+        return declarationList.stream()
+                .map(Node::toSourceCode)
+                .reduce((s, s2) -> s + System.lineSeparator() + s2)
+                .map(s -> s + System.lineSeparator())
+                .orElse("");
     }
 
     private void processSnippetFunctionParameters() throws EvaluationException {

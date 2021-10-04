@@ -117,7 +117,7 @@ public class NewExpressionEvaluator extends Evaluator {
 
         Optional<ClassSymbol> classSymbol;
         if (modulePrefix.isPresent()) {
-            ModuleSymbol importedModule = resolvedImports.get(modulePrefix.get()).getModuleSymbol();
+            ModuleSymbol importedModule = resolvedImports.get(modulePrefix.get()).getResolvedSymbol();
             classSymbol = classDefResolver.findBalClassDefWithinModule(importedModule, className);
         } else {
             classSymbol = classDefResolver.findBalClassDefWithinModule(className);

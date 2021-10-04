@@ -2,6 +2,8 @@ package org.ballerinalang.debugadapter.evaluation;
 
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_NAME_SEPARATOR_REGEX;
+
 /**
  * A helper class to hold resolved imports information during evaluation.
  *
@@ -24,6 +26,10 @@ public class BImport {
         return orgName;
     }
 
+    public String packageName() {
+        return moduleName.split(MODULE_NAME_SEPARATOR_REGEX)[0];
+    }
+
     public String moduleName() {
         return moduleName;
     }
@@ -32,11 +38,11 @@ public class BImport {
         return alias;
     }
 
-    public ModuleSymbol getModuleSymbol() {
+    public ModuleSymbol getResolvedSymbol() {
         return resolvedModuleSymbol;
     }
 
-    public void setResolvedModuleSymbol(ModuleSymbol moduleSymbol) {
+    public void setResolvedSymbol(ModuleSymbol moduleSymbol) {
         resolvedModuleSymbol = moduleSymbol;
     }
 }
