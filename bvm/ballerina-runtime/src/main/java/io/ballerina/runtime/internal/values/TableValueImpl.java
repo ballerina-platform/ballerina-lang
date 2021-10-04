@@ -90,7 +90,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     //These are required to achieve the iterator behavior
     private LinkedHashMap<Long, K> indexToKeyMap;
     private LinkedHashMap<K, Long> keyToIndexMap;
-    private ConcurrentHashMap<K, V> keyValues;
+    private LinkedHashMap<K, V> keyValues;
     private long noOfAddedEntries = 0;
 
     private boolean nextKeySupported;
@@ -107,7 +107,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         this.keyToIndexMap = new LinkedHashMap<>();
         this.indexToKeyMap = new LinkedHashMap<>();
         this.fieldNames = type.getFieldNames();
-        this.keyValues = new ConcurrentHashMap<>();
+        this.keyValues = new LinkedHashMap<>();
         if (type.getFieldNames() != null) {
             this.valueHolder = new KeyHashValueHolder();
         } else {

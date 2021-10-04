@@ -318,6 +318,30 @@ function testHasKey() {
     assertTrue(tbl2.hasKey({age: "65"}));
 }
 
+function testHashCollisionHandlingScenarios() {
+    table<record { readonly int|string|float? k; }> key(k) tbl1 = table[];
+    tbl1.add({k: 0});
+    tbl1.add({k: 5});
+    tbl1.add({k: -31});
+    tbl1.add({k: "10"});
+    tbl1.add({k: 100.05});
+    tbl1.add({k: ()});
+    tbl1.add({k: 30});
+
+    record { readonly int|string|float? k; } a = tbl1.get(0);
+    record { readonly int|string|float? k; } b = tbl1.get(30);
+
+    assertEquals(a.k, 0);
+    assertEquals(b.k, 30);
+
+    record { readonly int|string|float? k; } c = tbl1.remove(0);
+    record { readonly int|string|float? k; } d = tbl1.remove(30);
+
+    assertEquals(c.k, 0);
+    assertEquals(d.k, 30);
+
+}
+
 function testGetKeyList() returns any[] {
     return tab.keys();
 }
