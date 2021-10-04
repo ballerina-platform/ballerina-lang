@@ -799,11 +799,11 @@ public class SymbolTable {
                         signedNilableIntTypes[j], unsignedNilableIntTypes[i]);
 
                 defineBinaryOperator(OperatorKind.BITWISE_AND, signedNilableIntTypes[i],
-                        unsignedNilableIntTypes[j], unsignedNilableIntTypes[i]);
+                        unsignedNilableIntTypes[j], unsignedNilableIntTypes[j]);
                 defineBinaryOperator(OperatorKind.BITWISE_AND, signedIntTypes[i],
-                        unsignedNilableIntTypes[j], unsignedNilableIntTypes[i]);
+                        unsignedNilableIntTypes[j], unsignedNilableIntTypes[j]);
                 defineBinaryOperator(OperatorKind.BITWISE_AND, signedNilableIntTypes[i],
-                        unsignedIntTypes[j], unsignedNilableIntTypes[i]);
+                        unsignedIntTypes[j], unsignedNilableIntTypes[j]);
 
                 defineBinaryOperator(OperatorKind.BITWISE_AND, signedNilableIntTypes[i],
                         signedNilableIntTypes[j], intOptional);
