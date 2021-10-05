@@ -17,19 +17,11 @@ package org.ballerinalang.langserver.extensions.ballerina.packages;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import io.ballerina.compiler.api.symbols.AbsResourcePathAttachPoint;
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.LiteralAttachPoint;
-import io.ballerina.compiler.api.symbols.ServiceAttachPointKind;
-import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
-import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -39,10 +31,8 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of Ballerina package extension for Language Server.
@@ -115,6 +105,7 @@ public class BallerinaPackageServiceImpl implements BallerinaPackageService {
      * @return {@link JsonObject} with package components
      */
     private JsonObject getPackageComponents(Project project) {
+
         JsonObject jsonPackage = new JsonObject();
         JsonArray jsonModules = new JsonArray();
         jsonPackage.addProperty(PackageServiceConstants.FILE_PATH, project.sourceRoot().toUri().toString());
@@ -123,81 +114,28 @@ public class BallerinaPackageServiceImpl implements BallerinaPackageService {
 
         currentPackage.moduleIds().forEach(moduleId -> {
             JsonObject jsonModule = new JsonObject();
+            jsonModule.add(PackageServiceConstants.FUNCTIONS, new JsonArray());
+            jsonModule.add(PackageServiceConstants.SERVICES, new JsonArray());
+            jsonModule.add(PackageServiceConstants.RECORDS, new JsonArray());
+            jsonModule.add(PackageServiceConstants.OBJECTS, new JsonArray());
+            jsonModule.add(PackageServiceConstants.CLASSES, new JsonArray());
+            jsonModule.add(PackageServiceConstants.TYPES, new JsonArray());
+            jsonModule.add(PackageServiceConstants.CONSTANTS, new JsonArray());
+            jsonModule.add(PackageServiceConstants.ENUMS, new JsonArray());
+            jsonModule.add(PackageServiceConstants.LISTENERS, new JsonArray());
+            jsonModule.add(PackageServiceConstants.MODULE_LEVEL_VARIABLE, new JsonArray());
+
             Module module = project.currentPackage().module(moduleId);
             if (module.moduleName().moduleNamePart() != null) {
                 jsonModule.addProperty(PackageServiceConstants.NAME, module.moduleName().moduleNamePart());
             }
-            List<Symbol> symbolList = project.currentPackage()
-                    .getCompilation().getSemanticModel(moduleId).moduleSymbols();
-
-            List<FunctionSymbol> functionList =
-                    symbolList.stream().filter(symbol -> symbol.kind() == SymbolKind.FUNCTION)
-                            .map(symbol -> (FunctionSymbol) symbol)
-                            .collect(Collectors.toList());
-            JsonArray jsonFunctions = new JsonArray();
-            functionList.forEach(function -> {
-                JsonObject jsonFunction = new JsonObject();
-                if (function.getName().isPresent()) {
-                    jsonFunction.addProperty(PackageServiceConstants.NAME, function.getName().get());
-                }
-                setPositionData(function, jsonFunction);
-                jsonFunctions.add(jsonFunction);
+            module.documentIds().forEach(documentId -> {
+                SyntaxTree syntaxTree = module.document(documentId).syntaxTree();
+                new DocumentComponentsVisitor(jsonModule).getDocumentComponents(syntaxTree.rootNode());
             });
-            jsonModule.add(PackageServiceConstants.FUNCTIONS, jsonFunctions);
-
-            List<ServiceDeclarationSymbol> serviceList =
-                    symbolList.stream().filter(symbol -> symbol.kind() == SymbolKind.SERVICE_DECLARATION)
-                            .map(symbol -> (ServiceDeclarationSymbol) symbol)
-                            .collect(Collectors.toList());
-            JsonArray jsonServices = new JsonArray();
-            serviceList.forEach(service -> {
-                JsonObject jsonService = new JsonObject();
-                if (service.attachPoint().isPresent()) {
-                    ServiceAttachPointKind kind = service.attachPoint().get().kind();
-                    if (kind == ServiceAttachPointKind.ABSOLUTE_RESOURCE_PATH) {
-                        List<String> segments =
-                                ((AbsResourcePathAttachPoint) service.attachPoint().get()).segments();
-                        jsonService.addProperty(PackageServiceConstants.NAME, String.join("_", segments));
-                    } else if (kind == ServiceAttachPointKind.STRING_LITERAL) {
-                        jsonService.addProperty(PackageServiceConstants.NAME,
-                                ((LiteralAttachPoint) service.attachPoint().get()).literal());
-                    }
-                }
-
-                JsonArray jsonResources = new JsonArray();
-                service.methods().forEach((key, methodSymbol) -> {
-                    JsonObject jsonResource = new JsonObject();
-                    jsonResource.addProperty(PackageServiceConstants.NAME, key);
-                    setPositionData(methodSymbol, jsonResource);
-                    jsonResources.add(jsonResource);
-                });
-                service.getLocation().ifPresent(location -> jsonService.addProperty(PackageServiceConstants.FILE_PATH,
-                        location.lineRange().filePath()));
-                jsonService.add(PackageServiceConstants.RESOURCES, jsonResources);
-                jsonServices.add(jsonService);
-            });
-            jsonModule.add(PackageServiceConstants.SERVICES, jsonServices);
             jsonModules.add(jsonModule);
         });
         jsonPackage.add(PackageServiceConstants.MODULES, jsonModules);
         return jsonPackage;
-    }
-
-    /**
-     * Set positional data for a node.
-     *
-     * @param symbol     {@link Symbol}
-     * @param jsonObject JSON Node to set positional data
-     */
-    private void setPositionData(Symbol symbol, JsonObject jsonObject) {
-        Optional<Location> location = symbol.getLocation();
-        if (location.isPresent()) {
-            LineRange lineRange = location.get().lineRange();
-            jsonObject.addProperty(PackageServiceConstants.FILE_PATH, lineRange.filePath());
-            jsonObject.addProperty(PackageServiceConstants.START_LINE, lineRange.startLine().line());
-            jsonObject.addProperty(PackageServiceConstants.START_COLUMN, lineRange.startLine().offset());
-            jsonObject.addProperty(PackageServiceConstants.END_LINE, lineRange.endLine().line());
-            jsonObject.addProperty(PackageServiceConstants.END_COLUMN, lineRange.endLine().offset());
-        }
     }
 }
