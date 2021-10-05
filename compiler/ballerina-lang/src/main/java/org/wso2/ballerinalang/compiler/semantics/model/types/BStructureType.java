@@ -62,8 +62,10 @@ public abstract class BStructureType extends BType {
     }
 
     public boolean shouldPrintShape() {
-        Name name = ((BStructureTypeSymbol) tsymbol).typeDefinitionSymbol == null ? tsymbol.name :
-                ((BStructureTypeSymbol) tsymbol).typeDefinitionSymbol.name;
+        Name name = tsymbol.name;
+        if (tsymbol instanceof BStructureTypeSymbol && ((BStructureTypeSymbol) tsymbol).typeDefinitionSymbol != null) {
+            name = ((BStructureTypeSymbol) tsymbol).typeDefinitionSymbol.name;
+        }
 
         if (name == null) {
             return false;
