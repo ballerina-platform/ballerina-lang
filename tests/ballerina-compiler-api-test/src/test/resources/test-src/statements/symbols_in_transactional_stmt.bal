@@ -28,6 +28,10 @@ function test() returns error? {
     } on fail error e {
         call3(e);
     }
+
+    transaction {
+        rollback call2();
+    }
 }
 
 function call1(int val) { 

@@ -63,5 +63,6 @@ public class SymbolsInTransactionStatements {
         assertBasicsAndGetSymbol(model, srcFile, 19, 8, "call1", SymbolKind.FUNCTION);
 //        assertBasicsAndGetSymbol(model, srcFile, 27, 20, "e", SymbolKind.VARIABLE);   // TODO: Symbols in On fail statements error
 //        assertBasicsAndGetSymbol(model, srcFile, 28, 8, "call3", SymbolKind.FUNCTION);
+        assertBasicsAndGetSymbol(model, srcFile, 32, 17, "call2", SymbolKind.FUNCTION);
     }
 }
