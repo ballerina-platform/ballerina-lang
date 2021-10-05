@@ -18,6 +18,7 @@
 
 package io.ballerina.types;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
@@ -189,6 +190,10 @@ public abstract class EnumerableSubtype {
             String s2 = ((EnumerableString) v2).value;
             String s1 = ((EnumerableString) v1).value;
             return Objects.equals(s1, s2) ? EQ : (Common.codePointCompare(s1, s2) ? LT : GT);
+        } else if (v1 instanceof EnumerableDecimal) {
+            BigDecimal d2 = ((EnumerableDecimal) v2).value;
+            BigDecimal d1 = ((EnumerableDecimal) v1).value;
+            return d1.compareTo(d2);
         } else {
             double f1 = ((EnumerableFloat) v1).value;
             double f2 = ((EnumerableFloat) v2).value;
