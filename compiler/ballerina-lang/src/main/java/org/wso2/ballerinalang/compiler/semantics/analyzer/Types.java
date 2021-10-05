@@ -5766,8 +5766,8 @@ public class Types {
                 return arrayType.state != BArrayState.OPEN &&
                         isNeverTypeOrStructureTypeWithARequiredNeverMember(arrayType.eType, visitedTypeSet);
             case TypeTags.TYPEREFDESC:
-                return isNeverTypeOrStructureTypeWithARequiredNeverMember(getReferredType(type),
-                        visitedTypeSet);
+                visitedTypeSet.add(type);
+                return isNeverTypeOrStructureTypeWithARequiredNeverMember(getReferredType(type), visitedTypeSet);
             default:
                 return false;
         }
