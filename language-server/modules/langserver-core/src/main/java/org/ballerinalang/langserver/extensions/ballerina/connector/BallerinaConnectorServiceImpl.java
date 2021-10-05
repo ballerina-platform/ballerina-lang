@@ -84,8 +84,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                     RepoUtils.getBallerinaVersion());
 
             // fetch local project connectors
-            Path filePath = Paths.get(request.getFile());
-            List<BalConnector> localConnectors = fetchLocalConnectors(filePath, false);
+            Path filePath = Paths.get(request.getTargetFile());
+            List<BalConnector> localConnectors = fetchLocalConnectors(filePath, true);
 
             BallerinaConnectorListResponse connectorListResponse = new BallerinaConnectorListResponse(
                     connectorSearchResult.getConnectors(), localConnectors);

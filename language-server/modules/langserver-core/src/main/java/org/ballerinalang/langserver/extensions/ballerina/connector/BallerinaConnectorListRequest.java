@@ -25,7 +25,7 @@ package org.ballerinalang.langserver.extensions.ballerina.connector;
  */
 public class BallerinaConnectorListRequest {
 
-    private String file;
+    private String targetFile;
     private String query;
     private String packageName;
     private String connector;
@@ -44,16 +44,16 @@ public class BallerinaConnectorListRequest {
     }
 
     public BallerinaConnectorListRequest(String file, String packageName) {
-        this.file = file;
+        this.targetFile = file;
         this.packageName = packageName;
     }
 
-    public String getFile() {
-        return file;
+    public String getTargetFile() {
+        return targetFile;
     }
 
-    public void setFile(String file) {
-        this.file = file;
+    public void setTargetFile(String targetFile) {
+        this.targetFile = targetFile;
     }
 
     public String getQuery() {
@@ -155,7 +155,7 @@ public class BallerinaConnectorListRequest {
     @Override
     public String toString() {
         return "BallerinaConnectorListRequest{" +
-                "file='" + file + '\'' +
+                "file='" + targetFile + '\'' +
                 ", query='" + query + '\'' +
                 ", packageName='" + packageName + '\'' +
                 ", connector='" + connector + '\'' +

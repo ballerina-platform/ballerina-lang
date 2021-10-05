@@ -65,9 +65,9 @@ public class ConnectorTest {
     @Test(description = "Test fetch twilio connector metadata.")
     public void getTwilioConnector() {
         BalConnector connector = LSExtensionTestUtil
-                .getConnector("118", "ballerinax", "twilio", "2.0.0", "Client", this.serviceEndpoint);
+                .getConnector("120", "ballerinax", "twilio", "2.0.0", "Client", this.serviceEndpoint);
 
-        Assert.assertEquals(connector.id, "118");
+        Assert.assertEquals(connector.id, "120");
         Assert.assertEquals(connector.moduleName, "twilio");
     }
 
