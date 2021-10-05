@@ -97,8 +97,8 @@ public class Main {
                     // this is a workaround to distinguish between the program args when the project path
                     // is not provided
                     .setEndOfOptionsDelimiter("");
-            cmdParser.getSubcommands().get("build").setStopAtUnmatched(true).setStopAtPositional(true);
-            cmdParser.getSubcommands().get("test").setStopAtUnmatched(true).setStopAtPositional(true);
+            cmdParser.getSubcommands().get("build").setStopAtUnmatched(false).setStopAtPositional(true);
+            cmdParser.getSubcommands().get("test").setStopAtUnmatched(false).setStopAtPositional(true);
 
             // Build Version Command
             VersionCmd versionCmd = new VersionCmd();
