@@ -48,6 +48,9 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
     final static String AUTH_TOKEN = "AUTH TOKEN HERE";
     final static String AUTH_COOKIE = "COOKIE HERE";
     final static String CHOREO_API = "https://app.dv.choreo.dev/get_estimations/2.0";
+    final static String ERROR = "error";
+    final static String SUCCESS = "Success";
+    final static String CONNECTION_ERROR = "CONNECTION_ERROR";
 
     private WorkspaceManager workspaceManager;
 
@@ -74,6 +77,7 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
 
     /**
      * Get advanced graph data.
+     *
      * @param request data
      * @return string of json
      */
@@ -95,12 +99,19 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
             JsonObject realTimeData = getDataFromChoreo(data, AnalyzeType.REALTIME);
 
             graphData.add("realtimeData", realTimeData);
+
+            if (graphData.get("type") == null) {
+                graphData.addProperty("type", SUCCESS);
+                graphData.addProperty("message", SUCCESS);
+            }
+
             return graphData;
         });
     }
 
     /**
      * Get realtime graph data.
+     *
      * @param request data
      * @return String of json
      */
@@ -121,7 +132,8 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
 
     /**
      * Get graph data from Choreo.
-     * @param data action invocations
+     *
+     * @param data        action invocations
      * @param analyzeType analyze type
      * @return graph data json
      */
@@ -144,9 +156,17 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
                     HttpResponse.BodyHandlers.ofString());
 
             return gson.fromJson(response.body(), JsonObject.class);
-        } catch (IOException | InterruptedException | URISyntaxException e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            // No connection
+            JsonObject obj = new JsonObject();
+            obj.addProperty("type", ERROR);
+            obj.addProperty("message", CONNECTION_ERROR);
+            return obj;
+        } catch (InterruptedException | URISyntaxException e) {
+            JsonObject obj = new JsonObject();
+            obj.addProperty("type", ERROR);
+            obj.addProperty("message", e.getMessage());
+            return obj;
         }
-        return null;
     }
 }
