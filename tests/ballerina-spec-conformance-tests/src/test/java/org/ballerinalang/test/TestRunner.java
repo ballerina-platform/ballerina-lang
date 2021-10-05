@@ -40,11 +40,11 @@ import static org.ballerinalang.test.TestRunnerUtils.RESOURCE_DIR;
 import static org.ballerinalang.test.TestRunnerUtils.TEMP_DIR;
 import static org.ballerinalang.test.TestRunnerUtils.deleteDirectory;
 import static org.ballerinalang.test.TestRunnerUtils.getAllLabels;
-import static org.ballerinalang.test.TestRunnerUtils.isSkippedTest;
+import static org.ballerinalang.test.TestRunnerUtils.handleTestSkip;
 import static org.ballerinalang.test.TestRunnerUtils.setDetails;
 import static org.ballerinalang.test.TestRunnerUtils.setDetailsOfTest;
-import static org.ballerinalang.test.TestRunnerUtils.validateFormatOfTest;
-import static org.ballerinalang.test.TestRunnerUtils.validateOutputOfTest;
+import static org.ballerinalang.test.TestRunnerUtils.validateTestFormat;
+import static org.ballerinalang.test.TestRunnerUtils.validateTestOutput;
 
 /**
  * Test runner for run spec conformance tests through compiler phases.
@@ -67,9 +67,9 @@ public class TestRunner {
                      int absLineNum, boolean isSkippedTest, String diagnostics, ITestContext context,
                      boolean isKnownIssue) {
         setDetailsOfTest(context, kind, fileName, absLineNum, diagnostics);
-        isSkippedTest(isSkippedTest);
-        validateFormatOfTest(diagnostics);
-        validateOutputOfTest(path, kind, outputValues, isKnownIssue, lineNumbers, fileName, absLineNum, context);
+        handleTestSkip(isSkippedTest);
+        validateTestFormat(diagnostics);
+        validateTestOutput(path, kind, outputValues, isKnownIssue, lineNumbers, fileName, absLineNum, context);
     }
 
     @AfterMethod
@@ -85,7 +85,7 @@ public class TestRunner {
         reportGenerator.generateReport();
     }
 
-    public static HashSet<String> runSelectedTests(HashMap<String, HashSet<String>> definedLabels) {
+    private HashSet<String> runSelectedTests(HashMap<String, HashSet<String>> definedLabels) {
         final String[] labels = new String[] {};
         HashSet<String> hashSet = new HashSet<>();
 

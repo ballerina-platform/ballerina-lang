@@ -16,6 +16,7 @@
 package org.ballerinalang.test;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
@@ -34,6 +35,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -62,6 +64,14 @@ public class TestRunnerUtils {
     public static final String RESOURCE_DIR = "src/test/resources/";
     public static final String TEMP_DIR = "test-src/";
     private static final String IMPORT_BALLERINAI = "import ballerinai/io;";
+    public static final String FILENAME = "filename";
+    public static final String KIND = "kind";
+    public static final String ABS_LINE_NUM = "abs-line-num";
+    public static final String FORMAT_ERRORS = "format-errors";
+    public static final String ACTUAL_VALUE = "actual-value";
+    public static final String EXPECTED_VALUE = "expected-value";
+    public static final String ACTUAL_LINE_NUM = "actual-line-num";
+    public static final String EXPECTED_LINE_NUM = "expected-line-num";
     private static int absLineNum;
     public static String diagnostics;
 
@@ -156,12 +166,13 @@ public class TestRunnerUtils {
 
     private static String getKindOfTest(String kind) {
         if (kind == null) {
-            reportDiagnostics("Kind of testcase is not defined");
+            reportDiagnostics("Testcase kind is not defined");
         }
         if (kind.equals(OUTPUT) || kind.equals(ERROR) || kind.equals(PANIC) || kind.equals(PARSER_ERROR)) {
             return kind;
         }
-        reportDiagnostics("incorrect test kind, expected kind of testcases are OUTPUT, ERROR, PANIC");
+        reportDiagnostics(String.format("Incorrect test kind, expected testcase kind to be %s, %s, %s or %s",
+                                        OUTPUT, PANIC, ERROR, PARSER_ERROR));
         return OTHER;
     }
 
@@ -257,13 +268,13 @@ public class TestRunnerUtils {
         return true;
     }
 
-    public static void validateFormatOfTest(String diagnostic) {
+    public static void validateTestFormat(String diagnostic) {
         if (diagnostic != null) {
             Assert.fail(diagnostic);
         }
     }
 
-    public static void isSkippedTest(boolean isSkippedTestCase) {
+    public static void handleTestSkip(boolean isSkippedTestCase) {
         if (isSkippedTestCase) {
             throw new SkipException("Skip");
         }
@@ -271,38 +282,33 @@ public class TestRunnerUtils {
 
     public static void setDetailsOfTest(ITestContext context, String kind, String fileName, int absLineNum,
                                         String diagnostics) {
-        context.setAttribute("Kind", kind);
-        context.setAttribute("FileName", fileName);
-        context.setAttribute("lineNo", Integer.toString(absLineNum));
-        context.setAttribute("FileName", fileName);
-        context.setAttribute("FormatErrors", diagnostics);
+        context.setAttribute(KIND, kind);
+        context.setAttribute(FILENAME, fileName);
+        context.setAttribute(ABS_LINE_NUM, Integer.toString(absLineNum));
+        context.setAttribute(FORMAT_ERRORS, diagnostics);
     }
 
-    public static void validateOutputOfTest(String path, String kind, List<String> outputValues, boolean isKnownIssue,
-                                            List<Integer> lineNumbers, String fileName, int absLineNum,
-                                            ITestContext context) {
+    public static void validateTestOutput(String path, String kind, List<String> outputValues, boolean isKnownIssue,
+                                          List<Integer> lineNumbers, String fileName, int absLineNum,
+                                          ITestContext context) {
         try {
-            CompileResult compileResult = BCompileUtil.compile(path);
             if (isKnownIssue) {
                 return; // todo: need to add known issues to separate report
             }
+            CompileResult compileResult = BCompileUtil.compile(path);
             switch (kind) {
                 case ERROR:
                 case PANIC:
                 case PARSER_ERROR:
                     Collection<Diagnostic> errors = compileResult.getDiagnosticResult().errors();
-                    if (!errors.isEmpty()) {
-                        validateError(kind, errors, lineNumbers, outputValues, absLineNum, context);
-                    } else {
-                        validateRuntimeErrorOrPanic(compileResult, lineNumbers, outputValues, absLineNum, context);
-                    }
+                    validateError(kind, errors, lineNumbers, outputValues, absLineNum, context);
                     break;
                 case OUTPUT:
                     validateOutput(compileResult, outputValues, lineNumbers, absLineNum, context);
                     break;
             }
-        } catch (Exception e) {
-            Assert.fail("failed to run spec conformance test: \"" + fileName + "\"", e);
+        } catch (BLangRuntimeException exception) {
+            validateRuntimeErrorOrPanic(exception.getMessage(), lineNumbers, outputValues, absLineNum, context);
         }
     }
 
@@ -321,11 +327,11 @@ public class TestRunnerUtils {
         context.setAttribute("Diagnostics", diagnostics);
     }
 
-    public static List<Object> getDetailsOfErrorKindTests(ITestContext context) {
-        List<Object> results = new ArrayList<>();
-        results.add(context.getAttribute("LineNumbers"));
-        results.add(context.getAttribute("OutputValues"));
-        results.add(context.getAttribute("Diagnostics"));
+    public static Map<String, Object> getDetailsOfErrorKindTests(ITestContext context) {
+        Map<String, Object> results = new HashMap<>();
+        results.put("LineNumbers", context.getAttribute("LineNumbers"));
+        results.put("OutputValues", context.getAttribute("OutputValues"));
+        results.put("Diagnostics", context.getAttribute("Diagnostics"));
 
         return results;
     }
@@ -350,6 +356,12 @@ public class TestRunnerUtils {
 
     public static void validateError(String kind, Collection<Diagnostic> diagnostics, List<Integer> lineNumbers,
                                      List<String> outputValues, int absLineNum, ITestContext context) {
+        if (diagnostics.isEmpty()) {
+            String outputVal = outputValues.get(0);
+            setResultsAttributes(context, null, outputVal, null,
+                    String.valueOf(lineNumbers.get(0) + absLineNum));
+            Assert.assertNull(outputVal);
+        }
         List<String> actualLineNumbers = new ArrayList<>();
         List<String> actualErrorMessages = new ArrayList<>();
         getDetailsOfDiagnostics(diagnostics, actualLineNumbers, actualErrorMessages, absLineNum);
@@ -386,13 +398,12 @@ public class TestRunnerUtils {
         Collection<Diagnostic> diagnostics = compileResult.getDiagnosticResult().errors();
         if (!diagnostics.isEmpty()) {
             Diagnostic diagnostic = diagnostics.iterator().next();
-            String outputVal = outputValues.get(0);
             String message = diagnostic.message().replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING);
             String actualLineNum =
                    String.valueOf(diagnostic.location().lineRange().startLine().line() + absLineNum);
-            setResultsAttributes(context, message, outputVal, actualLineNum,
+            setResultsAttributes(context, message, null, actualLineNum,
                                  String.valueOf(lineNumbers.get(0) + absLineNum));
-            Assert.assertEquals(outputVal, diagnostic.toString());
+            Assert.assertNull(diagnostic.toString());
         }
 
         BRunUtil.ExitDetails exitDetails = BRunUtil.run(compileResult);
@@ -425,18 +436,10 @@ public class TestRunnerUtils {
         }
     }
 
-    public static void validateRuntimeErrorOrPanic(CompileResult compileResult, List<Integer> lineNumbers,
+    public static void validateRuntimeErrorOrPanic(String errorMsg, List<Integer> lineNumbers,
                                                    List<String> outputValues, int absLineNum, ITestContext context) {
-        BRunUtil.ExitDetails exitDetails = BRunUtil.run(compileResult);
-        if (exitDetails.errorOutput.isEmpty()) {
-            String outputVal = outputValues.get(0);
-            setResultsAttributes(context, exitDetails.consoleOutput, outputVal, null,
-                                 String.valueOf(lineNumbers.get(0) + absLineNum));
-            Assert.assertNull(outputVal);
-        }
-        String errorOutput = BRunUtil.run(compileResult).errorOutput;
-        Matcher matcherForErrorMsg = Pattern.compile("^(error)\\s*:\\s*(.*)").matcher(errorOutput);
-        Matcher matcherForErrorLineNum = Pattern.compile(":(\\d+)\\)$").matcher(errorOutput);
+        Matcher matcherForErrorMsg = Pattern.compile("^(error)\\s*:\\s*(.*)").matcher(errorMsg);
+        Matcher matcherForErrorLineNum = Pattern.compile(":(\\d+)\\)$").matcher(errorMsg);
 
         if (matcherForErrorMsg.find() && matcherForErrorLineNum.find()) {
             int lineNum = lineNumbers.get(0) + absLineNum;
@@ -449,48 +452,48 @@ public class TestRunnerUtils {
 
     public static void setResultsAttributes(ITestContext context, String actualValue, String expectedValue,
                                             String actualLineNo, String expectedLineNo) {
-        context.setAttribute("ActualValue", actualValue);
-        context.setAttribute("ExpectedValue", expectedValue);
-        context.setAttribute("ActualLineNo", actualLineNo);
-        context.setAttribute("ExpectedLineNo", expectedLineNo);
+        context.setAttribute(ACTUAL_VALUE, actualValue);
+        context.setAttribute(EXPECTED_VALUE, expectedValue);
+        context.setAttribute(ACTUAL_LINE_NUM, actualLineNo);
+        context.setAttribute(EXPECTED_LINE_NUM, expectedLineNo);
     }
 
-    public static List<String> getDetailsOfTest(ITestContext context, ITestResult result) {
-        List<String> results = new ArrayList<>();
-        results.add((String) context.getAttribute("FileName"));
-        results.add((String) context.getAttribute("Kind"));
-        results.add((String) context.getAttribute("lineNo"));
-        String formatErrors = (String) context.getAttribute("FormatErrors");
-        results.add(formatErrors);
+    public static Map<String, String> getDetailsOfTest(ITestContext context, ITestResult result) {
+        Map<String, String> testDetails = new HashMap<>();
+        testDetails.put(FILENAME, (String) context.getAttribute(FILENAME));
+        testDetails.put(KIND, (String) context.getAttribute(KIND));
+        testDetails.put(ABS_LINE_NUM, (String) context.getAttribute(ABS_LINE_NUM));
+        String formatErrors = (String) context.getAttribute(FORMAT_ERRORS);
+        testDetails.put(FORMAT_ERRORS, formatErrors);
         if (result.getStatus() == ITestResult.SKIP || formatErrors != null) {
-            return results;
+            return testDetails;
         }
-        results.add((String) context.getAttribute("ActualValue"));
-        results.add((String) context.getAttribute("ExpectedValue"));
-        results.add((String) context.getAttribute("ActualLineNo"));
-        results.add((String) context.getAttribute("ExpectedLineNo"));
-        return results;
+        testDetails.put(ACTUAL_VALUE, (String) context.getAttribute(ACTUAL_VALUE));
+        testDetails.put(EXPECTED_VALUE, (String) context.getAttribute(EXPECTED_VALUE));
+        testDetails.put(ACTUAL_LINE_NUM, (String) context.getAttribute(ACTUAL_LINE_NUM));
+        testDetails.put(EXPECTED_LINE_NUM, (String) context.getAttribute(EXPECTED_LINE_NUM));
+        return testDetails;
     }
 
     public static void setDetailsOfErrorKindTests(ITestContext context, ReportGenerator reportGenerator,
-                                                  List<String> detailsOfTest) {
-        List<Object> detailsOfErrorKindTests = getDetailsOfErrorKindTests(context);
+                                                  Map<String, String> detailsOfTest) {
+        Map<String, Object> detailsOfErrorKindTests = getDetailsOfErrorKindTests(context);
 
-        boolean haveOnlyNulls = detailsOfErrorKindTests.stream().allMatch(x -> x == null);
+        boolean haveOnlyNulls = detailsOfErrorKindTests.values().stream().allMatch(Objects::isNull);;
 
         if (!haveOnlyNulls) {
-            int absLineNo = Integer.parseInt(detailsOfTest.get(2));
-            List<Integer> lineNumbers = (List<Integer>) detailsOfErrorKindTests.get(0);
-            List<String> outputValues = (List<String>) detailsOfErrorKindTests.get(1);
-            Collection<Diagnostic> diagnostics = (Collection<Diagnostic>) detailsOfErrorKindTests.get(2);
+            int absLineNo = Integer.parseInt(detailsOfTest.get(ABS_LINE_NUM));
+            List<Integer> lineNumbers = (List<Integer>) detailsOfErrorKindTests.get("LineNumbers");
+            List<String> outputValues = (List<String>) detailsOfErrorKindTests.get("OutputValues");
+            Collection<Diagnostic> diagnostics = (Collection<Diagnostic>) detailsOfErrorKindTests.get("Diagnostics");
 
             Iterator<Diagnostic> iterator = diagnostics.iterator();
             for (int i = 0; i < diagnostics.size(); i++) {
-                List<String> results = new ArrayList<>();
-                results.add(detailsOfTest.get(0));
-                results.add(detailsOfTest.get(1));
-                results.add(detailsOfTest.get(2));
-                results.add(detailsOfTest.get(3));
+                Map<String, String> results = new HashMap<>();
+                results.put(FILENAME, detailsOfTest.get(FILENAME));
+                results.put(KIND, detailsOfTest.get(KIND));
+                results.put(ABS_LINE_NUM, detailsOfTest.get(ABS_LINE_NUM));
+                results.put(FORMAT_ERRORS, detailsOfTest.get(FORMAT_ERRORS));
                 Diagnostic diagnostic = iterator.next();
                 int actualLineNum = diagnostic.location().lineRange().startLine().line() + 1 + absLineNo;
                 String message = diagnostic.message().replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING);
@@ -503,23 +506,23 @@ public class TestRunnerUtils {
                     expLineNum = null;
                     expOutput = null;
                 }
-                results.add(message);
-                results.add(expOutput);
-                results.add(String.valueOf(actualLineNum));
-                results.add(expLineNum);
+                results.put(ACTUAL_VALUE, message);
+                results.put(EXPECTED_VALUE, expOutput);
+                results.put(ACTUAL_LINE_NUM, String.valueOf(actualLineNum));
+                results.put(EXPECTED_LINE_NUM, expLineNum);
                 reportGenerator.addDetailsOfErrorKindTests(results);
             }
 
             for (int i = diagnostics.size(); i < outputValues.size(); i++) {
-                List<String> results = new ArrayList<>();
-                results.add(detailsOfTest.get(0));
-                results.add(detailsOfTest.get(1));
-                results.add(detailsOfTest.get(2));
-                results.add(detailsOfTest.get(3));
-                results.add(null);
-                results.add(outputValues.get(i));
-                results.add(null);
-                results.add(String.valueOf(lineNumbers.get(i)));
+                Map<String, String> results = new HashMap<>();
+                results.put(FILENAME, detailsOfTest.get(FILENAME));
+                results.put(KIND, detailsOfTest.get(KIND));
+                results.put(ABS_LINE_NUM, detailsOfTest.get(ABS_LINE_NUM));
+                results.put(FORMAT_ERRORS, detailsOfTest.get(FORMAT_ERRORS));
+                results.put(ACTUAL_VALUE, null);
+                results.put(EXPECTED_VALUE, outputValues.get(i));
+                results.put(ACTUAL_LINE_NUM, null);
+                results.put(EXPECTED_LINE_NUM, String.valueOf(lineNumbers.get(i)));
                 reportGenerator.addDetailsOfErrorKindTests(results);
             }
         } else {
@@ -528,19 +531,19 @@ public class TestRunnerUtils {
     }
 
     public static void setDetails(ITestContext context, ITestResult result, ReportGenerator reportGenerator) {
-        List<String> detailsOfTest = getDetailsOfTest(context, result);
-        if (result.getStatus() != ITestResult.SKIP && detailsOfTest.get(1).equals(ERROR)
-                                                                                && detailsOfTest.get(3) == null) {
-            setDetailsOfErrorKindTests(context, reportGenerator, detailsOfTest);
+        Map<String, String> testDetails = getDetailsOfTest(context, result);
+        if (result.getStatus() != ITestResult.SKIP && testDetails.get(KIND).equals(ERROR)
+                                                   && testDetails.get(FORMAT_ERRORS) == null) {
+            setDetailsOfErrorKindTests(context, reportGenerator, testDetails);
         }
         switch (result.getStatus()) {
             case ITestResult.SUCCESS:
                 break;
             case ITestResult.FAILURE:
-                reportGenerator.addDetailsOfFailedTests(detailsOfTest);
+                reportGenerator.addDetailsOfFailedTests(testDetails);
                 break;
             case ITestResult.SKIP:
-                reportGenerator.addDetailsOfSkippedTests(detailsOfTest);
+                reportGenerator.addDetailsOfSkippedTests(testDetails);
                 break;
             default:
                 throw new RuntimeException("Invalid status");
