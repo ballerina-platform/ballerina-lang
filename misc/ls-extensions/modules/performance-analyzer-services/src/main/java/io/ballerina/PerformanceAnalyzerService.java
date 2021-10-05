@@ -64,15 +64,11 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
     }
 
     @JsonNotification
-    public CompletableFuture<String> getEndpoints(PerformanceAnalyzerGraphRequest request) {
+    public CompletableFuture<JsonObject> getEndpoints(PerformanceAnalyzerGraphRequest request) {
 
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = request.getDocumentIdentifier().getUri();
-            JsonObject data = EndpointsFinder.getEndpoints(fileUri, this.workspaceManager, request.getRange());
-            if (data == null) {
-                return null;
-            }
-            return data.toString();
+            return EndpointsFinder.getEndpoints(fileUri, this.workspaceManager, request.getRange());
         });
     }
 
@@ -82,7 +78,7 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
      * @return string of json
      */
     @JsonNotification
-    public CompletableFuture<String> getGraphData(PerformanceAnalyzerGraphRequest request) {
+    public CompletableFuture<JsonObject> getGraphData(PerformanceAnalyzerGraphRequest request) {
 
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = request.getDocumentIdentifier().getUri();
@@ -99,7 +95,7 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
             JsonObject realTimeData = getDataFromChoreo(data, AnalyzeType.REALTIME);
 
             graphData.add("realtimeData", realTimeData);
-            return graphData.toString();
+            return graphData;
         });
     }
 
@@ -109,13 +105,17 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
      * @return String of json
      */
     @JsonNotification
-    public CompletableFuture<String> getRealtimeData(PerformanceAnalyzerGraphRequest request) {
+    public CompletableFuture<JsonObject> getRealtimeData(PerformanceAnalyzerGraphRequest request) {
 
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = request.getDocumentIdentifier().getUri();
             JsonObject data = EndpointsFinder.getEndpoints(fileUri, this.workspaceManager, request.getRange());
 
-            return getDataFromChoreo(data, AnalyzeType.REALTIME).toString();
+            if (data == null) {
+                return null;
+            }
+
+            return getDataFromChoreo(data, AnalyzeType.REALTIME);
         });
     }
 
