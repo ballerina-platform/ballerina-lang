@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
@@ -40,16 +41,16 @@ import java.util.Optional;
  */
 @SuppressWarnings("unchecked")
 public class BArrayType extends BType implements ArrayType {
-    private final Type elementType;
+    private Type elementType;
     private int dimensions = 1;
     private int size = -1;
-    private final boolean hasFillerValue;
+    private boolean hasFillerValue;
     private ArrayState state = ArrayState.OPEN;
 
     private final boolean readonly;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
-
+    private int typeFlags;
     public BArrayType(Type elementType) {
         this(elementType, false);
     }
@@ -63,17 +64,44 @@ public class BArrayType extends BType implements ArrayType {
     }
 
     public BArrayType(Type elemType, int size, boolean readonly) {
+        this(0, size, readonly, TypeChecker.hasFillerValue(elemType));
+        setElementType(elemType);
+        setFlagsBasedOnElementType();
+    }
+
+    public BArrayType(int typeFlags, int size, boolean readonly, boolean hasFillerValue) {
         super(null, null, ArrayValue.class);
-        this.elementType = readonly ? ReadOnlyUtils.getReadOnlyType(elemType) : elemType;
-        if (elementType instanceof BArrayType) {
-            dimensions = ((BArrayType) elementType).getDimensions() + 1;
-        }
+        this.typeFlags = typeFlags;
         if (size != -1) {
             state = ArrayState.CLOSED;
             this.size = size;
         }
-        hasFillerValue = TypeChecker.hasFillerValue(this.elementType);
         this.readonly = readonly;
+        this.hasFillerValue = hasFillerValue;
+    }
+
+    public void setElementType(Type elementType) {
+        this.elementType = readonly ? ReadOnlyUtils.getReadOnlyType(elementType) : elementType;
+        if (elementType instanceof BArrayType) {
+            this.dimensions = ((BArrayType) elementType).getDimensions() + 1;
+        }
+        setFlagsBasedOnElementType();
+        int elementTypeTag = elementType.getTag();
+        if (elementTypeTag == TypeTags.UNION_TAG || elementTypeTag == TypeTags.FINITE_TYPE_TAG){
+            this.hasFillerValue = TypeChecker.hasFillerValue(elementType);
+        }
+    }
+
+    private void setFlagsBasedOnElementType() {
+        if (elementType.isNilable()) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.NILABLE);
+        }
+        if (elementType.isAnydata()) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.ANYDATA);
+        }
+        if (elementType.isPureType()) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.PURETYPE);
+        }
     }
 
     public Type getElementType() {
@@ -150,7 +178,7 @@ public class BArrayType extends BType implements ArrayType {
             sb.append(arrayElement.getSizeString());
             tempElementType = arrayElement.elementType;
         }
-        sb.insert(0, tempElementType.toString());
+        sb.insert(0, tempElementType);
         return !readonly ? sb.toString() : sb.append(" & readonly").toString();
     }
 
@@ -176,7 +204,7 @@ public class BArrayType extends BType implements ArrayType {
 
     @Override
     public boolean isAnydata() {
-        return this.elementType.isAnydata();
+        return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.ANYDATA);
     }
 
     @Override

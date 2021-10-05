@@ -200,7 +200,7 @@ public class JvmValueGen {
 
     void generateValueClasses(Map<String, byte[]> jarEntries, JvmConstantsGen jvmConstantsGen) {
         String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
-        module.typeDefs.parallelStream().forEach(optionalTypeDef -> {
+        module.typeDefs.stream().forEach(optionalTypeDef -> {
             BType bType = optionalTypeDef.type;
             String className = getTypeValueClassName(packageName, optionalTypeDef.internalName.value);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(className);
