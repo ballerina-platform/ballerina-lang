@@ -161,7 +161,7 @@ progressbar-0.7.4.jar                                                           
 okhttp-3.9.1.jar                                                                                    jar            apache2
 geronimo-json_1.0_spec-1.0-alpha-1.jar                                                              bundle         apache2
 ballerina-ldap-1.0.0-java.jar                                                                       jar            apache2
-ballerina-observe-0.8.0-java.jar                                                                    jar            apache2
+ballerina-observe-1.0.0-java.jar                                                                    jar            apache2
 ballerina-http-1.0.0-java.jar                                                                       jar            apache2
 socket-test-utils-0.6.2.jar                                                                         jar            apache2
 ballerina-sql-0.5.0-java.jar                                                                        jar            apache2
@@ -227,7 +227,7 @@ ballerina-lang.stream-0.4.0-java.jar                                            
 ballerina-task-1.1.0-java.jar                                                                       jar            apache2
 ballerina-jwt-1.0.0-java.jar                                                                        jar            apache2
 ballerina-lang.boolean-1.0.0-java.jar                                                               jar            apache2
-ballerina-observe-0.8.0.jar                                                                         jar            apache2
+ballerina-observe-1.0.0.jar                                                                         jar            apache2
 ballerina-core-2.0.0-Preview1.jar                                                                   jar            apache2
 protobuf-ballerina-2.0.0-Preview1.jar                                                               jar            apache2
 netty-codec-http2-4.1.59.Final.jar                                                                  bundle         apache2

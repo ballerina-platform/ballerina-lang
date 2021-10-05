@@ -73,7 +73,7 @@ public class ObserveUtils {
 
     static {
         // TODO: Move config initialization to ballerina level once checking config key is possible at ballerina level
-        Module observeModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "observe", "0");
+        Module observeModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "observe", "1");
         VariableKey enabledKey = new VariableKey(observeModule, "enabled", PredefinedTypes.TYPE_BOOLEAN, false);
         VariableKey providerKey = new VariableKey(observeModule, "provider", PredefinedTypes.TYPE_STRING, false);
         VariableKey metricsEnabledKey = new VariableKey(observeModule, "metricsEnabled", PredefinedTypes.TYPE_BOOLEAN
