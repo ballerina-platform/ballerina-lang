@@ -18,13 +18,22 @@
 
 package io.ballerina;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import io.ballerina.component.AnalyzeType;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
+import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 import org.eclipse.lsp4j.services.LanguageServer;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -35,6 +44,10 @@ import java.util.concurrent.CompletableFuture;
 @JavaSPIService("org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService")
 @JsonSegment("performanceAnalyzer")
 public class PerformanceAnalyzerService implements ExtendedLanguageServerService {
+
+    final static String AUTH_TOKEN = "AUTH TOKEN HERE";
+    final static String AUTH_COOKIE = "COOKIE HERE";
+    final static String CHOREO_API = "https://app.dv.choreo.dev/get_estimations/2.0";
 
     private WorkspaceManager workspaceManager;
 
@@ -50,12 +63,90 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
         this.workspaceManager = workspaceManager;
     }
 
-    @JsonRequest
-    public CompletableFuture<String> getEndpoints(BallerinaProjectParams params) {
+    @JsonNotification
+    public CompletableFuture<String> getEndpoints(PerformanceAnalyzerGraphRequest request) {
 
         return CompletableFuture.supplyAsync(() -> {
-            String fileUri = params.getDocumentIdentifier().getUri();
-            return EndpointsFinder.getEndpoints(fileUri, this.workspaceManager);
+            String fileUri = request.getDocumentIdentifier().getUri();
+            JsonObject data = EndpointsFinder.getEndpoints(fileUri, this.workspaceManager, request.getRange());
+            if (data == null) {
+                return null;
+            }
+            return data.toString();
         });
+    }
+
+    /**
+     * Get advanced graph data.
+     * @param request data
+     * @return string of json
+     */
+    @JsonNotification
+    public CompletableFuture<String> getGraphData(PerformanceAnalyzerGraphRequest request) {
+
+        return CompletableFuture.supplyAsync(() -> {
+            String fileUri = request.getDocumentIdentifier().getUri();
+            JsonObject data = EndpointsFinder.getEndpoints(fileUri, this.workspaceManager, request.getRange());
+            if (data == null) {
+                return null;
+            }
+            JsonObject graphData = getDataFromChoreo(data, AnalyzeType.ADVANCED);
+
+            if (graphData == null) {
+                return null;
+            }
+
+            JsonObject realTimeData = getDataFromChoreo(data, AnalyzeType.REALTIME);
+
+            graphData.add("realtimeData", realTimeData);
+            return graphData.toString();
+        });
+    }
+
+    /**
+     * Get realtime graph data.
+     * @param request data
+     * @return String of json
+     */
+    @JsonNotification
+    public CompletableFuture<String> getRealtimeData(PerformanceAnalyzerGraphRequest request) {
+
+        return CompletableFuture.supplyAsync(() -> {
+            String fileUri = request.getDocumentIdentifier().getUri();
+            JsonObject data = EndpointsFinder.getEndpoints(fileUri, this.workspaceManager, request.getRange());
+
+            return getDataFromChoreo(data, AnalyzeType.REALTIME).toString();
+        });
+    }
+
+    /**
+     * Get graph data from Choreo.
+     * @param data action invocations
+     * @param analyzeType analyze type
+     * @return graph data json
+     */
+    private JsonObject getDataFromChoreo(JsonObject data, AnalyzeType analyzeType) {
+
+        Gson gson = new Gson();
+        data.add("analyzeType", gson.toJsonTree(analyzeType.getAnalyzeType()));
+
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(CHOREO_API))
+                    .headers("Content-Type", "application/json",
+                            "Authorization", AUTH_TOKEN,
+                            "Cookie", AUTH_COOKIE)
+                    .POST(HttpRequest.BodyPublishers.ofString(data.toString()))
+                    .build();
+
+            HttpResponse<String> response = client.send(request,
+                    HttpResponse.BodyHandlers.ofString());
+
+            return gson.fromJson(response.body(), JsonObject.class);
+        } catch (IOException | InterruptedException | URISyntaxException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

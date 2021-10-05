@@ -28,7 +28,9 @@ import io.ballerina.component.Node;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.eclipse.lsp4j.Range;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -40,9 +42,11 @@ import static io.ballerina.ProgramAnalyzerNodeVisitor.ENDPOINTS_KEY;
 
 public class EndpointsFinder {
 
-    public static String getEndpoints(String fileUri, WorkspaceManager workspaceManager) {
+    public static JsonObject getEndpoints(String fileUri, WorkspaceManager workspaceManager,
+                                          Range range) {
 
         Path path = Path.of(fileUri);
+        String file = StringUtils.substringAfterLast(fileUri, "/");
         try {
             Optional<SemanticModel> semanticModel = workspaceManager.semanticModel(path);
             Optional<Module> module = workspaceManager.module(path);
@@ -53,6 +57,10 @@ public class EndpointsFinder {
 
             ProgramAnalyzerNodeVisitor nodeVisitor = new ProgramAnalyzerNodeVisitor();
             nodeVisitor.setSemanticModel(semanticModel.get());
+            nodeVisitor.setFile(file);
+            if (range != null) {
+                nodeVisitor.setRange(range);
+            }
 
             for (DocumentId currentDocumentID : defaultModule.documentIds()) {
                 Document document = defaultModule.document(currentDocumentID);
@@ -77,7 +85,7 @@ public class EndpointsFinder {
             json.add(ENDPOINTS_KEY, endPointsJson);
             json.add(ACTION_INVOCATION_KEY, actionInvocationsJson);
 
-            return json.toString();
+            return json;
         } catch (CancellationException ignore) {
             // Ignore the cancellation exception
         } catch (Throwable e) {
