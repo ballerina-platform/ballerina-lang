@@ -57,7 +57,8 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
                                             BSymbol tSymbol, boolean fromIntersectionType) {
         super(context, TypeDescKind.TYPE_REFERENCE, bType);
         this.tSymbol = tSymbol;
-        this.definitionName = tSymbol != null ? tSymbol.getOriginalName().getValue() : null;
+        String name = tSymbol != null ? tSymbol.getOriginalName().getValue() : null;
+        this.definitionName = name != null ? (this.isAnonType(name) ? bType.toString() : name) : null;
         this.fromIntersectionType = fromIntersectionType;
         this.location = tSymbol != null ? tSymbol.pos : null;
     }
@@ -165,5 +166,9 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
 
     private boolean isAnonOrg(ModuleID moduleID) {
         return ANON_ORG.equals(moduleID.orgName());
+    }
+
+    private boolean isAnonType(String definitionName) {
+        return definitionName.startsWith("$anonType$");
     }
 }

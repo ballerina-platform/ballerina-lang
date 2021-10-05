@@ -197,11 +197,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "array:$anonType$_3",
+      "detail": "array:object { public isolated function next () returns (record {| array:Type value; |}?); }",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns an iterator over an array.\n  \n  \n  \n**Return** `array:$anonType$_3`   \n- a new iterator object that will iterate over the members of parameter `arr`.  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns an iterator over an array.\n  \n  \n  \n**Return** `array:object { public isolated function next () returns (record {| array:Type value; |}?); }`   \n- a new iterator object that will iterate over the members of parameter `arr`.  \n  \n"
         }
       },
       "sortText": "E",

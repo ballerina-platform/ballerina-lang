@@ -385,11 +385,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "xml:$anonType$_8",
+      "detail": "xml:object { public isolated function next () returns (record {| xml:ItemType value; |}?); }",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns an iterator over the xml items of an xml sequence.\n\n# Each item is represented by an xml singleton.\n  \n  \n  \n**Return** `xml:$anonType$_8`   \n- iterator object  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns an iterator over the xml items of an xml sequence.\n\n# Each item is represented by an xml singleton.\n  \n  \n  \n**Return** `xml:object { public isolated function next () returns (record {| xml:ItemType value; |}?); }`   \n- iterator object  \n  \n"
         }
       },
       "sortText": "E",

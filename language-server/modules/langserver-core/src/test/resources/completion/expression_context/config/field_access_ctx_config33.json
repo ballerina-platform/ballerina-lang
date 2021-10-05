@@ -182,11 +182,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "string:$anonType$_1",
+      "detail": "string:object { public isolated function next () returns (record {| string:Char value; |}?); }",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nReturns an iterator over the string.\n\nThe iterator will yield the substrings of length 1 in order.\n  \n  \n  \n**Return** `string:$anonType$_1`   \n- a new iterator object  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nReturns an iterator over the string.\n\nThe iterator will yield the substrings of length 1 in order.\n  \n  \n  \n**Return** `string:object { public isolated function next () returns (record {| string:Char value; |}?); }`   \n- a new iterator object  \n  \n"
         }
       },
       "sortText": "E",

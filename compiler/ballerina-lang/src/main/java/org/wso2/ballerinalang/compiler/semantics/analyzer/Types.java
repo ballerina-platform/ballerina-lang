@@ -3368,7 +3368,7 @@ public class Types {
                     memTypes.addAll(getEffectiveMemberTypes((BUnionType) memberType));
                     break;
                 case TypeTags.TYPEREFDESC:
-                    BType constraint = ((BTypeReferenceType) memberType).referredType;
+                    BType constraint = getReferredType(memberType);
                     if (constraint.tag == TypeTags.UNION) {
                         memTypes.addAll(getEffectiveMemberTypes((BUnionType) constraint));
                         continue;

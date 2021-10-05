@@ -79,11 +79,11 @@
     {
       "label": "next()",
       "kind": "Function",
-      "detail": "stream:$anonType$_0|stream:CompletionType",
+      "detail": "stream:record {| stream:Type value; |}|stream:CompletionType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.4.0_  \n  \nReturns the next element in the stream wrapped in a record or () if the stream ends.\n  \n  \n  \n**Return** `stream:$anonType$_0|stream:CompletionType`   \n- If the stream has elements, return the element wrapped in a record with single field called `value`,  \notherwise returns ()  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.4.0_  \n  \nReturns the next element in the stream wrapped in a record or () if the stream ends.\n  \n  \n  \n**Return** `stream:record {| stream:Type value; |}|stream:CompletionType`   \n- If the stream has elements, return the element wrapped in a record with single field called `value`,  \notherwise returns ()  \n  \n"
         }
       },
       "sortText": "E",
@@ -113,11 +113,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "stream:$anonType$_4",
+      "detail": "stream:object { public isolated function next () returns ((record {| stream:Type value; |}|stream:CompletionType)); }",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.4.0_  \n  \nReturns an iterator over a stream.\n  \n  \n  \n**Return** `stream:$anonType$_4`   \n- a new iterator object that will iterate over the members of parameter `stm`.  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.4.0_  \n  \nReturns an iterator over a stream.\n  \n  \n  \n**Return** `stream:object { public isolated function next () returns ((record {| stream:Type value; |}|stream:CompletionType)); }`   \n- a new iterator object that will iterate over the members of parameter `stm`.  \n  \n"
         }
       },
       "sortText": "E",

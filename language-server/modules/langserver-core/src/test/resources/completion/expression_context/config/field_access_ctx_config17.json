@@ -8,11 +8,11 @@
     {
       "label": "next()",
       "kind": "Function",
-      "detail": "array:$anonType$_2?",
+      "detail": "array:record {| array:Type value; |}?",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \n  \n  \n  \n**Return** `array:$anonType$_2?`   \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \n  \n  \n  \n**Return** `array:record {| array:Type value; |}?`   \n  \n"
         }
       },
       "sortText": "E",

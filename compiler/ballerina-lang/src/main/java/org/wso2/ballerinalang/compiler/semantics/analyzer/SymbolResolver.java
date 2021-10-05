@@ -519,11 +519,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (types.getReferredType(this.resultType) != symTable.noType) {
             // If the typeNode.nullable is true then convert the resultType to a union type
             // if it is not already a union type, JSON type, or any type
-            if (typeNode.nullable && types.getReferredType(this.resultType).tag == TypeTags.UNION) {
-                BUnionType unionType = (BUnionType) types.getReferredType(this.resultType);
+            BType referredType = types.getReferredType(this.resultType);
+            if (typeNode.nullable && referredType.tag == TypeTags.UNION) {
+                BUnionType unionType = (BUnionType) referredType;
                 unionType.add(symTable.nilType);
-            } else if (typeNode.nullable && types.getReferredType(this.resultType).tag != TypeTags.JSON
-                    && types.getReferredType(this.resultType).tag != TypeTags.ANY) {
+            } else if (typeNode.nullable && referredType.tag != TypeTags.JSON && referredType.tag != TypeTags.ANY) {
                 this.resultType = BUnionType.create(null, this.resultType, symTable.nilType);
             }
         }
