@@ -1539,8 +1539,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             definedType.tsymbol.name = names.fromIdNode(typeDefinition.name);
             definedType.tsymbol.originalName = names.fromIdNode(typeDefinition.name);
 
-//            definedType.tsymbol.flags |= typeDefSymbol.flags;
-//            definedType.tsymbol.pos = typeDefSymbol.pos;
             definedType.tsymbol.markdownDocumentation = typeDefSymbol.markdownDocumentation;
             definedType.tsymbol.pkgID = env.enclPkg.packageID;
             if (definedType.tsymbol instanceof BErrorTypeSymbol) {
@@ -1553,8 +1551,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
             typeDefSymbol = definedType.tsymbol;
-//            definedType.tsymbol.name = names.fromIdNode(typeDefinition.name);
-//            definedType.tsymbol.originalName = names.fromIdNode(typeDefinition.name);
         }
 
         boolean isErrorIntersection = isErrorIntersection(definedType);

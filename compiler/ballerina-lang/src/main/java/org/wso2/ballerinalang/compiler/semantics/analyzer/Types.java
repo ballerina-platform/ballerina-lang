@@ -655,6 +655,11 @@ public class Types {
             return true;
         }
 
+        if (sourceTag == TypeTags.TYPEREFDESC || targetTag == TypeTags.TYPEREFDESC) {
+            return isAssignable(getReferredType(source), getReferredType(target),
+                    unresolvedTypes);
+        }
+
         if (!Symbols.isFlagOn(source.flags, Flags.PARAMETERIZED) &&
                 !isInherentlyImmutableType(target) && Symbols.isFlagOn(target.flags, Flags.READONLY) &&
                 !isInherentlyImmutableType(source) && isMutable(source)) {
@@ -669,11 +674,6 @@ public class Types {
 
         if (targetTag == TypeTags.INTERSECTION) {
             return isAssignable(source, ((BIntersectionType) target).effectiveType, unresolvedTypes);
-        }
-
-        if (sourceTag == TypeTags.TYPEREFDESC || targetTag == TypeTags.TYPEREFDESC) {
-            return isAssignable(getReferredType(source), getReferredType(target),
-                    unresolvedTypes);
         }
 
         if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
@@ -5127,9 +5127,9 @@ public class Types {
         return errorLiftedType;
     }
 
-    public List<BType> getAllTypes(BType type, boolean getReference) {
+    public List<BType> getAllTypes(BType type, boolean getReferenced) {
         if (type.tag != TypeTags.UNION) {
-            if (getReference && type.tag == TypeTags.TYPEREFDESC) {
+            if (getReferenced && type.tag == TypeTags.TYPEREFDESC) {
                 return getAllTypes(((BTypeReferenceType) type).referredType, true);
             } else {
                 return Lists.of(type);

@@ -3483,7 +3483,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         LinkedHashSet<BType> retTypeMembers = new LinkedHashSet<>();
         retTypeMembers.add(recordType);
-        retTypeMembers.addAll(types.getAllTypes(streamType.completionType, true));
+        retTypeMembers.addAll(types.getAllTypes(streamType.completionType, false));
 
         BUnionType unionType = BUnionType.create(null);
         unionType.addAll(retTypeMembers);
@@ -5533,7 +5533,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType addDefaultErrorIfNoErrorComponentFound(BType type) {
-        for (BType t : types.getAllTypes(type, true)) {
+        for (BType t : types.getAllTypes(type, false)) {
             if (types.isAssignable(t, symTable.errorType)) {
                 return type;
             }
