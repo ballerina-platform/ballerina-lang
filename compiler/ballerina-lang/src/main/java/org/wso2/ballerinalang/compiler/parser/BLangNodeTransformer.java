@@ -2217,14 +2217,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         Node containerExpr = indexedExpressionNode.containerExpression();
         BLangExpression expression = createExpression(containerExpr);
-        if (containerExpr.kind() == SyntaxKind.BRACED_EXPRESSION) {
-            indexBasedAccess.expr = ((BLangGroupExpr) expression).expression;
-            BLangGroupExpr group = (BLangGroupExpr) TreeBuilder.createGroupExpressionNode();
-            group.expression = indexBasedAccess;
-            group.pos = indexBasedAccess.pos;
-            return group;
-        } else if (containerExpr.kind() == SyntaxKind.XML_STEP_EXPRESSION) {
+        if (containerExpr.kind() == SyntaxKind.XML_STEP_EXPRESSION) {
             // TODO : This check will be removed after changes are done for spec issue #536
+
+            // The original expression position is overwritten here since the modeling of BLangXMLNavigationAccess is
+            // different from the normal index based access.
             expression.pos = indexBasedAccess.pos;
             ((BLangXMLNavigationAccess) expression).childIndex = indexBasedAccess.indexExpr;
             return expression;
