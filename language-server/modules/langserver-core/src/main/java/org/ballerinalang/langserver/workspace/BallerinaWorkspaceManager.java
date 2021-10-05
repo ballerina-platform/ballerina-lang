@@ -246,7 +246,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.COMPILER_PLUGIN_TOML))) {
             // Create or update Compiler-plugin.toml
             updateCompilerPluginToml(params.getTextDocument().getText(), projectPair, true);
-        } else if (ProjectPaths.isBalFile(filePath)) {
+        } else if (ProjectPaths.isBalFile(filePath) && project.kind() != ProjectKind.BALA_PROJECT) {
             // Create or update .bal document
             updateBalDocument(filePath, params.getTextDocument().getText(), projectPair, true);
         }
@@ -277,7 +277,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.COMPILER_PLUGIN_TOML))) {
             // create or update Compiler-plugin.toml
             updateCompilerPluginToml(params.getContentChanges().get(0).getText(), projectPair, false);
-        } else if (ProjectPaths.isBalFile(filePath)) {
+        } else if (ProjectPaths.isBalFile(filePath) && project.kind() != ProjectKind.BALA_PROJECT) {
             // Update .bal document
             updateBalDocument(filePath, params.getContentChanges().get(0).getText(), projectPair, false);
         }
