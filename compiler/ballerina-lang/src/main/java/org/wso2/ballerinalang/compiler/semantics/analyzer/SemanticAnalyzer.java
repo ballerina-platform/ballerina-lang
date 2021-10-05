@@ -202,7 +202,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
-import org.wso2.ballerinalang.compiler.util.BooleanCondition;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -2396,7 +2395,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BLangExpression expr = ifNode.expr;
             this.env = typeNarrower.evaluateFalsityForSingleIf(expr, env);
             this.notCompletedNormally = ConditionResolver.checkConstCondition(types, symTable, ifNode.expr) ==
-                    BooleanCondition.TRUE;
+                    symTable.trueType;
         }
 
         if (ifNode.elseStmt != null) {
@@ -3562,7 +3561,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         boolean prevBreakFound = this.breakFound;
         SymbolEnv whileEnv = typeNarrower.evaluateTruth(whileNode.expr, whileNode.body, env);
         analyzeStmt(whileNode.body, whileEnv);
-        if (ConditionResolver.checkConstCondition(types, symTable, whileNode.expr) != BooleanCondition.TRUE
+        if (ConditionResolver.checkConstCondition(types, symTable, whileNode.expr) != symTable.trueType
                 || this.breakFound) {
             this.notCompletedNormally = false;
         }

@@ -84,7 +84,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
-import org.wso2.ballerinalang.compiler.util.BooleanCondition;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -122,7 +121,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     private boolean failureHandled;
     private int loopCount;
     private SymbolEnv env;
-    private BooleanCondition booleanConstCondition = BooleanCondition.NOT_CONST_BOOLEAN;
+    private BType booleanConstCondition;
 
     private final Stack<SymbolEnv> loopEnvs = new Stack<>();
     private final Stack<PotentiallyInvalidAssignmentInfo> potentiallyInvalidAssignmentInLoopsInfo = new Stack<>();
@@ -154,7 +153,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangBlockStmt blockNode) {
         final SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
-        BooleanCondition prevBoolConst = this.booleanConstCondition;
+        BType prevBoolConst = this.booleanConstCondition;
         for (BLangStatement stmt : blockNode.stmts) {
             analyzeReachability(stmt, blockEnv);
         }
@@ -238,7 +237,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
 
         this.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
                 env.enclInvokable));
-        this.unreachableBlock = this.unreachableBlock || this.booleanConstCondition == BooleanCondition.FALSE;
+        this.unreachableBlock = this.unreachableBlock || this.booleanConstCondition == symTable.falseType;
         analyzeReachability(ifStmt.body, env);
         resetUnreachableBlock();
 
@@ -250,7 +249,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         boolean ifStmtBreakAsLastStatement = this.breakAsLastStatement;
         boolean ifStmtContinueAsLastStatement = this.continueAsLastStatement;
 
-        if (booleanConstCondition != BooleanCondition.TRUE) {
+        if (booleanConstCondition != symTable.trueType) {
             resetStatementReturnsPanicsOrFails();
             resetErrorThrown();
             resetLastStatement();
@@ -261,7 +260,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             this.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
                     env.enclInvokable));
 
-            this.unreachableBlock = this.unreachableBlock || (this.booleanConstCondition == BooleanCondition.TRUE &&
+            this.unreachableBlock = this.unreachableBlock || (this.booleanConstCondition == symTable.trueType &&
                     elseStmt.getKind() != NodeKind.IF);
             analyzeReachability(elseStmt, env);
             resetUnreachableBlock();
@@ -269,7 +268,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
                     this.breakAsLastStatement || this.statementReturnsPanicsOrFails);
 
-            if (booleanConstCondition == BooleanCondition.NOT_CONST_BOOLEAN) {
+            if (booleanConstCondition == symTable.semanticError) {
                 this.statementReturnsPanicsOrFails = ifStmtReturnsPanicsOrFails && this.statementReturnsPanicsOrFails;
                 this.errorThrown = currentErrorThrown && this.errorThrown;
                 this.breakAsLastStatement = ifStmtBreakAsLastStatement && this.breakAsLastStatement;
@@ -430,7 +429,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     private void analyzeOnFailClause(BLangOnFailClause onFailClause) {
         if (onFailClause != null) {
             boolean currentStatementReturns = this.statementReturnsPanicsOrFails;
-            this.booleanConstCondition = BooleanCondition.NOT_CONST_BOOLEAN;
+            this.booleanConstCondition = symTable.semanticError;
             resetStatementReturnsPanicsOrFails();
             resetLastStatement();
             analyzeReachability(onFailClause, env);
@@ -560,7 +559,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
 
         this.loopCount++;
         this.breakStmtFound = false;
-        this.unreachableBlock = this.unreachableBlock || booleanConstCondition == BooleanCondition.FALSE;
+        this.unreachableBlock = this.unreachableBlock || booleanConstCondition == symTable.falseType;
         analyzeReachability(whileNode.body, whileEnv);
         resetUnreachableBlock();
 
@@ -569,7 +568,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
 
         this.loopCount--;
         this.failureHandled = failureHandled;
-        if (booleanConstCondition != BooleanCondition.TRUE || this.breakStmtFound) {
+        if (booleanConstCondition != symTable.trueType || this.breakStmtFound) {
             this.statementReturnsPanicsOrFails = prevStatementReturnsPanicsOrFails;
             this.continueAsLastStatement = prevContinueAsLastStatement;
             this.breakAsLastStatement = prevBreakAsLastStatement;
@@ -625,7 +624,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
                 break;
             case IF:
                 this.unreachableBlock = statement.parent != null && statement.parent.getKind() == NodeKind.IF
-                        && booleanConstCondition == BooleanCondition.TRUE;
+                        && booleanConstCondition == symTable.trueType;
                 this.booleanConstCondition = ConditionResolver.checkConstCondition(types, symTable,
                         ((BLangIf) statement).expr);
                 break;
@@ -669,7 +668,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         resetStatementReturnsPanicsOrFails();
         resetErrorThrown();
         resetLastStatement();
-        this.booleanConstCondition = BooleanCondition.NOT_CONST_BOOLEAN;
+        this.booleanConstCondition = symTable.semanticError;
     }
 
     private void validateAssignmentToNarrowedVariables(List<BLangExpression> exprs, Location location) {

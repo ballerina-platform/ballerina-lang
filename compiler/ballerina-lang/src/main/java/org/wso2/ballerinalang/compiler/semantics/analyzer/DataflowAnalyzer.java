@@ -208,7 +208,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
-import org.wso2.ballerinalang.compiler.util.BooleanCondition;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -626,7 +625,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         // If the flow was terminated within 'else' block, then after the if-else block,
         // only the results of the 'if' block matters.
         if (elseResult.flowTerminated || ConditionResolver.checkConstCondition(types, symTable, ifNode.expr) ==
-                BooleanCondition.TRUE) {
+                symTable.trueType) {
             this.uninitializedVars = ifResult.uninitializedVars;
             return;
         }

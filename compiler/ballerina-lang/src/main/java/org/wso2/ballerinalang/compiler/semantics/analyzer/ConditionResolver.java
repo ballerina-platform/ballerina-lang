@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
-import org.wso2.ballerinalang.compiler.util.BooleanCondition;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.Set;
@@ -41,79 +40,79 @@ import java.util.Set;
  */
 public class ConditionResolver {
 
-    static BooleanCondition checkConstCondition(Types types, SymbolTable symTable, BLangExpression condition) {
+    static BType checkConstCondition(Types types, SymbolTable symTable, BLangExpression condition) {
         switch (condition.getKind()) {
             case GROUP_EXPR:
                 return checkConstCondition(types, symTable, ((BLangGroupExpr) condition).expression);
             case LITERAL:
                 Object value = ((BLangLiteral) condition).value;
                 if (!(value instanceof Boolean)) {
-                    return BooleanCondition.NOT_CONST_BOOLEAN;
+                    return symTable.semanticError;
                 }
-                return value == Boolean.TRUE ? BooleanCondition.TRUE : BooleanCondition.FALSE;
+                return value == Boolean.TRUE ? symTable.trueType : symTable.falseType;
             case TYPE_TEST_EXPR:
                 BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) condition;
                 BType exprType = typeTestExpr.expr.getBType();
                 boolean isAssignable = types.isAssignable(exprType, typeTestExpr.typeNode.getBType());
                 if (typeTestExpr.isNegation) {
-                    return isAssignable ? BooleanCondition.FALSE : exprType == symTable.semanticError ?
-                            BooleanCondition.TRUE : BooleanCondition.NOT_CONST_BOOLEAN;
+                    return isAssignable ? symTable.falseType : exprType == symTable.semanticError ?
+                            symTable.trueType : symTable.semanticError;
                 }
-                return isAssignable ? BooleanCondition.TRUE : exprType == symTable.semanticError ?
-                        BooleanCondition.FALSE : BooleanCondition.NOT_CONST_BOOLEAN;
+                return isAssignable ? symTable.trueType : exprType == symTable.semanticError ?
+                        symTable.falseType : symTable.semanticError;
             case BINARY_EXPR:
                 BLangBinaryExpr binaryExpr = (BLangBinaryExpr) condition;
                 if (!checkAndOrOperator(binaryExpr.opKind)) {
-                    return BooleanCondition.NOT_CONST_BOOLEAN;
+                    return symTable.semanticError;
                 }
-                BooleanCondition lhsConst = checkConstCondition(types, symTable, binaryExpr.lhsExpr);
+                BType lhsConst = checkConstCondition(types, symTable, binaryExpr.lhsExpr);
                 boolean operatorIsOR = binaryExpr.opKind == OperatorKind.OR;
-                if (operatorIsOR && lhsConst == BooleanCondition.TRUE) {
+                if (operatorIsOR && lhsConst == symTable.trueType) {
                     return lhsConst;
                 }
-                BooleanCondition rhsConst = checkConstCondition(types, symTable, binaryExpr.rhsExpr);
+                BType rhsConst = checkConstCondition(types, symTable, binaryExpr.rhsExpr);
                 if (operatorIsOR) {
-                    if (rhsConst == BooleanCondition.TRUE) {
+                    if (rhsConst == symTable.trueType) {
                         return rhsConst;
                     }
-                    if (lhsConst == rhsConst && lhsConst == BooleanCondition.FALSE) {
+                    if (lhsConst == rhsConst && lhsConst == symTable.falseType) {
                         return lhsConst;
                     }
-                    return BooleanCondition.NOT_CONST_BOOLEAN;
+                    return symTable.semanticError;
                 }
-                if (lhsConst == BooleanCondition.FALSE || rhsConst == BooleanCondition.FALSE) {
-                    return BooleanCondition.FALSE;
+                if (lhsConst == symTable.falseType || rhsConst == symTable.falseType) {
+                    return symTable.falseType;
                 }
-                if (lhsConst == BooleanCondition.NOT_CONST_BOOLEAN ||
-                        rhsConst == BooleanCondition.NOT_CONST_BOOLEAN) {
-                    return BooleanCondition.NOT_CONST_BOOLEAN;
+                if (lhsConst == symTable.semanticError ||
+                        rhsConst == symTable.semanticError) {
+                    return symTable.semanticError;
                 }
-                return lhsConst == rhsConst && lhsConst == BooleanCondition.TRUE ?
-                        BooleanCondition.TRUE : BooleanCondition.FALSE;
+                return lhsConst == rhsConst && lhsConst == symTable.trueType ?
+                        symTable.trueType : symTable.falseType;
             case UNARY_EXPR:
-                BooleanCondition conditionValue = checkConstCondition(types, symTable,
+                BType conditionValue = checkConstCondition(types, symTable,
                         ((BLangUnaryExpr) condition).expr);
-                if (conditionValue == BooleanCondition.TRUE) {
-                    return BooleanCondition.FALSE;
+                if (conditionValue == symTable.trueType) {
+                    return symTable.falseType;
                 }
-                if (conditionValue == BooleanCondition.FALSE) {
-                    return BooleanCondition.TRUE;
+                if (conditionValue == symTable.falseType) {
+                    return symTable.trueType;
                 }
-                return BooleanCondition.NOT_CONST_BOOLEAN;
+                return symTable.semanticError;
             case SIMPLE_VARIABLE_REF:
                 BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) condition;
                 BType type = (simpleVarRef.symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT ?
                         simpleVarRef.symbol.type : condition.getBType();
                 if (type.tag != TypeTags.FINITE) {
-                    return BooleanCondition.NOT_CONST_BOOLEAN;
+                    return symTable.semanticError;
                 }
                 Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
                 if (valueSpace.size() != 1) {
-                    return BooleanCondition.NOT_CONST_BOOLEAN;
+                    return symTable.semanticError;
                 }
                 return checkConstCondition(types, symTable, valueSpace.iterator().next());
             default:
-                return BooleanCondition.NOT_CONST_BOOLEAN;
+                return symTable.semanticError;
         }
     }
 
