@@ -138,7 +138,7 @@ public class TestRunnerUtils {
 
     private static String getExpectedValues(String kindOfTestCase, String line, int relativeLineNum,
                                             List<Integer> lineNumbers, List<String> outputValues) {
-        Pattern pattern = Pattern.compile("(.*)//\\s*@\\s*(\\S+)\\s*(.*)");
+        Pattern pattern = Pattern.compile("(.*)//\\s*@\\s*(\\S+)\\s?(.*)");
         Matcher matcher = pattern.matcher(line);
         if (matcher.find()) {
             String outputHeader = matcher.group(2).trim();
@@ -146,12 +146,10 @@ public class TestRunnerUtils {
                     (kindOfTestCase.equals(PARSER_ERROR) && outputHeader.equals(ERROR)))) {
                 reportDiagnostics("format of output is incorrect, It should be //@error, //@output and //@panic");
             }
-            String output = matcher.group(3).trim();
+            String output = matcher.group(3);
             line = matcher.group(1);
             lineNumbers.add(relativeLineNum);
-            if (!output.isEmpty()) {
-                outputValues.add(output);
-            }
+            outputValues.add(output);
         }
         return line;
     }
@@ -332,18 +330,38 @@ public class TestRunnerUtils {
         return results;
     }
 
-    public static void validateError(String kind, Collection<Diagnostic> diagnostics, List<Integer> lineNumbers,
-                                     List<String> outputValues, int absLineNum, ITestContext context) {
-        setDetailsOfErrorKindTest(context, lineNumbers, outputValues, diagnostics);
-        if (kind.equals(PARSER_ERROR)) {
-            return;
-        }
+    private static void getDetailsOfDiagnostics(Collection<Diagnostic> diagnostics, List<String> actualLineNumbers,
+                                                List<String> actualErrorMessages, int absLineNum) {
         Iterator<Diagnostic> iterator = diagnostics.iterator();
         for (int i = 0; i < diagnostics.size(); i++) {
             Diagnostic diagnostic = iterator.next();
             String actualLineNum =
                     String.valueOf(diagnostic.location().lineRange().startLine().line() + 1 + absLineNum);
             String message = diagnostic.message().replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING);
+            if (actualLineNumbers.contains(actualLineNum)) {
+                int index = actualLineNumbers.indexOf(actualLineNum);
+                actualErrorMessages.set(index, actualErrorMessages.get(index) + ", " + message);
+            } else {
+                actualErrorMessages.add(message);
+                actualLineNumbers.add(actualLineNum);
+            }
+        }
+    }
+
+    public static void validateError(String kind, Collection<Diagnostic> diagnostics, List<Integer> lineNumbers,
+                                     List<String> outputValues, int absLineNum, ITestContext context) {
+        List<String> actualLineNumbers = new ArrayList<>();
+        List<String> actualErrorMessages = new ArrayList<>();
+        getDetailsOfDiagnostics(diagnostics, actualLineNumbers, actualErrorMessages, absLineNum);
+
+        setDetailsOfErrorKindTest(context, lineNumbers, outputValues, diagnostics);
+        if (kind.equals(PARSER_ERROR)) {
+            return;
+        }
+        Iterator<Diagnostic> iterator = diagnostics.iterator();
+        int noOfDiagnostics = actualErrorMessages.size();
+        for (int i = 0; i < noOfDiagnostics; i++) {
+            String actualLineNum = actualLineNumbers.get(i);
             String expLineNum;
             String expValue;
             try {
@@ -353,12 +371,12 @@ public class TestRunnerUtils {
                 expLineNum = null;
                 expValue = null;
             }
-            setResultsAttributes(context, message, expValue, actualLineNum, expLineNum);
+            setResultsAttributes(context, actualErrorMessages.get(i), expValue, actualLineNum, expLineNum);
             Assert.assertEquals(actualLineNum, expLineNum);
         }
-        if (outputValues.size() > diagnostics.size()) {
-            setResultsAttributes(context, null, outputValues.get(diagnostics.size()), null,
-                          String.valueOf(lineNumbers.get(diagnostics.size())));
+        if (outputValues.size() > noOfDiagnostics) {
+            setResultsAttributes(context, null, outputValues.get(noOfDiagnostics), null,
+                                 String.valueOf(lineNumbers.get(noOfDiagnostics)));
             Assert.assertNull(iterator.next().toString());
         }
     }
@@ -386,7 +404,7 @@ public class TestRunnerUtils {
         }
 
         String consoleOutput = exitDetails.consoleOutput;
-        String[] results = consoleOutput.split("\r\n|\r|\n");
+        String[] results = consoleOutput.split("(\r\n|\r|\n)", -1);
         int size = outputValues.size();
         for (int i = 0; i < size; i++) {
             String expectedOutput = outputValues.get(i);
@@ -402,8 +420,8 @@ public class TestRunnerUtils {
         }
 
         if (results.length > size) {
-            setResultsAttributes(context, results[size - 1], null, null, null);
-            Assert.assertNull(results[size - 1]);
+            setResultsAttributes(context, results[size], null, null, null);
+            Assert.assertNull(results[size]);
         }
     }
 
