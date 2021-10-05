@@ -152,6 +152,8 @@ function testContextuallyExpectedTypeOfNumericLiteralInAdd() {
 }
 
 type Ints 1|2;
+type T1 1|2|()|3;
+type T2 1|2|3?;
 
 function testAddNullable() {
     int? a1 = 5;
@@ -177,7 +179,18 @@ function testAddNullable() {
 
     int a19 = 25;
     Ints? a20 = 2;
-    int? a21 = a19 + a20;
+
+    T1 a21 = 2;
+    T2 a22 = 1;
+    ()|int a23 = ();
+
+    int:Unsigned8 a = 1;
+    int:Unsigned16 b = 2;
+    int:Unsigned32 c = 5;
+    int:Signed8 d = 20;
+    int:Signed16 e = 10;
+    int:Signed32 f = 10;
+    byte g = 30;
 
     assertEqual(a10, 33);
     assertEqual(a11, 22);
@@ -186,7 +199,49 @@ function testAddNullable() {
     assertEqual(a14, 10.5);
     assertEqual(a15, ());
     assertEqual(a18, 3);
-    assertEqual(a21, 27);
+    assertEqual(a19 + a20, 27);
+
+    assertEqual(a21 + a21, 4);
+    assertEqual(a21 + a22, 3);
+    assertEqual(a21 + a23, ());
+    assertEqual(a22 + a22, 2);
+    assertEqual(a22 + a23, ());
+    assertEqual(a23 + a23, ());
+
+    assertEqual(a + a, 2);
+    assertEqual(a + b, 3);
+    assertEqual(a + c, 6);
+    assertEqual(a + d, 21);
+    assertEqual(a + e, 11);
+    assertEqual(a + f, 11);
+    assertEqual(a + g, 31);
+
+    assertEqual(b + c, 7);
+    assertEqual(b + d, 22);
+    assertEqual(b + e, 12);
+    assertEqual(b + f, 12);
+    assertEqual(b + g, 32);
+    assertEqual(b + b, 4);
+
+    assertEqual(c + c, 10);
+    assertEqual(c + d, 25);
+    assertEqual(c + e, 15);
+    assertEqual(c + f, 15);
+    assertEqual(c + g, 35);
+
+    assertEqual(d + d, 40);
+    assertEqual(d + e, 30);
+    assertEqual(d + f, 30);
+    assertEqual(d + g, 50);
+
+    assertEqual(e + e, 20);
+    assertEqual(e + f, 20);
+    assertEqual(e + g, 40);
+
+    assertEqual(f + f, 20);
+    assertEqual(f + g, 40);
+
+    assertEqual(g + g, 60);
 }
 
 function assertEqual(any actual, any expected) {

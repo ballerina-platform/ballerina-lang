@@ -76,6 +76,8 @@ function testSubtractSingleton() {
 }
 
 type Ints 1|2;
+type T1 1|2|()|3;
+type T2 1|2|3?;
 
 function testSubNullable() {
     int? a1 = 5;
@@ -101,7 +103,18 @@ function testSubNullable() {
 
     int a19 = 25;
     Ints? a20 = 2;
-    int? a21 = a19 - a20;
+
+    T1 a21 = 2;
+    T2 a22 = 1;
+    ()|int a23 = ();
+
+    int:Unsigned8 a = 1;
+    int:Unsigned16 b = 2;
+    int:Unsigned32 c = 5;
+    int:Signed8 d = 20;
+    int:Signed16 e = 10;
+    int:Signed32 f = 10;
+    byte g = 30;
 
     assertEqual(a10, 1);
     assertEqual(a11, 2);
@@ -110,7 +123,49 @@ function testSubNullable() {
     assertEqual(a14, 0.5);
     assertEqual(a15, ());
     assertEqual(a18, 1);
-    assertEqual(a21, 23);
+    assertEqual(a19 - a20, 23);
+
+    assertEqual(a21 - a21, 0);
+    assertEqual(a21 - a22, 1);
+    assertEqual(a21 - a23, ());
+    assertEqual(a22 - a22, 0);
+    assertEqual(a22 - a23, ());
+    assertEqual(a23 - a23, ());
+
+    assertEqual(a - a, 0);
+    assertEqual(a - b, -1);
+    assertEqual(a - c, -4);
+    assertEqual(a - d, -19);
+    assertEqual(a - e, -9);
+    assertEqual(a - f, -9);
+    assertEqual(a - g, -29);
+
+    assertEqual(b - c, -3);
+    assertEqual(b - d, -18);
+    assertEqual(b - e, -8);
+    assertEqual(b - f, -8);
+    assertEqual(b - g, -28);
+    assertEqual(b - b, 0);
+
+    assertEqual(c - c, 0);
+    assertEqual(c - d, -15);
+    assertEqual(c - e, -5);
+    assertEqual(c - f, -5);
+    assertEqual(c - g, -25);
+
+    assertEqual(d - d, 0);
+    assertEqual(d - e, 10);
+    assertEqual(d - f, 10);
+    assertEqual(d - g, -10);
+
+    assertEqual(e - e, 0);
+    assertEqual(e - f, 0);
+    assertEqual(e - g, -20);
+
+    assertEqual(f - f, 0);
+    assertEqual(f - g, -20);
+
+    assertEqual(g - g, 0);
 }
 
 function testContextuallyExpectedTypeOfNumericLiteralInSubtract() {
