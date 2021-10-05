@@ -51,6 +51,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     private Symbol definition;
     private boolean moduleEvaluated;
     private boolean fromIntersectionType;
+    private boolean isAnonType;
     public BSymbol tSymbol;
 
     public BallerinaTypeReferenceTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType,
@@ -58,7 +59,8 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         super(context, TypeDescKind.TYPE_REFERENCE, bType);
         this.tSymbol = tSymbol;
         String name = tSymbol != null ? tSymbol.getOriginalName().getValue() : null;
-        this.definitionName = name != null ? (this.isAnonType(name) ? bType.toString() : name) : null;
+        this.isAnonType = this.isAnonType(name);
+        this.definitionName = (name != null) ? (this.isAnonType ? bType.toString() : name) : null;
         this.fromIntersectionType = fromIntersectionType;
         this.location = tSymbol != null ? tSymbol.pos : null;
     }
@@ -152,7 +154,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         ModuleID moduleID = this.getModule().get().id();
         if (moduleID == null ||
                 (moduleID.moduleName().equals("lang.annotations") && moduleID.orgName().equals("ballerina")) ||
-                this.getBType().tag == TypeTags.PARAMETERIZED_TYPE) {
+                this.getBType().tag == TypeTags.PARAMETERIZED_TYPE || this.isAnonType) {
             this.signature = this.definitionName;
         } else {
             this.signature = !this.isAnonOrg(moduleID) ? moduleID.orgName() + Names.ORG_NAME_SEPARATOR +
@@ -169,6 +171,6 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     }
 
     private boolean isAnonType(String definitionName) {
-        return definitionName.startsWith("$anonType$");
+        return definitionName != null && definitionName.startsWith("$anonType$");
     }
 }
