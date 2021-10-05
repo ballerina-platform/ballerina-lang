@@ -40,7 +40,6 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertLis
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -72,13 +71,14 @@ public class EnumDeclSymbolTest {
             assertTrue(fieldDocs.description().isPresent());
             assertEquals(fieldDocs.description().get(), expDoc);
         } else {
-            assertFalse(fieldDocs.description().isPresent());
+            assertTrue(fieldDocs.description().isEmpty());
         }
 
         // check annotations (metadata)
         List<AnnotationSymbol> fieldAnnots = symbol.annotations();
         if (expAnnot != null) {
             assertEquals(fieldAnnots.size(), 1);
+            assertTrue(fieldAnnots.get(0).getName().isPresent());
             assertEquals(fieldAnnots.get(0).getName().get(), expAnnot);
         } else {
             assertEquals(fieldAnnots.size(), 0);
@@ -123,13 +123,14 @@ public class EnumDeclSymbolTest {
             assertTrue(fieldDocs.description().isPresent());
             assertEquals(fieldDocs.description().get(), expDoc);
         } else {
-            assertFalse(fieldDocs.description().isPresent());
+            assertTrue(fieldDocs.description().isEmpty());
         }
 
         // check annotations (metadata)
         List<AnnotationSymbol> fieldAnnots = symbol.annotations();
         if (expAnnot != null) {
             assertEquals(fieldAnnots.size(), 1);
+            assertTrue(fieldAnnots.get(0).getName().isPresent());
             assertEquals(fieldAnnots.get(0).getName().get(), expAnnot);
         } else {
             assertEquals(fieldAnnots.size(), 0);
