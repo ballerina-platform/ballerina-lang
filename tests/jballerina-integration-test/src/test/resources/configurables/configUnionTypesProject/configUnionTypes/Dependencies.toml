@@ -10,13 +10,11 @@ dependencies-toml-version = "2"
 org = "ballerina"
 name = "jballerina.java"
 version = "0.0.0"
-transitive = true
 
 [[package]]
 org = "ballerina"
 name = "observe"
-version = "0.9.0"
-transitive = true
+version = "1.0.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
@@ -25,7 +23,6 @@ dependencies = [
 org = "ballerina"
 name = "test"
 version = "0.0.0"
-transitive = false
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
@@ -37,7 +34,6 @@ modules = [
 org = "ballerinai"
 name = "observe"
 version = "0.0.0"
-transitive = false
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "observe"}
@@ -50,7 +46,6 @@ modules = [
 org = "testOrg"
 name = "configLib"
 version = "0.1.0"
-transitive = false
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "test"},
@@ -60,6 +55,22 @@ modules = [
 	{org = "testOrg", packageName = "configLib", moduleName = "configLib"},
 	{org = "testOrg", packageName = "configLib", moduleName = "configLib.mod1"},
 	{org = "testOrg", packageName = "configLib", moduleName = "configLib.util"}
+]
+
+[[package]]
+org = "testOrg"
+name = "configUnionTypes"
+version = "0.1.0"
+dependencies = [
+	{org = "ballerina", name = "test"},
+	{org = "ballerinai", name = "observe"},
+	{org = "testOrg", name = "configLib"}
+]
+modules = [
+	{org = "testOrg", packageName = "configUnionTypes", moduleName = "configUnionTypes"},
+	{org = "testOrg", packageName = "configUnionTypes", moduleName = "configUnionTypes.imported_unions"},
+	{org = "testOrg", packageName = "configUnionTypes", moduleName = "configUnionTypes.type_defs"},
+	{org = "testOrg", packageName = "configUnionTypes", moduleName = "configUnionTypes.union_ambiguity"}
 ]
 
 
