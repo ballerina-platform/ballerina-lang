@@ -141,6 +141,7 @@ public class JvmPackageGen {
     private final Map<String, String> globalVarClassMap;
     private final Set<PackageID> dependentModules;
     private final BLangDiagnosticLog dlog;
+    private final CompilerContext compilerContext;
 
     JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLog dlog,
                   CompilerContext compilerContext) {
@@ -151,6 +152,7 @@ public class JvmPackageGen {
         this.symbolTable = symbolTable;
         this.packageCache = packageCache;
         this.dlog = dlog;
+        this.compilerContext = compilerContext;
         methodGen = new MethodGen(this, compilerContext);
         initMethodGen = new InitMethodGen(symbolTable);
         configMethodGen = new ConfigMethodGen();
@@ -402,7 +404,7 @@ public class JvmPackageGen {
                                        JvmConstantsGen jvmConstantsGen,
                                        Map<String, JavaClass> jvmClassMapping, List<PackageID> moduleImports,
                                        boolean serviceEPAvailable) {
-        jvmClassMapping.entrySet().parallelStream().forEach(entry -> {
+        jvmClassMapping.entrySet().stream().forEach(entry -> {
             String moduleClass = entry.getKey();
             JavaClass javaClass = entry.getValue();
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
@@ -783,7 +785,7 @@ public class JvmPackageGen {
 
         // enrich current package with package initializers
         initMethodGen.enrichPkgWithInitializers(jvmClassMapping, moduleInitClass, module, flattenedModuleImports);
-        JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(module, moduleInitClass);
+        JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(module, moduleInitClass, compilerContext);
         JvmMethodsSplitter jvmMethodsSplitter = new JvmMethodsSplitter(this, jvmConstantsGen, module, moduleInitClass);
         configMethodGen.generateConfigMapper(flattenedModuleImports, module, moduleInitClass, jvmConstantsGen,
                                              jarEntries);

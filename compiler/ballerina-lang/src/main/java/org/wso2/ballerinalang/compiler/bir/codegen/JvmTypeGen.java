@@ -398,7 +398,7 @@ public class JvmTypeGen {
                     typeFieldName = "TYPE_HANDLE";
                     break;
                 case TypeTags.ARRAY:
-                    loadArrayType(mv, (BArrayType) bType);
+                    jvmConstantsGen.generateGetBArrayType(mv, jvmConstantsGen.getBArrayConstantVar((BArrayType) bType));
                     return;
                 case TypeTags.MAP:
                     loadMapType(mv, (BMapType) bType);
