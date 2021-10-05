@@ -7,4 +7,6 @@ module io.ballerina.LSExtensions.PerformanceAnalyzerService {
     requires io.ballerina.tools.api;
     requires org.slf4j;
     requires com.google.gson;
+    requires org.apache.commons.lang3;
+    requires java.net.http;
 }

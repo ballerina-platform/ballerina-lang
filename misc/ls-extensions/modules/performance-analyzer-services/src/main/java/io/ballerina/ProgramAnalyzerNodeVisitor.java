@@ -240,6 +240,7 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.utils.ParserUtil;
+import org.eclipse.lsp4j.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -266,6 +267,9 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
     private Node currentNode;
     private SemanticModel model;
     private Document document;
+    private String file;
+    private boolean withinRange = false;
+    private Range range;
 
     public ProgramAnalyzerNodeVisitor() {
 
@@ -284,6 +288,16 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
     public void setDocument(Document document) {
 
         this.document = document;
+    }
+
+    public void setFile(String file) {
+
+        this.file = file;
+    }
+
+    public void setRange(Range range) {
+
+        this.range = range;
     }
 
     @Override
@@ -345,7 +359,18 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
     @Override
     public void visit(FunctionDefinitionNode functionDefinitionNode) {
 
+        LineRange lineRange = functionDefinitionNode.lineRange();
+        if (functionDefinitionNode.syntaxTree().filePath().equals(file)
+                && range.getStart().getLine() == lineRange.startLine().line()
+                && range.getStart().getCharacter() == lineRange.startLine().offset()
+                && range.getEnd().getLine() == lineRange.endLine().line()
+                && range.getEnd().getCharacter() == lineRange.endLine().offset()
+        ) {
+            withinRange = true;
+        }
+
         this.visitSyntaxNode(functionDefinitionNode);
+        withinRange = false;
     }
 
     @Override
@@ -1575,10 +1600,12 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
                 endPointRef = resolveReference(endPointRef);
             }
 
-            String pos = actionPos.filePath() + "/" + actionPos;
-            ActionInvocationNode actionNode = new ActionInvocationNode(endPointRef, actionName, actionPath, pos);
-            this.currentNode.setNextNode(actionNode);
-            this.setChildNode(actionNode);
+            if (withinRange) {
+                String pos = actionPos.filePath() + "/" + actionPos;
+                ActionInvocationNode actionNode = new ActionInvocationNode(endPointRef, actionName, actionPath, pos);
+                this.currentNode.setNextNode(actionNode);
+                this.setChildNode(actionNode);
+            }
         }
     }
 
