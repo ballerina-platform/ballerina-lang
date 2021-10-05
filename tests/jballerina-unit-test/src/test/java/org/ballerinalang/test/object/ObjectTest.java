@@ -750,7 +750,7 @@ public class ObjectTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "cannot infer type of the object from '(InitObjOne|InitObjTwo|float)'", 114, 38);
         BAssertUtil.validateError(resultNegative, i++,
-                "named arg followed by positional arg", 114, 53);
+                "positional argument not allowed after named arguments", 114, 53);
         BAssertUtil.validateError(resultNegative, i++,
                 "cannot infer type of the object from '(InitObjOne|InitObjTwo|int)'", 119, 36);
         BAssertUtil.validateError(resultNegative, i++,
@@ -761,10 +761,14 @@ public class ObjectTest {
                 "incompatible types: expected 'int', found 'string'", 126, 51);
         BAssertUtil.validateError(resultNegative, i++,
                 "cannot infer type of the object from '(InitObjOne|InitObjThree|boolean|string)'", 127, 50);
-        BAssertUtil.validateError(resultNegative, i++, "named arg followed by positional arg", 128, 59);
-        BAssertUtil.validateError(resultNegative, i++, "named arg followed by positional arg", 129  , 70);
-        BAssertUtil.validateError(resultNegative, i++, "named arg followed by positional arg", 129  , 75);
-        BAssertUtil.validateError(resultNegative, i++, "named arg followed by positional arg", 129  , 80);
+        BAssertUtil.validateError(resultNegative, i++,
+                "positional argument not allowed after named arguments", 128, 59);
+        BAssertUtil.validateError(resultNegative, i++,
+                "positional argument not allowed after named arguments", 129  , 70);
+        BAssertUtil.validateError(resultNegative, i++,
+                "positional argument not allowed after named arguments", 129  , 75);
+        BAssertUtil.validateError(resultNegative, i++,
+                "positional argument not allowed after named arguments", 129  , 80);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

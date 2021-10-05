@@ -3218,9 +3218,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (iExpr.expr != null) {
             final NodeKind clientNodeKind = iExpr.expr.getKind();
             // Validation against node kind.
-            if (clientNodeKind != NodeKind.SIMPLE_VARIABLE_REF && clientNodeKind != NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                dlog.error(pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION_AS_EXPR);
-            } else if (clientNodeKind == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            if (clientNodeKind == NodeKind.FIELD_BASED_ACCESS_EXPR) {
                 final BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) iExpr.expr;
                 if (fieldBasedAccess.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
                     dlog.error(pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION_AS_EXPR);
@@ -3230,6 +3228,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         dlog.error(pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION_AS_EXPR);
                     }
                 }
+            } else if (clientNodeKind != NodeKind.SIMPLE_VARIABLE_REF &&
+                    clientNodeKind != NodeKind.GROUP_EXPR) {
+                dlog.error(pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION_AS_EXPR);
             }
         }
         validateActionParentNode(pos, iExpr);
