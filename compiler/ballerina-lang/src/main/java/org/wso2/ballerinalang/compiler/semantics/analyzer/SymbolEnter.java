@@ -1534,6 +1534,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             isLabel = false;
             definedType.tsymbol.name = names.fromIdNode(typeDefinition.name);
             definedType.tsymbol.originalName = names.fromIdNode(typeDefinition.name);
+            definedType.tsymbol.flags |= typeDefSymbol.flags;
 
             definedType.tsymbol.markdownDocumentation = typeDefSymbol.markdownDocumentation;
             definedType.tsymbol.pkgID = env.enclPkg.packageID;
@@ -1541,9 +1542,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 definedType.tsymbol.owner = env.scope.owner;
             }
         }
+
         if (definedType.tsymbol.kind == SymbolKind.OBJECT || definedType.tsymbol.kind == SymbolKind.RECORD) {
             ((BStructureTypeSymbol) definedType.tsymbol).typeDefinitionSymbol = (BTypeDefinitionSymbol) typeDefSymbol;
-            definedType.tsymbol.flags |= typeDefSymbol.flags;
         }
 
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
