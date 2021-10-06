@@ -69,6 +69,7 @@ public class PerformanceAnalyzerTest {
 
     private static String getResult(CompletableFuture result) {
 
-        return parser.parse(TestUtil.getResponseString(result)).getAsJsonObject().getAsJsonObject("result").getAsString();
+        return parser.parse(TestUtil.getResponseString(result)).getAsJsonObject().
+                getAsJsonObject("result").getAsString();
     }
 }

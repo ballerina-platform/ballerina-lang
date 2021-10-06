@@ -22,6 +22,8 @@ import io.ballerina.tools.text.LineRange;
 
 /**
  * model obj to store endpoints.
+ *
+ * @since 2.0.0
  */
 public class EndPointNode {
 

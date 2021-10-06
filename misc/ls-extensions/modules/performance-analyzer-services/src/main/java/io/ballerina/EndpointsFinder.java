@@ -40,8 +40,21 @@ import java.util.concurrent.CancellationException;
 import static io.ballerina.ProgramAnalyzerNodeVisitor.ACTION_INVOCATION_KEY;
 import static io.ballerina.ProgramAnalyzerNodeVisitor.ENDPOINTS_KEY;
 
+/**
+ * Implements functionality to find endpoints and action invocations.
+ *
+ * @since 2.0.0
+ *
+ */
 public class EndpointsFinder {
 
+    /**
+     * Get endpoints and action invocations in a given range of a file.
+     * @param fileUri .bal file url
+     * @param workspaceManager ballerina workspaceManager
+     * @param range range of file to find invocations
+     * @return json of endpoints and invocations
+     */
     public static JsonObject getEndpoints(String fileUri, WorkspaceManager workspaceManager,
                                           Range range) {
 

@@ -20,6 +20,8 @@ package io.ballerina.component;
 
 /**
  * base class to handle essential AST nodes.
+ *
+ * @since 2.0.0
  */
 public class Node {
 

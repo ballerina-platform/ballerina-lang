@@ -45,10 +45,10 @@ import java.util.concurrent.CompletableFuture;
 @JsonSegment("performanceAnalyzer")
 public class PerformanceAnalyzerService implements ExtendedLanguageServerService {
 
-    final static String CHOREO_API = "https://app.dv.choreo.dev/get_estimations/2.0";
-    final static String ERROR = "error";
-    final static String SUCCESS = "Success";
-    final static String CONNECTION_ERROR = "CONNECTION_ERROR";
+    static final String CHOREO_API = "https://app.dv.choreo.dev/get_estimations/2.0";
+    static final String ERROR = "error";
+    static final String SUCCESS = "Success";
+    static final String CONNECTION_ERROR = "CONNECTION_ERROR";
 
     private WorkspaceManager workspaceManager;
 

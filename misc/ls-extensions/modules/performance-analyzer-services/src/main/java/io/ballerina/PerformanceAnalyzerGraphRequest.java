@@ -3,6 +3,11 @@ package io.ballerina;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 
+/**
+ * Request format for performance analyzer graph request.
+ *
+ * @since 2.0.0
+ */
 public class PerformanceAnalyzerGraphRequest {
     private TextDocumentIdentifier documentIdentifier;
     private Range range;
