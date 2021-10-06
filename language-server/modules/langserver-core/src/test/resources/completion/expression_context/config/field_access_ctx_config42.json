@@ -6,29 +6,6 @@
   "source": "expression_context/source/field_access_ctx_source36.bal",
   "items": [
     {
-      "label": "typeguard",
-      "kind": "Snippet",
-      "detail": "Destructure the variable myVar with typeguard",
-      "sortText": "R",
-      "insertText": "if myVar is int {\n\t${1}\n} else {\n\t${2}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 2,
-              "character": 4
-            },
-            "end": {
-              "line": 2,
-              "character": 10
-            }
-          },
-          "newText": ""
-        }
-      ]
-    },
-    {
       "label": "cloneReadOnly()",
       "kind": "Function",
       "detail": "value:CloneableType & readonly",
@@ -76,6 +53,96 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "cause()",
+      "kind": "Function",
+      "detail": "error?",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.error:1.0.0_  \n  \nReturns the error's cause.\n  \n  \n  \n**Return** `error?`   \n- error cause  \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "cause",
+      "insertText": "cause()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toBalString()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.error:1.0.0_  \n  \nConverts an error to a string that describes the value in Ballerina syntax.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "toBalString",
+      "insertText": "toBalString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toString()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.error:1.0.0_  \n  \nConverts an error to a string.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "toString",
+      "insertText": "toString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "detail()",
+      "kind": "Function",
+      "detail": "error:Detail",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.error:1.0.0_  \n  \nReturns the error's detail record.\n\nThe returned value will be immutable.  \n  \n  \n**Return** `error:Detail`   \n- error detail value  \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "detail",
+      "insertText": "detail()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stackTrace()",
+      "kind": "Function",
+      "detail": "error:CallStack",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.error:1.0.0_  \n  \nReturns an object representing the stack trace of the error.\n  \n  \n  \n**Return** `error:CallStack`   \n- a new object representing the stack trace of the error value  \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "stackTrace",
+      "insertText": "stackTrace()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "message()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.error:1.0.0_  \n  \nReturns the error's message.\n  \n  \n  \n**Return** `string`   \n- error message  \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "message",
+      "insertText": "message()",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
