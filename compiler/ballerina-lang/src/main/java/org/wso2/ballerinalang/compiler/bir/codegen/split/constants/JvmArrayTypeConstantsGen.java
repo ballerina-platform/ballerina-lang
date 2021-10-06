@@ -70,7 +70,7 @@ public class JvmArrayTypeConstantsGen {
 
     public JvmArrayTypeConstantsGen(PackageID packageID, Types types) {
         this.arrayConstantsClass =
-                JvmCodeGenUtil.getModuleLevelClassName(packageID, JvmConstants.BARRAY_TYPE_CONSTANT_CLASS_NAME);
+                JvmCodeGenUtil.getModuleLevelClassName(packageID, JvmConstants.ARRAY_TYPE_CONSTANT_CLASS_NAME);
         generateArrayTypeConstantsClassInit();
         visitArrayTypeInitMethod();
         this.arrayTypeVarMap = new ConcurrentSkipListMap<>(JvmConstantsGen.TYPE_HASH_COMPARATOR);

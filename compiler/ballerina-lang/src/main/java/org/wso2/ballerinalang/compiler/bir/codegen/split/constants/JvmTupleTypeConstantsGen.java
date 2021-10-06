@@ -70,7 +70,7 @@ public class JvmTupleTypeConstantsGen {
 
     public JvmTupleTypeConstantsGen(PackageID packageID) {
         tupleVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(
-                packageID, JvmConstants.BTUPLE_TYPE_CONSTANT_CLASS_NAME);
+                packageID, JvmConstants.TUPLE_TYPE_CONSTANT_CLASS_NAME);
         generateTupleTypeConstantsClassInit();
         visitTupleTypeInitMethod();
         funcNames = new ArrayList<>();

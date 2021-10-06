@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -85,7 +84,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANYDATA_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_TYPE;
@@ -508,31 +506,6 @@ public class JvmTypeGen {
                     return TYPE;
             }
         }
-    }
-
-    /**
-     * Generate code to load an instance of the given array type
-     * to the top of the stack.
-     *
-     * @param mv    method visitor
-     * @param bType array type to load
-     */
-    private void loadArrayType(MethodVisitor mv, BArrayType bType) {
-        // Create an new array type
-        mv.visitTypeInsn(NEW, ARRAY_TYPE_IMPL);
-        mv.visitInsn(DUP);
-
-        // Load the element type
-        loadType(mv, bType.eType);
-
-        int arraySize = bType.size;
-        mv.visitLdcInsn((long) arraySize);
-        mv.visitInsn(L2I);
-
-        loadReadonlyFlag(mv, bType);
-
-        // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE_IMPL, JVM_INIT_METHOD, String.format("(L%s;IZ)V", TYPE), false);
     }
 
     /**

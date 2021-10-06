@@ -57,9 +57,9 @@ public class JvmArrayTypeGen {
 
     /**
      * Create a runtime type instance for array.
-     *  @param mv        method visitor
+     * @param mv        method visitor
      * @param arrayType array type
-     * @param types types instance to check filler value
+     * @param types     types instance to check filler value
      */
     public void createArrayType(MethodVisitor mv, BArrayType arrayType, Types types) {
         // Create an new array type

@@ -268,9 +268,9 @@ public class JvmConstants {
 
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
-    public static final String BUNION_TYPE_CONSTANT_CLASS_NAME = "constants/$_bunion_type_constants";
-    public static final String BTUPLE_TYPE_CONSTANT_CLASS_NAME = "constants/$_tuple_type_constants";
-    public static final String BARRAY_TYPE_CONSTANT_CLASS_NAME = "constants/$_array_type_constants";
+    public static final String UNION_TYPE_CONSTANT_CLASS_NAME = "constants/$_bunion_type_constants";
+    public static final String TUPLE_TYPE_CONSTANT_CLASS_NAME = "constants/$_tuple_type_constants";
+    public static final String ARRAY_TYPE_CONSTANT_CLASS_NAME = "constants/$_array_type_constants";
     public static final String MODULE_STRING_CONSTANT_CLASS_NAME = "constants/$_string_constants";
     public static final String MODULE_CONSTANT_CLASS_NAME = "constants/$_module_constants";
     public static final String CONSTANTS_CLASS_NAME = "constants/$_constants";
