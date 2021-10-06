@@ -249,7 +249,9 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Visitor to discover the program structure
+ * Visitor to discover the program structure.
+ *
+ * @since 2.0.0
  */
 public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
 
@@ -1503,12 +1505,6 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
     public String toString() {
 
         return super.toString();
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-
-        super.finalize();
     }
 
     @Override

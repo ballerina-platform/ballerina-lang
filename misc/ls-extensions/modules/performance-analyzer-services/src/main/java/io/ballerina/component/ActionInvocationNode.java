@@ -22,6 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * model obj to store action invocations.
+ *
+ * @since 2.0.0
  */
 public class ActionInvocationNode extends Node {
 
