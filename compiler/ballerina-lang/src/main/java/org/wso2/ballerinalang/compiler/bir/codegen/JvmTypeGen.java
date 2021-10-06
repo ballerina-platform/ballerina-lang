@@ -398,7 +398,7 @@ public class JvmTypeGen {
                     typeFieldName = "TYPE_HANDLE";
                     break;
                 case TypeTags.ARRAY:
-                    jvmConstantsGen.generateGetBArrayType(mv, jvmConstantsGen.getBArrayConstantVar((BArrayType) bType));
+                    jvmConstantsGen.generateGetBArrayType(mv, jvmConstantsGen.getTypeConstantsVar(bType));
                     return;
                 case TypeTags.MAP:
                     loadMapType(mv, (BMapType) bType);
@@ -417,8 +417,7 @@ public class JvmTypeGen {
                     if (unionType.isCyclic) {
                         loadUserDefinedType(mv, bType);
                     } else {
-                        String varName = jvmConstantsGen.getUnionConstantVar((BUnionType) bType);
-                        jvmConstantsGen.generateGetBUnionType(mv, varName);
+                        jvmConstantsGen.generateGetBUnionType(mv, jvmConstantsGen.getTypeConstantsVar(bType));
                     }
                     return;
                 case TypeTags.INTERSECTION:
@@ -435,7 +434,7 @@ public class JvmTypeGen {
                     if (tupleType.isCyclic) {
                         loadUserDefinedType(mv, bType);
                     } else {
-                        jvmConstantsGen.generateGetBTupleType(mv, jvmConstantsGen.getTupleConstantVar(tupleType));
+                        jvmConstantsGen.generateGetBTupleType(mv, jvmConstantsGen.getTypeConstantsVar(tupleType));
                     }
                     return;
                 case TypeTags.FINITE:
