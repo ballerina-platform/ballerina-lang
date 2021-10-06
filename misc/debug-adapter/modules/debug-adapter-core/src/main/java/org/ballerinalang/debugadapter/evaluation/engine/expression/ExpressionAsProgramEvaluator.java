@@ -19,8 +19,13 @@ package org.ballerinalang.debugadapter.evaluation.engine.expression;
 import com.sun.jdi.Value;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
-import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.BuildOptions;
@@ -64,11 +69,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.QUOTED_IDENTIFIER_PREFIX;
-import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.decodeIdentifier;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CLASSLOAD_AND_INVOKE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
@@ -173,7 +178,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
      */
     private String generateEvaluationSnippet() throws EvaluationException {
         // Generates top level declarations snippet
-        String moduleDeclarations = extractModuleDefinitions(context.getModule());
+        String moduleDeclarations = extractModuleDefinitions(context.getModule(), false);
 
         // Generates function signature (parameter definitions) for the snippet function template.
         processSnippetFunctionParameters();
@@ -367,7 +372,6 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             moduleName = newModuleName.toString();
         }
 
-        decodeIdentifier(importEntry.getValue().getResolvedSymbol().id().moduleName());
         String alias = importEntry.getKey();
         return String.format(EVALUATION_IMPORT_TEMPLATE, orgName, moduleName, alias);
     }
@@ -419,11 +423,11 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
 
         File moduleMainFile = Files.createTempFile(filePath, MAIN_FILE_PREFIX, BAL_FILE_EXT).toFile();
         moduleMainFile.deleteOnExit();
-        String moduleDefinitions = extractModuleDefinitions(module);
+        String moduleDefinitions = extractModuleDefinitions(module, true);
         writeToFile(moduleMainFile, moduleDefinitions);
     }
 
-    private String extractModuleDefinitions(Module module) {
+    private String extractModuleDefinitions(Module module, boolean shouldIncludeImports) {
         ModuleLevelDefinitionFinder moduleDefinitionFinder = new ModuleLevelDefinitionFinder(context);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.FUNCTION_DEFINITION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.TYPE_DEFINITION);
@@ -435,12 +439,66 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.ENUM_DECLARATION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CLASS_DEFINITION);
 
-        List<ModuleMemberDeclarationNode> declarationList = moduleDefinitionFinder.getModuleDeclarations(module);
+        if (shouldIncludeImports) {
+            moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.IMPORT_DECLARATION);
+        }
+
+        List<NonTerminalNode> declarationList = moduleDefinitionFinder.getModuleDeclarations(module);
+        if (shouldIncludeImports) {
+            declarationList = convertImports(declarationList);
+        }
+
         return declarationList.stream()
                 .map(Node::toSourceCode)
                 .reduce((s, s2) -> s + System.lineSeparator() + s2)
                 .map(s -> s + System.lineSeparator())
                 .orElse("");
+    }
+
+    /**
+     * Modify all the import statements within the given module level declarations, to be compatible with the evaluation
+     * package structure.
+     */
+    private List<NonTerminalNode> convertImports(List<NonTerminalNode> declarationList) {
+
+        return declarationList.stream().map(nonTerminalNode -> {
+            if (nonTerminalNode.kind() != SyntaxKind.IMPORT_DECLARATION) {
+                return nonTerminalNode;
+            }
+
+            ImportDeclarationNode importDeclarationNode = (ImportDeclarationNode) nonTerminalNode;
+            if (importDeclarationNode.orgName().isPresent() && (context.getPackageOrg().isEmpty() ||
+                    !context.getPackageOrg().get().equals(importDeclarationNode.orgName().get().orgName().text()))) {
+                return nonTerminalNode;
+            }
+            if (context.getPackageName().isEmpty() || !context.getPackageName().get().equals(importDeclarationNode
+                    .moduleName().get(0).text())) {
+                return nonTerminalNode;
+            }
+            ImportDeclarationNode.ImportDeclarationNodeModifier modifier = importDeclarationNode.modify();
+
+            // Replaces original org name with the evaluation org name.
+            if (importDeclarationNode.orgName().isPresent()) {
+                IdentifierToken orgToken = NodeFactory.createIdentifierToken(EVALUATION_PACKAGE_ORG);
+                ImportOrgNameNode newOrgName = NodeFactory.createImportOrgNameNode(orgToken, importDeclarationNode
+                        .orgName().get().slashToken());
+                modifier.withOrgName(newOrgName);
+            }
+
+            // Replaces original package name with the evaluation package name.
+            List<Node> moduleParts = importDeclarationNode.moduleName().stream().collect(Collectors.toList());
+            IdentifierToken packageToken = NodeFactory.createIdentifierToken(EVALUATION_PACKAGE_NAME);
+            moduleParts.remove(0);
+            moduleParts.add(0, packageToken);
+            IdentifierToken moduleNameSeparatorToken = NodeFactory.createIdentifierToken(MODULE_NAME_SEPARATOR);
+            for (int i = 0, size = moduleParts.size(); i < size - 1; i++) {
+                moduleParts.add(2 * i + 1, moduleNameSeparatorToken);
+            }
+            SeparatedNodeList<IdentifierToken> newModuleName = NodeFactory.createSeparatedNodeList(moduleParts);
+            modifier = modifier.withModuleName(newModuleName);
+
+            return modifier.apply();
+        }).collect(Collectors.toList());
     }
 
     private void processSnippetFunctionParameters() throws EvaluationException {

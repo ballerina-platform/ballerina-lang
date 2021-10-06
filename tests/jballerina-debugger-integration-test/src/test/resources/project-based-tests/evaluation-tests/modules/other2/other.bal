@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import evaluation_tests.other2;
-
 public const publicConstant = "Ballerina";
 public const publicInt = 10;
 const string constant = "Ballerina";
@@ -33,7 +31,6 @@ public type Kid record {
     string lastName;
     int intakeYear;
     float score;
-    other2:Kid friend;
 };
 
 public client class Child {
