@@ -347,7 +347,7 @@ public class CommandUtil {
             Path balaPath = balaCache.resolve(
                     ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
             String platform = findPlatform(balaPath);
-            String balaGlob = "glob:**/" + orgName + File.separator + packageName + File.separator
+            String balaGlob = "glob:**" + orgName + File.separator + packageName + File.separator
                     + version + File.separator + platform;
             PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(balaGlob);
 
