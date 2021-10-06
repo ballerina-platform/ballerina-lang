@@ -20,7 +20,6 @@ import org.ballerinalang.langserver.commons.registration.BallerinaServerCapabili
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.ServiceLoader;
 
 /**
@@ -55,12 +54,7 @@ public class ExtendedServerCapabilityBuilder {
 
         for (BallerinaServerCapabilitySetter<? extends BallerinaServerCapability> capabilitySetter
                 : capabilitySetters) {
-            Optional<? extends BallerinaServerCapability> capability = capabilitySetter.build();
-            if (capability.isEmpty()) {
-                continue;
-            }
-
-            serverCapabilities.add(capability.get());
+            capabilitySetter.build().ifPresent(serverCapabilities::add);
         }
         
         return serverCapabilities;
