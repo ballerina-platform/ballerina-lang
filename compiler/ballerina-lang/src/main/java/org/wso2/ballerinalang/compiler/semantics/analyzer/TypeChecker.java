@@ -2511,7 +2511,16 @@ public class TypeChecker extends BLangNodeVisitor {
                 param.getBType().tag == symbol.type.tag));
     }
 
+    @Override
+    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
+        checkFieldBasedAccess(nsPrefixedFieldBasedAccess, true);
+    }
+
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        checkFieldBasedAccess(fieldAccessExpr, false);
+    }
+
+    private void checkFieldBasedAccess(BLangFieldBasedAccess fieldAccessExpr, boolean isNsPrefixed) {
         markLeafNode(fieldAccessExpr);
 
         // First analyze the accessible expression.
@@ -2526,8 +2535,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType varRefType = types.getTypeWithEffectiveIntersectionTypes(checkExpr(containerExpression, env));
 
         // Disallow `expr.ns:attrname` syntax on non xml expressions.
-        if (fieldAccessExpr instanceof BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess
-                && !isXmlAccess(fieldAccessExpr)) {
+        if (isNsPrefixed && !isXmlAccess(fieldAccessExpr)) {
             dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.INVALID_FIELD_ACCESS_EXPRESSION);
             resultType = symTable.semanticError;
             return;
@@ -2541,7 +2549,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
             }
             actualType = checkOptionalFieldAccessExpr(fieldAccessExpr, varRefType,
-                                                      names.fromIdNode(fieldAccessExpr.field));
+                    names.fromIdNode(fieldAccessExpr.field));
         } else {
             actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, names.fromIdNode(fieldAccessExpr.field));
 
