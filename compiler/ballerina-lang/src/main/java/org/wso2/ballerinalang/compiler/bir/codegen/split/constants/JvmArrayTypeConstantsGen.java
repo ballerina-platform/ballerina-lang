@@ -16,13 +16,16 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen;
+package org.wso2.ballerinalang.compiler.bir.codegen.split.constants;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmArrayTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -48,6 +51,11 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE_IMPL;
 
+/**
+ * Generates Jvm class for the ballerina array types as constants for a given module.
+ *
+ * @since 2.0.0
+ */
 public class JvmArrayTypeConstantsGen {
 
     private final String arrayConstantsClass;
@@ -70,7 +78,7 @@ public class JvmArrayTypeConstantsGen {
         this.types = types;
     }
 
-    public synchronized void setJvmArrayTypeGen(JvmArrayTypeGen jvmArrayTypeGen) {
+    public void setJvmArrayTypeGen(JvmArrayTypeGen jvmArrayTypeGen) {
         this.jvmArrayTypeGen = jvmArrayTypeGen;
     }
 
@@ -96,14 +104,14 @@ public class JvmArrayTypeConstantsGen {
                 null);
     }
 
-    public synchronized String add(BArrayType arrayType) {
+    public String add(BArrayType arrayType) {
         return arrayTypeVarMap.computeIfAbsent(arrayType, str -> generateBArrayInits(arrayType));
     }
 
     private String generateBArrayInits(BArrayType arrayType) {
         String varName = JvmConstants.ARRAY_TYPE_VAR_PREFIX + constantIndex++;
         createBArrayType(mv, arrayType, varName);
-        if(!TypeTags.isSimpleBasicType(arrayType.eType.tag)) {
+        if (!TypeTags.isSimpleBasicType(arrayType.eType.tag)) {
             genPopulateMethod(arrayType, varName);
         }
         return varName;

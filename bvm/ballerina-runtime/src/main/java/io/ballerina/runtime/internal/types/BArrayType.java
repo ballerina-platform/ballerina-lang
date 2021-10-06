@@ -87,7 +87,7 @@ public class BArrayType extends BType implements ArrayType {
         }
         setFlagsBasedOnElementType();
         int elementTypeTag = elementType.getTag();
-        if (elementTypeTag == TypeTags.UNION_TAG || elementTypeTag == TypeTags.FINITE_TYPE_TAG){
+        if (elementTypeTag == TypeTags.UNION_TAG || elementTypeTag == TypeTags.FINITE_TYPE_TAG) {
             this.hasFillerValue = TypeChecker.hasFillerValue(elementType);
         }
     }

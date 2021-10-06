@@ -81,11 +81,11 @@ public class JvmUnionTypeConstantsGen {
         unionTypeVarMap = new ConcurrentSkipListMap<>(JvmConstantsGen.TYPE_HASH_COMPARATOR);
     }
 
-    public synchronized void setJvmUnionTypeGen(JvmUnionTypeGen jvmUnionTypeGen) {
+    public void setJvmUnionTypeGen(JvmUnionTypeGen jvmUnionTypeGen) {
         this.jvmUnionTypeGen = jvmUnionTypeGen;
     }
 
-    public synchronized String add(BUnionType type) {
+    public String add(BUnionType type) {
         return unionTypeVarMap.computeIfAbsent(type, str -> generateBUnionInits(type));
     }
 
@@ -150,7 +150,7 @@ public class JvmUnionTypeConstantsGen {
                           String.format("L%s;", JvmConstants.UNION_TYPE_IMPL));
     }
 
-    public synchronized void generateClass(Map<String, byte[]> jarEntries) {
+    public void generateClass(Map<String, byte[]> jarEntries) {
         genMethodReturn(mv);
         visitUnionTypeInitMethod();
         for (String funcName : funcNames) {
