@@ -29,25 +29,38 @@ import org.testng.annotations.Test;
 public class SyntaxInfoAPITest {
 
     @Test
-    public void testBallerinaKeywordCount() {
-        Assert.assertEquals(SyntaxInfo.ballerinaKeywords().size(), 100);
+    public void testKeywordCount() {
+        Assert.assertEquals(SyntaxInfo.keywords().size(), 100);
     }
 
     @Test
-    public void testIsBallerinaKeywordMethod() {
-        Assert.assertTrue(SyntaxInfo.isBallerinaKeyword("public"));
-        Assert.assertTrue(SyntaxInfo.isBallerinaKeyword("fail"));
-        Assert.assertTrue(SyntaxInfo.isBallerinaKeyword("function"));
-        Assert.assertTrue(SyntaxInfo.isBallerinaKeyword("join"));
-        Assert.assertTrue(SyntaxInfo.isBallerinaKeyword("resource"));
-        Assert.assertTrue(SyntaxInfo.isBallerinaKeyword("var"));
-        Assert.assertTrue(SyntaxInfo.isBallerinaKeyword("!is"));
-        Assert.assertTrue(SyntaxInfo.isBallerinaKeyword("_"));
+    public void testIsKeywordMethod() {
+        Assert.assertTrue(SyntaxInfo.isKeyword("public"));
+        Assert.assertTrue(SyntaxInfo.isKeyword("fail"));
+        Assert.assertTrue(SyntaxInfo.isKeyword("distinct"));
+        Assert.assertTrue(SyntaxInfo.isKeyword("function"));
+        Assert.assertTrue(SyntaxInfo.isKeyword("join"));
+        Assert.assertTrue(SyntaxInfo.isKeyword("resource"));
+        Assert.assertTrue(SyntaxInfo.isKeyword("var"));
+        Assert.assertTrue(SyntaxInfo.isKeyword("!is"));
+        Assert.assertTrue(SyntaxInfo.isKeyword("_"));
 
-        Assert.assertFalse(SyntaxInfo.isBallerinaKeyword("{"));
-        Assert.assertFalse(SyntaxInfo.isBallerinaKeyword("@"));
-        Assert.assertFalse(SyntaxInfo.isBallerinaKeyword("module"));
-        Assert.assertFalse(SyntaxInfo.isBallerinaKeyword("variable"));
+        Assert.assertFalse(SyntaxInfo.isKeyword("{"));
+        Assert.assertFalse(SyntaxInfo.isKeyword("}"));
+        Assert.assertFalse(SyntaxInfo.isKeyword("("));
+        Assert.assertFalse(SyntaxInfo.isKeyword(")"));
+        Assert.assertFalse(SyntaxInfo.isKeyword("["));
+        Assert.assertFalse(SyntaxInfo.isKeyword("]"));
+        Assert.assertFalse(SyntaxInfo.isKeyword("@"));
+        Assert.assertFalse(SyntaxInfo.isKeyword("."));
+        Assert.assertFalse(SyntaxInfo.isKeyword(":"));
+        Assert.assertFalse(SyntaxInfo.isKeyword("#"));
+        Assert.assertFalse(SyntaxInfo.isKeyword("module"));
+        Assert.assertFalse(SyntaxInfo.isKeyword("variable"));
+        Assert.assertFalse(SyntaxInfo.isKeyword("="));
+        Assert.assertFalse(SyntaxInfo.isKeyword("+"));
+        Assert.assertFalse(SyntaxInfo.isKeyword(""));
+        Assert.assertFalse(SyntaxInfo.isKeyword(" "));
     }
 
     @Test

@@ -38,9 +38,9 @@ public class SyntaxInfo {
      *
      * @return reserved keyword list
      */
-    public static List<String> ballerinaKeywords() {
+    public static List<String> keywords() {
         return Arrays.stream(SyntaxKind.values())
-                .filter(SyntaxKind::isKeyword)
+                .filter(syntaxKind -> SyntaxKind.OPEN_BRACE_TOKEN.compareTo(syntaxKind) > 0)
                 .map(SyntaxKind::stringValue)
                 .collect(Collectors.toList());
     }
@@ -51,8 +51,8 @@ public class SyntaxInfo {
      * @param text the string to check
      * @return {@code true}, if the input is a ballerina keyword. {@code false} otherwise
      */
-    public static boolean isBallerinaKeyword(String text) {
-        return ballerinaKeywords().contains(text);
+    public static boolean isKeyword(String text) {
+        return keywords().contains(text);
     }
 
     /**
