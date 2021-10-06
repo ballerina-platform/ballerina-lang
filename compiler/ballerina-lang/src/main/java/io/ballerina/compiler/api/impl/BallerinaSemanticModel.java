@@ -428,12 +428,11 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private boolean isTypeSymbol(BSymbol tSymbol) {
-        BSymbol symbol = tSymbol;
-        if (symbol instanceof BTypeDefinitionSymbol) {
-            symbol = symbol.type.tsymbol;
+        if (tSymbol instanceof BTypeDefinitionSymbol) {
+            return true;
         }
-        return symbol instanceof BTypeSymbol && !Symbols.isTagOn(symbol, PACKAGE)
-                && !Symbols.isTagOn(symbol, ANNOTATION);
+        return tSymbol instanceof BTypeSymbol && !Symbols.isTagOn(tSymbol, PACKAGE)
+                && !Symbols.isTagOn(tSymbol, ANNOTATION);
     }
 
     private BSymbol getInternalSymbol(Symbol symbol) {
