@@ -544,6 +544,9 @@ public class MethodGen {
     private void generateFrameClassFieldLoad(List<BIRVariableDcl> localVars, MethodVisitor mv,
                                              BIRVarToJVMIndexMap indexMap, String frameName) {
         for (BIRVariableDcl localVar : localVars) {
+            if (localVar.onlyUsedInSingleBB) {
+                continue;
+            }
             BType bType = localVar.type;
             int index = indexMap.addIfNotExists(localVar.name.value, bType);
             mv.visitInsn(DUP);
@@ -702,6 +705,9 @@ public class MethodGen {
     private void generateFrameClassFieldUpdate(List<BIRVariableDcl> localVars, MethodVisitor mv,
                                                BIRVarToJVMIndexMap indexMap, String frameName) {
         for (BIRVariableDcl localVar : localVars) {
+            if (localVar.onlyUsedInSingleBB) {
+                continue;
+            }
             BType bType = localVar.type;
             int index = indexMap.addIfNotExists(localVar.name.value, bType);
             mv.visitInsn(DUP);

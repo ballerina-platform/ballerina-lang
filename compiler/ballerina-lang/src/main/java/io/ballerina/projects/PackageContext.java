@@ -223,7 +223,7 @@ class PackageContext {
                 .observabilityIncluded(this.compilationOptions.observabilityIncluded())
                 .dumpBir(this.compilationOptions.dumpBir())
                 .cloud(this.compilationOptions.getCloud())
-                .dumpBirFile(this.compilationOptions.getBirDumpFile())
+                .dumpBirFile(this.compilationOptions.dumpBirFile())
                 .dumpGraph(this.compilationOptions.dumpGraph())
                 .dumpRawGraphs(this.compilationOptions.dumpRawGraphs())
                 .listConflictedClasses(this.compilationOptions.listConflictedClasses())

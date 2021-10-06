@@ -392,8 +392,8 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-        List<Integer> tupleTypesHashes = getTypesHashes(type.getTupleTypes());
-        Integer hash = hash(baseHash(type), tupleTypesHashes, visit(type.restType));
+        List<Integer> tupleTypesHashes = getOrderedTypesHashes(type.getTupleTypes());
+        Integer hash = hash(baseHash(type), tupleTypesHashes, visit(type.restType), type.flags);
         return addToVisited(type, hash);
     }
 
@@ -489,7 +489,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-        Integer hash = hash(baseHash(type), type.isCyclic, getTypesHashes(type.getMemberTypes()));
+        Integer hash = hash(baseHash(type), type.isCyclic, getTypesHashes(type.getMemberTypes()), type.flags);
         return addToVisited(type, hash);
     }
 
@@ -545,6 +545,10 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         return types.stream().map(this::visit)
                 .sorted(Comparator.comparingInt(Integer::intValue))
                 .collect(Collectors.toList());
+    }
+
+    private List<Integer> getOrderedTypesHashes(List<BType> tupleTypes) {
+        return tupleTypes.stream().map(this::visit).collect(Collectors.toList());
     }
 
     private List<Integer> getFieldsHashes(Map<String, BField> fields) {

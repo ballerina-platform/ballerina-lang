@@ -10,7 +10,6 @@ dependencies-toml-version = "2"
 org = "ballerina"
 name = "jballerina.java"
 version = "0.0.0"
-transitive = false
 modules = [
 	{org = "ballerina", packageName = "jballerina.java", moduleName = "jballerina.java"}
 ]
@@ -18,8 +17,7 @@ modules = [
 [[package]]
 org = "ballerina"
 name = "observe"
-version = "0.9.0"
-transitive = true
+version = "1.0.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
@@ -28,7 +26,6 @@ dependencies = [
 org = "ballerina"
 name = "test"
 version = "0.0.0"
-transitive = false
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
@@ -40,13 +37,25 @@ modules = [
 org = "ballerinai"
 name = "observe"
 version = "0.0.0"
-transitive = false
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "observe"}
 ]
 modules = [
 	{org = "ballerinai", packageName = "observe", moduleName = "observe"}
+]
+
+[[package]]
+org = "testOrg"
+name = "envVarPkg"
+version = "0.1.0"
+dependencies = [
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "test"},
+	{org = "ballerinai", name = "observe"}
+]
+modules = [
+	{org = "testOrg", packageName = "envVarPkg", moduleName = "envVarPkg"}
 ]
 
 

@@ -232,8 +232,20 @@ public class RemotePackageRepository implements PackageRepository {
     private PackageNameResolutionRequest toPackageNameResolutionRequest(List<ImportModuleResponse> unresolved) {
         PackageNameResolutionRequest request = new PackageNameResolutionRequest();
         for (ImportModuleResponse module : unresolved) {
+            if (module.importModuleRequest().possiblePackages().size() == 0) {
+                request.addModule(module.importModuleRequest().packageOrg().value(),
+                        module.importModuleRequest().moduleName());
+                continue;
+            }
+            List<PackageNameResolutionRequest.Module.PossiblePackage> possiblePackages = new ArrayList<>();
+            for (PackageDescriptor possiblePackage : module.importModuleRequest().possiblePackages()) {
+                possiblePackages.add(new PackageNameResolutionRequest.Module.PossiblePackage(
+                        possiblePackage.org().toString(),
+                        possiblePackage.name().toString(),
+                        possiblePackage.version().toString()));
+            }
             request.addModule(module.importModuleRequest().packageOrg().value(),
-                    module.importModuleRequest().moduleName());
+                    module.importModuleRequest().moduleName(), possiblePackages, PackageResolutionRequest.Mode.MEDIUM);
         }
         return request;
     }

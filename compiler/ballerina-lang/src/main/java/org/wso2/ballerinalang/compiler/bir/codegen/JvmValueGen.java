@@ -25,7 +25,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.FieldNameHashComparator;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.TypeHashComparator;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.TypeDefHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JFieldBIRFunction;
@@ -35,8 +35,8 @@ import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmObjectGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmRecordGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.values.JvmObjectGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.values.JvmRecordGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -120,7 +120,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
 public class JvmValueGen {
 
     static final FieldNameHashComparator FIELD_NAME_HASH_COMPARATOR = new FieldNameHashComparator();
-    public static final TypeHashComparator TYPE_HASH_COMPARATOR = new TypeHashComparator();
+    public static final TypeDefHashComparator TYPE_HASH_COMPARATOR = new TypeDefHashComparator();
     static final String ENCODED_RECORD_INIT =
             IdentifierUtils.encodeFunctionIdentifier(Names.INIT_FUNCTION_SUFFIX.value);
     private final BIRNode.BIRPackage module;

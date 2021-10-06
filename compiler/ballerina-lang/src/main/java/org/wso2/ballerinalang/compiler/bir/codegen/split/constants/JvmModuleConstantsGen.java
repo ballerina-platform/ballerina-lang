@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen.split;
+package org.wso2.ballerinalang.compiler.bir.codegen.split.constants;
 
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.model.elements.PackageID;
@@ -48,6 +48,7 @@ import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_MODULES_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_CONSTANT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD_PREFIX;
@@ -67,8 +68,6 @@ public class JvmModuleConstantsGen {
     private final String moduleConstantClass;
 
     private final AtomicInteger constantIndex = new AtomicInteger();
-
-    private static final int MAX_MODULES_PER_METHOD = 100;
 
     public JvmModuleConstantsGen(BIRNode.BIRPackage module) {
         this.moduleVarMap = new ConcurrentHashMap<>();
