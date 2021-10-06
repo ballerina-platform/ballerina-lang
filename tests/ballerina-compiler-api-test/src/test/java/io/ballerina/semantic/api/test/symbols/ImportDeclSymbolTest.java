@@ -55,8 +55,7 @@ public class ImportDeclSymbolTest {
                                                                             name, SymbolKind.MODULE);
         assertEquals(symbol.id().orgName(), org);
         assertEquals(symbol.id().version(), "1.0.0");
-        // TODO: Fix https://github.com/ballerina-platform/ballerina-lang/issues/32660
-        // assertEquals(symbol.id().modulePrefix(), prefix);
+        assertEquals(symbol.id().modulePrefix(), prefix);
     }
 
     @DataProvider(name = "ImportDeclarationPosProvider")
@@ -64,7 +63,7 @@ public class ImportDeclSymbolTest {
         return new Object[][]{
                 {16, 20, "module_level.foo", "testorg", "foo"},
                 {17, 27, "module_level.bar", "testorg", "barPrefix"},
-                {18, 27, "module_level.baz", "testorg", "_"},
+                {18, 27, "module_level.baz", "testorg", "baz"},
         };
     }
 }
