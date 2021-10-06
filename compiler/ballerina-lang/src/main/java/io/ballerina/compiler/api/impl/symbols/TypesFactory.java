@@ -309,7 +309,7 @@ public class TypesFactory {
         throw new IllegalStateException("Invalid XML subtype type tag: " + internalType.tag);
     }
 
-    private boolean isTypeReference(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly) {
+    public boolean isTypeReference(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly) {
         // Not considering type params as type refs for now because having it in the typedesc form will make more
         // sense for end users of the API consumers (e.g., VS Code plugin users). This probably can be removed once
         // https://github.com/ballerina-platform/ballerina-lang/issues/18150 is fixed.
