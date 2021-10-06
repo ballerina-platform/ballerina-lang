@@ -151,11 +151,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object { public isolated function next () returns (record {| table:MapType value; |}?); }",
+      "detail": "object {public isolated function next() returns record {| table:MapType value; |}? ;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nReturns an iterator over a table.\n\nThe iterator will iterate over the members of the table not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Return** `object { public isolated function next () returns (record {| table:MapType value; |}?); }`   \n- a new iterator object that will iterate over the members of parameter `t`  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nReturns an iterator over a table.\n\nThe iterator will iterate over the members of the table not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| table:MapType value; |}? ;}`   \n- a new iterator object that will iterate over the members of parameter `t`  \n  \n"
         }
       },
       "sortText": "E",

@@ -412,11 +412,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object { public isolated function next () returns (record {| xml:ItemType value; |}?); }",
+      "detail": "object {public isolated function next() returns record {| xml:ItemType value; |}? ;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns an iterator over the xml items of an xml sequence.\n\n# Each item is represented by an xml singleton.\n  \n  \n  \n**Return** `object { public isolated function next () returns (record {| xml:ItemType value; |}?); }`   \n- iterator object  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns an iterator over the xml items of an xml sequence.\n\n# Each item is represented by an xml singleton.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| xml:ItemType value; |}? ;}`   \n- iterator object  \n  \n"
         }
       },
       "sortText": "E",
@@ -548,11 +548,11 @@
     {
       "label": "map(function () func)",
       "kind": "Function",
-      "detail": "xml<XmlType>",
+      "detail": "xml<xml:XmlType>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nApplies a function to each item in an xml sequence, and returns an xml sequence of the results.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function ()` func: a function to apply to each child or parameter `item`  \n  \n**Return** `xml<XmlType>`   \n- new xml value containing result of applying function `func` to each child or parameter `item`  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nApplies a function to each item in an xml sequence, and returns an xml sequence of the results.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function ()` func: a function to apply to each child or parameter `item`  \n  \n**Return** `xml<xml:XmlType>`   \n- new xml value containing result of applying function `func` to each child or parameter `item`  \n  \n"
         }
       },
       "sortText": "E",

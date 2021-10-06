@@ -1601,7 +1601,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         userDefinedTypeNode.symbol = symbol;
 
-        if (symbol.kind == SymbolKind.TYPE_DEF) {
+        if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
             if (((BTypeDefinitionSymbol) symbol).referenceType == null) {
                 BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_DEF, symbol.flags, symbol.name, symbol.pkgID,
                         symbol.type, symbol.owner, symbol.pos, symbol.origin);

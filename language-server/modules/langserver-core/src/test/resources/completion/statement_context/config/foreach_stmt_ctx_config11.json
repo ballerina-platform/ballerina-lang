@@ -247,13 +247,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lastIndexOf(AnydataType val, int startIndex)",
+      "label": "lastIndexOf(array:AnydataType val, int startIndex)",
       "kind": "Function",
       "detail": "int?",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the index of last member of an array that is equal to a given value if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `AnydataType` val: member to search for  \n- `int` startIndex: index to start searching backwards from(Defaultable)  \n  \n**Return** `int?`   \n- index of the member if found, else `()`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the index of last member of an array that is equal to a given value if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `array:AnydataType` val: member to search for  \n- `int` startIndex: index to start searching backwards from(Defaultable)  \n  \n**Return** `int?`   \n- index of the member if found, else `()`  \n  \n"
         }
       },
       "sortText": "E",
@@ -268,11 +268,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object { public isolated function next () returns (record {| array:Type value; |}?); }",
+      "detail": "object {public isolated function next() returns record {| array:Type value; |}? ;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns an iterator over an array.\n  \n  \n  \n**Return** `object { public isolated function next () returns (record {| array:Type value; |}?); }`   \n- a new iterator object that will iterate over the members of parameter `arr`.  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns an iterator over an array.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| array:Type value; |}? ;}`   \n- a new iterator object that will iterate over the members of parameter `arr`.  \n  \n"
         }
       },
       "sortText": "E",
@@ -368,13 +368,13 @@
       }
     },
     {
-      "label": "indexOf(AnydataType val, int startIndex)",
+      "label": "indexOf(array:AnydataType val, int startIndex)",
       "kind": "Function",
       "detail": "int?",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the index of first member of an array that is equal to a given value if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `AnydataType` val: member to search for  \n- `int` startIndex: index to start the search from(Defaultable)  \n  \n**Return** `int?`   \n- index of the member if found, else `()`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the index of first member of an array that is equal to a given value if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `array:AnydataType` val: member to search for  \n- `int` startIndex: index to start the search from(Defaultable)  \n  \n**Return** `int?`   \n- index of the member if found, else `()`  \n  \n"
         }
       },
       "sortText": "E",

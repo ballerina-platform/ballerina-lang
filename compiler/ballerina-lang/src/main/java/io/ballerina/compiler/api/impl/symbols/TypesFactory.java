@@ -174,8 +174,8 @@ public class TypesFactory {
         ModuleID moduleID = tSymbol == null ? null : new BallerinaModuleID(tSymbol.pkgID);
 
         if (isTypeReference(bType, tSymbol, rawTypeOnly)) {
-            return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID,
-                    types.getReferredType(bType), tSymbol, typeRefFromIntersectType);
+            return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType, tSymbol,
+                    typeRefFromIntersectType);
         }
         BTypeSymbol typeSymbol = tSymbol instanceof BTypeDefinitionSymbol ? tSymbol.type.tsymbol
                 : (BTypeSymbol) tSymbol;
