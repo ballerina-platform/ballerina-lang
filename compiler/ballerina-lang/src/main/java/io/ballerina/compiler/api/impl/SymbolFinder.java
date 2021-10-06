@@ -841,20 +841,20 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        if (fieldAccessExpr.fieldKind == FieldKind.WITH_NS) {
-            BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess =
-                    (BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) fieldAccessExpr;
-
-            if (setEnclosingNode(nsPrefixedFieldBasedAccess.nsSymbol, nsPrefixedFieldBasedAccess.nsPrefix.pos)) {
-                return;
-            }
-        }
-
         if (setEnclosingNode(fieldAccessExpr.symbol, fieldAccessExpr.field.pos)) {
             return;
         }
 
         lookupNode(fieldAccessExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
+        if (setEnclosingNode(nsPrefixedFieldBasedAccess.nsSymbol, nsPrefixedFieldBasedAccess.nsPrefix.pos)) {
+            return;
+        }
+
+        lookupNode(nsPrefixedFieldBasedAccess.expr);
     }
 
     @Override
