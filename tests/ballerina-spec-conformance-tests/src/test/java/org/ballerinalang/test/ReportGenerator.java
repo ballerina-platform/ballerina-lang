@@ -156,25 +156,25 @@ public class ReportGenerator {
         tempFileWriter.close();
     }
 
-    private String generateFailedTestsDetails(String fileName, String testKind, String actualLineNo,
-                                              String expectLineNo, String actualOutput, String expectOutput) {
+    private String generateFailedTestsDetails(String fileName, String testKind, String actualLineNum,
+                                              String expectedLineNum, String actualOutput, String expectedOutput) {
         String tableRow = START_TABLE_ROW;
         tableRow  = tableRow + String.format("<td>%s</td>", fileName);
         tableRow  = tableRow + String.format("<td>%s</td>", testKind);
-        tableRow  = tableRow + String.format("<td>%s</td>", actualLineNo);
-        tableRow  = tableRow + String.format("<td>%s</td>", expectLineNo);
+        tableRow  = tableRow + String.format("<td>%s</td>", expectedLineNum);
+        tableRow  = tableRow + String.format("<td>%s</td>", actualLineNum);
+        tableRow  = tableRow + String.format("<td>%s</td>", expectedOutput);
         tableRow  = tableRow + String.format("<td>%s</td>", actualOutput);
-        tableRow  = tableRow + String.format("<td>%s</td>", expectOutput);
         tableRow = tableRow + END_TABLE_ROW;
 
         return tableRow;
     }
 
-    static String generateErrorDetails(String actualLineNo, String expectLineNo, String actualErrorMsg,
+    static String generateErrorDetails(String actualLineNum, String expectedLineNum, String actualErrorMsg,
                                        String errorDesc) {
         String tableRow = START_TABLE_ROW;
-        tableRow  = tableRow + String.format("<td>%s</td>", actualLineNo);
-        tableRow  = tableRow + String.format("<td>%s</td>", expectLineNo);
+        tableRow  = tableRow + String.format("<td>%s</td>", expectedLineNum);
+        tableRow  = tableRow + String.format("<td>%s</td>", actualLineNum);
         tableRow  = tableRow + String.format("<td>%s</td>", actualErrorMsg);
         tableRow  = tableRow + String.format("<td>%s</td>", errorDesc);
         tableRow = tableRow + END_TABLE_ROW;
@@ -182,11 +182,11 @@ public class ReportGenerator {
         return tableRow;
     }
 
-    static String generateSkippedTestsDetails(String fileName, String testKind, String lineNo) {
+    static String generateSkippedTestsDetails(String fileName, String testKind, String lineNum) {
         String tableRow = START_TABLE_ROW;
         tableRow  = tableRow + String.format("<td>%s</td>", fileName);
         tableRow  = tableRow + String.format("<td>%s</td>", testKind);
-        tableRow  = tableRow + String.format("<td>%s</td>", lineNo);
+        tableRow  = tableRow + String.format("<td>%s</td>", lineNum);
         tableRow = tableRow + END_TABLE_ROW;
 
         return tableRow;

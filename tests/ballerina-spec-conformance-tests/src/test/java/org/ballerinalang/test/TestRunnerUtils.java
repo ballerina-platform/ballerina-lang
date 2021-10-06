@@ -179,8 +179,8 @@ public class TestRunnerUtils {
     private static Map<String, String> readHeadersOfTest(String line, BufferedReader buffReader) throws IOException {
         ArrayList<String> requiredHeaders = new ArrayList<>(Arrays.asList(START_TEST_CASE, DESCRIPTION, LABELS));
         Map<String, String> headers = new HashMap<>();
-        Pattern pattern = Pattern.compile("^(\\S+)\\s*:\\s*(.*)");
-
+        Pattern pattern = Pattern.compile(String.format("\\s*^(%s|%s|%s|%s)\\s*:\\s*(.*)",
+                                                        START_TEST_CASE, DESCRIPTION, FAIL_ISSUE, LABELS));
         String key = null;
         String value = null;
         while (line != null) {
@@ -195,16 +195,12 @@ public class TestRunnerUtils {
                 requiredHeaders.remove(key);
                 headers.put(key, value);
                 break;
-            } else if (matcher.find() && !matcher.group(1).equals("int")) { //todo: handle int:Unsigned32 kind cases
+            } else if (matcher.find()) {
                 if (key != null) {
                     requiredHeaders.remove(key);
                     headers.put(key, value);
                 }
                 key = matcher.group(1);
-                if (!(key.equals(LABELS) || key.equals(DESCRIPTION) || key.equals(FAIL_ISSUE) ||
-                                                                                        key.equals(START_TEST_CASE))) {
-                    reportDiagnostics(String.format("%s header is not defined", key));
-                }
                 value = matcher.group(2);
             } else if (key != null) {
                 value = value + " " + header.trim();
