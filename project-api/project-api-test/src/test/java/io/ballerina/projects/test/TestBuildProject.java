@@ -1546,18 +1546,19 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = TestUtils.loadBuildProject(projectPath, buildOptions);
-            project.save();
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
+        project.save();
+
         Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
         Path buildFile = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
         Assert.assertTrue(buildFile.toFile().exists());
         BuildJson initialBuildJson = readBuildJson(buildFile);
-        Assert.assertTrue(initialBuildJson.lastBuildTime() > 0);
-        Assert.assertTrue(initialBuildJson.lastUpdateTime() > 0);
-        Assert.assertFalse(initialBuildJson.isExpiredLastUpdateTime());
+        Assert.assertTrue(initialBuildJson.lastBuildTime() > 0, "invalid last_build_time in the build file");
+        Assert.assertTrue(initialBuildJson.lastUpdateTime() > 0, "invalid last_update_time in the build file");
+        Assert.assertFalse(initialBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
         Assert.assertEquals(
                 readFileAsString(projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml")),
                 readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)));
@@ -1569,15 +1570,18 @@ public class TestBuildProject extends BaseTest {
         BuildProject projectSecondBuild = null;
         try {
             projectSecondBuild = TestUtils.loadBuildProject(projectPath, buildOptions);
-            projectSecondBuild.save();
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
+        projectSecondBuild.save();
+
         Assert.assertTrue(buildFile.toFile().exists());
         BuildJson secondBuildJson = readBuildJson(buildFile);
-        Assert.assertTrue(secondBuildJson.lastBuildTime() > initialBuildJson.lastBuildTime());
-        assertEquals(initialBuildJson.lastUpdateTime(), secondBuildJson.lastUpdateTime());
-        Assert.assertFalse(secondBuildJson.isExpiredLastUpdateTime());
+        Assert.assertTrue(secondBuildJson.lastBuildTime() > initialBuildJson.lastBuildTime(),
+                          "last_build_time has not updated for the second build");
+        assertEquals(initialBuildJson.lastUpdateTime(), secondBuildJson.lastUpdateTime(),
+                     "last_update_time has updated for the second build");
+        Assert.assertFalse(secondBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
         Assert.assertFalse(projectSecondBuild.currentPackage().getResolution().autoUpdate());
         Assert.assertEquals(
                 readFileAsString(projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml")),
