@@ -2740,10 +2740,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLBlockStmt.stmts = generateBLangStatements(blockStatement.statements());
         this.isInLocalContext = false;
         bLBlockStmt.pos = getPosition(blockStatement);
-        SyntaxKind parent = blockStatement.parent().kind();
-        if (parent == SyntaxKind.IF_ELSE_STATEMENT || parent == SyntaxKind.ELSE_BLOCK) {
-            bLBlockStmt.pos = expandLeft(bLBlockStmt.pos, getPosition(blockStatement.parent()));
-        }
         return bLBlockStmt;
     }
 

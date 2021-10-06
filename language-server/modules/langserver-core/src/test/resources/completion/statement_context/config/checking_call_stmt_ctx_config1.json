@@ -575,6 +575,15 @@
       "filterText": "commit",
       "insertText": "commit;",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "null",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
