@@ -23,22 +23,15 @@ import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
-import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleConfig;
-import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleId;
-import io.ballerina.projects.ModuleName;
-import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.model.Target;
@@ -67,7 +60,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -202,40 +194,28 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
      * @param mainBalContent Source file content to be used for generating the project
      * @return Created Ballerina project
      */
-    private BuildProject createProject(String mainBalContent) throws Exception {
+    private BuildProject createProject(String mainBalContent) throws EvaluationException {
         try {
             // Creates a new directory in the default temporary file directory.
             this.tempProjectDir = Files.createTempDirectory(TEMP_DIR_PREFIX + System.currentTimeMillis());
             this.tempProjectDir.toFile().deleteOnExit();
 
-            // Creates an empty Ballerina.toml file
-            Path ballerinaTomlPath = tempProjectDir.resolve(BAL_TOML_FILE_NAME);
-            Path balToml = Files.createFile(ballerinaTomlPath);
-            balToml.toFile().deleteOnExit();
-
             // Creates a main file and writes the generated code snippet.
             createMainBalFile(mainBalContent);
-            BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
-            BuildProject buildProject = BuildProject.load(this.tempProjectDir, buildOptions);
-
-            // Updates the 'Ballerina.toml' content
-            StringJoiner balTomlContent = new StringJoiner(System.lineSeparator());
-            balTomlContent.add("[package]");
-            balTomlContent.add(String.format("org = \"%s\"", EVALUATION_PACKAGE_ORG));
-            balTomlContent.add(String.format("name = \"%s\"", EVALUATION_PACKAGE_NAME));
-            balTomlContent.add(String.format("version = \"%s\"", EVALUATION_PACKAGE_VERSION));
-            BallerinaToml newBallerinaToml = buildProject.currentPackage().ballerinaToml().get()
-                    .modify()
-                    .withContent(balTomlContent.toString())
-                    .apply();
-            buildProject = (BuildProject) newBallerinaToml.packageInstance().project();
+            // Creates the Ballerina.toml file and writes the package meta information.
+            createBallerinaToml();
 
             // If the user expression contains any import usages of other modules in the same package, we need
-            // to include all the definitions from those modules, in our temporary evaluation project.
+            // to include all the definitions from those modules, in our temporary evaluation project. (Here we cannot
+            // selectively include only the imported modules as the package modules can have inter dependencies.)
             if (containsOtherModuleImports()) {
-                buildProject = fillOtherModuleDefinitions(buildProject);
+                fillOtherModuleDefinitions();
             }
-            return buildProject;
+
+            BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+            return BuildProject.load(this.tempProjectDir, buildOptions);
+        } catch (EvaluationException e) {
+            throw e;
         } catch (Exception e) {
             throw createEvaluationException(String.format("error occurred while creating a temporary evaluation " +
                     "project at: %s, due to: %s", this.tempProjectDir, e.getMessage()));
@@ -311,7 +291,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
     }
 
     /**
-     * Helper method to write a string source to a file.
+     * Helper method to create a main bal file with the given content.
      *
      * @param content Content to write to the file.
      * @throws IOException If writing was unsuccessful.
@@ -320,9 +300,26 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         File mainBalFile = File.createTempFile(MAIN_FILE_PREFIX, BAL_FILE_EXT, tempProjectDir.toFile());
         mainBalFile.deleteOnExit();
 
-        try (FileWriter fileWriter = new FileWriter(mainBalFile, Charset.defaultCharset())) {
-            fileWriter.write(content);
-        }
+        writeToFile(mainBalFile, content);
+    }
+
+    /**
+     * Helper method to create a Ballerina.toml file with predefined content.
+     *
+     * @throws IOException If writing was unsuccessful.
+     */
+    private void createBallerinaToml() throws Exception {
+        Path ballerinaTomlPath = tempProjectDir.resolve(BAL_TOML_FILE_NAME);
+        File balTomlFile = Files.createFile(ballerinaTomlPath).toFile();
+        balTomlFile.deleteOnExit();
+
+        StringJoiner balTomlContent = new StringJoiner(System.lineSeparator());
+        balTomlContent.add("[package]");
+        balTomlContent.add(String.format("org = \"%s\"", EVALUATION_PACKAGE_ORG));
+        balTomlContent.add(String.format("name = \"%s\"", EVALUATION_PACKAGE_NAME));
+        balTomlContent.add(String.format("version = \"%s\"", EVALUATION_PACKAGE_VERSION));
+
+        writeToFile(balTomlFile, balTomlContent.toString());
     }
 
     /**
@@ -387,46 +384,43 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
     }
 
     /**
-     * Updates the given build project(package) with all the definitions from the modules which were used within the
+     * Updates the evaluation project with all the definitions from the modules which were used within the
      * user expression.
      */
-    private BuildProject fillOtherModuleDefinitions(BuildProject evaluationProject) {
+    private void fillOtherModuleDefinitions() throws Exception {
         ModuleId currentModuleId = context.getModule().moduleId();
         ModuleId defaultModuleId = context.getModule().packageInstance().getDefaultModule().moduleId();
-        Package currentPackage = evaluationProject.currentPackage();
         for (Module module : context.getModule().packageInstance().modules()) {
             if (module.moduleId() != defaultModuleId && module.moduleId() != currentModuleId) {
-                currentPackage = updateModuleDefinitions(currentPackage, module);
+                generateModuleDefinitions(module);
             }
         }
-        return (BuildProject) currentPackage.project();
     }
 
-    private Package updateModuleDefinitions(Package currentPackage, Module module) {
+    private void generateModuleDefinitions(Module module) throws Exception {
+        // Todo: [IMPORTANT] Refactor to use in-memory project update APIs instead of using the FileWriter, once the
+        //  project update API performance issues are fixed.
+
         String[] moduleNameParts = module.moduleId().moduleName().split("\\.");
         // We don't need the 0th element (as its the default module name).
         moduleNameParts = Arrays.copyOfRange(moduleNameParts, 1, moduleNameParts.length);
 
-        Path filePath = tempProjectDir;
-        if (moduleNameParts.length > 0) {
-            filePath = tempProjectDir.resolve(ProjectConstants.MODULES_ROOT);
-            for (String moduleNamePart : moduleNameParts) {
-                filePath = filePath.resolve(moduleNamePart);
-            }
+        // If moduleNameParts is 0, detected module should the default module (therefore need to be skipped)
+        if (moduleNameParts.length == 0) {
+            return;
+        }
+        Path filePath = tempProjectDir.resolve(ProjectConstants.MODULES_ROOT);
+        for (String moduleNamePart : moduleNameParts) {
+            filePath = filePath.resolve(moduleNamePart);
+        }
+        if (!Files.exists(filePath)) {
+            Files.createDirectories(filePath);
         }
 
-        PackageManifest pkgManifest = currentPackage.manifest();
-        ModuleId newModuleId = ModuleId.create(filePath.toString(), currentPackage.packageId());
-        ModuleName moduleName = ModuleName.from(currentPackage.packageName(), filePath.getFileName().toString());
-        ModuleDescriptor moduleDesc = ModuleDescriptor.from(moduleName, pkgManifest.descriptor());
-        DocumentId documentId = DocumentId.create(filePath.resolve("main" + BAL_FILE_EXT).toString(), newModuleId);
-
-        String mainContent = extractModuleDefinitions(module);
-        DocumentConfig documentConfig = DocumentConfig.from(documentId, mainContent, filePath.getFileName().toString());
-        ModuleConfig newModuleConfig = ModuleConfig.from(newModuleId, moduleDesc,
-                Collections.singletonList(documentConfig), Collections.emptyList(), null, Collections.emptyList());
-
-        return currentPackage.modify().addModule(newModuleConfig).apply();
+        File moduleMainFile = Files.createTempFile(filePath, MAIN_FILE_PREFIX, BAL_FILE_EXT).toFile();
+        moduleMainFile.deleteOnExit();
+        String moduleDefinitions = extractModuleDefinitions(module);
+        writeToFile(moduleMainFile, moduleDefinitions);
     }
 
     private String extractModuleDefinitions(Module module) {
@@ -538,6 +532,21 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             }
         }
         return bVar.computeValue();
+    }
+
+    /**
+     * Helper method to write a string source to a file.
+     *
+     * @param content Content to write to the file.
+     * @throws EvaluationException If writing was unsuccessful.
+     */
+    private void writeToFile(File file, String content) throws EvaluationException {
+        try (FileWriter fileWriter = new FileWriter(file, Charset.defaultCharset())) {
+            fileWriter.write(content);
+        } catch (Exception e) {
+            throw createEvaluationException(String.format("error occurred while writing to a temp file at: '%s'",
+                    file.getPath()));
+        }
     }
 
     /**
