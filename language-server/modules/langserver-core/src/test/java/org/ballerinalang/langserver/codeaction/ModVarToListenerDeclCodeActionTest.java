@@ -47,7 +47,8 @@ public class ModVarToListenerDeclCodeActionTest extends AbstractCodeActionTest {
     public Object[][] dataProvider() {
         return new Object[][]{
                 {"modVarToListenerDecl1.json", "modVarToListenerDecl1.bal"},
-                {"modVarToListenerDecl2.json", "project/main.bal"}
+                {"modVarToListenerDecl2.json", "project/main.bal"},
+                {"modVarToListenerDecl3.json", "modVarToListenerDecl3.bal"},
         };
     }
 
@@ -55,6 +56,7 @@ public class ModVarToListenerDeclCodeActionTest extends AbstractCodeActionTest {
     public Object[][] negativeTestDataProvider() {
         return new Object[][]{
                 {"negative_modVarToListnerDecl1.json", "negative_modVarToListnerDecl1.bal"},
+                {"negative_modVarToListnerDecl2.json", "negative_modVarToListnerDecl2.bal"}
         };
     }
 
