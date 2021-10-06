@@ -45,8 +45,6 @@ import java.util.concurrent.CompletableFuture;
 @JsonSegment("performanceAnalyzer")
 public class PerformanceAnalyzerService implements ExtendedLanguageServerService {
 
-    final static String AUTH_TOKEN = "AUTH TOKEN HERE";
-    final static String AUTH_COOKIE = "COOKIE HERE";
     final static String CHOREO_API = "https://app.dv.choreo.dev/get_estimations/2.0";
     final static String ERROR = "error";
     final static String SUCCESS = "Success";
@@ -90,13 +88,15 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
             if (data == null) {
                 return null;
             }
-            JsonObject graphData = getDataFromChoreo(data, AnalyzeType.ADVANCED);
+            JsonObject graphData = getDataFromChoreo(data, AnalyzeType.ADVANCED,
+                    request.getChoreoToken(), request.getChoreoCookie());
 
             if (graphData == null) {
                 return null;
             }
 
-            JsonObject realTimeData = getDataFromChoreo(data, AnalyzeType.REALTIME);
+            JsonObject realTimeData = getDataFromChoreo(data, AnalyzeType.REALTIME,
+                    request.getChoreoToken(), request.getChoreoCookie());
 
             graphData.add("realtimeData", realTimeData);
 
@@ -126,7 +126,7 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
                 return null;
             }
 
-            return getDataFromChoreo(data, AnalyzeType.REALTIME);
+            return getDataFromChoreo(data, AnalyzeType.REALTIME, request.getChoreoToken(), request.getChoreoCookie());
         });
     }
 
@@ -137,7 +137,8 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
      * @param analyzeType analyze type
      * @return graph data json
      */
-    private JsonObject getDataFromChoreo(JsonObject data, AnalyzeType analyzeType) {
+    private JsonObject getDataFromChoreo(JsonObject data, AnalyzeType analyzeType,
+                                         String authToken, String authCookie) {
 
         Gson gson = new Gson();
         data.add("analyzeType", gson.toJsonTree(analyzeType.getAnalyzeType()));
@@ -147,8 +148,8 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(CHOREO_API))
                     .headers("Content-Type", "application/json",
-                            "Authorization", AUTH_TOKEN,
-                            "Cookie", AUTH_COOKIE)
+                            "Authorization", authToken,
+                            "Cookie", authCookie)
                     .POST(HttpRequest.BodyPublishers.ofString(data.toString()))
                     .build();
 
