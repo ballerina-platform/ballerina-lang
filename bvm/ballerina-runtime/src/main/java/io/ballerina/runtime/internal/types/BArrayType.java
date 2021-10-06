@@ -66,7 +66,6 @@ public class BArrayType extends BType implements ArrayType {
     public BArrayType(Type elemType, int size, boolean readonly) {
         this(0, size, readonly, TypeChecker.hasFillerValue(elemType));
         setElementType(elemType);
-        setFlagsBasedOnElementType();
     }
 
     public BArrayType(int typeFlags, int size, boolean readonly, boolean hasFillerValue) {
@@ -87,7 +86,8 @@ public class BArrayType extends BType implements ArrayType {
         }
         setFlagsBasedOnElementType();
         int elementTypeTag = elementType.getTag();
-        if (elementTypeTag == TypeTags.UNION_TAG || elementTypeTag == TypeTags.FINITE_TYPE_TAG) {
+        if (elementTypeTag == TypeTags.UNION_TAG || elementTypeTag == TypeTags.FINITE_TYPE_TAG ||
+                TypeTags.isXMLTypeTag(elementTypeTag)) {
             this.hasFillerValue = TypeChecker.hasFillerValue(elementType);
         }
     }

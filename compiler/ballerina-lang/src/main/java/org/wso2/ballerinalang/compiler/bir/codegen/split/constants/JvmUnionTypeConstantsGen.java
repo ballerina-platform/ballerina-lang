@@ -73,7 +73,7 @@ public class JvmUnionTypeConstantsGen {
      */
     public JvmUnionTypeConstantsGen(PackageID packageID) {
         unionVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(
-                packageID, JvmConstants.BUNION_TYPE_CONSTANT_CLASS_NAME);
+                packageID, JvmConstants.UNION_TYPE_CONSTANT_CLASS_NAME);
         generateUnionTypeConstantsClassInit();
         visitUnionTypeInitMethod();
         funcNames = new ArrayList<>();
