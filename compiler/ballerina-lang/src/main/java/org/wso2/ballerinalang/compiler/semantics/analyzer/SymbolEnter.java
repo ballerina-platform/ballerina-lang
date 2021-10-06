@@ -1525,8 +1525,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefinition.setPrecedence(this.typePrecedence++);
 
         BSymbol typeDefSymbol = Symbols.createTypeDefinitionSymbol(Flags.asMask(typeDefinition.flagSet),
-                names.fromIdNode(typeDefinition.name), env.enclPkg.symbol.pkgID, definedType, env.scope.owner,
-                typeDefinition.name.pos, SOURCE);
+                names.fromIdNode(typeDefinition.name), env.enclPkg.packageID, definedType, env.scope.owner,
+                typeDefinition.name.pos, getOrigin(typeDefinition.name.value));
         typeDefSymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
 
         boolean isLabel = true;
@@ -1549,6 +1549,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
             typeDefSymbol = definedType.tsymbol;
+            typeDefSymbol.pos = typeDefinition.name.pos;
         }
 
         boolean isErrorIntersection = isErrorIntersection(definedType);
@@ -1562,12 +1563,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BType effectiveDefinedType = isIntersectionType ? ((BIntersectionType) referenceConstraintType).effectiveType :
                 referenceConstraintType;
-
-        typeDefSymbol.name = names.fromIdNode(typeDefinition.getName());
-        typeDefSymbol.originalName = names.originalNameFromIdNode(typeDefinition.getName());
-        typeDefSymbol.pkgID = env.enclPkg.packageID;
-        typeDefSymbol.pos = typeDefinition.name.pos;
-        typeDefSymbol.origin = getOrigin(typeDefSymbol.name);
 
         if (isIntersectionType) {
             BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
