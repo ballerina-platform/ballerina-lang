@@ -68,7 +68,8 @@ public class DebugHitListener extends TimerTask {
         while (!events.isEmpty() && connector.isConnected()) {
             StoppedEventArguments event = events.poll();
             if (event == null || !(event.getReason().equals(StoppedEventArgumentsReason.BREAKPOINT)
-                    || event.getReason().equals(StoppedEventArgumentsReason.STEP))) {
+                    || event.getReason().equals(StoppedEventArgumentsReason.STEP)
+                    || event.getReason().equals(StoppedEventArgumentsReason.PAUSE))) {
                 continue;
             }
             BallerinaTestDebugPoint bp = null;
