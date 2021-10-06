@@ -178,6 +178,112 @@ function testExpr() {
     int x = tc.testFn();
 }
 
+function testTableConstructor() {
+    table<Person> key(id) tbl1 = table key(id) [
+        {id: 1001, name: "John Doe"}
+    ];
+}
+
+function testXMLAttributeAccess() {
+    xml x = xml `<root attr="attr-val"><a></a><b></b></root>`;
+    string|error val = x.attr;
+
+    xmlns "www.url.com" as ns;
+    x = xml `<root attr="attr-val" ns:attr="attr-with-ns-val"><a></a><b></b></root>`;
+    val = x.ns:attr;
+
+    string|error|() val2 = x?.attr;
+}
+
+function testAnnotAccess() {
+    Annot? annot = Person.@v1;
+}
+
+function testErrorConstructor() {
+    string msg = "Op failed";
+    error err1 = error(msg, a = "foo");
+    Error err2 = error Error(msg, err1, b = 10);
+}
+
+function testAnonFuncs() {
+    string name = "Pubudu";
+    var greet = function () returns string => string `Hello ${name}`;
+
+    var fn1 = @v1 isolated function(int x, int y = 0, string... z) {
+        int total = x + y;
+    };
+
+    int c = 10;
+    function (int, int) returns int add = (a, b) => a + b + c;
+}
+
+function testLetExpr() {
+    var v = let int x = 10, @v1{foo: "Foo"} Person p = {id: 10, name: "J. Doe"} in x * 2;
+}
+
+function testTypeOf() {
+    int x = 10;
+    typedesc<anydata> td = typeof (x + 25);
+}
+
+function testBitwiseExpr() {
+    int x = 16284;
+    int res = x & 24;
+    res = x ^ 2048;
+    res = 12345 | x;
+}
+
+function testLogicalAndConditionalExpr() {
+    boolean expr = 10 < 20;
+    boolean res = expr && true;
+    res = (20 > 15) || expr;
+
+    string? name = ();
+    string greet = "Hello " + (name ?: "Foo");
+}
+
+function testShiftExpr() {
+    byte shift = 8;
+    int res = 16 << shift;
+    res = 16 >> 4;
+    res = shift >>> 2;
+}
+
+function testRangeExpr() {
+    int x = 256;
+    int a = 10;
+    int b = 20;
+    var v1 = x...1024;
+    var v2 = b...x;
+    var v3 = a..<b;
+}
+
+function testTrapExpr() {
+    int|error res = trap panics();
+}
+
+function testXMLFilterExpr() {
+    xml x1 = xml `<ns:root></ns:root>`;
+    xml x2 = x1.<ns:*>;
+    x2 = x1.<ns:*|k:*>;
+}
+
+function testXMLStepExpr() {
+    xml x1 = xml `<ns:root><ns:child></ns:child></ns:root>`;
+    xml x2 = x1/<ns:child>;
+    x2 = x1/*;
+    x2 = x1/<*>;
+    x2 = x1/**/<ns:child>;
+    x2 = x1/<ns:child>[2];
+    x2 = x1/**/<ns:child|k:child>;
+    string s = x1/**/<ns:child>.toString();
+}
+
+function testGroupExpr() {
+    int x = ((((10 + 5) / 3) + 7));
+}
+
+
 // utils
 
 class PersonObj {
@@ -217,3 +323,26 @@ class TestClass {
         return 1;
     }
 }
+
+@v1 {
+    foo: "bar"
+}
+type Person record {|
+    readonly int id;
+    string name;
+|};
+
+type Annot record {
+    string foo;
+};
+
+public annotation Annot v1 on type, var;
+
+type Error error<record {}>;
+
+function panics() returns int {
+    panic error("Failed");
+}
+
+xmlns "foo" as ns;
+xmlns "bar" as k;
