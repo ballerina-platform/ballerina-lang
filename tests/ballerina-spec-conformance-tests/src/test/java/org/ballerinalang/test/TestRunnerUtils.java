@@ -374,17 +374,17 @@ public class TestRunnerUtils {
         int noOfDiagnostics = actualErrorMessages.size();
         for (int i = 0; i < noOfDiagnostics; i++) {
             String actualLineNum = actualLineNumbers.get(i);
-            String expLineNum;
+            String expectedLineNum;
             String expValue;
             try {
-                expLineNum = String.valueOf(lineNumbers.get(i) + absLineNum);
+                expectedLineNum = String.valueOf(lineNumbers.get(i) + absLineNum);
                 expValue = outputValues.get(i);
             } catch (IndexOutOfBoundsException e) {
-                expLineNum = null;
+                expectedLineNum = null;
                 expValue = null;
             }
-            setResultsAttributes(context, actualErrorMessages.get(i), expValue, actualLineNum, expLineNum);
-            Assert.assertEquals(actualLineNum, expLineNum);
+            setResultsAttributes(context, actualErrorMessages.get(i), expValue, actualLineNum, expectedLineNum);
+            Assert.assertEquals(actualLineNum, expectedLineNum);
         }
         if (outputValues.size() > noOfDiagnostics) {
             setResultsAttributes(context, null, outputValues.get(noOfDiagnostics), null,
@@ -408,10 +408,11 @@ public class TestRunnerUtils {
 
         BRunUtil.ExitDetails exitDetails = BRunUtil.run(compileResult);
         if (!exitDetails.errorOutput.isEmpty()) {
-            String outputVal = outputValues.get(0);
-            setResultsAttributes(context, exitDetails.errorOutput, outputVal, null,
+            String actualOutput = exitDetails.errorOutput;
+            String expectedOutput = outputValues.get(0);
+            setResultsAttributes(context, actualOutput, expectedOutput, null,
                                  String.valueOf(lineNumbers.get(0) + absLineNum));
-            Assert.assertEquals(outputVal, exitDetails.errorOutput);
+            Assert.assertEquals(actualOutput, expectedOutput);
         }
 
         String consoleOutput = exitDetails.consoleOutput;
@@ -427,7 +428,7 @@ public class TestRunnerUtils {
             }
             String lineNo = String.valueOf(lineNumbers.get(i) + absLineNum);
             setResultsAttributes(context, actualOutput, expectedOutput, lineNo, lineNo);
-            Assert.assertEquals(expectedOutput, actualOutput);
+            Assert.assertEquals(actualOutput, expectedOutput);
         }
 
         if (results.length > size) {
@@ -442,11 +443,11 @@ public class TestRunnerUtils {
         Matcher matcherForErrorLineNum = Pattern.compile(":(\\d+)\\)$").matcher(errorMsg);
 
         if (matcherForErrorMsg.find() && matcherForErrorLineNum.find()) {
-            int lineNum = lineNumbers.get(0) + absLineNum;
-            String errorLineNum = String.valueOf(Integer.parseInt(matcherForErrorLineNum.group(1)) + absLineNum);
-            setResultsAttributes(context, matcherForErrorMsg.group(2), outputValues.get(0),
-                                 errorLineNum, String.valueOf(lineNum));
-            Assert.assertEquals(errorLineNum, String.valueOf(lineNum));
+            String actualLineNum = String.valueOf(Integer.parseInt(matcherForErrorLineNum.group(1)) + absLineNum);
+            String expectedLineNum = String.valueOf(lineNumbers.get(0) + absLineNum);
+            setResultsAttributes(context, matcherForErrorMsg.group(2), outputValues.get(0), actualLineNum,
+                                 expectedLineNum);
+            Assert.assertEquals(actualLineNum, expectedLineNum);
         }
     }
 
