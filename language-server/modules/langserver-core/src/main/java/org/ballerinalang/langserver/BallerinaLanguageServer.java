@@ -46,21 +46,28 @@ import org.ballerinalang.langserver.task.BackgroundTaskService;
 import org.ballerinalang.langserver.util.LSClientUtil;
 import org.eclipse.lsp4j.CodeLensOptions;
 import org.eclipse.lsp4j.CompletionOptions;
+import org.eclipse.lsp4j.DefinitionRegistrationOptions;
 import org.eclipse.lsp4j.DidChangeWatchedFilesRegistrationOptions;
+import org.eclipse.lsp4j.DocumentFilter;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
 import org.eclipse.lsp4j.FileSystemWatcher;
+import org.eclipse.lsp4j.HoverRegistrationOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.InitializedParams;
+import org.eclipse.lsp4j.ReferenceRegistrationOptions;
 import org.eclipse.lsp4j.Registration;
 import org.eclipse.lsp4j.RegistrationParams;
 import org.eclipse.lsp4j.RenameOptions;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.SignatureHelpOptions;
+import org.eclipse.lsp4j.TextDocumentChangeRegistrationOptions;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
+import org.eclipse.lsp4j.TextDocumentRegistrationOptions;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.WatchKind;
 import org.eclipse.lsp4j.WorkspaceClientCapabilities;
+import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
@@ -130,10 +137,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
         res.getCapabilities().setCompletionProvider(completionOptions);
         res.getCapabilities().setSignatureHelpProvider(signatureHelpOptions);
-        res.getCapabilities().setHoverProvider(true);
         res.getCapabilities().setDocumentSymbolProvider(true);
-        res.getCapabilities().setDefinitionProvider(true);
-        res.getCapabilities().setReferencesProvider(true);
         res.getCapabilities().setCodeActionProvider(true);
         res.getCapabilities().setDocumentFormattingProvider(true);
         res.getCapabilities().setDocumentRangeFormattingProvider(true);
@@ -141,6 +145,17 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setImplementationProvider(false);
         res.getCapabilities().setFoldingRangeProvider(true);
         res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
+        
+        // Hover, references and definition support will be registered dynamically if supported
+        if (!LSClientUtil.isDynamicHoverRegistrationSupported(params.getCapabilities().getTextDocument())) {
+                    res.getCapabilities().setHoverProvider(true);
+        }
+        if (!LSClientUtil.isDynamicDefinitionRegistrationSupported(params.getCapabilities().getTextDocument())) {
+            res.getCapabilities().setDefinitionProvider(true);
+        }
+        if (!LSClientUtil.isDynamicReferencesRegistrationSupported(params.getCapabilities().getTextDocument())) {
+            res.getCapabilities().setReferencesProvider(true);
+        }
 
         // Register LS semantic tokens capabilities if dynamic registration is not available
         if (!LSClientUtil.isDynamicSemanticTokensRegistrationSupported(params.getCapabilities().getTextDocument()) &&
@@ -202,14 +217,112 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     public void initialized(InitializedParams params) {
         LSClientLogger clientLogger = LSClientLogger.getInstance(this.serverContext);
         clientLogger.logMessage("LS offline source compilation set to " + CommonUtil.COMPILE_OFFLINE);
-        startListeningFileChanges();
 
+        // Register dynamic capabilities
+        registerDynamicCapabilities();
+        
+        startListeningFileChanges();
+    }
+
+    /**
+     * Checks and registers required dynamic capabilities.
+     */
+    private void registerDynamicCapabilities() {
+        registerTextSynchronizationForBalaUriScheme();
+        
+        DocumentFilter balaFilter = new DocumentFilter();
+        balaFilter.setScheme(CommonUtil.URI_SCHEME_BALA);
+        DocumentFilter fileFilter = new DocumentFilter();
+        fileFilter.setScheme(CommonUtil.URI_SCHEME_FILE);
+        fileFilter.setLanguage(CommonUtil.LANGUAGE_ID_BALLERINA);
+        List<DocumentFilter> documentSelectors = List.of(balaFilter, fileFilter);
+
+        registerDynamicHoverSupport(documentSelectors);
+        registerDynamicDefinitionSupport(documentSelectors);
+        registerDynamicReferencesSupport(documentSelectors);
+
+        registerDynamicCommandsSupport();
+        registerDynamicSemanticTokenSupport();
+    }
+
+    /**
+     * "bala" URI scheme is used to make stdlib and langlib files readonly at the editor. 
+     */
+    private void registerTextSynchronizationForBalaUriScheme() {
+        LanguageClient client = serverContext.get(ExtendedLanguageClient.class);
+        LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
+
+        DocumentFilter balaFilter = new DocumentFilter();
+        balaFilter.setScheme(CommonUtil.URI_SCHEME_BALA);
+
+        // Register text synchronization for bala scheme
+        if (LSClientUtil.isDynamicSynchronizationRegistrationSupported(clientCapabilities.getTextDocCapabilities())) {
+            TextDocumentRegistrationOptions openRegOptions = new TextDocumentRegistrationOptions();
+            openRegOptions.setDocumentSelector(List.of(balaFilter));
+            Registration didOpenRegistration = new Registration(UUID.randomUUID().toString(),
+                    "textDocument/didOpen", openRegOptions);
+
+            TextDocumentChangeRegistrationOptions changeRegOptions = new TextDocumentChangeRegistrationOptions();
+            changeRegOptions.setDocumentSelector(List.of(balaFilter));
+            changeRegOptions.setSyncKind(TextDocumentSyncKind.Full);
+            Registration changeRegistration = new Registration(UUID.randomUUID().toString(), 
+                    "textDocument/didChange", changeRegOptions);
+
+            TextDocumentRegistrationOptions closeRegOptions = new TextDocumentRegistrationOptions();
+            closeRegOptions.setDocumentSelector(List.of(balaFilter));
+            Registration closeRegistration = new Registration(UUID.randomUUID().toString(), 
+                    "textDocument/didClose", closeRegOptions);
+
+            client.registerCapability(new RegistrationParams(List.of(didOpenRegistration)));
+            client.registerCapability(new RegistrationParams(List.of(changeRegistration)));
+            client.registerCapability(new RegistrationParams(List.of(closeRegistration)));
+        }
+        
+        // TODO Server capabilities in server context are out of sync now.
+    }
+
+    private void registerDynamicHoverSupport(List<DocumentFilter> documentSelectors) {
+        LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
+        if (LSClientUtil.isDynamicHoverRegistrationSupported(clientCapabilities.getTextDocCapabilities())) {
+            HoverRegistrationOptions hoverRegOptions = new HoverRegistrationOptions();
+            hoverRegOptions.setDocumentSelector(documentSelectors);
+            Registration hoverRegistration = new Registration(UUID.randomUUID().toString(),
+                    "textDocument/hover", hoverRegOptions);
+            client.registerCapability(new RegistrationParams(List.of(hoverRegistration)));
+        }
+    }
+
+    private void registerDynamicDefinitionSupport(List<DocumentFilter> documentSelectors) {
+        LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
+        if (LSClientUtil.isDynamicDefinitionRegistrationSupported(clientCapabilities.getTextDocCapabilities())) {
+            DefinitionRegistrationOptions definitionRegistrationOptions = new DefinitionRegistrationOptions();
+            definitionRegistrationOptions.setDocumentSelector(documentSelectors);
+            Registration definitionRegistration = new Registration(UUID.randomUUID().toString(),
+                    "textDocument/definition", definitionRegistrationOptions);
+            client.registerCapability(new RegistrationParams(List.of(definitionRegistration)));
+        }
+    }
+
+    private void registerDynamicReferencesSupport(List<DocumentFilter> documentSelectors) {
+        LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
+        if (LSClientUtil.isDynamicReferencesRegistrationSupported(clientCapabilities.getTextDocCapabilities())) {
+            ReferenceRegistrationOptions referencesRegOptions = new ReferenceRegistrationOptions();
+            referencesRegOptions.setDocumentSelector(documentSelectors);
+            Registration referencesRegistration = new Registration(UUID.randomUUID().toString(),
+                    "textDocument/references", referencesRegOptions);
+            client.registerCapability(new RegistrationParams(List.of(referencesRegistration)));
+        }
+    }
+    
+    private void registerDynamicCommandsSupport() {
         // If the client support dynamic registration of commands, we register the capability here
         if (LSClientUtil.isDynamicCommandRegistrationSupported(serverContext)) {
             List<String> commandsList = LSCommandExecutorProvidersHolder.getInstance(serverContext).getCommandsList();
             LSClientUtil.registerCommands(serverContext, commandsList);
         }
-
+    }
+    
+    private void registerDynamicSemanticTokenSupport() {
         // Register LS semantic tokens capabilities if dynamic registration is available
         LSClientCapabilities capabilities = this.serverContext.get(LSClientCapabilities.class);
         if (LSClientUtil.isDynamicSemanticTokensRegistrationSupported(capabilities.getTextDocCapabilities())) {
