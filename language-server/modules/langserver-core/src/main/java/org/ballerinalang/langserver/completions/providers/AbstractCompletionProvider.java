@@ -775,6 +775,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         SnippetBlock snippetBlock = new SnippetBlock(ItemResolverConstants.ANON_FUNCTION, 
                 ItemResolverConstants.FUNCTION, snippetBuilder.toString(), ItemResolverConstants.SNIPPET_TYPE, 
                 SnippetBlock.Kind.SNIPPET);
+        snippetBlock.setId(ItemResolverConstants.ANON_FUNCTION);
         
         return Optional.of(new SnippetCompletionItem(context, snippetBlock));
     }
