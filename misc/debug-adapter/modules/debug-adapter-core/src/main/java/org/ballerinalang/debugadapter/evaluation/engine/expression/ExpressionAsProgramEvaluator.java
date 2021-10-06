@@ -95,8 +95,19 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getPackageOr
  * A base evaluator implementation which provides a more generic evaluation approach to be used for some complex
  * Ballerina expressions (queries, let expressions, etc.).
  * <p>
- * This evaluator transforms the user expression into a standalone ballerina program, which returns the
- * the user expression result as the program output and can be executed in the same debuggee JVM.
+ * This evaluator transforms the user expression into a standalone ballerina program, which returns the the user
+ * expression result as the program output and can be executed in the same debuggee JVM.
+ * <p>
+ * The common execution flow for the expressions based on this evaluator will be as follows.
+ * <ol>
+ * <li> Generates a valid Ballerina program code snippet, which can output the result of the given expression.
+ * <li> Creates a 'BuildProject' instance which contains the given source snippet as its main file.
+ * <li> If the user expression includes same package module usages, extracts all the module-level declarations from the
+ * non-default modules and add them as separate modules into the evaluation package created in above step.
+ * <li> Creates a Ballerina executable jar based on the generated code snippet, in a temp directory.
+ * <li> Invokes 'classloadAndInvokeFunction' in the remote VM to classload the created executable jar and
+ * invoke its '__getEvaluationResult' method. It will return the result of the expression as its return value.
+ * </ol>
  *
  * @since 2.0.0
  */
@@ -132,13 +143,6 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
         try {
-            // The common execution flow for the expressions based on this evaluator will be as follows.
-            // 1. Generates a valid Ballerina program code snippet, which can output the result of the given expression.
-            // 2. Creates and a 'BuildProject' instance which contains the given source snippet as its main file.
-            // 3. Creates a Ballerina executable jar based on the generated code snippet, in a temp directory.
-            // 4. Calls the 'classloadAndInvokeFunction' in the remote VM to classload the created executable jar and
-            //    invoke its '__getEvaluationResult' method. It will return the result of the expression as its return
-            //    value.
             String evaluationSnippet = generateEvaluationSnippet();
             BuildProject project = createProject(evaluationSnippet);
             Path executablePath = createExecutables(project);
@@ -222,8 +226,8 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw createEvaluationException(String.format("error occurred while creating a temporary evaluation " +
-                    "project at: %s, due to: %s", this.tempProjectDir, e.getMessage()));
+            throw createEvaluationException(String.format("error occurred while creating the temporary evaluation " +
+                    "project due to: %s", e.getMessage()));
         }
     }
 

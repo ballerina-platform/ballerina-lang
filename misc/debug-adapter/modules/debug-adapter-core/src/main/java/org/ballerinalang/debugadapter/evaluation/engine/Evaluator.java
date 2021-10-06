@@ -16,7 +16,6 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine;
 
-import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
