@@ -43,6 +43,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.BYTE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INTERSECTION;
@@ -52,9 +53,12 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -180,10 +184,9 @@ public class ExpressionTypeTestNew {
         TypeSymbol type = getExprType(40, 16, 40, 43);
         assertEquals(type.typeKind(), RECORD);
 
-        // Disabled ones due to #26628
-//        assertType(40, 17, 40, 21, STRING);
+        assertType(40, 17, 21, null);
         assertType(40, 23, 40, 33, STRING);
-//        assertType(40, 35, 40, 38, STRING);
+        assertType(40, 35, 38, null);
         assertType(40, 40, 40, 42, INT);
     }
 
@@ -195,19 +198,18 @@ public class ExpressionTypeTestNew {
         TypeSymbol constraint = ((MapTypeSymbol) type).typeParam();
         assertEquals(constraint.typeKind(), JSON);
 
-        // Disabled ones due to #26628
-//        assertType(42, 14, 42, 18, STRING);
-        assertType(42, 20, 42, 30, STRING);
-//        assertType(42, 32, 42, 35, STRING);
-        assertType(42, 37, 42, 39, INT);
+        assertType(42, 14, 18, null);
+        assertType(42, 20, 30, STRING);
+        assertType(42, 32, 35, null);
+        assertType(42, 37, 39, INT);
     }
 
-    @Test(dataProvider = "FieldAccessPosProvider")
-    public void testFieldAccessExpr(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
+    @Test(dataProvider = "AccessPosProvider")
+    public void testAccessExpr(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
         assertType(sLine, sCol, eLine, eCol, kind);
     }
 
-    @DataProvider(name = "FieldAccessPosProvider")
+    @DataProvider(name = "AccessPosProvider")
     public Object[][] getFieldAccessPos() {
         return new Object[][]{
                 // Field access
@@ -227,7 +229,7 @@ public class ExpressionTypeTestNew {
     public void testObjecTypeInit(int sLine, int sCol, int eLine, int eCol) {
         TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
         assertEquals(type.typeKind(), TYPE_REFERENCE);
-        assertEquals(((TypeReferenceTypeSymbol) type).getName().get(), "PersonObj");
+        assertEquals(type.getName().get(), "PersonObj");
         assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), OBJECT);
     }
 
@@ -240,8 +242,15 @@ public class ExpressionTypeTestNew {
     }
 
     @Test
+    public void testArgsInNewExpr() {
+        assertType(57, 24, 57, 32, STRING);
+        assertType(58, 33, 58, 41, STRING);
+    }
+
+    @Test
     public void testObjectConstructorExpr() {
         assertType(64, 15, 68, 5, OBJECT);
+        assertType(65, 15, 65, 19, null);
         assertType(65, 22, 65, 28, STRING);
         assertType(67, 45, 67, 54, STRING);
         assertType(67, 45, 67, 49, OBJECT);
@@ -308,6 +317,7 @@ public class ExpressionTypeTestNew {
         TypeSymbol type = getExprType(101, 4, 101, 21);
         assertEquals(type.typeKind(), FUTURE);
         assertEquals(((FutureTypeSymbol) type).typeParameter().get().typeKind(), NIL);
+//        assertType(101, 10, 101, 21, NIL); TODO: https://github.com/ballerina-platform/ballerina-lang/issues/33016
     }
 
     @Test(dataProvider = "CallExprPosProvider")
@@ -320,6 +330,7 @@ public class ExpressionTypeTestNew {
         return new Object[][]{
                 {109, 4, 10, null},
                 {109, 4, 9, UNION},
+                {112, 15, 16, TYPE_REFERENCE},
                 {112, 15, 27, null},
                 {112, 15, 26, STRING},
                 {127, 4, 35, null},
@@ -384,20 +395,212 @@ public class ExpressionTypeTestNew {
         assertEquals(union.memberTypeDescriptors().get(1).typeKind(), ERROR);
     }
 
-    private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
-        TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
-        assertEquals(type.typeKind(), kind);
+    @Test(dataProvider = "TableCtrPosProvider")
+    public void testTableConstructor(int sLine, int sCol, int eLine, int eCol, TypeDescKind expKind) {
+        assertType(sLine, sCol, eLine, eCol, expKind);
     }
 
+    @DataProvider(name = "TableCtrPosProvider")
+    public Object[][] getTableCtrPos() {
+        return new Object[][]{
+                {181, 33, 183, 5, TABLE},
+                {181, 43, 181, 45, null},
+                {182, 25, 182, 35, STRING},
+                {181, 10, 181, 16, null},
+        };
+    }
+
+    @Test(dataProvider = "XMLAttribAccessPos")
+    public void testXMLAttribAccess(int sLine, int sCol, int eLine, int eCol, List<TypeDescKind> memKinds) {
+        TypeSymbol type = assertType(sLine, sCol, eLine, eCol, UNION);
+
+        UnionTypeSymbol union = (UnionTypeSymbol) type;
+        List<TypeSymbol> userSpecifiedMemberTypes = union.userSpecifiedMemberTypes();
+
+        for (int i = 0; i < userSpecifiedMemberTypes.size(); i++) {
+            TypeSymbol memType = userSpecifiedMemberTypes.get(i);
+            assertEquals(memType.typeKind(), memKinds.get(i));
+        }
+    }
+
+    @DataProvider(name = "XMLAttribAccessPos")
+    public Object[][] getXMLAttrib() {
+        return new Object[][]{
+                {188, 23, 188, 29, List.of(STRING, ERROR)},
+                {192, 10, 192, 19, List.of(STRING, ERROR)},
+//                TODO: https://github.com/ballerina-platform/ballerina-lang/issues/33018
+//                {194, 27, 194, 34, List.of(STRING, ERROR, NIL)},
+        };
+    }
+
+    @Test
+    public void testAnnotAccess() {
+        UnionTypeSymbol type = (UnionTypeSymbol) assertType(198, 19, 198, 29, UNION);
+
+        assertEquals(type.userSpecifiedMemberTypes().get(0).typeKind(), TYPE_REFERENCE);
+        assertEquals(type.userSpecifiedMemberTypes().get(1).typeKind(), NIL);
+
+//        TODO: https://github.com/ballerina-platform/ballerina-lang/issues/33017
+//        assertType(198, 19, 198, 25, TYPEDESC);
+    }
+
+    @Test(dataProvider = "ErrorCtrPos")
+    public void testErrorConstructor(int sLine, int sCol, int eLine, int eCol, TypeDescKind expKind) {
+        assertType(sLine, sCol, eLine, eCol, expKind);
+    }
+
+    @DataProvider(name = "ErrorCtrPos")
+    public Object[][] getErrorCtrPos() {
+        return new Object[][]{
+                {203, 17, 203, 38, ERROR},
+                {203, 23, 203, 26, STRING},
+//                {203, 28, 203, 29, null}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32994
+                {203, 32, 203, 37, STRING},
+                {204, 23, 204, 28, null},
+                {204, 34, 204, 38, ERROR},
+                {204, 44, 204, 46, INT},
+        };
+    }
+
+    @Test
+    public void testErrorCtr2() {
+        TypeSymbol type = assertType(204, 17, 204, 47, TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), ERROR);
+    }
+
+    @Test(dataProvider = "AnonFuncPos")
+    public void testAnonFuncs(int sLine, int sCol, int eLine, int eCol, TypeDescKind expKind) {
+        assertType(sLine, sCol, eLine, eCol, expKind);
+    }
+
+    @DataProvider(name = "AnonFuncPos")
+    public Object[][] getAnonFnPos() {
+        return new Object[][]{
+                {209, 16, 209, 68, FUNCTION},
+                {209, 46, 209, 68, STRING},
+                {211, 14, 213, 5, FUNCTION},
+                {211, 27, 213, 5, FUNCTION},
+                {211, 51, 211, 52, INT},
+                {216, 42, 216, 61, FUNCTION},
+                {216, 43, 216, 44, null},
+                {216, 56, 216, 57, INT},
+        };
+    }
+
+    @Test(dataProvider = "LetExprPos")
+    public void testLetExpr(int sLine, int sCol, int eLine, int eCol, TypeDescKind expKind) {
+        assertType(sLine, sCol, eLine, eCol, expKind);
+    }
+
+    @DataProvider(name = "LetExprPos")
+    public Object[][] getLetExprPos() {
+        return new Object[][]{
+                {220, 12, 220, 88, INT},
+                {220, 24, 220, 26, INT},
+//                {220, 37, 220, 42, STRING}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32999
+                {220, 70, 220, 78, STRING},
+                {220, 83, 220, 88, INT},
+        };
+    }
+
+    @Test(dataProvider = "TypeOfPos")
+    public void testTypeOfExpr(int sLine, int sCol, int eLine, int eCol, TypeDescKind expKind) {
+        assertType(sLine, sCol, eLine, eCol, expKind);
+    }
+
+    @DataProvider(name = "TypeOfPos")
+    public Object[][] getTypeOfExprPos() {
+        return new Object[][]{
+                {225, 27, 225, 42, TYPEDESC},
+                {225, 34, 225, 42, INT},
+        };
+    }
+
+    @Test(dataProvider = "BitwiseExprPos")
+    public void testBitwiseExpr(int sLine, int sCol, int eLine, int eCol, TypeDescKind expKind) {
+        assertType(sLine, sCol, eLine, eCol, expKind);
+    }
+
+    @DataProvider(name = "BitwiseExprPos")
+    public Object[][] getBitwiseExprPos() {
+        return new Object[][]{
+                {230, 14, 230, 15, INT},
+                {230, 14, 230, 20, INT},
+                {231, 10, 231, 18, INT},
+                {232, 10, 232, 19, INT},
+        };
+    }
+
+    @Test(dataProvider = "LogicalExprPos")
+    public void testLogicalExpr(int sLine, int sCol, int eLine, int eCol, TypeDescKind expKind) {
+        assertType(sLine, sCol, eLine, eCol, expKind);
+    }
+
+    @DataProvider(name = "LogicalExprPos")
+    public Object[][] getLogicalExprPos() {
+        return new Object[][]{
+                // Logical expr
+                {237, 18, 237, 30, BOOLEAN},
+                {237, 18, 237, 22, BOOLEAN},
+                {238, 10, 238, 27, BOOLEAN},
+                {238, 11, 238, 13, INT},
+//                // Conditional expr
+                {241, 31, 241, 44, STRING},
+                {241, 31, 241, 35, UNION},
+                {241, 39, 241, 44, STRING},
+                // Shift expr
+                {246, 14, 246, 25, INT},
+                {246, 20, 246, 25, BYTE},
+                {247, 10, 247, 17, INT},
+                {248, 10, 248, 21, BYTE},
+                // Range expr
+                {255, 13, 255, 21, OBJECT},
+                {256, 13, 256, 18, OBJECT},
+                {257, 13, 257, 18, OBJECT},
+                // XML navigation
+                {266, 13, 266, 22, XML},
+                {267, 9, 267, 22, XML},
+                {272, 13, 272, 26, XML},
+                {273, 9, 273, 13, XML},
+                {274, 9, 274, 15, XML},
+                {275, 9, 275, 25, XML},
+                // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/33015
+//                {276, 9, 276, 25, XML},
+//                {276, 23, 276, 24, INT},
+                {277, 9, 277, 33, XML},
+                // Group expr
+                {282, 12, 282, 34, INT},
+                {282, 14, 282, 28, INT},
+
+        };
+    }
+
+    @Test
+    public void testTrapExpr() {
+        UnionTypeSymbol type = (UnionTypeSymbol) assertType(261, 20, 261, 33, UNION);
+        assertEquals(type.userSpecifiedMemberTypes().get(0).typeKind(), INT);
+        assertEquals(type.userSpecifiedMemberTypes().get(1).typeKind(), ERROR);
+        assertType(261, 25, 261, 33, INT);
+    }
+
+
+    // utils
+
     private void assertType(int line, int sCol, int eCol, TypeDescKind kind) {
+        assertType(line, sCol, line, eCol, kind);
+    }
+
+    private TypeSymbol assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
         Optional<TypeSymbol> type = model.typeOf(
-                LineRange.from("expressions_test.bal", LinePosition.from(line, sCol), LinePosition.from(line, eCol)));
+                LineRange.from("expressions_test.bal", LinePosition.from(sLine, sCol), LinePosition.from(eLine, eCol)));
 
         if (kind == null) {
             assertTrue(type.isEmpty());
-        } else {
-            assertEquals(type.get().typeKind(), kind);
+            return null;
         }
+
+        assertEquals(type.get().typeKind(), kind);
+        return type.get();
     }
 
     private TypeSymbol getExprType(int sLine, int sCol, int eLine, int eCol) {
