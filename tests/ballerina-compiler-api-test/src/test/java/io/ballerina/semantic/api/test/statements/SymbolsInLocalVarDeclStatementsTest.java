@@ -21,20 +21,16 @@ package io.ballerina.semantic.api.test.statements;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
-import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
-import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.List;
-import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertBasicsAndGetSymbol;
@@ -61,8 +57,10 @@ public class SymbolsInLocalVarDeclStatementsTest {
     }
 
     @Test(dataProvider = "PosProvider")
-    public void testSymbols(int line, int col, String expName, TypeDescKind expTypeKind, boolean isAnnotated, boolean isFinal) {
-        VariableSymbol symbol = (VariableSymbol) assertBasicsAndGetSymbol(model, srcFile, line, col, expName, VARIABLE);
+    public void testSymbols(int line, int col, String expName, TypeDescKind expTypeKind, boolean isAnnotated,
+                            boolean isFinal) {
+        VariableSymbol symbol =
+                (VariableSymbol) assertBasicsAndGetSymbol(model, srcFile, line, col, expName, VARIABLE);
 
         // check annotations (metadata)
         List<AnnotationSymbol> fieldAnnots = symbol.annotations();

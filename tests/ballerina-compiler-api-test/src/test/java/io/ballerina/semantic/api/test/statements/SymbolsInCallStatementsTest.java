@@ -19,17 +19,10 @@
 package io.ballerina.semantic.api.test.statements;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
-import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
-import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
-import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
-import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import org.ballerinalang.test.BCompileUtil;
@@ -40,16 +33,10 @@ import org.testng.annotations.Test;
 import java.util.List;
 import java.util.Optional;
 
-import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
-import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
-import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
-import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
-import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertBasicsAndGetSymbol;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
-import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -71,7 +58,8 @@ public class SymbolsInCallStatementsTest {
 
     @Test(dataProvider = "FunctionsPosProvider")
     public void testFunctions(int line, int col, String expName, SymbolKind expSymbolKind, List<String> expParams) {
-        FunctionSymbol functionSymbol = (FunctionSymbol) assertBasicsAndGetSymbol(model, srcFile, line, col, expName, expSymbolKind);
+        FunctionSymbol functionSymbol =
+                (FunctionSymbol) assertBasicsAndGetSymbol(model, srcFile, line, col, expName, expSymbolKind);
 
         FunctionTypeSymbol fnType = functionSymbol.typeDescriptor();
 

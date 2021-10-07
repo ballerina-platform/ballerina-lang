@@ -19,26 +19,16 @@
 package io.ballerina.semantic.api.test.statements;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
-import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.util.List;
-import java.util.Optional;
-
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertBasicsAndGetSymbol;
-import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
-import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for use of symbol() within transactional statements.
@@ -61,7 +51,8 @@ public class SymbolsInTransactionStatements {
     public void testTransactionStatement() {
         assertBasicsAndGetSymbol(model, srcFile, 18, 12, "value", SymbolKind.VARIABLE);
         assertBasicsAndGetSymbol(model, srcFile, 19, 8, "call1", SymbolKind.FUNCTION);
-//        assertBasicsAndGetSymbol(model, srcFile, 27, 20, "e", SymbolKind.VARIABLE);   // TODO: Symbols in On fail statements error
+        // TODO: Symbols in On fail statements error
+//        assertBasicsAndGetSymbol(model, srcFile, 27, 20, "e", SymbolKind.VARIABLE);
 //        assertBasicsAndGetSymbol(model, srcFile, 28, 8, "call3", SymbolKind.FUNCTION);
         assertBasicsAndGetSymbol(model, srcFile, 32, 17, "call2", SymbolKind.FUNCTION);
     }
