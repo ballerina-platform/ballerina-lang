@@ -51,7 +51,7 @@ public class ReportGenerator {
     public static final String ERROR_KIND_TESTS_REPORT = "error_kind_tests_report_template.html";
     public static final String SKIPPED_TESTS_REPORT = "skipped_tests_report_template.html";
     public static final String FAILED_TESTS_REPORT = "failed_tests_report_template.html";
-    private static final String START_TABLE_ROW  = "<tr class=\"active-row\">";
+    private static final String START_TABLE_ROW = "<tr class=\"active-row\">";
     private static final String END_TABLE_ROW  = "</tr>";
     private List<Map<String, String>> detailsOfFailedTests;
     private List<Map<String, String>> detailsOfSkippedTests;

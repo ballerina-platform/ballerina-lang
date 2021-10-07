@@ -73,45 +73,46 @@ public class TestRunnerUtils {
     public static final String ACTUAL_LINE_NUM = "actual-line-num";
     public static final String EXPECTED_LINE_NUM = "expected-line-num";
     private static int absLineNum;
-    public static String diagnostics;
+    public static String diagnostics = null;
 
     public static void readTestFile(String fileName, String path, List<Object[]> testCases, Set<String> labels)
                                                                                                     throws IOException {
-        absLineNum = 1;
         String subPath = path.split("/conformance/")[1];
         subPath = subPath.substring(0, subPath.lastIndexOf("/") + 1);
 
         File testFile = new File(path);
-        FileReader fileReader = new FileReader(testFile);
-        BufferedReader buffReader = new BufferedReader(fileReader);
-
-        String line = buffReader.readLine();
-        while (line != null) {
-            line = readTestFile(subPath, line, fileName, buffReader, testCases, labels);
+        String tempDir = RESOURCE_DIR + TEMP_DIR + subPath;
+        File tempFile = new File(tempDir);
+        if (!tempFile.isDirectory() && !new File(tempDir).mkdirs()) {
+            reportDiagnostics("Failed to create directory!");
         }
-        buffReader.close();
+        readTestFile(testFile, subPath, fileName, testCases, labels);
     }
 
-    private static String readTestFile(String path, String line, String fileName, BufferedReader buffReader,
-                                       List<Object[]>  testCases, Set<String> selectedLabels) throws IOException {
-        diagnostics = null;
+    private static void readTestFile(File testFile, String path, String fileName, List<Object[]>  testCases,
+                                     Set<String> selectedLabels) throws IOException {
         String tempDir = RESOURCE_DIR + TEMP_DIR + path;
-        new File(tempDir).mkdirs();
-        String tempFileName = fileName.substring(0, fileName.indexOf(".")) + UNDERSCORE + absLineNum;
+        BufferedReader buffReader = new BufferedReader(new FileReader(testFile));
+        absLineNum = 1;
+        String line = buffReader.readLine();
+        while (line != null) {
+            String tempFileName = fileName.substring(0, fileName.indexOf(".")) + UNDERSCORE + absLineNum;
 
-        Map<String, String> headersOfTestCase = readHeadersOfTest(line, buffReader);
-        String kindOfTestCase = getKindOfTest(headersOfTestCase.get(START_TEST_CASE));
-        boolean isSkippedTestCase = isSkippedTestCase(selectedLabels, headersOfTestCase.get(LABELS));
+            Map<String, String> headersOfTestCase = readHeadersOfTest(line, buffReader);
+            String kindOfTestCase = getKindOfTest(headersOfTestCase.get(START_TEST_CASE));
+            boolean isSkippedTestCase = isSkippedTestCase(selectedLabels, headersOfTestCase.get(LABELS));
 
-        Object[] testCase = new Object[9];
-        testCase[0] = kindOfTestCase;
-        testCase[1] = TEMP_DIR + path + tempFileName + BAL_EXTENSION;
-        testCase[4] = fileName;
-        testCase[5] = absLineNum;
-        testCase[6] = isSkippedTestCase;
-        testCase[8] = headersOfTestCase.containsKey(FAIL_ISSUE);
+            Object[] testCase = new Object[9];
+            testCase[0] = kindOfTestCase;
+            testCase[1] = TEMP_DIR + path + tempFileName + BAL_EXTENSION;
+            testCase[4] = fileName;
+            testCase[5] = absLineNum;
+            testCase[6] = isSkippedTestCase;
+            testCase[8] = headersOfTestCase.containsKey(FAIL_ISSUE);
 
-        return writeToBalFile(testCases, testCase, kindOfTestCase, tempDir, tempFileName, buffReader);
+            line = writeToBalFile(testCases, testCase, kindOfTestCase, tempDir, tempFileName, buffReader);
+        }
+        buffReader.close();
     }
 
     private static String writeToBalFile(List<Object[]>  testCases, Object[] testCase, String kindOfTestCase,
