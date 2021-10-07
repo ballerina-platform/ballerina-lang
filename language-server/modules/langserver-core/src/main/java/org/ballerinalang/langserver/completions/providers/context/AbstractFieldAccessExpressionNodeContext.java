@@ -57,9 +57,12 @@ public abstract class AbstractFieldAccessExpressionNodeContext<T extends Node> e
                     } else if (symbol.stream().anyMatch(sym -> sym.kind() == SymbolKind.METHOD)) {
                         rank = 3;
                         break;
+                    } else if (symbol.stream().anyMatch(sym -> sym.kind() == SymbolKind.FUNCTION)) {
+                        rank = 4;
+                        break;
                     }
                 default:
-                    rank = SortingUtil.toRank(context, completionItem, 3);
+                    rank = SortingUtil.toRank(context, completionItem, 4);
             }
 
             sortByAssignability(context, completionItem, rank);

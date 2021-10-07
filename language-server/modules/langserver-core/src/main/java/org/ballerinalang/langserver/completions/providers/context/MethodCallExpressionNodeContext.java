@@ -107,21 +107,24 @@ public class MethodCallExpressionNodeContext extends FieldAccessContext<MethodCa
             int rank;
             // Here, we want to rank methods/functions first
             switch (completionItem.getType()) {
+                case OBJECT_FIELD:
+                case RECORD_FIELD:
+                    rank = withinParameterCtx ? 1 : 2;
+                    break;
                 case SYMBOL:
                     Optional<Symbol> symbol = ((SymbolCompletionItem) completionItem).getSymbol();
                     if (symbol.stream().anyMatch(sym -> sym.kind() == SymbolKind.METHOD)) {
                         rank = withinParameterCtx ? 3 : 1;
                         break;
+                    } else if (symbol.stream().anyMatch(sym -> sym.kind() == SymbolKind.FUNCTION)) {
+                        rank = withinParameterCtx ? 3 : 1;
+                        break;
                     } else if (symbol.stream().anyMatch(sym -> sym.kind() == SymbolKind.XMLNS)) {
-                        rank = 2;
+                        rank = withinParameterCtx ? 2 : 3;
                         break;
                     }
-                case OBJECT_FIELD:
-                case RECORD_FIELD:
-                    rank = 2;
-                    break;
                 default:
-                    rank = SortingUtil.toRank(context, completionItem, 2);
+                    rank = SortingUtil.toRank(context, completionItem, 3);
             }
 
             sortByAssignability(context, completionItem, rank);

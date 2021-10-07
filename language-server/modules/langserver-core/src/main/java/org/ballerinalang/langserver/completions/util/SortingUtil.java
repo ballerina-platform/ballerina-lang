@@ -252,18 +252,26 @@ public class SortingUtil {
         }
     }
 
+    /**
+     * Check if the provided completion item is assignable to the provided type.
+     *
+     * @param completionItem Completion item
+     * @param typeSymbol     Type
+     * @return True if assignable
+     */
     public static boolean isCompletionItemAssignable(LSCompletionItem completionItem, TypeSymbol typeSymbol) {
         Optional<TypeSymbol> optionalTypeSymbol = Optional.empty();
         switch (completionItem.getType()) {
             case SYMBOL:
                 optionalTypeSymbol = ((SymbolCompletionItem) completionItem).getSymbol()
-                        .flatMap(SymbolUtil::getTypeDescriptor)
-                        .flatMap(typeDesc -> {
-                            if (typeDesc instanceof FunctionTypeSymbol) {
-                                return ((FunctionTypeSymbol) typeDesc).returnTypeDescriptor();
-                            }
-                            return Optional.of(typeDesc);
-                        });
+                        .flatMap(symbol ->
+                                SymbolUtil.getTypeDescriptor(symbol)
+                                        .flatMap(typeDesc -> {
+                                            if (symbol instanceof FunctionSymbol) {
+                                                return ((FunctionTypeSymbol) typeDesc).returnTypeDescriptor();
+                                            }
+                                            return Optional.of(typeDesc);
+                                        }));
                 break;
             case OBJECT_FIELD: {
                 ObjectFieldSymbol fieldSymbol = ((ObjectFieldCompletionItem) completionItem).getFieldSymbol();
