@@ -176,10 +176,8 @@ var ob3 = object {
 function testCheckInObjectFieldInitializer4() {
     assertTrue(ob is object {});
     assertFalse(ob is error|MyError|MyErrorTwo);
-    // Should be true and false respectevily, currently wrong due
-    // to https://github.com/ballerina-platform/ballerina-lang/issues/31655.
-    assertFalse(ob3 is MyError);
-    assertTrue(ob3 is object {});
+    assertTrue(ob3 is MyError);
+    assertFalse(ob3 is object {});
 }
 
 function testCheckInObjectFieldInitializer5() returns error? {

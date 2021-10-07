@@ -1,0 +1,24 @@
+{
+  "source": {
+    "file": "repo/bala/ballerina/lang.array/1.1.0/any/modules/lang.array/array.bal"
+  },
+  "position": {
+    "line": 56,
+    "character": 13
+  },
+  "result": [
+    {
+      "range": {
+        "start": {
+          "line": 55,
+          "character": 18
+        },
+        "end": {
+          "line": 55,
+          "character": 29
+        }
+      },
+      "uri": "repo/bala/ballerina/lang.array/1.1.0/any/modules/lang.array/array.bal"
+    }
+  ]
+}

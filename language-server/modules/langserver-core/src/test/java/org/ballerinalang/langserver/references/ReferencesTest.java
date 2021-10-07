@@ -22,6 +22,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
@@ -37,6 +38,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -76,6 +78,27 @@ public class ReferencesTest {
         
         expected.forEach(jsonElement -> Assert.assertTrue(actual.contains(jsonElement)));
     }
+    
+    @Test(dataProvider = "testReferencesWithinStdLibDataProvider")
+    public void testReferencesWithinStdLib(String configPath) throws IOException, URISyntaxException {
+        Path ballerinaHome = Paths.get(CommonUtil.BALLERINA_HOME);
+
+        JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configPath).toString());
+        JsonObject source = configObject.getAsJsonObject("source");
+        Path sourcePath = ballerinaHome.resolve(source.get("file").getAsString());
+        Position position = gson.fromJson(configObject.get("position"), Position.class);
+
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        String actualStr = TestUtil.getReferencesResponse(sourcePath.toString(), position, serviceEndpoint);
+        TestUtil.closeDocument(serviceEndpoint, sourcePath);
+
+        JsonArray expected = configObject.getAsJsonArray("result");
+        JsonArray actual = parser.parse(actualStr).getAsJsonObject().get("result").getAsJsonArray();
+        this.alterExpectedUri(expected, ballerinaHome);
+        this.alterActualStdLibUri(actual);
+
+        expected.forEach(jsonElement -> Assert.assertTrue(actual.contains(jsonElement)));
+    }
 
     @DataProvider
     private Object[][] testDataProvider() {
@@ -90,6 +113,14 @@ public class ReferencesTest {
                 //  being set to lang.annotations.
                 {"ref_package_alias_config1.json"},
                 {"ref_retry_spec_config1.json"},
+        };
+    }
+
+    @DataProvider
+    private Object[][] testReferencesWithinStdLibDataProvider() {
+        log.info("Test textDocument/definition for within Std Lib Cases");
+        return new Object[][]{
+                {"ref_within_stdlib_config1.json"},
         };
     }
 
@@ -116,6 +147,25 @@ public class ReferencesTest {
             JsonObject item = jsonElement.getAsJsonObject();
             String uri = item.get("uri").toString().replace("\"", "");
             String canonicalPath = new File(URI.create(uri)).getCanonicalPath();
+            item.remove("uri");
+            item.addProperty("uri", canonicalPath);
+        }
+    }
+    
+    protected void alterActualStdLibUri(JsonArray actual) throws IOException, URISyntaxException {
+        for (JsonElement jsonElement : actual) {
+            JsonObject item = jsonElement.getAsJsonObject();
+            String fileUri = item.get("uri").toString().replace("\"", "");
+
+            // Check bala URI scheme
+            URI  uri = new URI(fileUri);
+            Assert.assertEquals(uri.getScheme(), CommonUtil.URI_SCHEME_BALA, "Expected bala: URI scheme");
+            fileUri = CommonUtil.convertUriSchemeFromBala(fileUri);
+            uri = new URI(fileUri);
+            Assert.assertEquals(uri.getScheme(), CommonUtil.URI_SCHEME_FILE,
+                    "Expected file URI scheme after conversion");
+            
+            String canonicalPath = new File(URI.create(fileUri)).getCanonicalPath();
             item.remove("uri");
             item.addProperty("uri", canonicalPath);
         }
