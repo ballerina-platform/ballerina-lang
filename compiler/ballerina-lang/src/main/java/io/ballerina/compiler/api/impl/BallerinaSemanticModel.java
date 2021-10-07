@@ -66,6 +66,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
@@ -493,15 +496,8 @@ public class BallerinaSemanticModel implements SemanticModel {
         addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name, isChildOfEnclosingNode, states);
     }
 
-    private boolean isFieldSymbol(Symbol compiledSymbol) {
-        switch (compiledSymbol.kind()) {
-            case CLASS_FIELD:
-            case OBJECT_FIELD:
-            case RECORD_FIELD:
-                return true;
-            default:
-                return false;
-        }
+    private boolean isFieldSymbol(Symbol symbol) {
+        return symbol.kind() == CLASS_FIELD || symbol.kind() == OBJECT_FIELD || symbol.kind() == RECORD_FIELD;
     }
 
     private boolean isServiceDeclSymbol(BSymbol symbol) {
