@@ -37,15 +37,22 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.toml.api.Toml;
+import io.ballerina.toml.semantic.TomlType;
+import io.ballerina.toml.semantic.ast.TomlTableNode;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
 import static io.ballerina.cli.utils.CentralUtils.readSettings;
+import static io.ballerina.projects.internal.ManifestBuilder.getStringValueFromTomlTableNode;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.JACOCO_XML_FORMAT;
 
@@ -280,14 +287,50 @@ public class BuildCommand implements BLauncherCmd {
             }
         }
 
+        // Check `[package]` section is available when compile
         if (this.compile && project.currentPackage().ballerinaToml().get().tomlDocument().toml()
                 .getTable("package").isEmpty()) {
             CommandUtil.printError(this.errStream,
                     "'package' information not found in " + ProjectConstants.BALLERINA_TOML,
                     null,
-                    true);
+                    false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
+        }
+
+        // Check `[package]` org, name and version is available when compile
+        if (this.compile) {
+            TomlTableNode pkgNode = (TomlTableNode) project.currentPackage().ballerinaToml().get().tomlDocument()
+                    .toml().rootNode().entries().get("package");
+
+            if (pkgNode == null || pkgNode.kind() == TomlType.NONE) {
+                CommandUtil.printError(this.errStream,
+                                       "'package' information not found in " + ProjectConstants.BALLERINA_TOML,
+                                       null,
+                                       false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+
+            List<String> pkgErrors = new ArrayList<>();
+            if ("".equals(getStringValueFromTomlTableNode(pkgNode, "org", ""))) {
+                pkgErrors.add("ballerina: 'org' value under 'package' is not found in "
+                                      + ProjectConstants.BALLERINA_TOML);
+            }
+            if ("".equals(getStringValueFromTomlTableNode(pkgNode, "name", ""))) {
+                pkgErrors.add("ballerina: 'name' value 'package' is not found in "
+                                      + ProjectConstants.BALLERINA_TOML);
+            }
+            if ("".equals(getStringValueFromTomlTableNode(pkgNode, "version", ""))) {
+                pkgErrors.add("ballerina: 'version' value under 'package' is not found in "
+                                      + ProjectConstants.BALLERINA_TOML);
+            }
+
+            if (!pkgErrors.isEmpty()) {
+                this.errStream.println(String.join("\n", pkgErrors));
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
         }
 
         // Sets the debug port as a system property, which will be used when setting up debug args before running tests.

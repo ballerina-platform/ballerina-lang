@@ -60,10 +60,6 @@
         "distribution": {
           "type": "string"
         }
-      },
-      "required": ["name", "org", "version"],
-      "message": {
-        "required": "'${property}' under [package] is missing"
       }
     },
     "platform": {
