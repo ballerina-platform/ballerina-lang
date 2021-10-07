@@ -47,7 +47,6 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
-import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -729,52 +728,17 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 argIndex++;
             }
         }
+        
         Optional<TypeSymbol> returnTypeSymbol = functionTypeSymbol.returnTypeDescriptor();
         if (returnTypeSymbol.isEmpty()) {
             return Optional.empty();
         }
         
-        Optional<String> returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeSymbol.get());
-        String returnsClause = "";
-        String returnStmt = "";
-        if (returnType.isPresent()) {
-            // returns clause
-            returnsClause = "returns " + returnType.get();
-            // return statement
-            Optional<String> defaultReturnValue = CommonUtil.getDefaultValueForType(returnTypeSymbol.get());
-            if (defaultReturnValue.isPresent()) {
-                returnStmt = "return " + defaultReturnValue.get() + CommonKeys.SEMI_COLON_SYMBOL_KEY;
-            }
-        }
-        
-        int padding = 4;
-        String paddingStr = StringUtils.repeat(" ", padding);
-        // body
-        String body;
-        if (!returnStmt.isEmpty()) {
-            body = paddingStr + returnStmt + CommonUtil.LINE_SEPARATOR;
-        } else {
-            body = paddingStr + CommonUtil.LINE_SEPARATOR;
-        }
-        
-        StringBuilder snippetBuilder = new StringBuilder();
-        snippetBuilder.append("function").append(" ")
-                .append(CommonKeys.OPEN_PARENTHESES_KEY)
-                .append(String.join(", ", args))
-                .append(CommonKeys.CLOSE_PARENTHESES_KEY);
-        
-        if (returnType.isPresent()) {
-            snippetBuilder.append(" ").append(returnsClause);
-        }
-
-        snippetBuilder.append(" ").append(CommonKeys.OPEN_BRACE_KEY)
-                .append(CommonUtil.LINE_SEPARATOR)
-                .append(body)
-                .append(CommonKeys.CLOSE_BRACE_KEY);
-        
+        String functionName = "";
+        String snippet = FunctionGenerator.generateFunction(context, false, functionName, args, 
+                returnTypeSymbol.get());
         SnippetBlock snippetBlock = new SnippetBlock(ItemResolverConstants.ANON_FUNCTION, 
-                ItemResolverConstants.FUNCTION, snippetBuilder.toString(), ItemResolverConstants.SNIPPET_TYPE, 
-                SnippetBlock.Kind.SNIPPET);
+                ItemResolverConstants.FUNCTION, snippet, ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET);
         snippetBlock.setId(ItemResolverConstants.ANON_FUNCTION);
         
         return Optional.of(new SnippetCompletionItem(context, snippetBlock));
