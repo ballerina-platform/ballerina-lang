@@ -316,6 +316,7 @@ public class CommandUtil {
                 if (Files.exists(sourceModulesDir)) {
                     Files.walkFileTree(sourceModulesDir, new FileUtils.Copy(sourceModulesDir, modulePath));
                 }
+                findNonDefaultModules(balaPath, modulePath, packageName);
             } else {
                 Files.delete(modulePath);
                 throw new CentralClientException("Unable to create the package with the provided module");
@@ -596,5 +597,30 @@ public class CommandUtil {
             }
         });
         return availableVersions;
+    }
+
+    public static void findNonDefaultModules(Path balaPath, Path modulePath, String packageName) {
+        List<Path> modulesList = new ArrayList<>();
+        Stream<Path> collectModules = null;
+        Path moduleDirPath = modulePath.resolve("non_default_modules");
+        try {
+            Files.createDirectories(moduleDirPath);
+            if (Files.list(balaPath.resolve("modules")) != null) {
+                collectModules = Files.list(balaPath.resolve("modules"));
+                modulesList.addAll(collectModules.collect(Collectors.toList()));
+                for (Path module : modulesList) {
+                    String moduleName = module.getFileName().toString();
+                    if (!moduleName.equals(packageName)) {
+                        try {
+                            Files.walkFileTree(module, new FileUtils.Copy(module, moduleDirPath));
+                        } catch (IOException e) {
+                            throw new RuntimeException("Error while accessing non default modules: " + e.getMessage());
+                        }
+                    }
+                }
+            }
+        } catch (IOException | NullPointerException e) {
+            throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
+        }
     }
 }
