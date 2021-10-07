@@ -65,7 +65,7 @@ public class SymbolsInLocalVarDeclStatementsTest {
         // check annotations (metadata)
         List<AnnotationSymbol> fieldAnnots = symbol.annotations();
         if (isAnnotated) {
-            // TODO: Annotations in local-var-decl is not working (affects [22, 17] & [25, 14])
+            // TODO: Uncomment after Fixing #33117
 //            assertEquals(fieldAnnots.size(), 1);
 //            assertEquals(fieldAnnots.get(0).getName().get(), "annot");
         } else {

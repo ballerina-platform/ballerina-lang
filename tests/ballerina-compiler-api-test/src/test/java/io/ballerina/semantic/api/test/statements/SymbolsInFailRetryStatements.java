@@ -64,7 +64,7 @@ public class SymbolsInFailRetryStatements {
                 {35, 8, "func", SymbolKind.FUNCTION},
                 {36, 13, "func2", SymbolKind.FUNCTION},
                 {42, 12, "value", SymbolKind.VARIABLE},
-                // TODO: Symbols not-found in On fail statements
+                // TODO: Uncomment after fixing #33118
 //                {44, 20, "e", SymbolKind.VARIABLE},
 //                {45, 13, "func2", SymbolKind.FUNCTION},
         };
