@@ -82,14 +82,6 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
         return completionItems;
     }
 
-    private List<LSCompletionItem> getTypeQualifierItems(BallerinaCompletionContext context) {
-        // Note: here we do not add the service type qualifier since it is being added via getTypeItems call.
-        return Arrays.asList(
-                new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()),
-                new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()),
-                new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
-    }
-
     @Override
     protected List<LSCompletionItem> getCompletionItemsOnQualifiers(Node node, BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>(super.getCompletionItemsOnQualifiers(node, context));

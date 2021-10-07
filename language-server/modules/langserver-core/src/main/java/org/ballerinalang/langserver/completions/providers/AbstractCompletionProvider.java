@@ -536,6 +536,14 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
     protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context, T node) {
         return this.expressionCompletions(context);
     }
+    
+    protected List<LSCompletionItem> getTypeQualifierItems(BallerinaCompletionContext context) {
+        // Note: here we do not add the service type qualifier since it is being added via getTypeItems call.
+        return Arrays.asList(
+                new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()),
+                new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()),
+                new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
+    }
 
     private List<LSCompletionItem> getBasicAndOtherTypeCompletions(BallerinaCompletionContext context) {
         // Types in the predeclared langlibs are handled and extracted via #getPredeclaredLangLibCompletions
