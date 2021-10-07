@@ -151,7 +151,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(descriptor.version().value().toString(), INTERNAL_VERSION);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testBallerinaTomlWithEmptyPackage() throws IOException {
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("empty-package.toml"));
         Assert.assertTrue(packageManifest.diagnostics().hasErrors());
@@ -163,7 +163,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(iterator.next().message(), "'version' under [package] is missing");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testBallerinaTomlWithoutOrgNameVersion() throws IOException {
         PackageManifest packageManifest = getPackageManifest(
                 BAL_TOML_REPO.resolve("platform-without-org-name-version.toml"));
