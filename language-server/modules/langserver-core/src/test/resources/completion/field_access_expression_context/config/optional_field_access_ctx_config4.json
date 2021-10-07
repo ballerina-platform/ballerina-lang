@@ -1,9 +1,9 @@
 {
   "position": {
     "line": 3,
-    "character": 27
+    "character": 46
   },
-  "source": "field_access_expression_context/source/optional_field_access_ctx_source2.bal",
+  "source": "field_access_expression_context/source/optional_field_access_ctx_source4.bal",
   "items": [
     {
       "label": "clone()",
@@ -139,7 +139,7 @@
           "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns number of members of a map.\n  \n  \n  \n**Return** `int`   \n- number of members in parameter `m`  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "AD",
       "filterText": "length",
       "insertText": "length()",
       "insertTextFormat": "Snippet"
@@ -338,19 +338,27 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testField",
+      "label": "rec1Field1",
       "kind": "Field",
-      "detail": "module1:TestRecord1",
-      "sortText": "BA",
-      "insertText": "testField",
+      "detail": "int",
+      "sortText": "AA",
+      "insertText": "rec1Field1",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testOptional",
+      "label": "rec1Field2",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "BA",
+      "insertText": "rec1Field2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "optionalInt",
       "kind": "Field",
       "detail": "int",
-      "sortText": "BA",
-      "insertText": "testOptional",
+      "sortText": "AA",
+      "insertText": "optionalInt",
       "insertTextFormat": "Snippet"
     },
     {
