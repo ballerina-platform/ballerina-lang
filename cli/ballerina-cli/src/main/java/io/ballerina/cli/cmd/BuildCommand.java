@@ -298,8 +298,8 @@ public class BuildCommand implements BLauncherCmd {
 
         // Check `[package]` org, name and version is available when compile
         if (this.compile) {
-            TomlTableNode pkgNode = (TomlTableNode) project.currentPackage().ballerinaToml().get().tomlDocument()
-                    .toml().rootNode().entries().get("package");
+            TomlTableNode pkgNode = (TomlTableNode) project.currentPackage().ballerinaToml().get().tomlDocument().toml()
+                    .rootNode().entries().get("package");
 
             if (pkgNode == null || pkgNode.kind() == TomlType.NONE) {
                 CommandUtil.printError(this.errStream,
@@ -312,20 +312,37 @@ public class BuildCommand implements BLauncherCmd {
 
             List<String> pkgErrors = new ArrayList<>();
             if ("".equals(getStringValueFromTomlTableNode(pkgNode, "org", ""))) {
-                pkgErrors.add("ballerina: 'org' value under 'package' is not found in "
-                                      + ProjectConstants.BALLERINA_TOML);
+                pkgErrors.add("'org'");
             }
             if ("".equals(getStringValueFromTomlTableNode(pkgNode, "name", ""))) {
-                pkgErrors.add("ballerina: 'name' value 'package' is not found in "
-                                      + ProjectConstants.BALLERINA_TOML);
+                pkgErrors.add("'name'");
             }
             if ("".equals(getStringValueFromTomlTableNode(pkgNode, "version", ""))) {
-                pkgErrors.add("ballerina: 'version' value under 'package' is not found in "
-                                      + ProjectConstants.BALLERINA_TOML);
+                pkgErrors.add("'version'");
             }
 
             if (!pkgErrors.isEmpty()) {
-                this.errStream.println(String.join("\n", pkgErrors));
+                String pkgErrorsString;
+                if (pkgErrors.size() == 1) {
+                    CommandUtil.printError(this.errStream,
+                                           "to build a package " + pkgErrors.get(0) +
+                                                   " field of the package is required in " +
+                                                   ProjectConstants.BALLERINA_TOML,
+                                           null,
+                                           false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                } else if (pkgErrors.size() == 2) {
+                    pkgErrorsString = pkgErrors.get(0) + " and " + pkgErrors.get(1);
+                } else {
+                    pkgErrorsString = pkgErrors.get(0) + ", " + pkgErrors.get(1) + " and " + pkgErrors.get(2);
+                }
+                CommandUtil.printError(this.errStream,
+                                       "to build a package " + pkgErrorsString +
+                                               " fields of the package are required in " +
+                                               ProjectConstants.BALLERINA_TOML,
+                                       null,
+                                       false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
