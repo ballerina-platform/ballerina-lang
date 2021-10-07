@@ -5731,6 +5731,15 @@ public class TypeChecker extends BLangNodeVisitor {
             } else {
                 checkExpr(namedArgsExpression, env, target);
             }
+
+            if (expectedType.tag == TypeTags.RECORD) {
+                // Set the symbol of the namedArgsExpression, with the matching record field symbol.
+                BField targetField = ((BRecordType) expectedType).fields.get(namedArgsExpression.name.value);
+                if (targetField != null) {
+                    namedArgsExpression.varSymbol = targetField.symbol;
+                }
+            }
+
             namedArgs.add(namedArgsExpression);
         }
         return namedArgs;
