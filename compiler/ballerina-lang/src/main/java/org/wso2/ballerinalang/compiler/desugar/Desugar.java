@@ -6869,15 +6869,24 @@ public class Desugar extends BLangNodeVisitor {
         BType nilLiftType = exprBType.getMemberTypes().iterator().next();
 
         boolean isArithmeticOperator = symResolver.isArithmeticOperator(binaryExpr.opKind);
+        boolean isShiftOperator = symResolver.isBinaryShiftOperator(binaryExpr.opKind);
 
         BType rhsType = nilLiftType;
-        if (!isArithmeticOperator && binaryExpr.rhsExpr.getBType().isNullable()) {
-            rhsType = getNilLiftType((BUnionType) binaryExpr.rhsExpr.getBType());
+        if (!isArithmeticOperator && !isShiftOperator) {
+            if (binaryExpr.rhsExpr.getBType().isNullable()) {
+                rhsType = getNilLiftType((BUnionType) binaryExpr.rhsExpr.getBType());
+            } else {
+                rhsType = binaryExpr.rhsExpr.getBType();
+            }
         }
 
         BType lhsType = nilLiftType;
-        if (!isArithmeticOperator && binaryExpr.lhsExpr.getBType().isNullable()) {
-            lhsType = getNilLiftType((BUnionType) binaryExpr.lhsExpr.getBType());
+        if (!isArithmeticOperator && !isShiftOperator) {
+            if (binaryExpr.lhsExpr.getBType().isNullable()) {
+                lhsType = getNilLiftType((BUnionType) binaryExpr.lhsExpr.getBType());
+            } else {
+                lhsType = binaryExpr.lhsExpr.getBType();
+            }
         }
 
         if (binaryExpr.lhsExpr.getBType().isNullable()) {
