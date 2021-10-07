@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 14,
+    "character": 7
+  },
+  "source": "field_access_expression_context/source/field_access_ctx_source12.bal",
+  "items": [
+    {
+      "label": "url",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "A",
+      "insertText": "url",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

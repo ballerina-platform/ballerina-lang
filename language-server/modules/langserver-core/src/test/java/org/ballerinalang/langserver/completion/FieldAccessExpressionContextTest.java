@@ -26,11 +26,11 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Expression Context tests.
+ * Field Access Expression Context tests.
  *
  * @since 2.0.0
  */
-public class ExpressionContextTest extends CompletionTest {
+public class FieldAccessExpressionContextTest extends CompletionTest {
 
     @Test(dataProvider = "completion-data-provider")
     @Override
@@ -41,26 +41,20 @@ public class ExpressionContextTest extends CompletionTest {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
-        return this.getConfigsList();
+        return getConfigsList();
     }
 
     @Override
     public String getTestResourceDir() {
-        return "expression_context";
+        return "field_access_expression_context";
     }
 
     @Override
     public List<String> skipList() {
         return Arrays.asList(
-                "object_constructor_expr_ctx_config12a.json",
-                "object_constructor_expr_ctx_config6.json", // LS fix needed
-                "object_constructor_expr_ctx_config11.json", // LS fix needed
-                "annotation_access_ctx_config1.json",
-                "annotation_access_ctx_config2.json",
-                "annotation_access_ctx_config3.json",
-                "annotation_access_ctx_config4.json",
-                "annotation_access_ctx_config5.json",
-                "annotation_access_ctx_config6.json"
+                "optional_field_access_ctx_config1.json",
+                "optional_field_access_ctx_config2.json",
+                "optional_field_access_ctx_config3.json"
         );
     }
 }
