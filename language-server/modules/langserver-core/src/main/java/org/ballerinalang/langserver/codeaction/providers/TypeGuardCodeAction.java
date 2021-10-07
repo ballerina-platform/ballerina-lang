@@ -154,9 +154,9 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
                 }
                 varTypeSymbol = optVariableSymbol.get().typeDescriptor();
                 SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
-                NonTerminalNode node = CommonUtil.findNode(optVariableSymbol.get(), syntaxTree);
-                if (node.kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
-                    varTypeNode = ((TypedBindingPatternNode) node).typeDescriptor();
+                Optional<NonTerminalNode> node = CommonUtil.findNode(optVariableSymbol.get(), syntaxTree);
+                if (node.isPresent() && node.get().kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
+                    varTypeNode = ((TypedBindingPatternNode) node.get()).typeDescriptor();
                 } else {
                     return Optional.empty();
                 }
