@@ -59,7 +59,7 @@
       "kind": "Snippet",
       "detail": "Destructure the variable myVar with typeguard",
       "sortText": "R",
-      "insertText": "if myVar is string {\n\t${1}\n} else if myVar is int {\n\t${2}\n} else if myVar is boolean {\n\t${3}\n} else if myVar is error {\n\t${4}\n} else {\n\t${5}\n}",
+      "insertText": "if myVar is string {\n\t${1}\n} else if myVar is int {\n\t${2}\n} else if myVar is boolean {\n\t${3}\n} else if myVar is myErr1 {\n\t${4}\n} else {\n\t${5}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
