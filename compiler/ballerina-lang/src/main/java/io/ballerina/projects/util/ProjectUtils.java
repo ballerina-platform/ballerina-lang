@@ -783,8 +783,9 @@ public class ProjectUtils {
      * @throws IOException if json read fails
      */
     public static BuildJson readBuildJson(Path buildJsonPath) throws JsonSyntaxException, IOException {
-        BufferedReader bufferedReader = Files.newBufferedReader(buildJsonPath);
-        return new Gson().fromJson(bufferedReader, BuildJson.class);
+        try (BufferedReader bufferedReader = Files.newBufferedReader(buildJsonPath)) {
+            return new Gson().fromJson(bufferedReader, BuildJson.class);
+        }
     }
 
     /**
