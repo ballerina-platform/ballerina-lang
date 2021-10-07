@@ -92,6 +92,7 @@ import org.eclipse.lsp4j.jsonrpc.CompletableFutures;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -160,12 +161,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<Hover> hover(HoverParams params) {
         return CompletableFutures.computeAsync((cancelChecker) -> {
-            String fileUri = params.getTextDocument().getUri();
-            HoverContext context = ContextBuilder.buildHoverContext(
-                    fileUri, this.workspaceManager,
-                    this.serverContext, params.getPosition(),
-                    cancelChecker);
             try {
+                HoverContext context = ContextBuilder.buildHoverContext(
+                        CommonUtil.convertUriSchemeFromBala(params.getTextDocument().getUri()),
+                        this.workspaceManager,
+                        this.serverContext, params.getPosition(),
+                        cancelChecker);
                 return HoverUtil.getHover(context);
             } catch (CancellationException ignore) {
                 // Ignore the cancellation exception
@@ -220,7 +221,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
                 BallerinaDefinitionContext defContext = ContextBuilder.buildDefinitionContext(
-                        params.getTextDocument().getUri(),
+                        CommonUtil.convertUriSchemeFromBala(params.getTextDocument().getUri()),
                         this.workspaceManager,
                         this.serverContext,
                         params.getPosition(),
@@ -244,7 +245,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
-                ReferencesContext context = ContextBuilder.buildReferencesContext(params.getTextDocument().getUri(),
+                ReferencesContext context = ContextBuilder.buildReferencesContext(
+                        CommonUtil.convertUriSchemeFromBala(params.getTextDocument().getUri()),
                         this.workspaceManager,
                         this.serverContext,
                         params.getPosition(),
@@ -257,7 +259,18 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 List<Location> references = new ArrayList<>();
                 referencesMap.forEach((module, locations) ->
                         locations.forEach(location -> {
-                            String uri = ReferencesUtil.getUriFromLocation(module, location);
+                            Path filePath = ReferencesUtil.getPathFromLocation(module, location);
+                            String uri = filePath.toUri().toString();
+                            // If path is readonly, change the URI scheme
+                            if (CommonUtil.isWriteProtectedPath(filePath)) {
+                                try {
+                                    uri = CommonUtil.getBalaUriForPath(filePath);
+                                } catch (URISyntaxException e) {
+                                    this.clientLogger.logError(LSContextOperation.TXT_REFERENCES,
+                                            "Failed to convert path to bala URI", e,
+                                            params.getTextDocument(), params.getPosition());
+                                }
+                            }
                             references.add(new Location(uri, ReferencesUtil.getRange(location)));
                         }));
 
@@ -502,7 +515,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public void didOpen(DidOpenTextDocumentParams params) {
         String fileUri = params.getTextDocument().getUri();
         try {
-            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(fileUri, this.workspaceManager,
+            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(
+                    CommonUtil.convertUriSchemeFromBala(fileUri),
+                    this.workspaceManager,
                     LSContextOperation.TXT_DID_OPEN, this.serverContext);
             this.workspaceManager.didOpen(context.filePath(), params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
@@ -522,7 +537,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
         String fileUri = params.getTextDocument().getUri();
         try {
             // Update content
-            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(fileUri,
+            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(
+                    CommonUtil.convertUriSchemeFromBala(fileUri),
                     this.workspaceManager,
                     LSContextOperation.TXT_DID_CHANGE,
                     this.serverContext);
@@ -544,7 +560,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public void didClose(DidCloseTextDocumentParams params) {
         String fileUri = params.getTextDocument().getUri();
         try {
-            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(fileUri,
+            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(
+                    CommonUtil.convertUriSchemeFromBala(fileUri),
                     this.workspaceManager,
                     LSContextOperation.TXT_DID_CLOSE,
                     this.serverContext);

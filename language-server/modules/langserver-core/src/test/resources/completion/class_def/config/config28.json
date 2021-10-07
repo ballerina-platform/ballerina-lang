@@ -511,6 +511,15 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "null",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
