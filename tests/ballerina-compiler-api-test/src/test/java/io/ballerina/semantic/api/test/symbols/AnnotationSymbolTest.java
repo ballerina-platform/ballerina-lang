@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.semantic.api.test;
+package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Annotatable;
@@ -46,6 +46,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RESOURCE_METHOD;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertBasicsAndGetSymbol;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
@@ -58,14 +59,14 @@ import static org.testng.Assert.assertTrue;
  *
  * @since 2.0.0
  */
-public class AnnotationsTest {
+public class AnnotationSymbolTest {
 
     private SemanticModel model;
     private Document srcFile;
 
     @BeforeClass
     public void setup() {
-        Project project = BCompileUtil.loadProject("test-src/annotations_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/symbols/annotation_symbol_test.bal");
         model = getDefaultModulesSemanticModel(project);
         srcFile = getDocumentForSingleSource(project);
     }
@@ -111,11 +112,11 @@ public class AnnotationsTest {
     }
 
     @Test(dataProvider = "AnnotRefPosProvider")
-    public void testAnnotTypes(int line, int col, String typeName) {
-        Optional<Symbol> symbol = model.symbol(srcFile, from(line, col));
-        assertEquals(symbol.get().kind(), ANNOTATION);
+    public void testAnnotTypes(int line, int col, String annotName, String typeName) {
+        AnnotationSymbol symbol = (AnnotationSymbol) assertBasicsAndGetSymbol(model, srcFile, line, col, annotName,
+                                                                              ANNOTATION);
 
-        Optional<TypeSymbol> typeSymbol = ((AnnotationSymbol) symbol.get()).typeDescriptor();
+        Optional<TypeSymbol> typeSymbol = symbol.typeDescriptor();
 
         if (typeName != null) {
             assertTrue(typeSymbol.isPresent());
@@ -129,11 +130,11 @@ public class AnnotationsTest {
     @DataProvider(name = "AnnotRefPosProvider")
     public Object[][] getAnnotRefPos() {
         return new Object[][]{
-                {27, 1, "Annot"},
-                {37, 5, null},
-                {50, 5, null},
-                {55, 29, "Annot"},
-                {115, 5, null}
+                {27, 1, "v1", "Annot"},
+                {37, 5, "v5", null},
+                {50, 5, "v5",  null},
+                {55, 29, "v4", "Annot"},
+                {115, 5, "v5", null}
         };
     }
 }

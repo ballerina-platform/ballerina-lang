@@ -1,0 +1,24 @@
+{
+  "source": {
+    "file": "repo/bala/ballerina/lang.map/1.1.0/any/modules/lang.map/internal.bal"
+  },
+  "position": {
+    "line": 34,
+    "character": 34
+  },
+  "result": [
+    {
+      "range": {
+        "start": {
+          "line": 19,
+          "character": 6
+        },
+        "end": {
+          "line": 19,
+          "character": 17
+        }
+      },
+      "uri": "repo/bala/ballerina/lang.map/1.1.0/any/modules/lang.map/internal.bal"
+    }
+  ]
+}

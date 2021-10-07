@@ -90,7 +90,7 @@ public class FunctionSymbolTest {
         // check qualifiers
         if (expQuals.size() > 0) {
             List<Qualifier> qualifiers = functionSymbol.qualifiers();
-            expQuals.forEach(qualifiers::contains);
+            expQuals.forEach(expQual -> assertTrue(qualifiers.contains(expQual)));
         } else {
             assertTrue(functionSymbol.qualifiers().isEmpty());
         }

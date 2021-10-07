@@ -128,6 +128,26 @@ public class LSClientUtil {
                 Boolean.TRUE.equals(capabilities.getSemanticTokens().getDynamicRegistration());
     }
 
+    public static boolean isDynamicHoverRegistrationSupported(TextDocumentClientCapabilities capabilities) {
+        return capabilities != null && capabilities.getHover() != null &&
+                Boolean.TRUE.equals(capabilities.getHover().getDynamicRegistration());
+    }
+
+    public static boolean isDynamicDefinitionRegistrationSupported(TextDocumentClientCapabilities capabilities) {
+        return capabilities != null && capabilities.getHover() != null &&
+                Boolean.TRUE.equals(capabilities.getDefinition().getDynamicRegistration());
+    }
+
+    public static boolean isDynamicReferencesRegistrationSupported(TextDocumentClientCapabilities capabilities) {
+        return capabilities != null && capabilities.getHover() != null &&
+                Boolean.TRUE.equals(capabilities.getReferences().getDynamicRegistration());
+    }
+
+    public static boolean isDynamicSynchronizationRegistrationSupported(TextDocumentClientCapabilities capabilities) {
+        return capabilities != null && capabilities.getSynchronization() != null &&
+                Boolean.TRUE.equals(capabilities.getSynchronization().getDynamicRegistration());
+    }
+
     /**
      * Registers the provided set of commands at the LS Client.
      *
