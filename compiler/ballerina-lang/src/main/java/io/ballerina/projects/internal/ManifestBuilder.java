@@ -450,7 +450,7 @@ public class ManifestBuilder {
         return true;
     }
 
-    private String getStringValueFromTomlTableNode(TomlTableNode tomlTableNode, String key, String defaultValue) {
+    public static String getStringValueFromTomlTableNode(TomlTableNode tomlTableNode, String key, String defaultValue) {
         TopLevelNode topLevelNode = tomlTableNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
             // return default value
