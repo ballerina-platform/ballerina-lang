@@ -1,0 +1,18 @@
+{
+  "position": {
+    "line": 1,
+    "character": 37
+  },
+  "source": "let_expression_context/source/let_expr_ctx_source2.bal",
+  "items": [
+    {
+      "label": "in",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "in",
+      "insertText": "in ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
