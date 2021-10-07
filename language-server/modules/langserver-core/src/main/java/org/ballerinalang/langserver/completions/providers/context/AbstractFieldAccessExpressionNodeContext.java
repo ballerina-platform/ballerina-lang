@@ -60,6 +60,9 @@ public abstract class AbstractFieldAccessExpressionNodeContext<T extends Node> e
                     } else if (symbol.stream().anyMatch(sym -> sym.kind() == SymbolKind.FUNCTION)) {
                         rank = 4;
                         break;
+                    } else {
+                        rank = SortingUtil.toRank(context, completionItem, 4);
+                        break;
                     }
                 default:
                     rank = SortingUtil.toRank(context, completionItem, 4);

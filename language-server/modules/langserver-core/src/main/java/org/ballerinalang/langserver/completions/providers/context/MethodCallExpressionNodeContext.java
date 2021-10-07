@@ -122,6 +122,9 @@ public class MethodCallExpressionNodeContext extends FieldAccessContext<MethodCa
                     } else if (symbol.stream().anyMatch(sym -> sym.kind() == SymbolKind.XMLNS)) {
                         rank = withinParameterCtx ? 2 : 3;
                         break;
+                    } else {
+                        rank = SortingUtil.toRank(context, completionItem, 3);
+                        break;
                     }
                 default:
                     rank = SortingUtil.toRank(context, completionItem, 3);
