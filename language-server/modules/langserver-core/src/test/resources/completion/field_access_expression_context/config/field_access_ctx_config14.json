@@ -9,7 +9,7 @@
       "label": "brandName",
       "kind": "Field",
       "detail": "string",
-      "sortText": "A",
+      "sortText": "BA",
       "insertText": "brandName",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "modelName",
       "kind": "Field",
       "detail": "string",
-      "sortText": "A",
+      "sortText": "BA",
       "insertText": "modelName",
       "insertTextFormat": "Snippet"
     },
@@ -25,7 +25,7 @@
       "label": "manufacturedYear",
       "kind": "Field",
       "detail": "int",
-      "sortText": "A",
+      "sortText": "BA",
       "insertText": "manufacturedYear",
       "insertTextFormat": "Snippet"
     },
@@ -33,7 +33,7 @@
       "label": "owner",
       "kind": "Field",
       "detail": "string",
-      "sortText": "A",
+      "sortText": "BA",
       "insertText": "owner",
       "insertTextFormat": "Snippet"
     },
@@ -47,7 +47,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
         }
       },
-      "sortText": "E",
+      "sortText": "BC",
       "filterText": "getModel",
       "insertText": "getModel()",
       "insertTextFormat": "Snippet"

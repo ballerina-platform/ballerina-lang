@@ -9,7 +9,7 @@
       "label": "PERSON_KW",
       "kind": "Field",
       "detail": "string",
-      "sortText": "A",
+      "sortText": "BA",
       "insertText": "PERSON_KW",
       "insertTextFormat": "Snippet"
     },
@@ -23,7 +23,7 @@
           "value": "**Package:** _lstest/projectls.lsmod1:0.1.0_  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
         }
       },
-      "sortText": "E",
+      "sortText": "BC",
       "filterText": "getName",
       "insertText": "getName()",
       "insertTextFormat": "Snippet"

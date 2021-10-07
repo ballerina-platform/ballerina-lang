@@ -15,7 +15,7 @@
           "value": "**Package:** _lstest/projectls.ls.mod4:0.1.0_  \n  \n  \n"
         }
       },
-      "sortText": "E",
+      "sortText": "BC",
       "filterText": "publicFunction1",
       "insertText": "publicFunction1()",
       "insertTextFormat": "Snippet"
@@ -30,7 +30,7 @@
           "value": "**Package:** _lstest/projectls.ls.mod4:0.1.0_  \n  \n  \n"
         }
       },
-      "sortText": "E",
+      "sortText": "BC",
       "filterText": "function2",
       "insertText": "function2()",
       "insertTextFormat": "Snippet"

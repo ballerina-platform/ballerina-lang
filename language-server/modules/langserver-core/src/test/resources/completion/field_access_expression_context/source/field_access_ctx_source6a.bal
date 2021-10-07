@@ -1,7 +1,8 @@
 import ballerina/module1;
 
 function testFunction() {
-    module1:TestRecord1 rec = functionWithReturn().
+    Record1 rec1 = new;
+    rec1.testField.
 }
 
 # This is a test function
@@ -12,6 +13,13 @@ function functionWithReturn() returns Record1 {
 }
 
 type Record1 record {
-    module1:TestRecord1 testField = {};
+    TestClass testField = new;
     int testOptional?;
 };
+
+class TestClass {
+    int testClassField = 12;
+    function testMethod() returns int {
+        return 1;
+    }
+}

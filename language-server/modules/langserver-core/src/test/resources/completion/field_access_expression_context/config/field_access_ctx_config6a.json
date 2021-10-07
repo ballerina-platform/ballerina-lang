@@ -3,7 +3,7 @@
     "line": 4,
     "character": 19
   },
-  "source": "field_access_expression_context/source/field_access_ctx_source6.bal",
+  "source": "field_access_expression_context/source/field_access_ctx_source6a.bal",
   "items": [
     {
       "label": "testClassField",
