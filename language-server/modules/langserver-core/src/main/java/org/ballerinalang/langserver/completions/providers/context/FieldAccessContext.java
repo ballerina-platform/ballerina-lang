@@ -94,27 +94,34 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         return completionItems;
     }
 
-    @Override
-    public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
-        // We assign higher priority to record/object fields while assigning other completion items default priorities
-        completionItems.forEach(completionItem -> {
-            int rank;
-            switch (completionItem.getType()) {
-                case OBJECT_FIELD:
-                case RECORD_FIELD:
-                    rank = 1;
-                    break;
-                case SYMBOL:
-                    Optional<Symbol> symbol = ((SymbolCompletionItem) completionItem).getSymbol();
-                    rank = (symbol.isPresent() && symbol.get().kind() == SymbolKind.XMLNS) ? 2
-                            : SortingUtil.toRank(context, completionItem, 2);
-                    break;
-                default:
-                    rank = SortingUtil.toRank(context, completionItem, 2);
-            }
+    /**
+     * Concrete implementations should do their own sorting.
+     *
+     * @param context         Completion context
+     * @param node            Node for which completion is being provided
+     * @param completionItems Completion items to be sorted
+     */
+    public abstract void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems);
 
-            completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
-        });
+    /**
+     * Sets the sort text of the provided completion item based on provided rank and context type.
+     *
+     * @param context        Completion context
+     * @param completionItem Completion item
+     * @param rank           A secondary rank to be considered other than assignability
+     */
+    protected void sortByAssignability(BallerinaCompletionContext context, LSCompletionItem completionItem, int rank) {
+        Optional<TypeSymbol> contextType = context.getContextType();
+        String sortText = "";
+        // First we sort the assignable items above others, and then sort by the rank
+        if (contextType.isPresent() && SortingUtil.isCompletionItemAssignable(completionItem, contextType.get())) {
+            sortText += SortingUtil.genSortText(1);
+        } else {
+            sortText += SortingUtil.genSortText(2);
+        }
+        sortText += SortingUtil.genSortText(rank);
+
+        completionItem.getCompletionItem().setSortText(sortText);
     }
 
     private List<LSCompletionItem> getXmlAttributeAccessCompletions(BallerinaCompletionContext context) {
