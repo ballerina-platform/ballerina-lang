@@ -85,7 +85,7 @@ public class VariableUtils {
             }
 
             // As all the ballerina variables which are being used inside lambda functions are converted into maps
-            // during the the runtime code generation, such local variables should be accessed in a different manner.
+            // during the runtime code generation, such local variables should be accessed in a different manner.
             List<LocalVariableProxyImpl> lambdaParamMaps = context.getFrame().visibleVariables().stream()
                     .filter(org.ballerinalang.debugadapter.variable.VariableUtils::isLambdaParamMap)
                     .collect(Collectors.toList());

@@ -95,7 +95,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getPackageOr
  * A base evaluator implementation which provides a more generic evaluation approach to be used for some complex
  * Ballerina expressions (queries, let expressions, etc.).
  * <p>
- * This evaluator transforms the user expression into a standalone ballerina program, which returns the the user
+ * This evaluator transforms the user expression into a standalone ballerina program, which returns the user
  * expression result as the program output and can be executed in the same debuggee JVM.
  * <p>
  * The common execution flow for the expressions based on this evaluator will be as follows.

@@ -255,7 +255,7 @@ public class EvaluationUtils {
     }
 
     /**
-     * As some of the the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
+     * As some of the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
      * java primitive types need to be converted into their wrapper implementations.
      *
      * @param value JDI value instance.
@@ -309,7 +309,7 @@ public class EvaluationUtils {
     }
 
     /**
-     * As some of the the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
+     * As some of the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
      * java primitive types need to be converted into their wrapper implementations.
      *
      * @param variable ballerina variable instance.

@@ -58,7 +58,7 @@ public class ModuleLevelDefinitionFinder extends NodeVisitor {
     }
 
     /**
-     * Search for all the top level declarations, in the the ballerina module that contains the debug hit source line.
+     * Search for all the top level declarations, in the ballerina module that contains the debug hit source line.
      *
      * @return any function definitions with the specified name, if present.
      */
