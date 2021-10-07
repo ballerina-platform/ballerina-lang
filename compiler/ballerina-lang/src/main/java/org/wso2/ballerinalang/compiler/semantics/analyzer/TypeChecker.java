@@ -6097,6 +6097,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     continue;
                 }
                 checkTypeParamExpr(arg, this.env, varSym.type, iExpr.langLibInvocation);
+                ((BLangNamedArgsExpression) arg).varSymbol = varSym;
                 valueProvidedParams.add(varSym);
             }
         }

@@ -1058,7 +1058,9 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
-        // TODO: Getting the name
+        if (setEnclosingNode(bLangNamedArgsExpression.varSymbol, bLangNamedArgsExpression.name.pos)) {
+            return;
+        }
         lookupNode(bLangNamedArgsExpression.expr);
     }
 
