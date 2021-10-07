@@ -1185,16 +1185,17 @@ public class CommonUtil {
      * @param syntaxTree {@link SyntaxTree}
      * @return {@link NonTerminalNode}
      */
-    public static NonTerminalNode findNode(Symbol symbol, SyntaxTree syntaxTree) {
+    public static Optional<NonTerminalNode> findNode(Symbol symbol, SyntaxTree syntaxTree) {
         if (symbol.getLocation().isEmpty()) {
-            return null;
+            return Optional.empty();
         }
 
         TextDocument textDocument = syntaxTree.textDocument();
         LineRange symbolRange = symbol.getLocation().get().lineRange();
         int start = textDocument.textPositionFrom(symbolRange.startLine());
         int end = textDocument.textPositionFrom(symbolRange.endLine());
-        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, end - start), true);
+        return Optional.ofNullable(((ModulePartNode) syntaxTree.rootNode())
+                .findNode(TextRange.from(start, end - start), true));
     }
 
     public static boolean isWithinLineRange(Position pos, LineRange lineRange) {
