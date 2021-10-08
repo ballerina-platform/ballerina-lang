@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.CodeActionManager;
+import io.ballerina.projects.CodeActionResult;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -94,10 +95,10 @@ public class LanguageServerExtensionTests {
         CodeActionContext codeActionContext = CodeActionContextImpl.from(filePath.toUri().toString(),
                 filePath, LinePosition.from(6, 5), document, module.getCompilation().getSemanticModel(), diagnostic);
 
-        List<CodeActionInfo> codeActionInfos = codeActionManager.codeActions(codeActionContext);
+        CodeActionResult codeActionResult = codeActionManager.codeActions(codeActionContext);
 
-        Assert.assertFalse(codeActionInfos.isEmpty());
-        Optional<CodeActionInfo> info = codeActionInfos.stream()
+        Assert.assertFalse(codeActionResult.getCodeActions().isEmpty());
+        Optional<CodeActionInfo> info = codeActionResult.getCodeActions().stream()
                 .filter(codeActionInfo -> "BCE2526/lstest/package_comp_plugin_with_codeactions/CREATE_VAR"
                         .equals(codeActionInfo.getProviderName()))
                 .filter(codeActionInfo -> "Introduce Variable".equals(codeActionInfo.getTitle()))
