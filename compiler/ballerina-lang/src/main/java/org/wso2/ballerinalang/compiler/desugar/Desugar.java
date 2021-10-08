@@ -7873,7 +7873,8 @@ public class Desugar extends BLangNodeVisitor {
 
         BConstantSymbol constSymbol = constant.symbol;
         if (constSymbol.literalType.tag <= TypeTags.BOOLEAN || constSymbol.literalType.tag == TypeTags.NIL) {
-            if (constSymbol.literalType.tag != TypeTags.NIL && constSymbol.value.value == null) {
+            if (constSymbol.literalType.tag != TypeTags.NIL && (constSymbol.value == null ||
+                    constSymbol.value.value == null)) {
                 throw new IllegalStateException();
             }
             BLangLiteral literal = ASTBuilderUtil.createLiteral(constant.expr.pos, constSymbol.literalType,
