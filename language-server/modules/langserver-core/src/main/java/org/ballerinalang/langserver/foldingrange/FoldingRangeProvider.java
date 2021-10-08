@@ -17,13 +17,9 @@ package org.ballerinalang.langserver.foldingrange;
 
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.projects.Document;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.eclipse.lsp4j.FoldingRange;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -38,35 +34,17 @@ public class FoldingRangeProvider {
     /**
      * Returns the list of folding ranges for the given syntax tree.
      *
-     * @param foldingRangeContext {@link FoldingRangeContext}
+     * @param context {@link FoldingRangeContext}
      * @return the list of folding ranges
      */
-    public static List<FoldingRange> getFoldingRange(FoldingRangeContext foldingRangeContext) {
-        SyntaxTree syntaxTree = getSyntaxTree(foldingRangeContext);
-        if (syntaxTree == null) {
+    public static List<FoldingRange> getFoldingRange(FoldingRangeContext context) {
+        Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
+        if (syntaxTree.isEmpty()) {
             return Collections.emptyList();
         }
 
-        ModulePartNode modulePartNode = syntaxTree.rootNode();
-        FoldingRangeFinder foldingRangeFinder = new FoldingRangeFinder(foldingRangeContext.getLineFoldingOnly());
-        return new ArrayList<>(foldingRangeFinder.getFoldingRange(modulePartNode));
-    }
-
-    /**
-     * Returns the syntax tree instance for a given folding range context.
-     *
-     * @param foldingRangeContext {@link FoldingRangeContext}
-     * @return {@link SyntaxTree}
-     */
-    private static SyntaxTree getSyntaxTree(FoldingRangeContext foldingRangeContext) {
-        Optional<Path> filePath = CommonUtil.getPathFromURI(foldingRangeContext.fileUri());
-        if (filePath.isEmpty()) {
-            return null;
-        }
-        Optional<Document> document = foldingRangeContext.workspace().document(filePath.get());
-        if (document.isEmpty()) {
-            return null;
-        }
-        return document.get().syntaxTree();
+        ModulePartNode modulePartNode = syntaxTree.get().rootNode();
+        FoldingRangeFinder foldingRangeFinder = new FoldingRangeFinder(context.getLineFoldingOnly());
+        return foldingRangeFinder.getFoldingRange(modulePartNode);
     }
 }

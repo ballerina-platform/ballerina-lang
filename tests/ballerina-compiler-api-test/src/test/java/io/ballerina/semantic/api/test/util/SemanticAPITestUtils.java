@@ -20,6 +20,7 @@ package io.ballerina.semantic.api.test.util;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -41,6 +42,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -65,6 +67,19 @@ public class SemanticAPITestUtils {
         Package currentPackage = project.currentPackage();
         DocumentId id = currentPackage.getDefaultModule().testDocumentIds().iterator().next();
         return currentPackage.getDefaultModule().document(id);
+    }
+
+    public static Optional<Document> getDocument(Project project, String moduleNamePart, String documentPath) {
+        Package currentPackage = project.currentPackage();
+        Module module = currentPackage.module(ModuleName.from(currentPackage.packageName(), moduleNamePart));
+        Document document;
+        for (DocumentId docId : module.documentIds()) {
+            document = module.document(docId);
+            if (document.name().equals(documentPath)) {
+                return Optional.of(document);
+            }
+        }
+        return Optional.empty();
     }
 
     public static Module getModule(Project project, String moduleName) {
@@ -111,6 +126,16 @@ public class SemanticAPITestUtils {
         for (String val : expectedValues) {
             assertTrue(actualValues.containsKey(val), "Symbol not found: " + val);
         }
+    }
+
+    public static Symbol assertBasicsAndGetSymbol(SemanticModel model, Document srcFile, int line, int col,
+                                                  String name, SymbolKind symbolKind) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), symbolKind);
+        assertTrue(symbol.get().getName().isPresent());
+        assertEquals(symbol.get().getName().get(), name);
+        return symbol.get();
     }
 
     public static Map<String, Symbol> getSymbolsInFile(SemanticModel model, Document srcFile, int line,

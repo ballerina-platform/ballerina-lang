@@ -18,7 +18,7 @@
 
 package io.ballerina.shell.invoker.classload;
 
-import io.ballerina.shell.utils.QuotedIdentifier;
+import io.ballerina.shell.utils.Identifier;
 
 import java.util.Objects;
 
@@ -31,12 +31,12 @@ import java.util.Objects;
  */
 public class GlobalVariable {
     private final String type;
-    private final QuotedIdentifier variableName;
+    private final Identifier variableName;
     private final boolean isAssignableToAny;
     private final String qualifiersAndMetadata;
     private final boolean isDeclaredWithVar;
 
-    public GlobalVariable(String type, boolean isDeclaredWithVar, QuotedIdentifier variableName,
+    public GlobalVariable(String type, boolean isDeclaredWithVar, Identifier variableName,
                           boolean isAssignableToAny, String qualifiersAndMetadata) {
         this.type = Objects.requireNonNull(type);
         this.isAssignableToAny = isAssignableToAny;
@@ -53,7 +53,7 @@ public class GlobalVariable {
         return this.isDeclaredWithVar;
     }
 
-    public QuotedIdentifier getVariableName() {
+    public Identifier getVariableName() {
         return variableName;
     }
 

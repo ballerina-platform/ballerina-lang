@@ -28,7 +28,7 @@
                                         "character": 1
                                     }
                                 },
-                                "newText": "\n\nfunction getValue() returns () {\n    return;\n}\n"
+                                "newText": "\n\nfunction getValue() returns () {\n    \n}\n"
                             }
                         ]
                     }

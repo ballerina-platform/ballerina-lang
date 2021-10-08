@@ -88,7 +88,8 @@ class _StreamPipeline {
 
     public isolated function next() returns _Frame|error? {
         _StreamFunction sf = self.streamFunction;
-        var res = internal:invokeAsExternal(sf.process);
+        var func = sf.process;
+        var res = func();
         if (res is _Frame|error) {
             return res;
         }

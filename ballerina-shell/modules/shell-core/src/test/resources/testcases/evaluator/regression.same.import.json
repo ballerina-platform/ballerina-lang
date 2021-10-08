@@ -1,7 +1,7 @@
 [
   {
     "description": "Import Java lib.",
-    "code": "import ballerina/jballerina.java as 'java"
+    "code": "import ballerina/jballerina.java as java"
   },
   {
     "description": "Import Java lib II.",
@@ -17,10 +17,14 @@
   },
   {
     "description": "Use java lib I.",
-    "code": "var x = 'java:fromString(\"Hello\")"
+    "code": "var x = java:fromString(\"Hello\")"
   },
   {
     "description": "Use java lib II.",
+    "code": "var x = 'java:fromString(\"Hello\")"
+  },
+  {
+    "description": "Use java lib III.",
     "code": "java:toString(x)",
     "expr": "\"Hello\""
   }
