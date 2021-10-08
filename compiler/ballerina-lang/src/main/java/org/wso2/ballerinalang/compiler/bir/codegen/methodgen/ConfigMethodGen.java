@@ -48,7 +48,6 @@ import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ARRAYLENGTH;
 import static org.objectweb.asm.Opcodes.ASTORE;
-import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
@@ -164,7 +163,7 @@ public class ConfigMethodGen {
         mv.visitMethodInsn(INVOKESTATIC, moduleClass, CURRENT_MODULE_INIT, String.format("()L%s;", OBJECT), false);
 
         //create configuration data array
-        mv.visitIntInsn(BIPUSH, calculateConfigArraySize(module.globalVars));
+        mv.visitLdcInsn(calculateConfigArraySize(module.globalVars));
         mv.visitTypeInsn(ANEWARRAY, VARIABLE_KEY);
         mv.visitVarInsn(ASTORE, 0);
         int varCount = 0;
@@ -189,7 +188,7 @@ public class ConfigMethodGen {
                 mv.visitVarInsn(ASTORE, varCount + 1);
 
                 mv.visitVarInsn(ALOAD, 0);
-                mv.visitIntInsn(BIPUSH, varCount);
+                mv.visitLdcInsn(varCount);
                 mv.visitVarInsn(ALOAD, varCount + 1);
                 mv.visitInsn(AASTORE);
                 varCount++;

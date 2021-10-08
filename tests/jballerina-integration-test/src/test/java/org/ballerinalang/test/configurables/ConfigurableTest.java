@@ -273,6 +273,11 @@ public class ConfigurableTest extends BaseTest {
         };
     }
 
+    @Test
+    public void testLargeNoOfConfigVariables() throws BallerinaTestException {
+        executeBalCommand("/largeProject", "main", null);
+    }
+
     /**
      * Get environment variables and add config file path, data as an env variable.
      *
