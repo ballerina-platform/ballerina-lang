@@ -20,12 +20,9 @@ public globalVarsAndAnonFunctions function() -> () {
         %1[%7] = %4;
         %12 = fp $anon/.:0.0.0::$lambda$_0(%1);
         %0 = ConstLoad 0;
-        GOTO bb2;
+        GOTO bb1;
     }
     bb1 {
-        GOTO bb2;
-    }
-    bb2 {
         return;
     }
 
