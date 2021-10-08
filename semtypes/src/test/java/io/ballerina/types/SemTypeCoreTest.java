@@ -79,10 +79,10 @@ public class SemTypeCoreTest {
         disjoint(Core.typeCheckContext(env), PredefinedType.NIL, t2);
     }
 
-    private void disjoint(TypeCheckContext tc, SemType t1, SemType t2) {
-        Assert.assertFalse(Core.isSubtype(tc, t1, t2));
-        Assert.assertFalse(Core.isSubtype(tc, t2, t1));
-        Assert.assertTrue(Core.isEmpty(tc, Core.intersect(t1, t2)));
+    private void disjoint(Context cx, SemType t1, SemType t2) {
+        Assert.assertFalse(Core.isSubtype(cx, t1, t2));
+        Assert.assertFalse(Core.isSubtype(cx, t2, t1));
+        Assert.assertTrue(Core.isEmpty(cx, Core.intersect(t1, t2)));
     }
 
     @Test
@@ -113,10 +113,10 @@ public class SemTypeCoreTest {
         SemType tsT = ListDefinition.tuple(env, PredefinedType.TOP, PredefinedType.STRING);
         SemType iiT = ListDefinition.tuple(env, PredefinedType.INT, PredefinedType.INT);
         SemType ttT = ListDefinition.tuple(env, PredefinedType.TOP, PredefinedType.TOP);
-        TypeCheckContext tc = Core.typeCheckContext(env);
-        Assert.assertTrue(Core.isSubtype(tc, isT, itT));
-        Assert.assertTrue(Core.isSubtype(tc, isT, tsT));
-        Assert.assertTrue(Core.isSubtype(tc, iiT, ttT));
+        Context cx = Core.typeCheckContext(env);
+        Assert.assertTrue(Core.isSubtype(cx, isT, itT));
+        Assert.assertTrue(Core.isSubtype(cx, isT, tsT));
+        Assert.assertTrue(Core.isSubtype(cx, iiT, ttT));
     }
 
     @Test
@@ -251,8 +251,8 @@ public class SemTypeCoreTest {
         ListDefinition ld = new ListDefinition();
         SemType t2 = ld.define(env, new ArrayList<>(), PredefinedType.TOP);
         SemType t = Core.diff(t1, t2);
-        TypeCheckContext tc = Core.typeCheckContext(env);
-        boolean b = Core.isEmpty(tc, t);
+        Context cx = Core.typeCheckContext(env);
+        boolean b = Core.isEmpty(cx, t);
         Assert.assertTrue(b);
     }
 

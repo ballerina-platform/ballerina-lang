@@ -71,8 +71,8 @@ public class SemTypes {
         return ListDefinition.tuple(env, members);
     }
 
-    public static boolean isSubtype(TypeCheckContext typeCheckContext, SemType t1, SemType t2) {
-        return Core.isSubtype(typeCheckContext, t1, t2);
+    public static boolean isSubtype(Context context, SemType t1, SemType t2) {
+        return Core.isSubtype(context, t1, t2);
     }
 
     public static SemType errorDetail(SemType detail) {
