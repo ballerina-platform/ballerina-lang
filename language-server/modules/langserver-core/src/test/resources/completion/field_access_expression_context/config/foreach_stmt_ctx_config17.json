@@ -1,30 +1,30 @@
 {
   "position": {
-    "line": 2,
-    "character": 13
+    "line": 5,
+    "character": 10
   },
-  "source": "statement_context/source/foreach_stmt_ctx_source14.bal",
+  "source": "field_access_expression_context/source/foreach_stmt_ctx_source17.bal",
   "items": [
     {
       "label": "foreach",
       "kind": "Snippet",
       "detail": "foreach var item in expr",
       "documentation": {
-        "left": "foreach statement for iterable variable - tupleArr"
+        "left": "foreach statement for iterable variable - myMap"
       },
       "sortText": "BR",
-      "insertText": "foreach [string, int] item in tupleArr {\n\t${1}\n}",
+      "insertText": "foreach MyType item in myMap {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 5,
               "character": 4
             },
             "end": {
-              "line": 2,
-              "character": 13
+              "line": 5,
+              "character": 10
             }
           },
           "newText": ""
@@ -36,21 +36,21 @@
       "kind": "Snippet",
       "detail": "foreach int i in 0...expr",
       "documentation": {
-        "left": "foreach i statement for iterable variable - tupleArr"
+        "left": "foreach i statement for iterable variable - myMap"
       },
       "sortText": "BR",
-      "insertText": "foreach int i in ${1:0}...tupleArr.length() {\n\t${2}\n}",
+      "insertText": "foreach int i in ${1:0}...myMap.length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 5,
               "character": 4
             },
             "end": {
-              "line": 2,
-              "character": 13
+              "line": 5,
+              "character": 10
             }
           },
           "newText": ""
@@ -64,12 +64,31 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nCombines the members of an array using a combining function.\n\nThe combining function takes the combined value so far and a member of the array,\nand returns a new combined value.\n\nFor example\n```\nreduce([1, 2, 3], function (int total, int n) returns int { return total + n; }, 0)\n```\nis the same as `sum(1, 2, 3)`.\n  \n**Params**  \n- `function ()` func: combining function  \n- `any|error` initial: initial value for the first argument of combining parameter `func`  \n  \n**Return** `any|error`   \n- result of combining the members of parameter `arr` using parameter `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nCombines the members of a map using a combining function.\n\nThe combining function takes the combined value so far and a member of the map,\nand returns a new combined value.\n  \n**Params**  \n- `function ()` func: combining function  \n- `any|error` initial: initial value for the first argument of combining function `func`  \n  \n**Return** `any|error`   \n- result of combining the members of parameter `m` using function `func`  \n  \n"
         }
       },
       "sortText": "BD",
       "filterText": "reduce",
       "insertText": "reduce(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "hasKey(string k)",
+      "kind": "Function",
+      "detail": "boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nTests whether a map value has a member with a given key.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `boolean`   \n- true if parameter `m` has a member with key parameter `k`  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "hasKey",
+      "insertText": "hasKey(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -83,7 +102,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nApplies a function to each member of an array.\n\nThe parameter `func` is applied to each member of parameter `arr` in order.\n  \n**Params**  \n- `function ()` func: a function to apply to each member"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nApplies a function to each member of a map.\n\nThe function `func` is applied to each member of parameter `m`.\n  \n**Params**  \n- `function ()` func: a function to apply to each member"
         }
       },
       "sortText": "BD",
@@ -96,18 +115,18 @@
       }
     },
     {
-      "label": "shift()",
+      "label": "keys()",
       "kind": "Function",
-      "detail": "[string, int]",
+      "detail": "string[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves and returns first member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `[string, int]`   \n- the value that was the first member of the array  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a list of all the keys of a map.\n  \n  \n  \n**Return** `string[]`   \n- a new list of all keys  \n  \n"
         }
       },
       "sortText": "BD",
-      "filterText": "shift",
-      "insertText": "shift()",
+      "filterText": "keys",
+      "insertText": "keys()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -117,7 +136,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the number of members of an array.\n  \n  \n  \n**Return** `int`   \n- number of members in parameter `arr`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns number of members of a map.\n  \n  \n  \n**Return** `int`   \n- number of members in parameter `m`  \n  \n"
         }
       },
       "sortText": "BD",
@@ -126,62 +145,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "sort(array:SortDirection direction, function ()? key)",
+      "label": "remove(string k)",
       "kind": "Function",
-      "detail": "[string, int][]",
+      "detail": "MyType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nSorts an array.\n\nIf the member type of the array is not ordered, then the parameter `key` function\nmust be specified.\nSorting works the same as with the parameter `sort` clause of query expressions.\n  \n**Params**  \n- `array:SortDirection` direction: direction in which to sort(Defaultable)  \n- `function ()?` key: function that returns a key to use to sort the members(Defaultable)  \n  \n**Return** `[string, int][]`   \n- a new array consisting of the members of parameter `arr` in sorted order  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "sort",
-      "insertText": "sort(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "reverse()",
-      "kind": "Function",
-      "detail": "[string, int][]",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReverses the order of the members of an array.\n  \n  \n  \n**Return** `[string, int][]`   \n- parameter `arr` with its members in reverse order  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "reverse",
-      "insertText": "reverse()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "toStream()",
-      "kind": "Function",
-      "detail": "stream<[string, int]>",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a stream from the given array.\n  \n  \n  \n**Return** `stream<[string, int]>`   \n- The stream representation of the array `arr`  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "toStream",
-      "insertText": "toStream()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "remove(int index)",
-      "kind": "Function",
-      "detail": "[string, int]",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves a member of an array.\n\nThis removes the member of parameter `arr` with index parameter `index` and returns it.\nIt panics if there is no such member.\n  \n**Params**  \n- `int` index: index of member to be removed from parameter `arr`  \n  \n**Return** `[string, int]`   \n- the member of parameter `arr` that was at parameter `index`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves a member of a map.\n\nThis removes the member of parameter `m` with key parameter `k` and returns it.\nIt panics if there is no such member.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `MyType`   \n- the member of parameter `m` that had key parameter `k`  \n  \n"
         }
       },
       "sortText": "BD",
@@ -194,32 +164,13 @@
       }
     },
     {
-      "label": "push([string, int]... vals)",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nAdds values to the end of an array.\n  \n**Params**  \n- `[string, int][]` vals: values to add to the end of the array"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "push",
-      "insertText": "push(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "filter(function () func)",
       "kind": "Function",
-      "detail": "[string, int][]",
+      "detail": "map<MyType>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nSelects the members from an array for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `[string, int][]`   \n- new array only containing members of parameter `arr` for which parameter `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nSelects the members from a map for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each element to test whether it should be included  \n  \n**Return** `map<MyType>`   \n- new map containing members for which function `func` evaluates to true  \n  \n"
         }
       },
       "sortText": "BD",
@@ -232,33 +183,18 @@
       }
     },
     {
-      "label": "pop()",
+      "label": "removeIfHasKey(string k)",
       "kind": "Function",
-      "detail": "[string, int]",
+      "detail": "MyType?",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves and returns the last member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `[string, int]`   \n- removed member  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves a member of a map with a given key, if the map has member with the key.\n\nIf parameter `m` has a member with key parameter `k`, it removes and returns it;\notherwise it returns `()`.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `MyType?`   \n- the member of parameter `m` that had key parameter `k`, or `()` if parameter `m` does not have a key parameter `k`  \n  \n"
         }
       },
       "sortText": "BD",
-      "filterText": "pop",
-      "insertText": "pop()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lastIndexOf([string, int] val, int startIndex)",
-      "kind": "Function",
-      "detail": "int?",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the index of last member of an array that is equal to a given value if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `[string, int]` val: member to search for  \n- `int` startIndex: index to start searching backwards from(Defaultable)  \n  \n**Return** `int?`   \n- index of the member if found, else `()`  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "lastIndexOf",
-      "insertText": "lastIndexOf(${1})",
+      "filterText": "removeIfHasKey",
+      "insertText": "removeIfHasKey(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -272,12 +208,27 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns an iterator over an array.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| any|error value; |}? ;}`   \n- a new iterator object that will iterate over the members of parameter `arr`.  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns an iterator over a map.\n\nThe iterator will iterate over the members of the map not the keys.\nThe function `entries` can be used to iterate over the keys and members together.\nThe function `keys` can be used to iterator over just the keys.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| any|error value; |}? ;}`   \n- a new iterator object that will iterate over the members of parameter `m`  \n  \n"
         }
       },
       "sortText": "BD",
       "filterText": "iterator",
       "insertText": "iterator()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "entries()",
+      "kind": "Function",
+      "detail": "map<[string, MyType]>",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a map containing [key, member] pair as the value for each key.\n  \n  \n  \n**Return** `map<[string, MyType]>`   \n- a new map of [key, member] pairs  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "entries",
+      "insertText": "entries()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -287,7 +238,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves all members of an array.\n\nPanics if any member cannot be removed.  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves all members of a map.\n\nThis panics if any member cannot be removed.\n  \n"
         }
       },
       "sortText": "BD",
@@ -296,18 +247,18 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "setLength(int length)",
+      "label": "get(string k)",
       "kind": "Function",
-      "detail": "()",
+      "detail": "MyType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nChanges the length of an array.\n\n`setLength(arr, 0)` is equivalent to `removeAll(arr)`.\n  \n**Params**  \n- `int` length: new length"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns the member of a map with given key.\n\nThis for use in a case where it is known that the map has a specific key,\nand accordingly panics if parameter `m` does not have a member with parameter `k` key.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `MyType`   \n- member with parameter `k` key  \n  \n"
         }
       },
       "sortText": "BD",
-      "filterText": "setLength",
-      "insertText": "setLength(${1})",
+      "filterText": "get",
+      "insertText": "get(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -315,76 +266,19 @@
       }
     },
     {
-      "label": "slice(int startIndex, int endIndex)",
+      "label": "toArray()",
       "kind": "Function",
-      "detail": "[string, int][]",
+      "detail": "MyType[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a subarray using a start index (inclusive) and an end index (exclusive).\n  \n**Params**  \n- `int` startIndex: index of first member to include in the slice  \n- `int` endIndex: index of first member not to include in the slice(Defaultable)  \n  \n**Return** `[string, int][]`   \n- array slice within specified range  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a list of all the members of a map.\n  \n  \n  \n**Return** `MyType[]`   \n- an array whose members are the members of parameter `m`  \n  \n"
         }
       },
       "sortText": "BD",
-      "filterText": "slice",
-      "insertText": "slice(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "enumerate()",
-      "kind": "Function",
-      "detail": "[int, [string, int]][]",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a new array consisting of index and member pairs.\n  \n  \n  \n**Return** `[int, [string, int]][]`   \n- array of index, member pairs  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "enumerate",
-      "insertText": "enumerate()",
+      "filterText": "toArray",
+      "insertText": "toArray()",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "unshift([string, int]... vals)",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nAdds values to the start of an array.\n\nThe values newly added to the array will be in the same order\nas they are in parameter `vals`.\n  \n**Params**  \n- `[string, int][]` vals: values to add to the start of the array"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "unshift",
-      "insertText": "unshift(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "indexOf([string, int] val, int startIndex)",
-      "kind": "Function",
-      "detail": "int?",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the index of first member of an array that is equal to a given value if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `[string, int]` val: member to search for  \n- `int` startIndex: index to start the search from(Defaultable)  \n  \n**Return** `int?`   \n- index of the member if found, else `()`  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "indexOf",
-      "insertText": "indexOf(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     },
     {
       "label": "cloneWithType(typedesc<anydata> t)",
@@ -570,11 +464,11 @@
     {
       "label": "map(function () func)",
       "kind": "Function",
-      "detail": "(any|error)[]",
+      "detail": "map<any|error>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nApplies a function to each member of an array and returns an array of the results.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `(any|error)[]`   \n- new array containing result of applying parameter `func` to each member of parameter `arr` in order  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nApplies a function each member of a map and returns a map of the result.\n\nThe resulting map will have the same keys as the argument map.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `map<any|error>`   \n- new map containing result of applying function `func` to each member  \n  \n"
         }
       },
       "sortText": "BD",

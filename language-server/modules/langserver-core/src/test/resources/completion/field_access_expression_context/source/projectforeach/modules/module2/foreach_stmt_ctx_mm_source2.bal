@@ -1,4 +1,4 @@
-import projectls.module1
+import projectforeach.module1
  
 public function doSth() {
     module1:Student s1 = {

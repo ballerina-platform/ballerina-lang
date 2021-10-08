@@ -1,19 +1,19 @@
 {
   "position": {
     "line": 2,
-    "character": 10
+    "character": 15
   },
-  "source": "statement_context/source/foreach_stmt_ctx_source13.bal",
+  "source": "field_access_expression_context/source/foreach_stmt_ctx_source10.bal",
   "items": [
     {
       "label": "foreach",
       "kind": "Snippet",
       "detail": "foreach var item in expr",
       "documentation": {
-        "left": "foreach statement for iterable variable - myStr"
+        "left": "foreach statement for iterable variable - numberList"
       },
       "sortText": "BR",
-      "insertText": "foreach string:Char item in myStr {\n\t${1}\n}",
+      "insertText": "foreach int[] item in numberList {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -24,7 +24,7 @@
             },
             "end": {
               "line": 2,
-              "character": 10
+              "character": 15
             }
           },
           "newText": ""
@@ -36,10 +36,10 @@
       "kind": "Snippet",
       "detail": "foreach int i in 0...expr",
       "documentation": {
-        "left": "foreach i statement for iterable variable - myStr"
+        "left": "foreach i statement for iterable variable - numberList"
       },
       "sortText": "BR",
-      "insertText": "foreach int i in ${1:0}...myStr.length() {\n\t${2}\n}",
+      "insertText": "foreach int i in ${1:0}...numberList.length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -50,7 +50,7 @@
             },
             "end": {
               "line": 2,
-              "character": 10
+              "character": 15
             }
           },
           "newText": ""
@@ -58,18 +58,18 @@
       ]
     },
     {
-      "label": "getCodePoint(int index)",
+      "label": "reduce(function () func, any|error initial)",
       "kind": "Function",
-      "detail": "int",
+      "detail": "any|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nReturns the code point of a character in a string.\n  \n**Params**  \n- `int` index: an index in parameter `str`  \n  \n**Return** `int`   \n- the Unicode code point of the character at parameter `index` in parameter `str`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nCombines the members of an array using a combining function.\n\nThe combining function takes the combined value so far and a member of the array,\nand returns a new combined value.\n\nFor example\n```\nreduce([1, 2, 3], function (int total, int n) returns int { return total + n; }, 0)\n```\nis the same as `sum(1, 2, 3)`.\n  \n**Params**  \n- `function ()` func: combining function  \n- `any|error` initial: initial value for the first argument of combining parameter `func`  \n  \n**Return** `any|error`   \n- result of combining the members of parameter `arr` using parameter `func`  \n  \n"
         }
       },
       "sortText": "BD",
-      "filterText": "getCodePoint",
-      "insertText": "getCodePoint(${1})",
+      "filterText": "reduce",
+      "insertText": "reduce(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -77,18 +77,37 @@
       }
     },
     {
-      "label": "toBytes()",
+      "label": "forEach(function () func)",
       "kind": "Function",
-      "detail": "byte[]",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nRepresents a string as an array of bytes using UTF-8.\n  \n  \n  \n**Return** `byte[]`   \n- UTF-8 byte array  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nApplies a function to each member of an array.\n\nThe parameter `func` is applied to each member of parameter `arr` in order.\n  \n**Params**  \n- `function ()` func: a function to apply to each member"
         }
       },
       "sortText": "BD",
-      "filterText": "toBytes",
-      "insertText": "toBytes()",
+      "filterText": "forEach",
+      "insertText": "forEach(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "shift()",
+      "kind": "Function",
+      "detail": "int[]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves and returns first member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `int[]`   \n- the value that was the first member of the array  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "shift",
+      "insertText": "shift()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -98,7 +117,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nReturns the length of the string.\n  \n  \n  \n**Return** `int`   \n- the number of characters (code points) in parameter `str`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the number of members of an array.\n  \n  \n  \n**Return** `int`   \n- number of members in parameter `arr`  \n  \n"
         }
       },
       "sortText": "BD",
@@ -107,119 +126,134 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "toCodePointInts()",
+      "label": "sort(array:SortDirection direction, function ()? key)",
+      "kind": "Function",
+      "detail": "int[][]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nSorts an array.\n\nIf the member type of the array is not ordered, then the parameter `key` function\nmust be specified.\nSorting works the same as with the parameter `sort` clause of query expressions.\n  \n**Params**  \n- `array:SortDirection` direction: direction in which to sort(Defaultable)  \n- `function ()?` key: function that returns a key to use to sort the members(Defaultable)  \n  \n**Return** `int[][]`   \n- a new array consisting of the members of parameter `arr` in sorted order  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "sort",
+      "insertText": "sort(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "reverse()",
+      "kind": "Function",
+      "detail": "int[][]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReverses the order of the members of an array.\n  \n  \n  \n**Return** `int[][]`   \n- parameter `arr` with its members in reverse order  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "reverse",
+      "insertText": "reverse()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toStream()",
+      "kind": "Function",
+      "detail": "stream<int[]>",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a stream from the given array.\n  \n  \n  \n**Return** `stream<int[]>`   \n- The stream representation of the array `arr`  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "toStream",
+      "insertText": "toStream()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "remove(int index)",
       "kind": "Function",
       "detail": "int[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nConverts a string to an array of code points.\n  \n  \n  \n**Return** `int[]`   \n- an array with a code point for each character of parameter `str`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves a member of an array.\n\nThis removes the member of parameter `arr` with index parameter `index` and returns it.\nIt panics if there is no such member.\n  \n**Params**  \n- `int` index: index of member to be removed from parameter `arr`  \n  \n**Return** `int[]`   \n- the member of parameter `arr` that was at parameter `index`  \n  \n"
         }
       },
       "sortText": "BD",
-      "filterText": "toCodePointInts",
-      "insertText": "toCodePointInts()",
+      "filterText": "remove",
+      "insertText": "remove(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "push(int[]... vals)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nAdds values to the end of an array.\n  \n**Params**  \n- `int[][]` vals: values to add to the end of the array"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "push",
+      "insertText": "push(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "filter(function () func)",
+      "kind": "Function",
+      "detail": "int[][]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nSelects the members from an array for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `int[][]`   \n- new array only containing members of parameter `arr` for which parameter `func` evaluates to true  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "filter",
+      "insertText": "filter(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "pop()",
+      "kind": "Function",
+      "detail": "int[]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves and returns the last member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `int[]`   \n- removed member  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "pop",
+      "insertText": "pop()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "includes(string substr, int startIndex)",
-      "kind": "Function",
-      "detail": "boolean",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nTests whether a string includes another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching from(Defaultable)  \n  \n**Return** `boolean`   \n- `true` if there is an occurrence of parameter `substr` in parameter `str` at an index >= parameter `startIndex`,  \nor `false` otherwise  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "includes",
-      "insertText": "includes(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "concat(string... strs)",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nConcatenates zero or more strings.\n  \n  \n  \n**Return** `string`   \n- concatenation of all of the parameter `strs`; empty string if parameter `strs` is empty  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "concat",
-      "insertText": "concat(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "equalsIgnoreCaseAscii(string str2)",
-      "kind": "Function",
-      "detail": "boolean",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nTests whether two strings are the same, ignoring the case of ASCII characters.\n\nA character in the range a-z is treated the same as the corresponding character in the range A-Z.\n  \n**Params**  \n- `string` str2: the second string to be compared  \n  \n**Return** `boolean`   \n- true if parameter `str1` is the same as parameter `str2`, treating upper-case and lower-case  \nASCII letters as the same; false, otherwise  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "equalsIgnoreCaseAscii",
-      "insertText": "equalsIgnoreCaseAscii(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "toUpperAscii()",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nConverts occurrences of a-z to A-Z.\n\nOther characters are left unchanged.\n  \n  \n  \n**Return** `string`   \n- parameter `str` with any occurrences of a-z converted to A-Z  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "toUpperAscii",
-      "insertText": "toUpperAscii()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "substring(int startIndex, int endIndex)",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nReturns a substring of a string.\n  \n**Params**  \n- `int` startIndex: the starting index, inclusive  \n- `int` endIndex: the ending index, exclusive(Defaultable)  \n  \n**Return** `string`   \n- substring consisting of characters with index >= `startIndex` and < `endIndex`  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "substring",
-      "insertText": "substring(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "lastIndexOf(string substr, int startIndex)",
+      "label": "lastIndexOf(int[] val, int startIndex)",
       "kind": "Function",
       "detail": "int?",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nFinds the last occurrence of one string in another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching backwards from(Defaultable)  \n  \n**Return** `int?`   \n- index of the last occurrence of parameter `substr` in parameter `str` that is <= parameter `startIndex`,  \nor `()` if there is no such occurrence  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the index of last member of an array that is equal to a given value if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `int[]` val: member to search for  \n- `int` startIndex: index to start searching backwards from(Defaultable)  \n  \n**Return** `int?`   \n- index of the member if found, else `()`  \n  \n"
         }
       },
       "sortText": "BD",
@@ -234,11 +268,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {| string:Char value; |}? ;}",
+      "detail": "object {public isolated function next() returns record {| any|error value; |}? ;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nReturns an iterator over the string.\n\nThe iterator will yield the substrings of length 1 in order.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| string:Char value; |}? ;}`   \n- a new iterator object  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns an iterator over an array.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| any|error value; |}? ;}`   \n- a new iterator object that will iterate over the members of parameter `arr`.  \n  \n"
         }
       },
       "sortText": "BD",
@@ -247,33 +281,33 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "trim()",
+      "label": "removeAll()",
       "kind": "Function",
-      "detail": "string",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nRemoves ASCII white space characters from the start and end of a string.\n\nThe ASCII white space characters are 0x9...0xD, 0x20.\n  \n  \n  \n**Return** `string`   \n- parameter `str` with leading or trailing ASCII white space characters removed  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves all members of an array.\n\nPanics if any member cannot be removed.  \n"
         }
       },
       "sortText": "BD",
-      "filterText": "trim",
-      "insertText": "trim()",
+      "filterText": "removeAll",
+      "insertText": "removeAll()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "endsWith(string substr)",
+      "label": "setLength(int length)",
       "kind": "Function",
-      "detail": "boolean",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nTests whether a string ends with another string.\n  \n**Params**  \n- `string` substr: the ending string  \n  \n**Return** `boolean`   \n- true if parameter `str` ends with parameter `substr`; false otherwise  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nChanges the length of an array.\n\n`setLength(arr, 0)` is equivalent to `removeAll(arr)`.\n  \n**Params**  \n- `int` length: new length"
         }
       },
       "sortText": "BD",
-      "filterText": "endsWith",
-      "insertText": "endsWith(${1})",
+      "filterText": "setLength",
+      "insertText": "setLength(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -281,18 +315,18 @@
       }
     },
     {
-      "label": "'join(string... strs)",
+      "label": "slice(int startIndex, int endIndex)",
       "kind": "Function",
-      "detail": "string",
+      "detail": "int[][]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nJoins zero or more strings together with a separator.\n  \n**Params**  \n- `string[]` strs: strings to be joined  \n  \n**Return** `string`   \n- a string consisting of all of parameter `strs` concatenated in order  \nwith parameter `separator` in between them  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a subarray using a start index (inclusive) and an end index (exclusive).\n  \n**Params**  \n- `int` startIndex: index of first member to include in the slice  \n- `int` endIndex: index of first member not to include in the slice(Defaultable)  \n  \n**Return** `int[][]`   \n- array slice within specified range  \n  \n"
         }
       },
       "sortText": "BD",
-      "filterText": "'join",
-      "insertText": "'join(${1})",
+      "filterText": "slice",
+      "insertText": "slice(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -300,71 +334,52 @@
       }
     },
     {
-      "label": "indexOf(string substr, int startIndex)",
+      "label": "enumerate()",
+      "kind": "Function",
+      "detail": "[int, int[]][]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a new array consisting of index and member pairs.\n  \n  \n  \n**Return** `[int, int[]][]`   \n- array of index, member pairs  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "enumerate",
+      "insertText": "enumerate()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "unshift(int[]... vals)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nAdds values to the start of an array.\n\nThe values newly added to the array will be in the same order\nas they are in parameter `vals`.\n  \n**Params**  \n- `int[][]` vals: values to add to the start of the array"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "unshift",
+      "insertText": "unshift(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "indexOf(int[] val, int startIndex)",
       "kind": "Function",
       "detail": "int?",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nFinds the first occurrence of one string in another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching from(Defaultable)  \n  \n**Return** `int?`   \n- index of the first occurrence of parameter `substr` in parameter `str` that is >= parameter `startIndex`,  \nor `()` if there is no such occurrence  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the index of first member of an array that is equal to a given value if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `int[]` val: member to search for  \n- `int` startIndex: index to start the search from(Defaultable)  \n  \n**Return** `int?`   \n- index of the member if found, else `()`  \n  \n"
         }
       },
       "sortText": "BD",
       "filterText": "indexOf",
       "insertText": "indexOf(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "codePointCompare(string str2)",
-      "kind": "Function",
-      "detail": "int",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nLexicographically compares strings using their Unicode code points.\n\nThis orders strings in a consistent and well-defined way,\nbut the ordering will often not be consistent with cultural expectations\nfor sorted order.\n  \n**Params**  \n- `string` str2: the second string to be compared  \n  \n**Return** `int`   \n- an int that is less than, equal to or greater than zero,  \naccording as parameter `str1` is less than, equal to or greater than parameter `str2`  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "codePointCompare",
-      "insertText": "codePointCompare(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "toLowerAscii()",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nConverts occurrences of A-Z to a-z.\n\nOther characters are left unchanged.\n  \n  \n  \n**Return** `string`   \n- parameter `str` with any occurrences of A-Z converted to a-z  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "toLowerAscii",
-      "insertText": "toLowerAscii()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "startsWith(string substr)",
-      "kind": "Function",
-      "detail": "boolean",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nTests whether a string starts with another string.\n  \n**Params**  \n- `string` substr: the starting string  \n  \n**Return** `boolean`   \n- true if parameter `str` starts with parameter `substr`; false otherwise  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "startsWith",
-      "insertText": "startsWith(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -389,66 +404,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "fromJsonString()",
-      "kind": "Function",
-      "detail": "json|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format and returns the the value that it represents.\n\nNumbers in the JSON string are converted into Ballerina values of type\ndecimal except in the following two cases:\nif the JSON number starts with `-` and is numerically equal to zero, then it is\nconverted into float value of `-0.0`;\notherwise, if the JSON number is syntactically an integer and is in the range representable\nby a Ballerina int, then it is converted into a Ballerina int.\nA JSON number is considered syntactically an integer if it contains neither\na decimal point nor an exponent.\n\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Return** `json|error`   \n- `str` parsed to json or error  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "fromJsonString",
-      "insertText": "fromJsonString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "fromBalString()",
-      "kind": "Function",
-      "detail": "anydata|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses and evaluates a subset of Ballerina expression syntax.\n\nThe subset of Ballerina expression syntax supported is that produced\nby toBalString when applied to an anydata value.\n  \n  \n  \n**Return** `anydata|error`   \n- the result of evaluating the parsed expression, or  \nan error if the string cannot be parsed  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "fromBalString",
-      "insertText": "fromBalString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "fromJsonFloatString()",
-      "kind": "Function",
-      "detail": "value:JsonFloat|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format, using float to represent numbers.\n\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Return** `value:JsonFloat|error`   \n- parameter `str` parsed to JsonFloat or error  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "fromJsonFloatString",
-      "insertText": "fromJsonFloatString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "fromJsonDecimalString()",
-      "kind": "Function",
-      "detail": "value:JsonDecimal|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format, using decimal to represent numbers.\n\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Return** `value:JsonDecimal|error`   \n- parameter `str` parsed to JsonDecimal or error  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "fromJsonDecimalString",
-      "insertText": "fromJsonDecimalString()",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "cloneReadOnly()",
@@ -479,25 +434,6 @@
       "filterText": "toBalString",
       "insertText": "toBalString()",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "fromJsonStringWithType(typedesc<anydata> t)",
-      "kind": "Function",
-      "detail": "t|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a string in JSON format to a user-specified type.\n\nThis is a combination of function `fromJsonString` followed by function `fromJsonWithType`.\n  \n**Params**  \n- `typedesc<anydata>` t: type to convert to(Defaultable)  \n  \n**Return** `t|error`   \n- value belonging to type parameter `t` or error if this cannot be done  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "fromJsonStringWithType",
-      "insertText": "fromJsonStringWithType(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     },
     {
       "label": "toJson()",
@@ -630,6 +566,25 @@
       "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "map(function () func)",
+      "kind": "Function",
+      "detail": "(any|error)[]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nApplies a function to each member of an array and returns an array of the results.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `(any|error)[]`   \n- new array containing result of applying parameter `func` to each member of parameter `arr` in order  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "map",
+      "insertText": "map(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

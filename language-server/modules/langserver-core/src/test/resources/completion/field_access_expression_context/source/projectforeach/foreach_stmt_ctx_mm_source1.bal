@@ -1,4 +1,4 @@
-import projectls.module1;
+import projectforeach.module1;
 public function main() {
     module1:Student s1 = {
         firstName: "Mary", 

@@ -1,9 +1,9 @@
 {
   "position": {
     "line": 3,
-    "character": 12
+    "character": 13
   },
-  "source": "statement_context/source/foreach_stmt_ctx_source1.bal",
+  "source": "field_access_expression_context/source/foreach_stmt_ctx_source2.bal",
   "items": [
     {
       "label": "Thread",

@@ -3,7 +3,7 @@
     "line": 9,
     "character": 7
   },
-  "source": "statement_context/source/projectls/modules/module2/foreach_stmt_ctx_mm_source2.bal",
+  "source": "field_access_expression_context/source/projectforeach/modules/module2/foreach_stmt_ctx_mm_source2.bal",
   "items": [
     {
       "label": "foreach",

@@ -3,7 +3,7 @@
     "line": 4,
     "character": 8
   },
-  "source": "statement_context/source/foreach_stmt_ctx_source7.bal",
+  "source": "field_access_expression_context/source/foreach_stmt_ctx_source7.bal",
   "items": [
     {
       "label": "xmlns",

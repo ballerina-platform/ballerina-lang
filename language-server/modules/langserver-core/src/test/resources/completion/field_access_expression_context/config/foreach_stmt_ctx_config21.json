@@ -1,30 +1,30 @@
 {
   "position": {
-    "line": 29,
-    "character": 15
+    "line": 1,
+    "character": 21
   },
-  "source": "statement_context/source/projectls/foreach_stmt_ctx_mm_source1.bal",
+  "source": "field_access_expression_context/source/foreach_stmt_ctx_source21.bal",
   "items": [
     {
       "label": "foreach",
       "kind": "Snippet",
       "detail": "foreach var item in expr",
       "documentation": {
-        "left": "foreach statement for iterable variable - listResult"
+        "left": "foreach statement for iterable variable - getIterable(1,2)"
       },
       "sortText": "BR",
-      "insertText": "foreach Report item in listResult {\n\t${1}\n}",
+      "insertText": "foreach int item in getIterable(1,2) {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 29,
+              "line": 1,
               "character": 4
             },
             "end": {
-              "line": 29,
-              "character": 15
+              "line": 1,
+              "character": 21
             }
           },
           "newText": ""
@@ -36,21 +36,21 @@
       "kind": "Snippet",
       "detail": "foreach int i in 0...expr",
       "documentation": {
-        "left": "foreach i statement for iterable variable - listResult"
+        "left": "foreach i statement for iterable variable - getIterable(1,2)"
       },
       "sortText": "BR",
-      "insertText": "foreach int i in ${1:0}...listResult.length() {\n\t${2}\n}",
+      "insertText": "foreach int i in ${1:0}...getIterable(1,2).length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 29,
+              "line": 1,
               "character": 4
             },
             "end": {
-              "line": 29,
-              "character": 15
+              "line": 1,
+              "character": 21
             }
           },
           "newText": ""
@@ -98,11 +98,11 @@
     {
       "label": "shift()",
       "kind": "Function",
-      "detail": "Report",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves and returns first member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `Report`   \n- the value that was the first member of the array  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves and returns first member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `int`   \n- the value that was the first member of the array  \n  \n"
         }
       },
       "sortText": "BD",
@@ -128,11 +128,11 @@
     {
       "label": "sort(array:SortDirection direction, function ()? key)",
       "kind": "Function",
-      "detail": "Report[]",
+      "detail": "int[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nSorts an array.\n\nIf the member type of the array is not ordered, then the parameter `key` function\nmust be specified.\nSorting works the same as with the parameter `sort` clause of query expressions.\n  \n**Params**  \n- `array:SortDirection` direction: direction in which to sort(Defaultable)  \n- `function ()?` key: function that returns a key to use to sort the members(Defaultable)  \n  \n**Return** `Report[]`   \n- a new array consisting of the members of parameter `arr` in sorted order  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nSorts an array.\n\nIf the member type of the array is not ordered, then the parameter `key` function\nmust be specified.\nSorting works the same as with the parameter `sort` clause of query expressions.\n  \n**Params**  \n- `array:SortDirection` direction: direction in which to sort(Defaultable)  \n- `function ()?` key: function that returns a key to use to sort the members(Defaultable)  \n  \n**Return** `int[]`   \n- a new array consisting of the members of parameter `arr` in sorted order  \n  \n"
         }
       },
       "sortText": "BD",
@@ -147,11 +147,11 @@
     {
       "label": "reverse()",
       "kind": "Function",
-      "detail": "Report[]",
+      "detail": "int[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReverses the order of the members of an array.\n  \n  \n  \n**Return** `Report[]`   \n- parameter `arr` with its members in reverse order  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReverses the order of the members of an array.\n  \n  \n  \n**Return** `int[]`   \n- parameter `arr` with its members in reverse order  \n  \n"
         }
       },
       "sortText": "BD",
@@ -162,11 +162,11 @@
     {
       "label": "toStream()",
       "kind": "Function",
-      "detail": "stream<Report>",
+      "detail": "stream<int>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a stream from the given array.\n  \n  \n  \n**Return** `stream<Report>`   \n- The stream representation of the array `arr`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a stream from the given array.\n  \n  \n  \n**Return** `stream<int>`   \n- The stream representation of the array `arr`  \n  \n"
         }
       },
       "sortText": "BD",
@@ -177,11 +177,11 @@
     {
       "label": "remove(int index)",
       "kind": "Function",
-      "detail": "Report",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves a member of an array.\n\nThis removes the member of parameter `arr` with index parameter `index` and returns it.\nIt panics if there is no such member.\n  \n**Params**  \n- `int` index: index of member to be removed from parameter `arr`  \n  \n**Return** `Report`   \n- the member of parameter `arr` that was at parameter `index`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves a member of an array.\n\nThis removes the member of parameter `arr` with index parameter `index` and returns it.\nIt panics if there is no such member.\n  \n**Params**  \n- `int` index: index of member to be removed from parameter `arr`  \n  \n**Return** `int`   \n- the member of parameter `arr` that was at parameter `index`  \n  \n"
         }
       },
       "sortText": "BD",
@@ -194,13 +194,13 @@
       }
     },
     {
-      "label": "push(Report... vals)",
+      "label": "push(int... vals)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nAdds values to the end of an array.\n  \n**Params**  \n- `Report[]` vals: values to add to the end of the array"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nAdds values to the end of an array.\n  \n**Params**  \n- `int[]` vals: values to add to the end of the array"
         }
       },
       "sortText": "BD",
@@ -215,11 +215,11 @@
     {
       "label": "filter(function () func)",
       "kind": "Function",
-      "detail": "Report[]",
+      "detail": "int[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nSelects the members from an array for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `Report[]`   \n- new array only containing members of parameter `arr` for which parameter `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nSelects the members from an array for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `int[]`   \n- new array only containing members of parameter `arr` for which parameter `func` evaluates to true  \n  \n"
         }
       },
       "sortText": "BD",
@@ -234,11 +234,11 @@
     {
       "label": "pop()",
       "kind": "Function",
-      "detail": "Report",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves and returns the last member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `Report`   \n- removed member  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nRemoves and returns the last member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `int`   \n- removed member  \n  \n"
         }
       },
       "sortText": "BD",
@@ -247,13 +247,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lastIndexOf(Report val, int startIndex)",
+      "label": "lastIndexOf(int val, int startIndex)",
       "kind": "Function",
       "detail": "int?",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the index of last member of an array that is equal to a given value if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `Report` val: member to search for  \n- `int` startIndex: index to start searching backwards from(Defaultable)  \n  \n**Return** `int?`   \n- index of the member if found, else `()`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the index of last member of an array that is equal to a given value if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `int` val: member to search for  \n- `int` startIndex: index to start searching backwards from(Defaultable)  \n  \n**Return** `int?`   \n- index of the member if found, else `()`  \n  \n"
         }
       },
       "sortText": "BD",
@@ -317,11 +317,11 @@
     {
       "label": "slice(int startIndex, int endIndex)",
       "kind": "Function",
-      "detail": "Report[]",
+      "detail": "int[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a subarray using a start index (inclusive) and an end index (exclusive).\n  \n**Params**  \n- `int` startIndex: index of first member to include in the slice  \n- `int` endIndex: index of first member not to include in the slice(Defaultable)  \n  \n**Return** `Report[]`   \n- array slice within specified range  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a subarray using a start index (inclusive) and an end index (exclusive).\n  \n**Params**  \n- `int` startIndex: index of first member to include in the slice  \n- `int` endIndex: index of first member not to include in the slice(Defaultable)  \n  \n**Return** `int[]`   \n- array slice within specified range  \n  \n"
         }
       },
       "sortText": "BD",
@@ -336,11 +336,11 @@
     {
       "label": "enumerate()",
       "kind": "Function",
-      "detail": "[int, Report][]",
+      "detail": "[int, int][]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a new array consisting of index and member pairs.\n  \n  \n  \n**Return** `[int, Report][]`   \n- array of index, member pairs  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns a new array consisting of index and member pairs.\n  \n  \n  \n**Return** `[int, int][]`   \n- array of index, member pairs  \n  \n"
         }
       },
       "sortText": "BD",
@@ -349,13 +349,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "unshift(Report... vals)",
+      "label": "unshift(int... vals)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nAdds values to the start of an array.\n\nThe values newly added to the array will be in the same order\nas they are in parameter `vals`.\n  \n**Params**  \n- `Report[]` vals: values to add to the start of the array"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nAdds values to the start of an array.\n\nThe values newly added to the array will be in the same order\nas they are in parameter `vals`.\n  \n**Params**  \n- `int[]` vals: values to add to the start of the array"
         }
       },
       "sortText": "BD",
@@ -368,13 +368,13 @@
       }
     },
     {
-      "label": "indexOf(Report val, int startIndex)",
+      "label": "indexOf(int val, int startIndex)",
       "kind": "Function",
       "detail": "int?",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the index of first member of an array that is equal to a given value if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `Report` val: member to search for  \n- `int` startIndex: index to start the search from(Defaultable)  \n  \n**Return** `int?`   \n- index of the member if found, else `()`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \nReturns the index of first member of an array that is equal to a given value if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `int` val: member to search for  \n- `int` startIndex: index to start the search from(Defaultable)  \n  \n**Return** `int?`   \n- index of the member if found, else `()`  \n  \n"
         }
       },
       "sortText": "BD",
@@ -464,6 +464,44 @@
       "filterText": "isReadOnly",
       "insertText": "isReadOnly()",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fromJsonWithType(typedesc<anydata> t)",
+      "kind": "Function",
+      "detail": "t|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value of type json to a user-specified type.\n\nThis works the same as function `cloneWithType`,\nexcept that it also does the inverse of the conversions done by `toJson`.\n  \n**Params**  \n- `typedesc<anydata>` t: type to convert to(Defaultable)  \n  \n**Return** `t|error`   \n- value belonging to type parameter `t` or error if this cannot be done  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "fromJsonWithType",
+      "insertText": "fromJsonWithType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "mergeJson(json j2)",
+      "kind": "Function",
+      "detail": "json|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nMerges two `json` values.\n\nThe merge of parameter `j1` with parameter `j2` is defined as follows:\n- if parameter `j1` is `()`, then the result is parameter `j2`\n- if parameter `j2` is `()`, then the result is parameter `j1`\n- if parameter `j1` is a mapping and parameter `j2` is a mapping, then for each entry [k, j] in parameter `j2`, set `j1[k]` to the merge of `j1[k]` with `j`\n- if `j1[k]` is undefined, then set `j1[k]` to `j`\n- if any merge fails, then the merge of parameter `j1` with parameter `j2` fails\n- otherwise, the result is parameter `j1`.\n- otherwise, the merge fails\nIf the merge fails, then parameter `j1` is unchanged.\n  \n**Params**  \n- `json` j2: json value  \n  \n**Return** `json|error`   \n- the merge of parameter `j1` with parameter `j2` or an error if the merge fails  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "mergeJson",
+      "insertText": "mergeJson(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "clone()",

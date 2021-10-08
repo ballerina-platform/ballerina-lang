@@ -1,30 +1,30 @@
 {
   "position": {
-    "line": 6,
-    "character": 16
+    "line": 5,
+    "character": 11
   },
-  "source": "statement_context/source/foreach_stmt_ctx_source18.bal",
+  "source": "field_access_expression_context/source/foreach_stmt_ctx_source15.bal",
   "items": [
     {
       "label": "foreach",
       "kind": "Snippet",
       "detail": "foreach var item in expr",
       "documentation": {
-        "left": "foreach statement for iterable variable - employeeTab"
+        "left": "foreach statement for iterable variable - person"
       },
       "sortText": "BR",
-      "insertText": "foreach Employee item in employeeTab {\n\t${1}\n}",
+      "insertText": "foreach var item in person {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 6,
+              "line": 5,
               "character": 4
             },
             "end": {
-              "line": 6,
-              "character": 16
+              "line": 5,
+              "character": 11
             }
           },
           "newText": ""
@@ -36,21 +36,21 @@
       "kind": "Snippet",
       "detail": "foreach int i in 0...expr",
       "documentation": {
-        "left": "foreach i statement for iterable variable - employeeTab"
+        "left": "foreach i statement for iterable variable - person"
       },
       "sortText": "BR",
-      "insertText": "foreach int i in ${1:0}...employeeTab.length() {\n\t${2}\n}",
+      "insertText": "foreach int i in ${1:0}...person.length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 6,
+              "line": 5,
               "character": 4
             },
             "end": {
-              "line": 6,
-              "character": 16
+              "line": 5,
+              "character": 11
             }
           },
           "newText": ""
@@ -58,23 +58,20 @@
       ]
     },
     {
-      "label": "add(Employee val)",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nAdds a member to a table.\n\nIt will be added as the last member.\nIt panics if parameter `val` has the same key as an existing member of parameter `t`,\nor if parameter `val` is inconsistent with the inherent type of `t`.\n  \n**Params**  \n- `Employee` val: the member"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "add",
-      "insertText": "add(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "label": "age",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "BA",
+      "insertText": "age",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "BA",
+      "insertText": "name",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "reduce(function () func, any|error initial)",
@@ -83,12 +80,31 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nCombines the members of a table using a combining function.\n\nThe combining function takes the combined value so far and a member of the table,\nand returns a new combined value.\n  \n**Params**  \n- `function ()` func: combining function  \n- `any|error` initial: initial value for the first argument of combining function `func`  \n  \n**Return** `any|error`   \n- result of combining the members of parameter `t` using function `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nCombines the members of a map using a combining function.\n\nThe combining function takes the combined value so far and a member of the map,\nand returns a new combined value.\n  \n**Params**  \n- `function ()` func: combining function  \n- `any|error` initial: initial value for the first argument of combining function `func`  \n  \n**Return** `any|error`   \n- result of combining the members of parameter `m` using function `func`  \n  \n"
         }
       },
       "sortText": "BD",
       "filterText": "reduce",
       "insertText": "reduce(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "hasKey(string k)",
+      "kind": "Function",
+      "detail": "boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nTests whether a map value has a member with a given key.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `boolean`   \n- true if parameter `m` has a member with key parameter `k`  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "hasKey",
+      "insertText": "hasKey(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -102,7 +118,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nApplies a function to each member of a table.\n\nThe function `func` is applied to each member of parameter `t`.\n  \n**Params**  \n- `function ()` func: a function to apply to each member"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nApplies a function to each member of a map.\n\nThe function `func` is applied to each member of parameter `m`.\n  \n**Params**  \n- `function ()` func: a function to apply to each member"
         }
       },
       "sortText": "BD",
@@ -115,13 +131,28 @@
       }
     },
     {
+      "label": "keys()",
+      "kind": "Function",
+      "detail": "string[]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a list of all the keys of a map.\n  \n  \n  \n**Return** `string[]`   \n- a new list of all keys  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "keys",
+      "insertText": "keys()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "length()",
       "kind": "Function",
       "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nReturns number of members of a table.\n  \n  \n  \n**Return** `int`   \n- number of members in parameter `t`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns number of members of a map.\n  \n  \n  \n**Return** `int`   \n- number of members in parameter `m`  \n  \n"
         }
       },
       "sortText": "BD",
@@ -130,18 +161,56 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "put(Employee val)",
+      "label": "remove(string k)",
       "kind": "Function",
-      "detail": "()",
+      "detail": "any|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nAdds a member to a table value, replacing any member with the same key value.\n\nIf parameter `val` replaces an existing member, it will have the same position\nin the order of the members as the existing member;\notherwise, it will be added as the last member.\nIt panics if parameter `val` is inconsistent with the inherent type of parameter `t`.\n  \n**Params**  \n- `Employee` val: the member"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves a member of a map.\n\nThis removes the member of parameter `m` with key parameter `k` and returns it.\nIt panics if there is no such member.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `any|error`   \n- the member of parameter `m` that had key parameter `k`  \n  \n"
         }
       },
       "sortText": "BD",
-      "filterText": "put",
-      "insertText": "put(${1})",
+      "filterText": "remove",
+      "insertText": "remove(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "filter(function () func)",
+      "kind": "Function",
+      "detail": "map<any|error>",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nSelects the members from a map for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each element to test whether it should be included  \n  \n**Return** `map<any|error>`   \n- new map containing members for which function `func` evaluates to true  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "filter",
+      "insertText": "filter(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "removeIfHasKey(string k)",
+      "kind": "Function",
+      "detail": "any|error?",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves a member of a map with a given key, if the map has member with the key.\n\nIf parameter `m` has a member with key parameter `k`, it removes and returns it;\notherwise it returns `()`.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `any|error?`   \n- the member of parameter `m` that had key parameter `k`, or `()` if parameter `m` does not have a key parameter `k`  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "removeIfHasKey",
+      "insertText": "removeIfHasKey(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -151,16 +220,31 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {| map<any|error> value; |}? ;}",
+      "detail": "object {public isolated function next() returns record {| any|error value; |}? ;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nReturns an iterator over a table.\n\nThe iterator will iterate over the members of the table not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| map<any|error> value; |}? ;}`   \n- a new iterator object that will iterate over the members of parameter `t`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns an iterator over a map.\n\nThe iterator will iterate over the members of the map not the keys.\nThe function `entries` can be used to iterate over the keys and members together.\nThe function `keys` can be used to iterator over just the keys.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| any|error value; |}? ;}`   \n- a new iterator object that will iterate over the members of parameter `m`  \n  \n"
         }
       },
       "sortText": "BD",
       "filterText": "iterator",
       "insertText": "iterator()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "entries()",
+      "kind": "Function",
+      "detail": "map<[string, any|error]>",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a map containing [key, member] pair as the value for each key.\n  \n  \n  \n**Return** `map<[string, any|error]>`   \n- a new map of [key, member] pairs  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "entries",
+      "insertText": "entries()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -170,7 +254,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nRemoves all members of a table.\n\nThis panics if any member cannot be removed.\n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves all members of a map.\n\nThis panics if any member cannot be removed.\n  \n"
         }
       },
       "sortText": "BD",
@@ -179,13 +263,32 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "toArray()",
+      "label": "get(string k)",
       "kind": "Function",
-      "detail": "Employee[]",
+      "detail": "any|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nReturns a list of all the members of a table.\n  \n  \n  \n**Return** `Employee[]`   \n- an array whose members are the members of parameter `t`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns the member of a map with given key.\n\nThis for use in a case where it is known that the map has a specific key,\nand accordingly panics if parameter `m` does not have a member with parameter `k` key.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `any|error`   \n- member with parameter `k` key  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "get",
+      "insertText": "get(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toArray()",
+      "kind": "Function",
+      "detail": "(any|error)[]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a list of all the members of a map.\n  \n  \n  \n**Return** `(any|error)[]`   \n- an array whose members are the members of parameter `m`  \n  \n"
         }
       },
       "sortText": "BD",
@@ -273,6 +376,44 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "fromJsonWithType(typedesc<anydata> t)",
+      "kind": "Function",
+      "detail": "t|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value of type json to a user-specified type.\n\nThis works the same as function `cloneWithType`,\nexcept that it also does the inverse of the conversions done by `toJson`.\n  \n**Params**  \n- `typedesc<anydata>` t: type to convert to(Defaultable)  \n  \n**Return** `t|error`   \n- value belonging to type parameter `t` or error if this cannot be done  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "fromJsonWithType",
+      "insertText": "fromJsonWithType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "mergeJson(json j2)",
+      "kind": "Function",
+      "detail": "json|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nMerges two `json` values.\n\nThe merge of parameter `j1` with parameter `j2` is defined as follows:\n- if parameter `j1` is `()`, then the result is parameter `j2`\n- if parameter `j2` is `()`, then the result is parameter `j1`\n- if parameter `j1` is a mapping and parameter `j2` is a mapping, then for each entry [k, j] in parameter `j2`, set `j1[k]` to the merge of `j1[k]` with `j`\n- if `j1[k]` is undefined, then set `j1[k]` to `j`\n- if any merge fails, then the merge of parameter `j1` with parameter `j2` fails\n- otherwise, the result is parameter `j1`.\n- otherwise, the merge fails\nIf the merge fails, then parameter `j1` is unchanged.\n  \n**Params**  \n- `json` j2: json value  \n  \n**Return** `json|error`   \n- the merge of parameter `j1` with parameter `j2` or an error if the merge fails  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "mergeJson",
+      "insertText": "mergeJson(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "clone()",
       "kind": "Function",
       "detail": "value:CloneableType",
@@ -339,11 +480,11 @@
     {
       "label": "map(function () func)",
       "kind": "Function",
-      "detail": "table<any|error>",
+      "detail": "map<any|error>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nApplies a function each member of a table and returns a table of the result.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `table<any|error>`   \n- new table containing result of applying function `func` to each member  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nApplies a function each member of a map and returns a map of the result.\n\nThe resulting map will have the same keys as the argument map.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `map<any|error>`   \n- new map containing result of applying function `func` to each member  \n  \n"
         }
       },
       "sortText": "BD",

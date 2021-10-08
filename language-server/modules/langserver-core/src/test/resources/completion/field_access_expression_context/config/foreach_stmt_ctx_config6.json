@@ -3,7 +3,7 @@
     "line": 3,
     "character": 22
   },
-  "source": "statement_context/source/foreach_stmt_ctx_source6.bal",
+  "source": "field_access_expression_context/source/foreach_stmt_ctx_source6.bal",
   "items": [
     {
       "label": "start",

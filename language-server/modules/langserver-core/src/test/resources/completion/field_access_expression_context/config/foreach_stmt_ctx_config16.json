@@ -1,19 +1,19 @@
 {
   "position": {
     "line": 5,
-    "character": 10
+    "character": 9
   },
-  "source": "statement_context/source/foreach_stmt_ctx_source17.bal",
+  "source": "field_access_expression_context/source/foreach_stmt_ctx_source16.bal",
   "items": [
     {
       "label": "foreach",
       "kind": "Snippet",
       "detail": "foreach var item in expr",
       "documentation": {
-        "left": "foreach statement for iterable variable - myMap"
+        "left": "foreach statement for iterable variable - var1"
       },
       "sortText": "BR",
-      "insertText": "foreach MyType item in myMap {\n\t${1}\n}",
+      "insertText": "foreach var item in var1 {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -24,7 +24,7 @@
             },
             "end": {
               "line": 5,
-              "character": 10
+              "character": 9
             }
           },
           "newText": ""
@@ -36,10 +36,10 @@
       "kind": "Snippet",
       "detail": "foreach int i in 0...expr",
       "documentation": {
-        "left": "foreach i statement for iterable variable - myMap"
+        "left": "foreach i statement for iterable variable - var1"
       },
       "sortText": "BR",
-      "insertText": "foreach int i in ${1:0}...myMap.length() {\n\t${2}\n}",
+      "insertText": "foreach int i in ${1:0}...var1.length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -50,12 +50,28 @@
             },
             "end": {
               "line": 5,
-              "character": 10
+              "character": 9
             }
           },
           "newText": ""
         }
       ]
+    },
+    {
+      "label": "myVar1",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "BA",
+      "insertText": "myVar1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myVar2",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "BA",
+      "insertText": "myVar2",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "reduce(function () func, any|error initial)",
@@ -147,11 +163,11 @@
     {
       "label": "remove(string k)",
       "kind": "Function",
-      "detail": "MyType",
+      "detail": "any|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves a member of a map.\n\nThis removes the member of parameter `m` with key parameter `k` and returns it.\nIt panics if there is no such member.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `MyType`   \n- the member of parameter `m` that had key parameter `k`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves a member of a map.\n\nThis removes the member of parameter `m` with key parameter `k` and returns it.\nIt panics if there is no such member.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `any|error`   \n- the member of parameter `m` that had key parameter `k`  \n  \n"
         }
       },
       "sortText": "BD",
@@ -166,11 +182,11 @@
     {
       "label": "filter(function () func)",
       "kind": "Function",
-      "detail": "map<MyType>",
+      "detail": "map<any|error>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nSelects the members from a map for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each element to test whether it should be included  \n  \n**Return** `map<MyType>`   \n- new map containing members for which function `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nSelects the members from a map for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each element to test whether it should be included  \n  \n**Return** `map<any|error>`   \n- new map containing members for which function `func` evaluates to true  \n  \n"
         }
       },
       "sortText": "BD",
@@ -185,11 +201,11 @@
     {
       "label": "removeIfHasKey(string k)",
       "kind": "Function",
-      "detail": "MyType?",
+      "detail": "any|error?",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves a member of a map with a given key, if the map has member with the key.\n\nIf parameter `m` has a member with key parameter `k`, it removes and returns it;\notherwise it returns `()`.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `MyType?`   \n- the member of parameter `m` that had key parameter `k`, or `()` if parameter `m` does not have a key parameter `k`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves a member of a map with a given key, if the map has member with the key.\n\nIf parameter `m` has a member with key parameter `k`, it removes and returns it;\notherwise it returns `()`.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `any|error?`   \n- the member of parameter `m` that had key parameter `k`, or `()` if parameter `m` does not have a key parameter `k`  \n  \n"
         }
       },
       "sortText": "BD",
@@ -219,11 +235,11 @@
     {
       "label": "entries()",
       "kind": "Function",
-      "detail": "map<[string, MyType]>",
+      "detail": "map<[string, any|error]>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a map containing [key, member] pair as the value for each key.\n  \n  \n  \n**Return** `map<[string, MyType]>`   \n- a new map of [key, member] pairs  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a map containing [key, member] pair as the value for each key.\n  \n  \n  \n**Return** `map<[string, any|error]>`   \n- a new map of [key, member] pairs  \n  \n"
         }
       },
       "sortText": "BD",
@@ -249,11 +265,11 @@
     {
       "label": "get(string k)",
       "kind": "Function",
-      "detail": "MyType",
+      "detail": "any|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns the member of a map with given key.\n\nThis for use in a case where it is known that the map has a specific key,\nand accordingly panics if parameter `m` does not have a member with parameter `k` key.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `MyType`   \n- member with parameter `k` key  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns the member of a map with given key.\n\nThis for use in a case where it is known that the map has a specific key,\nand accordingly panics if parameter `m` does not have a member with parameter `k` key.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `any|error`   \n- member with parameter `k` key  \n  \n"
         }
       },
       "sortText": "BD",
@@ -268,11 +284,11 @@
     {
       "label": "toArray()",
       "kind": "Function",
-      "detail": "MyType[]",
+      "detail": "(any|error)[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a list of all the members of a map.\n  \n  \n  \n**Return** `MyType[]`   \n- an array whose members are the members of parameter `m`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a list of all the members of a map.\n  \n  \n  \n**Return** `(any|error)[]`   \n- an array whose members are the members of parameter `m`  \n  \n"
         }
       },
       "sortText": "BD",

@@ -3,7 +3,7 @@
     "line": 2,
     "character": 6
   },
-  "source": "statement_context/source/foreach_stmt_ctx_source22.bal",
+  "source": "field_access_expression_context/source/foreach_stmt_ctx_source22.bal",
   "items": [
     {
       "label": "ballerina/lang.test",
