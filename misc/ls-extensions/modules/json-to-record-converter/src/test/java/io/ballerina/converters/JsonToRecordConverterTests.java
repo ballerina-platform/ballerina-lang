@@ -51,6 +51,11 @@ public class JsonToRecordConverterTests {
     private final Path nestedSchemaBal = RES_DIR.resolve("ballerina")
             .resolve("nested_schema.bal");
 
+    private final Path nestedSchemaForRecordTypeDesc = RES_DIR.resolve("json")
+            .resolve("nested_schema.json");
+    private final Path nestedSchemaForRecordTypeDescBal = RES_DIR.resolve("ballerina")
+            .resolve("nested_schema.bal");
+
     private final Path nestedObjectJson = RES_DIR.resolve("json")
             .resolve("nested_object.json");
     private final Path nestedObjectBal = RES_DIR.resolve("ballerina")
@@ -94,7 +99,8 @@ public class JsonToRecordConverterTests {
     @Test(description = "Test with basic json schema string")
     public void testBasicSchema() throws JsonToRecordConverterException, IOException, FormatterException {
         String jsonFileContent = Files.readString(basicSchemaJson);
-        String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent).replaceAll("\\s+", "");
+        String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent, "", false,
+                false).getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(basicSchemaBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
@@ -102,7 +108,8 @@ public class JsonToRecordConverterTests {
     @Test(description = "Test with basic json object")
     public void testBasicJson() throws JsonToRecordConverterException, IOException, FormatterException {
         String jsonFileContent = Files.readString(basicObjectJson);
-        String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent).replaceAll("\\s+", "");
+        String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent, "", false,
+                false).getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(basicObjectBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
@@ -110,7 +117,18 @@ public class JsonToRecordConverterTests {
     @Test(description = "Test schema with nested objects")
     public void testNestedSchema() throws JsonToRecordConverterException, IOException, FormatterException {
         String jsonFileContent = Files.readString(nestedSchemaJson);
-        String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent).replaceAll("\\s+", "");
+        String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent, "", false,
+                false).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(nestedSchemaBal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "Test schema with nested objects")
+    public void testNestedSchemaForRecordTypeDesc() throws
+            JsonToRecordConverterException, IOException, FormatterException {
+        String jsonFileContent = Files.readString(nestedSchemaJson);
+        String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent, "", false,
+                false).getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(nestedSchemaBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
@@ -118,7 +136,8 @@ public class JsonToRecordConverterTests {
     @Test(description = "Test json with nested objects")
     public void testNestedJson() throws JsonToRecordConverterException, IOException, FormatterException {
         String jsonFileContent = Files.readString(nestedObjectJson);
-        String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent).replaceAll("\\s+", "");
+        String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent, "", false,
+                false).getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(nestedObjectBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
@@ -133,7 +152,8 @@ public class JsonToRecordConverterTests {
     @Test(description = "Test with CRLF formatted json file")
     public void testCRLFJson() throws JsonToRecordConverterException, IOException, FormatterException {
         String jsonFileContent = Files.readString(crlfJson);
-        String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent).replaceAll("\\s+", "");
+        String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent, "", false,
+                false).getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(crlfBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
@@ -149,7 +169,9 @@ public class JsonToRecordConverterTests {
         samples.put(sample6Json, sample6Bal);
         for (Map.Entry<Path, Path> sample : samples.entrySet()) {
             String jsonFileContent = Files.readString(sample.getKey());
-            String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent).replaceAll("\\s+", "");
+            String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent, "",
+                    false, false).getCodeBlock().
+                    replaceAll("\\s+", "");
             String expectedCodeBlock = Files.readString(sample.getValue()).replaceAll("\\s+", "");
             Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
         }

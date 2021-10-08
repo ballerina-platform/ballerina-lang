@@ -48,10 +48,12 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
             JsonToRecordResponse response = new JsonToRecordResponse();
             try {
                 String jsonString = request.getJsonString();
-                String codeBlock = JsonToRecordConverter.convert(jsonString);
-                response.setCodeBlock(codeBlock);
+                String recordName = request.getRecordName();
+                boolean isRecordTypeDesc = request.getIsRecordTypeDesc();
+                boolean isClosed = request.getIsClosed();
+                response = JsonToRecordConverter.convert(jsonString, recordName, isRecordTypeDesc, isClosed);
             } catch (IOException | JsonToRecordConverterException | FormatterException e) {
-                response.setCodeBlock("");
+                response = new JsonToRecordResponse();
             }
             return response;
         });
