@@ -2016,5 +2016,5 @@ configurable int intVar1000 = ?;
 configurable string stringVar1000 = ?;
 
 function testConfigurable() returns int {
-    return 2000;
+    return intVar1000 + checkpanic int:fromString(stringVar1000);
 }
