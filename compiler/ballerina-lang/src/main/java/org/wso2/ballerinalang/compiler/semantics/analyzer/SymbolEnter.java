@@ -617,6 +617,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             case BOOLEAN:
                 return SemTypes.booleanConst((Boolean) litVal);
             case DECIMAL:
+                return SemTypes.decimalConst((String) litVal);
             default:
                 throw new AssertionError("Finite type not implemented for: " + literal);
         }
