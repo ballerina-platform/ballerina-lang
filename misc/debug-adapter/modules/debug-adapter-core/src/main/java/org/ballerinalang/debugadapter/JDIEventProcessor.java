@@ -154,9 +154,7 @@ public class JDIEventProcessor {
     private void processBreakpointEvent(BreakpointEvent event, BalBreakpoint breakpoint, int lineNumber) {
         String condition = breakpoint.getCondition().isPresent() && !breakpoint.getCondition().get().isBlank() ?
                 breakpoint.getCondition().get() : "";
-        String logMessage = breakpoint.getLogMessage().isPresent() && !breakpoint.getLogMessage().get().isBlank() ?
-                breakpoint.getLogMessage().get() : "";
-
+        Optional<BalBreakpoint.LogMessage> logMessage = breakpoint.getLogMessage();
         if (logMessage.isEmpty() && condition.isEmpty()) {
             notifyStopEvent(event);
             return;
@@ -164,45 +162,30 @@ public class JDIEventProcessor {
 
         // If there's a non-empty user defined log message and no breakpoint condition, resumes the remote VM
         // after showing the log on the debug console.
-        if (!logMessage.isEmpty() && condition.isEmpty()) {
-            context.getOutputLogger().sendProgramOutput(logMessage);
+        if (logMessage.isPresent() && condition.isEmpty()) {
+            printLogMessage(event, logMessage.get(), lineNumber);
             context.getDebuggeeVM().resume();
             return;
         }
 
-        // When evaluating breakpoint conditions, we might need to invoke methods in the remote JVM and it can
-        // cause deadlocks if 'invokeMethod' is called from the client's event handler thread. In that case, the
-        // thread will be waiting for the invokeMethod to complete and won't read the EventSet that comes in for
-        // the new event. If this new EventSet is in 'SUSPEND_ALL' mode, then a deadlock will occur because no one
-        // will resume the EventSet. Therefore to avoid this, we are disabling possible event requests before doing
-        // the condition evaluation.
-        context.getEventManager().classPrepareRequests().forEach(EventRequest::disable);
-        context.getEventManager().breakpointRequests().forEach(BreakpointRequest::disable);
         CompletableFuture<Boolean> resultFuture = evaluateBreakpointCondition(condition, event.thread(), lineNumber);
         try {
             Boolean result = resultFuture.get(5000, TimeUnit.MILLISECONDS);
             if (result) {
-                if (!logMessage.isEmpty()) {
-                    context.getOutputLogger().sendProgramOutput(logMessage);
-                    // As we are disabling all the breakpoint requests before evaluating the user's conditional
-                    // expression, need to re-enable all the breakpoints before continuing the remote VM execution.
-                    restoreBreakpoints(context.getLastInstruction());
+                if (logMessage.isPresent()) {
+                    printLogMessage(event, logMessage.get(), lineNumber);
                     context.getDebuggeeVM().resume();
                 } else {
                     notifyStopEvent(event);
                 }
             } else {
-                // As we are disabling all the breakpoint requests before evaluating the user's conditional expression,
-                // need to re-enable all the breakpoints before continuing the remote VM execution.
-                restoreBreakpoints(context.getLastInstruction());
                 context.getDebuggeeVM().resume();
             }
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             context.getOutputLogger().sendErrorOutput(String.format("Warning: Skipping conditional breakpoint at " +
                     "line: %d, due to timeout while evaluating the condition:'%s'.", lineNumber, condition));
-            if (!logMessage.isEmpty()) {
-                context.getOutputLogger().sendProgramOutput(logMessage);
-                restoreBreakpoints(context.getLastInstruction());
+            if (logMessage.isPresent()) {
+                printLogMessage(event, logMessage.get(), lineNumber);
                 context.getDebuggeeVM().resume();
             } else {
                 notifyStopEvent(event);
@@ -362,18 +345,7 @@ public class JDIEventProcessor {
                                                                    int lineNumber) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                ThreadReferenceProxyImpl thread = context.getAdapter().getAllThreads()
-                        .get((int) threadReference.uniqueID());
-                List<BallerinaStackFrame> validFrames = filterValidBallerinaFrames(thread.frames());
-                if (validFrames.isEmpty()) {
-                    return false;
-                }
-
-                SuspendedContext ctx = new SuspendedContext(context, thread, validFrames.get(0).getJStackFrame());
-                EvaluationContext evaluationContext = new EvaluationContext(ctx);
-                DebugExpressionEvaluator evaluator = new DebugExpressionEvaluator(evaluationContext);
-                evaluator.setExpression(expression);
-                BExpressionValue evaluatorResult = evaluator.evaluate();
+                BExpressionValue evaluatorResult = evaluateExpressionSafely(expression, threadReference);
                 String condition = evaluatorResult.getStringValue();
                 if (evaluatorResult.getType() != BVariableType.BOOLEAN) {
                     String errorMessage = String.format(EvaluationExceptionKind.TYPE_MISMATCH.getReason(),
@@ -392,6 +364,54 @@ public class JDIEventProcessor {
                 return false;
             }
         });
+    }
+
+    private void printLogMessage(BreakpointEvent event, BalBreakpoint.LogMessage logMessage, int lineNumber) {
+        try {
+            if (logMessage instanceof BalBreakpoint.TemplateLogMessage) {
+                BalBreakpoint.TemplateLogMessage template = (BalBreakpoint.TemplateLogMessage) logMessage;
+                List<String> expressions = template.getExpressions();
+                List<String> evaluationResults = new ArrayList<>();
+                for (String expression : expressions) {
+                    evaluationResults.add(evaluateExpressionSafely(expression, event.thread()).getStringValue());
+                }
+                context.getOutputLogger().sendProgramOutput(template.resolve(evaluationResults));
+            } else {
+                context.getOutputLogger().sendProgramOutput(logMessage.getMessage());
+            }
+        } catch (Exception e) {
+            context.getOutputLogger().sendErrorOutput(String.format("Warning: Skipping logpoint at line: %d, " +
+                    "due to: %s%s", lineNumber, System.lineSeparator(), e.getMessage()));
+        }
+    }
+
+    private BExpressionValue evaluateExpressionSafely(String expression, ThreadReference threadReference)
+            throws Exception {
+        // When evaluating breakpoint conditions, we might need to invoke methods in the remote JVM and it can
+        // cause deadlocks if 'invokeMethod' is called from the client's event handler thread. In that case, the
+        // thread will be waiting for the invokeMethod to complete and won't read the EventSet that comes in for
+        // the new event. If this new EventSet is in 'SUSPEND_ALL' mode, then a deadlock will occur because no one
+        // will resume the EventSet. Therefore to avoid this, we are disabling possible event requests before doing
+        // the condition evaluation.
+        context.getEventManager().classPrepareRequests().forEach(EventRequest::disable);
+        context.getEventManager().breakpointRequests().forEach(BreakpointRequest::disable);
+
+        ThreadReferenceProxyImpl thread = context.getAdapter().getAllThreads().get((int) threadReference.uniqueID());
+        List<BallerinaStackFrame> validFrames = filterValidBallerinaFrames(thread.frames());
+        if (validFrames.isEmpty()) {
+            throw new IllegalStateException("Failed to use stack frames for evaluation");
+        }
+
+        SuspendedContext ctx = new SuspendedContext(context, thread, validFrames.get(0).getJStackFrame());
+        EvaluationContext evaluationContext = new EvaluationContext(ctx);
+        DebugExpressionEvaluator evaluator = new DebugExpressionEvaluator(evaluationContext);
+        evaluator.setExpression(expression);
+        BExpressionValue evaluationResult = evaluator.evaluate();
+
+        // As we are disabling all the breakpoint requests before evaluating the user's conditional
+        // expression, need to re-enable all the breakpoints before continuing the remote VM execution.
+        restoreBreakpoints(context.getLastInstruction());
+        return evaluationResult;
     }
 
     /**
