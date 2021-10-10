@@ -1,0 +1,73 @@
+{
+  "name": "NewRecord",
+  "type": "record",
+  "isArray": false,
+  "isRequired": true,
+  "fields": [
+    {
+      "name": "name",
+      "type": "string",
+      "isArray": false,
+      "isRequired": true,
+      "fields": []
+    },
+    {
+      "name": "checked",
+      "type": "boolean",
+      "isArray": false,
+      "isRequired": true,
+      "fields": []
+    },
+    {
+      "name": "id",
+      "type": "string",
+      "isArray": false,
+      "isRequired": true,
+      "fields": []
+    },
+    {
+      "name": "colors",
+      "type": "[]",
+      "isArray": true,
+      "isRequired": true,
+      "fields": [
+        {
+          "name": "name",
+          "type": "string",
+          "isArray": false,
+          "isRequired": true,
+          "fields": []
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "isArray": false,
+          "isRequired": true,
+          "fields": []
+        }
+      ]
+    },
+    {
+      "name": "dimensions",
+      "type": "record",
+      "isArray": false,
+      "isRequired": true,
+      "fields": [
+        {
+          "name": "width",
+          "type": "int",
+          "isArray": false,
+          "isRequired": true,
+          "fields": []
+        },
+        {
+          "name": "height",
+          "type": "int",
+          "isArray": false,
+          "isRequired": true,
+          "fields": []
+        }
+      ]
+    }
+  ]
+}

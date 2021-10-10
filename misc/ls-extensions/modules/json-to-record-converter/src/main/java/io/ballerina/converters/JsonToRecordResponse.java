@@ -25,7 +25,7 @@ package io.ballerina.converters;
 public class JsonToRecordResponse {
 
     private String codeBlock;
-    private Field field;
+    private JsonToRecordField fields;
 
     public String getCodeBlock() {
         return codeBlock;
@@ -35,11 +35,11 @@ public class JsonToRecordResponse {
         this.codeBlock = codeBlock;
     }
 
-    public Field getField() {
-        return field;
+    public JsonToRecordField getFields() {
+        return fields;
     }
 
-    public void setField(Field field) {
-        this.field = field;
+    public void setFields(JsonToRecordField fields) {
+        this.fields = fields;
     }
 }

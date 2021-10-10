@@ -19,14 +19,14 @@ package io.ballerina.converters;
 
 import java.util.List;
 
-public class Field {
+public class JsonToRecordField {
     private String name;
     private String type;
     private boolean isArray;
     private boolean isRequired;
-    private List<Field> fields;
+    private List<JsonToRecordField> fields;
 
-    public Field(String name, String type, boolean isArray, List<Field> fields) {
+    public JsonToRecordField(String name, String type, boolean isArray, List<JsonToRecordField> fields) {
         this.name = name;
         this.type = type;
         this.isArray = isArray;
@@ -65,11 +65,11 @@ public class Field {
         this.isRequired = isRequired;
     }
 
-    public List<Field> getFields() {
+    public List<JsonToRecordField> getFields() {
         return fields;
     }
 
-    public void setFields(List<Field> fields) {
+    public void setFields(List<JsonToRecordField> fields) {
         this.fields = fields;
     }
 }

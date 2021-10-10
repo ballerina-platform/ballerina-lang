@@ -17,6 +17,9 @@
  */
 package io.ballerina.converters;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.ballerina.converters.exception.JsonToRecordConverterException;
 import io.ballerina.converters.util.ConverterUtils;
 import org.ballerinalang.formatter.core.FormatterException;
@@ -96,6 +99,18 @@ public class JsonToRecordConverterTests {
     private final Path crlfBal = RES_DIR.resolve("ballerina")
             .resolve("from_crlf.bal");
 
+    private final Path basicObjectFieldJson = RES_DIR.resolve("json")
+            .resolve("basic_object_field.json");
+
+    private final Path nestedObjectFieldJson = RES_DIR.resolve("json")
+            .resolve("nested_object_field.json");
+
+    private final Path nestedObjectTypeDescBal = RES_DIR.resolve("ballerina")
+            .resolve("nested_object_type_desc.bal");
+
+    private final Path nestedObjectClosedDescBal = RES_DIR.resolve("ballerina")
+            .resolve("nested_object_closed_desc.bal");
+
     @Test(description = "Test with basic json schema string")
     public void testBasicSchema() throws JsonToRecordConverterException, IOException, FormatterException {
         String jsonFileContent = Files.readString(basicSchemaJson);
@@ -114,7 +129,7 @@ public class JsonToRecordConverterTests {
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 
-    @Test(description = "Test schema with nested objects")
+    @Test(description = "Test get type record descriptor nested objects")
     public void testNestedSchema() throws JsonToRecordConverterException, IOException, FormatterException {
         String jsonFileContent = Files.readString(nestedSchemaJson);
         String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent, "", false,
@@ -123,13 +138,47 @@ public class JsonToRecordConverterTests {
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 
-    @Test(description = "Test schema with nested objects")
-    public void testNestedSchemaForRecordTypeDesc() throws
+    @Test(description = "Test get record type descriptor for nested objects")
+    public void testNestedObjectForRecordTypeDesc() throws
             JsonToRecordConverterException, IOException, FormatterException {
-        String jsonFileContent = Files.readString(nestedSchemaJson);
-        String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent, "", false,
+        String jsonFileContent = Files.readString(nestedObjectJson);
+        JsonToRecordField generatedField = JsonToRecordConverter.convert(jsonFileContent, "",
+                true, false).getFields();
+        JsonObject genJsonObj = JsonParser.parseString(new Gson().toJson(generatedField)).getAsJsonObject();
+        JsonObject expectedJson = JsonParser.parseString(Files.readString(nestedObjectFieldJson)).getAsJsonObject();
+        Assert.assertTrue(genJsonObj.equals(expectedJson));
+    }
+
+    @Test(description = "Test get record type descriptor for basic objects")
+    public void testBasicObjectForRecordTypeDesc() throws
+            JsonToRecordConverterException, IOException, FormatterException {
+        String jsonFileContent = Files.readString(basicObjectJson);
+        JsonToRecordField generatedField = JsonToRecordConverter.convert(jsonFileContent, "Sport",
+                true, false).getFields();
+        JsonObject genJsonObj = JsonParser.parseString(new Gson().toJson(generatedField)).getAsJsonObject();
+        System.out.println(JsonToRecordConverter.convert(jsonFileContent, "Sport",
+                true, false).getCodeBlock());
+        JsonObject expectedJson = JsonParser.parseString(Files.readString(basicObjectFieldJson)).getAsJsonObject();
+        Assert.assertTrue(genJsonObj.equals(expectedJson));
+    }
+
+    @Test(description = "Test type descriptor code for nested objects")
+    public void testTypeDescCodeForNestedObjects() throws
+            JsonToRecordConverterException, IOException, FormatterException {
+        String jsonFileContent = Files.readString(nestedObjectJson);
+        String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent, "", true,
                 false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(nestedSchemaBal).replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(nestedObjectTypeDescBal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "Test get closed type descriptor record descriptor nested objects")
+    public void testClosedNestedSchemaForRecordTypeDesc() throws
+            JsonToRecordConverterException, IOException, FormatterException {
+        String jsonFileContent = Files.readString(nestedObjectJson);
+        String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent, "", true,
+                true).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(nestedObjectClosedDescBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 
