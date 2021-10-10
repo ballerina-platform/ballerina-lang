@@ -32,6 +32,9 @@ import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.StepRequest;
+import org.ballerinalang.debugadapter.breakpoints.BalBreakpoint;
+import org.ballerinalang.debugadapter.breakpoints.LogMessage;
+import org.ballerinalang.debugadapter.breakpoints.TemplateLogMessage;
 import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
@@ -154,7 +157,7 @@ public class JDIEventProcessor {
     private void processBreakpointEvent(BreakpointEvent event, BalBreakpoint breakpoint, int lineNumber) {
         String condition = breakpoint.getCondition().isPresent() && !breakpoint.getCondition().get().isBlank() ?
                 breakpoint.getCondition().get() : "";
-        Optional<BalBreakpoint.LogMessage> logMessage = breakpoint.getLogMessage();
+        Optional<LogMessage> logMessage = breakpoint.getLogMessage();
         if (logMessage.isEmpty() && condition.isEmpty()) {
             notifyStopEvent(event);
             return;
@@ -366,16 +369,17 @@ public class JDIEventProcessor {
         });
     }
 
-    private void printLogMessage(BreakpointEvent event, BalBreakpoint.LogMessage logMessage, int lineNumber) {
+    private void printLogMessage(BreakpointEvent event, LogMessage logMessage, int lineNumber) {
         try {
-            if (logMessage instanceof BalBreakpoint.TemplateLogMessage) {
-                BalBreakpoint.TemplateLogMessage template = (BalBreakpoint.TemplateLogMessage) logMessage;
+            if (logMessage instanceof TemplateLogMessage) {
+                TemplateLogMessage template = (TemplateLogMessage) logMessage;
                 List<String> expressions = template.getExpressions();
                 List<String> evaluationResults = new ArrayList<>();
                 for (String expression : expressions) {
                     evaluationResults.add(evaluateExpressionSafely(expression, event.thread()).getStringValue());
                 }
-                context.getOutputLogger().sendProgramOutput(template.resolve(evaluationResults));
+                template.resolveInterpolations(evaluationResults);
+                context.getOutputLogger().sendProgramOutput(template.getMessage());
             } else {
                 context.getOutputLogger().sendProgramOutput(logMessage.getMessage());
             }
