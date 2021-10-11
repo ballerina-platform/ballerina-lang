@@ -1512,12 +1512,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
-        if (typeDefinition.typeNode.getKind() == NodeKind.FUNCTION_TYPE && definedType.tsymbol == null) {
-            definedType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, Flags.asMask(typeDefinition.flagSet),
-                                                           Names.EMPTY, env.enclPkg.symbol.pkgID,
-                                                           definedType, env.scope.owner, typeDefinition.pos, SOURCE);
-        }
-
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
             definedType.tsymbol = createEnumSymbol(typeDefinition, definedType);
         }
@@ -1554,7 +1548,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         boolean isErrorIntersection = isErrorIntersection(definedType);
         if (isErrorIntersection) {
-            populateSymbolNameOfErrorIntersection(definedType, typeDefinition);
+            populateSymbolNameOfErrorIntersection(definedType, typeDefinition.name.value);
             populateAllReadyDefinedErrorIntersection(definedType, typeDefinition, env);
         }
 
@@ -1752,10 +1746,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return symResolver.lookupSymbolInMainSpace(env, names.fromString(name.value));
     }
 
-    private void populateSymbolNameOfErrorIntersection(BType definedType, BLangTypeDefinition typeDefinition) {
-        String typeDefName = typeDefinition.name.value;
-        definedType.tsymbol.name = names.fromString(typeDefName);
-
+    private void populateSymbolNameOfErrorIntersection(BType definedType, String typeDefName) {
         BErrorType effectiveErrorType = (BErrorType) ((BIntersectionType) definedType).effectiveType;
         effectiveErrorType.tsymbol.name = names.fromString(typeDefName);
     }
