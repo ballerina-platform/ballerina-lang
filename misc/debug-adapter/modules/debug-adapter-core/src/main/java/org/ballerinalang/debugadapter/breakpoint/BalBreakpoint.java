@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.debugadapter.breakpoints;
+package org.ballerinalang.debugadapter.breakpoint;
 
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.Source;
@@ -24,7 +24,7 @@ import org.eclipse.lsp4j.debug.Source;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import static org.ballerinalang.debugadapter.breakpoints.LogMessage.INTERPOLATION_REGEX;
+import static org.ballerinalang.debugadapter.breakpoint.LogMessage.INTERPOLATION_REGEX;
 
 /**
  * Holds Ballerina breakpoint related information.

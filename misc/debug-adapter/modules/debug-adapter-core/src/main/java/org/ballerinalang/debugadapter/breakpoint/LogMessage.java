@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.debugadapter.breakpoints;
+package org.ballerinalang.debugadapter.breakpoint;
 
 /**
  * Abstract definition for possible Ballerina log-point message types.

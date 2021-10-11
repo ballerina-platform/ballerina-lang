@@ -32,9 +32,9 @@ import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.StepRequest;
-import org.ballerinalang.debugadapter.breakpoints.BalBreakpoint;
-import org.ballerinalang.debugadapter.breakpoints.LogMessage;
-import org.ballerinalang.debugadapter.breakpoints.TemplateLogMessage;
+import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
+import org.ballerinalang.debugadapter.breakpoint.LogMessage;
+import org.ballerinalang.debugadapter.breakpoint.TemplateLogMessage;
 import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
@@ -390,7 +390,7 @@ public class JDIEventProcessor {
     }
 
     private BExpressionValue evaluateExpressionSafely(String expression, ThreadReference threadReference)
-            throws Exception {
+            throws EvaluationException, JdiProxyException {
         // When evaluating breakpoint conditions, we might need to invoke methods in the remote JVM and it can
         // cause deadlocks if 'invokeMethod' is called from the client's event handler thread. In that case, the
         // thread will be waiting for the invokeMethod to complete and won't read the EventSet that comes in for

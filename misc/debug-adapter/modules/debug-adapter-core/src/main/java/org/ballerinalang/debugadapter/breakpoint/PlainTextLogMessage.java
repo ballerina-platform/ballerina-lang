@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.debugadapter.breakpoints;
+package org.ballerinalang.debugadapter.breakpoint;
 
 /**
  * Represents Ballerina logpoint messages with plain text.

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.debugadapter.breakpoints;
+package org.ballerinalang.debugadapter.breakpoint;
 
 import java.util.ArrayList;
 import java.util.List;
