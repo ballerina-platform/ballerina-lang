@@ -16,14 +16,11 @@ module io.ballerina.language.server.core {
     exports org.ballerinalang.langserver.extensions;
     exports org.ballerinalang.langserver.config;
     exports org.ballerinalang.langserver.telemetry;
-<<<<<<< HEAD
     exports org.ballerinalang.langserver.util to io.ballerina.language.server.simulator;
-=======
     exports org.ballerinalang.langserver.contexts;
     exports org.ballerinalang.langserver.workspace;
     exports org.ballerinalang.langserver.completions;
     exports org.ballerinalang.langserver.common.utils.completion;
->>>>>>> Add debug completions support
     requires io.ballerina.formatter.core;
     requires org.eclipse.lsp4j;
     requires io.ballerina.language.server.commons;
