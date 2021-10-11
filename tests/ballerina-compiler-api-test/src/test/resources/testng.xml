@@ -105,6 +105,9 @@
             <!--Statements-->
             <class name="io.ballerina.semantic.api.test.statements.SymbolsInMatchStmtTest" />
 
+            <!--Actions-->
+            <class name="io.ballerina.semantic.api.test.actions.SymbolsInStartActionsTest" />
+
             <!--Symbols-->
             <class name="io.ballerina.semantic.api.test.symbols.AnnotationSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ClassSymbolTest" />
