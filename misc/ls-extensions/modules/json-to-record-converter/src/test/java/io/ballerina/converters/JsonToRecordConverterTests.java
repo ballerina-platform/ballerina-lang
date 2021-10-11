@@ -156,8 +156,6 @@ public class JsonToRecordConverterTests {
         JsonToRecordField generatedField = JsonToRecordConverter.convert(jsonFileContent, "Sport",
                 true, false).getFields();
         JsonObject genJsonObj = JsonParser.parseString(new Gson().toJson(generatedField)).getAsJsonObject();
-        System.out.println(JsonToRecordConverter.convert(jsonFileContent, "Sport",
-                true, false).getCodeBlock());
         JsonObject expectedJson = JsonParser.parseString(Files.readString(basicObjectFieldJson)).getAsJsonObject();
         Assert.assertTrue(genJsonObj.equals(expectedJson));
     }

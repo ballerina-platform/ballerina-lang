@@ -27,7 +27,7 @@
     },
     {
       "name": "colors",
-      "type": "[]",
+      "type": "record",
       "isArray": true,
       "isRequired": true,
       "fields": [

@@ -302,6 +302,7 @@ public class JsonToRecordConverter {
                         type = StringUtils.capitalize(name) + "Item";
                         typeName = AbstractNodeFactory.createIdentifierToken(type);
                         if (isRecordTypeDescriptor) {
+                            typeDescField.setType(SyntaxKind.RECORD_KEYWORD.stringValue());
                             memberTypeDesc = extractOpenApiSchema(arraySchema.getItems(), type, typeDefinitionNodeList,
                                     typeDescField, isRecordTypeDescriptor);
                         } else {
