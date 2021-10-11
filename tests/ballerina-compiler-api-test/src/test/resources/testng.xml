@@ -113,6 +113,9 @@
             <class name="io.ballerina.semantic.api.test.statements.SymbolsInFailRetryStatements" />
             <class name="io.ballerina.semantic.api.test.statements.SymbolsInPanicStatements" />
 
+            <!--Actions-->
+            <class name="io.ballerina.semantic.api.test.actions.SymbolsInStartActionsTest" />
+
             <!--Symbols-->
             <class name="io.ballerina.semantic.api.test.symbols.AnnotationSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ClassSymbolTest" />
