@@ -62,6 +62,9 @@ under the License.
             <!--Debugger Expression Evaluation Tests-->
             <class name="org.ballerinalang.debugger.test.adapter.evaluation.ExpressionEvaluationTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.evaluation.ExpressionEvaluationNegativeTest"/>
+
+            <!--Debug Variables Tests-->
+            <class name="org.ballerinalang.debugger.test.adapter.completions.CompletionsDebugTest"/>
         </classes>
     </test>
 </suite>
