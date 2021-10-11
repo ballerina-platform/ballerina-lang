@@ -1564,6 +1564,59 @@ public class SymbolEnter extends BLangNodeVisitor {
             effectiveTypeSymbol.pkgID = typeDefSymbol.pkgID;
         }
 
+        handleDistinctDefinition(typeDefinition, typeDefSymbol, definedType, referenceConstraintType);
+
+        typeDefSymbol.flags |= Flags.asMask(typeDefinition.flagSet);
+        // Reset public flag when set on a non public type.
+        typeDefSymbol.flags &= getPublicFlagResetingMask(typeDefinition.flagSet, typeDefinition.typeNode);
+        if (isDeprecated(typeDefinition.annAttachments)) {
+            typeDefSymbol.flags |= Flags.DEPRECATED;
+        }
+
+        // Reset origin for anonymous types
+        if (Symbols.isFlagOn(typeDefSymbol.flags, Flags.ANONYMOUS)) {
+            typeDefSymbol.origin = VIRTUAL;
+        }
+
+        if (typeDefinition.annAttachments.stream()
+                .anyMatch(attachment -> attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value))) {
+            // TODO : Clean this. Not a nice way to handle this.
+            //  TypeParam is built-in annotation, and limited only within lang.* modules.
+            if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
+                typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol.type, typeDefSymbol.name);
+                typeDefSymbol.flags |= Flags.TYPE_PARAM;
+            } else {
+                dlog.error(typeDefinition.pos, DiagnosticErrorCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
+            }
+        }
+        definedType.flags |= typeDefSymbol.flags;
+
+        if (isIntersectionType) {
+            BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
+            effectiveTypeSymbol.flags |= definedType.tsymbol.flags;
+            effectiveTypeSymbol.origin = VIRTUAL;
+            effectiveDefinedType.flags |= definedType.flags;
+        }
+
+        typeDefinition.symbol = typeDefSymbol;
+        if (typeDefinition.hasCyclicReference) {
+            // Workaround for https://github.com/ballerina-platform/ballerina-lang/issues/29742
+            typeDefinition.getBType().tsymbol = definedType.tsymbol;
+        } else {
+            boolean isLanglibModule = PackageID.isLangLibPackageID(this.env.enclPkg.packageID);
+            if (isLanglibModule) {
+                handleLangLibTypes(typeDefinition);
+                return;
+            }
+            // We may have already defined error intersection
+            if (!isErrorIntersection || lookupTypeSymbol(env, typeDefinition.name) == symTable.notFoundSymbol) {
+                defineSymbol(typeDefinition.name.pos, typeDefSymbol);
+            }
+        }
+    }
+
+    private void handleDistinctDefinition(BLangTypeDefinition typeDefinition, BSymbol typeDefSymbol,
+                                          BType definedType, BType referenceConstraintType) {
         if (isDistinctFlagPresent(typeDefinition)) {
             if (referenceConstraintType.getKind() == TypeKind.ERROR) {
                 BErrorType distinctType = getDistinctErrorType(typeDefinition, (BErrorType) referenceConstraintType,
@@ -1623,54 +1676,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 definedType = distinctType;
             }
             definedType.flags |= Flags.DISTINCT;
-        }
-
-        typeDefSymbol.flags |= Flags.asMask(typeDefinition.flagSet);
-        // Reset public flag when set on a non public type.
-        typeDefSymbol.flags &= getPublicFlagResetingMask(typeDefinition.flagSet, typeDefinition.typeNode);
-        if (isDeprecated(typeDefinition.annAttachments)) {
-            typeDefSymbol.flags |= Flags.DEPRECATED;
-        }
-
-        // Reset origin for anonymous types
-        if (Symbols.isFlagOn(typeDefSymbol.flags, Flags.ANONYMOUS)) {
-            typeDefSymbol.origin = VIRTUAL;
-        }
-
-        if (typeDefinition.annAttachments.stream()
-                .anyMatch(attachment -> attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value))) {
-            // TODO : Clean this. Not a nice way to handle this.
-            //  TypeParam is built-in annotation, and limited only within lang.* modules.
-            if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
-                typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol.type, typeDefSymbol.name);
-                typeDefSymbol.flags |= Flags.TYPE_PARAM;
-            } else {
-                dlog.error(typeDefinition.pos, DiagnosticErrorCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
-            }
-        }
-        definedType.flags |= typeDefSymbol.flags;
-
-        if (isIntersectionType) {
-            BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
-            effectiveTypeSymbol.flags |= definedType.tsymbol.flags;
-            effectiveTypeSymbol.origin = VIRTUAL;
-            effectiveDefinedType.flags |= definedType.flags;
-        }
-
-        typeDefinition.symbol = typeDefSymbol;
-        if (typeDefinition.hasCyclicReference) {
-            // Workaround for https://github.com/ballerina-platform/ballerina-lang/issues/29742
-            typeDefinition.getBType().tsymbol = definedType.tsymbol;
-        } else {
-            boolean isLanglibModule = PackageID.isLangLibPackageID(this.env.enclPkg.packageID);
-            if (isLanglibModule) {
-                handleLangLibTypes(typeDefinition);
-                return;
-            }
-            // We may have already defined error intersection
-            if (!isErrorIntersection || lookupTypeSymbol(env, typeDefinition.name) == symTable.notFoundSymbol) {
-                defineSymbol(typeDefinition.name.pos, typeDefSymbol);
-            }
         }
     }
 
