@@ -33,6 +33,9 @@ import org.testng.annotations.Test;
 
 import java.util.Map;
 
+/**
+ * Test class for debug console completions related scenarios.
+ */
 public class CompletionsDebugTest extends BaseTestCase {
 
     Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo;
@@ -58,7 +61,7 @@ public class CompletionsDebugTest extends BaseTestCase {
 
         debugHitInfo = debugTestRunner.waitForDebugHit(25000);
         debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(),"");
+        completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(), "");
         Assert.assertEquals(completions.size(), 30);
 
         // Test for global variable completions in the beginning of the main() method.
@@ -78,7 +81,7 @@ public class CompletionsDebugTest extends BaseTestCase {
 
         // Debug completions test at the end of the main() method.
         assertCompletionSuggestions();
-        completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(),"");
+        completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(), "");
         Assert.assertEquals(completions.size(), 41);
     }
 
@@ -88,23 +91,23 @@ public class CompletionsDebugTest extends BaseTestCase {
         debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
 
         // Debug completions test for variables
-        completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(),"");
+        completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(), "");
         debugTestRunner.assertCompletions(completions, "name");
         debugTestRunner.assertCompletions(completions, "number");
 
         // Debug completions test for record fields
-        completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(),"s1.");
+        completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(), "s1.");
         debugTestRunner.assertCompletions(completions, "firstName");
         debugTestRunner.assertCompletions(completions, "lastName");
         debugTestRunner.assertCompletions(completions, "score");
 
-        completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(),"s1.fi");
+        completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(), "s1.fi");
         debugTestRunner.assertCompletions(completions, "firstName");
         debugTestRunner.assertCompletions(completions, "lastName");
         debugTestRunner.assertCompletions(completions, "score");
 
         // Debug completions test for object methods and object fields
-        completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(),"person.");
+        completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(), "person.");
         Assert.assertEquals(completions.size(), 5);
         debugTestRunner.assertCompletions(completions, "getName()");
         debugTestRunner.assertCompletions(completions, "getId()");
@@ -112,7 +115,7 @@ public class CompletionsDebugTest extends BaseTestCase {
         debugTestRunner.assertCompletions(completions, "id");
         debugTestRunner.assertCompletions(completions, "name");
 
-        completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(),"person.ge");
+        completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(), "person.ge");
         Assert.assertEquals(completions.size(), 5);
         debugTestRunner.assertCompletions(completions, "getName()");
         debugTestRunner.assertCompletions(completions, "getId()");
@@ -129,8 +132,6 @@ public class CompletionsDebugTest extends BaseTestCase {
         Assert.assertEquals(completions.size(), 34);
         debugTestRunner.assertCompletions(completions, "toBalString()");
     }
-
-
 
     @AfterClass(alwaysRun = true)
     public void cleanUp() {

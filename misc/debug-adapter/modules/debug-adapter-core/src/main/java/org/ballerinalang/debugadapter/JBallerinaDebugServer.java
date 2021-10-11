@@ -122,8 +122,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.DebugExecutionManager.LOCAL_HOST;
-import static org.ballerinalang.debugadapter.completion.DebugCompletionUtil.getCompletions;
 import static org.ballerinalang.debugadapter.completion.DebugCompletionUtil.getBalFileContent;
+import static org.ballerinalang.debugadapter.completion.DebugCompletionUtil.getCompletions;
 import static org.ballerinalang.debugadapter.completion.DebugCompletionUtil.getNonTerminalNode;
 import static org.ballerinalang.debugadapter.completion.DebugCompletionUtil.getUpdatedBalFileContent;
 import static org.ballerinalang.debugadapter.completion.DebugCompletionUtil.getVisibleSymbolCompletions;

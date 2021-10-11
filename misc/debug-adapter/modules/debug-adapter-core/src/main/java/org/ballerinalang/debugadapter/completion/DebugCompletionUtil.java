@@ -58,7 +58,7 @@ public class DebugCompletionUtil {
     private static final String PARENTHESIS = "()";
 
     /**
-     * Get the updated bal file content which includes debug console expression
+     * Get the updated bal file content which includes debug console expression.
      *
      * @param args       debug completions arguments.
      * @param node       non terminal node
@@ -105,7 +105,7 @@ public class DebugCompletionUtil {
     }
 
     /**
-     * Get the bal file content
+     * Get the bal file content.
      *
      * @param sourcePath source path of the debug bal file.
      * @return bal file content
@@ -140,7 +140,7 @@ public class DebugCompletionUtil {
     }
 
     /**
-     * Get the visible symbol completion items
+     * Get the visible symbol completion items.
      *
      * @param debugCompletionContext debug completion contexts
      * @return visible symbol completion item array
@@ -155,7 +155,7 @@ public class DebugCompletionUtil {
     }
 
     /**
-     * Get the visible symbol completion items
+     * Get the visible symbol completion items.
      *
      * @param symbolList visible symbol list
      * @return visible symbol completion item array
@@ -183,7 +183,7 @@ public class DebugCompletionUtil {
     }
 
     /**
-     * Get non terminal node at breakpoint
+     * Get non terminal node at breakpoint.
      *
      * @param source     bal source file
      * @param sourcePath bal source file path
@@ -195,7 +195,7 @@ public class DebugCompletionUtil {
     }
 
     /**
-     * Get modified non terminal node at breakpoint
+     * Get modified non terminal node at breakpoint.
      *
      * @param source          bal source file
      * @param sourcePath      bal source file path
