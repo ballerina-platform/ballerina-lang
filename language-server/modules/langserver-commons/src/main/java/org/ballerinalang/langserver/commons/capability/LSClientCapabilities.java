@@ -15,9 +15,11 @@
  */
 package org.ballerinalang.langserver.commons.capability;
 
+import org.ballerinalang.langserver.commons.registration.BallerinaClientCapability;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.WorkspaceClientCapabilities;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -54,4 +56,18 @@ public interface LSClientCapabilities {
      * @return {@link TextDocumentClientCapabilities}
      */
     TextDocumentClientCapabilities getTextDocCapabilities();
+
+    /**
+     * Set the ballerina client capabilities.
+     *
+     * @param capabilities {@link BallerinaClientCapability}
+     */
+    void setBallerinaClientCapabilities(List<BallerinaClientCapability> capabilities);
+
+    /**
+     * Get the ballerina client capabilities.
+     *
+     * @return {@link List} of client capabilities
+     */
+    List<BallerinaClientCapability> getBallerinaClientCapabilities();
 }
