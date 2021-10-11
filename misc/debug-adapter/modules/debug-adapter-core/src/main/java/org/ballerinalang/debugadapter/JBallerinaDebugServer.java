@@ -25,13 +25,19 @@ import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
-import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
+import org.ballerinalang.debugadapter.completion.BallerinaDebugCompletionContext;
+import org.ballerinalang.debugadapter.completion.DebugCompletionUtil;
+import org.ballerinalang.debugadapter.completion.FieldAccessDebugCompletionResolver;
 import org.ballerinalang.debugadapter.config.ClientAttachConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigurationException;
@@ -116,6 +122,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.DebugExecutionManager.LOCAL_HOST;
+import static org.ballerinalang.debugadapter.completion.DebugCompletionUtil.getCompletions;
+import static org.ballerinalang.debugadapter.completion.DebugCompletionUtil.getBalFileContent;
+import static org.ballerinalang.debugadapter.completion.DebugCompletionUtil.getNonTerminalNode;
+import static org.ballerinalang.debugadapter.completion.DebugCompletionUtil.getUpdatedBalFileContent;
+import static org.ballerinalang.debugadapter.completion.DebugCompletionUtil.getVisibleSymbolCompletions;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
@@ -150,6 +161,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private static final String VALUE_UNKNOWN = "unknown";
     private static final String EVAL_ARGS_CONTEXT_VARIABLES = "variables";
     private static final String COMPILATION_ERROR_MESSAGE = "error: compilation contains errors";
+    private static final String PARENTHESIS = "()";
 
     public JBallerinaDebugServer() {
         context = new ExecutionContext(this);
@@ -176,8 +188,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         capabilities.setSupportTerminateDebuggee(true);
         capabilities.setSupportsConditionalBreakpoints(true);
         capabilities.setSupportsLogPoints(true);
-        // Todo - Implement
         capabilities.setSupportsCompletionsRequest(true);
+        // Todo - Implement
         capabilities.setSupportsRestartRequest(false);
         // unsupported capabilities
         capabilities.setSupportsHitConditionalBreakpoints(false);
@@ -474,34 +486,61 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<CompletionsResponse> completions(CompletionsArguments args) {
-        return CompletableFuture.completedFuture(getVariableCompletion(args));
-    }
-
-    public CompletionsResponse getVariableCompletion(CompletionsArguments args) {
         CompletionsResponse completionsResponse = new CompletionsResponse();
-        List<CompletionItem> compItems = new ArrayList<>();
+        BallerinaDebugCompletionContext debugCompletionContext = new BallerinaDebugCompletionContext(suspendedContext);
+        List<String> triggerCharacters = Arrays.asList(".", ":");
+        boolean triggerCharactersFound = Arrays.stream(args.getText().split(""))
+                                        .anyMatch(triggerCharacters::contains);
 
-        SemanticModel semanticContext = suspendedContext.getDebugCompiler().getSemanticInfo();
-        List<Symbol> symbolList = semanticContext
-                .visibleSymbols(suspendedContext.getDocument(), LinePosition.from(suspendedContext.getLineNumber() - 1, 0));
+        // If the debug console expression doesn't have any trigger characters,
+        // get the visible symbols at the breakpoint line using semantic API.
+        if (!triggerCharactersFound) {
+            CompletionItem[] visibleSymbolCompletions = getVisibleSymbolCompletions(debugCompletionContext);
+            completionsResponse.setTargets(visibleSymbolCompletions);
+            return CompletableFuture.completedFuture(completionsResponse);
+        }
 
-        for (Symbol symbol:symbolList) {
-            if (symbol.getName().isPresent()
-                    && symbol.getName().get().startsWith(args.getText())
-                    && symbol.kind() == SymbolKind.VARIABLE) {
-                CompletionItem completionItem = new CompletionItem();
-                completionItem.setLabel(symbol.getName().get());
-                completionItem.setText(symbol.getName().get());
-                compItems.add(completionItem);
+        // If the debug console expression has any trigger characters,
+        // identify the node instance at the breakpoint appropriately and inject the expression accordingly.
+        try {
+            // Identify the non terminal node at breakpoint before injecting the debug console expression.
+            String source = getBalFileContent(clientConfigHolder.getSourcePath());
+            NonTerminalNode nonTerminalNode = getNonTerminalNode(source, clientConfigHolder.getSourcePath(),
+                    suspendedContext.getLineNumber());
+
+            // Debug console expressions are injected at the beginning of StatementNode, except FunctionBodyBlockNode.
+            // If the non terminal node is not an instance of StatementNode,
+            // traverse/visit to its parent until get the instance of StatementNode.
+            while (!(nonTerminalNode instanceof StatementNode)) {
+                if (nonTerminalNode instanceof FunctionBodyBlockNode) {
+                    break;
+                }
+                nonTerminalNode = nonTerminalNode.parent();
             }
-        }
 
-        CompletionItem[] compItemArr = new CompletionItem[compItems.size()];
-        for (int i = 0; i < compItems.size(); i++) {
-            compItemArr[i] = compItems.get(i);
+            // Inject the debug console expression.
+            String updatedSource = getUpdatedBalFileContent(args, nonTerminalNode, clientConfigHolder.getSourcePath(),
+                    suspendedContext.getLineNumber());
+            NonTerminalNode updatedNonTerminalNode = getNonTerminalNode(updatedSource,
+                    clientConfigHolder.getSourcePath(), nonTerminalNode, suspendedContext.getLineNumber(),
+                    args.getColumn());
+
+            DebugCompletionUtil.route(updatedNonTerminalNode, debugCompletionContext);
+            Node providerNode = debugCompletionContext.getResolverChain()
+                    .get(debugCompletionContext.getResolverChain().size() - 1);
+
+            if (providerNode instanceof FieldAccessExpressionNode) {
+                FieldAccessDebugCompletionResolver fieldAccessDebugCompletionResolver =
+                        new FieldAccessDebugCompletionResolver(debugCompletionContext);
+                List<Symbol> visibleEntries = fieldAccessDebugCompletionResolver
+                        .getVisibleEntries(((FieldAccessExpressionNode) providerNode).expression());
+                CompletionItem[] completions = getCompletions(visibleEntries);
+                completionsResponse.setTargets(completions);
+            }
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
         }
-        completionsResponse.setTargets(compItemArr);
-        return completionsResponse;
+            return CompletableFuture.completedFuture(completionsResponse);
     }
 
     @Override
