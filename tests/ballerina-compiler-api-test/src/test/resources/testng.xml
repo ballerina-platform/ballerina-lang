@@ -107,6 +107,7 @@
 
             <!--Actions-->
             <class name="io.ballerina.semantic.api.test.actions.SymbolsInStartActionsTest" />
+            <class name="io.ballerina.semantic.api.test.actions.SymbolsInWaitActionsTest" />
 
             <!--Symbols-->
             <class name="io.ballerina.semantic.api.test.symbols.AnnotationSymbolTest" />
