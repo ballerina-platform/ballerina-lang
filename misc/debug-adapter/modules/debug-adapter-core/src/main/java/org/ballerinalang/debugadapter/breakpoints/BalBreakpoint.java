@@ -66,7 +66,7 @@ public class BalBreakpoint {
     public void setLogMessage(String logMessage) {
         if (isTemplate(logMessage)) {
             this.logMessage = new TemplateLogMessage(logMessage);
-        } else {
+        } else if (logMessage != null && !logMessage.isBlank()) {
             this.logMessage = new PlainTextLogMessage(logMessage);
         }
     }
