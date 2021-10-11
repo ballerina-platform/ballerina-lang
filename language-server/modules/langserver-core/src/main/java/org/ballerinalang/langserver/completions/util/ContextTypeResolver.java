@@ -529,15 +529,16 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                 break;
             case ERROR_CONSTRUCTOR: {
                 Optional<TypeSymbol> errorDetail = this.visit(namedArgumentNode.parent());
-                if (errorDetail.isPresent() && errorDetail.get().typeKind() == TypeDescKind.RECORD) {
-                    Optional<RecordFieldSymbol> fieldSymbol = 
-                            ((RecordTypeSymbol) errorDetail.get()).fieldDescriptors().values().stream()
-                            .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent()
-                                    && namedArgumentNode.argumentName().name().text().trim()
-                                    .equals(recordFieldSymbol.getName().get())).findFirst();
-                    if (fieldSymbol.isPresent()) {
-                        return Optional.of(fieldSymbol.get().typeDescriptor());
-                    }
+                if (errorDetail.isEmpty() || errorDetail.get().typeKind() != TypeDescKind.RECORD) {
+                    return Optional.empty();
+                }
+                Optional<RecordFieldSymbol> fieldSymbol =
+                        ((RecordTypeSymbol) errorDetail.get()).fieldDescriptors().values().stream()
+                                .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent()
+                                        && namedArgumentNode.argumentName().name().text().trim()
+                                        .equals(recordFieldSymbol.getName().get())).findFirst();
+                if (fieldSymbol.isPresent()) {
+                    return Optional.of(fieldSymbol.get().typeDescriptor());
                 }
             }
         }
