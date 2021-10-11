@@ -220,32 +220,32 @@ public class TypeParameterContextProvider<T extends Node> extends AbstractComple
                 && node.parent().parent().kind() == SyntaxKind.TABLE_TYPE_DESC) {
             TableTypeDescriptorNode tableTypeDesc = (TableTypeDescriptorNode) node.parent().parent();
             TypeParameterNode typeParameterNode = (TypeParameterNode) tableTypeDesc.rowTypeParameterNode();
+            
             // Get type of type parameter
-            Optional<Symbol> symbol = context.currentSemanticModel()
-                    .flatMap(semanticModel -> semanticModel.symbol(typeParameterNode.typeNode()));
-            if (symbol.isPresent()) {
-                TypeSymbol typeSymbol = CommonUtil.getRawType((TypeSymbol) symbol.get());
-                if (typeSymbol.typeKind() == TypeDescKind.RECORD) {
-                    RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeSymbol;
-                    Set<String> typeNames = recordTypeSymbol.fieldDescriptors().values().stream()
-                            .filter(recordFieldSymbol -> recordFieldSymbol.qualifiers().contains(Qualifier.READONLY))
-                            .map(recordFieldSymbol -> recordFieldSymbol.typeDescriptor().getName().orElse(
-                                    recordFieldSymbol.typeDescriptor().typeKind().getName()))
-                            .filter(name -> !name.isEmpty()).collect(Collectors.toSet());
+            Optional<TypeSymbol> typeSymbol = context.currentSemanticModel()
+                    .flatMap(semanticModel -> semanticModel.symbol(typeParameterNode.typeNode()))
+                    .flatMap(SymbolUtil::getTypeDescriptor);
+            
+            if (typeSymbol.isPresent() && typeSymbol.get().typeKind() == TypeDescKind.RECORD) {
+                RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeSymbol.get();
+                Set<String> typeNames = recordTypeSymbol.fieldDescriptors().values().stream()
+                        .filter(recordFieldSymbol -> recordFieldSymbol.qualifiers().contains(Qualifier.READONLY))
+                        .map(recordFieldSymbol -> recordFieldSymbol.typeDescriptor().getName().orElse(
+                                recordFieldSymbol.typeDescriptor().typeKind().getName()))
+                        .filter(name -> !name.isEmpty()).collect(Collectors.toSet());
 
-                    completionItems.forEach(lsCItem -> {
-                        String sortText;
-                        if (typeNames.contains(lsCItem.getCompletionItem().getInsertText())) {
-                            sortText = SortingUtil.genSortText(1) +
-                                    SortingUtil.genSortTextForTypeDescContext(context, lsCItem);
-                        } else {
-                            sortText = SortingUtil.genSortText(2) +
-                                    SortingUtil.genSortTextForTypeDescContext(context, lsCItem);
-                        }
-                        lsCItem.getCompletionItem().setSortText(sortText);
-                    });
-                    return;
-                }
+                completionItems.forEach(lsCItem -> {
+                    String sortText;
+                    if (typeNames.contains(lsCItem.getCompletionItem().getInsertText())) {
+                        sortText = SortingUtil.genSortText(1) +
+                                SortingUtil.genSortTextForTypeDescContext(context, lsCItem);
+                    } else {
+                        sortText = SortingUtil.genSortText(2) +
+                                SortingUtil.genSortTextForTypeDescContext(context, lsCItem);
+                    }
+                    lsCItem.getCompletionItem().setSortText(sortText);
+                });
+                return;
             }
         }
         completionItems.forEach(lsCItem -> {

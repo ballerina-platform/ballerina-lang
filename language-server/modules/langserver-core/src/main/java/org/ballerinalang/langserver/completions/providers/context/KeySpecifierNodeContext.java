@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
-import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.KeySpecifierNode;
@@ -28,6 +27,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeParameterNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -72,12 +72,13 @@ public class KeySpecifierNodeContext extends AbstractCompletionProvider<KeySpeci
             }
             TypeParameterNode typeParameterNode = (TypeParameterNode) tableTypeDef.rowTypeParameterNode();
             // Get type of type parameter
-            Optional<Symbol> symbol = context.currentSemanticModel()
-                    .flatMap(semanticModel -> semanticModel.symbol(typeParameterNode.typeNode()));
-            if (symbol.isEmpty()) {
+            Optional<TypeSymbol> typeSymbol = context.currentSemanticModel()
+                    .flatMap(semanticModel -> semanticModel.symbol(typeParameterNode.typeNode()))
+                    .flatMap(SymbolUtil::getTypeDescriptor);
+            if (typeSymbol.isEmpty()) {
                 return completionItems;
             }
-            rowTypeSymbol = CommonUtil.getRawType((TypeSymbol) symbol.get());
+            rowTypeSymbol = typeSymbol.get();
         } else {
             //Note: There is not a way to get the key constraint atm. 
             // If the key constraint specifies only a single basic type,
