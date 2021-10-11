@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -118,8 +117,7 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
                         && !symbol.getName().orElse("").equals(Names.ERROR.getValue()))
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
-        Optional<SnippetCompletionItem> anonFunctionDef = this.getAnonFunctionDefCompletions(context);
-        anonFunctionDef.ifPresent(completionItems::add);    
+        this.getAnonFunctionDefSnippet(context).ifPresent(completionItems::add);
         return completionItems;
     }
 

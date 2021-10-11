@@ -522,8 +522,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
-        Optional<SnippetCompletionItem> anonFunctionDef = this.getAnonFunctionDefCompletions(context);
-        anonFunctionDef.ifPresent(completionItems::add);
+        this.getAnonFunctionDefSnippet(context).ifPresent(completionItems::add);
         return completionItems;
     }
 
@@ -691,12 +690,12 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
     }
 
     /**
-     * Get completions for anonymous function definition.
+     * Get anonymous function definition snippet.
      *
      * @param context completion context.
      * @return snippet completion item
      */
-    protected Optional<SnippetCompletionItem> getAnonFunctionDefCompletions(BallerinaCompletionContext context) {
+    protected Optional<SnippetCompletionItem> getAnonFunctionDefSnippet(BallerinaCompletionContext context) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<TypeSymbol> typeSymbolAtCursor = context.getContextType();
 
@@ -706,9 +705,14 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         
         TypeSymbol symbol = typeSymbolAtCursor.get();
         FunctionTypeSymbol functionTypeSymbol = ((FunctionTypeSymbol) symbol);
+        Optional<TypeSymbol> returnTypeSymbol = functionTypeSymbol.returnTypeDescriptor();
+
+        if (returnTypeSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        
         List<String> args = new ArrayList<>();
         int argIndex = 1;
-
         Set<String> visibleSymbolNames = visibleSymbols
                 .stream()
                 .map(Symbol::getName)
@@ -727,11 +731,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 visibleSymbolNames.add(varName);
                 argIndex++;
             }
-        }
-        
-        Optional<TypeSymbol> returnTypeSymbol = functionTypeSymbol.returnTypeDescriptor();
-        if (returnTypeSymbol.isEmpty()) {
-            return Optional.empty();
         }
         
         String functionName = "";
