@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 type OpenEmployee record {
     string name = "";
     int id = 0;
@@ -393,13 +395,27 @@ function isRefEqual(any a, any b) returns boolean {
     return a === b && !(b !== a);
 }
 
-function testXMLSequenceRefEquality() returns boolean {
+function testXMLSequenceRefEquality() {
     xml x = xml `<a>a</a>`;
     xml x1 = xml `<b>b</b>`;
     xml x2 = x + x1;
     xml x3 = x + x1;
 
-    return x2 === x3;
+    test:assertTrue(x2 === x3);
+
+    xml a1 = xml `<e1/>`;
+    xml a2 = xml `<e2/>`;
+    xml a3 = xml ``;
+    xml s1 = a1 + a2;
+    xml s2 = a3 + a1;
+    xml s3 = a2 + a3;
+    xml v1 = s1.<e1>;
+    xml v2 = s1.<e2>;
+
+    test:assertTrue(v1 === a1);
+    test:assertTrue(v2 === a2);
+    test:assertTrue(s2 === a1);
+    test:assertTrue(s3 === a2);
 }
 
 function testXMLSequenceRefEqualityDifferentLength() returns boolean {
@@ -411,14 +427,14 @@ function testXMLSequenceRefEqualityDifferentLength() returns boolean {
     return x2 === x3;
 }
 
-function testXMLSequenceRefEqualityFalse() returns boolean {
-    xml x = xml `<a>a</a>`;
-    xml x1 = xml `<b>b</b>`;
-    xml x11 = xml `<b>b</b>`;
-    xml x2 = x + x1;
-    xml x3 = x + x11;
+function testXMLSequenceRefEqualityFalse() {
+    xml a = xml `<a>a</a>`;
+    xml b = xml `<b>b</b>`;
+    xml c = xml `<b>b</b>`;
+    xml d = a + b;
+    xml e = a + c;
 
-    return x2 === x3;
+    test:assertFalse(d === e);
 }
 
 function testXMLSequenceRefEqualityIncludingString() returns boolean {

@@ -369,14 +369,12 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void testXMLSequenceRefEquality() {
-        BValue[] returns = BRunUtil.invoke(result, "testXMLSequenceRefEquality");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        BRunUtil.invoke(result, "testXMLSequenceRefEquality");
     }
 
     @Test
     public void testXMLSequenceRefEqualityFalse() {
-        BValue[] returns = BRunUtil.invoke(result, "testXMLSequenceRefEqualityFalse");
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        BRunUtil.invoke(result, "testXMLSequenceRefEqualityFalse");
     }
 
     @Test

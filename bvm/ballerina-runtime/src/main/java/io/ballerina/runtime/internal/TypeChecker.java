@@ -509,14 +509,20 @@ public class TypeChecker {
     }
 
     private static boolean isXMLValueRefEqual(XmlValue lhsValue, XmlValue rhsValue) {
+        if (lhsValue.getNodeType() == XmlNodeType.SEQUENCE && lhsValue.isSingleton() &&
+                ((XmlSequence) lhsValue).getChildrenList().get(0) == rhsValue) {
+            return true;
+        }
+        if (rhsValue.getNodeType() == XmlNodeType.SEQUENCE && rhsValue.isSingleton() &&
+                ((XmlSequence) rhsValue).getChildrenList().get(0) == lhsValue) {
+            return true;
+        }
         if (lhsValue.getNodeType() != rhsValue.getNodeType()) {
             return false;
         }
-
         if (lhsValue.getNodeType() == XmlNodeType.SEQUENCE && rhsValue.getNodeType() == XmlNodeType.SEQUENCE) {
             return isXMLSequenceRefEqual((XmlSequence) lhsValue, (XmlSequence) rhsValue);
         }
-
         if (lhsValue.getNodeType() == XmlNodeType.TEXT && rhsValue.getNodeType() == XmlNodeType.TEXT) {
             return isEqual(lhsValue, rhsValue);
         }
