@@ -127,16 +127,7 @@ public class BallerinaSemanticModel implements SemanticModel {
             Name name = entry.getKey();
             List<Scope.ScopeEntry> scopeEntries = entry.getValue();
             for (Scope.ScopeEntry scopeEntry : scopeEntries) {
-                BSymbol symbolEnvScopeOwner = symbolEnv.scope.owner;
-                BSymbol scopeEntryOwner = scopeEntry.symbol.owner;
-
-                // This flag is used to determine if the current scope entry symbol is a child symbol of the
-                // enclosing node.
-                boolean isChildOfEnclosingNode = symbolEnvScopeOwner.getName().equals(scopeEntryOwner.getName())
-                        && symbolEnvScopeOwner.pkgID.equals(scopeEntryOwner.pkgID)
-                        && symbolEnvScopeOwner.getPosition().equals(scopeEntryOwner.getPosition());
-
-                addToCompiledSymbols(compiledSymbols, scopeEntry, cursorPos, name, isChildOfEnclosingNode, statesSet);
+                addToCompiledSymbols(compiledSymbols, scopeEntry, cursorPos, name, symbolEnv.scope.owner, statesSet);
             }
         }
 
@@ -470,7 +461,7 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private void addToCompiledSymbols(Set<Symbol> compiledSymbols, Scope.ScopeEntry scopeEntry, Location cursorPos,
-                                      Name name, boolean isChildOfEnclosingNode, Set<DiagnosticState> states) {
+                                      Name name, BSymbol symbolEnvScopeOwner, Set<DiagnosticState> states) {
         if (scopeEntry == null || scopeEntry.symbol == null || isFilteredVarSymbol(scopeEntry.symbol, states)) {
             return;
         }
@@ -486,14 +477,24 @@ public class BallerinaSemanticModel implements SemanticModel {
                 compiledSymbol = symbolFactory.getBCompiledSymbol(symbol, symbol.getOriginalName().getValue());
             }
 
-            if (compiledSymbol == null || compiledSymbols.contains(compiledSymbol) ||
-                    (isFieldSymbol(compiledSymbol) && isChildOfEnclosingNode)) {
+            if (compiledSymbol == null || compiledSymbols.contains(compiledSymbol)) {
                 return;
+            }
+
+            if (isFieldSymbol(compiledSymbol)) {
+                BSymbol scopeEntryOwner = scopeEntry.symbol.owner;
+                // If the current scope entry symbol is a child symbol of the enclosing node, and if the compiled
+                // symbol is a field symbol, it can be determined that the cursor is within the field context.
+                if (symbolEnvScopeOwner.getName().equals(scopeEntryOwner.getName())
+                        && symbolEnvScopeOwner.pkgID.equals(scopeEntryOwner.pkgID)
+                        && symbolEnvScopeOwner.getPosition().equals(scopeEntryOwner.getPosition())) {
+                    return;
+                }
             }
 
             compiledSymbols.add(compiledSymbol);
         }
-        addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name, isChildOfEnclosingNode, states);
+        addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name, symbolEnvScopeOwner, states);
     }
 
     private boolean isFieldSymbol(Symbol symbol) {
