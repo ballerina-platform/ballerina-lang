@@ -1,0 +1,47 @@
+name: Push Ballerina Observe Package to Central
+
+on:
+  workflow_dispatch:
+    inputs:
+      repoTag:
+        description: Ballerina Lang Tag
+        required: true
+
+jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Checkout Tag
+        run: git checkout ${{ github.event.inputs.repoTag }}
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '11'
+      - name: Build with Gradle
+        env:
+          packageUser: ${{ github.actor }}
+          packagePAT: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BAL_PROJECT=observelib/observe/src/main/ballerina
+          if [ ! -f "${BAL_PROJECT}/Package.md" ]; then
+              echo "Package.md does not exist. Renaming Module.md as Package.md"
+              mv ${BAL_PROJECT}/Module.md ${BAL_PROJECT}/Package.md
+          fi
+
+          ./gradlew build -x check -x test
+      - name: Publish artifact
+        env:
+          BALLERINA_CENTRAL_ACCESS_TOKEN: ${{ secrets.BALLERINA_CENTRAL_ACCESS_TOKEN }}
+        run: |
+          BALA_DIR=observelib/observe/build/ballerina-src/target/ballerina-observability/bala/ballerina/observe/1.0.0/any
+          pushd ${BALA_DIR}
+          zip -r observe-bala.zip *
+          popd
+          curl -v -X POST -H "Content-Type:application/octet-stream" \
+            -H "Authorization: Bearer ${BALLERINA_CENTRAL_ACCESS_TOKEN}" \
+            --data-binary @"${BALA_DIR}/observe-bala.zip" https://api.central.ballerina.io/2.0/registry/packages
