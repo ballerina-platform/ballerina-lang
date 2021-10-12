@@ -34,5 +34,6 @@ function test() {
 
         int r2;
         r2 = <- w1;
+        error? unionResult = flush w1;
     }
 }
