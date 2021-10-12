@@ -350,7 +350,8 @@ public class JvmDesugarPhase {
         replaceEncodedTypeDefIdentifiers(module.typeDefs, encodedVsInitialIds);
     }
 
-    private static void replaceEncodedPackageIdentifiers(PackageID packageID, HashMap<String, String> encodedVsInitialIds) {
+    private static void replaceEncodedPackageIdentifiers(PackageID packageID,
+                                                         HashMap<String, String> encodedVsInitialIds) {
         packageID.orgName = getInitialIdString(packageID.orgName, encodedVsInitialIds);
         packageID.name = getInitialIdString(packageID.name, encodedVsInitialIds);
     }

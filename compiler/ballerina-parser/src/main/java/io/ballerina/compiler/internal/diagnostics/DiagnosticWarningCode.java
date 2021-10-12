@@ -47,6 +47,7 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
     WARNING_INVALID_BALLERINA_NAME_REFERENCE("BCE10100", "warning.invalid.ballerina.name.reference"),
     WARNING_CANNOT_HAVE_DOCUMENTATION_INLINE_WITH_A_CODE_REFERENCE_BLOCK("BCE10101",
             "warning.cannot.have.documentation.inline.with.a.code.reference.block"),
+    WARNING_INVALID_ESCAPE_SEQUENCE("BCE10102", "warning.invalid.escape.sequence"),
     ;
 
     String diagnosticId;

@@ -1,6 +1,6 @@
 {
   "position": {
-    "line": 3,
+    "line": 4,
     "character": 24
   },
   "source": "class_def/source/source6.bal",
@@ -522,6 +522,31 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "filterText": "null",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field1",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "H",
+      "insertText": "field1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field2",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "H",
+      "insertText": "field2",
       "insertTextFormat": "Snippet"
     }
   ]

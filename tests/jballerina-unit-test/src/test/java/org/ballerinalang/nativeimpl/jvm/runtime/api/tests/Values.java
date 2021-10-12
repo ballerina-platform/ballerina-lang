@@ -22,6 +22,8 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.IntersectableReferenceType;
+import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Parameter;
@@ -51,8 +53,8 @@ import java.util.Optional;
  */
 public class Values {
 
-    private static Module objectModule = new Module("testorg", "runtime_api.objects", "1");
-    private static Module recordModule = new Module("testorg", "runtime_api.records", "1");
+    private static final Module objectModule = new Module("testorg", "runtime_api.objects", "1");
+    private static final Module recordModule = new Module("testorg", "runtime_api.records", "1");
 
     public static BMap<BString, Object> getRecord(BString recordName) {
         HashMap<String, Object> address = new HashMap<>();
@@ -116,5 +118,20 @@ public class Values {
             sb.append(type.toString()).append(" ");
         }
         return StringUtils.fromString(sb.toString());
+    }
+
+    public static BArray getConstituentTypes(BArray array) {
+        Optional<IntersectionType> arrayType = ((IntersectableReferenceType) array.getType()).getIntersectionType();
+        assert arrayType.isPresent();
+        List<Type> constituentTypes = arrayType.get().getConstituentTypes();
+        int size = constituentTypes.size();
+        BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, size)
+                , size);
+        int index = 0;
+        for (Type type : constituentTypes) {
+            arrayValue.add(index, StringUtils.fromString(type.toString()));
+            index++;
+        }
+        return arrayValue;
     }
 }

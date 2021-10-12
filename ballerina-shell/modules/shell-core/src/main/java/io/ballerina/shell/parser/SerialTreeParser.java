@@ -49,7 +49,7 @@ import java.util.Set;
  * @since 2.0.0
  */
 public class SerialTreeParser extends TrialTreeParser {
-    private static final Set<String> RESTRICTED_FUNCTION_NAMES = Set.of("main", "init");
+    private static final Set<String> RESTRICTED_FUNCTION_NAMES = ParserConstants.RESTRICTED_FUNCTION_NAMES;
     private static final String COMMAND_PREFIX = "/";
     private final List<TreeParserTrial> nodeParserTrials;
 
@@ -79,6 +79,7 @@ public class SerialTreeParser extends TrialTreeParser {
             } catch (InvalidMethodException e) {
                 errorMessage = e.getMessage();
                 addErrorDiagnostic(errorMessage);
+                throw new TreeParserException();
             } catch (Throwable e) {
                 errorMessage = "Code contains syntax error(s).";
             }
@@ -120,11 +121,6 @@ public class SerialTreeParser extends TrialTreeParser {
             if (RESTRICTED_FUNCTION_NAMES.contains(functionName)) {
                 addWarnDiagnostic("Found '" + functionName + "' function in the declarations.\n" +
                         "Discarded '" + functionName + "' function without loading.");
-                return false;
-            }
-            if (functionName.startsWith("__")) {
-                addWarnDiagnostic("Functions starting with '__' are reserved in REPL.\n" +
-                        "Discarded '" + functionName + "' without loading.");
                 return false;
             }
         }

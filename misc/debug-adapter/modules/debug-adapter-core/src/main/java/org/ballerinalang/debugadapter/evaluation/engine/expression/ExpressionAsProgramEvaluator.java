@@ -18,28 +18,39 @@ package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
-import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.projects.BallerinaToml;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
+import org.ballerinalang.debugadapter.evaluation.BImport;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
+import org.ballerinalang.debugadapter.evaluation.EvaluationImportResolver;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.ExternalNameReferenceFinder;
+import org.ballerinalang.debugadapter.evaluation.engine.ExternalVariableReferenceFinder;
 import org.ballerinalang.debugadapter.evaluation.engine.ModuleLevelDefinitionFinder;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.VariableUtils;
@@ -58,16 +69,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.QUOTED_IDENTIFIER_PREFIX;
-import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.decodeIdentifier;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CLASSLOAD_AND_INVOKE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_NAME_SEPARATOR;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_NAME_SEPARATOR_REGEX;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR_REGEX;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getAsJString;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
@@ -76,13 +89,25 @@ import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_TOML_FILE_NAME;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getPackageOrgAndName;
 
 /**
  * A base evaluator implementation which provides a more generic evaluation approach to be used for some complex
  * Ballerina expressions (queries, let expressions, etc.).
  * <p>
- * This evaluator transforms the user expression into a standalone ballerina program, which returns the
- * the user expression result as the program output and can be executed in the same debuggee JVM.
+ * This evaluator transforms the user expression into a standalone ballerina program, which returns the user
+ * expression result as the program output and can be executed in the same debuggee JVM.
+ * <p>
+ * The common execution flow for the expressions based on this evaluator will be as follows.
+ * <ol>
+ * <li> Generates a valid Ballerina program code snippet, which can output the result of the given expression.
+ * <li> Creates a 'BuildProject' instance which contains the given source snippet as its main file.
+ * <li> If the user expression includes same package module usages, extracts all the module-level declarations from the
+ * non-default modules and add them as separate modules into the evaluation package created in above step.
+ * <li> Creates a Ballerina executable jar based on the generated code snippet, in a temp directory.
+ * <li> Invokes 'classloadAndInvokeFunction' in the remote VM to classload the created executable jar and
+ * invoke its '__getEvaluationResult' method. It will return the result of the expression as its return value.
+ * </ol>
  *
  * @since 2.0.0
  */
@@ -93,18 +118,22 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
     protected final ExpressionNode syntaxNode;
     private final List<String> externalVariableNames = new ArrayList<>();
     private final List<Value> externalVariableValues = new ArrayList<>();
+    private final List<BImport> capturedImports = new ArrayList<>();
 
     private static final String TEMP_DIR_PREFIX = "evaluation-executable-dir-";
     private static final String MAIN_FILE_PREFIX = "main-";
-    private static final String TEMP_PACKAGE_ORG = "jballerina_debugger";
-    private static final String TEMP_PACKAGE_NAME = "evaluation_executor";
-    private static final String TEMP_PACKAGE_VERSION = "1.0.0";
+    private static final String EVALUATION_PACKAGE_ORG = "jballerina_debugger";
+    private static final String EVALUATION_PACKAGE_NAME = "evaluation_executor";
+    private static final String EVALUATION_PACKAGE_VERSION = "1.0.0";
     public static final String EVALUATION_FUNCTION_NAME = "__getEvaluationResult";
 
+    private static final String EVALUATION_IMPORT_TEMPLATE = "import %s/%s as %s;";
     // Note: the function definition snippet cannot be public, since compiler does not allow public functions to
     // return non-public types.
-    private static final String EVALUATION_SNIPPET_TEMPLATE = "%s %s function %s(%s) returns any|error { return %s; }";
-    private static final String EVALUATION_IMPORT_TEMPLATE = "import %s/%s as %s;";
+    private static final String EVALUATION_FUNCTION_TEMPLATE = "function %s(%s) returns any|error { return %s; }";
+    // Format: ${imports} ${declarations} ${evaluation_function}
+    private static final String EVALUATION_SNIPPET_TEMPLATE = String.format("%%s %1$s %%s %1$s %%s",
+            System.lineSeparator());
 
     public ExpressionAsProgramEvaluator(EvaluationContext evaluationContext, ExpressionNode syntaxNode) {
         super(evaluationContext);
@@ -152,22 +181,20 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
      * @return Ballerina program snippet
      */
     private String generateEvaluationSnippet() throws EvaluationException {
-        // Generates import declarations snippet
-        String importDeclarations = generateImportDeclarations();
         // Generates top level declarations snippet
-        String moduleDeclarations = generateModuleLevelDeclarations();
+        String moduleDeclarations = extractModuleDefinitions(context.getModule(), false);
 
         // Generates function signature (parameter definitions) for the snippet function template.
         processSnippetFunctionParameters();
         StringJoiner parameters = new StringJoiner(",");
         externalVariableNames.forEach(parameters::add);
 
-        return String.format(EVALUATION_SNIPPET_TEMPLATE,
-                importDeclarations,
-                moduleDeclarations,
-                EVALUATION_FUNCTION_NAME,
-                parameters,
-                syntaxNode.toSourceCode().trim());
+        // Generates required import declarations based on the expression.
+        String functionSnippet = String.format(EVALUATION_FUNCTION_TEMPLATE, EVALUATION_FUNCTION_NAME,
+                parameters, syntaxNode.toSourceCode().trim());
+        String importDeclarations = generateImportDeclarations(functionSnippet);
+
+        return String.format(EVALUATION_SNIPPET_TEMPLATE, importDeclarations, moduleDeclarations, functionSnippet);
     }
 
     /**
@@ -176,39 +203,41 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
      * @param mainBalContent Source file content to be used for generating the project
      * @return Created Ballerina project
      */
-    private BuildProject createProject(String mainBalContent) throws Exception {
+    private BuildProject createProject(String mainBalContent) throws EvaluationException {
         try {
             // Creates a new directory in the default temporary file directory.
             this.tempProjectDir = Files.createTempDirectory(TEMP_DIR_PREFIX + System.currentTimeMillis());
             this.tempProjectDir.toFile().deleteOnExit();
 
-            // Creates an empty Ballerina.toml file
-            Path ballerinaTomlPath = tempProjectDir.resolve(BAL_TOML_FILE_NAME);
-            Path balToml = Files.createFile(ballerinaTomlPath);
-            balToml.toFile().deleteOnExit();
-
             // Creates a main file and writes the generated code snippet.
             createMainBalFile(mainBalContent);
+            // Creates the Ballerina.toml file and writes the package meta information.
+            createBallerinaToml();
+
+            // If the user expression contains any import usages of other modules in the same package, we need
+            // to include all the definitions from those modules, in our temporary evaluation project. (Here we cannot
+            // selectively include only the imported modules as the package modules can have inter dependencies.)
+            if (containsOtherModuleImports()) {
+                fillOtherModuleDefinitions();
+            }
+
             BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
-            BuildProject buildProject = BuildProject.load(this.tempProjectDir, buildOptions);
-
-            // Updates the 'Ballerina.toml' content
-            StringJoiner balTomlContent = new StringJoiner(System.lineSeparator());
-            balTomlContent.add("[package]");
-            balTomlContent.add(String.format("org = \"%s\"", TEMP_PACKAGE_ORG));
-            balTomlContent.add(String.format("name = \"%s\"", TEMP_PACKAGE_NAME));
-            balTomlContent.add(String.format("version = \"%s\"", TEMP_PACKAGE_VERSION));
-            BallerinaToml newBallerinaToml = buildProject.currentPackage().ballerinaToml().get()
-                    .modify()
-                    .withContent(balTomlContent.toString())
-                    .apply();
-
-            buildProject = (BuildProject) newBallerinaToml.packageInstance().project();
-            return buildProject;
+            return BuildProject.load(this.tempProjectDir, buildOptions);
+        } catch (EvaluationException e) {
+            throw e;
         } catch (Exception e) {
-            throw createEvaluationException("error occurred while creating a temporary evaluation project at: " +
-                    this.tempProjectDir + ", due to: " + e.getMessage());
+            throw createEvaluationException(String.format("error occurred while creating the temporary evaluation " +
+                    "project due to: %s", e.getMessage()));
         }
+    }
+
+    /**
+     * Indicates whether detected imports within the user expression contains modules within the same package.
+     */
+    private boolean containsOtherModuleImports() {
+        return capturedImports.stream().anyMatch(bImport -> context.getPackageOrg().isPresent()
+                && bImport.orgName().equals(context.getPackageOrg().get())
+                && bImport.packageName().equals(context.getModule().packageInstance().packageName().value()));
     }
 
     /**
@@ -251,10 +280,10 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         Document document = project.currentPackage().getDefaultModule().document(docId.get());
 
         StringJoiner classNameJoiner = new StringJoiner(".");
-        classNameJoiner.add(TEMP_PACKAGE_ORG);
-        classNameJoiner.add(TEMP_PACKAGE_NAME);
+        classNameJoiner.add(EVALUATION_PACKAGE_ORG);
+        classNameJoiner.add(EVALUATION_PACKAGE_NAME);
         // Generated class name will only contain the major version.
-        classNameJoiner.add(TEMP_PACKAGE_VERSION.split(MODULE_VERSION_SEPARATOR)[0]);
+        classNameJoiner.add(EVALUATION_PACKAGE_VERSION.split(MODULE_VERSION_SEPARATOR_REGEX)[0]);
         classNameJoiner.add(getFileNameWithoutExtension(document.name()));
 
         return classNameJoiner.toString();
@@ -271,7 +300,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
     }
 
     /**
-     * Helper method to write a string source to a file.
+     * Helper method to create a main bal file with the given content.
      *
      * @param content Content to write to the file.
      * @throws IOException If writing was unsuccessful.
@@ -280,24 +309,73 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         File mainBalFile = File.createTempFile(MAIN_FILE_PREFIX, BAL_FILE_EXT, tempProjectDir.toFile());
         mainBalFile.deleteOnExit();
 
-        try (FileWriter fileWriter = new FileWriter(mainBalFile, Charset.defaultCharset())) {
-            fileWriter.write(content);
-        }
+        writeToFile(mainBalFile, content);
     }
 
-    private String generateImportDeclarations() {
+    /**
+     * Helper method to create a Ballerina.toml file with predefined content.
+     *
+     * @throws IOException If writing was unsuccessful.
+     */
+    private void createBallerinaToml() throws Exception {
+        Path ballerinaTomlPath = tempProjectDir.resolve(BAL_TOML_FILE_NAME);
+        File balTomlFile = Files.createFile(ballerinaTomlPath).toFile();
+        balTomlFile.deleteOnExit();
+
+        StringJoiner balTomlContent = new StringJoiner(System.lineSeparator());
+        balTomlContent.add("[package]");
+        balTomlContent.add(String.format("org = \"%s\"", EVALUATION_PACKAGE_ORG));
+        balTomlContent.add(String.format("name = \"%s\"", EVALUATION_PACKAGE_NAME));
+        balTomlContent.add(String.format("version = \"%s\"", EVALUATION_PACKAGE_VERSION));
+
+        writeToFile(balTomlFile, balTomlContent.toString());
+    }
+
+    /**
+     * Detects all the import usages within the evaluation snippet and generates required import statements for
+     * the detected import usages.
+     */
+    private String generateImportDeclarations(String functionSnippet) throws EvaluationException {
+        TextDocument document = TextDocuments.from(functionSnippet);
+        SyntaxTree functionNode = SyntaxTree.asTopLevel(document);
+        if (functionNode.rootNode().kind() != SyntaxKind.FUNCTION_DEFINITION) {
+            return null;
+        }
+        // Detects all the import usages within the evaluation snippet and generates required import statements for
+        // the detected import usages.
+        EvaluationImportResolver importResolver = new EvaluationImportResolver(context);
+        Map<String, BImport> usedImports = importResolver.detectUsedImports(functionNode.rootNode(), resolvedImports);
+        this.capturedImports.addAll(usedImports.values());
+
         StringBuilder importBuilder = new StringBuilder(System.lineSeparator());
-        for (Map.Entry<String, ModuleSymbol> importEntry : resolvedImports.entrySet()) {
+        for (Map.Entry<String, BImport> importEntry : usedImports.entrySet()) {
             importBuilder.append(constructImportStatement(importEntry));
         }
 
         return importBuilder.append(System.lineSeparator()).toString();
     }
 
-    private String constructImportStatement(Map.Entry<String, ModuleSymbol> importEntry) {
-        String orgName = importEntry.getValue().id().orgName();
-        String moduleName = getModuleName(importEntry.getValue().id());
-        decodeIdentifier(importEntry.getValue().id().moduleName());
+    private String constructImportStatement(Map.Entry<String, BImport> importEntry) {
+        String orgName = importEntry.getValue().getResolvedSymbol().id().orgName();
+        // If the import belongs to a module inside the current package, replace the original org name name with
+        // temporary evaluation project org name.
+        if (context.getPackageOrg().isPresent() && orgName.equals(context.getPackageOrg().get())) {
+            orgName = EVALUATION_PACKAGE_ORG;
+        }
+
+        String moduleName = getModuleName(importEntry.getValue().getResolvedSymbol().id());
+        String[] moduleNameParts = moduleName.split(MODULE_NAME_SEPARATOR_REGEX);
+        // If the import belongs to a module inside the current package, replace the original package name with
+        // temporary evaluation project package name.
+        if (context.getPackageName().isPresent() && moduleNameParts[0].equals(context.getPackageName().get())) {
+            StringJoiner newModuleName = new StringJoiner(MODULE_NAME_SEPARATOR);
+            newModuleName.add(EVALUATION_PACKAGE_NAME);
+            for (int i = 1, copyOfRangeLength = moduleNameParts.length; i < copyOfRangeLength; i++) {
+                newModuleName.add(moduleNameParts[i]);
+            }
+            moduleName = newModuleName.toString();
+        }
+
         String alias = importEntry.getKey();
         return String.format(EVALUATION_IMPORT_TEMPLATE, orgName, moduleName, alias);
     }
@@ -313,7 +391,47 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         }
     }
 
-    private String generateModuleLevelDeclarations() {
+    /**
+     * Updates the evaluation project with all the definitions from the modules which were used within the
+     * user expression.
+     */
+    private void fillOtherModuleDefinitions() throws Exception {
+        ModuleId currentModuleId = context.getModule().moduleId();
+        ModuleId defaultModuleId = context.getModule().packageInstance().getDefaultModule().moduleId();
+        for (Module module : context.getModule().packageInstance().modules()) {
+            if (module.moduleId() != defaultModuleId && module.moduleId() != currentModuleId) {
+                generateModuleDefinitions(module);
+            }
+        }
+    }
+
+    private void generateModuleDefinitions(Module module) throws Exception {
+        // Todo: [IMPORTANT] Refactor to use in-memory project update APIs instead of using the FileWriter, once the
+        //  project update API performance issues are fixed.
+
+        String[] moduleNameParts = module.moduleId().moduleName().split("\\.");
+        // We don't need the 0th element (as its the default module name).
+        moduleNameParts = Arrays.copyOfRange(moduleNameParts, 1, moduleNameParts.length);
+
+        // If moduleNameParts is 0, detected module should the default module (therefore need to be skipped)
+        if (moduleNameParts.length == 0) {
+            return;
+        }
+        Path filePath = tempProjectDir.resolve(ProjectConstants.MODULES_ROOT);
+        for (String moduleNamePart : moduleNameParts) {
+            filePath = filePath.resolve(moduleNamePart);
+        }
+        if (!Files.exists(filePath)) {
+            Files.createDirectories(filePath);
+        }
+
+        File moduleMainFile = Files.createTempFile(filePath, MAIN_FILE_PREFIX, BAL_FILE_EXT).toFile();
+        moduleMainFile.deleteOnExit();
+        String moduleDefinitions = extractModuleDefinitions(module, true);
+        writeToFile(moduleMainFile, moduleDefinitions);
+    }
+
+    private String extractModuleDefinitions(Module module, boolean shouldIncludeImports) {
         ModuleLevelDefinitionFinder moduleDefinitionFinder = new ModuleLevelDefinitionFinder(context);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.FUNCTION_DEFINITION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.TYPE_DEFINITION);
@@ -325,7 +443,15 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.ENUM_DECLARATION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CLASS_DEFINITION);
 
-        List<ModuleMemberDeclarationNode> declarationList = moduleDefinitionFinder.getModuleDeclarations();
+        if (shouldIncludeImports) {
+            moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.IMPORT_DECLARATION);
+        }
+
+        List<NonTerminalNode> declarationList = moduleDefinitionFinder.getModuleDeclarations(module);
+        if (shouldIncludeImports) {
+            declarationList = convertImports(declarationList);
+        }
+
         return declarationList.stream()
                 .map(Node::toSourceCode)
                 .reduce((s, s2) -> s + System.lineSeparator() + s2)
@@ -333,9 +459,55 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
                 .orElse("");
     }
 
+    /**
+     * Modify all the import statements within the given module level declarations, to be compatible with the evaluation
+     * package structure.
+     */
+    private List<NonTerminalNode> convertImports(List<NonTerminalNode> declarationList) {
+
+        return declarationList.stream().map(nonTerminalNode -> {
+            if (nonTerminalNode.kind() != SyntaxKind.IMPORT_DECLARATION) {
+                return nonTerminalNode;
+            }
+
+            ImportDeclarationNode importDeclarationNode = (ImportDeclarationNode) nonTerminalNode;
+            if (importDeclarationNode.orgName().isPresent() && (context.getPackageOrg().isEmpty() ||
+                    !context.getPackageOrg().get().equals(importDeclarationNode.orgName().get().orgName().text()))) {
+                return nonTerminalNode;
+            }
+            if (context.getPackageName().isEmpty() || !context.getPackageName().get().equals(importDeclarationNode
+                    .moduleName().get(0).text())) {
+                return nonTerminalNode;
+            }
+            ImportDeclarationNode.ImportDeclarationNodeModifier modifier = importDeclarationNode.modify();
+
+            // Replaces original org name with the evaluation org name.
+            if (importDeclarationNode.orgName().isPresent()) {
+                IdentifierToken orgToken = NodeFactory.createIdentifierToken(EVALUATION_PACKAGE_ORG);
+                ImportOrgNameNode newOrgName = NodeFactory.createImportOrgNameNode(orgToken, importDeclarationNode
+                        .orgName().get().slashToken());
+                modifier.withOrgName(newOrgName);
+            }
+
+            // Replaces original package name with the evaluation package name.
+            List<Node> moduleParts = importDeclarationNode.moduleName().stream().collect(Collectors.toList());
+            IdentifierToken packageToken = NodeFactory.createIdentifierToken(EVALUATION_PACKAGE_NAME);
+            moduleParts.remove(0);
+            moduleParts.add(0, packageToken);
+            IdentifierToken moduleNameSeparatorToken = NodeFactory.createIdentifierToken(MODULE_NAME_SEPARATOR);
+            for (int i = 0, size = moduleParts.size(); i < size - 1; i++) {
+                moduleParts.add(2 * i + 1, moduleNameSeparatorToken);
+            }
+            SeparatedNodeList<IdentifierToken> newModuleName = NodeFactory.createSeparatedNodeList(moduleParts);
+            modifier = modifier.withModuleName(newModuleName);
+
+            return modifier.apply();
+        }).collect(Collectors.toList());
+    }
+
     private void processSnippetFunctionParameters() throws EvaluationException {
         // Retrieves all the external (local + global) variables which are being used in the user expression.
-        List<String> capturedVarNames = new ArrayList<>(new ExternalNameReferenceFinder(syntaxNode)
+        List<String> capturedVarNames = new ArrayList<>(new ExternalVariableReferenceFinder(syntaxNode)
                 .getCapturedVariables());
         List<String> capturedTypes = new ArrayList<>();
         for (String name : capturedVarNames) {
@@ -397,12 +569,45 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
                 return "()";
             case ARRAY:
                 return bVar.computeValue().substring(0, bVar.computeValue().indexOf("[")) + "[]";
-            case RECORD:
-            case OBJECT:
             case TUPLE:
                 return bVar.computeValue();
+            case RECORD:
+            case OBJECT:
+                return resolveObjectType(bVar);
             default:
                 return UNKNOWN_VALUE;
+        }
+    }
+
+    private String resolveObjectType(BVariable bVar) {
+        Map.Entry<String, String> packageOrgAndName = getPackageOrgAndName(bVar.getJvmValue());
+        if (packageOrgAndName == null) {
+            return bVar.computeValue();
+        }
+
+        for (Map.Entry<String, BImport> entry : resolvedImports.entrySet()) {
+            String alias = entry.getKey();
+            BImport bImport = entry.getValue();
+            if (bImport.orgName().equals(packageOrgAndName.getKey()) &&
+                    bImport.moduleName().equals(packageOrgAndName.getValue())) {
+                return alias + ":" + bVar.computeValue();
+            }
+        }
+        return bVar.computeValue();
+    }
+
+    /**
+     * Helper method to write a string source to a file.
+     *
+     * @param content Content to write to the file.
+     * @throws EvaluationException If writing was unsuccessful.
+     */
+    private void writeToFile(File file, String content) throws EvaluationException {
+        try (FileWriter fileWriter = new FileWriter(file, Charset.defaultCharset())) {
+            fileWriter.write(content);
+        } catch (Exception e) {
+            throw createEvaluationException(String.format("error occurred while writing to a temp file at: '%s'",
+                    file.getPath()));
         }
     }
 

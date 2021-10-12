@@ -1,0 +1,39 @@
+{
+  "position": {
+    "line": 34,
+    "character": 29
+  },
+  "source": "field_access_expression_context/source/field_access_within_param_source2.bal",
+  "items": [
+    {
+      "label": "performTask()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "performTask",
+      "insertText": "performTask()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "do2()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "AC",
+      "filterText": "do2",
+      "insertText": "do2()",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

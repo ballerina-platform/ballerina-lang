@@ -36,14 +36,26 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -84,11 +96,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -121,7 +135,7 @@ import static org.ballerinalang.langserver.common.utils.CommonKeys.SEMI_COLON_SY
 import static org.ballerinalang.langserver.common.utils.CommonKeys.SLASH_KEYWORD_KEY;
 
 /**
- * Common utils to be reuse in language server implementation.
+ * Common utils to be reused in language server implementation.
  */
 public class CommonUtil {
 
@@ -139,6 +153,10 @@ public class CommonUtil {
 
     public static final String BALLERINA_CMD;
 
+    public static final String URI_SCHEME_BALA = "bala";
+    public static final String URI_SCHEME_FILE = "file";
+    public static final String LANGUAGE_ID_BALLERINA = "ballerina";
+
     public static final String MARKDOWN_MARKUP_KIND = "markdown";
 
     public static final String BALLERINA_ORG_NAME = "ballerina";
@@ -151,10 +169,14 @@ public class CommonUtil {
 
     public static final List<String> BALLERINA_KEYWORDS;
 
+    public static final Set<SyntaxKind> QUALIFIER_KINDS = Set.of(SyntaxKind.SERVICE_KEYWORD,
+            SyntaxKind.CLIENT_KEYWORD, SyntaxKind.ISOLATED_KEYWORD, SyntaxKind.TRANSACTIONAL_KEYWORD,
+            SyntaxKind.PUBLIC_KEYWORD, SyntaxKind.PRIVATE_KEYWORD);
+
     private static final String SELF_KW = "self";
 
     private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
-    
+
     private static final int MAX_DEPTH = 1;
 
     static {
@@ -251,10 +273,10 @@ public class CommonUtil {
     public static Optional<String> getDefaultValueForType(TypeSymbol bType) {
         return getDefaultValueForType(bType, 1);
     }
-    
+
     private static Optional<String> getDefaultValueForType(TypeSymbol bType, int depth) {
         String typeString;
-        
+
         if (bType == null) {
             return Optional.empty();
         }
@@ -262,12 +284,6 @@ public class CommonUtil {
         TypeSymbol rawType = getRawType(bType);
         TypeDescKind typeKind = rawType.typeKind();
         switch (typeKind) {
-            case FLOAT:
-                typeString = Float.toString(0);
-                break;
-            case BOOLEAN:
-                typeString = Boolean.toString(false);
-                break;
             case TUPLE:
                 TupleTypeSymbol tupleType = (TupleTypeSymbol) rawType;
                 String memberTypes = tupleType.memberTypeDescriptors().stream()
@@ -279,7 +295,7 @@ public class CommonUtil {
                 // Filler value of an array is []
                 ArrayTypeSymbol arrayType = (ArrayTypeSymbol) rawType;
                 if (arrayType.memberTypeDescriptor().typeKind() == TypeDescKind.ARRAY) {
-                    typeString = "[" + getDefaultValueForType(arrayType.memberTypeDescriptor(), depth + 1).orElse("") 
+                    typeString = "[" + getDefaultValueForType(arrayType.memberTypeDescriptor(), depth + 1).orElse("")
                             + "]";
                 } else {
                     typeString = "[]";
@@ -298,9 +314,6 @@ public class CommonUtil {
                                 getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1).orElse(""))
                         .collect(Collectors.joining(", "));
                 typeString += "}";
-                break;
-            case MAP:
-                typeString = "{}";
                 break;
             case OBJECT:
                 if (depth > MAX_DEPTH) {
@@ -373,29 +386,60 @@ public class CommonUtil {
                 errorString.append(")");
                 typeString = errorString.toString();
                 break;
+            case MAP:
+            case FLOAT:
+            case BOOLEAN:
             case STREAM:
-                typeString = "new ()";
+            case XML:
+            case DECIMAL:
+            default:
+                return getDefaultValueForTypeDescKind(typeKind);
+        }
+        
+        return Optional.of(typeString);
+    }
+
+    /**
+     * Used to get the default values for a {@link TypeDescKind}. {@link #getDefaultValueForType(TypeSymbol)}
+     * is preferred over this function. This function should be used as a compliment to .
+     *
+     * @param typeKind Type desc kind
+     * @return Optional default value
+     * @see #getDefaultValueForType(TypeSymbol)
+     */
+    public static Optional<String> getDefaultValueForTypeDescKind(TypeDescKind typeKind) {
+        String defaultValue = null;
+        switch (typeKind) {
+            case FLOAT:
+                defaultValue = Float.toString(0);
+                break;
+            case BOOLEAN:
+                defaultValue = Boolean.toString(false);
+                break;
+            case MAP:
+                defaultValue = "{}";
+                break;
+            case STREAM:
+                defaultValue = "new ()";
                 break;
             case XML:
-                typeString = "xml ``";
+                defaultValue = "xml ``";
                 break;
             case DECIMAL:
-                typeString = Integer.toString(0);
+                defaultValue = Integer.toString(0);
                 break;
             default:
                 if (typeKind.isIntegerType()) {
-                    typeString = Integer.toString(0);
+                    defaultValue = Integer.toString(0);
                     break;
                 }
 
                 if (typeKind.isStringType()) {
-                    typeString = "\"\"";
+                    defaultValue = "\"\"";
                     break;
                 }
-
-                return Optional.empty();
         }
-        return Optional.ofNullable(typeString);
+        return Optional.ofNullable(defaultValue);
     }
 
     /**
@@ -1074,6 +1118,51 @@ public class CommonUtil {
     }
 
     /**
+     * Check if the provided path should be readonly. Paths residing in ballerina home and home repo are considered as
+     * such.
+     *
+     * @param filePath Path to be checked
+     * @return True if the provided path should be readonly
+     */
+    public static boolean isWriteProtectedPath(Path filePath) {
+        Path homeReposPath = RepoUtils.createAndGetHomeReposPath();
+        Path ballerinaHome = CommonUtil.BALLERINA_HOME != null ? Paths.get(CommonUtil.BALLERINA_HOME) : null;
+
+        return filePath.startsWith(homeReposPath) || ballerinaHome != null && filePath.startsWith(ballerinaHome);
+    }
+
+    /**
+     * Check and convert the URI scheme of the provided fileUri from bala (if it's bala) to file.
+     *
+     * @param fileUri URI to be converted.
+     * @return URI with file scheme
+     * @throws URISyntaxException URI parsing errors
+     */
+    public static String convertUriSchemeFromBala(String fileUri) throws URISyntaxException {
+        URI uri = new URI(fileUri);
+        if (URI_SCHEME_BALA.equals(uri.getScheme())) {
+            URI converted = new URI(URI_SCHEME_FILE, uri.getUserInfo(), uri.getHost(), uri.getPort(),
+                    uri.getPath(), uri.getQuery(), uri.getFragment());
+            return converted.toString();
+        }
+        return fileUri;
+    }
+
+    /**
+     * Get the URI with bala scheme for provided path.
+     *
+     * @param filePath File path
+     * @return URI with bala scheme
+     * @throws URISyntaxException URI creation errors
+     */
+    public static String getBalaUriForPath(Path filePath) throws URISyntaxException {
+        URI uri = filePath.toUri();
+        uri = new URI(URI_SCHEME_BALA, uri.getUserInfo(), uri.getHost(), uri.getPort(),
+                uri.getPath(), uri.getQuery(), uri.getFragment());
+        return uri.toString();
+    }
+
+    /**
      * Find node of this range.
      *
      * @param range      {@link Range}
@@ -1096,16 +1185,17 @@ public class CommonUtil {
      * @param syntaxTree {@link SyntaxTree}
      * @return {@link NonTerminalNode}
      */
-    public static NonTerminalNode findNode(Symbol symbol, SyntaxTree syntaxTree) {
+    public static Optional<NonTerminalNode> findNode(Symbol symbol, SyntaxTree syntaxTree) {
         if (symbol.getLocation().isEmpty()) {
-            return null;
+            return Optional.empty();
         }
 
         TextDocument textDocument = syntaxTree.textDocument();
         LineRange symbolRange = symbol.getLocation().get().lineRange();
         int start = textDocument.textPositionFrom(symbolRange.startLine());
         int end = textDocument.textPositionFrom(symbolRange.endLine());
-        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, end - start), true);
+        return Optional.ofNullable(((ModulePartNode) syntaxTree.rootNode())
+                .findNode(TextRange.from(start, end - start), true));
     }
 
     public static boolean isWithinLineRange(Position pos, LineRange lineRange) {
@@ -1340,18 +1430,72 @@ public class CommonUtil {
     public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
                                                                            PositionedOperationContext ctx,
                                                                            FunctionCallExpressionNode node) {
-        int cursorPosition = ctx.getCursorPositionInTree();
-        int argIndex = -1;
-        for (Node child : node.arguments()) {
-            if (child.textRange().endOffset() < cursorPosition) {
-                argIndex += 1;
-            }
-        }
-        Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
-        if (params.isEmpty() || params.get().size() < argIndex + 2) {
+        return resolveParameterSymbol(functionTypeSymbol, ctx, node.arguments());
+    }
+
+    /**
+     * Given the cursor position information, returns the expected ParameterSymbol
+     * information corresponding to the FunctionTypeSymbol instance.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
+     * @param node               Remote method call action node.
+     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     */
+    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                           PositionedOperationContext ctx,
+                                                                           RemoteMethodCallActionNode node) {
+        return resolveParameterSymbol(functionTypeSymbol, ctx, node.arguments());
+    }
+
+    /**
+     * Given the cursor position information, returns the expected ParameterSymbol
+     * information corresponding to the FunctionTypeSymbol instance.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
+     * @param node               Method call expression node.
+     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     */
+    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                           PositionedOperationContext ctx,
+                                                                           MethodCallExpressionNode node) {
+        return resolveParameterSymbol(functionTypeSymbol, ctx, node.arguments());
+    }
+
+    /**
+     * Given the cursor position information, returns the expected ParameterSymbol
+     * information corresponding to the FunctionTypeSymbol instance.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
+     * @param node               Implicit new expression node.
+     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     */
+    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                           PositionedOperationContext ctx,
+                                                                           ImplicitNewExpressionNode node) {
+        Optional<ParenthesizedArgList> args = node.parenthesizedArgList();
+        if (args.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(params.get().get(argIndex + 1));
+        return resolveParameterSymbol(functionTypeSymbol, ctx, args.get().arguments());
+    }
+
+    /**
+     * Given the cursor position information, returns the expected ParameterSymbol
+     * information corresponding to the FunctionTypeSymbol instance.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
+     * @param node               Explicit new expression node.
+     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     */
+    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                           PositionedOperationContext ctx,
+                                                                           ExplicitNewExpressionNode node) {
+        ParenthesizedArgList args = node.parenthesizedArgList();
+        return resolveParameterSymbol(functionTypeSymbol, ctx, args.arguments());
     }
 
     /**
@@ -1363,11 +1507,60 @@ public class CommonUtil {
      */
     public static Boolean isInFunctionCallParameterContext(PositionedOperationContext ctx,
                                                            FunctionCallExpressionNode node) {
-        int cursorPosition = ctx.getCursorPositionInTree();
-        return (!node.openParenToken().isMissing())
-                && (node.openParenToken().textRange().endOffset() <= cursorPosition)
-                && (!node.closeParenToken().isMissing())
-                && (cursorPosition <= node.closeParenToken().textRange().startOffset());
+        return isWithinParenthesis(ctx, node.openParenToken(), node.closeParenToken());
+    }
+
+    /**
+     * Check if the cursor is positioned in a method call expression parameter context.
+     *
+     * @param ctx  PositionedOperationContext
+     * @param node MethodCallExpressionNode
+     * @return {@link Boolean} whether the cursor is in parameter context.
+     */
+    public static Boolean isInMethodCallParameterContext(PositionedOperationContext ctx,
+                                                         MethodCallExpressionNode node) {
+        return isWithinParenthesis(ctx, node.openParenToken(), node.closeParenToken());
+    }
+
+    /**
+     * Check if the cursor is positioned in a method call expression parameter context.
+     *
+     * @param ctx  PositionedOperationContext
+     * @param node RemoteMethodCallActionNode
+     * @return {@link Boolean} whether the cursor is in parameter context.
+     */
+    public static Boolean isInMethodCallParameterContext(PositionedOperationContext ctx,
+                                                         RemoteMethodCallActionNode node) {
+        return isWithinParenthesis(ctx, node.openParenToken(), node.closeParenToken());
+    }
+
+    /**
+     * Check if the cursor is positioned in a method call expression parameter context.
+     *
+     * @param ctx  PositionedOperationContext
+     * @param node RemoteMethodCallActionNode
+     * @return {@link Boolean} whether the cursor is in parameter context.
+     */
+    public static Boolean isInNewExpressionParameterContext(PositionedOperationContext ctx,
+                                                            ImplicitNewExpressionNode node) {
+        Optional<ParenthesizedArgList> argList = node.parenthesizedArgList();
+        if (argList.isEmpty()) {
+            return false;
+        }
+        return isWithinParenthesis(ctx, argList.get().openParenToken(), argList.get().closeParenToken());
+    }
+
+    /**
+     * Check if the cursor is positioned in a method call expression parameter context.
+     *
+     * @param ctx  PositionedOperationContext
+     * @param node RemoteMethodCallActionNode
+     * @return {@link Boolean} whether the cursor is in parameter context.
+     */
+    public static Boolean isInNewExpressionParameterContext(PositionedOperationContext ctx,
+                                                            ExplicitNewExpressionNode node) {
+        ParenthesizedArgList argList = node.parenthesizedArgList();
+        return isWithinParenthesis(ctx, argList.openParenToken(), argList.closeParenToken());
     }
 
     /**
@@ -1454,5 +1647,169 @@ public class CommonUtil {
                 symbol.kind() == SymbolKind.CLASS || symbol.kind() == SymbolKind.ENUM
                 || symbol.kind() == SymbolKind.ENUM_MEMBER || symbol.kind() == SymbolKind.CONSTANT)
                 && !Names.ERROR.getValue().equals(symbol.getName().orElse(""));
+    }
+
+    /**
+     * Provided a set of arguments and parameters, returns the list of argument names that has been already defined.
+     *
+     * @param context          Completion context.
+     * @param params           List of expected parameter symbols.
+     * @param argumentNodeList Argument list.
+     * @return {@link List<String>} already defined argument names.
+     */
+    public static List<String> getDefinedArgumentNames(BallerinaCompletionContext context,
+                                                       List<ParameterSymbol> params,
+                                                       SeparatedNodeList<FunctionArgumentNode> argumentNodeList) {
+        List<String> existingArgNames = new ArrayList<>();
+        int cursorPosition = context.getCursorPositionInTree();
+        int index = 1;
+        for (Node child : argumentNodeList) {
+            TextRange textRange = child.textRange();
+            int startOffset = textRange.startOffset();
+            int endOffset = textRange.endOffset();
+            if ((startOffset > cursorPosition || endOffset < cursorPosition)) {
+                if (child.kind() == SyntaxKind.NAMED_ARG) {
+                    existingArgNames.add(((NamedArgumentNode) child).argumentName().name().text());
+                } else if (child.kind() == SyntaxKind.POSITIONAL_ARG && index - 1 < params.size()) {
+                    ParameterSymbol parameterSymbol = params.get(index - 1);
+                    existingArgNames.add(parameterSymbol.getName().orElse(""));
+                }
+            }
+            index++;
+        }
+        return existingArgNames;
+    }
+
+    /**
+     * Provided a node, returns the list of possible qualifiers of that node.
+     *
+     * @param node node.
+     * @return {@link List<Token>} qualifiers list.
+     */
+    public static List<Token> getQualifiersOfNode(BallerinaCompletionContext context, Node node) {
+        List<Token> qualifiers = new ArrayList<>();
+        switch (node.kind()) {
+            case FUNCTION_TYPE_DESC:
+                ((FunctionTypeDescriptorNode) node).qualifierList().stream().forEach(qualifiers::add);
+                break;
+            case OBJECT_TYPE_DESC:
+                ((ObjectTypeDescriptorNode) node).objectTypeQualifiers().stream().forEach(qualifiers::add);
+                break;
+            case OBJECT_FIELD:
+                ObjectFieldNode objectFieldNode = (ObjectFieldNode) node;
+                objectFieldNode.visibilityQualifier().ifPresent(qualifiers::add);
+                objectFieldNode.qualifierList().stream().forEach(qualifiers::add);
+                break;
+            case MODULE_VAR_DECL:
+                ModuleVariableDeclarationNode moduleVar = (ModuleVariableDeclarationNode) node;
+                Optional<Token> visibilityQualifier = moduleVar.visibilityQualifier();
+                visibilityQualifier.ifPresent(qualifiers::add);
+                moduleVar.qualifiers().forEach(qualifiers::add);
+                Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
+                getQualifiersAtCursor(context).stream()
+                        .filter(qual -> !qualKinds.contains(qual.kind())).forEach(qualifiers::add);
+
+                //Add leading invalid tokens of type binding pattern if there are no visible qualifiers.
+                if (qualifiers.isEmpty()) {
+                    moduleVar.typedBindingPattern().leadingInvalidTokens().stream()
+                            .filter(token -> QUALIFIER_KINDS.contains(token.kind())).forEach(qualifiers::add);
+                }
+                break;
+            case MODULE_PART:
+                List<Token> qualsAtCursor = getQualifiersAtCursor(context);
+                Set<SyntaxKind> foundQuals = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
+                context.getNodeAtCursor().leadingInvalidTokens().stream()
+                        .filter(token -> QUALIFIER_KINDS.contains(token.kind())
+                                && !foundQuals.contains(token.kind())).forEach(qualifiers::add);
+                qualifiers.addAll(qualsAtCursor);
+                return qualifiers;
+            default:
+        }
+        //Qualifiers are identified as invalid tokens by the parser in some cases.
+        Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
+        node.leadingInvalidTokens().stream()
+                .filter(token -> QUALIFIER_KINDS.contains(token.kind())
+                        && !qualKinds.contains(token.kind())).forEach(qualifiers::add);
+        return qualifiers;
+    }
+
+    /**
+     * Get the qualifiers of the module part context node.
+     *
+     * @param context completion context.
+     * @return {@link List<Token> } the list of qualifiers.
+     */
+    public static List<Token> getQualifiersAtCursor(BallerinaCompletionContext context) {
+        List<Token> qualifiers = new ArrayList<>();
+        Token tokenAtCursor = context.getTokenAtCursor();
+        if (CommonUtil.QUALIFIER_KINDS.contains(tokenAtCursor.kind())) {
+            qualifiers.add(tokenAtCursor);
+            return qualifiers;
+        }
+        List<Minutiae> tokensFromMinutiae = new ArrayList<>();
+        context.getTokenAtCursor().leadingMinutiae().forEach(minutiae -> {
+            if (minutiae.kind() != SyntaxKind.WHITESPACE_MINUTIAE
+                    && minutiae.kind() != SyntaxKind.END_OF_LINE_MINUTIAE) {
+                tokensFromMinutiae.add(minutiae);
+            }
+        });
+        if (tokensFromMinutiae.isEmpty()) {
+            return qualifiers;
+        }
+        Minutiae tokenValueAtCursor = tokensFromMinutiae.get(tokensFromMinutiae.size() - 1);
+        tokenValueAtCursor.invalidTokenMinutiaeNode().ifPresent(invalidTokenMinutiaeNode -> {
+            Token token = invalidTokenMinutiaeNode.invalidToken();
+            if (CommonUtil.QUALIFIER_KINDS.contains(token.kind())) {
+                qualifiers.add(token);
+            }
+        });
+        return qualifiers;
+    }
+
+    private static boolean isWithinParenthesis(PositionedOperationContext ctx, Token openParen, Token closedParen) {
+        int cursorPosition = ctx.getCursorPositionInTree();
+        return (!openParen.isMissing())
+                && (openParen.textRange().endOffset() <= cursorPosition)
+                && (!closedParen.isMissing())
+                && (cursorPosition <= closedParen.textRange().startOffset());
+    }
+
+    private static Optional<ParameterSymbol> resolveParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                    PositionedOperationContext ctx,
+                                                                    SeparatedNodeList<FunctionArgumentNode> arguments) {
+        int cursorPosition = ctx.getCursorPositionInTree();
+        int argIndex = -1;
+        for (Node child : arguments) {
+            if (child.textRange().endOffset() < cursorPosition) {
+                argIndex += 1;
+            }
+        }
+        Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
+        if (params.isEmpty() || params.get().size() < argIndex + 2) {
+            return Optional.empty();
+        }
+        return Optional.of(params.get().get(argIndex + 1));
+    }
+
+    /**
+     * Check if the cursor is positioned in call expression context so that named arg
+     * completions can be suggested.
+     *
+     * @param context          completion context.
+     * @param argumentNodeList argument node list.
+     * @return {@link Boolean} whether the cursor is positioned so that the named arguments can  be suggested.
+     */
+    public static boolean isValidNamedArgContext(BallerinaCompletionContext context,
+                                                 SeparatedNodeList<FunctionArgumentNode> argumentNodeList) {
+        int cursorPosition = context.getCursorPositionInTree();
+        for (Node child : argumentNodeList) {
+            TextRange textRange = child.textRange();
+            int startOffset = textRange.startOffset();
+            if (startOffset > cursorPosition
+                    && child.kind() == SyntaxKind.POSITIONAL_ARG || child.kind() == SyntaxKind.REST_ARG) {
+                return false;
+            }
+        }
+        return true;
     }
 }
