@@ -940,9 +940,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         boolean hasLastPatternInClause = false;
 
         List<BLangMatchPattern> matchPatterns = matchClause.matchPatterns;
+        BLangMatchGuard matchGuard = matchClause.matchGuard;
         for (int i = 0; i < matchPatterns.size(); i++) {
             BLangMatchPattern matchPattern = matchPatterns.get(i);
-            if (this.hasLastPatternInStatement || (hasLastPatternInClause && matchClause.matchGuard == null)) {
+            if (this.hasLastPatternInStatement || (hasLastPatternInClause && matchGuard == null)) {
                 dlog.warning(matchPattern.pos, DiagnosticWarningCode.MATCH_STMT_PATTERN_UNREACHABLE);
             }
             if (matchPattern.getBType() == symTable.noType) {
@@ -960,13 +961,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             hasLastPatternInClause = hasLastPatternInClause || matchPattern.isLastPattern;
         }
 
+        if (matchGuard != null) {
+            analyzeNode(matchGuard, env);
+        }
+
         if (!patternListContainsSameVars) {
             dlog.error(matchClause.pos, DiagnosticErrorCode.MATCH_PATTERNS_SHOULD_CONTAIN_SAME_SET_OF_VARIABLES);
         }
 
         analyzeNode(matchClause.blockStmt, env);
         this.hasLastPatternInStatement =
-                    this.hasLastPatternInStatement || (matchClause.matchGuard == null && hasLastPatternInClause);
+                    this.hasLastPatternInStatement || (matchGuard == null && hasLastPatternInClause);
     }
 
     @Override
@@ -976,6 +981,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFieldMatchPattern fieldMatchPattern) {
 
+    }
+
+    @Override
+    public void visit(BLangMatchGuard matchGuard) {
+        analyzeExpr(matchGuard.expr, env);
     }
 
     private void checkSimilarMatchPatternsBetweenClauses(BLangMatchClause firstClause, BLangMatchClause secondClause) {
