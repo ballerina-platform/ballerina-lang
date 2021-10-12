@@ -34,7 +34,6 @@ dependencies {
 description = 'JBallerina - Spec Conformance Test Module'
 
 test {
-//    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "enableJBallerinaSpecConformanceTests", "true"
 
     useTestNG() {

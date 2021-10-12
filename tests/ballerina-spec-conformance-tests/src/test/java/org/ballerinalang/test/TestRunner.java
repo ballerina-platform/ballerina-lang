@@ -20,7 +20,6 @@ import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -28,7 +27,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,9 +34,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import static org.ballerinalang.test.TestRunnerUtils.RESOURCE_DIR;
-import static org.ballerinalang.test.TestRunnerUtils.TEMP_DIR;
-import static org.ballerinalang.test.TestRunnerUtils.deleteDirectory;
+import static org.ballerinalang.test.ReportGenerator.generateReport;
+import static org.ballerinalang.test.TestRunnerUtils.BALT_EXTENSION;
+import static org.ballerinalang.test.TestRunnerUtils.TEST_DIR;
 import static org.ballerinalang.test.TestRunnerUtils.getAllLabels;
 import static org.ballerinalang.test.TestRunnerUtils.handleTestSkip;
 import static org.ballerinalang.test.TestRunnerUtils.setDetails;
@@ -53,14 +51,8 @@ import static org.ballerinalang.test.TestRunnerUtils.validateTestOutput;
  */
 public class TestRunner {
 
-    private final Path ballerinaLangDir = Paths.get("").toAbsolutePath().getParent().getParent();
-    private final Path testDir = ballerinaLangDir.resolve("tests").resolve("ballerina-spec-conformance-tests");
-
-    @BeforeClass
-    public void cleanDir(ITestContext context) {
-        context.setAttribute("ReportGenerator", new ReportGenerator());
-        TestRunnerUtils.deleteFilesWithinDirectory(new File(ReportGenerator.REPORT_DIR.toString()));
-    }
+    private final Path path = TEST_DIR.resolve("src").resolve("test").resolve("resources")
+                                     .resolve("ballerina-spec-tests").resolve("conformance");
 
     @Test(dataProvider = "spec-conformance-tests-file-provider")
     public void test(String kind, String path, List<String> outputValues, List<Integer> lineNumbers, String fileName,
@@ -74,15 +66,12 @@ public class TestRunner {
 
     @AfterMethod
     public void resultsOfTests(ITestContext context, ITestResult result) {
-        ReportGenerator reportGenerator = (ReportGenerator) context.getAttribute("ReportGenerator");
-        setDetails(context, result, reportGenerator);
+        setDetails(context, result);
     }
 
     @AfterClass
     public void generateReports(ITestContext context) throws IOException {
-        deleteDirectory(testDir + "/" + RESOURCE_DIR + TEMP_DIR);
-        ReportGenerator reportGenerator = (ReportGenerator) context.getAttribute("ReportGenerator");
-        reportGenerator.generateReport();
+        generateReport();
     }
 
     private HashSet<String> runSelectedTests(HashMap<String, HashSet<String>> definedLabels) {
@@ -101,15 +90,13 @@ public class TestRunner {
 
     @DataProvider(name = "spec-conformance-tests-file-provider")
     public Iterator<Object[]> dataProvider() {
-        HashMap<String, HashSet<String>> definedLabels = TestRunnerUtils.readLabels(testDir.toString());
+        HashMap<String, HashSet<String>> definedLabels = TestRunnerUtils.readLabels(TEST_DIR.toString());
         Set<String> labels = runSelectedTests(definedLabels);
         List<Object[]> testCases = new ArrayList<>();
         try {
-            Files.walk(testDir.resolve("src").resolve("test").resolve("resources").resolve("ballerina-spec-tests")
-                    .resolve("conformance"))
-                    .filter(path -> {
+            Files.walk(path).filter(path -> {
                         File file = path.toFile();
-                        return file.isFile() && file.getName().endsWith(".balt");
+                        return file.isFile() && file.getName().endsWith(BALT_EXTENSION);
                     })
                     .map(path -> new Object[]{path.toFile().getName(), path.toString()})
                     .forEach(object -> {

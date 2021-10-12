@@ -27,6 +27,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,6 +42,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.ballerinalang.test.ReportGenerator.addDetailsOfErrorKindTests;
+import static org.ballerinalang.test.ReportGenerator.addDetailsOfFailedTests;
+import static org.ballerinalang.test.ReportGenerator.addDetailsOfSkippedTests;
+
 /**
  * Test util class for all spec conformance test cases.
  *
@@ -47,7 +53,7 @@ import java.util.regex.Pattern;
  */
 public class TestRunnerUtils {
 
-    private static final String START_TEST_CASE = "Test-Case";
+    private static final String TEST_CASE = "Test-Case";
     private static final String DESCRIPTION = "Description";
     private static final String FAIL_ISSUE = "Fail-Issue";
     private static final String LABELS = "Labels";
@@ -61,6 +67,7 @@ public class TestRunnerUtils {
     public static final String UNDERSCORE = "_";
     private static final String NEW_LINE_CHARACTER = "\n";
     private static final String BAL_EXTENSION = ".bal";
+    public static final String BALT_EXTENSION = ".balt";
     public static final String RESOURCE_DIR = "src/test/resources/";
     public static final String TEMP_DIR = "test-src/";
     private static final String IMPORT_BALLERINAI = "import ballerinai/io;";
@@ -72,6 +79,9 @@ public class TestRunnerUtils {
     public static final String EXPECTED_VALUE = "expected-value";
     public static final String ACTUAL_LINE_NUM = "actual-line-num";
     public static final String EXPECTED_LINE_NUM = "expected-line-num";
+    public static final Path BALLERINA_LANG_DIR = Paths.get("").toAbsolutePath().getParent().getParent();
+    public static final Path TEST_DIR = BALLERINA_LANG_DIR.resolve("tests").resolve("ballerina-spec-conformance-tests");
+    public static final Path BUILD_DIR = TEST_DIR.resolve("build");
     private static int absLineNum;
     public static String diagnostics = null;
 
@@ -81,30 +91,31 @@ public class TestRunnerUtils {
         subPath = subPath.substring(0, subPath.lastIndexOf("/") + 1);
 
         File testFile = new File(path);
-        String tempDir = RESOURCE_DIR + TEMP_DIR + subPath;
+        String tempDir = BUILD_DIR + "/" + TEMP_DIR + subPath;
         File tempFile = new File(tempDir);
         if (!tempFile.isDirectory() && !new File(tempDir).mkdirs()) {
             reportDiagnostics("Failed to create directory!");
         }
-        readTestFile(testFile, subPath, fileName, testCases, labels);
+        readTestFile(testFile, tempDir, fileName, testCases, labels);
     }
 
-    private static void readTestFile(File testFile, String path, String fileName, List<Object[]>  testCases,
+    private static void readTestFile(File testFile, String tempDir, String fileName, List<Object[]>  testCases,
                                      Set<String> selectedLabels) throws IOException {
-        String tempDir = RESOURCE_DIR + TEMP_DIR + path;
         BufferedReader buffReader = new BufferedReader(new FileReader(testFile));
+        //line number relative to .balt file
         absLineNum = 1;
         String line = buffReader.readLine();
         while (line != null) {
             String tempFileName = fileName.substring(0, fileName.indexOf(".")) + UNDERSCORE + absLineNum;
 
-            Map<String, String> headersOfTestCase = readHeadersOfTest(line, buffReader);
-            String kindOfTestCase = getKindOfTest(headersOfTestCase.get(START_TEST_CASE));
+            Map<String, String> headersOfTestCase = readHeaders(line, buffReader);
+            String kindOfTestCase = validateKindOfTest(headersOfTestCase.get(TEST_CASE));
+            //TODO: if kind of testcase is other, then need to skip creating the bal file
             boolean isSkippedTestCase = isSkippedTestCase(selectedLabels, headersOfTestCase.get(LABELS));
 
             Object[] testCase = new Object[9];
             testCase[0] = kindOfTestCase;
-            testCase[1] = TEMP_DIR + path + tempFileName + BAL_EXTENSION;
+            testCase[1] = tempDir + tempFileName + BAL_EXTENSION;
             testCase[4] = fileName;
             testCase[5] = absLineNum;
             testCase[6] = isSkippedTestCase;
@@ -126,9 +137,10 @@ public class TestRunnerUtils {
             tempFileWriter.write(IMPORT_BALLERINAI + NEW_LINE_CHARACTER);
         }
         String line = buffReader.readLine();
+        //Line number relative to .bal file
         int relativeLineNum = 1;
         while (line != null) {
-            if (line.startsWith(START_TEST_CASE)) {
+            if (line.startsWith(TEST_CASE)) {
                 break;
             }
             line = getExpectedValues(kindOfTestCase, line, relativeLineNum, lineNumbers, outputValues);
@@ -165,23 +177,30 @@ public class TestRunnerUtils {
         return line;
     }
 
-    private static String getKindOfTest(String kind) {
+    private static String validateKindOfTest(String kind) {
         if (kind == null) {
-            reportDiagnostics("Testcase kind is not defined");
+            reportDiagnostics("Test case kind is not defined");
+            return OTHER;
         }
-        if (kind.equals(OUTPUT) || kind.equals(ERROR) || kind.equals(PANIC) || kind.equals(PARSER_ERROR)) {
-            return kind;
+        switch (kind) {
+            case OUTPUT:
+            case ERROR:
+            case PANIC:
+            case PARSER_ERROR:
+                return kind;
+            default:
+                reportDiagnostics(String.format("Incorrect test kind, expected testcase kind to be %s, %s, %s or %s",
+                                  OUTPUT, PANIC, ERROR, PARSER_ERROR));
+                return OTHER;
+
         }
-        reportDiagnostics(String.format("Incorrect test kind, expected testcase kind to be %s, %s, %s or %s",
-                                        OUTPUT, PANIC, ERROR, PARSER_ERROR));
-        return OTHER;
     }
 
-    private static Map<String, String> readHeadersOfTest(String line, BufferedReader buffReader) throws IOException {
-        ArrayList<String> requiredHeaders = new ArrayList<>(Arrays.asList(START_TEST_CASE, DESCRIPTION, LABELS));
+    private static Map<String, String> readHeaders(String line, BufferedReader buffReader) throws IOException {
+        ArrayList<String> requiredHeaders = new ArrayList<>(Arrays.asList(TEST_CASE, DESCRIPTION, LABELS));
         Map<String, String> headers = new HashMap<>();
         Pattern pattern = Pattern.compile(String.format("\\s*^(%s|%s|%s|%s)\\s*:\\s*(.*)",
-                                                        START_TEST_CASE, DESCRIPTION, FAIL_ISSUE, LABELS));
+                TEST_CASE, DESCRIPTION, FAIL_ISSUE, LABELS));
         String key = null;
         String value = null;
         while (line != null) {
@@ -230,6 +249,7 @@ public class TestRunnerUtils {
             File file = new File(testDir + "/" + RESOURCE_DIR + "labels.csv");
             FileReader fr = new FileReader(file);
             BufferedReader br = new BufferedReader(fr);
+            //read and skip the headings of the labels.csv file
             String line = br.readLine();
             String[] tempArr;
             HashMap<String, HashSet<String>> labels = new HashMap<>();
@@ -473,8 +493,7 @@ public class TestRunnerUtils {
         return testDetails;
     }
 
-    public static void setDetailsOfErrorKindTests(ITestContext context, ReportGenerator reportGenerator,
-                                                  Map<String, String> detailsOfTest) {
+    public static void setDetailsOfErrorKindTests(ITestContext context, Map<String, String> detailsOfTest) {
         Map<String, Object> detailsOfErrorKindTests = getDetailsOfErrorKindTests(context);
 
         boolean haveOnlyNulls = detailsOfErrorKindTests.values().stream().allMatch(Objects::isNull);;
@@ -508,11 +527,11 @@ public class TestRunnerUtils {
                 results.put(EXPECTED_VALUE, expOutput);
                 results.put(ACTUAL_LINE_NUM, String.valueOf(actualLineNum));
                 results.put(EXPECTED_LINE_NUM, expLineNum);
-                reportGenerator.addDetailsOfErrorKindTests(results);
+                addDetailsOfErrorKindTests(results);
             }
 
             for (int i = diagnostics.size(); i < outputValues.size(); i++) {
-                Map<String, String> results = new HashMap<>();
+                Map<String, String> results = new HashMap<>(8);
                 results.put(FILENAME, detailsOfTest.get(FILENAME));
                 results.put(KIND, detailsOfTest.get(KIND));
                 results.put(ABS_LINE_NUM, detailsOfTest.get(ABS_LINE_NUM));
@@ -521,59 +540,30 @@ public class TestRunnerUtils {
                 results.put(EXPECTED_VALUE, outputValues.get(i));
                 results.put(ACTUAL_LINE_NUM, null);
                 results.put(EXPECTED_LINE_NUM, String.valueOf(lineNumbers.get(i)));
-                reportGenerator.addDetailsOfErrorKindTests(results);
+                addDetailsOfErrorKindTests(results);
             }
         } else {
-            reportGenerator.addDetailsOfErrorKindTests(detailsOfTest);
+            addDetailsOfErrorKindTests(detailsOfTest);
         }
     }
 
-    public static void setDetails(ITestContext context, ITestResult result, ReportGenerator reportGenerator) {
+    public static void setDetails(ITestContext context, ITestResult result) {
         Map<String, String> testDetails = getDetailsOfTest(context, result);
         if (result.getStatus() != ITestResult.SKIP && testDetails.get(KIND).equals(ERROR)
                                                    && testDetails.get(FORMAT_ERRORS) == null) {
-            setDetailsOfErrorKindTests(context, reportGenerator, testDetails);
+            setDetailsOfErrorKindTests(context, testDetails);
         }
         switch (result.getStatus()) {
             case ITestResult.SUCCESS:
                 break;
             case ITestResult.FAILURE:
-                reportGenerator.addDetailsOfFailedTests(testDetails);
+                addDetailsOfFailedTests(testDetails);
                 break;
             case ITestResult.SKIP:
-                reportGenerator.addDetailsOfSkippedTests(testDetails);
+                addDetailsOfSkippedTests(testDetails);
                 break;
             default:
                 throw new RuntimeException("Invalid status");
         }
-    }
-
-    public static void deleteFilesWithinDirectory(File directory) {
-        File[] files = directory.listFiles();
-        if (files == null) {
-            return;
-        }
-        for (File file : files) {
-            if (!file.isDirectory()) {
-                file.delete();
-            }
-        }
-    }
-
-    public static boolean deleteDirectory(String directoryPath) {
-        File directory = new File(directoryPath);
-        if (directory.isDirectory()) {
-            File[] files = directory.listFiles();
-            if (files != null) {
-                for (File f : files) {
-                    boolean success = deleteDirectory(f.toPath().toString());
-                    if (!success) {
-                        return false;
-                    }
-                }
-            }
-
-        }
-        return directory.delete();
     }
 }

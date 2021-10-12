@@ -21,7 +21,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,64 +30,71 @@ import java.util.Set;
 import static org.ballerinalang.test.TestRunnerUtils.ABS_LINE_NUM;
 import static org.ballerinalang.test.TestRunnerUtils.ACTUAL_LINE_NUM;
 import static org.ballerinalang.test.TestRunnerUtils.ACTUAL_VALUE;
+import static org.ballerinalang.test.TestRunnerUtils.BUILD_DIR;
 import static org.ballerinalang.test.TestRunnerUtils.EXPECTED_LINE_NUM;
 import static org.ballerinalang.test.TestRunnerUtils.EXPECTED_VALUE;
 import static org.ballerinalang.test.TestRunnerUtils.FILENAME;
 import static org.ballerinalang.test.TestRunnerUtils.KIND;
+import static org.ballerinalang.test.TestRunnerUtils.TEST_DIR;
 
 /**
- * Report generator for generate reports relate spec conformance tests.
+ * Report generator for spec conformance tests.
  *
  * @since 2.0.0
  */
 public class ReportGenerator {
 
-    private static final Path BALLERINA_LANG_DIR = Paths.get("").toAbsolutePath().getParent().getParent();
-    private static final Path TEST_DIR = BALLERINA_LANG_DIR.resolve("tests")
-                                                           .resolve("ballerina-spec-conformance-tests");
-    public static final Path REPORT_DIR = TEST_DIR.resolve("build").resolve("reports");
+    public static final Path REPORT_DIR = BUILD_DIR.resolve("reports");
     private static final String HTML_EXTENSION = ".html";
     public static final String ERROR_KIND_TESTS_REPORT = "error_kind_tests_report_template.html";
     public static final String SKIPPED_TESTS_REPORT = "skipped_tests_report_template.html";
     public static final String FAILED_TESTS_REPORT = "failed_tests_report_template.html";
     private static final String START_TABLE_ROW = "<tr class=\"active-row\">";
     private static final String END_TABLE_ROW  = "</tr>";
-    private List<Map<String, String>> detailsOfFailedTests;
-    private List<Map<String, String>> detailsOfSkippedTests;
-    private Map<String, List<Map<String, String>>> detailsOfErrorKindTests;
+    private static List<Map<String, String>> detailsOfFailedTests = new ArrayList<>();
+    private static List<Map<String, String>> detailsOfSkippedTests = new ArrayList<>();
+    private static Map<String, List<Map<String, String>>> detailsOfErrorKindTests = new LinkedHashMap<>();
 
-    public ReportGenerator() {
-        this.detailsOfFailedTests = new ArrayList<>();
-        this.detailsOfSkippedTests = new ArrayList<>();
-        this.detailsOfErrorKindTests = new LinkedHashMap<>();
-    }
-
-    public void addDetailsOfSkippedTests(Map<String, String> detailsOfTests) {
+    public static void addDetailsOfSkippedTests(Map<String, String> detailsOfTests) {
         detailsOfSkippedTests.add(detailsOfTests);
     }
 
-    public void addDetailsOfFailedTests(Map<String, String> detailsOfTests) {
+    public static void addDetailsOfFailedTests(Map<String, String> detailsOfTests) {
         detailsOfFailedTests.add(detailsOfTests);
     }
 
-    public void addDetailsOfErrorKindTests(Map<String, String> detailsOfTest) {
+    public static void addDetailsOfErrorKindTests(Map<String, String> detailsOfTest) {
         String fileName = detailsOfTest.get(FILENAME);
         if (detailsOfErrorKindTests.containsKey(fileName)) {
-            detailsOfErrorKindTests.get(fileName).add(detailsOfTest);
-        } else {
-            List<Map<String, String>> details = new ArrayList<>();
+            List<Map<String, String>> details = detailsOfErrorKindTests.get(fileName);
             details.add(detailsOfTest);
-            detailsOfErrorKindTests.put(fileName, details);
+            return;
         }
+        List<Map<String, String>> details = new ArrayList<>() {{ add(detailsOfTest); }};
+        detailsOfErrorKindTests.put(fileName, details);
     }
 
-    public void generateReport() throws IOException {
-        generateFailedTestsReports();
-        generateErrorVerificationTestReports();
-        generateSkippedTestReports();
+    private static String reportTemplate(String templateFileName) throws IOException {
+        String pathOfTemplate = TEST_DIR + "/src/test/resources/report/" + templateFileName;
+        StringBuilder content = new StringBuilder();
+        File templateFile = new File(pathOfTemplate);
+        BufferedReader reader = new BufferedReader(new FileReader(templateFile));
+        String line = reader.readLine();
+        while (line != null) {
+            content.append(line).append(System.lineSeparator());
+            line = reader.readLine();
+        }
+        reader.close();
+        return content.toString();
     }
 
-    private void generateFailedTestsReports() throws IOException {
+    public static void generateReport() throws IOException {
+        generateFailedTestsReports(reportTemplate(FAILED_TESTS_REPORT));
+        generateErrorVerificationTestReports(reportTemplate(ERROR_KIND_TESTS_REPORT));
+        generateSkippedTestReports(reportTemplate(SKIPPED_TESTS_REPORT));
+    }
+
+    private static void generateFailedTestsReports(String template) throws IOException {
         if (detailsOfFailedTests.isEmpty()) {
             return;
         }
@@ -104,10 +110,10 @@ public class ReportGenerator {
                                       test.get(EXPECTED_VALUE)));
             }
         }
-        generateReport(ReportGenerator.FAILED_TESTS_REPORT, "failed_tests_summary", detailsOfTests);
+        generateReport(template, "failed_tests_summary", detailsOfTests);
     }
 
-    private void generateErrorVerificationTestReports() throws IOException {
+    private static void generateErrorVerificationTestReports(String template) throws IOException {
         if (detailsOfErrorKindTests.isEmpty()) {
             return;
         }
@@ -119,12 +125,12 @@ public class ReportGenerator {
                 detailsOfTests.append(generateErrorDetails(test.get(ACTUAL_LINE_NUM), test.get(EXPECTED_LINE_NUM),
                                                            test.get(ACTUAL_VALUE), test.get(EXPECTED_VALUE)));
             }
-            generateReport(ReportGenerator.ERROR_KIND_TESTS_REPORT, file.substring(0, file.indexOf(".")),
+            generateReport(template, file.substring(0, file.indexOf(".")),
                                                                                    detailsOfTests);
         }
     }
 
-    private void generateSkippedTestReports() throws IOException {
+    private static void generateSkippedTestReports(String template) throws IOException {
         if (detailsOfSkippedTests.isEmpty()) {
             return;
         }
@@ -133,31 +139,21 @@ public class ReportGenerator {
             detailsOfTests.append(generateSkippedTestsDetails(test.get(FILENAME), test.get(KIND),
                                   test.get(ABS_LINE_NUM)));
         }
-        generateReport(ReportGenerator.SKIPPED_TESTS_REPORT, "skipped_tests_summary", detailsOfTests);
+        generateReport(template, "skipped_tests_summary", detailsOfTests);
     }
 
-    private void generateReport(String templateFileName, String filename, StringBuilder results) throws IOException {
-        String pathOfTemplate = TEST_DIR + "/src/test/resources/report/" + templateFileName;
+    private static void generateReport(String template, String filename, StringBuilder results)
+                                       throws IOException {
         File file = new File(REPORT_DIR + "/" + filename + HTML_EXTENSION);
-
-        StringBuilder content = new StringBuilder();
-        File templateFile = new File(pathOfTemplate);
-        BufferedReader reader = new BufferedReader(new FileReader(templateFile));
-        String line = reader.readLine();
-        while (line != null) {
-            content.append(line).append(System.lineSeparator());
-            line = reader.readLine();
-        }
-        String newContent = content.toString().replaceAll("<td></td>", results.toString()).replaceAll("FileName",
-                                                                                                            filename);
+        String newContent = template.replaceAll("<td></td>", results.toString()).replaceAll("FileName", filename);
         FileWriter tempFileWriter = new FileWriter(file);
         tempFileWriter.write(newContent);
-        reader.close();
         tempFileWriter.close();
     }
 
-    private String generateFailedTestsDetails(String fileName, String testKind, String actualLineNum,
-                                              String expectedLineNum, String actualOutput, String expectedOutput) {
+    private static String generateFailedTestsDetails(String fileName, String testKind, String actualLineNum,
+                                                     String expectedLineNum, String actualOutput,
+                                                     String expectedOutput) {
         String tableRow = START_TABLE_ROW;
         tableRow  = tableRow + String.format("<td>%s</td>", fileName);
         tableRow  = tableRow + String.format("<td>%s</td>", testKind);
@@ -170,8 +166,8 @@ public class ReportGenerator {
         return tableRow;
     }
 
-    static String generateErrorDetails(String actualLineNum, String expectedLineNum, String actualErrorMsg,
-                                       String errorDesc) {
+    private static String generateErrorDetails(String actualLineNum, String expectedLineNum, String actualErrorMsg,
+                                               String errorDesc) {
         String tableRow = START_TABLE_ROW;
         tableRow  = tableRow + String.format("<td>%s</td>", expectedLineNum);
         tableRow  = tableRow + String.format("<td>%s</td>", actualLineNum);
@@ -182,7 +178,7 @@ public class ReportGenerator {
         return tableRow;
     }
 
-    static String generateSkippedTestsDetails(String fileName, String testKind, String lineNum) {
+    private static String generateSkippedTestsDetails(String fileName, String testKind, String lineNum) {
         String tableRow = START_TABLE_ROW;
         tableRow  = tableRow + String.format("<td>%s</td>", fileName);
         tableRow  = tableRow + String.format("<td>%s</td>", testKind);
