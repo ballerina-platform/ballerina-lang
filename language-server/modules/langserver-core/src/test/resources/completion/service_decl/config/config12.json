@@ -525,6 +525,14 @@
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "test",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "H",
+      "insertText": "test",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
