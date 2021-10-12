@@ -620,9 +620,7 @@ public class Types {
             case TypeTags.STRING:
                 return true;
             case TypeTags.CHAR_STRING:
-                if (type.tag == TypeTags.CHAR_STRING) {
-                    return true;
-                }
+                return type.tag == TypeTags.CHAR_STRING;
             default:
                 return false;
         }
@@ -2273,7 +2271,7 @@ public class Types {
                     TypeTags.isStringTypeTag(targetTypeTag) ||
                     targetTypeTag == TypeTags.BOOLEAN;
 
-        } else if(isValueType(targetType) && actualType.tag == TypeTags.UNION &&
+        } else if (isValueType(targetType) && actualType.tag == TypeTags.UNION &&
                 ((BUnionType) actualType).getMemberTypes().stream().allMatch(type -> isAssignable(type, targetType))) {
             return true;
 
