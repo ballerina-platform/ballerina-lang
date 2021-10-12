@@ -285,12 +285,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (classNode.symbol != null) {
             return;
         }
-        defineNode(classNode, env);
-        populateDistinctTypeIdsFromIncludedTypeReferences(classNode);
-        defineFieldsOfClassDef(classNode, env);
-        defineFunctionsOfClassDef(env, classNode);
-        setReadOnlynessOfClassDef(classNode, env);
-        defineReadOnlyIncludedFieldsAndMethods(classNode, env);
+//        defineNode(classNode, env);
+//        populateDistinctTypeIdsFromIncludedTypeReferences(classNode);
+//        defineFieldsOfClassDef(classNode, env);
+//        defineFunctionsOfClassDef(env, classNode);
+//        setReadOnlynessOfClassDef(classNode, env);
+//        defineReadOnlyIncludedFieldsAndMethods(classNode, env);
     }
 
     public void defineNode(BLangNode node, SymbolEnv env) {
@@ -1178,9 +1178,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            if (typeDef.getKind() == CLASS_DEFN && ((BLangClassDefinition) typeDef).isObjectContructorDecl) {
-                continue;
-            }
+//            if (typeDef.getKind() == CLASS_DEFN && ((BLangClassDefinition) typeDef).isObjectContructorDecl) {
+//                continue;
+//            }
             defineNode(typeDef, env);
         }
 
@@ -4121,9 +4121,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             BLangNode typeDefOrClass = typeDefNodes.get(i);
             if (typeDefOrClass.getKind() == NodeKind.CLASS_DEFN) {
                 BLangClassDefinition classDef = (BLangClassDefinition) typeDefOrClass;
-                if (classDef.isObjectContructorDecl) {
-                    continue;
-                }
+//                if (classDef.isObjectContructorDecl) {
+//                    continue;
+//                }
                 setReadOnlynessOfClassDef((BLangClassDefinition) typeDefOrClass, pkgEnv);
                 continue;
             } else if (typeDefOrClass.getKind() != NodeKind.TYPE_DEFINITION) {
