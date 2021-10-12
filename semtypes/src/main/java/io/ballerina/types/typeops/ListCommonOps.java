@@ -22,11 +22,11 @@ import io.ballerina.types.Bdd;
 import io.ballerina.types.BddMemo;
 import io.ballerina.types.Common;
 import io.ballerina.types.Conjunction;
+import io.ballerina.types.Context;
 import io.ballerina.types.Core;
 import io.ballerina.types.ListAtomicType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.TypeCheckContext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,13 +40,13 @@ import static io.ballerina.types.PredefinedType.TOP;
  * @since 3.0.0
  */
 public class ListCommonOps {
-    static boolean listSubtypeIsEmpty(TypeCheckContext tc, SubtypeData t) {
+    static boolean listSubtypeIsEmpty(Context cx, SubtypeData t) {
         Bdd b = (Bdd) t;
-        BddMemo mm = tc.listMemo.get(b);
+        BddMemo mm = cx.listMemo.get(b);
         BddMemo m;
         if (mm == null) {
             m = BddMemo.from(b);
-            tc.listMemo.put(m.bdd, m);
+            cx.listMemo.put(m.bdd, m);
         } else {
             m = mm;
             BddMemo.MemoStatus res = m.isEmpty;
@@ -58,12 +58,12 @@ public class ListCommonOps {
                 return res == BddMemo.MemoStatus.TRUE;
             }
         }
-        boolean isEmpty = Common.bddEvery(tc, b, null, null, ListCommonOps::listFormulaIsEmpty);
+        boolean isEmpty = Common.bddEvery(cx, b, null, null, ListCommonOps::listFormulaIsEmpty);
         m.setIsEmpty(isEmpty);
         return isEmpty;
     }
 
-    static boolean listFormulaIsEmpty(TypeCheckContext tc, Conjunction pos, Conjunction neg) {
+    static boolean listFormulaIsEmpty(Context cx, Conjunction pos, Conjunction neg) {
         List<SemType> members;
         SemType rest;
         if (pos == null) {
@@ -71,7 +71,7 @@ public class ListCommonOps {
             rest = TOP;
         } else {
             // combine all the positive tuples using intersection
-            ListAtomicType lt = tc.listAtomType(pos.atom);
+            ListAtomicType lt = cx.listAtomType(pos.atom);
             members = Arrays.asList(lt.members);
             rest = lt.rest;
             Conjunction p = pos.next;
@@ -87,7 +87,7 @@ public class ListCommonOps {
                 } else {
                     Atom d = p.atom;
                     p = p.next;
-                    lt = tc.listAtomType(d);
+                    lt = cx.listAtomType(d);
                     int newLen = Integer.max(members.size(), lt.members.length);
                     if (members.size() < newLen) {
                         if (Core.isNever(rest)) {
@@ -112,12 +112,12 @@ public class ListCommonOps {
                 }
             }
             for (var m : members) {
-                if (Core.isEmpty(tc, m)) {
+                if (Core.isEmpty(cx, m)) {
                     return true;
                 }
             }
         }
-        return !listInhabited(tc, members, rest, neg);
+        return !listInhabited(cx, members, rest, neg);
     }
 
     // This function returns true if there is a list shape v such that
@@ -127,23 +127,23 @@ public class ListCommonOps {
 // Precondition is that each of `members` is not empty.
 // This is formula Phi' in section 7.3.1 of Alain Frisch's PhD thesis,
 // generalized to tuples of arbitrary length.
-    static boolean listInhabited(TypeCheckContext tc, List<SemType> members, SemType rest, Conjunction neg) {
+    static boolean listInhabited(Context cx, List<SemType> members, SemType rest, Conjunction neg) {
         if (neg == null) {
             return true;
         } else {
             int len = members.size();
-            ListAtomicType nt = tc.listAtomType(neg.atom);
+            ListAtomicType nt = cx.listAtomType(neg.atom);
             int negLen = nt.members.length;
             if (len < negLen) {
                 if (Core.isNever(rest)) {
-                    return listInhabited(tc, members, rest, neg.next);
+                    return listInhabited(cx, members, rest, neg.next);
                 }
                 for (int i = len; i < negLen; i++) {
                     members.add(rest);
                 }
                 len = negLen;
             } else if (negLen < len && Core.isNever(nt.rest)) {
-                return listInhabited(tc, members, rest, neg.next);
+                return listInhabited(cx, members, rest, neg.next);
             }
             // now we have nt.members.length() <= len
 
@@ -156,7 +156,7 @@ public class ListCommonOps {
             // We must then find a [v0,v1] satisfying the remaining negated tuples,
             // such that v0 is in d0.
             // SemType d0 = diff(s[0], t[0]);
-            // if (!isEmpty(tc, d0) && tupleInhabited(tc, [d0, s[1]], neg.rest)) {
+            // if (!isEmpty(cx, d0) && tupleInhabited(cx, [d0, s[1]], neg.rest)) {
             //     return true;
             // }
             // Case (2)
@@ -164,20 +164,20 @@ public class ListCommonOps {
             // We must then find a [v0,v1] satisfying the remaining negated tuples,
             // such that v1 is in d1.
             // SemType d1 = diff(s[1], t[1]);
-            // return !isEmpty(tc, d1) &&  tupleInhabited(tc, [s[0], d1], neg.rest);
+            // return !isEmpty(cx, d1) &&  tupleInhabited(cx, [s[0], d1], neg.rest);
             // We can generalize this to tuples of arbitrary length.
             for (int i = 0; i < len; i++) {
                 SemType ntm = i < negLen ? nt.members[i] : nt.rest;
                 SemType d = Core.diff(members.get(i), ntm);
-                if (!Core.isEmpty(tc, d)) {
+                if (!Core.isEmpty(cx, d)) {
                     List<SemType> s = Common.shallowCopyTypes(members);
                     s.set(i, d);
-                    if (listInhabited(tc, s, rest, neg.next)) {
+                    if (listInhabited(cx, s, rest, neg.next)) {
                         return true;
                     }
                 }
             }
-            if (!Core.isEmpty(tc, Core.diff(rest, nt.rest))) {
+            if (!Core.isEmpty(cx, Core.diff(rest, nt.rest))) {
                 return true;
             }
             // This is correct for length 0, because we know that the length of the

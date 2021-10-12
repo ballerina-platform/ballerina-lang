@@ -204,15 +204,15 @@ public class Core {
         return ComplexSemType.createComplexSemType(all.bitset, subtypes);
     }
 
-    public static SemType roDiff(TypeCheckContext tc, SemType t1, SemType t2) {
-        return maybeRoDiff(t1, t2, tc);
+    public static SemType roDiff(Context cx, SemType t1, SemType t2) {
+        return maybeRoDiff(t1, t2, cx);
     }
 
     public static SemType diff(SemType t1, SemType t2) {
         return maybeRoDiff(t1, t2, null);
     }
 
-    public static SemType maybeRoDiff(SemType t1, SemType t2, TypeCheckContext tc) {
+    public static SemType maybeRoDiff(SemType t1, SemType t2, Context cx) {
         UniformTypeBitSet all1;
         UniformTypeBitSet all2;
         UniformTypeBitSet some1;
@@ -261,7 +261,7 @@ public class Core {
             SubtypeData data2 = pair.subtypeData2;
 
             SubtypeData data;
-            if (tc == null || code.code < UniformTypeCode.UT_COUNT_RO) {
+            if (cx == null || code.code < UniformTypeCode.UT_COUNT_RO) {
                 // normal diff or read-only uniform type
                 if (data1 == null) {
                     data = OpsTable.OPS[code.code].complement(data2);
@@ -279,7 +279,7 @@ public class Core {
                     // data was none
                     data = data1;
                 } else {
-                    if (OpsTable.OPS[code.code].isEmpty(tc, OpsTable.OPS[code.code].diff(data1, data2))) {
+                    if (OpsTable.OPS[code.code].isEmpty(cx, OpsTable.OPS[code.code].diff(data1, data2))) {
                         data = AllOrNothingSubtype.createNothing();
                     } else {
                         data = data1;
@@ -307,7 +307,7 @@ public class Core {
         return (t instanceof UniformTypeBitSet) && (((UniformTypeBitSet) t).bitset == 0);
     }
 
-    public static boolean isEmpty(TypeCheckContext tc, SemType t) {
+    public static boolean isEmpty(Context cx, SemType t) {
         if (t instanceof UniformTypeBitSet) {
             return (((UniformTypeBitSet) t).bitset == 0);
         } else {
@@ -317,7 +317,7 @@ public class Core {
                 return false;
             }
             for (var st : unpackComplexSemType(ct)) {
-                if (!OpsTable.OPS[st.uniformTypeCode.code].isEmpty(tc, st.subtypeData)) {
+                if (!OpsTable.OPS[st.uniformTypeCode.code].isEmpty(cx, st.subtypeData)) {
                     return false;
                 }
             }
@@ -325,8 +325,8 @@ public class Core {
         }
     }
 
-    public static boolean isSubtype(TypeCheckContext tc, SemType t1, SemType t2) {
-        return isEmpty(tc, diff(t1, t2));
+    public static boolean isSubtype(Context cx, SemType t1, SemType t2) {
+        return isEmpty(cx, diff(t1, t2));
     }
 
     public static boolean isSubtypeSimple(SemType t1, UniformTypeBitSet t2) {
@@ -606,8 +606,8 @@ public class Core {
         }
     }
 
-    public static TypeCheckContext typeCheckContext(Env env) {
-        return TypeCheckContext.from(env);
+    public static Context typeCheckContext(Env env) {
+        return Context.from(env);
     }
 
     public static SemType createJson(Env env) {
