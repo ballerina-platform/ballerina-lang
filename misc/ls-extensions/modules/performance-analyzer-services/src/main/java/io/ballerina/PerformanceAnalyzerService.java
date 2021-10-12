@@ -34,6 +34,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -49,6 +50,7 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
     static final String ERROR = "error";
     static final String SUCCESS = "Success";
     static final String CONNECTION_ERROR = "CONNECTION_ERROR";
+    private static HashMap<JsonObject, JsonObject> cachedResponses = new HashMap<>();
 
     private WorkspaceManager workspaceManager;
 
@@ -88,21 +90,28 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
             if (data == null) {
                 return null;
             }
-            JsonObject graphData = getDataFromChoreo(data, AnalyzeType.ADVANCED,
-                    request.getChoreoToken(), request.getChoreoCookie());
 
-            if (graphData == null) {
-                return null;
-            }
+            JsonObject graphData;
+            if (cachedResponses.get(data) != null) {
+                graphData = cachedResponses.get(data);
+            } else {
+                graphData = getDataFromChoreo(data, AnalyzeType.ADVANCED,
+                        request.getChoreoToken(), request.getChoreoCookie());
 
-            JsonObject realTimeData = getDataFromChoreo(data, AnalyzeType.REALTIME,
-                    request.getChoreoToken(), request.getChoreoCookie());
+                if (graphData == null) {
+                    return null;
+                }
 
-            graphData.add("realtimeData", realTimeData);
+                JsonObject realTimeData = getDataFromChoreo(data, AnalyzeType.REALTIME,
+                        request.getChoreoToken(), request.getChoreoCookie());
 
-            if (graphData.get("type") == null) {
-                graphData.addProperty("type", SUCCESS);
-                graphData.addProperty("message", SUCCESS);
+                graphData.add("realtimeData", realTimeData);
+
+                if (graphData.get("type") == null) {
+                    graphData.addProperty("type", SUCCESS);
+                    graphData.addProperty("message", SUCCESS);
+                    cachedResponses.put(data, graphData);
+                }
             }
 
             return graphData;
@@ -156,14 +165,17 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
             HttpResponse<String> response = client.send(request,
                     HttpResponse.BodyHandlers.ofString());
 
+            data.remove("analyzeType");
             return gson.fromJson(response.body(), JsonObject.class);
         } catch (IOException e) {
             // No connection
+            data.remove("analyzeType");
             JsonObject obj = new JsonObject();
             obj.addProperty("type", ERROR);
             obj.addProperty("message", CONNECTION_ERROR);
             return obj;
         } catch (InterruptedException | URISyntaxException e) {
+            data.remove("analyzeType");
             JsonObject obj = new JsonObject();
             obj.addProperty("type", ERROR);
             obj.addProperty("message", e.getMessage());
