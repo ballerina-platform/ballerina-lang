@@ -1,44 +1,40 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  *
  */
- 
+
 apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 dependencies {
+    implementation project(':ballerina-core')
     implementation project(':ballerina-io-internal')
-
-    testImplementation project(':ballerina-core')
-    testImplementation project(':ballerina-lang')
-    testImplementation project(':ballerina-lang:annotations')
-    testImplementation project(':testerina:testerina-core')
-
-    testCompile'org.testng:testng'
-    testCompile 'com.h2database:h2'
-    testCompile 'org.slf4j:slf4j-api'
+    implementation 'org.slf4j:slf4j-api'
+    implementation 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
+    testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-
     distributionBala project(path: ':ballerina-io-internal', configuration: 'distributionBala')
 }
 
-description = 'Ballerina - Spec Conformance Tests'
+description = 'JBallerina - Spec Conformance Test Module'
 
 test {
-    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
+    systemProperty "enableJBallerinaSpecConformanceTests", "true"
 
     useTestNG() {
         suites 'src/test/resources/testng.xml'
@@ -47,10 +43,27 @@ test {
     afterSuite { suite, result ->
         result.exception?.printStackTrace()
     }
+
+    testLogging {
+        // this will only change --warn flag behaviour
+        warn {
+            events = ["failed", "skipped"]
+            exceptionFormat "full"
+        }
+    }
 }
 
+exec { commandLine 'git', 'submodule', 'update', '--init', '--recursive' }
+exec { commandLine 'git', 'submodule', 'update', '--recursive', '--remote' }
+
 configurations {
-    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testImplementation.exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
-    testImplementation.exclude group: 'org.codehaus.woodstox', module: 'stax2-api'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    testCompile.exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
+    testCompile.exclude group: 'org.codehaus.woodstox', module: 'stax2-api'
+}
+
+configurations.all {
+    resolutionStrategy.preferProjectModules()
 }
