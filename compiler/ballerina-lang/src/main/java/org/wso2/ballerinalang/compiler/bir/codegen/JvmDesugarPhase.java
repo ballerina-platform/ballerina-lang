@@ -257,7 +257,7 @@ public class JvmDesugarPhase {
         return encodedVsInitialIds;
     }
 
-    static void encodePackageIdentifiers(PackageID packageID, HashMap<String, String> encodedVsInitialIds) {
+    private static void encodePackageIdentifiers(PackageID packageID, HashMap<String, String> encodedVsInitialIds) {
         packageID.orgName = Names.fromString(encodeNonFunctionIdentifier(packageID.orgName.value,
                                                                          encodedVsInitialIds));
         packageID.name = Names.fromString(encodeNonFunctionIdentifier(packageID.name.value, encodedVsInitialIds));
@@ -350,7 +350,7 @@ public class JvmDesugarPhase {
         replaceEncodedTypeDefIdentifiers(module.typeDefs, encodedVsInitialIds);
     }
 
-    static void replaceEncodedPackageIdentifiers(PackageID packageID, HashMap<String, String> encodedVsInitialIds) {
+    private static void replaceEncodedPackageIdentifiers(PackageID packageID, HashMap<String, String> encodedVsInitialIds) {
         packageID.orgName = getInitialIdString(packageID.orgName, encodedVsInitialIds);
         packageID.name = getInitialIdString(packageID.name, encodedVsInitialIds);
     }
