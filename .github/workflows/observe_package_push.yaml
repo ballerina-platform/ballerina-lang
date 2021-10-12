@@ -29,8 +29,8 @@ jobs:
         run: |
           BAL_PROJECT=observelib/observe/src/main/ballerina
           if [ ! -f "${BAL_PROJECT}/Package.md" ]; then
-              echo "Package.md does not exist. Renaming Module.md as Package.md"
-              mv ${BAL_PROJECT}/Module.md ${BAL_PROJECT}/Package.md
+              echo "Package.md does not exist. Copying Module.md as Package.md"
+              cp ${BAL_PROJECT}/Module.md ${BAL_PROJECT}/Package.md
           fi
 
           ./gradlew build -x check -x test
