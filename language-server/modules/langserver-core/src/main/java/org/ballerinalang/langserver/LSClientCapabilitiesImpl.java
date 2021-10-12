@@ -18,9 +18,12 @@ package org.ballerinalang.langserver;
 import org.ballerinalang.langserver.commons.capability.ExperimentalClientCapabilities;
 import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.ballerinalang.langserver.commons.registration.BallerinaClientCapability;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.WorkspaceClientCapabilities;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.langserver.Experimental.INTROSPECTION;
@@ -36,6 +39,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
     private final InitializationOptions initializationOptions;
     private final WorkspaceClientCapabilities workspaceCapabilities;
     private final TextDocumentClientCapabilities textDocCapabilities;
+    private final List<BallerinaClientCapability> ballerinaClientCapabilities;
 
     LSClientCapabilitiesImpl(TextDocumentClientCapabilities textDocCapabilities,
                              WorkspaceClientCapabilities workspaceCapabilities,
@@ -52,6 +56,8 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         this.initializationOptions = initializationOptionsMap != null ?
                 parseInitializationOptions(initializationOptionsMap) : new InitializationOptionsImpl();
+        
+        this.ballerinaClientCapabilities = new ArrayList<>();
     }
 
     /**
@@ -87,6 +93,19 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
     @Override
     public TextDocumentClientCapabilities getTextDocCapabilities() {
         return textDocCapabilities;
+    }
+
+    @Override
+    public void setBallerinaClientCapabilities(List<BallerinaClientCapability> capabilities) {
+        if (!this.ballerinaClientCapabilities.isEmpty()) {
+            throw new IllegalStateException("Cannot populate an already populated capability list");
+        }
+        this.ballerinaClientCapabilities.addAll(capabilities);
+    }
+
+    @Override
+    public List<BallerinaClientCapability> getBallerinaClientCapabilities() {
+        return this.ballerinaClientCapabilities;
     }
 
     private ExperimentalClientCapabilities parseCapabilities(Map<String, Object> experimentalCapabilities) {
