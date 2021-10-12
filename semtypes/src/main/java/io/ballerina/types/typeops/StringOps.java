@@ -59,7 +59,7 @@ public class StringOps implements UniformTypeOps {
     @Override
     public SubtypeData intersect(SubtypeData d1, SubtypeData d2) {
         if (d1 instanceof AllOrNothingSubtype) {
-            return ((AllOrNothingSubtype) d1).isAllSubtype()? d2 : AllOrNothingSubtype.createNothing();
+            return ((AllOrNothingSubtype) d1).isAllSubtype() ? d2 : AllOrNothingSubtype.createNothing();
         }
         if (d2 instanceof AllOrNothingSubtype) {
             return ((AllOrNothingSubtype) d2).isAllSubtype() ? d1 : AllOrNothingSubtype.createNothing();
@@ -89,8 +89,7 @@ public class StringOps implements UniformTypeOps {
         if (st.getChar().values.length == 0 && st.getNonChar().values.length == 0) {
             if (st.getChar().allowed && st.getNonChar().allowed) {
                 return AllOrNothingSubtype.createAll();
-            }
-        else if (!st.getChar().allowed && !st.getNonChar().allowed) {
+            } else if (!st.getChar().allowed && !st.getNonChar().allowed) {
                 return AllOrNothingSubtype.createNothing();
             }
         }
