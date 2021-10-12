@@ -530,7 +530,7 @@
       "label": "test",
       "kind": "Field",
       "detail": "int",
-      "sortText": "H",
+      "sortText": "AF",
       "insertText": "test",
       "insertTextFormat": "Snippet"
     }
