@@ -18,15 +18,18 @@
 package io.ballerina.types.typeops;
 
 import io.ballerina.types.Common;
+import io.ballerina.types.EnumerableCharString;
 import io.ballerina.types.EnumerableString;
 import io.ballerina.types.EnumerableSubtype;
 import io.ballerina.types.SubtypeData;
 import io.ballerina.types.TypeCheckContext;
 import io.ballerina.types.UniformTypeOps;
+import io.ballerina.types.subtypedata.AllOrNothingSubtype;
+import io.ballerina.types.subtypedata.CharStringSubtype;
+import io.ballerina.types.subtypedata.NonCharStringSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Uniform subtype ops for string type.
@@ -36,17 +39,43 @@ import java.util.List;
 public class StringOps implements UniformTypeOps {
     @Override
     public SubtypeData union(SubtypeData d1, SubtypeData d2) {
-        List<EnumerableString> values = new ArrayList<>();
-        boolean allowed = EnumerableSubtype.enumerableSubtypeUnion((StringSubtype) d1, (StringSubtype) d2, values);
-        EnumerableString[] valueArray = new EnumerableString[values.size()];
-        return StringSubtype.createStringSubtype(allowed, values.toArray(valueArray));
+        //List<EnumerableString> values = new ArrayList<>();
+        //boolean allowed = EnumerableSubtype.enumerableSubtypeUnion((StringSubtype) d1, (StringSubtype) d2, values);
+        //EnumerableString[] valueArray = new EnumerableString[values.size()];
+        //return StringSubtype.createStringSubtype(allowed, values.toArray(valueArray));
+        StringSubtype sd1 = (StringSubtype) d1;
+        StringSubtype sd2 = (StringSubtype) d2;
+        ArrayList<EnumerableCharString> chars = new ArrayList<>();
+        ArrayList<EnumerableString> nonChars = new ArrayList<>();
+        boolean charsAllowed = EnumerableSubtype.enumerableSubtypeUnion(sd1.getChar(), sd2.getChar(), chars);
+        boolean nonCharsAllowed = EnumerableSubtype.enumerableSubtypeUnion(sd1.getNonChar(),
+                sd2.getNonChar(), nonChars);
+
+        return StringSubtype.createStringSubtype(CharStringSubtype.from(charsAllowed,
+                        chars.toArray(new EnumerableCharString[]{})),
+                NonCharStringSubtype.from(nonCharsAllowed, nonChars.toArray(new EnumerableString[]{})));
     }
 
     @Override
     public SubtypeData intersect(SubtypeData d1, SubtypeData d2) {
-        List<EnumerableString> values = new ArrayList<>();
-        boolean allowed = EnumerableSubtype.enumerableSubtypeIntersect((StringSubtype) d1, (StringSubtype) d2, values);
-        return StringSubtype.createStringSubtype(allowed, values.toArray(new EnumerableString[]{}));
+        if (d1 instanceof AllOrNothingSubtype) {
+            return ((AllOrNothingSubtype) d1).isAllSubtype()? d2 : AllOrNothingSubtype.createNothing();
+        }
+        if (d2 instanceof AllOrNothingSubtype) {
+            return ((AllOrNothingSubtype) d2).isAllSubtype() ? d1 : AllOrNothingSubtype.createNothing();
+        }
+
+        StringSubtype sd1 = (StringSubtype) d1;
+        StringSubtype sd2 = (StringSubtype) d2;
+        ArrayList<EnumerableCharString> chars = new ArrayList<>();
+        ArrayList<EnumerableString> nonChars = new ArrayList<>();
+        boolean charsAllowed = EnumerableSubtype.enumerableSubtypeUnion(sd1.getChar(), sd2.getChar(), chars);
+        boolean nonCharsAllowed = EnumerableSubtype.enumerableSubtypeUnion(sd1.getNonChar(),
+                sd2.getNonChar(), nonChars);
+
+        return StringSubtype.createStringSubtype(CharStringSubtype.from(charsAllowed,
+                        chars.toArray(new EnumerableCharString[]{})),
+                NonCharStringSubtype.from(nonCharsAllowed, nonChars.toArray(new EnumerableString[]{})));
     }
 
     @Override
@@ -56,8 +85,18 @@ public class StringOps implements UniformTypeOps {
 
     @Override
     public SubtypeData complement(SubtypeData d) {
-        StringSubtype s = (StringSubtype) d;
-        return StringSubtype.createStringSubtype(!s.allowed, (EnumerableString[]) s.values);
+        StringSubtype st = (StringSubtype) d;
+        if (st.getChar().values.length == 0 && st.getNonChar().values.length == 0) {
+            if (st.getChar().allowed && st.getNonChar().allowed) {
+                return AllOrNothingSubtype.createAll();
+            }
+        else if (!st.getChar().allowed && !st.getNonChar().allowed) {
+                return AllOrNothingSubtype.createNothing();
+            }
+        }
+
+        return StringSubtype.createStringSubtype(CharStringSubtype.from(!st.getChar().allowed, st.getChar().values),
+                NonCharStringSubtype.from(!st.getNonChar().allowed, st.getNonChar().values));
     }
 
     @Override
