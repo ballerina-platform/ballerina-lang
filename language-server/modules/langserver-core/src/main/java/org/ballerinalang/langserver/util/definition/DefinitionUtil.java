@@ -34,10 +34,12 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
+import org.ballerinalang.langserver.exception.UserErrorException;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -108,7 +110,18 @@ public class DefinitionUtil {
             return Optional.empty();
         }
 
-        String uri = filepath.get().toUri().toString();
+        String fileUri;
+        // Check if file resides in a protected dir 
+        if (CommonUtil.isWriteProtectedPath(filepath.get())) {
+            try {
+                fileUri = CommonUtil.getBalaUriForPath(filepath.get());
+            } catch (URISyntaxException e) {
+                throw new UserErrorException("Unable create definition file URI");
+            }
+        } else {
+            fileUri = filepath.get().toUri().toString();
+        }
+
         io.ballerina.tools.diagnostics.Location symbolLocation = symbol.getLocation().get();
         LinePosition startLine = symbolLocation.lineRange().startLine();
         LinePosition endLine = symbolLocation.lineRange().endLine();
@@ -116,7 +129,7 @@ public class DefinitionUtil {
         Position end = new Position(endLine.line(), endLine.offset());
         Range range = new Range(start, end);
 
-        return Optional.of(new Location(uri, range));
+        return Optional.of(new Location(fileUri, range));
     }
 
     private static Optional<Path> getFilePathForDependency(String orgName, String moduleName,

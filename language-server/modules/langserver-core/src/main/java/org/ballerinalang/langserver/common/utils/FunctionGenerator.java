@@ -92,6 +92,39 @@ public class FunctionGenerator {
     }
 
     /**
+     * Generate a function once function name, arguments and return type descriptor kind is provided.
+     *
+     * @param context            Document service context
+     * @param newLineAtStart     Whether to add a new line at the beginning
+     * @param functionName       Name of the function
+     * @param args               Function parameters
+     * @param returnTypeDescKind {@link TypeDescKind} of the return type
+     * @return Created function
+     * @see #generateFunction(DocumentServiceContext, boolean, String, List, TypeSymbol)
+     */
+    public static String generateFunction(DocumentServiceContext context, boolean newLineAtStart, String functionName,
+                                          List<String> args, TypeDescKind returnTypeDescKind) {
+        String returnType = null;
+        if (returnTypeDescKind != TypeDescKind.COMPILATION_ERROR) {
+            returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeDescKind.getName());
+        }
+
+        String returnsClause = "";
+        String returnStmt = "";
+        if (returnType != null) {
+            // returns clause
+            returnsClause = "returns " + returnType;
+            // return statement
+            Optional<String> defaultReturnValue = CommonUtil.getDefaultValueForTypeDescKind(returnTypeDescKind);
+            if (defaultReturnValue.isPresent()) {
+                returnStmt = "return " + defaultReturnValue.get() + CommonKeys.SEMI_COLON_SYMBOL_KEY;
+            }
+        }
+
+        return generateFunction(functionName, args, returnsClause, returnStmt, newLineAtStart);
+    }
+
+    /**
      * Generates a function with the provided parameters.
      *
      * @param context          Document service context
@@ -103,23 +136,41 @@ public class FunctionGenerator {
      */
     public static String generateFunction(DocumentServiceContext context, boolean newLineAtStart, String functionName,
                                           List<String> args, TypeSymbol returnTypeSymbol) {
-        Optional<String> returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeSymbol);
-
-        // padding
-        int padding = 4;
-        String paddingStr = StringUtils.repeat(" ", padding);
+        String returnType = null;
+        if (returnTypeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
+            returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeSymbol.signature());
+        }
 
         String returnsClause = "";
         String returnStmt = "";
-        if (returnType.isPresent()) {
+        if (returnType != null) {
             // returns clause
-            returnsClause = "returns " + returnType.get();
+            returnsClause = "returns " + returnType;
             // return statement
             Optional<String> defaultReturnValue = CommonUtil.getDefaultValueForType(returnTypeSymbol);
             if (defaultReturnValue.isPresent()) {
-                    returnStmt = "return " + defaultReturnValue.get() + CommonKeys.SEMI_COLON_SYMBOL_KEY;
+                returnStmt = "return " + defaultReturnValue.get() + CommonKeys.SEMI_COLON_SYMBOL_KEY;
             }
         }
+
+        return generateFunction(functionName, args, returnsClause, returnStmt, newLineAtStart);
+    }
+
+    /**
+     * Generate a function provided the function name, args, return clause and return statement.
+     *
+     * @param functionName   Function name
+     * @param args           Function parameters
+     * @param returnsClause  Returns clause
+     * @param returnStmt     Return statement
+     * @param newLineAtStart Whether to add a new line at the start of the function
+     * @return Created function
+     */
+    private static String generateFunction(String functionName, List<String> args, String returnsClause,
+                                           String returnStmt, boolean newLineAtStart) {
+        // padding
+        int padding = 4;
+        String paddingStr = StringUtils.repeat(" ", padding);
 
         // body
         String body;
@@ -155,22 +206,15 @@ public class FunctionGenerator {
     }
 
     /**
-     * Converts the provided type to a string which is to be used as the return type (ex: in a function definition).
-     * Uses the signature ({@link TypeSymbol#signature()}) of the type symbol to derive the return type string.
+     * Converts the provided type signature which is to be used as the return type (ex: in a function definition).
      *
-     * @param context    Context
-     * @param typeSymbol Type symbol to be converted to a string
+     * @param context   Context
+     * @param signature Signature of the return type symbol to be converted to a string
      * @return Return type as string
      */
-    public static Optional<String> getReturnTypeAsString(DocumentServiceContext context, TypeSymbol typeSymbol) {
-        String typeName = null;
-        // Unknown types are treated as no return type
-        if (typeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
-            ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
-            typeName = processModuleIDsInText(importsAcceptor, typeSymbol.signature(), context);
-        }
-
-        return Optional.ofNullable(typeName);
+    public static String getReturnTypeAsString(DocumentServiceContext context, String signature) {
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+        return processModuleIDsInText(importsAcceptor, signature, context);
     }
 
     /**

@@ -6,24 +6,6 @@
   "source": "class_def/source/source3.bal",
   "items": [
     {
-      "label": "private",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "private",
-      "insertText": "private ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "public",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "public",
-      "insertText": "public ",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "final",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -93,15 +75,6 @@
       "sortText": "P",
       "filterText": "resource_function",
       "insertText": "resource function ${1:name} ${2:.} (${3})${4} {\n\t${5}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "init function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "P",
-      "filterText": "init_function",
-      "insertText": "function init(${1:any arg}) {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     },
     {

@@ -17,10 +17,12 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -32,7 +34,6 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -42,6 +43,7 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDefinitionNode> {
+
     public TypeDefinitionNodeContext() {
         super(TypeDefinitionNode.class);
     }
@@ -54,7 +56,7 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
         }
         List<LSCompletionItem> completionItems = typeDescriptorCItems(context, node);
         this.sort(context, node, completionItems);
-        
+
         return completionItems;
     }
 
@@ -79,12 +81,19 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
         return completionItems;
     }
 
-    private List<LSCompletionItem> getTypeQualifierItems(BallerinaCompletionContext context) {
-        // Note: here we do not add the service type qualifier since it is being added via getTypeItems call.
-        return Arrays.asList(
-                new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()),
-                new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()),
-                new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
+    @Override
+    protected List<LSCompletionItem> getCompletionItemsOnQualifiers(Node node, BallerinaCompletionContext context) {
+        List<LSCompletionItem> completionItems = new ArrayList<>(super.getCompletionItemsOnQualifiers(node, context));
+        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node);
+        if (qualifiers.isEmpty()) {
+            return completionItems;
+        }
+        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
+        if (lastQualifier.kind() == SyntaxKind.ISOLATED_KEYWORD) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()));
+        }
+        return completionItems;
     }
 
     private boolean onTypeNameContext(BallerinaCompletionContext context, TypeDefinitionNode node) {

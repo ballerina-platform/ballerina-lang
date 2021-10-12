@@ -1,0 +1,40 @@
+{
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 1,
+        "character": 7
+      },
+      "end": {
+        "line": 1,
+        "character": 12
+      }
+    }
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 4,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 4,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction foo() returns boolean {\n    return false;\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

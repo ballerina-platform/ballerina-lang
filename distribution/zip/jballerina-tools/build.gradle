@@ -322,14 +322,6 @@ def copyLangServerBinSpec = {
     }
 }
 
-def copyDebugAdapterLauncher = {
-    path -> copySpec {
-        from('resources/debug-adapter-launcher.sh')
-        from('resources/debug-adapter-launcher.bat')
-        into(path + 'lib/tools/debug-adapter/launcher')
-    }
-}
-
 def copyCompletionFile = {
     path -> copySpec {
         from('resources/command-completion')
@@ -434,7 +426,6 @@ task createZip(type: Zip) {
     with copyLangServerBinSpec(basePath)
     with copyBallerinaZipSpec(basePath)
     with copyDebugAdapterLibsSpec(basePath)
-    with copyDebugAdapterLauncher(basePath)
     with copyCompletionFile(basePath)
     with apiDocsSpec(basePath)
     with copyStaticSpec(basePath)
@@ -459,7 +450,6 @@ task updateBalHome(type: Copy) {
     with copyLangServerBinSpec(installDir)
     with copyBallerinaZipSpec(installDir)
     with copyDebugAdapterLibsSpec(installDir)
-    with copyDebugAdapterLauncher(installDir)
     with copyCompletionFile(installDir)
     with apiDocsSpec(installDir)
     with copyStaticSpec(installDir)
@@ -486,7 +476,6 @@ task createDistribution(type: Copy) {
     with copyLangServerBinSpec("")
     with copyBallerinaZipSpec("")
     with copyDebugAdapterLibsSpec("")
-    with copyDebugAdapterLauncher("")
     with copyCompletionFile("")
     with apiDocsSpec("")
     with copyStaticSpec("")

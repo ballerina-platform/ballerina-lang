@@ -1,19 +1,10 @@
 {
   "position": {
     "line": 2,
-    "character": 10
+    "character": 17
   },
   "source": "module_var_context/source/source10.bal",
   "items": [
-    {
-      "label": "function",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "function",
-      "insertText": "function ",
-      "insertTextFormat": "Snippet"
-    },
     {
       "label": "object",
       "kind": "Keyword",
@@ -24,39 +15,21 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "object {}",
+      "label": "class",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "class",
+      "insertText": "class ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "class",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
-      "filterText": "object",
-      "insertText": "object {${1}}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "service",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "service",
-      "insertText": "service",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "client",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "client",
-      "insertText": "client ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "transactional",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "transactional",
-      "insertText": "transactional",
+      "filterText": "class",
+      "insertText": "class ${1:className} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     }
   ]

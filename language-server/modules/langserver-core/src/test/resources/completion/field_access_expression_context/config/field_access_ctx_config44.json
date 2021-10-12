@@ -1,0 +1,139 @@
+{
+  "position": {
+    "line": 8,
+    "character": 18
+  },
+  "source": "field_access_expression_context/source/field_access_ctx_source44.bal",
+  "items": [
+    {
+      "label": "int1",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "AA",
+      "insertText": "int1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "float1",
+      "kind": "Field",
+      "detail": "float",
+      "sortText": "BA",
+      "insertText": "float1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field1",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "BA",
+      "insertText": "field1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field2",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "BA",
+      "insertText": "field2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testFunction1(int param)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` param  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "AC",
+      "filterText": "testFunction1",
+      "insertText": "testFunction1(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "testFunction2(function (int fParam) returns int param, int val)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `function (int fParam) returns int` param  \n- `int` val  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "AC",
+      "filterText": "testFunction2",
+      "insertText": "testFunction2(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "fn3()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "fn3",
+      "insertText": "fn3()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fn4()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "fn4",
+      "insertText": "fn4()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fn5()",
+      "kind": "Function",
+      "detail": "Rec",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `Rec`   \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "fn5",
+      "insertText": "fn5()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getFloat()",
+      "kind": "Function",
+      "detail": "float",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `float`   \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "getFloat",
+      "insertText": "getFloat()",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

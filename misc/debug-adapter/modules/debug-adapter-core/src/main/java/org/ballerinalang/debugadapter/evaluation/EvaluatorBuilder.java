@@ -140,6 +140,11 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.RE
  * <li> Let expression
  * <li> Anonymous function expression
  * </ul>
+ * <p>
+ * Supported action types.
+ * <ul>
+ * <li> Remote method call action
+ * </ul>
  *
  * @since 2.0.0
  */

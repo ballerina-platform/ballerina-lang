@@ -31,8 +31,10 @@ import org.testng.annotations.Test;
 
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
@@ -80,6 +82,10 @@ public class SymbolsInObjectConstructorTest {
                 {24, 5, null, null},
                 {26, 47, METHOD, "testFunction"},
                 {27, 16, VARIABLE, "x"},
+                {31, 15, ANNOTATION, "v1"},
+                {31, 25, TYPE, "Person"},
+                {32, 15, CLASS_FIELD, "name"},
+//                {32, 22, VARIABLE, "name"}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32736
         };
     }
 }

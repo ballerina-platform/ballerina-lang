@@ -1,0 +1,39 @@
+{
+  "position": {
+    "line": 18,
+    "character": 6
+  },
+  "source": "field_access_expression_context/source/projectls/modules/ls.mod4/source1.bal",
+  "items": [
+    {
+      "label": "publicFunction1()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _lstest/projectls.ls.mod4:0.1.0_  \n  \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "publicFunction1",
+      "insertText": "publicFunction1()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function2()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _lstest/projectls.ls.mod4:0.1.0_  \n  \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "function2",
+      "insertText": "function2()",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
