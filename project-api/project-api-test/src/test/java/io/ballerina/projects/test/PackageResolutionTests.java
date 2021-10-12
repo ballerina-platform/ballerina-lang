@@ -20,8 +20,11 @@ package io.ballerina.projects.test;
 import com.sun.management.UnixOperatingSystemMXBean;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageDependencyScope;
@@ -59,6 +62,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.any;
@@ -114,6 +118,245 @@ public class PackageResolutionTests extends BaseTest {
         Assert.assertEquals(buildProject.currentPackage().packageDependencies().size(), 1,
                 "Unexpected number of dependencies");
     }
+
+    @Test(description = "tests resolution with invalid build file")
+    public void testProjectwithInvalidBuildFile() throws IOException {
+        // Package path
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_0");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_2");
+
+        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder().experimental(true);
+        buildOptionsBuilder.sticky(false);
+        BuildOptions buildOptions = buildOptionsBuilder.build();
+
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
+
+        // Delete the build file
+        if (loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME).toFile().exists()) {
+            TestUtils.deleteDirectory(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME).toFile());
+        }
+
+        // Create empty build file
+        Files.createDirectory(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME));
+        Files.createFile(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE));
+
+        PackageCompilation compilation = loadProject.currentPackage().getCompilation();
+
+        DependencyGraph<ResolvedPackageDependency> dependencyGraph = compilation.getResolution().dependencyGraph();
+        for (ResolvedPackageDependency graphNode : dependencyGraph.getNodes()) {
+            Collection<ResolvedPackageDependency> directDeps = dependencyGraph.getDirectDependencies(graphNode);
+            PackageManifest manifest = graphNode.packageInstance().manifest();
+            if (manifest.name().value().equals("package_o")) {
+                Assert.assertEquals(manifest.version().toString(), "1.0.2");
+            }
+        }
+    }
+
+    @Test(dependsOnMethods = "testProjectwithInvalidBuildFile", description = "tests project with empty build file")
+    public void testProjectSaveWithEmptyBuildFile() throws IOException {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath);
+        Path buildPath = loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE);
+
+        Files.deleteIfExists(buildPath);
+        Files.createFile(buildPath); // Empty build file
+
+        loadProject.save();
+
+        Assert.assertTrue(Files.exists(buildPath));
+        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
+        Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
+    }
+
+    @Test(dependsOnMethods = "testProjectSaveWithEmptyBuildFile", description = "tests project with corrupt build file")
+    public void testProjectSaveWithCorruptBuildFile() throws IOException {
+        // Skip test in windows due to file permission setting issue
+        if (isWindows()) {
+            throw new SkipException("Skipping tests on Windows");
+        }
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath);
+        Path buildPath = loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE);
+
+        Files.deleteIfExists(buildPath);
+        Files.createFile(buildPath);
+        Files.writeString(buildPath, "Invalid"); // Invalid build file for JSONSyntaxException
+
+        loadProject.save();
+
+        Assert.assertTrue(Files.exists(buildPath));
+        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
+        Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
+    }
+
+    @Test(dependsOnMethods = "testProjectSaveWithCorruptBuildFile", description = "tests project with no read " +
+            "permissions")
+    public void testProjectSaveWithNoReadPermission() throws IOException {
+        // Skip test in windows due to file permission setting issue
+        if (isWindows()) {
+            throw new SkipException("Skipping tests on Windows");
+        }
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath);
+        Path buildPath = loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE);
+        boolean readable = buildPath.toFile().setReadable(false, false);
+        if (!readable) {
+            Assert.fail("could not set readable permission");
+        }
+
+        loadProject.save();
+
+        PackageCompilation compilation = loadProject.currentPackage().getCompilation();
+        Assert.assertTrue(Files.exists(buildPath));
+
+        readable = buildPath.toFile().setReadable(true, true);
+        if (!readable) {
+            Assert.fail("could not set readable permission");
+        }
+        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
+        Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
+    }
+
+    @Test(dependsOnMethods = "testProjectSaveWithNoReadPermission", description = "tests project with no write " +
+            "permissions")
+    public void testProjectSaveWithNoWritePermission() throws IOException {
+        // Skip test in windows due to file permission setting issue
+        if (isWindows()) {
+            throw new SkipException("Skipping tests on Windows");
+        }
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath);
+        Path buildPath = loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE);
+        boolean writable = buildPath.toFile().setWritable(false, false);
+        if (!writable) {
+            Assert.fail("could not set writable permission");
+        }
+
+        loadProject.save();
+
+        PackageCompilation compilation = loadProject.currentPackage().getCompilation();
+        Assert.assertTrue(Files.exists(buildPath));
+        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
+        Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
+    }
+
+    @Test()
+    public void testClearingEnvironmentCache() {
+        // Step 1 : Build ProjectB and Cache
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/projectB");
+
+
+        // Step 2 : Build ProjectA with ProjectB as an import
+        Path projectA = RESOURCE_DIRECTORY.resolve("projectA");
+        Project loadProjectA = TestUtils.loadBuildProject(projectA);
+
+
+        // Step 3 : Get compilation and verify dependency
+        PackageCompilation compilation = loadProjectA.currentPackage().getCompilation();
+        DependencyGraph<ResolvedPackageDependency> dependencyGraph = compilation.getResolution().dependencyGraph();
+        for (ResolvedPackageDependency graphNode : dependencyGraph.getNodes()) {
+            PackageManifest manifest = graphNode.packageInstance().manifest();
+            if (manifest.name().value().equals("projectB")) {
+                Assert.assertEquals(manifest.version().toString(), "1.0.0");
+            }
+        }
+
+
+        // Step 4 : Modify projectA to be blank
+
+        // Step 4.1 : Get the main.bal file document
+        String newMainProjectAContent = "";
+
+        Module defaultModuleProjectA = loadProjectA.currentPackage().getDefaultModule();
+
+        Optional<DocumentId> mainDocumentId =
+                defaultModuleProjectA.documentIds()
+                        .stream()
+                        .filter(documentId -> defaultModuleProjectA.document(documentId).name().equals("main.bal"))
+                        .findFirst();
+        if (mainDocumentId.isEmpty()) {
+            Assert.fail("Failed to retrieve the document ID");
+        }
+
+        // Step 4.2 : Modify the content
+        Document document = defaultModuleProjectA.document(mainDocumentId.get());
+        document.modify().withContent(newMainProjectAContent).apply();
+
+
+        // Step 5 : Compile ProjectA and verify dependency
+        compilation = loadProjectA.currentPackage().getCompilation();
+        dependencyGraph = compilation.getResolution().dependencyGraph();
+        for (ResolvedPackageDependency graphNode : dependencyGraph.getNodes()) {
+            PackageManifest manifest = graphNode.packageInstance().manifest();
+            if (manifest.name().value().equals("projectB")) {
+                Assert.fail("ProjectB found in dependency after editing ProjectA");
+            }
+        }
+
+
+        // Step 6 : Modify projectB
+
+        // Step 6.1 : Get the main.bal file document
+        String newMainProjectBContent =
+                "public function hello(string msg) returns (string) {\n" + "return \"hello world \" + msg;\n" + "}\n";
+
+        Path projectB = RESOURCE_DIRECTORY.resolve("projectB");
+        Project loadedprojectB = TestUtils.loadBuildProject(projectB);
+        Module defaultModuleProjectB = loadedprojectB.currentPackage().getDefaultModule();
+
+        mainDocumentId =
+                defaultModuleProjectB.documentIds()
+                        .stream()
+                        .filter(documentId -> defaultModuleProjectB.document(documentId).name().equals("main.bal"))
+                        .findFirst();
+        if (mainDocumentId.isEmpty()) {
+            Assert.fail("Failed to retrieve the document ID");
+        }
+
+        // Step 6.2 : Modify the content
+        document = defaultModuleProjectB.document(mainDocumentId.get());
+        document.modify().withContent(newMainProjectBContent).apply();
+
+
+        // Step 7 : Compile and Cache projectB
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/projectB");
+
+
+        // Step 8 : Modify ProjectA again with the old content
+
+        // Step 8.1 : Get the main.bal file document
+        String oldMainProjectAContent = "import samjs/projectB;\n" + "\n" + "public function getHello() returns " +
+                "(string) {\n" + "    return projectB:hello();\n" + "}";
+
+        Module oldModuleProjectA = loadProjectA.currentPackage().getDefaultModule();
+
+        mainDocumentId = defaultModuleProjectA.documentIds()
+                .stream()
+                .filter(documentId -> oldModuleProjectA.document(documentId).name().equals("main.bal"))
+                .findFirst();
+        if (mainDocumentId.isEmpty()) {
+            Assert.fail("Failed to retrieve the document ID");
+        }
+
+        // Step 8.2 : Modify the content
+        document = defaultModuleProjectA.document(mainDocumentId.get());
+        document.modify().withContent(oldMainProjectAContent).apply();
+
+
+        // Step 9 : Compile ProjectA and verify dependency
+        compilation = loadProjectA.currentPackage().getCompilation();
+        Assert.assertFalse(compilation.diagnosticResult().errorCount() == 0, "Package A has compiled successfully " +
+                "when it should fail");
+
+    }
+
 
     @Test(description = "tests resolution with one transitive dependency")
     public void testProjectWithOneTransitiveDependency() {

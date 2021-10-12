@@ -2,7 +2,6 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.internal.DependencyManifestBuilder;
 import io.ballerina.projects.internal.ManifestBuilder;
-import io.ballerina.projects.internal.environment.EnvironmentPackageCache;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -440,9 +439,10 @@ public class Package {
                 CompilerContext compilerContext = project.projectEnvironmentContext()
                         .getService(CompilerContext.class);
                 PackageCache packageCache = PackageCache.getInstance(compilerContext);
-                EnvironmentPackageCache environmentPackageCache =
-                        project.projectEnvironmentContext().environment()
-                                .getService(io.ballerina.projects.internal.environment.EnvironmentPackageCache.class);
+
+                io.ballerina.projects.environment.PackageCache service =
+                        project.projectEnvironmentContext().environment().getService(
+                        io.ballerina.projects.environment.PackageCache.class);
 
                 for (ResolvedPackageDependency dependency : diff) {
                     for (ModuleId moduleId : dependency.packageInstance().moduleIds()) {
@@ -451,7 +451,7 @@ public class Package {
                             PackageID packageID = module.descriptor().moduleCompilationId();
                             // remove the module from the compiler packageCache
                             packageCache.remove(packageID);
-                            environmentPackageCache.removePackage(packageId);
+                            service.removePackage(module.moduleId().packageId());
                             module.moduleContext().setCompilationState(null);
                         }
                     }
