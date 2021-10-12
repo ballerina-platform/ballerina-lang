@@ -709,6 +709,14 @@ public class SymbolResolver extends BLangNodeVisitor {
                 }
 
                 BType member = itr.next();
+                if (TypeTags.isIntegerTypeTag(member.tag)) {
+                    member = symTable.intType;
+                }
+
+                if (TypeTags.isStringTypeTag(member.tag)) {
+                    member = symTable.stringType;
+                }
+
                 if (types.isSubTypeOfBaseType(type, member.tag)) {
                     bSymbol = lookupLangLibMethod(member, name);
                 } else {

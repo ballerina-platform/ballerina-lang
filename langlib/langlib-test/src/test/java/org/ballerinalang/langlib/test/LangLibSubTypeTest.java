@@ -80,6 +80,7 @@ public class LangLibSubTypeTest {
         BRunUtil.invoke(compileResult, "testBitwiseOr");
         BRunUtil.invoke(compileResult, "testBitwiseXor");
         BRunUtil.invoke(compileResult, "testFiniteTypeAsIntSubType");
+        BRunUtil.invoke(compileResult, "testLanglibFunctionsForUnionIntSubtypes");
     }
 
     @Test
@@ -95,6 +96,7 @@ public class LangLibSubTypeTest {
         BRunUtil.invoke(compileResult, "testStringAssignabilityToSingleCharVarDef");
         BRunUtil.invoke(compileResult, "testToCodePointWithChaType");
         BRunUtil.invoke(compileResult, "testFiniteTypeAsStringSubType");
+        BRunUtil.invoke(compileResult, "testLanglibFunctionsForUnionStringSubtypes");
     }
 
     @Test
@@ -248,6 +250,16 @@ public class LangLibSubTypeTest {
                         "found '-1|1|foo[]'", 325, 43);
         BAssertUtil.validateError(result, err++, "incompatible types: expected '(float|string|int:Unsigned8)[]', " +
                 "found '-1|1|foo[]'", 326, 40);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', found " +
+                "'InvalidIntType'", 337, 25);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', found " +
+                "'(int:Signed32|int:Signed16|string)'", 338, 25);
+        BAssertUtil.validateError(result, err++, "undefined function 'toHexString' in type " +
+                "'InvalidIntType'", 340, 17);
+        BAssertUtil.validateError(result, err++, "undefined function 'toHexString' in type " +
+                "'(int:Signed32|int:Signed16|string)'", 341, 17);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', found '1|2|3|R'", 343, 25);
+        BAssertUtil.validateError(result, err++, "undefined function 'toHexString' in type '1|2|3|R'", 344, 17);
 
         Assert.assertEquals(result.getErrorCount(), err);
 
@@ -274,6 +286,10 @@ public class LangLibSubTypeTest {
                 23);
         BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|string:Char)[]', found" +
                 " '-1|e|f[]'", 63, 39);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', found 'ABC|D|3.0f'", 74, 29);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', found 'StringType'", 75, 29);
+        BAssertUtil.validateError(result, err++, "undefined function 'toLowerAscii' in type 'ABC|D|3.0f'", 77, 14);
+        BAssertUtil.validateError(result, err++, "undefined function 'toLowerAscii' in type 'StringType'", 78, 14);
         Assert.assertEquals(result.getErrorCount(), err);
     }
 }
