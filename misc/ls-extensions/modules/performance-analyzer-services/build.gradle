@@ -48,11 +48,11 @@ dependencies {
 
 }
 
-test {
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-}
+//test {
+//    useTestNG() {
+//        suites 'src/test/resources/testng.xml'
+//    }
+//}
 
 description = 'LS extension for performance analyzer'
 
