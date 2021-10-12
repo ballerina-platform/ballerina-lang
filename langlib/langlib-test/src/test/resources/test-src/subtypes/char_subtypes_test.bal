@@ -212,3 +212,17 @@ function testFiniteTypeAsStringSubType() {
     test:assertValueEqual(true, <any> g is (int:Signed32|string)[]);
     test:assertValueEqual(false, <any> g is (int:Unsigned32|string:Char)[]);
 }
+
+type StringFiniteType "ABC" | "D";
+type StringType s:Char|string;
+
+public function testLanglibFunctionsForUnionStringSubtypes() {
+    StringFiniteType str1 = "D";
+    StringType str2 = "D";
+
+    test:assertValueEqual("d", string:toLowerAscii(str1));
+    test:assertValueEqual("d", string:toLowerAscii(str2));
+
+    test:assertValueEqual("d", str1.toLowerAscii());
+    test:assertValueEqual("d", str2.toLowerAscii());
+}
