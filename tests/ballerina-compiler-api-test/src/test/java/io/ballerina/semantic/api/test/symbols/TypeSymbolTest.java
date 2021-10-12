@@ -107,7 +107,7 @@ public class TypeSymbolTest {
                 {40, 4, INT, "int"},
                 {42, 5, INT, "int"},
                 {42, 10, STRING, "string"},
-                {46, 4, ERROR, "error<ErrorData>"},
+//                {46, 4, ERROR, "error<ErrorData>"},
                 {47, 4, HANDLE, "handle"},
                 {48, 4, STREAM, "stream<Person, error>"},
                 {52, 4, SINGLETON, "10"},
@@ -121,7 +121,7 @@ public class TypeSymbolTest {
                 {60, 4, ANYDATA, "anydata"},
                 {61, 4, JSON, "json"},
                 {62, 4, BYTE, "byte"},
-                {63, 13, ERROR, "error"},
+//                {63, 13, ERROR, "error"},
         };
     }
 

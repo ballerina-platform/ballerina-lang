@@ -425,7 +425,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         service.annAttachments.forEach(bLangAnnotationAttachment -> analyzeNode(bLangAnnotationAttachment.expr, env));
-        service.resourceFunctions.forEach(function -> analyzeNode(function, env));
         this.currDependentSymbolDeque.pop();
     }
 
