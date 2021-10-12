@@ -51,6 +51,7 @@ public function main() {
     x = 6;
     x = 7;
     x = 8;
+    x = 9;
 }
 
 function getModuleEmployee() returns Employee {

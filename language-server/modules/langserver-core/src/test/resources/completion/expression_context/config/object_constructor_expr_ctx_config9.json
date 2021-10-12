@@ -544,7 +544,7 @@
       "label": "field1",
       "kind": "Field",
       "detail": "int",
-      "sortText": "H",
+      "sortText": "AF",
       "insertText": "field1",
       "insertTextFormat": "Snippet"
     }
