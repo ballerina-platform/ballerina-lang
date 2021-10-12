@@ -30,11 +30,11 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaul
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 
 /**
- * Test cases for use of symbol() with send and receive actions.
+ * Test cases for use of symbol() with send, receive and flush actions.
  *
  * @since 2.0.0
  */
-public class SymbolsInSendReceiveActionsTest {
+public class SymbolsInSendReceiveFlushActionsTest {
     private SemanticModel model;
     private Document srcFile;
 
@@ -61,6 +61,7 @@ public class SymbolsInSendReceiveActionsTest {
                 {29, 8, "r1", SymbolKind.VARIABLE},
                 {29, 16, "w1", SymbolKind.WORKER},
                 {35, 16, "w1", SymbolKind.WORKER},
+                {36, 35, "w1", SymbolKind.WORKER},
         };
     }
 }
