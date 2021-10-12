@@ -1329,7 +1329,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BType currentReturnType = this.forceCastReturnType;
-        this.forceCastReturnType = null;
+        this.forceCastReturnType = funcNode.returnTypeNode == null ? null : funcNode.returnTypeNode.getBType();
         funcNode.body = rewrite(funcNode.body, funcEnv);
         this.forceCastReturnType = currentReturnType;
         funcNode.annAttachments.forEach(attachment -> rewrite(attachment, env));
