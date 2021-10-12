@@ -17,8 +17,8 @@
  */
 package io.ballerina.types.typeops;
 
+import io.ballerina.types.Context;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.TypeCheckContext;
 
 /**
  * Mapping read/write specific methods operate on SubtypeData.
@@ -27,7 +27,7 @@ import io.ballerina.types.TypeCheckContext;
  */
 public class MappingRwOps extends MappingCommonOps {
     @Override
-    public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
-        return mappingSubtypeIsEmpty(tc, t);
+    public boolean isEmpty(Context cx, SubtypeData t) {
+        return mappingSubtypeIsEmpty(cx, t);
     }
 }

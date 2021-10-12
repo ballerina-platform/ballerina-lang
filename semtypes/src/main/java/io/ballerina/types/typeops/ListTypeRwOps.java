@@ -17,8 +17,8 @@
  */
 package io.ballerina.types.typeops;
 
+import io.ballerina.types.Context;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.TypeCheckContext;
 import io.ballerina.types.UniformTypeOps;
 
 /**
@@ -28,7 +28,7 @@ import io.ballerina.types.UniformTypeOps;
  */
 public class ListTypeRwOps extends CommonOps implements UniformTypeOps {
     @Override
-    public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
-        return ListCommonOps.listSubtypeIsEmpty(tc, t);
+    public boolean isEmpty(Context cx, SubtypeData t) {
+        return ListCommonOps.listSubtypeIsEmpty(cx, t);
     }
 }

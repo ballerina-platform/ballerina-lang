@@ -20,8 +20,8 @@ package io.ballerina.types.typeops;
 import io.ballerina.types.Bdd;
 import io.ballerina.types.BddMemo;
 import io.ballerina.types.Common;
+import io.ballerina.types.Context;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.TypeCheckContext;
 import io.ballerina.types.UniformTypeOps;
 
 /**
@@ -32,13 +32,13 @@ import io.ballerina.types.UniformTypeOps;
 public class ErrorOps extends CommonOps implements UniformTypeOps {
 
     @Override
-    public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
+    public boolean isEmpty(Context cx, SubtypeData t) {
         Bdd b = Common.bddFixReadOnly((Bdd) t);
-        BddMemo mm = tc.mappingMemo.get(b);
+        BddMemo mm = cx.mappingMemo.get(b);
         BddMemo m;
         if (mm == null) {
             m = BddMemo.from(b);
-            tc.mappingMemo.put(m.bdd, m);
+            cx.mappingMemo.put(m.bdd, m);
         } else {
             m = mm;
             BddMemo.MemoStatus res = m.isEmpty;
@@ -48,7 +48,7 @@ public class ErrorOps extends CommonOps implements UniformTypeOps {
                 return res == BddMemo.MemoStatus.TRUE;
             }
         }
-        boolean isEmpty = Common.bddEveryPositive(tc, b, null, null, MappingCommonOps::mappingFormulaIsEmpty);
+        boolean isEmpty = Common.bddEveryPositive(cx, b, null, null, MappingCommonOps::mappingFormulaIsEmpty);
         m.setIsEmpty(isEmpty);
         return isEmpty;
     }

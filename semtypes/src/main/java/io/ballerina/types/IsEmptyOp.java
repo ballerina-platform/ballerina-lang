@@ -23,5 +23,5 @@ package io.ballerina.types;
  * @since 3.0.0
  */
 public interface IsEmptyOp {
-    boolean isEmpty(TypeCheckContext tc, SubtypeData t);
+    boolean isEmpty(Context cx, SubtypeData t);
 }

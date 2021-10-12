@@ -43,8 +43,9 @@
             <Class name="io.ballerina.types.typeops.StringOps"/>
             <Class name="io.ballerina.types.typeops.ListTypeRoOps"/>
             <Class name="io.ballerina.types.typeops.BooleanOps"/>
+            <Class name="io.ballerina.types.Context"/>
             <Class name="io.ballerina.types.typeops.DecimalOps"/>
-            <Class name="io.ballerina.types.TypeCheckContext"/>
+
             <Class name="io.ballerina.types.Common"/>
         </Or>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
@@ -64,7 +65,7 @@
             <Class name="io.ballerina.types.MappingAtomicType"/>
             <Class name="io.ballerina.types.RecAtom"/>
             <Class name="io.ballerina.types.TypeAtom"/>
-            <Class name="io.ballerina.types.TypeCheckContext"/>
+            <Class name="io.ballerina.types.Context"/>
             <Class name="io.ballerina.types.UniformTypeBitSet"/>
             <Class name="io.ballerina.types.BddMemo"/>
             <Class name="io.ballerina.types.ComplexSemType"/>
