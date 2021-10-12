@@ -71,9 +71,13 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
 
     private SemanticModel currentSemanticModel;
 
+    private Document currentDocument;
+
     private final LanguageServerContext languageServerContext;
 
     private CancelChecker cancelChecker;
+    
+    private static final boolean ON_DEBUG_MODE = System.getenv("BAL_JAVA_DEBUG") != null;
 
     AbstractDocumentServiceContext(LSOperation operation,
                                    String fileUri,
@@ -96,7 +100,10 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
                                    LanguageServerContext serverContext,
                                    CancelChecker cancelChecker) {
         this(operation, fileUri, wsManager, serverContext);
-        this.cancelChecker = cancelChecker;
+        // This is to facilitate the development in debug mode. 
+        if (!ON_DEBUG_MODE) {
+            this.cancelChecker = cancelChecker;
+        }
     }
 
     /**
@@ -193,11 +200,17 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
 
     @Override
     public Optional<Document> currentDocument() {
-        if (this.cancelChecker == null) {
-            return this.workspace().document(this.filePath());
+        if (this.currentDocument == null) {
+            Optional<Document> document;
+            if (this.cancelChecker == null) {
+                document = this.workspace().document(this.filePath());
+            } else {
+                document = this.workspace().document(this.filePath(), this.cancelChecker);
+            }
+            document.ifPresent(value -> this.currentDocument = value);
         }
 
-        return this.workspace().document(this.filePath(), this.cancelChecker);
+        return Optional.ofNullable(this.currentDocument);
     }
 
     @Override

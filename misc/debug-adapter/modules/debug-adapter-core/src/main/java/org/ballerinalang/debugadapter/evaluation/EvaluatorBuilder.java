@@ -22,11 +22,13 @@ import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.InterpolationNode;
@@ -58,6 +60,7 @@ import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.action.RemoteMethodCallActionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.AnnotationAccessExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.AnonFunctionExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.BasicLiteralEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.BinaryExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.ConditionalExpressionEvaluator;
@@ -135,11 +138,12 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.RE
  * <li> Checking expression
  * <li> Query expression
  * <li> Let expression
- * </ul>
- * <br>
- * To be Implemented.
- * <ul>
  * <li> Anonymous function expression
+ * </ul>
+ * <p>
+ * Supported action types.
+ * <ul>
+ * <li> Remote method call action
  * </ul>
  *
  * @since 2.0.0
@@ -431,6 +435,18 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     @Override
+    public void visit(ExplicitAnonymousFunctionExpressionNode explicitAnonFunctionNode) {
+        visitSyntaxNode(explicitAnonFunctionNode);
+        result = new AnonFunctionExpressionEvaluator(context, explicitAnonFunctionNode);
+    }
+
+    @Override
+    public void visit(ImplicitAnonymousFunctionExpressionNode implicitAnonFunctionNode) {
+        visitSyntaxNode(implicitAnonFunctionNode);
+        result = new AnonFunctionExpressionEvaluator(context, implicitAnonFunctionNode);
+    }
+
+    @Override
     public void visit(QueryExpressionNode queryExpressionNode) {
         visitSyntaxNode(queryExpressionNode);
         result = new QueryExpressionEvaluator(context, queryExpressionNode);
@@ -611,7 +627,6 @@ public class EvaluatorBuilder extends NodeVisitor {
         supportedSyntax.add(SyntaxKind.REST_ARG);
         supportedSyntax.add(SyntaxKind.OPEN_PAREN_TOKEN);
         supportedSyntax.add(SyntaxKind.CLOSE_PAREN_TOKEN);
-        // Todo: Add named args and rest args
     }
 
     private void addErrorConstructorExpressionSyntax() {
@@ -619,7 +634,8 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addAnonymousFunctionExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION);
+        supportedSyntax.add(SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION);
     }
 
     private void addLetExpressionSyntax() {

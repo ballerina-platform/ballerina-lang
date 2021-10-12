@@ -175,7 +175,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                 "missing required parameter 'c'.");
 
         debugTestRunner.assertEvaluationError(context, "calculate(5, x = 6, 7)", String.format(EvaluationExceptionKind
-                .SYNTAX_ERROR.getString(), "named arg followed by positional arg"));
+                .SYNTAX_ERROR.getString(), "positional argument not allowed after named arguments"));
 
         debugTestRunner.assertEvaluationError(context, "calculate(5, 6, 7, 8)", EvaluationExceptionKind.PREFIX +
                 "too many arguments in call to 'calculate'.");
@@ -184,10 +184,11 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                 "undefined defaultable parameter 'd'.");
 
         debugTestRunner.assertEvaluationError(context, "calculate(5, ...b, 7)", String.format(EvaluationExceptionKind
-                .SYNTAX_ERROR.getString(), "rest arg followed by another arg"));
+                .SYNTAX_ERROR.getString(), "arguments not allowed after rest argument"));
 
         debugTestRunner.assertEvaluationError(context, "calculate(5, ...b, c = 7)",
-                String.format(EvaluationExceptionKind.SYNTAX_ERROR.getString(), "rest arg followed by another arg"));
+                String.format(EvaluationExceptionKind.SYNTAX_ERROR.getString(),
+                        "arguments not allowed after rest argument"));
 
         debugTestRunner.assertEvaluationError(context, "calculate(5, b = 6, ...c)", EvaluationExceptionKind.PREFIX +
                 "rest args are not allowed after named args.");
@@ -201,7 +202,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
 
         debugTestRunner.assertEvaluationError(context, "printDetails(\"Hi\", 20, ...stringArrayVar, 20);",
                 EvaluationExceptionKind.PREFIX + "Syntax errors found: " + System.lineSeparator() +
-                        "rest arg followed by another arg");
+                        "arguments not allowed after rest argument");
 
         // qualified functions (i.e. imported modules)
         debugTestRunner.assertEvaluationError(context, "other:addition(2,6)",
@@ -246,7 +247,10 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void anonymousFunctionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // Anonymous function with semantic errors
+        debugTestRunner.assertEvaluationError(context, "function(int x, string y) returns int => x + y;",
+                EvaluationExceptionKind.PREFIX + "compilation error(s) found while creating executables for " +
+                        "evaluation: " + System.lineSeparator() + "operator '+' not defined for 'int' and 'string'");
     }
 
     @Override
@@ -518,9 +522,8 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                 "Statement evaluation is not supported."));
 
         // unsupported expressions
-        debugTestRunner.assertEvaluationError(context, "function(int a) returns int {return a;};",
-                String.format(UNSUPPORTED_EXPRESSION.getString(), "'function(int a) returns int {return a;}' - " +
-                        "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION"));
+        debugTestRunner.assertEvaluationError(context, "[1, 2, 3]", String.format(UNSUPPORTED_EXPRESSION.getString(),
+                "'[1, 2, 3]' - LIST_CONSTRUCTOR"));
     }
 
     @Override
