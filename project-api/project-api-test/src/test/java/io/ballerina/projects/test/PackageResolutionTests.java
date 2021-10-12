@@ -21,8 +21,11 @@ import com.sun.management.UnixOperatingSystemMXBean;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageDependencyScope;
@@ -48,7 +51,9 @@ import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.BeforeTest;
@@ -64,6 +69,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.test.TestUtils.isWindows;
@@ -266,6 +272,107 @@ public class PackageResolutionTests extends BaseTest {
         Assert.assertTrue(Files.exists(buildPath));
         BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
         Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
+    }
+
+    @Test()
+    public void testClearingEnvironmentCache() throws IOException {
+
+        // Setup : If exists, clear previous cache
+        Path projectBCachePath = testBuildDirectory.resolve("repo").resolve("cache").resolve("samjs").resolve(
+                "projectB");
+        FileUtils.deleteDirectory(projectBCachePath.toFile());
+
+
+        // Step 1 : Build ProjectB1 and Cache
+        CompileResult depCompileResult = BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/projectB1");
+        if (depCompileResult.getErrorCount() > 0) {
+            Assert.fail("Package B contains compilations error");
+        }
+
+
+        // Step 2 : Build ProjectA with ProjectB as an import
+        Path projectA = RESOURCE_DIRECTORY.resolve("projectA");
+        Project loadProjectA = TestUtils.loadBuildProject(projectA);
+
+
+        // Step 3 : Get compilation of ProjectA and verify dependencies
+        PackageCompilation compilation = loadProjectA.currentPackage().getCompilation();
+        DependencyGraph<ResolvedPackageDependency> dependencyGraph = compilation.getResolution().dependencyGraph();
+        for (ResolvedPackageDependency graphNode : dependencyGraph.getNodes()) {
+            PackageManifest manifest = graphNode.packageInstance().manifest();
+            if (manifest.name().value().equals("projectB")) {
+                Assert.assertEquals(manifest.version().toString(), "1.0.0");
+            }
+        }
+
+
+        // Step 4 : Modify projectA to be blank
+
+        // - Step 4.1 : Get the main.bal file document for ProjectA
+        String newMainProjectAContent = "";
+        Module defaultModuleProjectA = loadProjectA.currentPackage().getDefaultModule();
+        Optional<DocumentId> mainDocumentId =
+                defaultModuleProjectA.documentIds()
+                        .stream()
+                        .filter(documentId -> defaultModuleProjectA.document(documentId).name().equals("main.bal"))
+                        .findFirst();
+        if (mainDocumentId.isEmpty()) {
+            Assert.fail("Failed to retrieve the document ID");
+        }
+
+        // - Step 4.2 : Modify the content of ProjectA
+        Document document = defaultModuleProjectA.document(mainDocumentId.get());
+        document.modify().withContent(newMainProjectAContent).apply();
+
+
+        // Step 5 : Compile ProjectA and verify dependency
+        compilation = loadProjectA.currentPackage().getCompilation();
+        dependencyGraph = compilation.getResolution().dependencyGraph();
+        for (ResolvedPackageDependency graphNode : dependencyGraph.getNodes()) {
+            PackageManifest manifest = graphNode.packageInstance().manifest();
+            if (manifest.name().value().equals("projectB")) {
+                Assert.fail("ProjectB found in dependency after editing ProjectA");
+            }
+        }
+
+
+        // Step 6 : Clear ProjectB cache
+        FileUtils.deleteDirectory(projectBCachePath.toFile());
+
+
+        // Step 7 : Compile ProjectB2 and cache
+        depCompileResult = BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/projectB2");
+        if (depCompileResult.getErrorCount() > 0) {
+            Assert.fail("Package B contains compilations error");
+        }
+
+
+        // Step 8 : Modify ProjectA again with the old content
+
+        // - Step 8.1 : Get the main.bal file document
+        String oldMainProjectAContent = "import samjs/projectB;\n" + "\n" + "public function getHello() returns " +
+                "(string) {\n" + "    return projectB:hello();\n" + "}";
+
+        Module oldModuleProjectA = loadProjectA.currentPackage().getDefaultModule();
+
+        mainDocumentId = defaultModuleProjectA.documentIds()
+                .stream()
+                .filter(documentId -> oldModuleProjectA.document(documentId).name().equals("main.bal"))
+                .findFirst();
+        if (mainDocumentId.isEmpty()) {
+            Assert.fail("Failed to retrieve the document ID");
+        }
+
+        // - Step 8.2 : Modify the content
+        document = defaultModuleProjectA.document(mainDocumentId.get());
+        document.modify().withContent(oldMainProjectAContent).apply();
+
+
+        // Step 9 : Compile ProjectA and verify dependency
+        compilation = loadProjectA.currentPackage().getCompilation();
+        Assert.assertFalse(compilation.diagnosticResult().errorCount() == 0, "Package A has compiled successfully " +
+                "when it should fail");
+
     }
 
     @Test(description = "tests resolution with one transitive dependency")
