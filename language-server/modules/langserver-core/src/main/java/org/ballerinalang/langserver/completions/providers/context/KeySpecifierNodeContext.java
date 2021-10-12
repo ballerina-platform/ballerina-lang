@@ -78,7 +78,7 @@ public class KeySpecifierNodeContext extends AbstractCompletionProvider<KeySpeci
             if (typeSymbol.isEmpty()) {
                 return completionItems;
             }
-            rowTypeSymbol = typeSymbol.get();
+            rowTypeSymbol = CommonUtil.getRawType(typeSymbol.get());
         } else {
             //Note: There is not a way to get the key constraint atm. 
             // If the key constraint specifies only a single basic type,

@@ -220,14 +220,13 @@ public class TypeParameterContextProvider<T extends Node> extends AbstractComple
                 && node.parent().parent().kind() == SyntaxKind.TABLE_TYPE_DESC) {
             TableTypeDescriptorNode tableTypeDesc = (TableTypeDescriptorNode) node.parent().parent();
             TypeParameterNode typeParameterNode = (TypeParameterNode) tableTypeDesc.rowTypeParameterNode();
-            
+
             // Get type of type parameter
             Optional<TypeSymbol> typeSymbol = context.currentSemanticModel()
                     .flatMap(semanticModel -> semanticModel.symbol(typeParameterNode.typeNode()))
                     .flatMap(SymbolUtil::getTypeDescriptor);
-            
-            if (typeSymbol.isPresent() && typeSymbol.get().typeKind() == TypeDescKind.RECORD) {
-                RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeSymbol.get();
+            if (typeSymbol.isPresent() && CommonUtil.getRawType(typeSymbol.get()).typeKind() == TypeDescKind.RECORD) {
+                RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) CommonUtil.getRawType(typeSymbol.get());
                 Set<String> typeNames = recordTypeSymbol.fieldDescriptors().values().stream()
                         .filter(recordFieldSymbol -> recordFieldSymbol.qualifiers().contains(Qualifier.READONLY))
                         .map(recordFieldSymbol -> recordFieldSymbol.typeDescriptor().getName().orElse(
