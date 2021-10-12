@@ -14,8 +14,8 @@
 // Z<:XYZ
 // Z<:XZ
 type X "x";
-type Y "y";
-type Z "z";
+type Y "y-y";
+type Z "z-z";
 
 type XYZ X|Y|Z;
 type XY X|Y;
