@@ -117,6 +117,7 @@
             <class name="io.ballerina.semantic.api.test.actions.SymbolsInStartActionsTest" />
             <class name="io.ballerina.semantic.api.test.actions.SymbolsInWaitActionsTest" />
             <class name="io.ballerina.semantic.api.test.actions.SymbolsInSendReceiveFlushActionsTest" />
+            <class name="io.ballerina.semantic.api.test.actions.SymbolsInTypeCastActionsTest" />
 
             <!--Symbols-->
             <class name="io.ballerina.semantic.api.test.symbols.AnnotationSymbolTest" />
