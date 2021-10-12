@@ -172,8 +172,8 @@ public abstract class AbstractParser {
      * Returns a clone of the given STNode with the given diagnostic if the nodeList is empty,
      * otherwise returns the original STNode.
      *
-     * @param nodeList the node list instance
-     * @param target the STNode instance
+     * @param nodeList       the node list instance
+     * @param target         the STNode instance
      * @param diagnosticCode the DiagnosticCode to be added to the node
      * @return a clone of the given STNode
      */
@@ -238,12 +238,30 @@ public abstract class AbstractParser {
     }
 
     /**
+     * Marks all remaining tokens as invalid and attach them as trailing minutiae of the given node.
+     *
+     * @param node the node to attach the invalid tokens as trailing minutiae.
+     * @return Parsed node
+     */
+    protected STNode invalidateRestAndAddToTrailingMinutiae(STNode node) {
+        node = addInvalidNodeStackToTrailingMinutiae(node);
+
+        while (peek().kind != SyntaxKind.EOF_TOKEN) {
+            STToken invalidToken = consume();
+            node = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(node, invalidToken,
+                    DiagnosticErrorCode.ERROR_INVALID_TOKEN);
+        }
+
+        return node;
+    }
+
+    /**
      * Clones the node with invalid nodes in the invalid node stack, as trailing minutiae.
      *
      * @param node node to be cloned
      * @return a cloned node with invalid node minutiae
      */
-    protected STNode addInvalidNodeStackToTrailingMinutiae(STNode node) {
+    private STNode addInvalidNodeStackToTrailingMinutiae(STNode node) {
         while (!invalidNodeInfoStack.isEmpty()) {
             InvalidNodeInfo invalidNodeInfo = invalidNodeInfoStack.pop();
             node = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(node, invalidNodeInfo.node,

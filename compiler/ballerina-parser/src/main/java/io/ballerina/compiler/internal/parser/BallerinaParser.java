@@ -125,7 +125,6 @@ public class BallerinaParser extends AbstractParser {
             lastStmt = stmtNodeList.get(stmtNodeList.size() - 1);
         }
 
-        lastStmt = addInvalidNodeStackToTrailingMinutiae(lastStmt);
         lastStmt = invalidateRestAndAddToTrailingMinutiae(lastStmt);
         stmts.add(lastStmt);
 
@@ -142,7 +141,6 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.VAR_DECL_STMT);
         STNode expr = parseExpression();
 
-        expr = addInvalidNodeStackToTrailingMinutiae(expr);
         expr = invalidateRestAndAddToTrailingMinutiae(expr);
         return expr;
     }
@@ -186,23 +184,6 @@ public class BallerinaParser extends AbstractParser {
     /*
      * Private methods.
      */
-
-    /**
-     * Marks all remaining tokens as invalid and attach them as trailing minutiae of the given node.
-     *
-     * @param node the node to attach the invalid tokens as trailing minutiae.
-     * @return Parsed node
-     */
-    private STNode invalidateRestAndAddToTrailingMinutiae(STNode node) {
-        // invalidate all remaining tokens
-        while (peek().kind != SyntaxKind.EOF_TOKEN) {
-            STToken invalidToken = consume();
-            node = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(node, invalidToken,
-                    DiagnosticErrorCode.ERROR_INVALID_TOKEN);
-        }
-
-        return node;
-    }
 
     /**
      * Parse a given input and returns the AST. Starts parsing from the top of a compilation unit.
