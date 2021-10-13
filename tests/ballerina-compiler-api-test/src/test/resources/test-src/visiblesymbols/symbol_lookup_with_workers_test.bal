@@ -15,7 +15,6 @@
 // under the License.
 
 string aString = "foo";
-int anInt = 10;
 
 public function workerSendToWorker() returns int {
     @strand{thread:"any"}
@@ -42,4 +41,13 @@ public function workerSendToWorker() returns int {
     return ret + 1;
 }
 
-const HELLO = "Hello";
+function testFork() {
+    int x = 10;
+
+    fork {
+        worker w1 {
+          int i = x;
+          // cursor pos
+        }
+    }
+}

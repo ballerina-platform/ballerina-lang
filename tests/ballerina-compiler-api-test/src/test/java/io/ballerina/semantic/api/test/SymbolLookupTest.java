@@ -61,41 +61,6 @@ import static org.testng.Assert.assertTrue;
  */
 public class SymbolLookupTest {
 
-    @Test(dataProvider = "PositionProvider2")
-    public void testVarSymbolLookupInWorkers(int line, int column, int expSymbols, List<String> expSymbolNames) {
-        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_workers_test.bal");
-        Package currentPackage = project.currentPackage();
-        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
-        PackageCompilation packageCompilation = currentPackage.getCompilation();
-        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
-        Document srcFile = getDocumentForSingleSource(project);
-
-        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
-        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
-
-        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, srcFile, line, column, moduleID);
-
-        assertEquals(symbolsInFile.size(), expSymbols);
-        for (String symName : expSymbolNames) {
-            assertTrue(symbolsInFile.containsKey(symName), "Symbol not found: " + symName);
-        }
-    }
-
-    @DataProvider(name = "PositionProvider2")
-    public Object[][] getPositionsForWorkers() {
-        List<String> moduleLevelSymbols = asList("aString", "anInt", "workerSendToWorker", "HELLO");
-        return new Object[][]{
-                {19, 50, 6, getSymbolNames(moduleLevelSymbols, "w1", "w2")},
-                {21, 15, 6, getSymbolNames(moduleLevelSymbols, "w1", "w2")},
-                {25, 0, 7, getSymbolNames(moduleLevelSymbols, "w1", "w2", "i")},
-                {23, 14, 7, getSymbolNames(moduleLevelSymbols, "w1", "w2", "i")},
-                {30, 12, 6, getSymbolNames(moduleLevelSymbols, "w1", "w2")},
-                {34, 12, 7, getSymbolNames(moduleLevelSymbols, "w1", "w2", "j")},
-                {39, 22, 7, getSymbolNames(moduleLevelSymbols, "w1", "w2", "ret")},
-                {43, 0, 4, moduleLevelSymbols},
-        };
-    }
-
     @Test(dataProvider = "PositionProvider3")
     public void testVarSymbolLookupInTypedefs(int line, int column, int expSymbols, List<String> expSymbolNames) {
         Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_typedefs_test.bal");
