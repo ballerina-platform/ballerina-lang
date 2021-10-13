@@ -117,7 +117,7 @@ public class TypeNarrower extends BLangNodeVisitor {
                     typeInfo.trueType;
             BVarSymbol originalSym = getOriginalVarSymbol(symbol);
             symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, originalSym, narrowedType,
-                                                 originalSym.origin == VIRTUAL, false);
+                    originalSym.origin == VIRTUAL);
         }
 
         return targetEnv;
@@ -153,11 +153,21 @@ public class TypeNarrower extends BLangNodeVisitor {
         SymbolEnv targetEnv = getTargetEnv(targetNode, env);
         BVarSymbol originalVarSym = getOriginalVarSymbol((BVarSymbol) varRef.symbol);
         symbolEnter.defineTypeNarrowedSymbol(varRef.pos, targetEnv, originalVarSym, remainingType,
-                originalVarSym.origin == VIRTUAL, false);
+                originalVarSym.origin == VIRTUAL);
         return targetEnv;
     }
 
-    public SymbolEnv evaluateFalsityForSingleIf(BLangExpression expr, SymbolEnv currentEnv) {
+    /**
+     * Evaluate the expression in an `if` statement to its false value, following the `if` statement
+     * without an `else` clause if its statement block cannot complete normally. Returns an environment
+     * containing the symbols with their narrowed types, defined by the falsity of the expression.
+     * If there are no symbols that get affected by type narrowing, then this will return the same environment.
+     *
+     * @param expr Expression to evaluate
+     * @param currentEnv Current environment
+     * @return target environment
+     */
+    public SymbolEnv evaluateFalsityFollowingIfWithoutElse(BLangExpression expr, SymbolEnv currentEnv) {
         if (!checkIsTypeTestExpr(expr)) {
             return currentEnv;
         }
@@ -167,13 +177,15 @@ public class TypeNarrower extends BLangNodeVisitor {
             return currentEnv;
         }
 
+        SymbolEnv narrowedEnv = SymbolEnv.createTypeNarrowedEnv(expr, currentEnv);
+
         for (Map.Entry<BVarSymbol, NarrowedTypes> narrowedType : narrowedTypes.entrySet()) {
             BVarSymbol originalSym = getOriginalVarSymbol(narrowedType.getKey());
-            symbolEnter.defineTypeNarrowedSymbol(expr.pos, currentEnv, originalSym,
-                    narrowedType.getValue().falseType, originalSym.origin == VIRTUAL, true);
+            symbolEnter.defineTypeNarrowedSymbol(expr.pos, narrowedEnv, originalSym,
+                    narrowedType.getValue().falseType, originalSym.origin == VIRTUAL);
         }
 
-        return currentEnv;
+        return narrowedEnv;
     }
 
     private boolean checkIsTypeTestExpr(BLangExpression expr) {
@@ -210,8 +222,8 @@ public class TypeNarrower extends BLangNodeVisitor {
         SymbolEnv targetEnv = getTargetEnv(targetNode, env);
         narrowedTypes.forEach((symbol, typeInfo) -> {
             BVarSymbol originalSym = getOriginalVarSymbol(symbol);
-            symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, originalSym,
-                                                 typeInfo.falseType, originalSym.origin == VIRTUAL, false);
+            symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, originalSym, typeInfo.falseType,
+                    originalSym.origin == VIRTUAL);
         });
 
         return targetEnv;

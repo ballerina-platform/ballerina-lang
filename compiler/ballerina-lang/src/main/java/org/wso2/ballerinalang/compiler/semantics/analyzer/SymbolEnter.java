@@ -4243,7 +4243,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void defineTypeNarrowedSymbol(Location location, SymbolEnv targetEnv, BVarSymbol symbol,
-                                         BType type, boolean isInternal, boolean isAffectedByReachability) {
+                                         BType type, boolean isInternal) {
 
         if (symbol.owner.tag == SymTag.PACKAGE) {
             // Avoid defining shadowed symbol for global vars, since the type is not narrowed.
@@ -4262,7 +4262,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         varSymbol.originalName = symbol.getOriginalName();
         varSymbol.owner = symbol.owner;
         varSymbol.originalSymbol = symbol;
-        varSymbol.isAffectedByReachability = isAffectedByReachability;
         defineShadowedSymbol(location, varSymbol, targetEnv);
     }
 

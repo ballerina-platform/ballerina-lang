@@ -480,6 +480,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (BLangStatement stmt : body.stmts) {
             analyzeStmt(stmt, env);
         }
+
+        // Make sure that the block's env is removed from the immediate prevEnv
+        removeBlockEnv(body);
         resetNotCompletedNormally();
     }
 
@@ -1751,6 +1754,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangBlockStmt blockNode) {
         env = SymbolEnv.createBlockEnv(blockNode, env);
         blockNode.stmts.forEach(stmt -> analyzeStmt(stmt, env));
+
+        // Make sure that the block's env is removed from the immediate prevEnv
+        removeBlockEnv(blockNode);
+    }
+
+    private void removeBlockEnv(BLangNode block) {
+        if (this.prevEnvs.peek() != null && this.prevEnvs.peek().node == block) {
+            this.prevEnvs.pop();
+        }
     }
 
     public void visit(BLangSimpleVariableDef varDefNode) {
@@ -2393,9 +2405,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (ifNode.elseStmt == null && ifCompletionStatus) {
             BLangExpression expr = ifNode.expr;
-            this.env = typeNarrower.evaluateFalsityForSingleIf(expr, env);
-            this.notCompletedNormally = ConditionResolver.checkConstCondition(types, symTable, ifNode.expr) ==
-                    symTable.trueType;
+            boolean constTrueCondition =
+                    ConditionResolver.checkConstCondition(types, symTable, expr) == symTable.trueType;
+            if (!constTrueCondition) {
+                SymbolEnv narrowedEnv = typeNarrower.evaluateFalsityFollowingIfWithoutElse(expr, env);
+                this.prevEnvs.push(narrowedEnv);
+            }
+            this.notCompletedNormally = constTrueCondition;
         }
 
         if (ifNode.elseStmt != null) {
@@ -2484,7 +2500,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (varRef != null && varRef.symbol != symTable.notFoundSymbol) {
                     BVarSymbol originalVarSym = typeNarrower.getOriginalVarSymbol((BVarSymbol) varRef.symbol);
                     symbolEnter.defineTypeNarrowedSymbol(varRef.pos, blockEnv, originalVarSym,
-                            matchPattern.getBType(), originalVarSym.origin == VIRTUAL, false);
+                            matchPattern.getBType(), originalVarSym.origin == VIRTUAL);
                 }
             }
 
@@ -4459,9 +4475,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BSymbol foundSym = symResolver.lookupSymbolInMainSpace(env, varSymbol.name);
 
         // Terminate if we reach the env where the original symbol is available.
-        if (foundSym == varSymbol || (foundSym == symTable.notFoundSymbol &&
-                lhsExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
-                ((BVarSymbol) ((BLangSimpleVarRef) lhsExpr).symbol).isAffectedByReachability)) {
+        if (foundSym == varSymbol) {
             prevEnvs.push(env);
             return;
         }
@@ -4470,8 +4484,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Here the existing fall-back env will be replaced by a new env.
         // i.e: [new fall-back env] = [snapshot of old fall-back env] + [new symbol]
         env = SymbolEnv.createTypeNarrowedEnv(lhsExpr, env);
-        symbolEnter.defineTypeNarrowedSymbol(lhsExpr.pos, env, varSymbol, varSymbol.type,
-                varSymbol.origin == VIRTUAL, false);
+        symbolEnter.defineTypeNarrowedSymbol(lhsExpr.pos, env, varSymbol, varSymbol.type, varSymbol.origin == VIRTUAL);
         SymbolEnv prevEnv = prevEnvs.pop();
         defineOriginalSymbol(lhsExpr, varSymbol, prevEnv);
         prevEnvs.push(env);

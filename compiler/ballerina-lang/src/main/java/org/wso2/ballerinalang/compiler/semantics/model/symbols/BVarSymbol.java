@@ -45,8 +45,6 @@ public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
 
     // Only used for type-narrowing. Cache of the original symbol.
     public BVarSymbol originalSymbol;
-    // Used to identify whether the symbol is narrowed for a single if statement which is not completed normally.
-    public boolean isAffectedByReachability = false;
 
     public BVarSymbol(long flags, Name name, Name originalName, PackageID pkgID, BType type, BSymbol owner,
                       Location pos, SymbolOrigin origin) {

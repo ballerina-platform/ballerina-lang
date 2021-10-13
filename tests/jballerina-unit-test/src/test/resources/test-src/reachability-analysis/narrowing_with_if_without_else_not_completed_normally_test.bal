@@ -187,3 +187,38 @@ function testUnreachableCodeWithTypeNarrowing10() {
 
     string y = x;
 }
+
+function testTypeNarrowingWithIfWithoutElseNotCompletedNormally1() {
+    int|string a = 1;
+    if a is int|string {
+        a = 2;
+        return;
+    }
+
+    string b = a;
+}
+
+function testTypeNarrowingWithIfWithoutElseNotCompletedNormally2() {
+    int|string a = 1;
+    int? b = 12;
+    string? c = "A";
+    if a is int {
+        a = 2;
+        return;
+    }
+    if b is () {
+        return;
+    }
+    int y = a;
+    if c is () {
+        int x = 24;
+        return;
+    }
+    a = "A";
+    int x = a;
+
+    string z = b;
+
+    c = "B";
+    string v = c;
+}

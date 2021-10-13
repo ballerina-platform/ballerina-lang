@@ -169,7 +169,8 @@ public class ReachabilityAnalysisTest {
 
     @Test
     public void testSemanticsInNarrowingWithSingleIfNotCompletedNoramlly() {
-        CompileResult result = BCompileUtil.compile("test-src/reachability-analysis/narrowing_with_single_if_test.bal");
+        CompileResult result = BCompileUtil.compile(
+                "test-src/reachability-analysis/narrowing_with_if_without_else_not_completed_normally_test.bal");
         int i = 0;
         validateError(result, i++, "incompatible types: expected 'int', found 'string'", 25, 17);
         validateError(result, i++, "incompatible types: expected 'boolean', found '(int|string|boolean)'", 28, 17);
@@ -177,7 +178,7 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, "incompatible types: expected 'boolean', found '(int|string|boolean)'", 65, 21);
         validateError(result, i++, "incompatible types: expected 'int', found 'boolean'", 67, 13);
         validateError(result, i++, "incompatible types: expected 'int', found 'boolean'", 79, 13);
-        validateError(result, i++, "incompatible types: expected 'int', found '(int|string)'", 93, 21);
+        validateError(result, i++, "incompatible types: expected 'int', found 'string'", 93, 21);
         validateError(result, i++, "incompatible types: expected 'string', found '(int|string)'", 101, 16);
         validateError(result, i++, "incompatible types: expected 'string', found '(int|string)'", 122, 16);
         validateError(result, i++, "incompatible types: expected 'int', found 'string'", 135, 17);
@@ -188,6 +189,11 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, "incompatible types: expected 'boolean', found 'boolean?'", 182, 25);
         validateError(result, i++, "incompatible types: expected 'int', found 'int?'", 185, 17);
         validateError(result, i++, "incompatible types: expected 'string', found '(int|string)'", 188, 16);
+        validateError(result, i++, "incompatible types: expected 'string', found '(int|string)'", 198, 16);
+        validateError(result, i++, "incompatible types: expected 'int', found 'string'", 212, 13);
+        validateError(result, i++, "incompatible types: expected 'int', found '(int|string)'", 218, 13);
+        validateError(result, i++, "incompatible types: expected 'string', found 'int'", 220, 16);
+        validateError(result, i++, "incompatible types: expected 'string', found 'string?'", 223, 16);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }

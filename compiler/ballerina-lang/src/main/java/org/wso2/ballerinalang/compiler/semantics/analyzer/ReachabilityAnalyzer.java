@@ -490,7 +490,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             LinkedHashSet<BType> memberTypes = ((BUnionType) funcNode.returnTypeNode.getBType()).getMemberTypes();
             if (memberTypes.contains(symTable.nilType) && !this.statementReturnsPanicsOrFails) {
                 this.dlog.warning(funcNode.returnTypeNode.pos,
-                        DiagnosticWarningCode.FUNCTION_SHOULD_EXPLICITLY_RETURN_NIL);
+                        DiagnosticWarningCode.FUNCTION_SHOULD_EXPLICITLY_RETURN_A_VALUE);
             }
         }
     }
@@ -716,7 +716,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
 
         BSymbol foundSym = symResolver.lookupSymbolInMainSpace(loopEnv, name);
         if (foundSym != symTable.notFoundSymbol && foundSym.tag == SymTag.VARIABLE &&
-                (((BVarSymbol) foundSym).originalSymbol == null || ((BVarSymbol) foundSym).isAffectedByReachability)) {
+                ((BVarSymbol) foundSym).originalSymbol == null) {
             return;
         }
 

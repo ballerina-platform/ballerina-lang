@@ -281,15 +281,20 @@ public class SymbolTable {
         defineCyclicUnionBasedInternalTypes();
 
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
-                                                                names.fromString("$anonType$TrueFalse"),
+                                                                names.fromString("$anonType$TRUE"),
                                                                 rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
                                                                 this.builtinPos, VIRTUAL);
         this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<>() {{
             add(trueLiteral);
         }});
-        this.falseType = new BFiniteType(finiteTypeSymbol, new HashSet<>() {{
+
+        BTypeSymbol falseFiniteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
+                names.fromString("$anonType$FALSE"), rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
+                this.builtinPos, VIRTUAL);
+        this.falseType = new BFiniteType(falseFiniteTypeSymbol, new HashSet<>() {{
             add(falseLiteral);
         }});
+
         this.anyAndReadonly =
                 ImmutableTypeCloner.getImmutableIntersectionType((SelectivelyImmutableReferenceType) this.anyType,
                         this, names);
