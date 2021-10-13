@@ -18,33 +18,41 @@
 
 package org.ballerinalang.langserver.extensions.ballerina.connector;
 
-import java.util.ArrayList;
+import org.ballerinalang.central.client.model.connector.BalConnector;
+
 import java.util.List;
 
 /**
- * Response to sending connector information.
+ * Request to get connectorList.
  *
  * @since 2.0.0
  */
-public class BallerinaConnectorsResponse {
+public class BallerinaConnectorListResponse {
 
-    private List<BallerinaConnectorInfo> connectors = new ArrayList<BallerinaConnectorInfo>();
+    private List<BalConnector> central;
+    private List<BalConnector> local;
 
-    public BallerinaConnectorsResponse() {
+    public BallerinaConnectorListResponse() {
     }
 
-    public BallerinaConnectorsResponse(List<BallerinaConnectorInfo> connectors) {
-        this.connectors = connectors;
+    public BallerinaConnectorListResponse(List<BalConnector> central, List<BalConnector> local) {
+        this.central = central;
+        this.local = local;
     }
 
-    public List<BallerinaConnectorInfo> getConnectors() {
-        return connectors;
+    public List<BalConnector> getCentralConnectors() {
+        return central;
     }
 
-    @Override
-    public String toString() {
-        return "BallerinaConnectorsResponse{" +
-                "ballerinaConnectors=" + connectors +
-                '}';
+    public void setCentralConnectors(List<BalConnector> central) {
+        this.central = central;
+    }
+
+    public List<BalConnector> getLocalConnectors() {
+        return local;
+    }
+
+    public void setLocalConnectors(List<BalConnector> local) {
+        this.local = local;
     }
 }

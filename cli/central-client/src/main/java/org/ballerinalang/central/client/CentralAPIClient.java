@@ -21,6 +21,7 @@ package org.ballerinalang.central.client;
 import com.google.gson.Gson;
 import okhttp3.Cache;
 import okhttp3.Call;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -38,6 +39,8 @@ import org.ballerinalang.central.client.model.PackageNameResolutionResponse;
 import org.ballerinalang.central.client.model.PackageResolutionRequest;
 import org.ballerinalang.central.client.model.PackageResolutionResponse;
 import org.ballerinalang.central.client.model.PackageSearchResult;
+import org.ballerinalang.central.client.model.connector.BalConnector;
+import org.ballerinalang.central.client.model.connector.BalConnectorSearchResult;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -48,6 +51,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
@@ -81,6 +86,7 @@ import static org.ballerinalang.central.client.Utils.isApplicationJsonContentTyp
 public class CentralAPIClient {
 
     private static final String PACKAGES = "packages";
+    private static final String CONNECTORS = "connectors";
     private static final String RESOLVE_DEPENDENCIES = "resolve-dependencies";
     private static final String RESOLVE_MODULES = "resolve-modules";
     private static final String ERR_CANNOT_FIND_PACKAGE = "error: could not connect to remote repository to find " +
@@ -90,6 +96,7 @@ public class CentralAPIClient {
     private static final String ERR_CANNOT_PUSH = "error: failed to push the package: ";
     private static final String ERR_CANNOT_PULL_PACKAGE = "error: failed to pull the package: ";
     private static final String ERR_CANNOT_SEARCH = "error: failed to search packages: ";
+    private static final String ERR_CANNOT_GET_CONNECTOR = "error: failed to find connector: ";
     private static final String ERR_PACKAGE_RESOLUTION = "error: while connecting to central: ";
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private final String baseUrl;
@@ -210,7 +217,7 @@ public class CentralAPIClient {
                     if (getVersionsResponse.code() == HTTP_OK) {
                         return getAsList(body.get().string());
                     }
-    
+
                     // Package is not found
                     if (getVersionsResponse.code() == HTTP_NOT_FOUND) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
@@ -222,7 +229,7 @@ public class CentralAPIClient {
                                                              ". reason: " + error.getMessage());
                         }
                     }
-    
+
                     // If request sent is wrong or error occurred at remote repository
                     if (getVersionsResponse.code() == HTTP_BAD_REQUEST ||
                         getVersionsResponse.code() == HTTP_INTERNAL_ERROR ||
@@ -335,7 +342,7 @@ public class CentralAPIClient {
                             throw new CentralClientException(error.getMessage());
                         }
                     }
-    
+
                     // When error occurred at remote repository
                     if (packagePushResponse.code() == HTTP_INTERNAL_ERROR ||
                         packagePushResponse.code() == HTTP_UNAVAILABLE) {
@@ -435,7 +442,7 @@ public class CentralAPIClient {
                     throw new CentralClientException(errorMsg);
                 }
             }
-    
+
             body = Optional.ofNullable(packagePullResponse.body());
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
@@ -448,7 +455,7 @@ public class CentralAPIClient {
                             throw new CentralClientException("error: " + error.getMessage());
                         }
                     }
-    
+
                     //  When error occurred at remote repository
                     if (packagePullResponse.code() == HTTP_INTERNAL_ERROR ||
                         packagePullResponse.code() == HTTP_UNAVAILABLE) {
@@ -464,7 +471,7 @@ public class CentralAPIClient {
                     }
                 }
             }
-            
+
             String errorMsg = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature +
                     "' from the remote repository '" + url + "'.");
             throw new CentralClientException(errorMsg);
@@ -638,7 +645,7 @@ public class CentralAPIClient {
                     if (searchResponse.code() == HTTP_OK) {
                         return new Gson().fromJson(body.get().string(), PackageSearchResult.class);
                     }
-        
+
                     // If search request was sent wrongly
                     if (searchResponse.code() == HTTP_BAD_REQUEST) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
@@ -646,7 +653,7 @@ public class CentralAPIClient {
                             throw new CentralClientException(error.getMessage());
                         }
                     }
-        
+
                     // If error occurred at remote repository
                     if (searchResponse.code() == HTTP_INTERNAL_ERROR ||
                         searchResponse.code() == HTTP_UNAVAILABLE) {
@@ -673,6 +680,100 @@ public class CentralAPIClient {
     }
 
     /**
+     * Get connectors with search filters.
+     *
+     * @param packageName       The connector package name.
+     * @param supportedPlatform The supported platform.
+     * @param ballerinaVersion  The ballerina version.
+     * @return Connector list.
+     * @throws CentralClientException Central Client exception.
+     */
+    public BalConnectorSearchResult getConnectors(String packageName, String supportedPlatform, String ballerinaVersion)
+            throws CentralClientException {
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
+        try {
+            HttpUrl url = HttpUrl.parse(this.baseUrl).newBuilder()
+                    .addPathSegment(CONNECTORS)
+                    .addQueryParameter("package", packageName)
+                    .build();
+
+            Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .get()
+                    .url(url)
+                    .build();
+
+            Call httpRequestCall = client.newCall(searchReq);
+            Response searchResponse = httpRequestCall.execute();
+
+            body = Optional.ofNullable(searchResponse.body());
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString()) &&
+                        searchResponse.code() == HttpsURLConnection.HTTP_OK) {
+                    return new Gson().fromJson(body.get().string(), BalConnectorSearchResult.class);
+                }
+            }
+            handleResponseErrors(searchResponse, ERR_CANNOT_GET_CONNECTOR + " request:" + packageName);
+            return null;
+        } catch (IOException e) {
+            throw new CentralClientException(ERR_CANNOT_GET_CONNECTOR + "'" + packageName
+                    + "'. reason: " + e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+    /**
+     * Get connector by id.
+     *
+     * @param id                Connector id.
+     * @param supportedPlatform The supported platform.
+     * @param ballerinaVersion  String supportedPlatform.
+     * @return Connector.
+     * @throws CentralClientException Central Client exception.
+     */
+    public BalConnector getConnector(String id, String supportedPlatform, String ballerinaVersion)
+            throws CentralClientException {
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
+        try {
+            Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .get()
+                    .url(this.baseUrl + "/" + CONNECTORS + "/" + id)
+                    .build();
+
+            Call httpRequestCall = client.newCall(searchReq);
+            Response searchResponse = httpRequestCall.execute();
+
+            body = Optional.ofNullable(searchResponse.body());
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString()) &&
+                        searchResponse.code() == HttpsURLConnection.HTTP_OK) {
+                    return new Gson().fromJson(body.get().string(), BalConnector.class);
+                }
+            }
+            handleResponseErrors(searchResponse, ERR_CANNOT_GET_CONNECTOR + " id:" + id);
+            return null;
+        } catch (IOException e) {
+            throw new CentralClientException(ERR_CANNOT_GET_CONNECTOR + "'" + id + "'. reason: " + e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+    /**
      * Gets an new http client.
      *
      * @return the client
@@ -682,6 +783,39 @@ public class CentralAPIClient {
                 .followRedirects(false)
                 .proxy(this.proxy)
                 .build();
+    }
+
+    /**
+     * Handle response errors.
+     *
+     * @param response The response.
+     * @param msg      Custom error message.
+     * @throws CentralClientException Central Client exception.
+     * @throws IOException
+     */
+    protected void handleResponseErrors(Response response, String msg) throws CentralClientException, IOException {
+        Optional<ResponseBody> body = Optional.ofNullable(response.body());
+        if (body.isPresent()) {
+            // If search request was sent wrongly
+            if (response.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
+                    response.code() == HTTP_NOT_FOUND) {
+                Error error = new Gson().fromJson(body.get().string(), Error.class);
+                if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                    throw new CentralClientException(error.getMessage());
+                }
+            }
+
+            // If error occurred at remote repository
+            if (response.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR ||
+                    response.code() == HTTP_UNAVAILABLE) {
+                Error error = new Gson().fromJson(body.get().string(), Error.class);
+                if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                    throw new CentralClientException(msg + "' reason:" + error.getMessage());
+                }
+            }
+        }
+
+        throw new CentralClientException(msg);
     }
 
     /**

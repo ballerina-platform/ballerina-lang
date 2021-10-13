@@ -25,55 +25,68 @@ package org.ballerinalang.langserver.extensions.ballerina.connector;
  */
 public class BallerinaConnectorRequest {
 
-    private String org;
-    private String module;
+    private String id;
+    private String orgName;
+    private String moduleName;
     private String version = "";
     private String name;
-    private String displayName;
-    private Boolean beta;
 
-    public BallerinaConnectorRequest(String org, String module, String version,
-                                     String name, String displayName, Boolean beta) {
-        this.org = org;
-        this.module = module;
+    public BallerinaConnectorRequest(String id, String orgName, String moduleName, String version, String name) {
+        this.id = id;
+        this.orgName = orgName;
+        this.moduleName = moduleName;
         this.version = version;
         this.name = name;
-        this.displayName = displayName;
-        this.beta = beta;
     }
 
-    public String getOrg() {
-        return org;
+    public String getId() {
+        return id;
     }
 
-    public String getModule() {
-        return module;
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public void setOrgName(String orgName) {
+        this.orgName = orgName;
+    }
+
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
     }
 
     public String getVersion() {
         return version;
     }
 
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
     public String getName() {
         return name;
     }
 
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public Boolean getBeta() {
-        return beta;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
     public String toString() {
         return "BallerinaConnectorRequest{" +
-                "org='" + org + '\'' +
-                ", module='" + module + '\'' +
+                "id='" + id + '\'' +
+                ", orgName='" + orgName + '\'' +
+                ", moduleName='" + moduleName + '\'' +
                 ", version='" + version + '\'' +
                 ", name='" + name + '\'' +
-                ", beta=" + beta +
                 '}';
     }
 }
