@@ -4944,6 +4944,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             switch (parentKind) {
                 // If the parent is a function before we reach a match clause, this isn't directly called in the
                 // match guard.
+                case LAMBDA:
                 case FUNCTION:
                 case RESOURCE_FUNC:
                     return null;

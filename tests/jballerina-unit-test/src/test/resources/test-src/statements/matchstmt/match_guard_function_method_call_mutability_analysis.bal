@@ -305,3 +305,61 @@ function f16() {
         }
     }
 }
+
+// To be uncommented after https://github.com/ballerina-platform/ballerina-lang/issues/33216 is fixed.
+// function f17() {
+//     int[] x = [1, 2];
+//
+//     match x {
+//         [1, 2] if function () { _ = nonIsolatedFn(1); } is isolated function () => {
+//         }
+//     }
+// }
+
+function f18() {
+    int[] x = [1, 2];
+
+    match x {
+        // To be uncommented after https://github.com/ballerina-platform/ballerina-lang/issues/33216 is fixed.
+        // [1, 2] if function () {
+        //                 int y = nonIsolatedFn("") ? 1 : 2;
+        //                 NonIsolatedClass c = new;
+        //                 match y {
+        //                     1 if nonIsolatedFn("") || c.nonIsolatedFn(2) => {
+        //                     }
+        //                 }
+        //             } is isolated function () => {
+        // }
+        [1, 2] if service object {
+                        boolean b = isolatedFn([]);
+
+                        function f1() {
+                            int y = 2;
+                            IsolatedClass c = new;
+                            match y {
+                                1 if nonIsolatedFn("") || c.nonIsolatedFn(2) => {
+                                }
+                            }
+                        }
+
+                        remote function f2() {
+                            IsolatedClass c = new;
+                            int y = c.nonIsolatedFn(2) ? 0 : 1;
+                            match y {
+                                1 if nonIsolatedFn("") => {
+                                }
+                            }
+                        }
+
+                        resource function get f3() {
+                            NonIsolatedClass c = new;
+                            int y = c.nonIsolatedFn(2) ? 0 : 1;
+                            match y {
+                                1 if nonIsolatedFn("") => {
+                                }
+                            }
+                        }
+                    } is service object {function f1();} => {
+        }
+    }
+}
