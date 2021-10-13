@@ -61,41 +61,6 @@ import static org.testng.Assert.assertTrue;
  */
 public class SymbolLookupTest {
 
-    @Test(dataProvider = "PositionProvider1")
-    public void testVarSymbolLookup(int line, int column, int expSymbols, List<String> expSymbolNames) {
-        Project project = BCompileUtil.loadProject("test-src/var_symbol_lookup_test.bal");
-        Package currentPackage = project.currentPackage();
-        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
-        PackageCompilation packageCompilation = currentPackage.getCompilation();
-        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
-        Document srcFile = getDocumentForSingleSource(project);
-
-        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
-        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
-
-        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, srcFile, line, column, moduleID);
-
-        assertEquals(symbolsInFile.size(), expSymbols);
-        for (String symName : expSymbolNames) {
-            assertTrue(symbolsInFile.containsKey(symName), "Symbol not found: " + symName);
-        }
-    }
-
-    @DataProvider(name = "PositionProvider1")
-    public Object[][] getPositions() {
-        List<String> moduleLevelSymbols = asList("aString", "anInt", "test", "HELLO");
-        return new Object[][]{
-                {2, 13, 4, moduleLevelSymbols},
-                {19, 17, 4, moduleLevelSymbols},
-//                {20, 30, 4, moduleLevelSymbols}, // TODO: Feature not yet supported - issue #25607
-                {20, 38, 5, asList("aString", "anInt", "test", "HELLO", "greet")},
-                {21, 0, 5, asList("aString", "anInt", "test", "HELLO", "greet")},
-                // TODO: issue #25607
-//                {22, 59, 6, asList("aString", "anInt", "test", "HELLO", "greet", "name")},
-                {30, 12, 8, getSymbolNames(moduleLevelSymbols, "greet", "a", "x", "greetFn")},
-        };
-    }
-
     @Test(dataProvider = "PositionProvider2")
     public void testVarSymbolLookupInWorkers(int line, int column, int expSymbols, List<String> expSymbolNames) {
         Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_workers_test.bal");

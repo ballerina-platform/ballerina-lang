@@ -148,6 +148,7 @@
 
             <!--Visible Symbols-->
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInModuleLevelDeclsTest" />
+            <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInStatementsTest" />
 
         </classes>
     </test>
