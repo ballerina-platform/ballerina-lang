@@ -104,6 +104,21 @@ public class MatchGuardAnalysisTest {
         BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 160, 19);
         BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 162, 19);
         BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 162, 60);
+        BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 219, 35);
+        BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 228, 29);
+        BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 228, 37);
+        BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 230, 23);
+        BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 237, 33);
+        BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 237, 38);
+        BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 237, 44);
+        BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 239, 20);
+        BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 239, 21);
+        BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 239, 29);
+        BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 241, 20);
+        BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 241, 21);
+        BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 241, 29);
+        BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 243, 35);
+        BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 243, 35);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }

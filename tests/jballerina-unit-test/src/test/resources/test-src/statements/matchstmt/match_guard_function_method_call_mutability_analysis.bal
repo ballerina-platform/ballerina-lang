@@ -363,3 +363,46 @@ function f18() {
         }
     }
 }
+
+isolated class Foo {
+    private int[] i;
+
+    isolated function init(int[] i) {
+        self.i = i.clone();
+    }
+
+    isolated function isolatedFn() returns boolean {
+        lock {
+            return self.i.length() == 0;
+        }
+    }
+}
+
+readonly class IntStreamImplementor {
+    public isolated function next() returns record {| int value; |}? => {value: 0};
+}
+
+function f19() {
+    int[] x = [1, 2];
+    int[] & readonly y = [1, 2];
+
+    match x {
+        [1, ...var r] if new Foo(y) is isolated object {} => {
+        }
+        [2, ...var r] if (let Foo f = new Foo(y) in f.isolatedFn()) => {
+        }
+        [3] if new stream<int>(new IntStreamImplementor()) is stream<byte> => {
+        }
+    }
+}
+
+function f20() {
+    int[] x = [1, 2];
+
+    match x {
+        [1, ...var r] if object {
+                                int i = 1;
+                            } is isolated object { int i; } => {
+        }
+    }
+}

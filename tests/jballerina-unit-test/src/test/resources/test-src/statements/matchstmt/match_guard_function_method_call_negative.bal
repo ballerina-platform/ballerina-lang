@@ -163,3 +163,84 @@ function f4() {
         }
     }
 }
+
+record {} p = {};
+
+class Foo {
+    record {} i;
+
+    isolated function init(record {} i) {
+        self.i = i;
+    }
+
+    function nonIsolatedFn() returns boolean {
+        return p.length() == 0;
+    }
+}
+
+class Bar {
+    record {} i;
+
+    function init(record {} i) {
+        p = i;
+        self.i = p;
+    }
+
+    function nonIsolatedFn() returns boolean {
+        return p.length() == 0;
+    }
+}
+
+isolated class Baz {
+    private int[] i;
+
+    isolated function init(int[] i) {
+        self.i = i.clone();
+    }
+
+    isolated function isolatedFn() returns boolean {
+        lock {
+            return self.i.length() == 0;
+        }
+    }
+}
+
+class IntStreamImplementor {
+    function init() {
+    }
+
+    public isolated function next() returns record {| int value; |}? => {value: 0};
+}
+
+function f5() {
+    int[] x = [1, 2];
+
+    match x {
+        [1, ...var r] if (new Baz(x)).isolatedFn() => {
+        }
+    }
+}
+
+function f6() {
+    record {} r = {"x": 1};
+
+    match r {
+        var {x, y} if <any> new Bar(r) is Bar|int => {
+        }
+        var {x, z} if object {
+                            int i = 1;
+
+                            function init() {
+                            }
+                        } is isolated object { int i; } => {
+        }
+        var {x} if (let Foo f = new (r) in f.nonIsolatedFn()) => {
+        }
+        var {y} if (new Foo(r)).nonIsolatedFn() => {
+        }
+        var {z} if (new Bar(r)).nonIsolatedFn() => {
+        }
+        var {} if new stream<int>(new IntStreamImplementor()) is stream<byte> => {
+        }
+    }
+}
