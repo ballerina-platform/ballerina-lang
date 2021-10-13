@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -28,9 +29,11 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link LetVariableDeclarationNode} context.
@@ -89,5 +92,19 @@ public class LetVariableDeclarationNodeContext extends AbstractCompletionProvide
         }
         return !equalsToken.isMissing() && equalsToken.textRange().startOffset() < cursor
                 && (expression.isMissing() || cursor <= expression.textRange().endOffset());
+    }
+    @Override
+    public void sort(BallerinaCompletionContext context, LetVariableDeclarationNode node,
+                     List<LSCompletionItem> completionItems) {
+        Optional<TypeSymbol> typeSymbolAtCursor = context.getContextType();
+        if (typeSymbolAtCursor.isEmpty()) {
+            super.sort(context, node, completionItems);
+            return;
+        }
+        TypeSymbol symbol = typeSymbolAtCursor.get();
+        for (LSCompletionItem completionItem : completionItems) {
+            completionItem.getCompletionItem()
+                    .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
+        }
     }
 }
