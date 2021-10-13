@@ -146,6 +146,9 @@
             <class name="io.ballerina.semantic.api.test.langlib.TypeParamBoundTableFunctionsTest" />
             <class name="io.ballerina.semantic.api.test.langlib.TypeParamBoundXMLFunctionsTest" />
 
+            <!--Visible Symbols-->
+            <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInModuleLevelDeclsTest" />
+
         </classes>
     </test>
 </suite>
