@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
-import io.ballerina.compiler.syntax.tree.LetExpressionNode;
 import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -143,18 +142,7 @@ public class CompletionUtil {
 
         context.setNodeAtCursor(nonTerminalNode);
     }
-
-    /**
-     * Check whether the "in" Keyword is missing where it is needed in Let Expressions.
-     */
-    public static boolean isInKWMissing(LetExpressionNode node) {
-        boolean isLastLetVarDeclExpressionMissing = node.letVarDeclarations().isEmpty() 
-                || node.letVarDeclarations().get(node.letVarDeclarations().size() - 1)
-                .expression().textRange().length() == 0;
-        boolean isInKeywordMissing = node.inKeyword().isMissing();
-        return  isInKeywordMissing && !isLastLetVarDeclExpressionMissing;
-    }
-
+    
     /**
      * Check whether the cursor is within a comment.
      */

@@ -17,8 +17,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.LetExpressionNode;
-import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -46,20 +44,12 @@ public class LetExpressionNodeContext extends AbstractCompletionProvider<LetExpr
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, LetExpressionNode node) 
             throws LSCompletionException {
-        if (CompletionUtil.isInKWMissing(node)) {
+        int cursor = context.getCursorPositionInTree();
+        if (!node.letVarDeclarations().isEmpty() && node.inKeyword().isMissing()
+                && node.letVarDeclarations().get(node.letVarDeclarations().size() - 1)
+                .expression().textRange().endOffset() < cursor) {
             return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_IN.get()));
         }
         return CompletionUtil.route(context, node.parent());
-    }
-    
-    @Override
-    public boolean onPreValidation(BallerinaCompletionContext context, LetExpressionNode node) {
-        int cursor = context.getCursorPositionInTree();
-        if (node.parent().kind() == SyntaxKind.LET_VAR_DECL) {
-            LetVariableDeclarationNode letVariableDeclarationNode = (LetVariableDeclarationNode) node.parent();
-            return !letVariableDeclarationNode.equalsToken().isMissing()
-                    && letVariableDeclarationNode.equalsToken().textRange().startOffset() < cursor;
-        }
-        return true;
     }
 }
