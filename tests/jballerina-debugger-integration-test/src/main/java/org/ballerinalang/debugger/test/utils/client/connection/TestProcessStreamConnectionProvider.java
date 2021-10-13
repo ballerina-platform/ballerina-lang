@@ -22,8 +22,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -37,24 +39,27 @@ public class TestProcessStreamConnectionProvider implements TestStreamConnection
     private static final Logger LOG = LoggerFactory.getLogger(TestProcessStreamConnectionProvider.class);
     private final List<String> commands;
     private final String workingDir;
+    private final String balHome;
+    private static final String JAVA_OPTS = "JAVA_OPTS";
 
-    public TestProcessStreamConnectionProvider(List<String> commands, String workingDir) {
+    public TestProcessStreamConnectionProvider(List<String> commands, String workingDir, String balHome) {
         this.commands = commands;
         this.workingDir = workingDir;
+        this.balHome = balHome;
     }
 
     private Process process = null;
 
     public void start() throws IOException {
         if (workingDir == null || commands == null || commands.isEmpty() || commands.contains(null)) {
-            throw new IOException("Unable to start debug server: " + this.toString());
+            throw new IOException("Unable to start debug server: " + this);
         }
         ProcessBuilder builder = createProcessBuilder();
         LOG.info("Starting server process with commands " + commands + " and workingDir " + workingDir);
-        // builder.environment().put("BAL_JAVA_DEBUG", "5006");
+        configureJacocoAgentArgs(builder.environment());
         process = builder.start();
         if (!process.isAlive()) {
-            throw new IOException("Unable to start debug server: " + this.toString());
+            throw new IOException("Unable to start debug server: " + this);
         } else {
             LOG.info("Server process started " + process);
         }
@@ -65,6 +70,25 @@ public class TestProcessStreamConnectionProvider implements TestStreamConnection
         builder.directory(new File(workingDir));
         builder.redirectError(ProcessBuilder.Redirect.INHERIT);
         return builder;
+    }
+
+    /**
+     * Injects jacoco agent args into the debug server VM environment.
+     */
+    private void configureJacocoAgentArgs(Map<String, String> envProperties) {
+        String agentArgs = String.format("-javaagent:%s=destfile=%s ", Paths.get(balHome).resolve("bre").resolve("lib")
+                .resolve("jacocoagent.jar"), Paths.get(System.getProperty("user.dir")).resolve("build")
+                .resolve("jacoco").resolve("test.exec"));
+
+        String javaOpts = "";
+        if (envProperties.containsKey(JAVA_OPTS)) {
+            javaOpts = envProperties.get(JAVA_OPTS);
+        }
+        if (javaOpts.contains("jacoco.agent")) {
+            return;
+        }
+        javaOpts = agentArgs + javaOpts;
+        envProperties.put(JAVA_OPTS, javaOpts);
     }
 
     @Override
