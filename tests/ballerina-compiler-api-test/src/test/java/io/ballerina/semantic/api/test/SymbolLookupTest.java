@@ -203,28 +203,6 @@ public class SymbolLookupTest {
     }
 
     @Test
-    public void testSymbolLookupInOnFail() {
-        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_in_onfail.bal");
-        Package currentPackage = project.currentPackage();
-        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
-        PackageCompilation packageCompilation = currentPackage.getCompilation();
-        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
-        Document srcFile = getDocumentForSingleSource(project);
-
-        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
-        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
-
-        Map<String, Symbol> symbolsInDo = getSymbolsInFile(model, srcFile, 20, 21, moduleID);
-        assertList(symbolsInDo, Arrays.asList("test", "e1", "str"));
-
-        Map<String, Symbol> symbolsInTrx = getSymbolsInFile(model, srcFile, 24, 18, moduleID);
-        assertList(symbolsInTrx, Arrays.asList("test", "res"));
-
-        Map<String, Symbol> symbolsInTrxOnFail = getSymbolsInFile(model, srcFile, 26, 21, moduleID);
-        assertList(symbolsInTrxOnFail, Arrays.asList("test", "e2", "str"));
-    }
-
-    @Test
     public void testSymbolLookupInQuery() {
         Project project = BCompileUtil.loadProject("test-src/symbol_lookup_in_query.bal");
         Package currentPackage = project.currentPackage();
