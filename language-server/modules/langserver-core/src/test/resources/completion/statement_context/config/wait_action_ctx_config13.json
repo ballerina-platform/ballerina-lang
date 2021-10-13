@@ -1,0 +1,127 @@
+{
+  "position": {
+    "line": 8,
+    "character": 20
+  },
+  "source": "statement_context/source/wait_action_ctx_source13.bal",
+  "items": [
+    {
+      "label": "ENUM1_FIELD1",
+      "kind": "EnumMember",
+      "detail": "ENUM1_FIELD1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "J",
+      "insertText": "ENUM1_FIELD1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TEST_INT_CONST1",
+      "kind": "Variable",
+      "detail": "1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "E",
+      "insertText": "TEST_INT_CONST1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TEST_STRING_CONST1",
+      "kind": "Variable",
+      "detail": "HELLO WORLD",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "E",
+      "insertText": "TEST_STRING_CONST1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "listener1",
+      "kind": "Variable",
+      "detail": "module1:Listener",
+      "sortText": "E",
+      "insertText": "listener1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function1()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "function1",
+      "insertText": "function1()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function2()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "function2",
+      "insertText": "function2()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function3(int param1, int param2, float... param3)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Return** `int`   \n- Return Value Description  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "function3",
+      "insertText": "function3(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "function4(int param1, int param2, string param3, float... param4)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function4 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description"
+        }
+      },
+      "sortText": "C",
+      "filterText": "function4",
+      "insertText": "function4(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    }
+  ]
+}
