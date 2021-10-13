@@ -97,18 +97,19 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 {"create_function_with_strands2.json", "create_function_with_strands1.bal"},
                 {"create_function_with_strands3.json", "create_function_with_strands1.bal"},
                 {"create_function_with_strands4.json", "create_function_with_strands1.bal"},
-                
+
                 {"create_function_in_if_statement1.json", "create_function_in_if_statement1.bal"},
                 {"create_function_in_if_statement2.json", "create_function_in_if_statement2.bal"},
                 {"create_function_in_if_statement3.json", "create_function_in_if_statement3.bal"},
                 {"create_function_in_if_statement4.json", "create_function_in_if_statement4.bal"},
-                
+
                 {"create_function_in_expression1.json", "create_function_in_expression1.bal"},
-                {"create_function_in_function_call_expr1.json","create_function_in_function_call_expr1.bal"},
-                {"create_function_in_method_call_expr1.json","create_function_in_method_call_expr1.bal"},
-                {"create_function_in_implicit_new_expression1.json","create_function_in_implicit_new_expression1.bal"},
-                {"create_function_in_explicit_new_expression1.json","create_function_in_explicit_new_expression1.bal"},
-                {"create_function_in_remote_method_call_action1.json","create_function_in_remote_method_call_action1.bal"}
+                {"create_function_in_function_call_expr1.json", "create_function_in_function_call_expr1.bal"},
+                {"create_function_in_method_call_expr1.json", "create_function_in_method_call_expr1.bal"},
+                {"create_function_in_implicit_new_expression1.json", "create_function_in_implicit_new_expression1.bal"},
+                {"create_function_in_explicit_new_expression1.json", "create_function_in_explicit_new_expression1.bal"},
+                {"create_function_in_remote_method_call_action1.json", 
+                        "create_function_in_remote_method_call_action1.bal"}
         };
     }
 
