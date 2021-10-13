@@ -27,6 +27,7 @@ import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
+import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
 import org.ballerinalang.debugadapter.config.ClientAttachConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigurationException;

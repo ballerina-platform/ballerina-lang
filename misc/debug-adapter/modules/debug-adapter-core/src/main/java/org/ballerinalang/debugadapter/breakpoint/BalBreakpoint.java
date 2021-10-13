@@ -16,15 +16,18 @@
  * under the License.
  */
 
-package org.ballerinalang.debugadapter;
+package org.ballerinalang.debugadapter.breakpoint;
 
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.Source;
 
 import java.util.Optional;
+import java.util.regex.Pattern;
+
+import static org.ballerinalang.debugadapter.breakpoint.LogMessage.INTERPOLATION_REGEX;
 
 /**
- * Information about ballerina breakpoint (Properties).
+ * Holds Ballerina breakpoint related information.
  *
  * @since 2.0.0
  */
@@ -33,7 +36,7 @@ public class BalBreakpoint {
     private final Source source;
     private final int line;
     private String condition;
-    private String logMessage;
+    private LogMessage logMessage;
 
     public BalBreakpoint(Source source, int line) {
         this.source = source;
@@ -56,12 +59,16 @@ public class BalBreakpoint {
         this.condition = condition;
     }
 
-    public Optional<String> getLogMessage() {
+    public Optional<LogMessage> getLogMessage() {
         return Optional.ofNullable(logMessage);
     }
 
     public void setLogMessage(String logMessage) {
-        this.logMessage = logMessage;
+        if (isTemplate(logMessage)) {
+            this.logMessage = new TemplateLogMessage(logMessage);
+        } else if (logMessage != null && !logMessage.isBlank()) {
+            this.logMessage = new PlainTextLogMessage(logMessage);
+        }
     }
 
     public Breakpoint getAsDAPBreakpoint() {
@@ -70,5 +77,9 @@ public class BalBreakpoint {
         breakpoint.setSource(source);
         breakpoint.setVerified(true);
         return breakpoint;
+    }
+
+    private boolean isTemplate(String logMessage) {
+        return logMessage != null && Pattern.compile(INTERPOLATION_REGEX).matcher(logMessage).find();
     }
 }

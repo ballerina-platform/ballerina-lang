@@ -14,6 +14,29 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "insertText": "test1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test as test1 ;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
@@ -504,27 +527,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
+      "label": "test",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "AF",
       "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
+      "insertTextFormat": "Snippet"
     }
   ]
 }
