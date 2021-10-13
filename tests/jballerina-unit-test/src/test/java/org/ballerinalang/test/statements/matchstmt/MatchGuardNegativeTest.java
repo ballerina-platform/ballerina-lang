@@ -28,7 +28,19 @@ import org.testng.annotations.Test;
  *
  * @since 2.0.0
  */
-public class MatchGuardCodeAnalysisNegativeTest {
+public class MatchGuardNegativeTest {
+
+    @Test
+    public void testMatchGuardTypeCheckingNegative() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/statements/matchstmt/match_guard_type_checking_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'boolean', found '()'", 25, 25);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'boolean', found 'int'", 37, 14);
+        BAssertUtil.validateError(result, i++, "operator '||' not defined for 'boolean' and 'int'", 39, 14);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'boolean', found 'int'", 41, 14);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
 
     @Test
     public void testMatchGuardCodeAnalysisNegative() {
