@@ -1,2 +1,2 @@
 function testFunction(float x) =>
-    let float y = 
+    let float x2 = 

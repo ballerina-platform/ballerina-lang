@@ -1,2 +1,2 @@
 function testFunction(float x) =>
-    let  
+    let float x2 
