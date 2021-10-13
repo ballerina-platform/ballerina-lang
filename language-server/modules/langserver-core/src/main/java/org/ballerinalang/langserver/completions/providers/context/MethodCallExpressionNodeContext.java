@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
@@ -101,19 +102,35 @@ public class MethodCallExpressionNodeContext extends FieldAccessContext<MethodCa
     public void sort(BallerinaCompletionContext context,
                      MethodCallExpressionNode node,
                      List<LSCompletionItem> completionItems) {
-        if (!withinParameterContext(context, node)) {
-            super.sort(context, node, completionItems);
-            return;
-        }
-        Optional<TypeSymbol> parameterSymbol = context.getContextType();
-        if (parameterSymbol.isEmpty()) {
-            SortingUtil.toDefaultSorting(context, completionItems);
-            return;
-        }
-        TypeSymbol symbol = parameterSymbol.get();
+        boolean withinParameterCtx = withinParameterContext(context, node);
         for (LSCompletionItem completionItem : completionItems) {
-            completionItem.getCompletionItem()
-                    .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
+            int rank;
+            // Here, we want to rank methods/functions first
+            switch (completionItem.getType()) {
+                case OBJECT_FIELD:
+                case RECORD_FIELD:
+                    rank = withinParameterCtx ? 1 : 2;
+                    break;
+                case SYMBOL:
+                    Optional<Symbol> symbol = ((SymbolCompletionItem) completionItem).getSymbol();
+                    if (symbol.stream().anyMatch(sym -> sym.kind() == SymbolKind.METHOD)) {
+                        rank = withinParameterCtx ? 3 : 1;
+                        break;
+                    } else if (symbol.stream().anyMatch(sym -> sym.kind() == SymbolKind.FUNCTION)) {
+                        rank = withinParameterCtx ? 3 : 1;
+                        break;
+                    } else if (symbol.stream().anyMatch(sym -> sym.kind() == SymbolKind.XMLNS)) {
+                        rank = withinParameterCtx ? 2 : 3;
+                        break;
+                    } else {
+                        rank = SortingUtil.toRank(context, completionItem, 3);
+                        break;
+                    }
+                default:
+                    rank = SortingUtil.toRank(context, completionItem, 3);
+            }
+
+            sortByAssignability(context, completionItem, rank);
         }
     }
 }

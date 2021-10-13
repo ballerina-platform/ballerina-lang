@@ -96,11 +96,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -150,6 +152,10 @@ public class CommonUtil {
     public static final boolean COMPILE_OFFLINE;
 
     public static final String BALLERINA_CMD;
+
+    public static final String URI_SCHEME_BALA = "bala";
+    public static final String URI_SCHEME_FILE = "file";
+    public static final String LANGUAGE_ID_BALLERINA = "ballerina";
 
     public static final String MARKDOWN_MARKUP_KIND = "markdown";
 
@@ -1112,6 +1118,51 @@ public class CommonUtil {
     }
 
     /**
+     * Check if the provided path should be readonly. Paths residing in ballerina home and home repo are considered as
+     * such.
+     *
+     * @param filePath Path to be checked
+     * @return True if the provided path should be readonly
+     */
+    public static boolean isWriteProtectedPath(Path filePath) {
+        Path homeReposPath = RepoUtils.createAndGetHomeReposPath();
+        Path ballerinaHome = CommonUtil.BALLERINA_HOME != null ? Paths.get(CommonUtil.BALLERINA_HOME) : null;
+
+        return filePath.startsWith(homeReposPath) || ballerinaHome != null && filePath.startsWith(ballerinaHome);
+    }
+
+    /**
+     * Check and convert the URI scheme of the provided fileUri from bala (if it's bala) to file.
+     *
+     * @param fileUri URI to be converted.
+     * @return URI with file scheme
+     * @throws URISyntaxException URI parsing errors
+     */
+    public static String convertUriSchemeFromBala(String fileUri) throws URISyntaxException {
+        URI uri = new URI(fileUri);
+        if (URI_SCHEME_BALA.equals(uri.getScheme())) {
+            URI converted = new URI(URI_SCHEME_FILE, uri.getUserInfo(), uri.getHost(), uri.getPort(),
+                    uri.getPath(), uri.getQuery(), uri.getFragment());
+            return converted.toString();
+        }
+        return fileUri;
+    }
+
+    /**
+     * Get the URI with bala scheme for provided path.
+     *
+     * @param filePath File path
+     * @return URI with bala scheme
+     * @throws URISyntaxException URI creation errors
+     */
+    public static String getBalaUriForPath(Path filePath) throws URISyntaxException {
+        URI uri = filePath.toUri();
+        uri = new URI(URI_SCHEME_BALA, uri.getUserInfo(), uri.getHost(), uri.getPort(),
+                uri.getPath(), uri.getQuery(), uri.getFragment());
+        return uri.toString();
+    }
+
+    /**
      * Find node of this range.
      *
      * @param range      {@link Range}
@@ -1134,16 +1185,17 @@ public class CommonUtil {
      * @param syntaxTree {@link SyntaxTree}
      * @return {@link NonTerminalNode}
      */
-    public static NonTerminalNode findNode(Symbol symbol, SyntaxTree syntaxTree) {
+    public static Optional<NonTerminalNode> findNode(Symbol symbol, SyntaxTree syntaxTree) {
         if (symbol.getLocation().isEmpty()) {
-            return null;
+            return Optional.empty();
         }
 
         TextDocument textDocument = syntaxTree.textDocument();
         LineRange symbolRange = symbol.getLocation().get().lineRange();
         int start = textDocument.textPositionFrom(symbolRange.startLine());
         int end = textDocument.textPositionFrom(symbolRange.endLine());
-        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, end - start), true);
+        return Optional.ofNullable(((ModulePartNode) syntaxTree.rootNode())
+                .findNode(TextRange.from(start, end - start), true));
     }
 
     public static boolean isWithinLineRange(Position pos, LineRange lineRange) {

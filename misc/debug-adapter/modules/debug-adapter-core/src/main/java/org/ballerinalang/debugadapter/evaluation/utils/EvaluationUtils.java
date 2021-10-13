@@ -165,7 +165,9 @@ public class EvaluationUtils {
     // Misc
     public static final String STRAND_VAR_NAME = "__strand";
     public static final String REST_ARG_IDENTIFIER = "...";
-    public static final String MODULE_VERSION_SEPARATOR = "\\.";
+    public static final String MODULE_NAME_SEPARATOR = ".";
+    public static final String MODULE_VERSION_SEPARATOR_REGEX = "\\.";
+    public static final String MODULE_NAME_SEPARATOR_REGEX = "\\.";
 
     private EvaluationUtils() {
     }
@@ -253,7 +255,7 @@ public class EvaluationUtils {
     }
 
     /**
-     * As some of the the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
+     * As some of the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
      * java primitive types need to be converted into their wrapper implementations.
      *
      * @param value JDI value instance.
@@ -307,7 +309,7 @@ public class EvaluationUtils {
     }
 
     /**
-     * As some of the the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
+     * As some of the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
      * java primitive types need to be converted into their wrapper implementations.
      *
      * @param variable ballerina variable instance.

@@ -28,14 +28,27 @@ import java.util.Optional;
  */
 public class StringSchema extends PrimitiveValueSchema<String> {
     private final String pattern;
+    private final Integer minLength;
+    private final Integer maxLength;
 
-    public StringSchema(Type type, Map<String, String> message, String pattern, String defaultValue) {
+    public StringSchema(Type type, Map<String, String> message, String pattern, String defaultValue, Integer minLength
+            , Integer maxLength) {
         super(type, message, defaultValue);
         this.pattern = pattern;
+        this.minLength = minLength;
+        this.maxLength = maxLength;
     }
 
     public Optional<String> pattern() {
         return Optional.ofNullable(pattern);
+    }
+
+    public Optional<Integer> minLength() {
+        return Optional.ofNullable(minLength);
+    }
+
+    public Optional<Integer> maxLength() {
+        return Optional.ofNullable(maxLength);
     }
 
     @Override

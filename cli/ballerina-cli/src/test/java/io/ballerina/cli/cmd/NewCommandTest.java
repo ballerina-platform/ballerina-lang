@@ -471,6 +471,23 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.isDirectory(tmpDir.resolve("parent").resolve("sub_dir").resolve("sample")));
     }
 
+    @Test(description = "Test new command with package name has more than 256 characters")
+    public void testNewCommandWithinPackageNameHasMoreThan256Chars() throws IOException {
+        String packageName = "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting";
+        String[] args = {packageName};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
+        new CommandLine(newCommand).parse(args);
+        newCommand.execute();
+
+        Assert.assertTrue(readOutput().contains("invalid package name : '" + packageName + "' :\n"
+                + "Maximum length of package name is 256 characters."));
+    }
     static class Copy extends SimpleFileVisitor<Path> {
         private Path fromPath;
         private Path toPath;

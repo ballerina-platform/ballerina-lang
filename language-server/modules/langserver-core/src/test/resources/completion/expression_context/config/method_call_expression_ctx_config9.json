@@ -1,0 +1,175 @@
+{
+  "position": {
+    "line": 8,
+    "character": 18
+  },
+  "source": "expression_context/source/method_call_expression_ctx_source9.bal",
+  "items": [
+    {
+      "label": "testFunction1",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` param  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "BE",
+      "filterText": "testFunction1",
+      "insertText": "testFunction1",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "testFunction1(int param)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` param  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "BA",
+      "filterText": "testFunction1",
+      "insertText": "testFunction1(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "testFunction2",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `function (int fParam) returns int` param  \n- `int` val  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "BE",
+      "filterText": "testFunction2",
+      "insertText": "testFunction2",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "testFunction2(function (int fParam) returns int param, int val)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `function (int fParam) returns int` param  \n- `int` val  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "BA",
+      "filterText": "testFunction2",
+      "insertText": "testFunction2(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "fn3",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "AE",
+      "filterText": "fn3",
+      "insertText": "fn3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fn3()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "BA",
+      "filterText": "fn3",
+      "insertText": "fn3()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fn4",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "AE",
+      "filterText": "fn4",
+      "insertText": "fn4",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fn4()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "BA",
+      "filterText": "fn4",
+      "insertText": "fn4()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getFloat",
+      "kind": "Variable",
+      "detail": "float",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `float`   \n  \n"
+        }
+      },
+      "sortText": "BE",
+      "filterText": "getFloat",
+      "insertText": "getFloat",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getFloat()",
+      "kind": "Function",
+      "detail": "float",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `float`   \n  \n"
+        }
+      },
+      "sortText": "BA",
+      "filterText": "getFloat",
+      "insertText": "getFloat()",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
