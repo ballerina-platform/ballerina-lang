@@ -4936,6 +4936,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private BLangExpression getMatchedExprIfCalledInMatchGuard(BLangInvocation invocation) {
+        BLangNode prevParent = invocation;
         BLangNode parent = invocation.parent;
         boolean encounteredMatchGuard = false;
         while (parent != null) {
@@ -4955,8 +4956,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     return null;
                 case MATCH_GUARD:
                     encounteredMatchGuard = true;
+                    break;
+                case INVOCATION:
+                    BLangInvocation parentInvocation = (BLangInvocation) parent;
+
+                    if (parentInvocation.langLibInvocation || prevParent != parentInvocation.expr) {
+                        // Argument to a call. Return early and let it be handled for the parent invocation.
+                        return null;
+                    }
             }
 
+            prevParent = parent;
             parent = parent.parent;
         }
         return null;
