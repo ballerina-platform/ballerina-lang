@@ -4908,6 +4908,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BSymbol invocationSymbol = invocation.symbol;
 
         if (invocationSymbol == null) {
+            BLangNode parent = invocation.parent;
+            if (parent == null || parent.getKind() != NodeKind.TYPE_INIT_EXPR) {
+                return;
+            }
+
+            BLangTypeInit newExpr = (BLangTypeInit) parent;
+            if (newExpr.getBType().tag != TypeTags.STREAM) {
+                return;
+            }
+
+            List<BLangExpression> argsExpr = newExpr.argsExpr;
+            if (argsExpr.isEmpty()) {
+                return;
+            }
+
+            BLangExpression streamImplementorExpr = argsExpr.get(0);
+            BType type = streamImplementorExpr.getBType();
+            if (!types.isInherentlyImmutableType(type) && !Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+                dlog.error(streamImplementorExpr.pos,
+                           DiagnosticErrorCode.INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD);
+            }
             return;
         }
 
