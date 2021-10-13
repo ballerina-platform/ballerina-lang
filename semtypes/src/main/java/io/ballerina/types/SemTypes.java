@@ -38,6 +38,7 @@ public class SemTypes {
     public static final SemType UINT8 = PredefinedType.BYTE;
     public static final SemType UINT16 = IntSubtype.intWidthUnsigned(16);
     public static final SemType UINT32 = IntSubtype.intWidthUnsigned(32);
+    public static final SemType CHAR = PredefinedType.STRING_CHAR;
 
     public static SemType floatConst(double v) {
         return FloatSubtype.floatConst(v);

@@ -643,6 +643,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             return resolveIntSubtype(name);
         }
 
+        else if (name.equals("Char") && td.pkgAlias.value.equals("string")) {
+            return SemTypes.CHAR;
+        }
+
         BLangNode moduleLevelDef = mod.get(name);
         if (moduleLevelDef == null) {
             dlog.error(td.pos, DiagnosticErrorCode.REFERENCE_TO_UNDEFINED_TYPE, td.typeName);
