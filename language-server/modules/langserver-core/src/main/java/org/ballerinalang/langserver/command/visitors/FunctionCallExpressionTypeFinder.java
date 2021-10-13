@@ -39,6 +39,7 @@ import io.ballerina.compiler.syntax.tree.LetExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
@@ -257,6 +258,33 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
             ParameterSymbol parameterSymbol = params.get().get(argIndex);
             checkAndSetTypeResult(parameterSymbol.typeDescriptor());
         }
+    }
+
+    @Override
+    public void visit(NamedArgumentNode namedArgumentNode) {
+        namedArgumentNode.parent().accept(this);
+        if (!resultFound) {
+            return;
+        }
+        FunctionTypeSymbol functionTypeSymbol;
+        if (returnTypeSymbol.typeKind() == TypeDescKind.FUNCTION) {
+            functionTypeSymbol = (FunctionTypeSymbol) returnTypeSymbol;
+        } else if (returnTypeSymbol instanceof ClassSymbol) {
+            Optional<MethodSymbol> methodSymbol = ((ClassSymbol) returnTypeSymbol).initMethod();
+            if (methodSymbol.isEmpty()) {
+                return;
+            }
+            functionTypeSymbol = methodSymbol.get().typeDescriptor();
+        } else {
+            return;
+        }
+        Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
+        if (params.isEmpty() || params.get().isEmpty()) {
+            return;
+        }
+        params.get().stream().filter(param -> param.getName().isPresent() 
+                        && param.getName().get().equals(namedArgumentNode.argumentName().name().text())).findFirst()
+                .ifPresent(parameterSymbol -> this.checkAndSetTypeResult(parameterSymbol.typeDescriptor()));
     }
 
     @Override
