@@ -1,0 +1,17 @@
+function foo() {
+    a = 25.;
+    a = 0x.;
+    a = 0X.;
+    a = 0x4Eb2.;
+    a = 0x4Eb2.p12;
+    a = 0x4Eb2.p+12;
+    a = 0x4Eb2.p-12;
+    a = 0x4Eb2.P12;
+    a = 0x4Eb2.P+12;
+    a = 0x4Eb2.P-12;
+    a = 0x.+0x11;
+    a = 0xAB.+0x11;
+    a = 0x.max;
+    a = 0x;
+    a = 0X;
+}
