@@ -303,6 +303,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean failVisited;
     private boolean hasLastPatternInStatement;
     private boolean withinLockBlock;
+    private boolean inMatchGuard;
     private SymbolTable symTable;
     private Types types;
     private BLangDiagnosticLog dlog;
@@ -985,7 +986,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchGuard matchGuard) {
+        boolean prevInMatchGuard = this.inMatchGuard;
+        this.inMatchGuard = true;
         analyzeExpr(matchGuard.expr, env);
+        this.inMatchGuard = prevInMatchGuard;
     }
 
     private void checkSimilarMatchPatternsBetweenClauses(BLangMatchClause firstClause, BLangMatchClause secondClause) {
@@ -3363,6 +3367,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExprs(invocationExpr.requiredArgs);
         analyzeExprs(invocationExpr.restArgs);
 
+        validateInvocationInMatchGuard(invocationExpr);
+
         if ((invocationExpr.symbol != null) && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
             BSymbol funcSymbol = invocationExpr.symbol;
             if (Symbols.isFlagOn(funcSymbol.flags, Flags.TRANSACTIONAL) && !withinTransactionScope) {
@@ -3384,6 +3390,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
+        validateInvocationInMatchGuard(actionInvocation);
+
         if (!actionInvocation.async && !this.withinTransactionScope &&
                 Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL)) {
             dlog.error(actionInvocation.pos, DiagnosticErrorCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED,
@@ -4881,6 +4889,77 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         prevInfo.locations.addAll(currentBranchLocations);
+    }
+
+    private void validateInvocationInMatchGuard(BLangInvocation invocation) {
+        BLangExpression matchedExpr = getMatchedExprIfCalledInMatchGuard(invocation);
+
+        if (matchedExpr == null) {
+            return;
+        }
+
+        BType matchedExprType = matchedExpr.getBType();
+
+        if (types.isInherentlyImmutableType(matchedExprType) ||
+                Symbols.isFlagOn(matchedExprType.flags, Flags.READONLY)) {
+            return;
+        }
+
+        BSymbol invocationSymbol = invocation.symbol;
+
+        if (invocationSymbol == null) {
+            return;
+        }
+
+        long flags = invocationSymbol.flags;
+        boolean methodCall = Symbols.isFlagOn(flags, Flags.ATTACHED);
+
+        boolean callsNonIsolatedFunction = !Symbols.isFlagOn(flags, Flags.ISOLATED) ||
+                (methodCall && !Symbols.isFlagOn(invocationSymbol.owner.flags, Flags.ISOLATED));
+
+        if (callsNonIsolatedFunction) {
+            dlog.error(invocation.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_CALL_IN_MATCH_GUARD);
+        }
+
+        List<BLangExpression> args = new ArrayList<>(invocation.requiredArgs);
+        args.addAll(invocation.restArgs);
+
+        for (BLangExpression arg : args) {
+            BType type = arg.getBType();
+
+            if (type != symTable.semanticError &&
+                    !types.isInherentlyImmutableType(type) &&
+                    !Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+                dlog.error(arg.pos, DiagnosticErrorCode.INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD);
+            }
+        }
+    }
+
+    private BLangExpression getMatchedExprIfCalledInMatchGuard(BLangInvocation invocation) {
+        BLangNode parent = invocation.parent;
+        boolean encounteredMatchGuard = false;
+        while (parent != null) {
+            NodeKind parentKind = parent.getKind();
+            switch (parentKind) {
+                // If the parent is a function before we reach a match clause, this isn't directly called in the
+                // match guard.
+                case FUNCTION:
+                case RESOURCE_FUNC:
+                    return null;
+                case MATCH_CLAUSE:
+                    if (encounteredMatchGuard) {
+                        return ((BLangMatchStatement) parent.parent).expr;
+                    }
+                    // If the parent is a match clause before we reach a match guard this isn't directly called in the
+                    // match guard.
+                    return null;
+                case MATCH_GUARD:
+                    encounteredMatchGuard = true;
+            }
+
+            parent = parent.parent;
+        }
+        return null;
     }
 
     /**
