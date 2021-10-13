@@ -597,12 +597,12 @@ public class Types {
     public boolean isSubTypeOfBaseType(BType type, int baseTypeTag) {
         if (type.tag != TypeTags.UNION) {
 
-            if (TypeTags.isIntegerTypeTag(type.tag) && TypeTags.isIntegerTypeTag(baseTypeTag)) {
-                return isIntegerSubtypeOfBaseType(type, baseTypeTag);
+            if (TypeTags.isIntegerTypeTag(type.tag) && TypeTags.INT == baseTypeTag) {
+                return true;
             }
 
-            if (TypeTags.isStringTypeTag(type.tag) && TypeTags.isStringTypeTag(baseTypeTag)) {
-                return isStringSubtypeOfBaseType(type, baseTypeTag);
+            if (TypeTags.isStringTypeTag(type.tag) && TypeTags.STRING == baseTypeTag) {
+                return true;
             }
 
             return type.tag == baseTypeTag || (baseTypeTag == TypeTags.TUPLE && type.tag == TypeTags.ARRAY)
@@ -613,84 +613,6 @@ public class Types {
             return true;
         }
         return isUnionMemberTypesSubTypeOfBaseType(((BUnionType) type).getMemberTypes(), baseTypeTag);
-    }
-
-    private boolean isStringSubtypeOfBaseType(BType type, int baseTypeTag) {
-        switch (baseTypeTag) {
-            case TypeTags.STRING:
-                return true;
-            case TypeTags.CHAR_STRING:
-                return type.tag == TypeTags.CHAR_STRING;
-            default:
-                return false;
-        }
-    }
-
-    private boolean isIntegerSubtypeOfBaseType(BType type, int baseTypeTag) {
-        switch (baseTypeTag) {
-            case TypeTags.INT:
-                return true;
-            case TypeTags.SIGNED32_INT:
-                switch (type.tag) {
-                    case TypeTags.SIGNED32_INT:
-                    case TypeTags.SIGNED16_INT:
-                    case  TypeTags.SIGNED8_INT:
-                    case TypeTags.UNSIGNED16_INT:
-                    case TypeTags.UNSIGNED8_INT:
-                    case TypeTags.BYTE:
-                        return true;
-                    default:
-                        return false;
-                }
-
-            case TypeTags.SIGNED16_INT:
-                switch (type.tag) {
-                    case TypeTags.SIGNED16_INT:
-                    case  TypeTags.SIGNED8_INT:
-                    case TypeTags.UNSIGNED8_INT:
-                    case TypeTags.BYTE:
-                        return true;
-                    default:
-                        return false;
-                }
-
-            case TypeTags.SIGNED8_INT:
-                return type.tag == TypeTags.SIGNED8_INT;
-
-            case TypeTags.UNSIGNED32_INT:
-                switch (type.tag) {
-                    case TypeTags.SIGNED16_INT:
-                    case  TypeTags.SIGNED8_INT:
-                    case TypeTags.UNSIGNED16_INT:
-                    case TypeTags.UNSIGNED8_INT:
-                    case TypeTags.BYTE:
-                        return true;
-                    default:
-                        return false;
-                }
-
-            case TypeTags.UNSIGNED16_INT:
-                switch (type.tag) {
-                    case  TypeTags.SIGNED8_INT:
-                    case TypeTags.UNSIGNED8_INT:
-                    case TypeTags.BYTE:
-                        return true;
-                    default:
-                        return false;
-                }
-
-            case TypeTags.BYTE:
-            case TypeTags.UNSIGNED8_INT:
-                switch (type.tag) {
-                    case  TypeTags.SIGNED8_INT:
-                    case TypeTags.BYTE:
-                        return true;
-                    default:
-                        return false;
-                }
-            default:
-                return false;
-        }
     }
 
     private boolean isUnionMemberTypesSubTypeOfBaseType(LinkedHashSet<BType> memberTypes, int baseTypeTag) {
