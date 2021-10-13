@@ -122,7 +122,7 @@ public class AddCommand implements BLauncherCmd {
         }
 
         // Check if more than one argument is provided
-        if (!(1 == argList.size())) {
+        if (1 != argList.size()) {
             CommandUtil.printError(errStream,
                     "too many arguments",
                     "bal add <module-name>",
@@ -137,10 +137,19 @@ public class AddCommand implements BLauncherCmd {
         if (!matches) {
             CommandUtil.printError(errStream,
                     "invalid module name : '" + moduleName + "' :\n" +
-                            "Module name can only contain alphanumerics, underscores and periods " +
-                            "and the maximum length is 256 characters.",
+                            "Module name can only contain alphanumerics, underscores and periods.",
                     null,
                     false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        if (!ProjectUtils.validateNameLength(moduleName)) {
+            CommandUtil.printError(errStream,
+                                   "invalid module name : '" + moduleName + "' :\n" +
+                                           "Maximum length of module name is 256 characters.",
+                                   null,
+                                   false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
