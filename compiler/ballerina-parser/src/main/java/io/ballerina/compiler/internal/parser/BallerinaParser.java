@@ -5513,7 +5513,6 @@ public class BallerinaParser extends AbstractParser {
             case SYNC_SEND_TOKEN:
             case ANNOT_CHAINING_TOKEN:
             case OPTIONAL_CHAINING_TOKEN:
-            case QUESTION_MARK_TOKEN:
             case COLON_TOKEN:
             case DOT_LT_TOKEN:
             case SLASH_LT_TOKEN:
@@ -5521,6 +5520,8 @@ public class BallerinaParser extends AbstractParser {
             case SLASH_ASTERISK_TOKEN:
             case NOT_IS_KEYWORD:
                 return true;
+            case QUESTION_MARK_TOKEN:
+                return getNextNextToken().kind != SyntaxKind.EQUAL_TOKEN && peek(3).kind != SyntaxKind.EQUAL_TOKEN;
             default:
                 return isBinaryOperator(tokenKind);
         }
