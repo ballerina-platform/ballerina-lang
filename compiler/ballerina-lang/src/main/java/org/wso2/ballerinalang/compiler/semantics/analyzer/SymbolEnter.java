@@ -641,9 +641,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Need to replace this with a real package lookup
         if (td.pkgAlias.value.equals("int")) {
             return resolveIntSubtype(name);
-        }
-
-        else if (name.equals("Char") && td.pkgAlias.value.equals("string")) {
+        } else if (name.equals("Char") && td.pkgAlias.value.equals("string")) {
             return SemTypes.CHAR;
         }
 
