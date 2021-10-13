@@ -724,7 +724,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             // variable names
             for (ParameterSymbol parameterSymbol : functionTypeSymbol.params().get()) {
                 String varName = "";
-                TypeSymbol parameterTypeSymbol = CommonUtil.getRawType(parameterSymbol.typeDescriptor());
+                TypeSymbol parameterTypeSymbol = parameterSymbol.typeDescriptor();
                 varName = CommonUtil.generateParameterName(varName, argIndex, parameterTypeSymbol,
                         visibleSymbolNames);
                 args.add(FunctionGenerator.getParameterTypeAsString(context, parameterTypeSymbol) + " " + varName);
