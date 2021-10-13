@@ -17,7 +17,7 @@
 const c1 = "foo";
 const c2 = 1;
 
-function func() {
+function testRegularCompoundStmts() {
     any|error v = {x1: 1, b: true};
 
     match v {
@@ -40,5 +40,23 @@ function func() {
         {} => {
 
         }
+    }
+
+    foreach var i in 1...10 {
+        float y = 1.2;
+
+        while (true) {
+            string z = "Z";
+
+            lock {
+                // cursor pos
+            }
+        }
+        float z = 2.3;
+        // cursor pos
+    }
+
+    do {
+       // cursor pos
     }
 }

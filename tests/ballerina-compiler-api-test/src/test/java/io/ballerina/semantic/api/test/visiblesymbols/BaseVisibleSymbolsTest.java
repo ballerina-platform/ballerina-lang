@@ -50,9 +50,9 @@ import static org.testng.Assert.assertTrue;
  */
 public abstract class BaseVisibleSymbolsTest {
 
-    private SemanticModel model;
-    private ModuleID moduleID;
-    private Document srcFile;
+    protected SemanticModel model;
+    protected ModuleID moduleID;
+    protected Document srcFile;
 
     @BeforeClass
     public void setup() {

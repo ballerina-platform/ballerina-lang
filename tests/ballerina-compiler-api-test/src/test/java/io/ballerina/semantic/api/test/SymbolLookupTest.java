@@ -294,38 +294,6 @@ public class SymbolLookupTest {
         assert symbolStringList.containsAll(expectedNameList);
     }
 
-    @Test(dataProvider = "PositionProvider5")
-    public void testSymbolLookupInMatchClause(int line, int column, int expSymbols, List<String> expSymbolNames) {
-        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_in_match.bal");
-        Package currentPackage = project.currentPackage();
-        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
-        PackageCompilation packageCompilation = currentPackage.getCompilation();
-        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
-        Document srcFile = getDocumentForSingleSource(project);
-
-        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
-        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
-
-        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, srcFile, line, column, moduleID);
-        assertEquals(symbolsInFile.size(), expSymbols);
-
-        for (String symName : expSymbolNames) {
-            assertTrue(symbolsInFile.containsKey(symName), "Symbol not found: " + symName);
-        }
-    }
-
-    @DataProvider(name = "PositionProvider5")
-    public Object[][] getPositionsForMatchStatement() {
-        return new Object[][]{
-                {24, 26, 7, asList("a", "func", "v", "c1", "c2", "x1", "x2")},
-                {28, 26, 7, asList("b", "func", "v", "c1", "c2", "x3", "x4")},
-                {32, 26, 7, asList("c", "func", "v", "c1", "c2", "x5", "x6")},
-                {35, 18, 5, asList("func", "v", "c1", "c2", "x7")},
-                {36, 26, 6, asList("d", "func", "v", "c1", "c2", "x7")},
-                {39, 9, 4, asList("func", "v", "c1", "c2")}
-        };
-    }
-
     @Test
     public void testRedeclaredSymbolLookup() {
         Project project = BCompileUtil.loadProject("test-src/errored_symbol_lookup_test.bal");
