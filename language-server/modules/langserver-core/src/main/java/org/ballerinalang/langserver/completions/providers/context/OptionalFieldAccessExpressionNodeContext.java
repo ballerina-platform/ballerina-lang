@@ -29,7 +29,8 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class OptionalFieldAccessExpressionNodeContext extends FieldAccessContext<OptionalFieldAccessExpressionNode> {
+public class OptionalFieldAccessExpressionNodeContext
+        extends AbstractFieldAccessExpressionNodeContext<OptionalFieldAccessExpressionNode> {
     public OptionalFieldAccessExpressionNodeContext() {
         super(OptionalFieldAccessExpressionNode.class);
     }
@@ -37,7 +38,7 @@ public class OptionalFieldAccessExpressionNodeContext extends FieldAccessContext
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, OptionalFieldAccessExpressionNode node)
             throws LSCompletionException {
-        List<LSCompletionItem> completionItems = getEntries(ctx, node.expression(), true);
+        List<LSCompletionItem> completionItems = getEntries(ctx, node.expression());
         this.sort(ctx, node, completionItems);
 
         return completionItems;

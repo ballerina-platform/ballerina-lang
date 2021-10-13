@@ -1394,12 +1394,11 @@ function testTableEquality() {
         ];
     var tbl4 = tbl2;
     anydata tbl5 = table key(name) [
-            {name: "Amy", id: 1234},
-            {name: "John", id: 4567}
-        ];
-    var ids = checkpanic table key(id) from var {id} in tbl1
-        select {id};
-    table<record {|int id;|}> key(id) tbl6 = ids;
+        {name: "Amy", id: 1234},
+        {name: "John", id: 4567}
+    ];
+    var ids = checkpanic table key(id) from var {id} in tbl1 select {id};
+    table<record {| readonly int id; |}> key(id) tbl6 = ids;
     StudentTable tbl7 = table key(name) [
             {name: "Amy", id: 1234},
             {name: "John", id: 4567}

@@ -44,6 +44,9 @@ public class TrialTreeParserTest {
     private static final String EXPRESSION_TESTCASES = "testcases/treeparser.expression.json";
     private static final String MODULE_DCLN_TESTCASES = "testcases/treeparser.moduledcln.json";
     private static final String MISC_TESTCASES = "testcases/treeparser.misc.json";
+    private static final String MODULE_DCLN_MAIN_TESTCASE = "testcases/treeparser.dcln.main.json";
+    private static final String MODULE_DCLN_INIT_TESTCASE = "testcases/treeparser.dcln.init.json";
+    private static final String MODULE_DCLN_RESERVED_TESTCASE = "testcases/treeparser.dcln.underscore.json";
 
     @Test
     public void testImportParse() {
@@ -76,6 +79,21 @@ public class TrialTreeParserTest {
         testParse(MISC_TESTCASES, Node.class);
     }
 
+    @Test(expectedExceptions = TreeParserException.class)
+    public void testModuleDclnNameMainTest() throws TreeParserException {
+        testModuleDclnName(MODULE_DCLN_MAIN_TESTCASE);
+    }
+
+    @Test(expectedExceptions = TreeParserException.class)
+    public void testModuleDclnNameInitTest() throws TreeParserException {
+        testModuleDclnName(MODULE_DCLN_INIT_TESTCASE);
+    }
+
+    @Test(expectedExceptions = TreeParserException.class)
+    public void testModuleDclnNameReservedTest() throws TreeParserException {
+        testModuleDclnName(MODULE_DCLN_RESERVED_TESTCASE);
+    }
+
     private void testParse(String fileName, Class<?> parentClazz) {
         TestCases testCases = TestUtils.loadTestCases(fileName, TestCases.class);
         TreeParser treeParser = TestUtils.getTestTreeParser();
@@ -88,6 +106,14 @@ public class TrialTreeParserTest {
             } catch (TreeParserException e) {
                 Assert.assertNull(testCase.getExpected(), testCase.getName() + " error: " + e.getMessage());
             }
+        }
+    }
+
+    private void testModuleDclnName(String fileName) throws TreeParserException {
+        TestCases testCases = TestUtils.loadTestCases(fileName, TestCases.class);
+        TreeParser treeParser = TestUtils.getTestTreeParser();
+        for (TestCase testCase : testCases) {
+            treeParser.parse(testCase.getInput());
         }
     }
 }

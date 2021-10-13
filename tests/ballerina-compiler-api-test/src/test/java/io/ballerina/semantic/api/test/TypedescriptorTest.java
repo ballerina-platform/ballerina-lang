@@ -710,8 +710,8 @@ public class TypedescriptorTest {
     @DataProvider(name = "ConstantPosProvider")
     public Object[][] getConstPos() {
         return new Object[][]{
-                {16, 6, "3.14"},
-                {210, 6, "()"},
+                {16, 6, "PI"},
+                {210, 6, "NIL"},
         };
     }
 
@@ -733,11 +733,14 @@ public class TypedescriptorTest {
 
     @Test
     public void testFunctionTypedesc() {
-        FunctionSymbol symbol = (FunctionSymbol) getSymbol(216, 13);
-        assertTrue(symbol.typeDescriptor().params().isEmpty());
-        assertTrue(symbol.typeDescriptor().restParam().isEmpty());
-        assertTrue(symbol.typeDescriptor().returnTypeDescriptor().isEmpty());
-        assertEquals(symbol.typeDescriptor().signature(), "function");
+        VariableSymbol symbol = (VariableSymbol) getSymbol(216, 13);
+        assertEquals(symbol.typeDescriptor().typeKind(), TypeDescKind.FUNCTION);
+
+        FunctionTypeSymbol type = (FunctionTypeSymbol) symbol.typeDescriptor();
+        assertTrue(type.params().isEmpty());
+        assertTrue(type.restParam().isEmpty());
+        assertTrue(type.returnTypeDescriptor().isEmpty());
+        assertEquals(type.signature(), "function");
     }
 
     @Test
@@ -977,6 +980,30 @@ public class TypedescriptorTest {
                     ", moduleOwner='" + moduleOwner + '\'' +
                     '}';
         }
+    }
+
+    @Test
+    public void testImportSymbolTypeDesc() {
+        Project project = BCompileUtil.loadProject("test-src/imported_typedesc_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        Optional<Symbol> symbol = model.symbol(srcFile, from(19, 33));
+        TypeSymbol type = (TypeSymbol) symbol.get();
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(type.getName().get(), "StackFrame");
+
+        TypeSymbol typeDescriptorSym = ((TypeReferenceTypeSymbol) type).typeDescriptor();
+        assertEquals(typeDescriptorSym.typeKind(), INTERSECTION);
+        IntersectionTypeSymbol intersectionTypeSymbol = (IntersectionTypeSymbol) typeDescriptorSym;
+        assertEquals(intersectionTypeSymbol.effectiveTypeDescriptor().typeKind(), OBJECT);
+
+        ObjectTypeSymbol effectiveType = (ObjectTypeSymbol) intersectionTypeSymbol.effectiveTypeDescriptor();
+        MethodSymbol methodSymbol = effectiveType.methods().get("toString");
+
+        FunctionTypeSymbol functionSymbol = methodSymbol.typeDescriptor();
+        assertTrue(functionSymbol.params().get().isEmpty());
+        assertEquals(functionSymbol.returnTypeDescriptor().get().typeKind(), STRING);
     }
 
     private static void assertList(List<Symbol> actualValues, List<SymbolInfo> expectedValues) {

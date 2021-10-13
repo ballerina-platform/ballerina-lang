@@ -164,7 +164,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
             // Refresh project
             ((BallerinaWorkspaceManager) context.workspace()).refreshProject(filePath);
 
-            DocumentServiceContext documentServiceContext = ContextBuilder.buildBaseContext(fileUri,
+            DocumentServiceContext documentServiceContext = ContextBuilder.buildDocumentServiceContext(fileUri,
                     context.workspace(), LSContextOperation.TXT_DID_CHANGE,
                     context.languageServercontext());
             DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(context.languageServercontext());

@@ -427,14 +427,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "customerTable",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "customerTable",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "customerList",
       "kind": "Variable",
       "detail": "Customer[]",
@@ -570,6 +562,15 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "null",
+      "insertText": "null",
       "insertTextFormat": "Snippet"
     }
   ]

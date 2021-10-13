@@ -152,3 +152,33 @@ function testOnFail() returns boolean {
         return false;
     }
 }
+
+function foo() returns string {
+    return "abc";
+}
+
+function test(string name, int age) {
+    Person p = {
+        name: name,
+        age,
+        [foo()]: "FOO"
+    };
+}
+
+function testAnnotTagReference() {
+    Annot? annot = FooRec.@v5;
+}
+
+@v5 {
+    foo: "bar"
+}
+type FooRec record {
+    int x;
+    string y;
+};
+
+type AnnotRec record {
+    string foo;
+};
+
+public annotation AnnotRec v5 on type;

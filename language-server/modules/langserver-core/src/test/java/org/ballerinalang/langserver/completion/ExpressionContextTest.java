@@ -61,12 +61,9 @@ public class ExpressionContextTest extends CompletionTest {
                 "annotation_access_ctx_config4.json",
                 "annotation_access_ctx_config5.json",
                 "annotation_access_ctx_config6.json",
-                "optional_field_access_ctx_config1.json",
-                "optional_field_access_ctx_config2.json",
-                "optional_field_access_ctx_config3.json",
-                "anon_func_expr_ctx_config1a.json", // broken due to parser qualifier parsing
-                "anon_func_expr_ctx_config1b.json", // broken due to parser qualifier parsing
-                "object_constructor_expr_ctx_config1.json" // broken due to parser qualifier parsing
+                
+                // TODO ContextTypeResolver's context type for method call expressions should be revisited
+                "method_call_expression_ctx_config9.json"
         );
     }
 }

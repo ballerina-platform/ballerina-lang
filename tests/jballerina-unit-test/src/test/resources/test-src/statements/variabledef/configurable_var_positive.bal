@@ -20,7 +20,7 @@ type UserInfo record {|
 |};
 
 type Person record {|
-    UserInfo user;
+    readonly UserInfo user;
 |};
 
 configurable anydata var1 = 2;
@@ -32,7 +32,7 @@ configurable Person person = ?;
 configurable map<anydata> & readonly mapVar = ?;
 
 configurable table<map<anydata>> tableVar1 = ?;
-configurable table<Person> key(name) tableVar2 = ?;
+configurable table<Person> key(user) tableVar2 = ?;
 
 configurable string|int|Person unionVar1 = ?;
 configurable anydata|Person unionVar2 = ?;

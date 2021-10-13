@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.commons.service.spi;
 
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.jsonrpc.json.JsonRpcMethod;
@@ -36,8 +37,22 @@ public interface ExtendedLanguageServerService extends JsonRpcMethodProvider {
      * Initialize callback for the service.
      *
      * @param langServer language server
+     * @param workspaceManager workspace manager instance
      */
     default void init(LanguageServer langServer, WorkspaceManager workspaceManager) {
+    }
+
+    /**
+     * Initialize callback for the service.
+     *
+     * @param langServer language server
+     * @param workspaceManager workspace manager instance
+     * @param serverContext language server context
+     */
+    default void init(LanguageServer langServer,
+                      WorkspaceManager workspaceManager,
+                      LanguageServerContext serverContext) {
+        init(langServer, workspaceManager);
     }
 
     /**
@@ -68,6 +83,17 @@ public interface ExtendedLanguageServerService extends JsonRpcMethodProvider {
      * @return remote interface
      */
     Class<?> getRemoteInterface();
+
+    /**
+     * Get the name of the service. Each extension service MUST have an associated client and server capabilities 
+     * defined. Each client capability and server capability pair has unique and same name and MUST be the same as the
+     * service name.
+     *
+     * @return {@link 2.0.0}
+     */
+    default String getName() {
+        throw new RuntimeException("Method not implemented");
+    }
 
     @Override
     default Map<String, JsonRpcMethod> supportedMethods() {

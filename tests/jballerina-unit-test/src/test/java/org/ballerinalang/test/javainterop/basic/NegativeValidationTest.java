@@ -379,6 +379,26 @@ public class NegativeValidationTest {
 
     }
 
+    @Test
+    public void testNoClassDefFoundError() {
+        String path = "test-src/javainterop/negative/project_no_class_def_found";
+        CompileResult compileResult = BCompileUtil.compile(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        BAssertUtil.validateError(compileResult, 0,
+                "{ballerina/jballerina.java}NO_CLASS_DEF_FOUND 'Class definition 'javalibs/app/Bar' " +
+                        "not found'", 19, 1);
+    }
+
+    @Test
+    public void testNoClassDefFoundErrorForConstructorCalls() {
+        String path = "test-src/javainterop/negative/project_no_class_def_found_constructor";
+        CompileResult compileResult = BCompileUtil.compile(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        BAssertUtil.validateError(compileResult, 0,
+                "{ballerina/jballerina.java}NO_CLASS_DEF_FOUND 'Class definition 'javalibs/app/Bar' " +
+                        "not found'", 19, 1);
+    }
+
     @Test(description = "Test error in instance field set without exactly two parameters")
     public void testInstanceFieldSetWithoutTwoParameters() {
         String path = "test-src/javainterop/negative/fieldset_error1.bal";

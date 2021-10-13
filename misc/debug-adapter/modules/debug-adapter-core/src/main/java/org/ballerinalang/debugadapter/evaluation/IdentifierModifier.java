@@ -29,7 +29,7 @@ import static io.ballerina.runtime.api.utils.IdentifierUtils.unescapeUnicodeCode
  */
 public class IdentifierModifier extends TreeModifier {
 
-    private static final String QUOTED_IDENTIFIER_PREFIX = "'";
+    public static final String QUOTED_IDENTIFIER_PREFIX = "'";
 
     @Override
     public IdentifierToken transform(IdentifierToken identifier) {

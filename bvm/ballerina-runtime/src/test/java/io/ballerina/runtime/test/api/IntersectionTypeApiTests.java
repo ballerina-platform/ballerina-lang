@@ -24,12 +24,15 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ErrorType;
+import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.util.List;
 
 /**
  * Test cases for runtime APIs related to intersection type.
@@ -84,5 +87,17 @@ public class IntersectionTypeApiTests {
                 new BIntersectionType(module, new Type[]{type1, PredefinedTypes.TYPE_ERROR},
                         PredefinedTypes.TYPE_READONLY, 0, true);
         ReadOnlyUtils.getMutableType(bIntersectionType);
+    }
+
+    @Test
+    public void getConstituentTypesAPITest() {
+        ArrayType arrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_INT);
+        IntersectionType intersectionType =
+                new BIntersectionType(module, new Type[]{arrayType, PredefinedTypes.TYPE_READONLY},
+                        arrayType, 0, true);
+        List<Type> constituentTypes = intersectionType.getConstituentTypes();
+        Assert.assertEquals(constituentTypes.size(), 2);
+        Assert.assertEquals(constituentTypes.get(0), arrayType);
+        Assert.assertEquals(constituentTypes.get(1), PredefinedTypes.TYPE_READONLY);
     }
 }

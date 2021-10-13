@@ -472,3 +472,53 @@ function testKeyLessTableWithReturnTable() returns boolean {
 
     return testPassed;
 }
+
+type User record {
+    readonly int id;
+    string firstName;
+    string lastName;
+    int age;
+};
+
+function testQueryConstructingTableUpdateKeyPanic1() returns error? {
+    table<User> key(id) users = table [
+        {id: 1, firstName: "John", lastName: "Doe", age: 25}
+    ];
+
+    var result = check table key(id, name) from var user in users
+                 where user.age > 21 && user.age < 60
+                 select {id: user.id, name: user.firstName, user};
+
+    var r2 = <record {
+        int id;
+        string name;
+        User user;
+    }> result[1, "John"];
+
+    r2.id = 1;
+}
+
+type NewUser record {|
+    readonly int id;
+    readonly string name;
+    User user;
+|};
+
+function testQueryConstructingTableUpdateKeyPanic2() returns error? {
+    table<User> key(id) users = table [
+        {id: 1, firstName: "John", lastName: "Doe", age: 25}
+    ];
+
+    table<record {| readonly int id; readonly string name; User user; |}> key(id, name) result =
+                               check table key(id, name) from var user in users
+                               where user.age > 21 && user.age < 60
+                               select {id: user.id, name: user.firstName, user};
+
+    var r2 = <record {
+        int id;
+        string name;
+        User user;
+    }> result[1, "John"];
+
+    r2.id = 2;
+}

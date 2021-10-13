@@ -46,6 +46,8 @@ public class CommonKeys {
     public static final String LT_SYMBOL_KEY = "<";
 
     public static final String DOLLAR_SYMBOL_KEY = "$";
+
+    public static final String PARANTHESES_KEY = "()";
     // End non letter symbol keys
 
     public static final String FUNCTION_KEYWORD_KEY = "function";
