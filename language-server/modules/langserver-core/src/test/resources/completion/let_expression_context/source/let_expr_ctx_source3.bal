@@ -1,2 +1,2 @@
-function testFunction(float x) =>
+function testFunction(float x) returns float =>
     let float x2 
