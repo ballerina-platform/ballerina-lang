@@ -57,6 +57,22 @@ function testRegularCompoundStmts() {
     }
 
     do {
-       // cursor pos
+        string doStr = "test str in do";
+    } on fail var e1 {
+        string str = "test str in do on fail";
+    }
+
+    transaction {
+        var res = commit;
+    } on fail var e2 {
+        string str = "test str in trx on fail";
+    }
+
+    retry {
+        int y = 2;
+    }
+
+    retry transaction {
+        string s = "";
     }
 }
