@@ -366,4 +366,26 @@ public class SemTypeCoreTest {
         Assert.assertEquals(subType.getNonChar().values[0].value, "abc");
         Assert.assertEquals(subType.getNonChar().allowed, true);
     }
+
+    @Test
+    public void testStringSubtypeSingleValue() {
+        ComplexSemType abc = (ComplexSemType) stringConst("abc");
+        StringSubtype abcSD = (StringSubtype) abc.subtypeDataList[0];
+        Assert.assertEquals(StringSubtype.stringSubtypeSingleValue(abcSD).get(), "abc");
+
+        ComplexSemType a = (ComplexSemType) stringConst("a");
+        StringSubtype aSD = (StringSubtype) a.subtypeDataList[0];
+        Assert.assertEquals(StringSubtype.stringSubtypeSingleValue(aSD).get(), "a");
+
+        ComplexSemType aAndAbc = (ComplexSemType) Core.union(a, abc);
+        Assert.assertEquals(StringSubtype.stringSubtypeSingleValue(aAndAbc.subtypeDataList[0]),
+                Optional.empty());
+
+        ComplexSemType intersect1 = (ComplexSemType) Core.intersect(aAndAbc, a);
+        Assert.assertEquals(StringSubtype.stringSubtypeSingleValue(intersect1.subtypeDataList[0]).get(), "a");
+        ComplexSemType intersect2 = (ComplexSemType) Core.intersect(aAndAbc, abc);
+        Assert.assertEquals(StringSubtype.stringSubtypeSingleValue(intersect2.subtypeDataList[0]).get(), "abc");
+        SemType intersect3 = Core.intersect(a, abc);
+        Assert.assertEquals(intersect3.toString(), PredefinedType.NEVER.toString());
+    }
 }

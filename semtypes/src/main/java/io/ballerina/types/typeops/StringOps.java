@@ -69,8 +69,8 @@ public class StringOps implements UniformTypeOps {
         StringSubtype sd2 = (StringSubtype) d2;
         ArrayList<EnumerableCharString> chars = new ArrayList<>();
         ArrayList<EnumerableString> nonChars = new ArrayList<>();
-        boolean charsAllowed = EnumerableSubtype.enumerableSubtypeUnion(sd1.getChar(), sd2.getChar(), chars);
-        boolean nonCharsAllowed = EnumerableSubtype.enumerableSubtypeUnion(sd1.getNonChar(),
+        boolean charsAllowed = EnumerableSubtype.enumerableSubtypeIntersect(sd1.getChar(), sd2.getChar(), chars);
+        boolean nonCharsAllowed = EnumerableSubtype.enumerableSubtypeIntersect(sd1.getNonChar(),
                 sd2.getNonChar(), nonChars);
 
         return StringSubtype.createStringSubtype(CharStringSubtype.from(charsAllowed,

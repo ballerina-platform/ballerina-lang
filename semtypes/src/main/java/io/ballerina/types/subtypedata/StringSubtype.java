@@ -117,6 +117,3 @@ public class StringSubtype implements ProperSubtypeData {
         return PredefinedType.uniformSubtype(UniformTypeCode.UT_STRING, st);
     }
 }
-
-
-
