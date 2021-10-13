@@ -58,6 +58,11 @@ public class SemTypeTest {
         ignore(testFiles, "float-singleton2.bal");
         ignore(testFiles, "int-singleton.bal");
         ignore(testFiles, "function.bal");
+        ignore(testFiles, "never.bal");
+        ignore(testFiles, "string-char.bal");
+        ignore(testFiles, "string-singleton.bal");
+        ignore(testFiles, "string-singleton-same-shape.bal");
+        ignore(testFiles, "string-all-subtypes.bal");
 
         include(testFiles,
                 "test-src/simple-type/type-test.bal",

@@ -80,7 +80,7 @@ public class StringSubtype implements ProperSubtypeData {
         return StringSubtype.from(chara, nonChar);
     }
 
-    public static Optional<String> stringSubtypeSingleValues(SubtypeData d) {
+    public static Optional<String> stringSubtypeSingleValue(SubtypeData d) {
         if (d instanceof AllOrNothingSubtype) {
             return Optional.empty();
         }
