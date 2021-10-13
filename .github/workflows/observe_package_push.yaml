@@ -46,6 +46,6 @@ jobs:
           pushd ${BALA_DIR}
           zip -r observe-bala.zip *
           popd
-          curl -v -X POST -H "Content-Type:application/octet-stream" \
+          curl -v --fail -X POST -H "Content-Type:application/octet-stream" \
             -H "Authorization: Bearer ${BALLERINA_CENTRAL_ACCESS_TOKEN}" \
             --data-binary @"${BALA_DIR}/observe-bala.zip" https://api.central.ballerina.io/2.0/registry/packages
