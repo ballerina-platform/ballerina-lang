@@ -28,7 +28,14 @@ import org.testng.annotations.Test;
  *
  * @since 2.0.0
  */
-public class MatchGuardNegativeTest {
+public class MatchGuardAnalysisTest {
+
+    private static final String NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR =
+            "cannot call a non-isolated function/method in a match guard when the type of the action/expression " +
+                    "being matched is not a subtype of 'readonly'";
+    private static final String NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR =
+            "cannot call a function/method in a match guard with an argument of a type that is not a subtype of " +
+                    "'readonly'";
 
     @Test
     public void testMatchGuardTypeCheckingNegative() {
@@ -63,5 +70,40 @@ public class MatchGuardNegativeTest {
     private String getInvalidRestFieldKeyError(String key) {
         return "invalid key '" + key + "': identifiers cannot be used as rest field keys, expected a string literal " +
                 "or an expression";
+    }
+
+    @Test
+    public void testMatchGuardFunctionAndMethodCallAnalysis() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/statements/matchstmt/match_guard_function_method_call_mutability_analysis.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+    }
+
+    @Test
+    public void testMatchGuardFunctionAndMethodCallNegative() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/statements/matchstmt/match_guard_function_method_call_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 49, 22);
+        BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 51, 22);
+        BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 51, 36);
+        BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 62, 34);
+        BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 62, 39);
+        BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 64, 27);
+        BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 66, 33);
+        BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 68, 37);
+        BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 70, 25);
+        BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 72, 25);
+        BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 134, 36);
+        BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 136, 22);
+        BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 152, 37);
+        BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 152, 42);
+        BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 154, 30);
+        BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 156, 36);
+        BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 158, 40);
+        BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 160, 19);
+        BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 162, 19);
+        BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 162, 60);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 }
