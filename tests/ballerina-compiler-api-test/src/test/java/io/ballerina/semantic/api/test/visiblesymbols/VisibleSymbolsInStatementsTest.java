@@ -26,6 +26,7 @@ import java.util.List;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
+import static io.ballerina.compiler.api.symbols.SymbolKind.XMLNS;
 import static io.ballerina.semantic.api.test.visiblesymbols.BaseVisibleSymbolsTest.ExpectedSymbolInfo.from;
 
 /**
@@ -47,6 +48,7 @@ public class VisibleSymbolsInStatementsTest extends BaseVisibleSymbolsTest {
                         from("aString", VARIABLE),
                         from("anInt", VARIABLE),
                         from("test", FUNCTION),
+                        from("test2", FUNCTION),
                         from("HELLO", CONSTANT)
                 );
         return new Object[][]{
@@ -65,6 +67,30 @@ public class VisibleSymbolsInStatementsTest extends BaseVisibleSymbolsTest {
                                 from("a", VARIABLE),
                                 from("x", VARIABLE),
                                 from("greetFn", VARIABLE)
+                )},
+                {35, 19, concat(expModuleSymbols,
+                                from("b", VARIABLE),
+                                from("greet", VARIABLE),
+                                from("greetFn", VARIABLE)
+                )},
+                {39, 0, concat(expModuleSymbols,
+                               from("greet", VARIABLE),
+                               from("greetFn", VARIABLE),
+                               from("z", VARIABLE)
+                )},
+                {41, 18, expModuleSymbols},
+                {43, 4, concat(expModuleSymbols, from("b7a", XMLNS))},
+                {45, 8, concat(expModuleSymbols,
+                               from("b7a", XMLNS),
+                               from("x", VARIABLE)
+                )},
+                {46, 9, concat(expModuleSymbols,
+                               from("b7a", XMLNS),
+                               from("x", VARIABLE)
+                )},
+                {48, 9, concat(expModuleSymbols,
+                               from("b7a", XMLNS),
+                               from("x", VARIABLE)
                 )},
         };
     }

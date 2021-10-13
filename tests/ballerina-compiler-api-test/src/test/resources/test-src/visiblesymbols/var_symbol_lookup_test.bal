@@ -26,15 +26,27 @@ function test() {
     if (true) {
         int a = 20;
 
-        while(true) {
+        if (true) {
             var x = 0;
-
+            // cursor pos
         }
 
         int y = 10;
+    } else {
+        int b = 40;
     }
 
     int z = 20;
+}
+
+function test2() {
+    xmlns "https://ballerina.io" as b7a;
+
+    int x;
+    x = 10;
+    x += 30;
+
+    fail x;
 }
 
 const HELLO = "Hello";
