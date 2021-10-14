@@ -27,7 +27,9 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Contains test cases to to validate the validate functionality.
@@ -108,7 +110,7 @@ public class TomlValidateTest {
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
         Diagnostic diagnostic = toml.diagnostics().get(0);
-        Assert.assertEquals(diagnostic.message(), "key 'field' not supported in schema 'C2C Spec'");
+        Assert.assertEquals(diagnostic.message(), "key 'field' not supported in schema 'image'");
     }
 
     @Test
@@ -140,7 +142,81 @@ public class TomlValidateTest {
         Diagnostic diagnostic = diagnostics.get(0);
         Diagnostic diagnostic1 = diagnostics.get(1);
         Assert.assertEquals(diagnostic.message(), "missing required field 'name'");
-        Assert.assertEquals(diagnostic1.message(), "key 'test' not supported in schema 'Dependencies Toml Spec'");
+        Assert.assertEquals(diagnostic1.message(), "key 'test' not supported in schema 'dependencies'");
+    }
+
+    @Test
+    public void testAdditionalProperties() throws IOException {
+        Path resourceDirectory = basePath.resolve("additional-field.json");
+        Path sampleInput = basePath.resolve("additional-field.toml");
+
+        Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
+
+        List<Diagnostic> diagnostics = toml.diagnostics();
+        Assert.assertEquals(diagnostics.size(), 3);
+        Diagnostic diagnostic = diagnostics.get(0);
+        Diagnostic diagnostic1 = diagnostics.get(1);
+        Diagnostic diagnostic2 = diagnostics.get(2);
+        
+        Assert.assertEquals(diagnostic.message(), "key 'add' not supported in schema 'Sample Schema'");
+        Assert.assertEquals(diagnostic1.message(), "key 'add' not supported in schema 'table'");
+        Assert.assertEquals(diagnostic2.message(), "key 'add' not supported in schema 'subtable'");
+    }
+
+    @Test
+    public void testCompositionSchema() throws IOException {
+        Path resourceDirectory = basePath.resolve("composition.json");
+        Path sampleInput = basePath.resolve("composition.toml");
+
+        Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
+
+        List<Diagnostic> diagnostics = toml.diagnostics();
+        Assert.assertEquals(toml.get("package.testAllOfPositive").get().diagnostics().size(), 0);
+
+        Set<Diagnostic> allOfNegativeDiags = toml.get("package.testAllOfNegative").get().diagnostics();
+        Assert.assertEquals(allOfNegativeDiags.size(), 1);
+        Diagnostic allOfNegativeDiag = allOfNegativeDiags.iterator().next();
+        Assert.assertEquals(allOfNegativeDiag.message(), "test cant start with A");
+
+        Set<Diagnostic> allOfNegativeMultiDiags = toml.get("package.testAllOfNegativeMultiple").get().diagnostics();
+        Assert.assertEquals(allOfNegativeMultiDiags.size(), 2);
+        Iterator<Diagnostic> allOfNegativeMultiDiagsIt = allOfNegativeMultiDiags.iterator();
+        Assert.assertEquals(allOfNegativeMultiDiagsIt.next().message(), "test cant start with B");
+        Assert.assertEquals(allOfNegativeMultiDiagsIt.next().message(), "test should only have chars");
+
+        Assert.assertEquals(toml.get("package.testAnyOfPositiveOne").get().diagnostics().size(), 0);
+        Assert.assertEquals(toml.get("package.testAnyOfPositiveTwo").get().diagnostics().size(), 0);
+
+        Set<Diagnostic> anyOfNegativeDiags = toml.get("package.testAnyOfNegative").get().diagnostics();
+        Assert.assertEquals(anyOfNegativeDiags.size(), 3);
+        Iterator<Diagnostic> anyOfNegativeDiagsIt = anyOfNegativeDiags.iterator();
+        Assert.assertEquals(anyOfNegativeDiagsIt.next().message(), "no fields matched in anyOf schema");
+        Assert.assertEquals(anyOfNegativeDiagsIt.next().message(), "test cant start with A");
+        Assert.assertEquals(anyOfNegativeDiagsIt.next().message(), "test should only have chars");
+
+        Set<Diagnostic> notPositiveDiags = toml.get("package.testNotPositive").get().diagnostics();
+        Assert.assertEquals(notPositiveDiags.size(), 0);
+
+        Set<Diagnostic> notNegativeDiags = toml.get("package.testNotNegative").get().diagnostics();
+        Assert.assertEquals(notNegativeDiags.size(), 1);
+        Assert.assertEquals(notNegativeDiags.iterator().next().message(), "schema rules must `NOT` be valid");
+
+        Set<Diagnostic> oneOfPositiveDiags = toml.get("package.testOneOfPositive").get().diagnostics();
+        Assert.assertEquals(oneOfPositiveDiags.size(), 0);
+
+        Set<Diagnostic> oneOfNegativeNoMatchDiags = toml.get("package.testOneOfNegativeNoMatch").get().diagnostics();
+        Assert.assertEquals(oneOfNegativeNoMatchDiags.size(), 2);
+        Iterator<Diagnostic> noMatchIt = oneOfNegativeNoMatchDiags.iterator();
+        Assert.assertEquals(noMatchIt.next().message(), "must match exactly one schema in oneOf");
+        Assert.assertEquals(noMatchIt.next().message(), "test should only have chars");
+
+        Set<Diagnostic> oneOfNegativeMultipleMatchDiags =
+                toml.get("package.testOneOfNegativeMultipleMatch").get().diagnostics();
+        Assert.assertEquals(oneOfNegativeMultipleMatchDiags.size(), 2);
+        Iterator<Diagnostic> multipleIt = oneOfNegativeMultipleMatchDiags.iterator();
+        Assert.assertEquals(multipleIt.next().message(),
+                "incompatible type for key 'testOneOfNegativeMultipleMatch': expected 'NUMBER', found 'STRING'");
+        Assert.assertEquals(multipleIt.next().message(), "must match exactly one schema in oneOf");
     }
 
     @Test

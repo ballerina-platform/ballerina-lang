@@ -18,7 +18,18 @@
 
 package io.ballerina.toml.validator.schema;
 
+import io.ballerina.toml.semantic.TomlType;
+import io.ballerina.toml.semantic.ast.TomlNode;
+import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+
+import static io.ballerina.toml.validator.ValidationUtil.getTomlDiagnostic;
+import static io.ballerina.toml.validator.ValidationUtil.getTypeErrorMessage;
 
 /**
  * Represents array schema in JSON schema.
@@ -40,5 +51,19 @@ public class ArraySchema extends AbstractSchema {
     @Override
     public void accept(SchemaVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T extends TomlNode> List<Diagnostic> validate(T givenValueNode, String key) {
+        if (givenValueNode.kind() == TomlType.ARRAY || givenValueNode.kind() == TomlType.TABLE_ARRAY) {
+            return Collections.emptyList();
+        }
+        if (!givenValueNode.isMissingNode()) {
+            TomlDiagnostic diagnostic = getTomlDiagnostic(givenValueNode.location(), "TVE0002",
+                    "error.invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(this, givenValueNode.kind(),
+                            key));
+            return Collections.singletonList(diagnostic);
+        }
+        return Collections.emptyList();
     }
 }

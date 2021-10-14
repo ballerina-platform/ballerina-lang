@@ -18,7 +18,12 @@
 
 package io.ballerina.toml.validator.schema;
 
+import io.ballerina.toml.semantic.ast.TomlNode;
+import io.ballerina.tools.diagnostics.Diagnostic;
+
+import java.util.List;
 import java.util.Map;
+
 /**
  * Represents the base class for all the sub schemas in json schema.
  *
@@ -43,4 +48,6 @@ public abstract class AbstractSchema {
     }
 
     public abstract void accept(SchemaVisitor visitor);
+
+    public abstract <T extends TomlNode> List<Diagnostic> validate(T givenValueNode, String key);
 }

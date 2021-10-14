@@ -25,6 +25,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,11 +59,50 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
     public static final String MAXIMUM = "maximum";
     public static final String MESSAGE = "message";
     public static final String DEFAULT_VALUE = "default";
-
+    public static final String ALL_OF = "allOf";
+    public static final String ANY_OF = "anyOf";
+    public static final String ONE_OF = "oneOf";
+    public static final String NOT = "not";
     @Override
     public AbstractSchema deserialize(JsonElement jsonElement, java.lang.reflect.Type refType,
                                       JsonDeserializationContext jsonDeserializationContext) {
         JsonObject jsonObj = jsonElement.getAsJsonObject();
+        JsonElement allOfObj = jsonObj.get(ALL_OF);
+        if (allOfObj != null) {
+            return getCompositeArray(jsonDeserializationContext, allOfObj, Type.ALL_OF);
+        }
+        JsonElement anyOfObj = jsonObj.get(ANY_OF);
+        if (anyOfObj != null) {
+            return getCompositeArray(jsonDeserializationContext, anyOfObj, Type.ANY_OF);
+        }
+        JsonElement oneOfObj = jsonObj.get(ONE_OF);
+        if (oneOfObj != null) {
+            return getCompositeArray(jsonDeserializationContext, oneOfObj, Type.ONE_OF);
+        }
+        JsonElement notObj = jsonObj.get(NOT);
+        if (notObj != null) {
+            return getCompositeObject(jsonDeserializationContext, notObj, Type.NOT);
+        }
+        return getAbstractSchema(jsonDeserializationContext, jsonObj);
+    }
+
+    private AbstractSchema getCompositeArray(JsonDeserializationContext ctx, JsonElement object, Type compositeType) {
+        JsonArray allOfArr = object.getAsJsonArray();
+        List<AbstractSchema> schemas = new ArrayList<>();
+        for (JsonElement element : allOfArr) {
+            AbstractSchema schema = getAbstractSchema(ctx, element.getAsJsonObject());
+            schemas.add(schema);
+        }
+        return new CompositionSchema(compositeType, schemas);
+    }
+
+    private AbstractSchema getCompositeObject(JsonDeserializationContext ctx, JsonElement object, Type compositeType) {
+        return new CompositionSchema(compositeType, Collections.singletonList(getAbstractSchema(ctx,
+                object.getAsJsonObject())));
+    }
+
+    private AbstractSchema getAbstractSchema(JsonDeserializationContext jsonDeserializationContext,
+                                             JsonObject jsonObj) {
         String type = jsonObj.get(TYPE).getAsString();
         switch (type) {
             case OBJECT:

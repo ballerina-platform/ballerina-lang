@@ -1,0 +1,238 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Test composition",
+    "description": "Schema for testing composition in toml schema validator",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "package": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 10,
+                    "message": {
+                        "type": "invalid type"
+                    }
+                },
+                "testAllOfPositive": {
+                    "allOf": [
+                        {
+                            "type": "string",
+                            "pattern": "^(?!A).+",
+                            "message": {
+                                "pattern": "test cant start with A"
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "pattern": "^(?!B).+",
+                            "message": {
+                                "pattern": "test cant start with B"
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "pattern": "^[a-zA-Z]+$",
+                            "message": {
+                                "pattern": "test should only have chars"
+                            }
+                        }
+                    ]
+                },
+                "testAllOfNegative": {
+                    "allOf": [
+                        {
+                            "type": "string",
+                            "pattern": "^(?!A).+",
+                            "message": {
+                                "pattern": "test cant start with A"
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "pattern": "^(?!B).+",
+                            "message": {
+                                "pattern": "test cant start with B"
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "pattern": "^[a-zA-Z]+$",
+                            "message": {
+                                "pattern": "test should only have chars"
+                            }
+                        }
+                    ]
+                },
+                "testAllOfNegativeMultiple": {
+                    "allOf": [
+                        {
+                            "type": "string",
+                            "pattern": "^(?!A).+",
+                            "message": {
+                                "pattern": "test cant start with A"
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "pattern": "^(?!B).+",
+                            "message": {
+                                "pattern": "test cant start with B"
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "pattern": "^[a-zA-Z]+$",
+                            "message": {
+                                "pattern": "test should only have chars"
+                            }
+                        }
+                    ]
+                },
+                "testAnyOfPositiveOne": {
+                    "anyOf": [
+                        {
+                            "type": "string",
+                            "pattern": "^(?!A).+",
+                            "message": {
+                                "pattern": "test cant start with A"
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "pattern": "^(?!B).+",
+                            "message": {
+                                "pattern": "test cant start with B"
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "pattern": "^[a-zA-Z]+$",
+                            "message": {
+                                "pattern": "test should only have chars"
+                            }
+                        }
+                    ]
+                },
+                "testAnyOfPositiveTwo": {
+                    "anyOf": [
+                        {
+                            "type": "string",
+                            "pattern": "^(?!A).+",
+                            "message": {
+                                "pattern": "test cant start with A"
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "pattern": "^(?!B).+",
+                            "message": {
+                                "pattern": "test cant start with B"
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "pattern": "^[a-zA-Z]+$",
+                            "message": {
+                                "pattern": "test should only have chars"
+                            }
+                        }
+                    ]
+                },
+                "testAnyOfNegative": {
+                    "anyOf": [
+                        {
+                            "type": "string",
+                            "pattern": "^(?!A).+",
+                            "message": {
+                                "pattern": "test cant start with A"
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "pattern": "^[a-zA-Z]+$",
+                            "message": {
+                                "pattern": "test should only have chars"
+                            }
+                        }
+                    ]
+                },
+                "testOneOfPositive" : {
+                    "oneOf": [
+                        {
+                            "type": "string", "pattern": "^(?!A).+", "message": {
+                            "pattern": "test cant start with A"
+                        }
+                        },
+                        {
+                            "type": "string", "pattern": "^(?!B).+", "message": {
+                            "pattern": "test cant start with B"
+                        }
+                        },
+                        {
+                            "type": "string", "pattern": "^[a-zA-Z]+$", "message": {
+                            "pattern": "test should only have chars"
+                        }
+                        }
+                    ]
+                },
+                "testOneOfNegativeNoMatch" : {
+                    "oneOf": [
+                        {
+                            "type": "string", "pattern": "^(?!A).+", "message": {
+                            "pattern": "test cant start with A"
+                        }
+                        },
+                        {
+                            "type": "string", "pattern": "^(?!B).+", "message": { 
+                            "pattern": "test cant start with B"
+                        }
+                        },
+                        {
+                            "type": "string", "pattern": "^[a-zA-Z]+$", "message": {
+                            "pattern": "test should only have chars"
+                        }
+                        }
+                    ]
+                },
+                "testOneOfNegativeMultipleMatch" : {
+                    "oneOf": [
+                        {
+                            "type": "string", "pattern": "^(?!A).+", "message": {
+                            "pattern": "test cant start with A"
+                        }
+                        },
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "string", "pattern": "^[a-zA-Z]+$", "message": {
+                            "pattern": "test should only have chars"
+                        }
+                        }
+                    ]
+                },
+                "testNotPositive": {
+                    "not" : {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z]+$",
+                        "message": {
+                            "pattern": "test should only have chars"
+                        }
+                    }
+                },
+                "testNotNegative": {
+                    "not" : {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z]+$",
+                        "message": {
+                            "pattern": "test should only have chars"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
