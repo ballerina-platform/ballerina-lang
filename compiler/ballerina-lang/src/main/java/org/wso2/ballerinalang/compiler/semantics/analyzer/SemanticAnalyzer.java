@@ -2335,7 +2335,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // Narrow the type only if there is one pattern and pattern is not wildcard
             if (matchPatterns.size() == 1 && matchPattern.getKind() != WILDCARD_MATCH_PATTERN) {
                 BLangValueExpression varRef = getSimplifiedMatchExpr(matchPattern.matchExpr);
-                if (varRef != null && varRef.symbol != symTable.notFoundSymbol) {
+                if (varRef != null && varRef.symbol != symTable.notFoundSymbol &&
+                        matchPattern.getBType() != symTable.semanticError) {
                     BVarSymbol originalVarSym = typeNarrower.getOriginalVarSymbol((BVarSymbol) varRef.symbol);
                     symbolEnter.defineTypeNarrowedSymbol(varRef.pos, blockEnv, originalVarSym,
                             matchPattern.getBType(), originalVarSym.origin == VIRTUAL);
