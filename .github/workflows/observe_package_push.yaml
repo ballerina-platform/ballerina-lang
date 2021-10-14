@@ -38,10 +38,14 @@ jobs:
         env:
           BALLERINA_CENTRAL_ACCESS_TOKEN: ${{ secrets.BALLERINA_CENTRAL_ACCESS_TOKEN }}
         run: |
-          BALA_DIR=observelib/observe/build/ballerina-src/target/ballerina-observability/bala/ballerina/observe/1.0.0/any
+          BAL_PROJECT=observelib/observe/src/main/ballerina
+          PACKAGE_VERSION=$((grep -w -m 1 'version' | cut -d= -f2) < "${BAL_PROJECT}/Ballerina.toml" | rev | tr -d '"' | tr -d ' ' | rev)
+          echo "Package Version: ${PACKAGE_VERSION}"
+
+          BALA_DIR=observelib/observe/build/ballerina-src/target/ballerina-observability/bala/ballerina/observe/${PACKAGE_VERSION}/any
           pushd ${BALA_DIR}
           zip -r observe-bala.zip *
           popd
-          curl -v -X POST -H "Content-Type:application/octet-stream" \
+          curl -v --fail -X POST -H "Content-Type:application/octet-stream" \
             -H "Authorization: Bearer ${BALLERINA_CENTRAL_ACCESS_TOKEN}" \
             --data-binary @"${BALA_DIR}/observe-bala.zip" https://api.central.ballerina.io/2.0/registry/packages

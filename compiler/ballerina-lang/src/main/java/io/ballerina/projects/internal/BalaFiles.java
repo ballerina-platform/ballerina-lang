@@ -159,8 +159,11 @@ public class BalaFiles {
         // validate moduleName
         if (!ProjectUtils.validateModuleName(moduleName)) {
             throw new ProjectException("Invalid module name : '" + moduleName + "' :\n" +
-                    "Module name can only contain alphanumerics, underscores and periods " +
-                    "and the maximum length is 256 characters: " + modulePath);
+                    "Module name can only contain alphanumerics, underscores and periods: " + modulePath);
+        }
+        if (!ProjectUtils.validateNameLength(moduleName)) {
+            throw new ProjectException("Invalid module name : '" + moduleName + "' :\n" +
+                    "Maximum length of module name is 256 characters: " + modulePath);
         }
 
         List<DocumentData> srcDocs = loadDocuments(modulePath);

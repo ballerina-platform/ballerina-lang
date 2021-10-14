@@ -1,32 +1,32 @@
 {
   "position": {
-    "line": 6,
-    "character": 38
+    "line": 7,
+    "character": 45
   },
-  "source": "typedesc_context/source/table_typedesc5a.bal",
+  "source": "expression_context/source/table_constructor_expr_ctx_source5.bal",
   "items": [
     {
-      "label": "recId",
-      "kind": "Field",
-      "detail": "int",
-      "sortText": "AG",
-      "insertText": "recId",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "name",
+      "label": "firstname",
       "kind": "Field",
       "detail": "string",
-      "sortText": "BG",
-      "insertText": "name",
+      "sortText": "AG",
+      "insertText": "firstname",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "age",
+      "label": "lastname",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "AG",
+      "insertText": "lastname",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "salary",
       "kind": "Field",
       "detail": "int",
       "sortText": "BG",
-      "insertText": "age",
+      "insertText": "salary",
       "insertTextFormat": "Snippet"
     }
   ]

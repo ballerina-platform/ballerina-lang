@@ -787,14 +787,13 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         find(fieldAccessExpr.expr);
+        addIfSameSymbol(fieldAccessExpr.symbol, fieldAccessExpr.field.pos);
+    }
 
-        if (fieldAccessExpr instanceof BLangNSPrefixedFieldBasedAccess) {
-            BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess =
-                    (BLangNSPrefixedFieldBasedAccess) fieldAccessExpr;
-            addIfSameSymbol(nsPrefixedFieldBasedAccess.nsSymbol, nsPrefixedFieldBasedAccess.nsPrefix.pos);
-        } else {
-            addIfSameSymbol(fieldAccessExpr.symbol, fieldAccessExpr.field.pos);
-        }
+    @Override
+    public void visit(BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
+        find(nsPrefixedFieldBasedAccess.expr);
+        addIfSameSymbol(nsPrefixedFieldBasedAccess.nsSymbol, nsPrefixedFieldBasedAccess.nsPrefix.pos);
     }
 
     @Override
