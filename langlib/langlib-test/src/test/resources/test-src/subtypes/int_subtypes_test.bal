@@ -1155,6 +1155,7 @@ function testFiniteTypeAsIntSubType() {
 
 type IntType1 ints:Signed16|ints:Signed32;
 type IntType2 ints:Unsigned16|ints:Unsigned32;
+type IntType3 byte|ints:Signed8;
 type IntFiniteType1 -1|-2|-3;
 
 public function testLanglibFunctionsForUnionIntSubtypes() {
@@ -1178,4 +1179,13 @@ public function testLanglibFunctionsForUnionIntSubtypes() {
 
     test:assertValueEqual("2", intVal4.toHexString());
     test:assertValueEqual("3", intVal5.toHexString());
+
+    IntType3 intVal6 = 23;
+    byte|ints:Signed8 intVal7 = 23;
+
+    test:assertValueEqual("17", intVal6.toHexString());
+    test:assertValueEqual("17", intVal7.toHexString());
+
+    test:assertValueEqual("17", ints:toHexString(intVal6));
+    test:assertValueEqual("17", ints:toHexString(intVal7));
 }

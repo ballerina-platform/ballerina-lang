@@ -710,7 +710,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
                 BType member = itr.next();
 
-                if (TypeTags.isIntegerTypeTag(member.tag)) {
+                if (TypeTags.isIntegerTypeTag(member.tag) || member.tag == TypeTags.BYTE) {
                     member = symTable.intType;
                 }
 

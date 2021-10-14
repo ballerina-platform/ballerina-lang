@@ -597,7 +597,7 @@ public class Types {
     public boolean isSubTypeOfBaseType(BType type, int baseTypeTag) {
         if (type.tag != TypeTags.UNION) {
 
-            if (TypeTags.isIntegerTypeTag(type.tag) && TypeTags.INT == baseTypeTag) {
+            if ((TypeTags.isIntegerTypeTag(type.tag) || type.tag == TypeTags.BYTE) && TypeTags.INT == baseTypeTag) {
                 return true;
             }
 
