@@ -223,6 +223,8 @@ public class ObjectTypeReferenceTest {
                 "object type inclusion", 175, 5);
         BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'b' with " +
                 "object type inclusion", 176, 5);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion with an object that has private" +
+                " fields or methods", 180, 6);
         BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'x' with " +
                 "object type inclusion", 181, 5);
         BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'y' with " +
@@ -236,6 +238,8 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "mismatched function signatures: expected 'public function " +
                 "foo(float ratio, int months) returns float', found 'private function foo(float ratio, int months) " +
                 "returns float'", 199, 5);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion with an object that has private" +
+                " fields or methods", 209, 6);
         BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'q' with " +
                 "object type inclusion", 210, 5);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
