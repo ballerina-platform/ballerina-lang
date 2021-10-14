@@ -159,20 +159,19 @@ public class DependenciesTomlTests {
 
         Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
         Diagnostic firstDiagnostic = iterator.next();
-        Assert.assertEquals(firstDiagnostic.message(), "invalid 'org' under 'dependencies': "
-                + "'org' can only contain alphanumerics, underscores and the maximum length is 256 characters");
-        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(13:11,13:18)");
-        Assert.assertEquals(iterator.next().message(), "invalid 'name' under 'dependencies': 'name' can only "
-                + "contain alphanumerics, underscores and periods and the maximum length is 256 characters");
-
+        Assert.assertEquals(firstDiagnostic.message(), "invalid 'org' under [[package]]: "
+                + "'org' can only contain alphanumerics and underscores");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(9:6,9:13)");
+        Assert.assertEquals(iterator.next().message(), "invalid 'name' under [[package]]: 'name' can only "
+                + "contain alphanumerics, underscores and periods");
         Diagnostic thirdDiagnostic = iterator.next();
-        Assert.assertEquals(thirdDiagnostic.message(), "invalid 'org' under [[package]]: "
-                + "'org' can only contain alphanumerics, underscores and the maximum length is 256 characters");
-        Assert.assertEquals(thirdDiagnostic.location().lineRange().toString(), "(21:6,21:13)");
-        Assert.assertEquals(iterator.next().message(), "invalid 'name' under [[package]]: 'name' can only contain "
-                + "alphanumerics, underscores and periods and the maximum length is 256 characters");
-        Assert.assertEquals(iterator.next().message(), "invalid 'version' under [[package]]: "
+        Assert.assertEquals(thirdDiagnostic.message(), "invalid 'version' under [[package]]: "
                 + "'version' should be compatible with semver");
+        Assert.assertEquals(thirdDiagnostic.location().lineRange().toString(), "(11:10,11:15)");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'org' under [[package]]: " + "maximum length of 'org' is 256 characters");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'name' under [[dependency]]: " + "maximum length of 'name' is 256 characters");
     }
 
     @Test

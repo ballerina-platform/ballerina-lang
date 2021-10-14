@@ -596,6 +596,15 @@ public class Types {
 
     public boolean isSubTypeOfBaseType(BType type, int baseTypeTag) {
         if (type.tag != TypeTags.UNION) {
+
+            if ((TypeTags.isIntegerTypeTag(type.tag) || type.tag == TypeTags.BYTE) && TypeTags.INT == baseTypeTag) {
+                return true;
+            }
+
+            if (TypeTags.isStringTypeTag(type.tag) && TypeTags.STRING == baseTypeTag) {
+                return true;
+            }
+
             return type.tag == baseTypeTag || (baseTypeTag == TypeTags.TUPLE && type.tag == TypeTags.ARRAY)
                     || (baseTypeTag == TypeTags.ARRAY && type.tag == TypeTags.TUPLE);
         }
@@ -2183,6 +2192,11 @@ public class Types {
                     targetTypeTag == TypeTags.DECIMAL ||
                     TypeTags.isStringTypeTag(targetTypeTag) ||
                     targetTypeTag == TypeTags.BOOLEAN;
+
+        } else if (isValueType(targetType) && actualType.tag == TypeTags.UNION &&
+                ((BUnionType) actualType).getMemberTypes().stream().allMatch(type -> isAssignable(type, targetType))) {
+            return true;
+
         } else if (targetTypeTag == TypeTags.ERROR
                 && (actualType.tag == TypeTags.UNION
                 && isAllErrorMembers((BUnionType) actualType))) {
