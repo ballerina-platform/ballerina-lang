@@ -133,9 +133,9 @@ public class MappingConstructorExpressionNodeContext extends
         }
 
         int cursorPosInTree = context.getCursorPositionInTree();
-        int colonEnd = colon.textRange().endOffset();
+        int colonStart = colon.textRange().startOffset();
 
-        return cursorPosInTree > colonEnd;
+        return cursorPosInTree > colonStart;
     }
 
     private boolean withinComputedNameContext(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {
