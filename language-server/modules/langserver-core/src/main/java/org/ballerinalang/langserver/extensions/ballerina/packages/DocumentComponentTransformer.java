@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.extensions.ballerina.packages;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
@@ -24,7 +25,8 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.NodeTransformer;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
@@ -33,67 +35,73 @@ import io.ballerina.tools.text.LineRange;
 import java.util.stream.Collectors;
 
 /**
- * The components Visitor class to get the list of module level components.
+ * The node transformer class to get the list of module level components.
  */
-public class DocumentComponentsVisitor extends NodeVisitor {
+public class DocumentComponentTransformer extends NodeTransformer<JsonElement> {
     private final JsonObject module;
 
-    private JsonObject currentService = null;
-    private JsonObject currentClass = null;
-    private boolean isInsideClass;
-    private boolean isInsideService;
-
-    DocumentComponentsVisitor(JsonObject module) {
+    DocumentComponentTransformer(JsonObject module) {
         this.module = module;
     }
 
-    public void getDocumentComponents(Node node) {
-        visitSyntaxNode(node);
+    @Override
+    public JsonElement transformSyntaxNode(Node node) {
+        if (!(node instanceof NonTerminalNode)) {
+            return this.module;
+        }
+        ((NonTerminalNode) node).children().forEach(child -> {
+            child.apply(this);
+        });
+        return this.module;
     }
 
-    public void visit(FunctionDefinitionNode functionDefinitionNode) {
+    public JsonElement transform(FunctionDefinitionNode functionDefinitionNode) {
         JsonObject jsonFunction = new JsonObject();
         jsonFunction.addProperty(PackageServiceConstants.NAME, functionDefinitionNode.functionName().text());
         setPositionData(functionDefinitionNode, jsonFunction);
-        if (this.isInsideClass) {
-            currentClass.getAsJsonArray(PackageServiceConstants.FUNCTIONS).add(jsonFunction);
-        } else if (this.isInsideService) {
-            currentService.getAsJsonArray(PackageServiceConstants.RESOURCES).add(jsonFunction);
-        } else {
-            module.getAsJsonArray(PackageServiceConstants.FUNCTIONS).add(jsonFunction);
-        }
+        module.getAsJsonArray(PackageServiceConstants.FUNCTIONS).add(jsonFunction);
+        return null;
     }
 
-    public void visit(ListenerDeclarationNode listenerDeclarationNode) {
+    public JsonElement transform(ListenerDeclarationNode listenerDeclarationNode) {
         addJsonObject(PackageServiceConstants.LISTENERS, listenerDeclarationNode.variableName().text(),
-                listenerDeclarationNode);
+                listenerDeclarationNode, this.module);
+        return null;
     }
 
-    public void visit(ServiceDeclarationNode serviceDeclarationNode) {
-        isInsideService = true;
-        currentService = new JsonObject();
+    public JsonElement transform(ServiceDeclarationNode serviceDeclarationNode) {
+        JsonObject jsonService = new JsonObject();
         String name = serviceDeclarationNode.absoluteResourcePath().stream().map(node -> String.join("_",
                 node.toString())).collect(Collectors.joining());
-        currentService.addProperty(PackageServiceConstants.NAME, name);
-        currentService.add(PackageServiceConstants.RESOURCES, new JsonArray());
-        setPositionData(serviceDeclarationNode, currentService);
-        visitSyntaxNode(serviceDeclarationNode);
-        module.getAsJsonArray(PackageServiceConstants.SERVICES).add(currentService);
-        isInsideService = false;
+        jsonService.addProperty(PackageServiceConstants.NAME, name);
+        jsonService.add(PackageServiceConstants.RESOURCES, new JsonArray());
+        setPositionData(serviceDeclarationNode, jsonService);
+        serviceDeclarationNode.members().forEach(member -> {
+            if (member.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
+                addJsonObject(PackageServiceConstants.RESOURCES,
+                        ((FunctionDefinitionNode) member).functionName().text(), member, jsonService);
+            }
+        });
+        module.getAsJsonArray(PackageServiceConstants.SERVICES).add(jsonService);
+        return null;
     }
 
-    public void visit(ClassDefinitionNode classDefinitionNode) {
-        isInsideClass = true;
-        currentClass = new JsonObject();
-        currentClass.addProperty(PackageServiceConstants.NAME, classDefinitionNode.className().text());
-        currentClass.add(PackageServiceConstants.FUNCTIONS, new JsonArray());
-        setPositionData(classDefinitionNode, currentClass);
-        visitSyntaxNode(classDefinitionNode);
-        this.module.getAsJsonArray(PackageServiceConstants.CLASSES).add(currentClass);
-        isInsideClass = false;
+    public JsonElement transform(ClassDefinitionNode classDefinitionNode) {
+        JsonObject jsonClass = new JsonObject();
+        jsonClass.addProperty(PackageServiceConstants.NAME, classDefinitionNode.className().text());
+        jsonClass.add(PackageServiceConstants.FUNCTIONS, new JsonArray());
+        setPositionData(classDefinitionNode, jsonClass);
+        classDefinitionNode.members().forEach(member -> {
+            if (member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
+                addJsonObject(PackageServiceConstants.FUNCTIONS,
+                        ((FunctionDefinitionNode) member).functionName().text(), member, jsonClass);
+            }
+        });
+        this.module.getAsJsonArray(PackageServiceConstants.CLASSES).add(jsonClass);
+        return null;
     }
 
-    public void visit(TypeDefinitionNode typeDefinitionNode) {
+    public JsonElement transform(TypeDefinitionNode typeDefinitionNode) {
         JsonObject jsonType = new JsonObject();
         jsonType.addProperty(PackageServiceConstants.NAME, typeDefinitionNode.typeName().text());
         setPositionData(typeDefinitionNode, jsonType);
@@ -104,21 +112,26 @@ public class DocumentComponentsVisitor extends NodeVisitor {
         } else {
             module.getAsJsonArray(PackageServiceConstants.TYPES).add(jsonType);
         }
+        return null;
     }
 
-    public void visit(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
+    public JsonElement transform(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
         addJsonObject(PackageServiceConstants.MODULE_LEVEL_VARIABLE,
                 moduleVariableDeclarationNode.typedBindingPattern().bindingPattern().toString(),
-                moduleVariableDeclarationNode);
+                moduleVariableDeclarationNode, this.module);
+        return null;
     }
 
-    public void visit(ConstantDeclarationNode constantDeclarationNode) {
+    public JsonElement transform(ConstantDeclarationNode constantDeclarationNode) {
         addJsonObject(PackageServiceConstants.CONSTANTS, constantDeclarationNode.variableName().text(),
-                constantDeclarationNode);
+                constantDeclarationNode, this.module);
+        return null;
     }
 
-    public void visit(EnumDeclarationNode enumDeclarationNode) {
-        addJsonObject(PackageServiceConstants.ENUMS, enumDeclarationNode.identifier().text(), enumDeclarationNode);
+    public JsonElement transform(EnumDeclarationNode enumDeclarationNode) {
+        addJsonObject(PackageServiceConstants.ENUMS, enumDeclarationNode.identifier().text(), enumDeclarationNode,
+                this.module);
+        return null;
     }
 
     /**
@@ -142,11 +155,12 @@ public class DocumentComponentsVisitor extends NodeVisitor {
      * @param type Module component type
      * @param name Object name
      * @param node Node to infer data
+     * @param parentObject The parent json object into which the new object is added
      */
-    private void addJsonObject(String type, String name, Node node) {
+    private void addJsonObject(String type, String name, Node node, JsonObject parentObject) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty(PackageServiceConstants.NAME, name);
         setPositionData(node, jsonObject);
-        module.getAsJsonArray(type).add(jsonObject);
+        parentObject.getAsJsonArray(type).add(jsonObject);
     }
 }
