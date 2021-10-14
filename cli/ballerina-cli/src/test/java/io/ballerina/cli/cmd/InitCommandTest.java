@@ -20,6 +20,7 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.projects.util.ProjectConstants;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -275,6 +276,32 @@ public class InitCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(readOutput().contains("invalid package name : '" + packageName + "' :\n"
                 + "Maximum length of package name is 256 characters."));
+    }
+
+    @DataProvider(name = "packageNamesHasInvalidUnderscores")
+    public Object[][] providePackageNamesHasInvalidUnderscores() {
+        return new Object[][] {
+                { "_my_package", "Package name cannot have initial underscore characters." },
+                { "my_package_", "Package name cannot have trailing underscore characters." },
+                { "my__package", "Package name cannot have consecutive underscore characters." }
+        };
+    }
+
+    @Test(description = "Test init command with package name has invalid underscores",
+            dataProvider = "packageNamesHasInvalidUnderscores")
+    public void testInitCommandWithPackageNameHasInvalidUnderscores(String pkgName, String errMessage)
+            throws IOException {
+        Path projectPath = tmpDir.resolve("sample5");
+        if (Files.notExists(projectPath)) {
+            Files.createDirectory(projectPath);
+        }
+
+        String[] args = { pkgName };
+        InitCommand initCommand = new InitCommand(projectPath, printStream, false);
+        new CommandLine(initCommand).parseArgs(args);
+        initCommand.execute();
+
+        Assert.assertTrue(readOutput().contains("invalid package name : '" + pkgName + "' :\n" + errMessage));
     }
 
     @Test(description = "Test init command inside a ballerina project", dependsOnMethods = "testInitCommand")

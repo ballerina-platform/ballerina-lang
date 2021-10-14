@@ -296,21 +296,30 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.isDirectory(tmpDir.resolve("parent").resolve("sub_dir").resolve("sample")));
     }
 
-    @Test(description = "Test new command with package name has more than 256 characters")
-    public void testNewCommandWithinPackageNameHasMoreThan256Chars() throws IOException {
-        String packageName = "thisIsVeryLongPackageJustUsingItForTesting"
+    @DataProvider(name = "invalidPackageNames")
+    public Object[][] provideInvalidPackageNames() {
+        String longPkgName = "thisIsVeryLongPackageJustUsingItForTesting"
                 + "thisIsVeryLongPackageJustUsingItForTesting"
                 + "thisIsVeryLongPackageJustUsingItForTesting"
                 + "thisIsVeryLongPackageJustUsingItForTesting"
                 + "thisIsVeryLongPackageJustUsingItForTesting"
                 + "thisIsVeryLongPackageJustUsingItForTesting"
                 + "thisIsVeryLongPackageJustUsingItForTesting";
-        String[] args = {packageName};
+        return new Object[][] {
+                { "_my_package", "Package name cannot have initial underscore characters." },
+                { "my_package_", "Package name cannot have trailing underscore characters." },
+                { "my__package", "Package name cannot have consecutive underscore characters." },
+                { longPkgName, "Maximum length of package name is 256 characters." }
+        };
+    }
+
+    @Test(description = "Test new command with invalid package names", dataProvider = "invalidPackageNames")
+    public void testNewCommandWithInvalidPackageNames(String packageName, String errMessage) throws IOException {
+        String[] args = { packageName };
         NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
         new CommandLine(newCommand).parse(args);
         newCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("invalid package name : '" + packageName + "' :\n"
-                + "Maximum length of package name is 256 characters."));
+        Assert.assertTrue(readOutput().contains("invalid package name : '" + packageName + "' :\n" + errMessage));
     }
 }

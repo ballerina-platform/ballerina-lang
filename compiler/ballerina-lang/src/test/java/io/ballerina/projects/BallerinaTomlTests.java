@@ -231,6 +231,82 @@ public class BallerinaTomlTests {
     }
 
     @Test
+    public void testPackageHasOrgAndNameStartingWithUnderscore() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("underscores-starting-org-name.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 2);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(),
+                "invalid 'name' under [package]: 'name' cannot have initial underscore characters");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(1:7,1:20)");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'org' under [package]: 'org' cannot have initial underscore characters");
+    }
+
+    @Test
+    public void testPackageHasOrgAndNameTrailingWithUnderscore() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("underscores-trailing-org-name.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 2);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(),
+                "invalid 'name' under [package]: 'name' cannot have trailing underscore characters");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(1:7,1:20)");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'org' under [package]: 'org' cannot have trailing underscore characters");
+    }
+
+    @Test
+    public void testPackageHasOrgAndNameWithConsecutiveUnderscores() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("underscores-consecutive-org-name.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 2);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(),
+                "invalid 'name' under [package]: 'name' cannot have consecutive underscore characters");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(1:7,1:20)");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'org' under [package]: 'org' cannot have consecutive underscore characters");
+    }
+
+    @Test
+    public void testPackageHasOrgAndNameWithAllUnderscoreErrors() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("underscores-all-errors-org-name.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 6);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(),
+                "invalid 'name' under [package]: 'name' cannot have consecutive underscore characters");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(1:7,1:22)");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'name' under [package]: 'name' cannot have initial underscore characters");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'name' under [package]: 'name' cannot have trailing underscore characters");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'org' under [package]: 'org' cannot have consecutive underscore characters");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'org' under [package]: 'org' cannot have initial underscore characters");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'org' under [package]: 'org' cannot have trailing underscore characters");
+    }
+
+    @Test
     public void testBallerinaTomlWithPlatformDependencyAsInlineTable() throws IOException {
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("inline-table.toml"));
         DiagnosticResult diagnostics = packageManifest.diagnostics();
