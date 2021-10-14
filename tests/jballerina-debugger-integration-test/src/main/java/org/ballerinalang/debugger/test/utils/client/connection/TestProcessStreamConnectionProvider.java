@@ -37,12 +37,14 @@ import java.util.Objects;
  */
 public class TestProcessStreamConnectionProvider implements TestStreamConnectionProvider {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TestProcessStreamConnectionProvider.class);
     private final List<String> commands;
     private final String workingDir;
     private final String balHome;
-    private static final String JAVA_OPTS = "JAVA_OPTS";
+
+    private static final String ENV_JAVA_OPTS = "JAVA_OPTS";
+    private static final String ENV_DEBUGGER_TEST_MODE = "BAL_DEBUGGER_TEST";
     private static final String JACOCO_AGENT_ARGS = " -javaagent:%s=destfile=%s ";
+    private static final Logger LOG = LoggerFactory.getLogger(TestProcessStreamConnectionProvider.class);
 
     public TestProcessStreamConnectionProvider(List<String> commands, String workingDir, String balHome) {
         this.commands = commands;
@@ -80,18 +82,21 @@ public class TestProcessStreamConnectionProvider implements TestStreamConnection
     private void configureJacocoAgentArgs(Map<String, String> envProperties) {
         Path jacocoAgentPath = Paths.get(balHome).resolve("bre").resolve("lib").resolve("jacocoagent.jar");
         Path destinationFile = Paths.get(System.getProperty("user.dir")).resolve("build").resolve("jacoco")
-                .resolve("test.exec");
+                .resolve("debugger-core-test.exec");
         String agentArgs = String.format(JACOCO_AGENT_ARGS, jacocoAgentPath, destinationFile);
 
         String javaOpts = "";
-        if (envProperties.containsKey(JAVA_OPTS)) {
-            javaOpts = envProperties.get(JAVA_OPTS);
+        if (envProperties.containsKey(ENV_JAVA_OPTS)) {
+            javaOpts = envProperties.get(ENV_JAVA_OPTS);
         }
         if (javaOpts.contains("jacoco.agent")) {
             return;
         }
         javaOpts = agentArgs + javaOpts;
-        envProperties.put(JAVA_OPTS, javaOpts);
+        envProperties.put(ENV_JAVA_OPTS, javaOpts);
+        // env variable to run debug server in test mode. This flag will enable jacoco coverage report generation for
+        // all the sub-processes (JVMs) that will be running during the debug session.
+        envProperties.put(ENV_DEBUGGER_TEST_MODE, String.valueOf(true));
     }
 
     @Override
