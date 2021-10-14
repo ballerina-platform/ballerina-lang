@@ -130,16 +130,14 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
                 return null;
             }
 
-            JsonObject response = new JsonObject();
             JsonObject realTimeData = getDataFromChoreo(data, AnalyzeType.REALTIME,
                     request.getChoreoToken(), request.getChoreoCookie());
-            response.add("realtimeData", realTimeData);
 
-            if (response.get("type") == null) {
-                response.addProperty("type", SUCCESS);
-                response.addProperty("message", SUCCESS);
+            if (realTimeData.get("type") == null) {
+                realTimeData.addProperty("type", SUCCESS);
+                realTimeData.addProperty("message", SUCCESS);
             }
-            return response;
+            return realTimeData;
         });
     }
 
