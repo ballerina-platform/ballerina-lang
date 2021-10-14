@@ -46,7 +46,7 @@ public abstract class TreeParser extends DiagnosticReporter {
     public Collection<Node> parse(Collection<String> statements) throws TreeParserException {
         List<Node> nodes = new ArrayList<>();
         for (String statement : statements) {
-            nodes.add(parse(statement));
+            nodes.addAll(parse(statement));
         }
         return nodes;
     }
@@ -58,7 +58,7 @@ public abstract class TreeParser extends DiagnosticReporter {
      * @param statement Input source code statement.
      * @return Syntax tree for the source code.
      */
-    public abstract Node parse(String statement) throws TreeParserException;
+    public abstract Collection<Node> parse(String statement) throws TreeParserException;
 
     /**
      * Parses a source code entirely.

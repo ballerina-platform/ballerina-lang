@@ -66,7 +66,7 @@ public class SerialTreeParser extends TrialTreeParser {
     }
 
     @Override
-    public Node parse(String source) throws TreeParserException {
+    public Collection<Node> parse(String source) throws TreeParserException {
         String errorMessage = "";
         for (TreeParserTrial trial : nodeParserTrials) {
             try {
@@ -99,11 +99,14 @@ public class SerialTreeParser extends TrialTreeParser {
     public Collection<Node> parseDeclarations(String source) throws TreeParserException {
         try {
             ModulePartTrial modulePartTrial = new ModulePartTrial(this);
-            ModulePartNode modulePartNode = (ModulePartNode) modulePartTrial.parse(source);
+            Collection<Node> nodes = modulePartTrial.parse(source);
             List<Node> declarationNodes = new ArrayList<>();
-            modulePartNode.imports().forEach(declarationNodes::add);
-            modulePartNode.members().stream().filter(this::isModuleDeclarationAllowed)
-                    .forEach(declarationNodes::add);
+            for (Node node:nodes) {
+                ModulePartNode modulePartNode = (ModulePartNode) node;
+                modulePartNode.imports().forEach(declarationNodes::add);
+                modulePartNode.members().stream().filter(this::isModuleDeclarationAllowed)
+                        .forEach(declarationNodes::add);
+            }
             return declarationNodes;
         } catch (ParserTrialFailedException e) {
             addErrorDiagnostic(e.getMessage());
