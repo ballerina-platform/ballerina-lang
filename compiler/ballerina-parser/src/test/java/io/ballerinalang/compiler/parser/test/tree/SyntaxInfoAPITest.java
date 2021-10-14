@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerinalang.compiler.parser.test.misc;
+package io.ballerinalang.compiler.parser.test.tree;
 
-import io.ballerina.compiler.syntax.SyntaxInfo;
+import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

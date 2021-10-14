@@ -15,11 +15,9 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.compiler.syntax;
+package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.BallerinaLexer;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.CharReader;
 
 import java.util.Arrays;
