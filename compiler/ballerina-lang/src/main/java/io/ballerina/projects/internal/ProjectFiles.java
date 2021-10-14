@@ -92,8 +92,11 @@ public class ProjectFiles {
                         // validate moduleName
                         if (!ProjectUtils.validateModuleName(path.toFile().getName())) {
                             throw new ProjectException("Invalid module name : '" + path.getFileName() + "' :\n" +
-                                    "Module name can only contain alphanumerics, underscores and periods " +
-                                    "and the maximum length is 256 characters");
+                                    "Module name can only contain alphanumerics, underscores and periods");
+                        }
+                        if (!ProjectUtils.validateNameLength(path.toFile().getName())) {
+                            throw new ProjectException("Invalid module name : '" + path.getFileName() + "' :\n" +
+                                    "Maximum length of module name is 256 characters");
                         }
                         return true;
                     })
