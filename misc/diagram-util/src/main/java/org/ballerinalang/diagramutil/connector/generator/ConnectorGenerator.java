@@ -142,7 +142,7 @@ public class ConnectorGenerator {
                         String description = getDocFromMetadata(classDefinition.metadata());
                         Map<String, String> connectorAnnotation =
                                 getDisplayAnnotationFromMetadataNode(classDefinition.metadata());
-                        if (!connectorAnnotation.get("label").isEmpty()) {
+                        if (connectorAnnotation != null && !connectorAnnotation.get("label").isEmpty()) {
                             connectorName = connectorAnnotation.get("label");
                         }
                         List<BalFunction> functions = getConnectorFunctions(semanticModel, classDefinition);
@@ -208,13 +208,15 @@ public class ConnectorGenerator {
             } else if (parameterNode instanceof DefaultableParameterNode) {
                 DefaultableParameterNode defaultableParameter = (DefaultableParameterNode) parameterNode;
                 Type param = Type.fromSyntaxNode(defaultableParameter.typeName(), semanticModel);
-                param.name = defaultableParameter.paramName().isPresent() ?
-                        defaultableParameter.paramName().get().text() : "";
-                param.displayAnnotation = getDisplayAnnotationFromAnnotationsList(
-                        defaultableParameter.annotations());
-                param.defaultValue = defaultableParameter.expression().toString();
-                param.documentation = getParameterDocFromMetadataList(param.name, optionalMetadataNode);
-                parameters.add(param);
+                if (param != null) {
+                    param.name = defaultableParameter.paramName().isPresent() ?
+                            defaultableParameter.paramName().get().text() : "";
+                    param.displayAnnotation = getDisplayAnnotationFromAnnotationsList(
+                            defaultableParameter.annotations());
+                    param.defaultValue = defaultableParameter.expression().toString();
+                    param.documentation = getParameterDocFromMetadataList(param.name, optionalMetadataNode);
+                    parameters.add(param);
+                }
             } else if (parameterNode instanceof IncludedRecordParameterNode) {
                 IncludedRecordParameterNode includedRecord = (IncludedRecordParameterNode) parameterNode;
                 InclusionType param = new InclusionType(Type.fromSyntaxNode(includedRecord.typeName(), semanticModel));
