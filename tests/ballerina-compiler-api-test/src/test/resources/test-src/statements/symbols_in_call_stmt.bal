@@ -14,29 +14,40 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function test() {
-    Person person = {name: "John", age: 0};
-    Dog dog = new();
+function test() returns error? {
+    Dog dog = new ();
+    string name = "john";
     int val = 10;
+    int[] ints = [1, 2, 3, 4];
 
-    foo("John", 12);
     foo("John", val);
-    foo("John", age = val);
-    foo(...person);
+    foo(name, age = val);
+    foo(name, val, ...ints);
+    check bar(name, val);
+    checkpanic bar(name, val);
 
-     dog.eat();
-     dog.bark(val);
-     dog.bark(i = val);
+    dog.eat();
+    dog.bark(val, j = name);
+    dog.bark(val, name, ...ints);
+    check dog.walk();
+    checkpanic dog.walk();
 }
 
-function foo(string name, int age) {
+function foo(string name, int age, any... other) {
+}
+
+function bar(string name, int age) returns error {
+    return error("error");
 }
 
 class Dog {
     function eat() {
     }
 
-    function bark(int i) {
+    function bark(int i, string j, int... ints) {
+    }
+
+    function walk() returns error? {
     }
 }
 

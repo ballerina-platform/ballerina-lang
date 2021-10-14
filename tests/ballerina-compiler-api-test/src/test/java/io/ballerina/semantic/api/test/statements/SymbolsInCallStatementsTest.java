@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
@@ -73,13 +74,38 @@ public class SymbolsInCallStatementsTest {
     @DataProvider(name = "FunctionsPosProvider")
     public Object[][] getFunctionPos() {
         return new Object[][]{
-                {21, 4, "foo", SymbolKind.FUNCTION, List.of("name", "age")},
                 {22, 4, "foo", SymbolKind.FUNCTION, List.of("name", "age")},
                 {23, 4, "foo", SymbolKind.FUNCTION, List.of("name", "age")},
-                {24, 4, "foo", SymbolKind.FUNCTION, List.of("name", "age")},
-                {26, 9, "eat", SymbolKind.METHOD, List.of()},
-                {27, 9, "bark", SymbolKind.METHOD, List.of("i")},
-                {27, 9, "bark", SymbolKind.METHOD, List.of("i")},
+                {25, 10, "bar", SymbolKind.FUNCTION, List.of("name", "age")},
+                {26, 15, "bar", SymbolKind.FUNCTION, List.of("name", "age")},
+                {28, 8, "eat", SymbolKind.METHOD, List.of()},
+                {30, 8, "bark", SymbolKind.METHOD, List.of("i", "j")},
+                {31, 14, "walk", SymbolKind.METHOD, List.of()},
+                {32, 19, "walk", SymbolKind.METHOD, List.of()},
+        };
+    }
+
+    @Test(dataProvider = "PosProvider")
+    public void testSymbols(int line, int col, String expName, SymbolKind expSymbolKind) {
+        Symbol symbol = assertBasicsAndGetSymbol(model, srcFile, line, col, expName, expSymbolKind);
+        symbol.getName();
+    }
+
+    @DataProvider(name = "PosProvider")
+    public Object[][] getPos() {
+        return new Object[][]{
+                {22, 16, "val", SymbolKind.VARIABLE},
+//                {23, 14, "age", SymbolKind.PARAMETER},  // TODO: uncomment after fixing #32807
+                {23, 20, "val", SymbolKind.VARIABLE},
+//                {24, 22, "ints", SymbolKind.VARIABLE},  // TODO: uncomment after fixing #33223
+                {25, 14, "name", SymbolKind.VARIABLE},
+                {26, 25, "val", SymbolKind.VARIABLE},
+                {28, 4, "dog", SymbolKind.VARIABLE},
+                {29, 13, "val", SymbolKind.VARIABLE},
+//                {29, 18, "j", SymbolKind.PARAMETER},  // TODO: uncomment after fixing #32807
+                {29, 22, "name", SymbolKind.VARIABLE},
+//                {30, 27, "ints", SymbolKind.VARIABLE},    // TODO: uncomment after fixing #33223
+                {31, 10, "dog", SymbolKind.VARIABLE},
         };
     }
 }
