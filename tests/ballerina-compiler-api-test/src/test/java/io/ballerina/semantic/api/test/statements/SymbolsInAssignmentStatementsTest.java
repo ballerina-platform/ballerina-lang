@@ -84,7 +84,6 @@ public class SymbolsInAssignmentStatementsTest {
                 {53, 4, "person", TypeDescKind.RECORD},
 
                 // Destructuring assignment
-                // {59, 4, "_", TypeDescKind.INT},
                 {60, 27, "intVal", TypeDescKind.INT},
                 {60, 49, "otherVal", TypeDescKind.ARRAY},
                 {61, 18, "valName", TypeDescKind.STRING},
