@@ -1,0 +1,148 @@
+{
+  "position": {
+    "line": 1,
+    "character": 27
+  },
+  "source": "field_access_expression_context/source/field_access_ctx_source31.bal",
+  "items": [
+    {
+      "label": "cause()",
+      "kind": "Function",
+      "detail": "error?",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.error:1.0.0_  \n  \nReturns the error's cause.\n  \n  \n  \n**Return** `error?`   \n- error cause  \n  \n"
+        }
+      },
+      "sortText": "AD",
+      "filterText": "cause",
+      "insertText": "cause()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toBalString()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.error:1.0.0_  \n  \nConverts an error to a string that describes the value in Ballerina syntax.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "toBalString",
+      "insertText": "toBalString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toString()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.error:1.0.0_  \n  \nConverts an error to a string.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "toString",
+      "insertText": "toString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "detail()",
+      "kind": "Function",
+      "detail": "error:DetailType",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.error:1.0.0_  \n  \nReturns the error's detail record.\n\nThe returned value will be immutable.  \n  \n  \n**Return** `error:DetailType`   \n- error detail value  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "detail",
+      "insertText": "detail()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stackTrace()",
+      "kind": "Function",
+      "detail": "error:CallStack",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.error:1.0.0_  \n  \nReturns an object representing the stack trace of the error.\n  \n  \n  \n**Return** `error:CallStack`   \n- a new object representing the stack trace of the error value  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "stackTrace",
+      "insertText": "stackTrace()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "message()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.error:1.0.0_  \n  \nReturns the error's message.\n  \n  \n  \n**Return** `string`   \n- error message  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "message",
+      "insertText": "message()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "cloneReadOnly()",
+      "kind": "Function",
+      "detail": "value:CloneableType & readonly",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "cloneReadOnly",
+      "insertText": "cloneReadOnly()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "clone()",
+      "kind": "Function",
+      "detail": "value:CloneableType",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType`   \n- clone of parameter `v`  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "clone",
+      "insertText": "clone()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ensureType(typedesc<any> t)",
+      "kind": "Function",
+      "detail": "t|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it\nreturn - `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done(Defaultable)  \n  \n**Return** `t|error`   \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "ensureType",
+      "insertText": "ensureType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    }
+  ]
+}
