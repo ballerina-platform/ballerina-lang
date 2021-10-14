@@ -59,6 +59,8 @@ service  / on lsn {
     resource function get greeting() returns json => { output: self.greet };
 }
 
+function exprBodyScope(string myStr) returns string => m
+
 
 // utils
 public class Listener {

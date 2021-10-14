@@ -103,37 +103,6 @@ public class SymbolLookupTest {
         };
     }
 
-    @Test(dataProvider = "PositionProvider4")
-    public void testSymbolLookupForComplexExpressions(int line, int column, List<String> expSymbolNames) {
-        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_exprs_test.bal");
-        Package currentPackage = project.currentPackage();
-        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
-        PackageCompilation packageCompilation = currentPackage.getCompilation();
-        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
-        Document srcFile = getDocumentForSingleSource(project);
-
-        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
-        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
-
-        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, srcFile, line, column, moduleID);
-        assertList(symbolsInFile, expSymbolNames);
-    }
-
-    @DataProvider(name = "PositionProvider4")
-    public Object[][] getPositionsForExprs() {
-        List<String> moduleLevelSymbols = asList("aString", "anInt", "test", "exprBodyScope");
-        return new Object[][]{
-                {20, 12, getSymbolNames(moduleLevelSymbols, "b")},
-                {20, 16, getSymbolNames(moduleLevelSymbols, "b")},
-                {20, 27, getSymbolNames(moduleLevelSymbols, "b", "x")},
-                {20, 35, getSymbolNames(moduleLevelSymbols, "b", "x", "z")},
-                {20, 42, getSymbolNames(moduleLevelSymbols, "b", "x", "z")},
-                {22, 50, getSymbolNames(moduleLevelSymbols, "b", "strTemp")},
-                {24, 53, getSymbolNames(moduleLevelSymbols, "b", "strTemp", "rawTemp")},
-                {27, 56, getSymbolNames(moduleLevelSymbols, "myStr")},
-        };
-    }
-
     @Test
     public void testSymbolLookupInFollowingLine() {
         Project project = BCompileUtil.loadProject("test-src/symbol_lookup_in_assignment.bal");
