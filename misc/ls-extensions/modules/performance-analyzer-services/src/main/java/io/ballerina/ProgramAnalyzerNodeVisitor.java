@@ -216,7 +216,6 @@ import io.ballerina.compiler.syntax.tree.WildcardBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.XMLAtomicNamePatternNode;
 import io.ballerina.compiler.syntax.tree.XMLAttributeNode;
 import io.ballerina.compiler.syntax.tree.XMLAttributeValue;
-import io.ballerina.compiler.syntax.tree.XMLCDATANode;
 import io.ballerina.compiler.syntax.tree.XMLComment;
 import io.ballerina.compiler.syntax.tree.XMLElementNode;
 import io.ballerina.compiler.syntax.tree.XMLEmptyElementNode;
@@ -999,11 +998,6 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
 
     @Override
     public void visit(XMLComment xMLComment) {
-
-    }
-
-    @Override
-    public void visit(XMLCDATANode xMLCDATANode) {
 
     }
 

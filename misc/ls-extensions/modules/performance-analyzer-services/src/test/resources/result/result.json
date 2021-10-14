@@ -1,57 +1,49 @@
 {
   "endpoints": {
-    "-1047417278": {
-      "pkgID": "ballerina/http",
+    "1088999609": {
+      "pkgID": "ballerina/project.http",
       "name": "Client",
-      "baseUrl": "\"https://api.chucknorris.io/jokes/\"",
+      "baseUrl": "\"https://api.chucknorris.io/\"",
       "pos": {
         "filePath": "main.bal",
         "startLine": {
-          "line": 8,
-          "offset": 12
+          "line": 31,
+          "offset": 20
         },
         "endLine": {
-          "line": 8,
-          "offset": 27
+          "line": 31,
+          "offset": 32
         }
       }
     },
-    "-145416752": {
-      "pkgID": "ballerina/http",
+    "-522835079": {
+      "pkgID": "ballerina/project.http",
       "name": "Client",
-      "baseUrl": "\"https://api.chucknorris.io/jokes/\"",
+      "baseUrl": "\"https://api.chucknorris.io/\"",
       "pos": {
-        "filePath": "giga.bal",
+        "filePath": "main.bal",
         "startLine": {
-          "line": 2,
-          "offset": 12
+          "line": 22,
+          "offset": 20
         },
         "endLine": {
-          "line": 2,
-          "offset": 26
+          "line": 22,
+          "offset": 32
         }
       }
     }
   },
   "actionInvocations": {
     "nextNode": {
-      "endPointRef": -145416752,
+      "endPointRef": -522835079,
       "name": "get",
-      "path": "/random",
-      "pos": "main.bal(13:35,13:65)",
+      "path": "/jokes/random",
+      "pos": "main.bal/(23:33,23:67)",
       "nextNode": {
-        "ifBody": {
-          "ifBody": {
-            "endPointRef": -1047417278,
-            "name": "get",
-            "path": "/random3",
-            "pos": "main.bal(19:44,19:76)",
-            "nextNode": null
-          },
-          "elseBody": null,
-          "nextNode": null
-        },
-        "elseBody": null,
+        "endPointRef": -522835079,
+        "name": "get",
+        "path": "/jokes/random",
+        "pos": "main.bal/(25:34,25:68)",
         "nextNode": null
       }
     }

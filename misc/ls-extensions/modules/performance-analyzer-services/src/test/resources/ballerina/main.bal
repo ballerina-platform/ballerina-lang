@@ -1,32 +1,36 @@
-// main.bal
-import ballerina/io;
-import ballerina/http;
-import ballerina/regex;
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
 
-public function main() {
-    io:println(getRandomJoke("giga"));
-}
-http:Client clientEndpoint2 = check new ("https://api.chucknorris.io/jokes/");
+import ballerina/http as http2;
+import project.http as http;
 
-// This function performs a `get` request to the Chuck Norris API and returns a random joke 
-// with the name replaced by the provided name or an error if the API invocation fails.
-function getRandomJoke(string name) returns @tainted string|error {
-    http:Response response = check clientEndpoint->get("/random");
-    if (response.statusCode == http:STATUS_OK) {
-        var payload = response.getJsonPayload();
-        if (payload is json) {
-            json joke = check payload.value;
-            string replacedText = regex:replaceAll(joke.toString(), "Chuck Norris", name);
-            http:Response response2 = check clientEndpoint2->get("/random3");
+// Service declaration specifies base path for the resource names. The base path is `/` in this example.
+service / on new http2:Listener(8080) {
+    resource function get hello(string name) returns json|error? {
+        http:Client httpEndpoint = check new ("https://api.chucknorris.io/");
+        json getResponse = check httpEndpoint->get("/jokes/random");
+        // json|error? hello2Result = hello2("ss");
+        json getResponse2 = check httpEndpoint->get("/jokes/random");
 
-            return replacedText;
-        }
-    } else {
-        error err = error("error occurred while sending GET request");
-        io:println(err.message(), ", status code: ", response.statusCode, ", reason: ", response.getJsonPayload());
-        return err;
+        return "Hello, ";
     }
 
-    error err = error("error occurred while sending GET request");
-    return err;
+    resource function get hello2(string name) returns json|error? {
+        http:Client httpEndpoint = check new ("https://api.chucknorris.io/");
+        json getResponse = check httpEndpoint->get("/jokes/random");
+        return "Hello, " + name;
+    }
 }

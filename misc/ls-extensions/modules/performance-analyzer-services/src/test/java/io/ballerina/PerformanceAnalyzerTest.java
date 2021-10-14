@@ -18,19 +18,23 @@
 
 package io.ballerina;
 
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
@@ -48,9 +52,6 @@ public class PerformanceAnalyzerTest {
     private static final Path resultJson = RES_DIR.resolve("result")
             .resolve("result.json");
     private static final LanguageServerContext serverContext = new LanguageServerContextImpl();
-    private static final WorkspaceManager workspaceManager
-            = BallerinaWorkspaceManager.getInstance(serverContext);
-    private static final JsonParser parser = new JsonParser();
 
     @Test(description = "Test performance analyzer")
     public void testPerformanceAnalyzer() throws IOException, ExecutionException, InterruptedException {
@@ -58,18 +59,15 @@ public class PerformanceAnalyzerTest {
         Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
         TestUtil.openDocument(serviceEndpoint, project);
 
-        BallerinaProjectParams projectParams = new BallerinaProjectParams();
-        projectParams.setDocumentIdentifier(new TextDocumentIdentifier(project.toString()));
-        CompletableFuture<?> result = serviceEndpoint.request(PERFORMANCE_ANALYZE, projectParams);
-        String json = getResult(result);
+        PerformanceAnalyzerGraphRequest request = new PerformanceAnalyzerGraphRequest();
+        request.setDocumentIdentifier(new TextDocumentIdentifier(project.toString()));
+        request.setRange(new Range(new Position(21, 4), new Position(28, 5)));
 
-        String expectedJson = Files.readString(resultJson);
-        Assert.assertEquals(json, expectedJson);
-    }
+        CompletableFuture<?> result = serviceEndpoint.request(PERFORMANCE_ANALYZE, request);
+        JsonObject json = (JsonObject) result.get();
 
-    private static String getResult(CompletableFuture result) {
-
-        return parser.parse(TestUtil.getResponseString(result)).getAsJsonObject().
-                getAsJsonObject("result").getAsString();
+        BufferedReader br = new BufferedReader(new FileReader(resultJson.toAbsolutePath().toString()));
+        JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
+        Assert.assertEquals(json, expected);
     }
 }
