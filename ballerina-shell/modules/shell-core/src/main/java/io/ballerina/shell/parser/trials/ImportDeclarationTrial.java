@@ -27,6 +27,11 @@ import io.ballerina.shell.parser.TrialTreeParser;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
 /**
  * Attempts to parse source as a import statement.
  * Puts in the module level and checks for the import entry.
@@ -41,17 +46,27 @@ public class ImportDeclarationTrial extends TreeParserTrial {
     }
 
     @Override
-    public Node parse(String source) throws ParserTrialFailedException {
+    public Collection<Node> parse(String source) throws ParserTrialFailedException {
         assertIf(source.trim().startsWith("import "), "expected to start with 'import'");
-
+        List<Node> nodes = new ArrayList<>();
         try {
             TextDocument document = TextDocuments.from(source);
-            SyntaxTree tree = getSyntaxTree(document);
-
+            SyntaxTree tree;
+            try {
+                tree = getSyntaxTree(document);
+            } catch (Exception e) {
+                document = TextDocuments.from(source + ";");
+                tree = getSyntaxTree(document);
+            }
             ModulePartNode modulePartNode = tree.rootNode();
             NodeList<ImportDeclarationNode> imports = modulePartNode.imports();
             assertIf(!imports.isEmpty(), "expected import member");
-            return imports.get(0);
+            Iterator iterator = imports.iterator();
+            while (iterator.hasNext()) {
+                Node element = (Node) iterator.next();
+                nodes.add(element);
+            }
+            return nodes;
         } catch (ParserTrialFailedException e) {
             throw new ParserRejectedException(e.getMessage());
         }

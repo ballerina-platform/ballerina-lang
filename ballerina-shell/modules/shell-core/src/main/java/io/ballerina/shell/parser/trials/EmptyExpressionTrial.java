@@ -18,14 +18,14 @@
 
 package io.ballerina.shell.parser.trials;
 
-import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NodeFactory;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.*;
 import io.ballerina.shell.parser.TrialTreeParser;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Attempts to capture a empty expression.
@@ -45,12 +45,27 @@ public class EmptyExpressionTrial extends TreeParserTrial {
     }
 
     @Override
-    public Node parse(String source) throws ParserTrialFailedException {
+    public Collection<Node> parse(String source) throws ParserTrialFailedException {
         TextDocument document = TextDocuments.from(source);
-        SyntaxTree tree = getSyntaxTree(document);
-        ModulePartNode node = tree.rootNode();
-        assertIf(node.members().isEmpty(), "expected no members");
-        assertIf(node.imports().isEmpty(), "expected no imports");
-        return EMPTY_NODE;
+        List<Node> nodes = new ArrayList<>();
+        SyntaxTree tree;
+        try {
+            tree = getSyntaxTreeAsExpression(document);
+        } catch (Exception e) {
+            document = TextDocuments.from(source + ";");
+            tree = getSyntaxTreeAsExpression(document);
+        }
+        Node node = tree.rootNode();
+        nodes.add(node);
+
+        if (nodes.isEmpty()) {
+            tree = getSyntaxTree(document);
+            ModulePartNode node1 = tree.rootNode();
+            if (node1.members().isEmpty() && node1.imports().isEmpty()){
+                nodes.add(EMPTY_NODE);
+                return nodes;
+            }
+        }
+        return nodes;
     }
 }

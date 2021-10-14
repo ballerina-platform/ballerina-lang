@@ -18,18 +18,15 @@
 
 package io.ballerina.shell.parser.trials;
 
-import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
-import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
-import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.compiler.syntax.tree.StatementNode;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.*;
 import io.ballerina.shell.parser.TrialTreeParser;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Attempts to parse source as a statement.
@@ -44,27 +41,24 @@ public class StatementTrial extends DualTreeParserTrial {
     }
 
     @Override
-    public Node parseSource(String source) throws ParserTrialFailedException {
-        String sourceCode = String.format("function main(){%s}", source);
-        TextDocument document = TextDocuments.from(sourceCode);
-        SyntaxTree tree = getSyntaxTree(document);
-
-        ModulePartNode node = tree.rootNode();
-        NodeList<ModuleMemberDeclarationNode> moduleDclns = node.members();
-        assertIf(!moduleDclns.isEmpty(), "expected at least one member");
-        ModuleMemberDeclarationNode moduleDeclaration = moduleDclns.get(0);
-        FunctionDefinitionNode mainFunction = (FunctionDefinitionNode) moduleDeclaration;
-        FunctionBodyBlockNode mainFunctionBody = (FunctionBodyBlockNode) mainFunction.functionBody();
-
-        if (mainFunctionBody.namedWorkerDeclarator().isPresent()) {
-            return mainFunctionBody.namedWorkerDeclarator().get();
+    public Collection<Node> parseSource(String source) throws ParserTrialFailedException {
+        TextDocument document = TextDocuments.from(source);
+        SyntaxTree tree;
+        try {
+            tree = getSyntaxTreeAsStatements(document);
+        } catch (Exception e) {
+            document = TextDocuments.from(source + ";");
+            tree = getSyntaxTreeAsStatements(document);
         }
-        assertIf(!mainFunctionBody.statements().isEmpty(), "expected at least one statement");
-
-        StatementNode statementNode = mainFunctionBody.statements().get(0);
-        if (statementNode instanceof ExpressionStatementNode) {
-            return ((ExpressionStatementNode) statementNode).expression();
+        List<Node> nodes = new ArrayList<>();
+        NonTerminalNode rootNode = tree.rootNode();
+        ChildNodeList children = rootNode.children();
+        Iterator iterator = children.iterator();
+        while (iterator.hasNext()) {
+            Node element = (Node) iterator.next();
+            nodes.add(element);
         }
-        return statementNode;
+//        assertIf(!nodes.isEmpty(),"error");
+        return nodes;
     }
 }

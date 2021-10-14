@@ -25,6 +25,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.TextDocument;
 
+import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -52,7 +53,7 @@ public abstract class TreeParserTrial {
      * @return Parsed syntax tree root node. Null if failed.
      * @throws ParserTrialFailedException If trial failed.
      */
-    public abstract Node parse(String source) throws ParserTrialFailedException;
+    public abstract Collection<Node> parse(String source) throws ParserTrialFailedException;
 
     /**
      * Creates and checks for errors in the syntax tree.
@@ -64,6 +65,102 @@ public abstract class TreeParserTrial {
     protected SyntaxTree getSyntaxTree(TextDocument document) throws ParserTrialFailedException {
         ExecutorService executor = Executors.newFixedThreadPool(1);
         Future<SyntaxTree> future = executor.submit(() -> SyntaxTree.from(document));
+        executor.shutdown();
+
+        SyntaxTree tree;
+        try {
+            tree = future.get(getTimeOutDurationMs(), TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            throw new ParserTrialFailedException("Tree parsing was interrupted.");
+        } catch (ExecutionException e) {
+            throw new ParserTrialFailedException("Executor failure because " + e.getCause().getMessage());
+        } catch (TimeoutException e) {
+            future.cancel(true);
+            throw new ParserTrialFailedException("Tree parsing was timed out.");
+        }
+
+        for (Diagnostic diagnostic : tree.diagnostics()) {
+            if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
+                throw new ParserTrialFailedException(tree.textDocument(), diagnostic);
+            }
+        }
+        return tree;
+    }
+
+    /**
+     * Creates and checks for errors in the syntax tree.
+     *
+     * @param document Document to parse.
+     * @return Created syntax tree.
+     * @throws ParserTrialFailedException If tree contains errors.
+     */
+    protected SyntaxTree getSyntaxTreeAsExpression(TextDocument document) throws ParserTrialFailedException {
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+        Future<SyntaxTree> future = executor.submit(() -> SyntaxTree.asExpression(document));
+        executor.shutdown();
+
+        SyntaxTree tree;
+        try {
+            tree = future.get(getTimeOutDurationMs(), TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            throw new ParserTrialFailedException("Tree parsing was interrupted.");
+        } catch (ExecutionException e) {
+            throw new ParserTrialFailedException("Executor failure because " + e.getCause().getMessage());
+        } catch (TimeoutException e) {
+            future.cancel(true);
+            throw new ParserTrialFailedException("Tree parsing was timed out.");
+        }
+
+        for (Diagnostic diagnostic : tree.diagnostics()) {
+            if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
+                throw new ParserTrialFailedException(tree.textDocument(), diagnostic);
+            }
+        }
+        return tree;
+    }
+
+    /**
+     * Creates and checks for errors in the syntax tree.
+     *
+     * @param document Document to parse.
+     * @return Created syntax tree.
+     * @throws ParserTrialFailedException If tree contains errors.
+     */
+    protected SyntaxTree getSyntaxTreeAsStatements(TextDocument document) throws ParserTrialFailedException {
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+        Future<SyntaxTree> future = executor.submit(() -> SyntaxTree.asStatements(document));
+        executor.shutdown();
+
+        SyntaxTree tree;
+        try {
+            tree = future.get(getTimeOutDurationMs(), TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            throw new ParserTrialFailedException("Tree parsing was interrupted.");
+        } catch (ExecutionException e) {
+            throw new ParserTrialFailedException("Executor failure because " + e.getCause().getMessage());
+        } catch (TimeoutException e) {
+            future.cancel(true);
+            throw new ParserTrialFailedException("Tree parsing was timed out.");
+        }
+
+        for (Diagnostic diagnostic : tree.diagnostics()) {
+            if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
+                throw new ParserTrialFailedException(tree.textDocument(), diagnostic);
+            }
+        }
+        return tree;
+    }
+
+    /**
+     * Creates and checks for errors in the syntax tree.
+     *
+     * @param document Document to parse.
+     * @return Created syntax tree.
+     * @throws ParserTrialFailedException If tree contains errors.
+     */
+    protected SyntaxTree getSyntaxTreeAsTopLevel(TextDocument document) throws ParserTrialFailedException {
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+        Future<SyntaxTree> future = executor.submit(() -> SyntaxTree.asTopLevel(document));
         executor.shutdown();
 
         SyntaxTree tree;

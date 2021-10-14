@@ -18,35 +18,51 @@
 
 package io.ballerina.shell.parser.trials;
 
-import io.ballerina.compiler.syntax.tree.ExpressionNode;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
+import io.ballerina.compiler.syntax.tree.*;
 import io.ballerina.shell.parser.TrialTreeParser;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Attempts to parse source as a expression.
  *
  * @since 2.0.0
  */
-public class ExpressionTrial extends StatementTrial {
+public class ExpressionTrial extends DualTreeParserTrial{
     public ExpressionTrial(TrialTreeParser parentParser) {
         super(parentParser);
     }
 
     @Override
-    public Node parse(String source) throws ParserTrialFailedException {
-        // TODO: [Bug in Parser] a >>= 4 gets accepted as a >> 4 (#28317)
-        String statementCode = String.format("return %s", source);
-        Node statement = super.parseSource(statementCode);
+    public Collection<Node> parse(String source) throws ParserTrialFailedException {
+        Collection<Node> nodes = new ArrayList<>();
+        TextDocument document = TextDocuments.from(source);
+        SyntaxTree tree;
+        try {
+            tree = getSyntaxTreeAsExpression(document);
+        } catch (Exception e) {
+            document = TextDocuments.from(source + ";");
+            tree = getSyntaxTreeAsExpression(document);
+        }
+        nodes.add(tree.rootNode());
+        return nodes;
+    }
 
-        assertIf(statement instanceof ReturnStatementNode, "expected a return statement");
-        assert statement instanceof ReturnStatementNode;
-        ReturnStatementNode returnStatement = (ReturnStatementNode) statement;
-        assertIf(returnStatement.expression().isPresent(), "expected an expression on return");
-        ExpressionNode expressionNode = returnStatement.expression().get();
-        // TEMP FIX
-        assertIf(!source.contains(">>=") || expressionNode.toSourceCode().contains(">>="), "" +
-                "Compound statement is not an expression.");
-        return expressionNode;
+    @Override
+    public Collection<Node> parseSource(String source) throws ParserTrialFailedException {
+        Collection<Node> nodes = new ArrayList<>();
+        TextDocument document = TextDocuments.from(source);
+        SyntaxTree tree;
+        try {
+            tree = getSyntaxTreeAsExpression(document);
+        } catch (Exception e) {
+            document = TextDocuments.from(source + ";");
+            tree = getSyntaxTreeAsExpression(document);
+        }
+        nodes.add(tree.rootNode());
+        return nodes;
     }
 }
