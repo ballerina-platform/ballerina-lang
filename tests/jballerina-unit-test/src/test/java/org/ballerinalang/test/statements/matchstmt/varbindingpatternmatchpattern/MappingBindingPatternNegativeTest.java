@@ -58,6 +58,7 @@ public class MappingBindingPatternNegativeTest {
         BAssertUtil.validateWarning(warningResult, ++i, patternNotMatched, 73, 9);
         BAssertUtil.validateWarning(warningResult, ++i, unreachablePattern, 77, 9);
         BAssertUtil.validateWarning(warningResult, ++i, unreachablePattern, 90, 9);
+        BAssertUtil.validateWarning(warningResult, ++i, patternNotMatched, 112, 9);
         Assert.assertEquals(warningResult.getWarnCount(), i + 1);
     }
 

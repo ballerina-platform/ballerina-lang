@@ -90,3 +90,29 @@ function func() {
         {a: 150, b: "A", c: false} => {} // unreachable pattern
     }
 }
+
+enum Department {
+    FINANCE,
+    LEGAL,
+    ENGINEERING
+}
+
+type Employee record {|
+    string name;
+    Department department;
+|};
+
+public function testWarningForNonMatchingPattern() {
+    Employee & readonly employee = {name: "Jo", department: LEGAL};
+
+    match employee {
+        {department: FINANCE} => {
+
+        }
+        {deparment: LEGAL} if !update(employee) => {
+
+        }
+    }
+}
+
+isolated function update(Employee & readonly employee) returns boolean => true;

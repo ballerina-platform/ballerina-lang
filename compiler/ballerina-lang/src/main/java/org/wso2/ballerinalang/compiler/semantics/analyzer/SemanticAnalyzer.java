@@ -2333,10 +2333,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             analyzeNode(matchPattern, patternEnv);
             resolveMatchClauseVariableTypes(matchPattern, clauseVariables, blockEnv);
             // Narrow the type only if there is one pattern and pattern is not wildcard
-            if (matchPatterns.size() == 1 && matchPattern.getKind() != WILDCARD_MATCH_PATTERN) {
+            if (matchPatterns.size() == 1 && matchPattern.getKind() != WILDCARD_MATCH_PATTERN &&
+                    symTable.noType != matchPattern.getBType()) {
                 BLangValueExpression varRef = getSimplifiedMatchExpr(matchPattern.matchExpr);
-                if (varRef != null && varRef.symbol != symTable.notFoundSymbol &&
-                        matchPattern.getBType() != symTable.semanticError) {
+                if (varRef != null && varRef.symbol != symTable.notFoundSymbol) {
                     BVarSymbol originalVarSym = typeNarrower.getOriginalVarSymbol((BVarSymbol) varRef.symbol);
                     symbolEnter.defineTypeNarrowedSymbol(varRef.pos, blockEnv, originalVarSym,
                             matchPattern.getBType(), originalVarSym.origin == VIRTUAL);
