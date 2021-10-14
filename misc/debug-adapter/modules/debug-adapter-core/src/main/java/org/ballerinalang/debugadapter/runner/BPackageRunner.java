@@ -45,6 +45,15 @@ public class BPackageRunner extends BProgramRunner {
             configHolder.getEnv().get().forEach(env::put);
         }
 
+        // If the debugger is running on test mode, modifies jacoco agent args to instrument debugger runtime classes.
+        if (env.containsKey(ENV_DEBUGGER_TEST_MODE) && env.containsKey(ENV_JAVA_OPTS)) {
+            String javaOpts = env.get(ENV_JAVA_OPTS);
+            if (javaOpts.contains("debugger-core-test.exec")) {
+                javaOpts = javaOpts.replace("debugger-core-test.exec", "debugger-runtime-test.exec");
+            }
+            env.put(ENV_JAVA_OPTS, javaOpts);
+        }
+
         return processBuilder.start();
     }
 }
