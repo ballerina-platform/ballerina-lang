@@ -38,6 +38,8 @@ public class ObjectTypeReferenceTest {
             "object type inclusion cannot be used with a 'readonly class' in a 'class' that is not 'readonly'";
     private static final String ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPEDESC =
             "object type inclusion cannot be used with a 'readonly class' in an object type descriptor";
+    private static final String INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS =
+            "invalid object type inclusion with an object that has private fields or methods";
 
     CompileResult compileResult;
 
@@ -223,8 +225,7 @@ public class ObjectTypeReferenceTest {
                 "object type inclusion", 175, 5);
         BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'b' with " +
                 "object type inclusion", 176, 5);
-        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion with an object that has private" +
-                " fields or methods", 180, 6);
+        BAssertUtil.validateError(negativeResult, i++, INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS, 180, 6);
         BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'x' with " +
                 "object type inclusion", 181, 5);
         BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'y' with " +
@@ -238,11 +239,31 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "mismatched function signatures: expected 'public function " +
                 "foo(float ratio, int months) returns float', found 'private function foo(float ratio, int months) " +
                 "returns float'", 199, 5);
-        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion with an object that has private" +
-                " fields or methods", 209, 6);
+        BAssertUtil.validateError(negativeResult, i++, INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS, 209, 6);
         BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'q' with " +
                 "object type inclusion", 210, 5);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
+    }
+
+    @Test
+    public void testInvalidInclusionOfObjectWithPrivateMembers() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/object/object_inclusion_with_private_members_negative.bal");
+
+        int i = 0;
+        BAssertUtil.validateError(result, i++, INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS, 25, 6);
+        BAssertUtil.validateError(result, i++, INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS, 35, 34);
+        BAssertUtil.validateError(result, i++, INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS, 45, 6);
+        BAssertUtil.validateError(result, i++, INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS, 59, 6);
+        BAssertUtil.validateError(result, i++, INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS, 73, 34);
+        BAssertUtil.validateError(result, i++, INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS, 86, 6);
+        BAssertUtil.validateError(result, i++, INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS, 106, 6);
+        BAssertUtil.validateError(result, i++, INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS, 124, 34);
+        BAssertUtil.validateError(result, i++, INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS, 142, 6);
+        BAssertUtil.validateError(result, i++, INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS, 143, 6);
+        BAssertUtil.validateError(result, i++, INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS, 166, 22);
+        BAssertUtil.validateError(result, i++, INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS, 177, 29);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @Test
