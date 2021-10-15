@@ -59,7 +59,7 @@ public class PreReleaseVersionResolutionTests {
     public void testProjectWithAPreReleaseVersion() {
         // package_unstable_k_alpha has no dependencies and its version is 1.1.0-alpha
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_unstable_k_alpha");
-        BuildProject buildProject = BuildProject.load(projectDirPath);
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
         // Check whether there are any diagnostics
@@ -79,7 +79,7 @@ public class PreReleaseVersionResolutionTests {
         // This test case should fail. There are two incompatible versions of package-k in the dependency graph of
         //  package_m_with_unstable_dep.
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_m_with_unstable_dep");
-        BuildProject buildProject = BuildProject.load(projectDirPath);
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         buildProject.currentPackage().getResolution();
     }
 
@@ -90,7 +90,7 @@ public class PreReleaseVersionResolutionTests {
         // package_m_with_unstable_transitive_dep --> package_k (version is not specified)
         // This test case should not fail. The package_k version in the graph should be 1.1.0-alpha
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_m_with_unstable_transitive_dep");
-        BuildProject buildProject = BuildProject.load(projectDirPath);
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         buildProject.currentPackage().getResolution();
     }
 
@@ -101,7 +101,7 @@ public class PreReleaseVersionResolutionTests {
         // There are three versions of package_k in the repository: 1.1.0-alpha, 1.1.0-beta and 1.0.0
         // The resolution logic should pick 1.0.0
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_l_with_stable_dep");
-        BuildProject buildProject = BuildProject.load(projectDirPath);
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         Package currentPackage = buildProject.currentPackage();
         PackageResolution resolution = currentPackage.getResolution();
         final Collection<ResolvedPackageDependency> directDependencies =

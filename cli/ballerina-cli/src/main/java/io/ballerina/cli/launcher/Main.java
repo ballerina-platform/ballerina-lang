@@ -19,13 +19,11 @@
 package io.ballerina.cli.launcher;
 
 import io.ballerina.cli.BLauncherCmd;
-import io.ballerina.cli.launcher.util.BCompileUtil;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.compiler.BLangCompilerException;
 import picocli.CommandLine;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -67,8 +65,6 @@ public class Main {
         } catch (RuntimePanicException e) {
             Runtime.getRuntime().exit(e.getExitCode());
         } catch (Throwable e) {
-            errStream.println(getMessageForInternalErrors());
-            errStream.println();
             RuntimeUtils.logBadSad(e);
             Runtime.getRuntime().exit(1);
         }
@@ -101,8 +97,8 @@ public class Main {
                     // this is a workaround to distinguish between the program args when the project path
                     // is not provided
                     .setEndOfOptionsDelimiter("");
-            cmdParser.getSubcommands().get("build").setStopAtUnmatched(true).setStopAtPositional(true);
-            cmdParser.getSubcommands().get("test").setStopAtUnmatched(true).setStopAtPositional(true);
+            cmdParser.getSubcommands().get("build").setStopAtUnmatched(false).setStopAtPositional(true);
+            cmdParser.getSubcommands().get("test").setStopAtUnmatched(false).setStopAtPositional(true);
 
             // Build Version Command
             VersionCmd versionCmd = new VersionCmd();
@@ -183,16 +179,6 @@ public class Main {
         } else {
             throw LauncherUtils.createUsageExceptionWithHelp("home info not available");
         }
-    }
-
-    private static String getMessageForInternalErrors() {
-        String errorMsg;
-        try {
-            errorMsg = BCompileUtil.readFileAsString("cli-help/internal-error-message.txt");
-        } catch (IOException e) {
-            errorMsg = "ballerina: internal error occurred";
-        }
-        return errorMsg;
     }
 
     private static String prepareCompilerErrorMessage(String message) {

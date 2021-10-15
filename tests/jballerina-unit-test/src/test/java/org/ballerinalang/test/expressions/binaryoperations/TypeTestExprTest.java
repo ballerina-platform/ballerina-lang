@@ -744,7 +744,8 @@ public class TypeTestExprTest {
                 "testRecordIntersectionWithEffectivelyNeverFields",
                 "testRecordIntersectionWithFunctionFields",
                 "testBuiltInSubTypeTypeTestAgainstFiniteType",
-                "testIntSubtypes"
+                "testIntSubtypes",
+                "testRecordsWithOptionalFields"
         };
     }
 }
