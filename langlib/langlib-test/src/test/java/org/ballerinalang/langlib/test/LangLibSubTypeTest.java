@@ -261,8 +261,10 @@ public class LangLibSubTypeTest {
                 "'InvalidIntType'", 340, 17);
         BAssertUtil.validateError(result, err++, "undefined function 'toHexString' in type " +
                 "'(int:Signed32|int:Signed16|string)'", 341, 17);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', found 'InvalidIntFiniteType'", 343, 25);
-        BAssertUtil.validateError(result, err++, "undefined function 'toHexString' in type 'InvalidIntFiniteType'", 344, 17);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', " +
+                "found 'InvalidIntFiniteType'", 343, 25);
+        BAssertUtil.validateError(result, err++, "undefined function 'toHexString' in " +
+                "type 'InvalidIntFiniteType'", 344, 17);
 
         Assert.assertEquals(result.getErrorCount(), err);
 
@@ -287,11 +289,13 @@ public class LangLibSubTypeTest {
                 23);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'string:Char[]', found 'Y[]'", 62,
                 23);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|string:Char)[]', found" +
-                " 'Y[]'", 63, 39);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', found 'StringFiniteType'", 74, 29);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|string:Char)[]', " +
+                "found 'Y[]'", 63, 39);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', " +
+                "found 'StringFiniteType'", 74, 29);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', found 'StringType'", 75, 29);
-        BAssertUtil.validateError(result, err++, "undefined function 'toLowerAscii' in type 'StringFiniteType'", 77, 14);
+        BAssertUtil.validateError(result, err++, "undefined function 'toLowerAscii' in " +
+                "type 'StringFiniteType'", 77, 14);
         BAssertUtil.validateError(result, err++, "undefined function 'toLowerAscii' in type 'StringType'", 78, 14);
         Assert.assertEquals(result.getErrorCount(), err);
     }
