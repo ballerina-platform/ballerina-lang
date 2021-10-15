@@ -16,15 +16,13 @@
  * under the License.
  */
 
-package org.ballerinalang.debugadapter.completions;
+package org.ballerinalang.debugadapter.completion;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.debugadapter.SuspendedContext;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,21 +31,12 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class CompletionsContext {
+public class CompletionContext {
 
     private final SuspendedContext suspendedContext;
-    private final List<Node> resolverChain = new ArrayList<>();
 
-    public CompletionsContext(SuspendedContext suspendedContext) {
+    public CompletionContext(SuspendedContext suspendedContext) {
         this.suspendedContext = suspendedContext;
-    }
-
-    public void addResolver(Node node) {
-        this.resolverChain.add(node);
-    }
-
-    public List<Node> getResolverChain() {
-        return this.resolverChain;
     }
 
     public List<Symbol> visibleSymbols(int line, int offset) {

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.debugadapter.completions;
+package org.ballerinalang.debugadapter.completion;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
@@ -69,19 +69,17 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnull;
-
 /**
  * Symbol resolver for the field access expressions.
  * This visitor will go through the nodes and capture the respective types of the particular node.
  *
  * @since 2.0.0
  */
-public class FieldAccessCompletionsResolver extends NodeTransformer<Optional<TypeSymbol>> {
+public class FieldAccessCompletionResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
-    private final CompletionsContext context;
+    private final CompletionContext context;
 
-    public FieldAccessCompletionsResolver(CompletionsContext context) {
+    public FieldAccessCompletionResolver(CompletionContext context) {
         this.context = context;
     }
 
@@ -229,7 +227,7 @@ public class FieldAccessCompletionsResolver extends NodeTransformer<Optional<Typ
                 .findFirst();
     }
 
-    private Symbol getSymbolByName(List<Symbol> visibleSymbols, String name, @Nonnull Predicate<Symbol> predicate) {
+    private Symbol getSymbolByName(List<Symbol> visibleSymbols, String name, Predicate<Symbol> predicate) {
         Predicate<Symbol> namePredicate = symbol -> symbol.nameEquals(name);
         return visibleSymbols.stream()
                 .filter(namePredicate.and(predicate))
