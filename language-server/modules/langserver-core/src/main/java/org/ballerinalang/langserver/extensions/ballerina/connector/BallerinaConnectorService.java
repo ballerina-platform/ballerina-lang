@@ -52,6 +52,8 @@ import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ResolutionOptions;
+import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -78,6 +80,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -153,21 +156,23 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
         Environment environment = EnvironmentBuilder.buildDefault();
 
         PackageDescriptor packageDescriptor = PackageDescriptor.from(
-        PackageOrg.from(org), PackageName.from(pkgName), PackageVersion.from(version));
+                PackageOrg.from(org), PackageName.from(pkgName), PackageVersion.from(version));
+        ResolutionRequest resolutionRequest = ResolutionRequest.from(packageDescriptor);
 
         PackageResolver packageResolver = environment.getService(PackageResolver.class);
-        List<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
-            Collections.singletonList(packageDescriptor), false);
-        ResolutionResponse resolutionResponse = resolutionResponses.stream().findFirst().get();
+        Collection<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
+                Collections.singletonList(resolutionRequest), ResolutionOptions.builder().setOffline(false).build());
+        ResolutionResponse resolutionResponse = resolutionResponses.stream().findFirst().orElse(null);
 
-        if (resolutionResponse.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
+        if (resolutionResponse != null && resolutionResponse.resolutionStatus().equals(
+                ResolutionResponse.ResolutionStatus.RESOLVED)) {
             Package resolvedPackage = resolutionResponse.resolvedPackage();
             if (resolvedPackage != null) {
                 return resolvedPackage.project().sourceRoot();
             }
         }
         throw new LSConnectorException("No bala project found for package '"
-                    + packageDescriptor.toString() + "'");
+                + packageDescriptor.toString() + "'");
     }
 
     @JsonRequest
