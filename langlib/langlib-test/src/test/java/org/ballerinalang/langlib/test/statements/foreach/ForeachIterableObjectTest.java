@@ -99,7 +99,7 @@ public class ForeachIterableObjectTest {
         BAssertUtil.validateError(negativeResult, i++, "invalid completion type '(int|CustomError)' in foreach " +
                 "statement: next method completion type cannot contain type 'CustomError'", 245, 25);
         BAssertUtil.validateError(negativeResult, i++, "invalid iterable type 'Iterable13': an iterable object must " +
-                "be a subtype of 'ballerina/lang.object:1.0.0:Iterable'", 248, 25);
+                "be a subtype of 'ballerina/lang.object:0.0.0:Iterable'", 248, 25);
         BAssertUtil.validateError(negativeResult, i++, "mismatched function signatures: expected 'public function" +
                 " iterator() returns object { public function next () returns ((" +
                 "record {| (any|error) value; |}|error)?); }', found 'public function iterator() returns " +

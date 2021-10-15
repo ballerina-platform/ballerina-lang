@@ -25,8 +25,10 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
@@ -96,7 +98,7 @@ public class InteropValidator {
 
     private void validateTestPackages(ModuleId moduleId, CompilerBackend compilerBackend,
                                       BLangPackage bLangPackage) {
-        if (!bLangPackage.hasTestablePackage()) {
+        if (bLangPackage.moduleContextDataHolder.skipTests() || !bLangPackage.hasTestablePackage()) {
             return;
         }
         Set<Path> testDependencies = getPlatformDependencyPaths(moduleId, compilerBackend,
@@ -247,6 +249,52 @@ public class InteropValidator {
             throw new JInteropException(DiagnosticErrorCode.FIELD_NOT_FOUND, "No such field '" + fieldName +
                     "' found in class '" + className + "'");
         }
+        if (javaField.isStatic()) {
+            validateJStaticField(method, fieldValidationRequest.bFuncType.paramTypes.size(), fieldName, className);
+        } else {
+            validateJInstanceField(method, fieldValidationRequest.bFuncType.paramTypes, fieldName, className);
+        }
         return javaField;
+    }
+
+    void validateJStaticField(JFieldMethod method, int bFuncParamCount, String fieldName, String className) {
+        if (method == JFieldMethod.MUTATE) {
+            if (bFuncParamCount != 1) {
+                throw new JInteropException(DiagnosticErrorCode.INVALID_NUMBER_OF_PARAMETERS,
+                        "One parameter is required to set the value to the static field '" + fieldName +
+                                "' in class '" + className + "'");
+            }
+        } else {
+            if (bFuncParamCount != 0) {
+                throw new JInteropException(DiagnosticErrorCode.INVALID_NUMBER_OF_PARAMETERS,
+                        "No parameter is required to get the value of the static field '" + fieldName +
+                                "' in class '" + className + "'");
+            }
+        }
+    }
+
+    void validateJInstanceField(JFieldMethod method, List<BType> bFuncParamTypes, String fieldName, String className) {
+        int bFuncParamCount = bFuncParamTypes.size();
+        if (method == JFieldMethod.MUTATE) {
+            if (bFuncParamCount != 2) {
+                throw new JInteropException(DiagnosticErrorCode.INVALID_NUMBER_OF_PARAMETERS,
+                        "Two parameters are required to set the value to the instance field '" + fieldName +
+                                "' in class '" + className + "'");
+            } else if (bFuncParamTypes.get(0).tag != TypeTags.HANDLE) {
+                throw new JInteropException(DiagnosticErrorCode.INVALID_PARAMETER_TYPE, "First parameter needs "
+                        + "to be of the handle type to set the value to the instance field '" + fieldName +
+                        "' in class '" + className + "'");
+            }
+        } else {
+            if (bFuncParamCount != 1) {
+                throw new JInteropException(DiagnosticErrorCode.INVALID_NUMBER_OF_PARAMETERS,
+                        "One parameter is required to get the value of the instance field '" + fieldName +
+                                "' in class '" + className + "'");
+            } else if (bFuncParamTypes.get(0).tag != TypeTags.HANDLE) {
+                throw new JInteropException(DiagnosticErrorCode.INVALID_PARAMETER_TYPE, "The parameter needs "
+                        + "to be of the handle type to get the value of the instance field '" + fieldName +
+                        "' in class '" + className + "'");
+            }
+        }
     }
 }

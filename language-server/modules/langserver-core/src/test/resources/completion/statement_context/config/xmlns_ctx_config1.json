@@ -4,5 +4,15 @@
     "character": 35
   },
   "source": "statement_context/source/xmlns_ctx_source1.bal",
-  "items": []
+  "items": [
+    {
+      "label": "as",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "as",
+      "insertText": "as ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
 }

@@ -334,7 +334,7 @@ public class BTestRunner {
             response = testStart.invoke();
             if (response instanceof BError || response instanceof Throwable || response instanceof Error) {
                 throw new BallerinaTestException("Test module invocation for test suite failed due to " +
-                        response.toString(), (Throwable) response);
+                        formatErrorMessage((Throwable) response), (Throwable) response);
             }
         }
         // Once the start function finish we will re start the scheduler with immortal true
@@ -567,27 +567,33 @@ public class BTestRunner {
             } else {
                 if (valueSets instanceof BMap) {
                     // Handle map data sets
-                    List<String> keyValues = getKeyValues((BMap) valueSets);
-                    Class<?>[] argTypes = extractArgumentTypes((BMap) valueSets);
-                    List<Object[]> argList = extractArguments((BMap) valueSets);
-                    int i = 0;
-                    for (Object[] arg : argList) {
-                        invokeDataDrivenTest(suite, test.getTestName(), escapeSpecialCharacters(keyValues.get(i)),
-                                classLoader, scheduler, shouldSkip, packageName, arg, argTypes, failedOrSkippedTests);
-                        i++;
+                    if (((BMap) valueSets).isEmpty()) {
+                        computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
+                                new Error("The provided data set is empty."));
+                    } else {
+                        List<String> keyValues = getKeyValues((BMap) valueSets);
+                        Class<?>[] argTypes = extractArgumentTypes((BMap) valueSets);
+                        List<Object[]> argList = extractArguments((BMap) valueSets);
+                        for (int i = 0, argListSize = argList.size(); i < argListSize; i++) {
+                            invokeDataDrivenTest(suite, test.getTestName(), escapeSpecialCharacters(keyValues.get(i)),
+                                    classLoader, scheduler, shouldSkip, packageName, argList.get(i), argTypes,
+                                    failedOrSkippedTests);
+                        }
                     }
                 } else if (valueSets instanceof BArray) {
-                    // Handle array data sets
-                    Class<?>[] argTypes = extractArgumentTypes((BArray) valueSets);
-                    List<Object[]> argList = extractArguments((BArray) valueSets);
-                    int i = 0;
-                    for (Object[] arg : argList) {
-                        invokeDataDrivenTest(suite, test.getTestName(), String.valueOf(i), classLoader, scheduler,
-                                shouldSkip, packageName, arg, argTypes, failedOrSkippedTests);
-                        i++;
+                    if (((BArray) valueSets).isEmpty()) {
+                        computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
+                                new Error("The provided data set is empty."));
+                    } else {
+                        // Handle array data sets
+                        Class<?>[] argTypes = extractArgumentTypes((BArray) valueSets);
+                        List<Object[]> argList = extractArguments((BArray) valueSets);
+                        for (int i = 0, argListSize = argList.size(); i < argListSize; i++) {
+                            invokeDataDrivenTest(suite, test.getTestName(), String.valueOf(i), classLoader, scheduler,
+                                    shouldSkip, packageName, argList.get(i), argTypes, failedOrSkippedTests);
+                        }
                     }
-                } else if (valueSets instanceof BError || valueSets instanceof Error ||
-                        valueSets instanceof Exception) {
+                } else if (valueSets instanceof Error || valueSets instanceof Exception) {
                     computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
                             valueSets);
                 } else {

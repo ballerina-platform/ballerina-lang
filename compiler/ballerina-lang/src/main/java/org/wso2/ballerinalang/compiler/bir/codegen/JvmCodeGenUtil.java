@@ -32,11 +32,12 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmBStringConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
@@ -55,14 +56,17 @@ import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
+import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.BIPUSH;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFNE;
+import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
@@ -81,6 +85,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FILE_NAME
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -109,6 +114,7 @@ public class JvmCodeGenUtil {
     public static final String INITIAL_METHOD_DESC = String.format("(L%s;", STRAND_CLASS);
     private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[\\.:/<>]");
     public static final String SCOPE_PREFIX = "_SCOPE_";
+    public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
 
     static void visitInvokeDynamic(MethodVisitor mv, String currentClass, String lambdaName, int size) {
         String mapDesc = getMapsDesc(size);
@@ -612,7 +618,7 @@ public class JvmCodeGenUtil {
     }
 
     public static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv,
-                                         JvmBStringConstantsGen stringConstantsGen) {
+                                         JvmConstantsGen jvmConstantsGen) {
 
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong(String.valueOf(constVal));
@@ -620,8 +626,8 @@ public class JvmCodeGenUtil {
             return;
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
             String val = String.valueOf(constVal);
-            String varName = stringConstantsGen.addBString(val);
-            String stringConstantsClass = stringConstantsGen.getStringConstantsClass();
+            String varName = jvmConstantsGen.getBStringConstantVar(val);
+            String stringConstantsClass = jvmConstantsGen.getStringConstantsClass();
             mv.visitFieldInsn(GETSTATIC, stringConstantsClass, varName, String.format("L%s;", B_STRING_VALUE));
             return;
         }
@@ -681,6 +687,14 @@ public class JvmCodeGenUtil {
         mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, JVM_INIT_METHOD, String.format("(L%s;)V", B_STRING_VALUE),
                 false);
         mv.visitInsn(ATHROW);
+    }
+
+    public static void castToJavaString(MethodVisitor mv, int fieldNameRegIndex, int strKeyVarIndex) {
+        mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+        mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD,
+                String.format("()L%s;", STRING_VALUE), true);
+        mv.visitVarInsn(ASTORE, strKeyVarIndex);
     }
 
     private JvmCodeGenUtil() {

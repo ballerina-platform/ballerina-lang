@@ -24,12 +24,18 @@ import guru.nidi.graphviz.model.MutableNode;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DependencyManifest;
 import io.ballerina.projects.DependencyResolutionType;
+import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
-import io.ballerina.projects.environment.PackageRepository;
-import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.environment.ModuleLoadRequest;
+import io.ballerina.projects.environment.PackageCache;
+import io.ballerina.projects.environment.ResolutionOptions;
+import io.ballerina.projects.internal.BlendedManifest;
+import io.ballerina.projects.internal.ModuleResolver;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.internal.environment.DefaultPackageResolver;
+import io.ballerina.projects.internal.repositories.AbstractPackageRepository;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -37,6 +43,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Builds package resolution test cases.
@@ -48,27 +56,48 @@ public class PackageResolutionTestCaseBuilder {
     private PackageResolutionTestCaseBuilder() {
     }
 
-    public static PackageResolutionTestCase build(TestCaseFilePaths filePaths) {
+    public static PackageResolutionTestCase build(TestCaseFilePaths filePaths, boolean sticky) {
         // Create PackageResolver
-        PackageResolver packageResolver = buildPackageResolver(filePaths);
+        DotGraphBasedPackageResolver packageResolver = buildPackageResolver(filePaths);
 
-        // Create Direct dependencies
-        Collection<DependencyNode> directDeps = getDirectDependencies(filePaths.appPath());
-
-        // Create dependencyManifest
-        DependencyManifest dependencyManifest = DependencyManifest.from("2.0.0",
-                Collections.emptyList());
+        // Create module load requests
+        Collection<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequests(filePaths.appPath());
 
         // Root Package Descriptor
-        PackageDescriptor rootPkgDesc = getRootPackageDesc(filePaths.appPath());
+        PackageDescWrapper rootPkgDescWrapper = getRootPkgDescWrapper(filePaths.appPath());
+        PackageDescriptor rootPkgDes = rootPkgDescWrapper.pkgDesc();
 
+        // Create dependencyManifest
+        DependencyManifest dependencyManifest = getDependencyManifest(
+                filePaths.dependenciesTomlPath().orElse(null));
+
+        // Create packageManifest
+        PackageManifest packageManifest = getPackageManifest(
+                filePaths.ballerinaTomlPath().orElse(null), rootPkgDes);
+
+        // Create expected dependency graph with sticky
         DependencyGraph<DependencyNode> expectedGraphSticky = getPkgDescGraph(
                 filePaths.expectedGraphStickyPath().orElse(null));
+
+        // Create expected dependency graph with no sticky
         DependencyGraph<DependencyNode> expectedGraphNoSticky = getPkgDescGraph(
                 filePaths.expectedGraphNoStickyPath().orElse(null));
 
-        return new PackageResolutionTestCase(rootPkgDesc, dependencyManifest, packageResolver,
-                directDeps, expectedGraphSticky, expectedGraphNoSticky);
+        BlendedManifest blendedManifest = BlendedManifest.from(dependencyManifest,
+                packageManifest, packageResolver.localRepo());
+        ModuleResolver moduleResolver = new ModuleResolver(rootPkgDes,
+                getModulesInRootPackage(rootPkgDescWrapper, rootPkgDes),
+                blendedManifest, packageResolver, ResolutionOptions.builder().setSticky(sticky).build());
+        return new PackageResolutionTestCase(rootPkgDes, blendedManifest,
+                packageResolver, moduleResolver, moduleLoadRequests,
+                expectedGraphSticky, expectedGraphNoSticky);
+    }
+
+    private static List<ModuleName> getModulesInRootPackage(PackageDescWrapper rootPkgDescWrapper,
+                                                            PackageDescriptor rootPkgDes) {
+        return rootPkgDescWrapper.modules().stream()
+                .map(modNameStr -> Utils.getModuleName(rootPkgDes.name(), modNameStr))
+                .collect(Collectors.toList());
     }
 
     private static DependencyGraph<DependencyNode> getPkgDescGraph(Path dotFilePath) {
@@ -80,25 +109,67 @@ public class PackageResolutionTestCaseBuilder {
         return DotGraphUtils.createDependencyNodeGraph(mutableGraph);
     }
 
-    private static PackageResolver buildPackageResolver(TestCaseFilePaths filePaths) {
-        PackageRepository centralRepo = PackageRepositoryBuilder.build(filePaths,
-                RepositoryKind.CENTRAL);
-        PackageRepository distRepo = PackageRepositoryBuilder.build(filePaths,
-                RepositoryKind.DIST);
-        PackageRepository localRepo = PackageRepositoryBuilder.build(filePaths,
-                RepositoryKind.LOCAL);
+    private static DotGraphBasedPackageResolver buildPackageResolver(TestCaseFilePaths filePaths) {
+        PackageRepositoryBuilder repoBuilder = new PackageRepositoryBuilder(filePaths);
+        AbstractPackageRepository centralRepo = repoBuilder.buildCentralRepo();
+        AbstractPackageRepository distRepo = repoBuilder.buildDistRepo();
+        AbstractPackageRepository localRepo = repoBuilder.buildLocalRepo();
 
         // Package cache is not needed for now.
-        return new DefaultPackageResolver(distRepo, centralRepo, localRepo, null);
-
+        return new DotGraphBasedPackageResolver(distRepo, centralRepo, localRepo, null);
     }
 
-    private static Collection<DependencyNode> getDirectDependencies(Path appDotFilePath) {
-        List<DependencyNode> directDeps = new ArrayList<>();
+    private static Collection<ModuleLoadRequest> getModuleLoadRequests(Path appDotFilePath) {
+        List<ModuleLoadRequest> moduleLoadRequests = new ArrayList<>();
 
         MutableGraph graph = DotGraphUtils.createGraph(appDotFilePath);
+        String rootPkgName = graph.name().toString();
+        for (MutableNode node : graph.nodes()) {
+            if (rootPkgName.equals(node.name().toString())) {
+                continue;
+            }
+            MutableAttributed<MutableNode, ForNode> attrs = node.attrs();
+            PackageDependencyScope scope = Utils.getDependencyScope(attrs.get("scope"));
+            DependencyResolutionType resolutionType = DependencyResolutionType.SOURCE;
+            moduleLoadRequests.add(Utils.getModuleLoadRequest(node.name().value(), scope, resolutionType));
+        }
+        return moduleLoadRequests;
+    }
+
+    private static DependencyManifest getDependencyManifest(Path dependenciesTomlPath) {
+        if (dependenciesTomlPath == null) {
+            return DependencyManifest.from("2.0.0", Collections.emptyList());
+        }
+
+        List<DependencyManifest.Package> recordedDeps = new ArrayList<>();
+        MutableGraph graph = DotGraphUtils.createGraph(dependenciesTomlPath);
         for (MutableNode node : graph.nodes()) {
             MutableAttributed<MutableNode, ForNode> attrs = node.attrs();
+            PackageDependencyScope scope = Utils.getDependencyScope(attrs.get("scope"));
+
+            boolean isTransitive = false;
+            if (attrs.get("transitive") != null) {
+                isTransitive = Boolean.parseBoolean((Objects.requireNonNull(attrs.get("transitive"))).toString());
+            }
+
+            PackageDescriptor pkgDesc = Utils.getPkgDescFromNode(node.name().value(), null);
+            recordedDeps.add(new DependencyManifest.Package(pkgDesc.name(), pkgDesc.org(), pkgDesc.version(),
+                    scope.getValue(), isTransitive, Collections.emptyList(), Collections.emptyList()));
+        }
+        return DependencyManifest.from("2.0.0", recordedDeps);
+    }
+
+    private static PackageManifest getPackageManifest(Path balTomlPath, PackageDescriptor rootPkgDesc) {
+        if (balTomlPath == null) {
+            return PackageManifest.from(rootPkgDesc, null, Collections.emptyMap(),
+                    Collections.emptyList());
+        }
+
+        List<PackageManifest.Dependency> dependencies = new ArrayList<>();
+        MutableGraph graph = DotGraphUtils.createGraph(balTomlPath);
+        for (MutableNode node : graph.nodes()) {
+            MutableAttributed<MutableNode, ForNode> attrs = node.attrs();
+            PackageDescriptor pkgDesc = Utils.getPkgDescFromNode(node.name().value(), null);
 
             String repo = null;
             if (attrs.get("repo") != null) {
@@ -108,26 +179,33 @@ public class PackageResolutionTestCaseBuilder {
                 }
             }
 
-            PackageDependencyScope scope;
-            if (attrs.get("scope") != null) {
-                String scopeStr = Objects.requireNonNull(attrs.get("scope")).toString();
-                if (!scopeStr.equals("test_only")) {
-                    throw new IllegalStateException("Unsupported scope: " + scopeStr);
-                }
-                scope = PackageDependencyScope.TEST_ONLY;
-            } else {
-                scope = PackageDependencyScope.DEFAULT;
-            }
-
-            DependencyResolutionType resolutionType = DependencyResolutionType.SOURCE;
-            PackageDescriptor pkgDesc = DotGraphUtils.getPkgDescFromNode(node.name().value(), repo);
-            directDeps.add(new DependencyNode(pkgDesc, scope, resolutionType));
+            dependencies.add(new PackageManifest.Dependency(pkgDesc.name(),
+                    pkgDesc.org(), pkgDesc.version(), repo));
         }
-        return directDeps;
+
+        return PackageManifest.from(rootPkgDesc, null, Collections.emptyMap(), dependencies);
     }
 
-    private static PackageDescriptor getRootPackageDesc(Path appDotFilePath) {
+    private static PackageDescWrapper getRootPkgDescWrapper(Path appDotFilePath) {
         MutableGraph graph = DotGraphUtils.createGraph(appDotFilePath);
-        return DotGraphUtils.getPkgDescFromNode(graph.name().toString());
+        PackageDescriptor pkgDesc = Utils.getPkgDescFromNode(graph.name().toString());
+        Set<String> moduleNames = DotGraphUtils.getModuleNames(graph, pkgDesc);
+        return new PackageDescWrapper(pkgDesc, moduleNames);
+    }
+
+    static class DotGraphBasedPackageResolver extends DefaultPackageResolver {
+        private final AbstractPackageRepository localRepo;
+
+        public DotGraphBasedPackageResolver(AbstractPackageRepository distributionRepo,
+                                            AbstractPackageRepository centralRepo,
+                                            AbstractPackageRepository localRepo,
+                                            PackageCache packageCache) {
+            super(distributionRepo, centralRepo, localRepo, packageCache);
+            this.localRepo = localRepo;
+        }
+
+        public AbstractPackageRepository localRepo() {
+            return localRepo;
+        }
     }
 }
