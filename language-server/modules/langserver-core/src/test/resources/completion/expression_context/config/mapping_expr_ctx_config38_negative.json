@@ -13,6 +13,14 @@
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c",
+      "kind": "Variable",
+      "detail": "Outer",
+      "sortText": "B",
+      "insertText": "c",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
