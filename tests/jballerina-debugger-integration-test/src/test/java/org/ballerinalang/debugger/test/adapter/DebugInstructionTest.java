@@ -81,7 +81,7 @@ public class DebugInstructionTest extends BaseTestCase {
         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 31));
     }
 
-    @Test(description = "Object related debug instruction test")
+    @Test(enabled = false, description = "Object related debug instruction test")
     public void objectDebugInstructionTest() throws BallerinaTestException {
         String testProjectName = "debug-instruction-tests-1";
         String testModuleFileName = "main.bal";
