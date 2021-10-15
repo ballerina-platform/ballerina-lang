@@ -78,7 +78,7 @@ public class SyntaxTreeJSONGenerator {
     }
 
     public static String generateJSON(Path sourceFilePath, ParserRuleContext context) throws IOException {
-        byte[] bytes = Files.readAllBytes(RESOURCE_DIRECTORY.resolve(sourceFilePath));
+        byte[] bytes = Files.readAllBytes(RESOURCE_DIRECTORY.resolve("/Users/gimantha/GitRepos/ballerina-lang/compiler/ballerina-parser/src/test/resources/test_parser.bal"));
         String content = new String(bytes, StandardCharsets.UTF_8);
         return generateJSON(content, context);
     }
