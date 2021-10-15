@@ -458,24 +458,4 @@ public class NegativeValidationTest {
                 + "'No parameter is required to get the value of the static field 'isAvailable' in class " +
                 "'org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate''", 7, 1);
     }
-
-    @Test
-    public void testNoClassDefFoundError() {
-        String path = "test-src/javainterop/negative/project_no_class_def_found";
-        CompileResult compileResult = BCompileUtil.compile(path);
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
-        BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}NO_CLASS_DEF_FOUND 'Class definition 'javalibs/app/Bar' " +
-                        "not found'", 19, 1);
-    }
-
-    @Test
-    public void testNoClassDefFoundErrorForConstructorCalls() {
-        String path = "test-src/javainterop/negative/project_no_class_def_found_constructor";
-        CompileResult compileResult = BCompileUtil.compile(path);
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
-        BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}NO_CLASS_DEF_FOUND 'Class definition 'javalibs/app/Bar' " +
-                        "not found'", 19, 1);
-    }
 }
