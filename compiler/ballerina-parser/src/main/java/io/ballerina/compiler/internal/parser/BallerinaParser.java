@@ -60,6 +60,7 @@ import io.ballerina.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerina.compiler.internal.parser.tree.STSpecificFieldNode;
 import io.ballerina.compiler.internal.parser.tree.STSyncSendActionNode;
 import io.ballerina.compiler.internal.parser.tree.STToken;
+import io.ballerina.compiler.internal.parser.tree.STTupleTypeDescriptorNode;
 import io.ballerina.compiler.internal.parser.tree.STTypeReferenceTypeDescNode;
 import io.ballerina.compiler.internal.parser.tree.STTypeTestExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STTypedBindingPatternNode;
@@ -5521,6 +5522,7 @@ public class BallerinaParser extends AbstractParser {
             case NOT_IS_KEYWORD:
                 return true;
             case QUESTION_MARK_TOKEN:
+                //TODO : Should fix properly #33259
                 return getNextNextToken().kind != SyntaxKind.EQUAL_TOKEN && peek(3).kind != SyntaxKind.EQUAL_TOKEN;
             default:
                 return isBinaryOperator(tokenKind);
@@ -8507,8 +8509,14 @@ public class BallerinaParser extends AbstractParser {
         // Validate the array length expression
         STNode lengthExpr = lengthExprs.get(0);
         switch (lengthExpr.kind) {
-            case ASTERISK_LITERAL:
             case SIMPLE_NAME_REFERENCE:
+                STSimpleNameReferenceNode nameRef = (STSimpleNameReferenceNode) lengthExpr;
+                if (nameRef.name.isMissing()) {
+                    return createArrayTypeDesc(memberTypeDesc, indexedExpr.openBracket, STNodeFactory.createEmptyNode(),
+                            indexedExpr.closeBracket);
+                }
+                break;
+            case ASTERISK_LITERAL:
             case QUALIFIED_NAME_REFERENCE:
                 break;
             case NUMERIC_LITERAL:
@@ -18113,6 +18121,14 @@ public class BallerinaParser extends AbstractParser {
         return typeDescList;
     }
 
+    private List<STNode> getTypeDescList(STNodeList nodeList) {
+        List<STNode> typeDescList = new ArrayList<>();
+        for (int i = 0; i < nodeList.size(); i++) {
+            typeDescList.add(getTypeDescFromExpr(nodeList.get(i)));
+        }
+        return typeDescList;
+    }
+
     /**
      * Create a type-desc out of an expression.
      *
@@ -18162,6 +18178,12 @@ public class BallerinaParser extends AbstractParser {
                 return expression;
             case UNARY_EXPRESSION:
                 return STNodeFactory.createSingletonTypeDescriptorNode(expression);
+            case TUPLE_TYPE_DESC:
+                STTupleTypeDescriptorNode tupleTypeDescriptorNode = (STTupleTypeDescriptorNode) expression;
+                STNodeList list = (STNodeList) tupleTypeDescriptorNode.memberTypeDesc;
+                STNode x = STNodeFactory.createNodeList(getTypeDescList(list));
+                return STNodeFactory.createTupleTypeDescriptorNode(tupleTypeDescriptorNode.openBracketToken, x,
+                        tupleTypeDescriptorNode.closeBracketToken);
             case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
             default:
