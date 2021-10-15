@@ -16,24 +16,34 @@
  * under the License.
  */
 
-package org.ballerinalang.debugadapter.completion;
+package org.ballerinalang.debugadapter.completions;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
@@ -50,8 +60,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.SymbolUtil;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
@@ -68,24 +77,25 @@ import javax.annotation.Nonnull;
  *
  * @since 2.0.0
  */
-public class FieldAccessDebugCompletionResolver extends NodeTransformer<Optional<TypeSymbol>> {
+public class FieldAccessCompletionsResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
-    private final BallerinaDebugCompletionContext context;
+    private final CompletionsContext context;
 
-    public FieldAccessDebugCompletionResolver(BallerinaDebugCompletionContext context) {
+    public FieldAccessCompletionsResolver(CompletionsContext context) {
         this.context = context;
     }
 
     @Override
     public Optional<TypeSymbol> transform(SimpleNameReferenceNode node) {
-        Optional<Symbol> symbol = this.getSymbolByName(context.visibleSymbols(context.getCursorPosition()),
-                node.name().text());
+        SuspendedContext suspendedContext = context.getSuspendedContext();
+        Optional<Symbol> symbol = this.getSymbolByName(
+                context.visibleSymbols(suspendedContext.getLineNumber() - 1, 0), node.name().text());
 
         if (symbol.isEmpty()) {
             return Optional.empty();
         }
 
-        return SymbolUtil.getTypeDescriptor(symbol.get());
+        return getTypeDescriptor(symbol.get());
     }
 
     @Override
@@ -105,7 +115,7 @@ public class FieldAccessDebugCompletionResolver extends NodeTransformer<Optional
             return Optional.empty();
         }
 
-        return SymbolUtil.getTypeDescriptor(filteredSymbol.get());
+        return getTypeDescriptor(filteredSymbol.get());
     }
 
     @Override
@@ -113,9 +123,9 @@ public class FieldAccessDebugCompletionResolver extends NodeTransformer<Optional
         // First capture the expression and the respective symbols
         // In future we should use the following approach and get rid of this resolver.
         Optional<TypeSymbol> resolvedType = this.context.currentSemanticModel()
-                .flatMap(semanticModel -> semanticModel.type(node));
+                .flatMap(semanticModel -> semanticModel.typeOf(node));
         if (resolvedType.isPresent() && resolvedType.get().typeKind() != TypeDescKind.COMPILATION_ERROR) {
-            return SymbolUtil.getTypeDescriptor(resolvedType.get());
+            return getTypeDescriptor(resolvedType.get());
         }
 
         Optional<TypeSymbol> typeSymbol = node.expression().apply(this);
@@ -131,7 +141,7 @@ public class FieldAccessDebugCompletionResolver extends NodeTransformer<Optional
             return Optional.empty();
         }
 
-        return SymbolUtil.getTypeDescriptor(filteredSymbol.get());
+        return getTypeDescriptor(filteredSymbol.get());
     }
 
     @Override
@@ -147,7 +157,7 @@ public class FieldAccessDebugCompletionResolver extends NodeTransformer<Optional
         List<Symbol> visibleEntries = this.getVisibleEntries(exprTypeSymbol.orElseThrow(), node.expression());
 
         FunctionSymbol symbol = (FunctionSymbol) this.getSymbolByName(visibleEntries, methodName, predicate);
-        FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) SymbolUtil.getTypeDescriptor(symbol).orElseThrow();
+        FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) getTypeDescriptor(symbol).orElseThrow();
 
         return functionTypeSymbol.returnTypeDescriptor();
     }
@@ -161,7 +171,7 @@ public class FieldAccessDebugCompletionResolver extends NodeTransformer<Optional
     @Override
     public Optional<TypeSymbol> transform(IndexedExpressionNode node) {
         Optional<TypeSymbol> containerType = node.containerExpression().apply(this);
-        TypeSymbol rawType = CommonUtil.getRawType(containerType.orElseThrow());
+        TypeSymbol rawType = getRawType(containerType.orElseThrow());
         if (rawType.typeKind() == TypeDescKind.ARRAY) {
             return Optional.of(((ArrayTypeSymbol) rawType).memberTypeDescriptor());
         }
@@ -174,12 +184,12 @@ public class FieldAccessDebugCompletionResolver extends NodeTransformer<Optional
 
     @Override
     public Optional<TypeSymbol> transform(AnnotAccessExpressionNode node) {
-        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.type(node));
+        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.typeOf(node));
     }
 
     @Override
     public Optional<TypeSymbol> transform(BasicLiteralNode node) {
-        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.type(node));
+        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.typeOf(node));
     }
 
     @Override
@@ -228,7 +238,7 @@ public class FieldAccessDebugCompletionResolver extends NodeTransformer<Optional
 
     private List<Symbol> getVisibleEntries(TypeSymbol typeSymbol, Node node) {
         List<Symbol> visibleEntries = new ArrayList<>();
-        TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
+        TypeSymbol rawType = getRawType(typeSymbol);
         switch (rawType.typeKind()) {
             case RECORD:
                 // If the invoked for field access expression, then avoid suggesting the optional fields
@@ -245,8 +255,8 @@ public class FieldAccessDebugCompletionResolver extends NodeTransformer<Optional
                 visibleEntries.addAll(objTypeDesc.fieldDescriptors().values().stream()
                         .filter(objectFieldSymbol -> withValidAccessModifiers(node, objectFieldSymbol, currentPkg,
                                 currentModule.module().moduleId())).collect(Collectors.toList()));
-                boolean isClient = SymbolUtil.isClient(objTypeDesc);
-                boolean isService = SymbolUtil.getTypeDescForObjectSymbol(objTypeDesc)
+                boolean isClient = isClient(objTypeDesc);
+                boolean isService = getTypeDescForObjectSymbol(objTypeDesc)
                         .qualifiers().contains(Qualifier.SERVICE);
                 // If the object type desc is a client, then we avoid all the remote methods
                 List<MethodSymbol> methodSymbols = objTypeDesc.methods().values().stream()
@@ -290,5 +300,125 @@ public class FieldAccessDebugCompletionResolver extends NodeTransformer<Optional
         ModuleID objModuleId = symbolModule.get().id();
         return isPublic || (!isPrivate && objModuleId.moduleName().equals(currentModule.moduleName())
                 && objModuleId.orgName().equals(currentPackage.packageOrg().value()));
+    }
+
+    /**
+     * Check whether the given symbol is a symbol with the type Object.
+     *
+     * @param symbol to evaluate
+     * @return {@link Boolean} whether the symbol holds the type object
+     */
+    private boolean isObject(Symbol symbol) {
+        TypeSymbol typeDescriptor;
+        switch (symbol.kind()) {
+            case TYPE_DEFINITION:
+                typeDescriptor = ((TypeDefinitionSymbol) symbol).typeDescriptor();
+                break;
+            case VARIABLE:
+                typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
+                break;
+            case PARAMETER:
+                typeDescriptor = ((ParameterSymbol) symbol).typeDescriptor();
+                break;
+            case CLASS:
+                typeDescriptor = (ClassSymbol) symbol;
+                break;
+            case TYPE:
+                typeDescriptor = (TypeSymbol) symbol;
+                break;
+            default:
+                return false;
+        }
+        return getRawType(typeDescriptor).typeKind() == TypeDescKind.OBJECT;
+    }
+
+    /**
+     * Get the type descriptor of the given symbol.
+     * If the symbol is not a variable symbol this method will return empty optional value
+     *
+     * @param symbol to evaluate
+     * @return {@link Optional} type descriptor
+     */
+    private Optional<TypeSymbol> getTypeDescriptor(Symbol symbol) {
+        if (symbol == null) {
+            return Optional.empty();
+        }
+        switch (symbol.kind()) {
+            case TYPE_DEFINITION:
+                return Optional.ofNullable(((TypeDefinitionSymbol) symbol).typeDescriptor());
+            case VARIABLE:
+                return Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor());
+            case PARAMETER:
+                return Optional.ofNullable(((ParameterSymbol) symbol).typeDescriptor());
+            case ANNOTATION:
+                return ((AnnotationSymbol) symbol).typeDescriptor();
+            case FUNCTION:
+            case METHOD:
+                return Optional.ofNullable(((FunctionSymbol) symbol).typeDescriptor());
+            case CONSTANT:
+            case ENUM_MEMBER:
+                return Optional.ofNullable(((ConstantSymbol) symbol).typeDescriptor());
+            case CLASS:
+                return Optional.of((ClassSymbol) symbol);
+            case RECORD_FIELD:
+                return Optional.ofNullable(((RecordFieldSymbol) symbol).typeDescriptor());
+            case OBJECT_FIELD:
+                return Optional.of(((ObjectFieldSymbol) symbol).typeDescriptor());
+            case CLASS_FIELD:
+                return Optional.of(((ClassFieldSymbol) symbol).typeDescriptor());
+            case TYPE:
+                return Optional.of((TypeSymbol) symbol);
+            default:
+                return Optional.empty();
+        }
+    }
+
+    /**
+     * Get the type descriptor for the object symbol.
+     *
+     * @param symbol to evaluate
+     * @return {@link ObjectTypeSymbol} for the object symbol
+     */
+    private ObjectTypeSymbol getTypeDescForObjectSymbol(Symbol symbol) {
+        Optional<? extends TypeSymbol> typeDescriptor = getTypeDescriptor(symbol);
+        if (typeDescriptor.isEmpty() || !isObject(symbol)) {
+            throw new UnsupportedOperationException("Cannot find a valid type descriptor");
+        }
+        return (ObjectTypeSymbol) getRawType(typeDescriptor.get());
+    }
+
+    /**
+     * Check Whether the provided symbol is a client symbol.
+     *
+     * @param symbol to be evaluated
+     * @return {@link Boolean} status of the evaluation
+     */
+    private boolean isClient(Symbol symbol) {
+        if (!isObject(symbol)) {
+            return false;
+        }
+        ObjectTypeSymbol typeDesc = getTypeDescForObjectSymbol(symbol);
+        return typeDesc.qualifiers().contains(Qualifier.CLIENT);
+    }
+
+    /**
+     * Get the raw type of the type descriptor. If the type descriptor is a type reference then return the associated
+     * type descriptor.
+     *
+     * @param typeDescriptor type descriptor to evaluate
+     * @return {@link TypeSymbol} extracted type descriptor
+     */
+    private TypeSymbol getRawType(TypeSymbol typeDescriptor) {
+        if (typeDescriptor.typeKind() == TypeDescKind.INTERSECTION) {
+            return getRawType(((IntersectionTypeSymbol) typeDescriptor).effectiveTypeDescriptor());
+        }
+        if (typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+            TypeReferenceTypeSymbol typeRef = (TypeReferenceTypeSymbol) typeDescriptor;
+            if (typeRef.typeDescriptor().typeKind() == TypeDescKind.INTERSECTION) {
+                return getRawType(((IntersectionTypeSymbol) typeRef.typeDescriptor()).effectiveTypeDescriptor());
+            }
+            return typeRef.typeDescriptor();
+        }
+        return typeDescriptor;
     }
 }

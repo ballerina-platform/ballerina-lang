@@ -16,14 +16,13 @@
  * under the License.
  */
 
-package org.ballerinalang.debugadapter.completion;
+package org.ballerinalang.debugadapter.completions;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,12 +33,12 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BallerinaDebugCompletionContext {
+public class CompletionsContext {
 
     private final SuspendedContext suspendedContext;
     private final List<Node> resolverChain = new ArrayList<>();
 
-    public BallerinaDebugCompletionContext(SuspendedContext suspendedContext) {
+    public CompletionsContext(SuspendedContext suspendedContext) {
         this.suspendedContext = suspendedContext;
     }
 
@@ -51,14 +50,9 @@ public class BallerinaDebugCompletionContext {
         return this.resolverChain;
     }
 
-    public Position getCursorPosition() {
-        return new Position(suspendedContext.getLineNumber() - 1, 0);
-    }
-
-    public List<Symbol> visibleSymbols(Position position) {
+    public List<Symbol> visibleSymbols(int line, int offset) {
         SemanticModel semanticContext = suspendedContext.getDebugCompiler().getSemanticInfo();
-        return semanticContext.visibleSymbols(suspendedContext.getDocument(),
-                LinePosition.from(position.getLine(), position.getCharacter()));
+        return semanticContext.visibleSymbols(suspendedContext.getDocument(), LinePosition.from(line, offset));
     }
 
     public Optional<SemanticModel> currentSemanticModel() {

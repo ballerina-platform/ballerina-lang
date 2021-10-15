@@ -810,9 +810,9 @@ public class DebugTestRunner {
                 Assert.assertEquals(completionItem.get(label).getText(), label);
                 return;
             case SOFT_ASSERT:
-                Assert.assertTrue(completionItem.containsKey(label));
-                Assert.assertEquals(completionItem.get(label).getLabel(), label);
-                Assert.assertEquals(completionItem.get(label).getText(), label);
+                softAsserter.assertTrue(completionItem.containsKey(label));
+                softAsserter.assertEquals(completionItem.get(label).getLabel(), label);
+                softAsserter.assertEquals(completionItem.get(label).getText(), label);
         }
     }
 

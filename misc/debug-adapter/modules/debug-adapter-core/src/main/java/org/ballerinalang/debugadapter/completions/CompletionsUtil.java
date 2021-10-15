@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.debugadapter.completion;
+package org.ballerinalang.debugadapter.completions;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
@@ -32,16 +33,10 @@ import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.DebugExpressionCompiler;
 import org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider;
-import org.ballerinalang.langserver.completions.ProviderFactory;
 import org.eclipse.lsp4j.debug.CompletionItem;
 import org.eclipse.lsp4j.debug.CompletionItemType;
 import org.eclipse.lsp4j.debug.CompletionsArguments;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,27 +44,28 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Common utility methods for debug completion operation.
+ * Common utility methods for debug completions operation.
  *
  * @since 2.0.0
  */
-public class DebugCompletionUtil {
+public class CompletionsUtil {
 
     private static final String PARENTHESIS = "()";
+    private static final List<String> triggerCharacters = Arrays.asList(".", ":");
 
     /**
      * Get the updated bal file content which includes debug console expression.
      *
-     * @param args       debug completions arguments.
+     * @param args       debug completions arguments
      * @param node       non terminal node
-     * @param sourcePath source path of the debug bal file.
-     * @param lineNumber debug breakpoint line number.
+     * @param lineNumber debug breakpoint line number
      * @return updated file content
      */
-    public static String getUpdatedBalFileContent(CompletionsArguments args, NonTerminalNode node, String sourcePath,
-                                                  int lineNumber) throws IOException {
-        Path path = Paths.get(sourcePath);
-        List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+    public static String getUpdatedBalFileContent(CompletionsContext completionsContext, CompletionsArguments args,
+                                                  NonTerminalNode node, int lineNumber) {
+        SuspendedContext suspendedContext = completionsContext.getSuspendedContext();
+        TextDocument textDocument = suspendedContext.getDocument().textDocument();
+        List<String> lines = Arrays.asList(textDocument.toString().split(System.lineSeparator()));
 
         if (node instanceof FunctionBodyBlockNode) {
             int nodeStartLine = node.lineRange().startLine().line();
@@ -105,36 +101,27 @@ public class DebugCompletionUtil {
     }
 
     /**
-     * Get the bal file content.
-     *
-     * @param sourcePath source path of the debug bal file.
-     * @return bal file content
-     */
-    public static String getBalFileContent(String sourcePath) throws IOException {
-        return getUpdatedBalFileContent(null, null, sourcePath, 0);
-    }
-
-    /**
      * Get the nearest matching provider for the context node.
      * Router can be called recursively. Therefore, if there is an already checked resolver in the resolver chain,
      * that means the particular resolver could not handle the completions request. Therefore skip the particular node
      * and traverse the parent ladder to find the nearest matching resolver.
      *
-     * @param node                   node to evaluate
-     * @param debugCompletionContext debug completion context
+     * @param node               node to evaluate
+     * @param completionsContext debug completion context
      */
-    public static void route(Node node, BallerinaDebugCompletionContext debugCompletionContext) {
-        Map<Class<?>, BallerinaCompletionProvider<Node>> providers = ProviderFactory.instance().getProviders();
+    public static void route(Node node, CompletionsContext completionsContext) {
+        Map<Class<?>, BallerinaCompletionProvider<Node>> providers =
+                CompletionsProviderFactory.instance().getProviders();
         Node reference = node;
         BallerinaCompletionProvider<Node> provider;
 
         while ((reference != null)) {
             provider = providers.get(reference.getClass());
             if (provider != null) {
-                debugCompletionContext.addResolver(reference);
+                completionsContext.addResolver(reference);
                 break;
             }
-            debugCompletionContext.addResolver(reference);
+            completionsContext.addResolver(reference);
             reference = reference.parent();
         }
     }
@@ -142,11 +129,11 @@ public class DebugCompletionUtil {
     /**
      * Get the visible symbol completion items.
      *
-     * @param debugCompletionContext debug completion contexts
+     * @param completionsContext debug completion context
      * @return visible symbol completion item array
      */
-    public static CompletionItem[] getVisibleSymbolCompletions(BallerinaDebugCompletionContext debugCompletionContext) {
-        SuspendedContext suspendedContext = debugCompletionContext.getSuspendedContext();
+    public static CompletionItem[] getVisibleSymbolCompletions(CompletionsContext completionsContext) {
+        SuspendedContext suspendedContext = completionsContext.getSuspendedContext();
         DebugExpressionCompiler debugCompiler = suspendedContext.getDebugCompiler();
         SemanticModel semanticContext = debugCompiler.getSemanticInfo();
         List<Symbol> symbolList = semanticContext.visibleSymbols(
@@ -234,5 +221,45 @@ public class DebugCompletionUtil {
                             nonTerminalNode.lineRange().startLine().offset() + offset));
         }
         return textPosition;
+    }
+
+    public static boolean triggerCharactersFound(String expression) {
+        return Arrays.stream(expression.split("")).anyMatch(triggerCharacters::contains);
+    }
+
+    /**
+     * Get non terminal node with injected expression.
+     *
+     * @param completionsContext debug completion context
+     * @param args               debug completions arguments
+     * @param sourcePath         source path
+     * @param lineNumber         debug hit line
+     * @return non terminal node with injected expression
+     */
+    public static NonTerminalNode getInjectedExpressionNode(CompletionsContext completionsContext,
+                                                            CompletionsArguments args, String sourcePath,
+                                                            int lineNumber) {
+        // TODO: Getting injected expression node logic can be improved by building the syntax tree with text edits
+        //  after fixing the issue https://github.com/ballerina-platform/ballerina-lang/issues/24058
+
+        // Identify the non terminal node at breakpoint before injecting the debug console expression.
+        SuspendedContext suspendedContext = completionsContext.getSuspendedContext();
+        String source = suspendedContext.getDocument().textDocument().toString();
+        NonTerminalNode nonTerminalNode = getNonTerminalNode(source, sourcePath, lineNumber);
+
+        // Debug console expressions are injected at the beginning of StatementNode, except FunctionBodyBlockNode.
+        // If the non terminal node is not an instance of StatementNode,
+        // traverse/visit to its parent until get the instance of StatementNode.
+        while (!(nonTerminalNode instanceof StatementNode)) {
+            if (nonTerminalNode instanceof FunctionBodyBlockNode) {
+                break;
+            }
+            nonTerminalNode = nonTerminalNode.parent();
+        }
+
+        // Inject the debug console expression.
+        String updatedSource = getUpdatedBalFileContent(completionsContext, args, nonTerminalNode, lineNumber);
+
+        return getNonTerminalNode(updatedSource, sourcePath, nonTerminalNode, lineNumber, args.getColumn());
     }
 }

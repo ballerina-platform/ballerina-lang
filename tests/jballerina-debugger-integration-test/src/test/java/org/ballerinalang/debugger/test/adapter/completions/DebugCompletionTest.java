@@ -36,7 +36,7 @@ import java.util.Map;
 /**
  * Test class for debug console completions related scenarios.
  */
-public class CompletionsDebugTest extends BaseTestCase {
+public class DebugCompletionTest extends BaseTestCase {
 
     Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo;
     DebugTestRunner debugTestRunner;
