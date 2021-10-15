@@ -1,15 +1,15 @@
-type Foo record {|
-     int id;
- |};
+type Foo record {
+    int id;
+};
 
- type Bar record {|
-     string name;
- |};
+type Bar record {
+    string name;
+};
 
- function myfunc() returns Foo|[Foo[], Bar] {
+function myfunc() returns Foo|[Foo[], Bar] {
 
- }
+}
 
- function main() {
-     Foo|[Foo[], Bar] f = myfunc();
- }
+public function main() {
+    Foo|[Foo[], Bar] f = myfunc();
+}
