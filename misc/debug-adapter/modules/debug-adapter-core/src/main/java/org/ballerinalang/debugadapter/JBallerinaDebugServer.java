@@ -123,7 +123,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private ClientConfigHolder clientConfigHolder;
     private DebugExecutionManager executionManager;
     private JDIEventProcessor eventProcessor;
-    private DebugExpressionEvaluator evaluator;
     private final ExecutionContext context;
     private ThreadReferenceProxyImpl activeThread;
     private SuspendedContext suspendedContext;
@@ -134,7 +133,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private final Map<Long, StackFrame[]> threadStackTraces = new HashMap<>();
     private final Map<Integer, Integer> scopeIdToFrameIdMap = new HashMap<>();
     private final Map<Integer, Integer> variableToStackFrameMap = new HashMap<>();
-
     private final Map<Integer, BCompoundVariable> loadedCompoundVariables = new ConcurrentHashMap<>();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
@@ -180,10 +178,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         capabilities.setSupportsFunctionBreakpoints(false);
         capabilities.setSupportsFunctionBreakpoints(false);
 
-        context.setClient(client);
         eventProcessor = new JDIEventProcessor(context);
+        outputLogger = new DebugOutputLogger(client);
+        context.setClient(client);
         client.initialized();
-        this.outputLogger = new DebugOutputLogger(client);
         return CompletableFuture.completedFuture(capabilities);
     }
 
@@ -414,35 +412,37 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<EvaluateResponse> evaluate(EvaluateArguments args) {
-        EvaluateResponse response = new EvaluateResponse();
         // If the execution manager is not active, sends null response.
         if (executionManager == null || !executionManager.isActive()) {
-            return CompletableFuture.completedFuture(response);
+            return CompletableFuture.completedFuture(new EvaluateResponse());
         }
         // Evaluate arguments context becomes `variables` when we do a `Copy Value` from VS Code, and
         // evaluate arguments context becomes `repl` when we evaluate expressions from VS Code.
         // If evaluate arguments context is equal to `variables`, then respond with expression as it is without
         // evaluation process.
         if (args.getContext() != null && args.getContext().equals(EVAL_ARGS_CONTEXT_VARIABLES)) {
+            EvaluateResponse response = new EvaluateResponse();
             response.setResult(args.getExpression());
             return CompletableFuture.completedFuture(response);
         }
-        try {
-            StackFrameProxyImpl frame = stackFrames.get(args.getFrameId());
-            SuspendedContext suspendedContext = new SuspendedContext(context, activeThread, frame);
-            EvaluationContext evaluationContext = new EvaluationContext(suspendedContext);
-            evaluator = Objects.requireNonNullElse(evaluator, new DebugExpressionEvaluator(evaluationContext));
-            evaluator.setExpression(args.getExpression());
-            BVariable evaluationResult = evaluator.evaluate().getBVariable();
-            response = constructEvaluateResponse(args, evaluationResult);
-            return CompletableFuture.completedFuture(response);
-        } catch (EvaluationException e) {
-            context.getOutputLogger().sendErrorOutput(e.getMessage());
-            return CompletableFuture.completedFuture(response);
-        } catch (Exception e) {
-            context.getOutputLogger().sendErrorOutput(EvaluationExceptionKind.PREFIX + "internal error");
-            return CompletableFuture.completedFuture(response);
-        }
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                StackFrameProxyImpl frame = stackFrames.get(args.getFrameId());
+                SuspendedContext suspendedContext = new SuspendedContext(context, activeThread, frame);
+                EvaluationContext evaluationContext = new EvaluationContext(suspendedContext);
+                DebugExpressionEvaluator evaluator = new DebugExpressionEvaluator(evaluationContext);
+                evaluator.setExpression(args.getExpression());
+                BVariable evaluationResult = evaluator.evaluate().getBVariable();
+                return constructEvaluateResponse(args, evaluationResult);
+            } catch (EvaluationException e) {
+                context.getOutputLogger().sendErrorOutput(e.getMessage());
+                return new EvaluateResponse();
+            } catch (Exception e) {
+                context.getOutputLogger().sendErrorOutput(EvaluationExceptionKind.PREFIX + "internal error");
+                return new EvaluateResponse();
+            }
+        });
     }
 
     @Override
@@ -965,7 +965,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      */
     private void clearState() {
         suspendedContext = null;
-        evaluator = null;
         activeThread = null;
         stackFrames.clear();
         loadedCompoundVariables.clear();
