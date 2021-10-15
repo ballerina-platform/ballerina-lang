@@ -13,13 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.ballerina.converters;
+package org.ballerinalang.langserver.extensions.ballerina.example;
+
+import org.ballerinalang.langserver.commons.registration.BallerinaClientCapability;
 
 /**
- * Represents the Service constants.
+ * Client capabilities for the ballerinaExample service.
  *
  * @since 2.0.0
  */
-public class Constants {
-    public static final String CAPABILITY_NAME = "jsonToRecord";
+public class BallerinaExampleClientCapabilities extends BallerinaClientCapability {
+
+    private boolean list;
+
+    public boolean isList() {
+        return list;
+    }
+
+    public void setList(boolean list) {
+        this.list = list;
+    }
+
+    public BallerinaExampleClientCapabilities() {
+        super(Constants.CAPABILITY_NAME);
+    }
 }
