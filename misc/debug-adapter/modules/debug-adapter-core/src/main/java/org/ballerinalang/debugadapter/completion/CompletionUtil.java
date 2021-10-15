@@ -109,8 +109,7 @@ public class CompletionUtil {
         if (node.kind() == SyntaxKind.FIELD_ACCESS) {
             return node;
         }
-        getResolverNode(node.parent());
-        return null;
+        return getResolverNode(node.parent());
     }
 
     /**
