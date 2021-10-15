@@ -809,6 +809,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeNode(matchClause, env);
         }
         analyzeOnFailClause(matchStatement.onFailClause);
+        this.errorTypes.pop();
     }
 
     @Override
