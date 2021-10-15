@@ -18180,10 +18180,11 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createSingletonTypeDescriptorNode(expression);
             case TUPLE_TYPE_DESC:
                 STTupleTypeDescriptorNode tupleTypeDescriptorNode = (STTupleTypeDescriptorNode) expression;
-                STNodeList list = (STNodeList) tupleTypeDescriptorNode.memberTypeDesc;
-                STNode x = STNodeFactory.createNodeList(getTypeDescList(list));
-                return STNodeFactory.createTupleTypeDescriptorNode(tupleTypeDescriptorNode.openBracketToken, x,
-                        tupleTypeDescriptorNode.closeBracketToken);
+                STNode memberNodes =
+                        STNodeFactory.createNodeList(getTypeDescList((STNodeList) tupleTypeDescriptorNode
+                                .memberTypeDesc));
+                return STNodeFactory.createTupleTypeDescriptorNode(tupleTypeDescriptorNode.openBracketToken,
+                        memberNodes, tupleTypeDescriptorNode.closeBracketToken);
             case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
             default:
