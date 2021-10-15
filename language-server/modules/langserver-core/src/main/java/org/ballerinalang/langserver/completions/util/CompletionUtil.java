@@ -142,7 +142,7 @@ public class CompletionUtil {
 
         context.setNodeAtCursor(nonTerminalNode);
     }
-    
+
     /**
      * Check whether the cursor is within a comment.
      */

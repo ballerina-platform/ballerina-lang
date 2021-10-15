@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.LetExpressionNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -23,14 +22,13 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Handles the completions for {@link AssignmentStatementNode} context.
+ * Handles the completions for {@link LetExpressionNode} context.
  *
  * @since 2.0.0
  */
@@ -44,12 +42,14 @@ public class LetExpressionNodeContext extends AbstractCompletionProvider<LetExpr
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, LetExpressionNode node) 
             throws LSCompletionException {
+        return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_IN.get()));
+    }
+    
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, LetExpressionNode node) {
         int cursor = context.getCursorPositionInTree();
-        if (!node.letVarDeclarations().isEmpty() && node.inKeyword().isMissing()
+        return !node.letVarDeclarations().isEmpty() && node.inKeyword().isMissing()
                 && node.letVarDeclarations().get(node.letVarDeclarations().size() - 1)
-                .expression().textRange().endOffset() < cursor) {
-            return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_IN.get()));
-        }
-        return CompletionUtil.route(context, node.parent());
+                .expression().textRange().endOffset() < cursor;
     }
 }

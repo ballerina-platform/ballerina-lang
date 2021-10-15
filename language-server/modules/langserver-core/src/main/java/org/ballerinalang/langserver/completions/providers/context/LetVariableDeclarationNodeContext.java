@@ -16,11 +16,8 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-<<<<<<< HEAD
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
-=======
->>>>>>> 3c4a7190f41 (Refactor code logic)
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -77,7 +74,6 @@ public class LetVariableDeclarationNodeContext extends AbstractCompletionProvide
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, LetVariableDeclarationNode node) {
         int cursor = context.getCursorPositionInTree();
-<<<<<<< HEAD
         Token equalsToken = node.equalsToken();
         ExpressionNode expression = node.expression();
         /*
@@ -93,8 +89,5 @@ public class LetVariableDeclarationNodeContext extends AbstractCompletionProvide
         }
         return !equalsToken.isMissing() && equalsToken.textRange().startOffset() < cursor
                 && (expression.isMissing() || cursor <= expression.textRange().endOffset());
-=======
-        return node.expression().textRange().endOffset() > cursor;
->>>>>>> 3c4a7190f41 (Refactor code logic)
     }
 }
