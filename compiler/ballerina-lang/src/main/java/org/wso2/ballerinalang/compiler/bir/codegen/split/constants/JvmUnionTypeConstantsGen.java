@@ -17,6 +17,8 @@
  */
 
 package org.wso2.ballerinalang.compiler.bir.codegen.split.constants;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
+import static  org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.*;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -73,7 +75,7 @@ public class JvmUnionTypeConstantsGen {
      */
     public JvmUnionTypeConstantsGen(PackageID packageID) {
         unionVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(
-                packageID, JvmConstants.BUNION_TYPE_CONSTANT_CLASS_NAME);
+                packageID , BUNION_TYPE_CONSTANT_CLASS_NAME);
         generateUnionTypeConstantsClassInit();
         visitUnionTypeInitMethod();
         funcNames = new ArrayList<>();
@@ -91,17 +93,17 @@ public class JvmUnionTypeConstantsGen {
 
     private void generateUnionTypeConstantsClassInit() {
         cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC | ACC_SUPER, unionVarConstantsClass, null, JvmConstants.OBJECT, null);
+        cw.visit(V1_8, ACC_PUBLIC | ACC_SUPER, unionVarConstantsClass, null , OBJECT, null);
 
-        MethodVisitor methodVisitor = cw.visitMethod(ACC_PRIVATE, JvmConstants.JVM_INIT_METHOD, "()V", null, null);
+        MethodVisitor methodVisitor = cw.visitMethod(ACC_PRIVATE , JVM_INIT_METHOD, "()V", null, null);
         methodVisitor.visitCode();
         methodVisitor.visitVarInsn(ALOAD, 0);
-        methodVisitor.visitMethodInsn(INVOKESPECIAL, JvmConstants.OBJECT, JvmConstants.JVM_INIT_METHOD, "()V", false);
+        methodVisitor.visitMethodInsn(INVOKESPECIAL , OBJECT , JVM_INIT_METHOD, "()V", false);
         genMethodReturn(methodVisitor);
     }
 
     private void visitUnionTypeInitMethod() {
-        mv = cw.visitMethod(ACC_STATIC, JvmConstants.B_UNION_TYPE_INIT_METHOD_PREFIX + methodCount++,
+        mv = cw.visitMethod(ACC_STATIC , B_UNION_TYPE_INIT_METHOD_PREFIX + methodCount++,
                             "()V", null, null);
     }
 
@@ -124,7 +126,7 @@ public class JvmUnionTypeConstantsGen {
     }
 
     private void genPopulateMethod(BUnionType type, String varName) {
-        String methodName = String.format("$populate%s", varName);
+        String methodName = "$populate" + varName;
         funcNames.add(methodName);
         MethodVisitor methodVisitor = cw.visitMethod(ACC_STATIC, methodName, "()V", null, null);
         methodVisitor.visitCode();
@@ -136,18 +138,18 @@ public class JvmUnionTypeConstantsGen {
     private void createBunionType(MethodVisitor mv, BUnionType unionType, String varName) {
         jvmUnionTypeGen.createUnionType(mv, unionType);
         mv.visitFieldInsn(Opcodes.PUTSTATIC, unionVarConstantsClass, varName,
-                          String.format("L%s;", JvmConstants.UNION_TYPE_IMPL));
+                          GET_UNION_TYPE_IMPL);
     }
 
     private void visitBUnionField(String varName) {
         FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, varName,
-                                        String.format("L%s;", JvmConstants.UNION_TYPE_IMPL), null, null);
+                                        GET_UNION_TYPE_IMPL, null, null);
         fv.visitEnd();
     }
 
     public void generateGetBUnionType(MethodVisitor mv, String varName) {
         mv.visitFieldInsn(GETSTATIC, unionVarConstantsClass, varName,
-                          String.format("L%s;", JvmConstants.UNION_TYPE_IMPL));
+                          GET_UNION_TYPE_IMPL);
     }
 
     public synchronized void generateClass(Map<String, byte[]> jarEntries) {
@@ -166,7 +168,7 @@ public class JvmUnionTypeConstantsGen {
         MethodVisitor methodVisitor = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
         for (int i = 0; i < methodCount; i++) {
             methodVisitor.visitMethodInsn(INVOKESTATIC, unionVarConstantsClass,
-                                          JvmConstants.B_UNION_TYPE_INIT_METHOD_PREFIX + i,
+                                         B_UNION_TYPE_INIT_METHOD_PREFIX + i,
                                           "()V", false);
         }
         genMethodReturn(methodVisitor);

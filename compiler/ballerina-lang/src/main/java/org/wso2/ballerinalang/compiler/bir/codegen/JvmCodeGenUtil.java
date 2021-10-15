@@ -71,47 +71,34 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FILE_NAME_PERIOD_SEPERATOR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA_VAR_PREFIX;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WINDOWS_PATH_SEPERATOR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
 
 /**
  * The common functions used in CodeGen.
  */
 public class JvmCodeGenUtil {
     public static final Unifier UNIFIER = new Unifier();
-    public static final String INITIAL_METHOD_DESC = String.format("(L%s;", STRAND_CLASS);
     private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[\\.:/<>]");
     public static final String SCOPE_PREFIX = "_SCOPE_";
     public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
@@ -147,8 +134,7 @@ public class JvmCodeGenUtil {
         mv.visitInsn(Opcodes.ACONST_NULL);
         mv.visitInsn(Opcodes.ACONST_NULL);
         mv.visitInsn(Opcodes.ICONST_0); // mark as not-concurrent ie: 'parent'
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, FUNCTION_POINTER, JVM_INIT_METHOD,
-                           String.format("(L%s;L%s;L%s;Z)V", FUNCTION, TYPE, STRING_VALUE), false);
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, FUNCTION_POINTER, JVM_INIT_METHOD, FP_INIT, false);
     }
 
     public static String cleanupPathSeparators(String name) {
@@ -171,9 +157,9 @@ public class JvmCodeGenUtil {
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            return String.format("L%s;", B_STRING_VALUE);
+            return GET_BSTRING;
         } else if (TypeTags.isXMLTypeTag(bType.tag)) {
-            return String.format("L%s;", XML_VALUE);
+            return GET_XML;
         } else {
             switch (bType.tag) {
                 case TypeTags.BYTE:
@@ -181,7 +167,7 @@ public class JvmCodeGenUtil {
                 case TypeTags.FLOAT:
                     return "D";
                 case TypeTags.DECIMAL:
-                    return String.format("L%s;", DECIMAL_VALUE);
+                    return GET_BDECIMAL;
                 case TypeTags.BOOLEAN:
                     return "Z";
                 case TypeTags.NIL:
@@ -193,29 +179,29 @@ public class JvmCodeGenUtil {
                 case TypeTags.JSON:
                 case TypeTags.FINITE:
                 case TypeTags.READONLY:
-                    return String.format("L%s;", OBJECT);
+                    return GET_OBJECT;
                 case TypeTags.MAP:
                 case TypeTags.RECORD:
-                    return String.format("L%s;", MAP_VALUE);
+                    return GET_MAP_VALUE;
                 case TypeTags.STREAM:
-                    return String.format("L%s;", STREAM_VALUE);
+                    return GET_STREAM_VALUE;
                 case TypeTags.TABLE:
-                    return String.format("L%s;", TABLE_VALUE_IMPL);
+                    return GET_TABLE_VALUE_IMPL;
                 case TypeTags.ARRAY:
                 case TypeTags.TUPLE:
-                    return String.format("L%s;", ARRAY_VALUE);
+                    return GET_ARRAY_VALUE;
                 case TypeTags.ERROR:
-                    return String.format("L%s;", ERROR_VALUE);
+                    return GET_ERROR_VALUE;
                 case TypeTags.FUTURE:
-                    return String.format("L%s;", FUTURE_VALUE);
+                    return GET_FUTURE_VALUE;
                 case TypeTags.OBJECT:
-                    return String.format("L%s;", B_OBJECT);
+                    return GET_BOBJECT;
                 case TypeTags.TYPEDESC:
-                    return String.format("L%s;", TYPEDESC_VALUE);
+                    return GET_TYPEDESC;
                 case TypeTags.INVOKABLE:
-                    return String.format("L%s;", FUNCTION_POINTER);
+                    return GET_FUNCTION_POINTER;
                 case TypeTags.HANDLE:
-                    return String.format("L%s;", HANDLE_VALUE);
+                    return GET_HANDLE_VALUE;
                 case JTypeTags.JTYPE:
                     return InteropMethodGen.getJTypeSignature((JType) bType);
                 default:
@@ -254,9 +240,8 @@ public class JvmCodeGenUtil {
         }
         mv.visitLdcInsn(metaData.parentFunctionName);
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, STRAND_METADATA,
-                           JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE,
-                                                                  STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
-        mv.visitFieldInsn(Opcodes.PUTSTATIC, moduleClass, varName, String.format("L%s;", STRAND_METADATA));
+                           JVM_INIT_METHOD, INIT_STRAND_METADATA, false);
+        mv.visitFieldInsn(Opcodes.PUTSTATIC, moduleClass, varName, GET_STRAND_METADATA);
     }
 
     static void visitStrandMetadataFields(ClassWriter cw, Map<String, ScheduleFunctionInfo> strandMetaDataMap) {
@@ -265,7 +250,7 @@ public class JvmCodeGenUtil {
 
     private static void visitStrandMetadataField(ClassWriter cw, String varName) {
         FieldVisitor fv = cw.visitField(Opcodes.ACC_STATIC, varName,
-                                        String.format("L%s;", STRAND_METADATA), null, null);
+                                        GET_STRAND_METADATA, null, null);
         fv.visitEnd();
     }
 
@@ -336,9 +321,9 @@ public class JvmCodeGenUtil {
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            return String.format("L%s;", B_STRING_VALUE);
+            return GET_BSTRING;
         } else if (TypeTags.isXMLTypeTag(bType.tag)) {
-            return String.format("L%s;", XML_VALUE);
+            return GET_XML;
         }
 
         switch (bType.tag) {
@@ -347,7 +332,7 @@ public class JvmCodeGenUtil {
             case TypeTags.FLOAT:
                 return "D";
             case TypeTags.DECIMAL:
-                return String.format("L%s;", DECIMAL_VALUE);
+                return GET_BDECIMAL;
             case TypeTags.BOOLEAN:
                 return "Z";
             case TypeTags.NIL:
@@ -359,49 +344,49 @@ public class JvmCodeGenUtil {
             case TypeTags.FINITE:
             case TypeTags.ANY:
             case TypeTags.READONLY:
-                return String.format("L%s;", OBJECT);
+                return GET_OBJECT;
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
-                return String.format("L%s;", ARRAY_VALUE);
+                return GET_ARRAY_VALUE;
             case TypeTags.ERROR:
-                return String.format("L%s;", ERROR_VALUE);
+                return GET_ERROR_VALUE;
             case TypeTags.MAP:
             case TypeTags.RECORD:
-                return String.format("L%s;", MAP_VALUE);
+                return GET_MAP_VALUE;
             case TypeTags.FUTURE:
-                return String.format("L%s;", FUTURE_VALUE);
+                return GET_FUTURE_VALUE;
             case TypeTags.STREAM:
-                return String.format("L%s;", STREAM_VALUE);
+                return GET_STREAM_VALUE;
             case TypeTags.TABLE:
-                return String.format("L%s;", TABLE_VALUE_IMPL);
+                return GET_TABLE_VALUE_IMPL;
             case TypeTags.INVOKABLE:
-                return String.format("L%s;", FUNCTION_POINTER);
+                return GET_FUNCTION_POINTER;
             case TypeTags.TYPEDESC:
-                return String.format("L%s;", TYPEDESC_VALUE);
+                return GET_TYPEDESC;
             case TypeTags.OBJECT:
-                return String.format("L%s;", B_OBJECT);
+                return GET_BOBJECT;
             case TypeTags.HANDLE:
-                return String.format("L%s;", HANDLE_VALUE);
+                return GET_HANDLE_VALUE;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
-                                                         String.format("%s", bType));
+                                                         bType);
         }
     }
 
     public static String generateReturnType(BType bType) {
         if (bType == null) {
-            return String.format(")L%s;", OBJECT);
+            return RETURN_JOBJECT;
         }
 
         bType = JvmCodeGenUtil.UNIFIER.build(bType);
         if (bType == null || bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
-            return String.format(")L%s;", OBJECT);
+            return RETURN_JOBJECT;
         } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return ")J";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            return String.format(")L%s;", B_STRING_VALUE);
+            return RETURN_B_STRING_VALUE;
         } else if (TypeTags.isXMLTypeTag(bType.tag)) {
-            return String.format(")L%s;", XML_VALUE);
+            return RETURN_XML_VALUE;
         }
 
         switch (bType.tag) {
@@ -410,25 +395,25 @@ public class JvmCodeGenUtil {
             case TypeTags.FLOAT:
                 return ")D";
             case TypeTags.DECIMAL:
-                return String.format(")L%s;", DECIMAL_VALUE);
+                return RETURN_DECIMAL_VALUE;
             case TypeTags.BOOLEAN:
                 return ")Z";
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
-                return String.format(")L%s;", ARRAY_VALUE);
+                return RETURN_ARRAY_VALUE;
             case TypeTags.MAP:
             case TypeTags.RECORD:
-                return String.format(")L%s;", MAP_VALUE);
+                return RETURN_MAP_VALUE;
             case TypeTags.ERROR:
-                return String.format(")L%s;", ERROR_VALUE);
+                return RETURN_ERROR_VALUE;
             case TypeTags.STREAM:
-                return String.format(")L%s;", STREAM_VALUE);
+                return RETURN_STREAM_VALUE;
             case TypeTags.TABLE:
-                return String.format(")L%s;", TABLE_VALUE_IMPL);
+                return RETURN_TABLE_VALUE_IMPL;
             case TypeTags.FUTURE:
-                return String.format(")L%s;", FUTURE_VALUE);
+                return RETURN_FUTURE_VALUE;
             case TypeTags.TYPEDESC:
-                return String.format(")L%s;", TYPEDESC_VALUE);
+                return RETURN_TYPEDESC_VALUE;
             case TypeTags.ANY:
             case TypeTags.ANYDATA:
             case TypeTags.UNION:
@@ -436,13 +421,13 @@ public class JvmCodeGenUtil {
             case TypeTags.JSON:
             case TypeTags.FINITE:
             case TypeTags.READONLY:
-                return String.format(")L%s;", OBJECT);
+                return RETURN_JOBJECT;
             case TypeTags.OBJECT:
-                return String.format(")L%s;", B_OBJECT);
+                return RETURN_B_OBJECT;
             case TypeTags.INVOKABLE:
-                return String.format(")L%s;", FUNCTION_POINTER);
+                return RETURN_FUNCTION_POINTER;
             case TypeTags.HANDLE:
-                return String.format(")L%s;", HANDLE_VALUE);
+                return RETURN_HANDLE_VALUE;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }
@@ -483,7 +468,7 @@ public class JvmCodeGenUtil {
             }
 
             mv.visitMethodInsn(INVOKESPECIAL, CHANNEL_DETAILS, JVM_INIT_METHOD,
-                    String.format("(L%s;ZZ)V", STRING_VALUE), false);
+                    INIT_CHANNEL_DETAILS, false);
             mv.visitInsn(AASTORE);
         }
     }
@@ -617,7 +602,7 @@ public class JvmCodeGenUtil {
             String val = String.valueOf(constVal);
             String varName = jvmConstantsGen.getBStringConstantVar(val);
             String stringConstantsClass = jvmConstantsGen.getStringConstantsClass();
-            mv.visitFieldInsn(GETSTATIC, stringConstantsClass, varName, String.format("L%s;", B_STRING_VALUE));
+            mv.visitFieldInsn(GETSTATIC, stringConstantsClass, varName, GET_BSTRING);
             return;
         }
 
@@ -640,8 +625,7 @@ public class JvmCodeGenUtil {
                 mv.visitTypeInsn(NEW, DECIMAL_VALUE);
                 mv.visitInsn(DUP);
                 mv.visitLdcInsn(String.valueOf(constVal));
-                mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, JVM_INIT_METHOD, String.format("(L%s;)V",
-                                                                                                STRING_VALUE), false);
+                mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, JVM_INIT_METHOD, INIT_WITH_STRING, false);
                 break;
             case TypeTags.NIL:
             case TypeTags.NEVER:
@@ -649,7 +633,7 @@ public class JvmCodeGenUtil {
                 break;
             default:
                 throw new BLangCompilerException("JVM generation is not supported for type : " +
-                                                         String.format("%s", bType));
+                                                         bType);
         }
     }
 
@@ -664,16 +648,15 @@ public class JvmCodeGenUtil {
         mv.visitTypeInsn(NEW, STRING_BUILDER);
         mv.visitInsn(DUP);
         mv.visitLdcInsn(errorMessage);
-        mv.visitMethodInsn(INVOKESPECIAL, STRING_BUILDER, JVM_INIT_METHOD, String.format("(L%s;)V", STRING_VALUE),
+        mv.visitMethodInsn(INVOKESPECIAL, STRING_BUILDER, JVM_INIT_METHOD, INIT_WITH_STRING,
                 false);
         mv.visitVarInsn(ALOAD, nameRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "append",
-                String.format("(L%s;)L%s;", STRING_VALUE, STRING_BUILDER), false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, JVM_TO_STRING_METHOD, String.format("()L%s;", STRING_VALUE)
+                STRING_BUILDER_APPEND, false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, JVM_TO_STRING_METHOD, GET_JSTRING
                 , false);
-        mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString", String.format("(L%s;)L%s;", STRING_VALUE,
-                B_STRING_VALUE), false);
-        mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, JVM_INIT_METHOD, String.format("(L%s;)V", B_STRING_VALUE),
+        mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString", FROM_STRING, false);
+        mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, JVM_INIT_METHOD, INIT_ERROR,
                 false);
         mv.visitInsn(ATHROW);
     }
@@ -682,7 +665,7 @@ public class JvmCodeGenUtil {
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
         mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
         mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD,
-                String.format("()L%s;", STRING_VALUE), true);
+                GET_JSTRING, true);
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
     }
 

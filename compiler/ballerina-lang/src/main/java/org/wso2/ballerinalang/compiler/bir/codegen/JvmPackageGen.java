@@ -76,7 +76,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
@@ -105,11 +104,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE_VAR_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_EP_AVAILABLE;
@@ -120,6 +118,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.injectDefa
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.createExternalFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.injectDefaultParamInits;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
 
 /**
  * BIR module to JVM byte code generation class.
@@ -314,12 +313,12 @@ public class JvmPackageGen {
     private static void setCurrentModuleField(ClassWriter cw, MethodVisitor mv, JvmConstantsGen jvmConstantsGen,
                                               PackageID packageID, String moduleInitClass) {
         FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_VAR_NAME,
-                                        String.format("L%s;", MODULE), null, null);
+                                        GET_MODULE, null, null);
         fv.visitEnd();
         String varName = jvmConstantsGen.getModuleConstantVar(packageID);
         mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
-                          String.format("L%s;", MODULE));
-        mv.visitFieldInsn(PUTSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", MODULE));
+                          GET_MODULE);
+        mv.visitFieldInsn(PUTSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
     }
 
     static String computeLockNameFromString(String varName) {
@@ -402,7 +401,7 @@ public class JvmPackageGen {
                                        JvmConstantsGen jvmConstantsGen,
                                        Map<String, JavaClass> jvmClassMapping, List<PackageID> moduleImports,
                                        boolean serviceEPAvailable) {
-        jvmClassMapping.entrySet().parallelStream().forEach(entry -> {
+        jvmClassMapping.entrySet().forEach(entry -> {
             String moduleClass = entry.getKey();
             JavaClass javaClass = entry.getValue();
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
@@ -496,7 +495,7 @@ public class JvmPackageGen {
         linkModuleFunctions(module, initClass, isEntry, jvmClassMap);
 
         // link module stop function that will be generated
-        linkModuleFunction(module.packageID, initClass, MODULE_STOP);
+        linkModuleFunction(module.packageID, initClass, MODULE_STOP_METHOD);
 
         // link typedef - object attached native functions
         linkTypeDefinitions(module, isEntry);
@@ -750,6 +749,9 @@ public class JvmPackageGen {
     }
 
     CompiledJarFile generate(BIRNode.BIRPackage module, boolean isEntry) {
+        if (dependentModules.contains(module.packageID)) {
+            return null;
+        }
         Set<PackageID> moduleImports = new LinkedHashSet<>();
         addBuiltinImports(module.packageID, moduleImports);
         boolean serviceEPAvailable = module.isListenerAvailable;
@@ -759,7 +761,7 @@ public class JvmPackageGen {
                     getBvmAlias(importModule.packageID.orgName.value, importModule.packageID.name.value));
             generateDependencyList(pkgSymbol);
             if (dlog.errorCount() > 0) {
-                return new CompiledJarFile(Collections.emptyMap());
+                return null;
             }
             serviceEPAvailable |= listenerDeclarationFound(pkgSymbol);
         }
@@ -768,11 +770,11 @@ public class JvmPackageGen {
         Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, moduleInitClass, isEntry);
 
         if (!isEntry || dlog.errorCount() > 0) {
-            return new CompiledJarFile(Collections.emptyMap());
+            return null;
         }
 
         // using a concurrent hash map to store class byte values, which are generated in parallel
-        final Map<String, byte[]> jarEntries = new ConcurrentHashMap<>();
+        final Map<String, byte[]> jarEntries = new HashMap<>();
 
         // desugar parameter initialization
         injectDefaultParamInits(module, initMethodGen, this);

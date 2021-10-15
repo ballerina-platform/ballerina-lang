@@ -17,7 +17,7 @@
  */
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
-
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.MethodVisitor;
@@ -31,16 +31,9 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
@@ -72,10 +65,9 @@ public class MethodGenUtils {
         String metaDataVarName = JvmCodeGenUtil.getStrandMetadataVarName("main");
         asyncDataCollector.getStrandMetadata().putIfAbsent(metaDataVarName, new ScheduleFunctionInfo("main"));
         mv.visitLdcInsn(workerName);
-        mv.visitFieldInsn(GETSTATIC, moduleClassName, metaDataVarName, String.format("L%s;", STRAND_METADATA));
+        mv.visitFieldInsn(GETSTATIC, moduleClassName, metaDataVarName, GET_STRAND_METADATA);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-                           String.format("([L%s;L%s;L%s;L%s;L%s;L%s;)L%s;", OBJECT, B_FUNCTION_POINTER, STRAND_CLASS,
-                                         TYPE, STRING_VALUE, STRAND_METADATA, FUTURE_VALUE), false);
+                SCHEDULE_LOCAL, false);
     }
 
     static void visitReturn(MethodVisitor mv) {

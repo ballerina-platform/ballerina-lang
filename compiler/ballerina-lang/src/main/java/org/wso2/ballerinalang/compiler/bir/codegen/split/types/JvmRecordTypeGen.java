@@ -17,6 +17,10 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.split.types;
 
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
+;
+
+
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -54,15 +58,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORD_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_TYPE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
 
 /**
@@ -115,12 +113,11 @@ public class JvmRecordTypeGen {
         mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, JVM_INIT_METHOD, "()V", false);
         if (!fields.isEmpty()) {
             mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESTATIC, recordTypesClass, methodName + "$addField$",
-                    String.format("(L%s;)V", LINKED_HASH_MAP), false);
+            mv.visitMethodInsn(INVOKESTATIC, recordTypesClass, methodName + "$addField$", SET_LINKED_HASH_MAP, false);
             jvmCreateTypeGen.splitAddFields(recordTypesCw, recordTypesClass, methodName, fields);
         }
         // Set the fields of the record
-        mv.visitMethodInsn(INVOKEVIRTUAL, RECORD_TYPE_IMPL, "setFields", String.format("(L%s;)V", MAP), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, RECORD_TYPE_IMPL, "setFields", SET_MAP, false);
     }
 
     /**
@@ -133,7 +130,7 @@ public class JvmRecordTypeGen {
     private void addRecordRestField(MethodVisitor mv, BType restFieldType) {
         // Load the rest field type
         jvmTypeGen.loadType(mv, restFieldType);
-        mv.visitFieldInsn(PUTFIELD, RECORD_TYPE_IMPL, "restFieldType", String.format("L%s;", TYPE));
+        mv.visitFieldInsn(PUTFIELD, RECORD_TYPE_IMPL, "restFieldType", GET_TYPE);
     }
 
     /**
@@ -157,7 +154,7 @@ public class JvmRecordTypeGen {
         // TODO: get it from the type
         String varName = jvmConstantsGen.getModuleConstantVar(recordType.tsymbol.pkgID);
         mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
-                String.format("L%s;", MODULE));
+                GET_MODULE);
         // Load flags
         mv.visitLdcInsn(recordType.tsymbol.flags);
 
@@ -168,8 +165,7 @@ public class JvmRecordTypeGen {
         mv.visitLdcInsn(jvmTypeGen.typeFlag(recordType));
 
         // initialize the record type
-        mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE_IMPL, JVM_INIT_METHOD,
-                String.format("(L%s;L%s;JZI)V", STRING_VALUE, MODULE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE_IMPL, JVM_INIT_METHOD, RECORD_TYPE_IMPL_INIT, false);
 
         mv.visitInsn(DUP);
         String packageName = JvmCodeGenUtil.getPackageName(recordType.tsymbol.pkgID);
@@ -178,10 +174,8 @@ public class JvmRecordTypeGen {
         mv.visitInsn(DUP_X1);
         mv.visitInsn(SWAP);
         mv.visitInsn(ACONST_NULL);
-        String descriptor = String.format("(L%s;[L%s;)V", TYPE, MAP_VALUE);
-        mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, descriptor, false);
-        String fieldType = String.format("L%s;", TYPEDESC_VALUE);
-        mv.visitFieldInsn(PUTSTATIC, typeOwnerClass, jvmTypeGen.getTypedescFieldName(internalName), fieldType);
+        mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR, false);
+        mv.visitFieldInsn(PUTSTATIC, typeOwnerClass, jvmTypeGen.getTypedescFieldName(internalName), GET_TYPEDESC);
     }
 
     private String getFullName(BRecordType recordType) {

@@ -85,11 +85,7 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DISPLAY_ANNOTATION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVABLE_ANNOTATION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVE_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_CHECKPOINT_METHOD;
@@ -98,6 +94,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_CAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_RESOURCE_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_OBSERVATION_WITH_ERROR_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CHECKPOINT_CALL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
 
 /**
  * BIR desugar to inject observations class.
@@ -272,8 +270,7 @@ class JvmObservabilityGen {
         JIMethodCall recordCheckPointCallTerminator = new JIMethodCall(null);
         recordCheckPointCallTerminator.invocationType = INVOKESTATIC;
         recordCheckPointCallTerminator.jClassName = OBSERVE_UTILS;
-        recordCheckPointCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;JJ)V",
-                BAL_ENV, B_STRING_VALUE, B_STRING_VALUE);
+        recordCheckPointCallTerminator.jMethodVMSig = CHECKPOINT_CALL;
         recordCheckPointCallTerminator.name = RECORD_CHECKPOINT_METHOD;
         recordCheckPointCallTerminator.args = generatePositionArgs(pkg, func, currentBB, originalInsPosition);
         currentBB.terminator = recordCheckPointCallTerminator;
@@ -319,11 +316,13 @@ class JvmObservabilityGen {
 
             // Creating the lambda for this async call
             BType returnType = ((BFutureType) asyncCallIns.lhsOp.variableDcl.type).constraint;
-            List<BType> argTypes = asyncCallIns.args.stream()
-                    .map(arg -> arg.variableDcl.type)
-                    .collect(Collectors.toList());
-            Name lambdaName = new Name(String.format("$lambda$observability%d$%s", lambdaIndex++,
-                    asyncCallIns.name.value.replace(".", "_")));
+            List<BType> argTypes = new ArrayList<>();
+            for (BIRArgument birArgument : asyncCallIns.args) {
+                BType type = birArgument.variableDcl.type;
+                argTypes.add(type);
+            }
+            Name lambdaName = new Name("$lambda$observability" + lambdaIndex++ + "$" +
+                    asyncCallIns.name.value.replace(".", "_"));
             BInvokableType bInvokableType = new BInvokableType(argTypes, null,
                     returnType, null);
             BIRFunction desugaredFunc = new BIRFunction(asyncCallIns.pos, lambdaName, 0, bInvokableType,
@@ -333,7 +332,7 @@ class JvmObservabilityGen {
 
             // Creating the return variable
             BIRVariableDcl funcReturnVariableDcl = new BIRVariableDcl(returnType,
-                    new Name(String.format("$%s$retVal", lambdaName.value)), VarScope.FUNCTION, VarKind.RETURN);
+                    new Name("$" + lambdaName.value + "$retVal"), VarScope.FUNCTION, VarKind.RETURN);
             BIROperand funcReturnOperand = new BIROperand(funcReturnVariableDcl);
             desugaredFunc.localVars.add(funcReturnVariableDcl);
             desugaredFunc.returnVariable = funcReturnVariableDcl;
@@ -344,10 +343,14 @@ class JvmObservabilityGen {
                     desugaredFunc.pos, VIRTUAL);
             invokableSymbol.retType = funcReturnVariableDcl.type;
             invokableSymbol.kind = SymbolKind.FUNCTION;
-            invokableSymbol.params = asyncCallIns.args.stream()
-                    .map(arg -> new BVarSymbol(0, arg.variableDcl.name, currentPkgId, arg.variableDcl.type,
-                            invokableSymbol, arg.pos, VIRTUAL))
-                    .collect(Collectors.toList());
+            List<BVarSymbol> list = new ArrayList<>();
+            for (BIRArgument birArgument : asyncCallIns.args) {
+                BVarSymbol bVarSymbol = new BVarSymbol(0, birArgument.variableDcl.name, currentPkgId,
+                        birArgument.variableDcl.type,
+                        invokableSymbol, birArgument.pos, VIRTUAL);
+                list.add(bVarSymbol);
+            }
+            invokableSymbol.params = list;
             invokableSymbol.scope = new Scope(invokableSymbol);
             invokableSymbol.params.forEach(param -> invokableSymbol.scope.define(param.name, param));
             if (attachedTypeDef == null) {
@@ -364,7 +367,7 @@ class JvmObservabilityGen {
                     funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type, selfArgName,
                             VarScope.FUNCTION, VarKind.SELF, selfArgName.value, false);
                 } else {
-                    Name argName = new Name(String.format("$funcParam%d", i));
+                    Name argName = new Name("$funcParam%d" + i);
                     funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type,
                             argName, VarScope.FUNCTION, VarKind.ARG, argName.value, false);
                     desugaredFunc.localVars.add(funcParam);
@@ -601,9 +604,13 @@ class JvmObservabilityGen {
                      * the invocation. In the above instrumentation, only errors returned by functions are
                      * considered.
                      */
-                    Optional<BIRErrorEntry> existingEE = func.errorTable.stream()
-                            .filter(errorEntry -> isBBCoveredInErrorEntry(errorEntry, func.basicBlocks, newCurrentBB))
-                            .findAny();
+                    Optional<BIRErrorEntry> existingEE = Optional.empty();
+                    for (BIRErrorEntry birErrorEntry : func.errorTable) {
+                        if (isBBCoveredInErrorEntry(birErrorEntry, func.basicBlocks, newCurrentBB)) {
+                            existingEE = Optional.of(birErrorEntry);
+                            break;
+                        }
+                    }
                     Location desugaredInsPos = callIns.pos;
                     if (existingEE.isPresent()) {
                         BIRErrorEntry errorEntry = existingEE.get();
@@ -617,8 +624,8 @@ class JvmObservabilityGen {
                         BIRBasicBlock newTargetBB = insertBasicBlock(func, eeTargetIndex + 2);
                         swapBasicBlockContent(errorEntry.targetBB, newTargetBB);
 
-                        String uniqueId = String.format("%s$%s", INVOCATION_INSTRUMENTATION_TYPE,
-                                newCurrentBB.id.value); // Unique ID to work with EEs covering multiple BBs
+                        String uniqueId = INVOCATION_INSTRUMENTATION_TYPE + "$" +
+                                newCurrentBB.id.value; // Unique ID to work with EEs covering multiple BBs
                         injectCheckErrorCalls(func, errorEntry.targetBB, observeEndBB, newTargetBB,
                                 desugaredInsPos, errorEntry.errorOp, uniqueId);
                         injectStopObservationWithErrorCall(func, observeEndBB, desugaredInsPos,
@@ -684,8 +691,7 @@ class JvmObservabilityGen {
         JIMethodCall observeStartCallTerminator = new JIMethodCall(null);
         observeStartCallTerminator.invocationType = INVOKESTATIC;
         observeStartCallTerminator.jClassName = OBSERVE_UTILS;
-        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;JJL%s;L%s;L%s;ZZ)V",
-                BAL_ENV, B_STRING_VALUE, B_STRING_VALUE, B_STRING_VALUE, B_STRING_VALUE, B_STRING_VALUE);
+        observeStartCallTerminator.jMethodVMSig = START_RESOURCE_OBSERVATION;
         observeStartCallTerminator.name = START_RESOURCE_OBSERVATION_METHOD;
         List<BIROperand> positionOperands = generatePositionArgs(pkg, func, observeStartBB, originalInsPosition);
         List<BIROperand> otherOperands = Arrays.asList(serviceNameOperand, resourcePathOrFunctionOperand,
@@ -723,8 +729,7 @@ class JvmObservabilityGen {
         JIMethodCall observeStartCallTerminator = new JIMethodCall(desugaredInsLocation);
         observeStartCallTerminator.invocationType = INVOKESTATIC;
         observeStartCallTerminator.jClassName = OBSERVE_UTILS;
-        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;JJL%s;L%s;ZZZ)V", BAL_ENV, B_STRING_VALUE,
-                B_STRING_VALUE, B_OBJECT, B_STRING_VALUE);
+        observeStartCallTerminator.jMethodVMSig = START_CALLABLE_OBSERVATION;
         observeStartCallTerminator.name = START_CALLABLE_OBSERVATION_METHOD;
         List<BIROperand> positionOperands = generatePositionArgs(pkg, func, observeStartBB, originalInsPosition);
         List<BIROperand> otherOperands = Arrays.asList(objectOperand, actionOperand, isMainEntryPointOperand,
@@ -748,8 +753,7 @@ class JvmObservabilityGen {
     private void injectCheckErrorCalls(BIRFunction func, BIRBasicBlock errorCheckBB, BIRBasicBlock isErrorBB,
                                        BIRBasicBlock noErrorBB, Location pos, BIROperand valueOperand,
                                        String uniqueId) {
-        BIROperand isErrorOperand = generateTempLocalVariable(func, String.format("%s$isError", uniqueId),
-                symbolTable.booleanType);
+        BIROperand isErrorOperand = generateTempLocalVariable(func, uniqueId + "$isError", symbolTable.booleanType);
         TypeTest errorTypeTestInstruction = new TypeTest(pos, symbolTable.errorType, isErrorOperand, valueOperand);
         errorCheckBB.instructions.add(errorTypeTestInstruction);
         errorCheckBB.terminator = new Branch(pos, isErrorOperand, isErrorBB, noErrorBB);
@@ -766,7 +770,7 @@ class JvmObservabilityGen {
      */
     private void injectReportErrorCall(BIRFunction func, BIRBasicBlock errorReportBB, Location pos,
                                        BIROperand errorOperand, String uniqueId) {
-        BIROperand castedErrorOperand = generateTempLocalVariable(func, String.format("%s$castedError", uniqueId),
+        BIROperand castedErrorOperand = generateTempLocalVariable(func, uniqueId + "$castedError",
                 symbolTable.errorType);
         TypeCast errorCastInstruction = new TypeCast(pos, castedErrorOperand, errorOperand, symbolTable.errorType,
                 false);
@@ -775,7 +779,7 @@ class JvmObservabilityGen {
         JIMethodCall reportErrorCallTerminator = new JIMethodCall(pos);
         reportErrorCallTerminator.invocationType = INVOKESTATIC;
         reportErrorCallTerminator.jClassName = OBSERVE_UTILS;
-        reportErrorCallTerminator.jMethodVMSig = String.format("(L%s;L%s;)V", BAL_ENV, ERROR_VALUE);
+        reportErrorCallTerminator.jMethodVMSig = ERROR_CALL;
         reportErrorCallTerminator.name = REPORT_ERROR_METHOD;
         reportErrorCallTerminator.args = Collections.singletonList(castedErrorOperand);
         errorReportBB.terminator = reportErrorCallTerminator;
@@ -791,7 +795,7 @@ class JvmObservabilityGen {
         JIMethodCall observeEndCallTerminator = new JIMethodCall(pos);
         observeEndCallTerminator.invocationType = INVOKESTATIC;
         observeEndCallTerminator.jClassName = OBSERVE_UTILS;
-        observeEndCallTerminator.jMethodVMSig = String.format("(L%s;)V", BAL_ENV);
+        observeEndCallTerminator.jMethodVMSig = STOP_OBSERVATION;
         observeEndCallTerminator.name = STOP_OBSERVATION_METHOD;
         observeEndCallTerminator.args = Collections.emptyList();
         observeEndBB.terminator = observeEndCallTerminator;
@@ -808,7 +812,7 @@ class JvmObservabilityGen {
      */
     private void injectStopObservationWithErrorCall(BIRFunction func, BIRBasicBlock observeEndBB, Location pos,
                                                     BIROperand errorOperand, String uniqueId) {
-        BIROperand castedErrorOperand = generateTempLocalVariable(func, String.format("%s$castedError", uniqueId),
+        BIROperand castedErrorOperand = generateTempLocalVariable(func, uniqueId + "$castedError",
                 symbolTable.errorType);
         TypeCast errorCastInstruction = new TypeCast(pos, castedErrorOperand, errorOperand, symbolTable.errorType,
                 false);
@@ -817,7 +821,7 @@ class JvmObservabilityGen {
         JIMethodCall observeEndBBCallTerminator = new JIMethodCall(pos);
         observeEndBBCallTerminator.invocationType = INVOKESTATIC;
         observeEndBBCallTerminator.jClassName = OBSERVE_UTILS;
-        observeEndBBCallTerminator.jMethodVMSig = String.format("(L%s;L%s;)V", BAL_ENV, ERROR_VALUE);
+        observeEndBBCallTerminator.jMethodVMSig = ERROR_CALL;
         observeEndBBCallTerminator.name = STOP_OBSERVATION_WITH_ERROR_METHOD;
         observeEndBBCallTerminator.args = Collections.singletonList(castedErrorOperand);
         observeEndBB.terminator = observeEndBBCallTerminator;
@@ -932,8 +936,14 @@ class JvmObservabilityGen {
         boolean isErrorAssignable = false;
         if (variableDcl.type instanceof BUnionType) {
             BUnionType returnUnionType = (BUnionType) variableDcl.type;
-            isErrorAssignable = returnUnionType.getMemberTypes().stream()
-                    .anyMatch(type -> type instanceof BErrorType);
+            boolean b = false;
+            for (BType type : returnUnionType.getMemberTypes()) {
+                if (type instanceof BErrorType) {
+                    b = true;
+                    break;
+                }
+            }
+            isErrorAssignable = b;
         } else if (variableDcl.type instanceof BErrorType) {
             isErrorAssignable = true;
         }
@@ -985,7 +995,7 @@ class JvmObservabilityGen {
      * @return The generated ID
      */
     private String generatePackageId(PackageID pkg) {
-        return String.format("%s/%s:%s", pkg.orgName.value, pkg.name.value, pkg.version.value);
+        return pkg.orgName.value +"/"+ pkg.name.value + ":"+ pkg.version.value;
     }
 
     /**
@@ -1038,7 +1048,7 @@ class JvmObservabilityGen {
      * @return The generated operand for the variable declaration
      */
     private BIROperand generateTempLocalVariable(BIRFunction func, String name, BType variableType) {
-        Name variableName = new Name(String.format("$observability$%s$%d", name, localVarIndex++));
+        Name variableName = new Name("$observability$" + name + "$" + localVarIndex++);
         BIRVariableDcl variableDcl = new BIRVariableDcl(variableType, variableName, VarScope.FUNCTION, VarKind.TEMP);
         func.localVars.add(variableDcl);
         return new BIROperand(variableDcl);

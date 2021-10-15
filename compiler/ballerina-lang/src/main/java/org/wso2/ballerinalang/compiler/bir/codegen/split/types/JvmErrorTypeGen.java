@@ -17,6 +17,10 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.split.types;
 
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
+;
+
+
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -45,14 +49,10 @@ import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ERROR_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_DETAIL_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_TYPEID_SET_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ID_SET;
 
 /**
  * BIR error type to JVM byte code generation class.
@@ -101,10 +101,10 @@ public class JvmErrorTypeGen {
         // Load package
         String varName = jvmConstantsGen.getModuleConstantVar(errorType.tsymbol.pkgID);
         mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
-                String.format("L%s;", MODULE));
+                GET_MODULE);
         // initialize the error type
         mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE_IMPL, JVM_INIT_METHOD,
-                String.format("(L%s;L%s;)V", STRING_VALUE, MODULE), false);
+                INIT_ERROR_TYPE_IMPL, false);
     }
 
     public  void populateError(MethodVisitor mv, BErrorType bType) {
@@ -113,13 +113,13 @@ public class JvmErrorTypeGen {
         mv.visitInsn(DUP);
         jvmTypeGen.loadType(mv, bType.detailType);
         mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE_IMPL, SET_DETAIL_TYPE_METHOD,
-                String.format("(L%s;)V", TYPE), false);
+                RECORD_INIT, false);
         BTypeIdSet typeIdSet = bType.typeIdSet;
         if (!typeIdSet.isEmpty()) {
             mv.visitInsn(DUP);
             jvmCreateTypeGen.loadTypeIdSet(mv, typeIdSet);
             mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE_IMPL, SET_TYPEID_SET_METHOD,
-                    String.format("(L%s;)V", TYPE_ID_SET), false);
+                    SET_TYPE_ID_SET, false);
         }
     }
 }

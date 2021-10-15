@@ -17,13 +17,16 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.split.creators;
 
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
+import static  org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.*;;
+
+
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmValueCreatorGen;
@@ -54,16 +57,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createD
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_RECORD_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_TYPES_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORDS_CREATOR_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeFieldName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 
@@ -100,15 +97,15 @@ public class JvmRecordCreatorGen {
                                              PackageID moduleId, String moduleInitClass, String typeOwnerClass,
                                              String metadataVarName) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_RECORD_VALUE,
-                String.format("(L%s;)L%s;", STRING_VALUE, MAP_VALUE),
-                String.format("(L%s;)L%s<L%s;L%s;>;", STRING_VALUE, MAP_VALUE, STRING_VALUE, OBJECT), null);
+                CREATE_RECORD,
+                CREATE_RECORD_WITH_MAP, null);
         mv.visitCode();
         if (recordTypeDefList.isEmpty()) {
             createDefaultCase(mv, new Label(), 1, "No such record: ");
         } else {
             mv.visitVarInsn(ALOAD, 0);
             mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_RECORD_VALUE + 0,
-                    String.format("(L%s;)L%s;", STRING_VALUE, MAP_VALUE), false);
+                    CREATE_RECORD, false);
             mv.visitInsn(ARETURN);
             generateCreateRecordMethodSplits(cw, recordTypeDefList, moduleId, moduleInitClass, typeOwnerClass,
                     metadataVarName);
@@ -136,8 +133,8 @@ public class JvmRecordCreatorGen {
         for (BIRTypeDefinition optionalTypeDef : recordTypeDefList) {
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
                 mv = cw.visitMethod(ACC_PRIVATE + ACC_STATIC, CREATE_RECORD_VALUE + methodCount++,
-                        String.format("(L%s;)L%s;", STRING_VALUE, MAP_VALUE),
-                        String.format("(L%s;)L%s<L%s;L%s;>;", STRING_VALUE, MAP_VALUE, STRING_VALUE, OBJECT), null);
+                        CREATE_RECORD,
+                        CREATE_RECORD_WITH_MAP, null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
                 int remainingCases = recordTypeDefList.size() - bTypesCount;
@@ -157,23 +154,22 @@ public class JvmRecordCreatorGen {
             String className = getTypeValueClassName(moduleId, optionalTypeDef.internalName.value);
             mv.visitTypeInsn(NEW, className);
             mv.visitInsn(DUP);
-            mv.visitFieldInsn(GETSTATIC, moduleInitClass, fieldName, String.format("L%s;", TYPE));
-            mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, String.format("(L%s;)V", TYPE), false);
+            mv.visitFieldInsn(GETSTATIC, moduleInitClass, fieldName, GET_TYPE);
+            mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, RECORD_INIT, false);
 
             mv.visitInsn(DUP);
             mv.visitTypeInsn(NEW, STRAND_CLASS);
             mv.visitInsn(DUP);
             mv.visitInsn(ACONST_NULL);
-            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, metadataVarName, String.format("L%s;", STRAND_METADATA));
+            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, metadataVarName, GET_STRAND_METADATA);
             mv.visitInsn(ACONST_NULL);
             mv.visitInsn(ACONST_NULL);
             mv.visitInsn(ACONST_NULL);
             mv.visitMethodInsn(INVOKESPECIAL, STRAND_CLASS, JVM_INIT_METHOD,
-                    String.format("(L%s;L%s;L%s;L%s;L%s;)V", STRING_VALUE, STRAND_METADATA, SCHEDULER,
-                            STRAND_CLASS, MAP), false);
+                    INIT_STRAND, false);
             mv.visitInsn(SWAP);
-            mv.visitMethodInsn(INVOKESTATIC, className, JvmConstants.RECORD_INIT_WRAPPER_NAME,
-                    String.format("(L%s;L%s;)V", STRAND_CLASS, MAP_VALUE), false);
+            mv.visitMethodInsn(INVOKESTATIC, className , RECORD_INIT_WRAPPER_NAME,
+                    RECORD_INIT_WRAPPER, false);
 
             mv.visitInsn(ARETURN);
             i += 1;
@@ -185,7 +181,7 @@ public class JvmRecordCreatorGen {
                     mv.visitLabel(defaultCaseLabel);
                     mv.visitVarInsn(ALOAD, fieldNameRegIndex);
                     mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_RECORD_VALUE + methodCount,
-                            String.format("(L%s;)L%s;", STRING_VALUE, MAP_VALUE), false);
+                            CREATE_RECORD, false);
                     mv.visitInsn(ARETURN);
                 }
                 mv.visitMaxs(i + 10, i + 10);

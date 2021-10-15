@@ -17,6 +17,10 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.split.types;
 
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
+;
+
+
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -44,13 +48,10 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_UNION_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_MEMBERS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_ORIGINAL_MEMBERS_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYPE_IMPL;
 
 /**
@@ -100,7 +101,7 @@ public class JvmUnionTypeGen {
             } else {
                 String varName = jvmConstantsGen.getModuleConstantVar(unionType.tsymbol.pkgID);
                 mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
-                        String.format("L%s;", MODULE));
+                        GET_MODULE);
             }
         }
 
@@ -112,7 +113,7 @@ public class JvmUnionTypeGen {
         // initialize the union type without the members array
         if (nameLoaded) {
             mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD,
-                    String.format("(L%s;L%s;IZJ)V", STRING_VALUE, MODULE), false);
+                    INIT_UNION_TYPE_IMPL, false);
         } else {
             mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, "(IZJ)V", false);
         }
@@ -138,10 +139,10 @@ public class JvmUnionTypeGen {
                                  String name) {
         jvmTypeGen.createUnionMembersArray(cw, mv, unionType.getMemberTypes(), className, name);
         mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_MEMBERS_METHOD,
-                String.format("([L%s;)V", TYPE), false);
+                SET_TYPE_ARRAY, false);
 
         jvmTypeGen.createUnionMembersArray(cw, mv, unionType.getOriginalMemberTypes(), className, "original" + name);
         mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_ORIGINAL_MEMBERS_METHOD,
-                String.format("([L%s;)V", TYPE), false);
+                SET_TYPE_ARRAY, false);
     }
 }

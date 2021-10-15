@@ -18,6 +18,8 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.split.values;
 
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
+
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -56,9 +58,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CALLS_PER_CLIENT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_FIELDS_PER_SPLIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 
 /**
@@ -87,8 +86,7 @@ public class JvmObjectGen {
         String callMethod = "call";
         for (BIRNode.BIRFunction optionalFunc : functions) {
             if (bTypesCount % MAX_CALLS_PER_CLIENT_METHOD == 0) {
-                mv = cw.visitMethod(ACC_PUBLIC, callMethod, String.format("(L%s;L%s;[L%s;)L%s;",
-                        STRAND_CLASS, STRING_VALUE, OBJECT, OBJECT), null, null);
+                mv = cw.visitMethod(ACC_PUBLIC, callMethod, BOBJECT_CALL, null, null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
                 int remainingCases = functions.size() - bTypesCount;
@@ -151,8 +149,7 @@ public class JvmObjectGen {
                     mv.visitVarInsn(ALOAD, 1);
                     mv.visitVarInsn(ALOAD, 2);
                     mv.visitVarInsn(ALOAD, 3);
-                    mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, "call" + methodCount, String.format(
-                            "(L%s;L%s;[L%s;)L%s;", STRAND_CLASS, STRING_VALUE, OBJECT, OBJECT), false);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, "call" + methodCount, BOBJECT_CALL, false);
                     mv.visitInsn(ARETURN);
                 }
                 mv.visitMaxs(i + 10, i + 10);
@@ -169,8 +166,8 @@ public class JvmObjectGen {
 
     public void createAndSplitGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
                                         JvmCastGen jvmCastGen) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get", String.format("(L%s;)L%s;", B_STRING_VALUE, OBJECT),
-                String.format("(L%s;)TV;", OBJECT), null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get", PASS_BSTRING_RETURN_OBJECT,
+                PASS_OBJECT_RETURN_SAME_TYPE, null);
         mv.visitCode();
         int selfIndex = 0;
         int fieldNameRegIndex = 1;
@@ -182,7 +179,7 @@ public class JvmObjectGen {
             mv.visitVarInsn(ALOAD, selfIndex);
             mv.visitVarInsn(ALOAD, strKeyVarIndex);
             mv.visitMethodInsn(INVOKEVIRTUAL, className, "get",
-                    String.format("(L%s;)L%s;", STRING_VALUE, OBJECT), false);
+                    GET_OBJECT_FOR_STRING, false);
             mv.visitInsn(ARETURN);
             mv.visitMaxs(0, 0);
             mv.visitEnd();
@@ -215,7 +212,7 @@ public class JvmObjectGen {
         String getMethod = "get";
         for (BField optionalField : sortedFields) {
             if (bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
-                mv = cw.visitMethod(ACC_PUBLIC, getMethod, String.format("(L%s;)L%s;", STRING_VALUE, OBJECT),
+                mv = cw.visitMethod(ACC_PUBLIC, getMethod, GET_OBJECT_FOR_STRING,
                         null, null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
@@ -245,8 +242,7 @@ public class JvmObjectGen {
                     mv.visitLabel(defaultCaseLabel);
                     mv.visitVarInsn(ALOAD, selfRegIndex);
                     mv.visitVarInsn(ALOAD, strKeyVarIndex);
-                    mv.visitMethodInsn(INVOKEVIRTUAL, className, getMethod, String.format("(L%s;)L%s;",
-                            STRING_VALUE, OBJECT), false);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, className, getMethod, GET_OBJECT_FOR_STRING, false);
                     mv.visitInsn(ARETURN);
                 }
                 mv.visitMaxs(i + 10, i + 10);
@@ -263,7 +259,7 @@ public class JvmObjectGen {
     public void createAndSplitSetMethod(ClassWriter cw, Map<String, BField> fields, String className,
                                         JvmCastGen jvmCastGen) {
 
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set", String.format("(L%s;L%s;)V", B_STRING_VALUE, OBJECT),
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set", SET_VALUE,
                 null, null);
         mv.visitCode();
         int selfIndex = 0;
@@ -274,13 +270,12 @@ public class JvmObjectGen {
         // code gen type checking for inserted value
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD, String.format("()L%s;", STRING_VALUE),
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD, GET_JSTRING,
                 true);
         mv.visitInsn(DUP);
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
         mv.visitVarInsn(ALOAD, valueRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate", String.format("(L%s;L%s;)V", STRING_VALUE,
-                OBJECT), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate", CHECK_FIELD_UPDATE, false);
         if (!fields.isEmpty()) {
             callFirstSetMethod(className, mv, selfIndex, fieldNameRegIndex, valueRegIndex,
                     strKeyVarIndex);
@@ -296,7 +291,7 @@ public class JvmObjectGen {
     public void createAndSplitSetOnInitializationMethod(ClassWriter cw, Map<String, BField> fields,
                                                         String className) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "setOnInitialization",
-                String.format("(L%s;L%s;)V", B_STRING_VALUE, OBJECT), null, null);
+                SET_VALUE, null, null);
         mv.visitCode();
         int selfIndex = 0;
         int fieldNameRegIndex = 1;
@@ -322,8 +317,7 @@ public class JvmObjectGen {
         mv.visitVarInsn(ALOAD, strKeyVarIndex);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
         mv.visitVarInsn(ALOAD, valueRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, "set", String.format("(L%s;L%s;L%s;)V", STRING_VALUE,
-                B_STRING_VALUE, OBJECT), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "set", OBJECT_SET, false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -350,8 +344,7 @@ public class JvmObjectGen {
         String setMethod = "set";
         for (BField optionalField : sortedFields) {
             if (bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
-                mv = cw.visitMethod(ACC_PROTECTED, setMethod, String.format("(L%s;L%s;L%s;)V", STRING_VALUE,
-                        B_STRING_VALUE, OBJECT), null, null);
+                mv = cw.visitMethod(ACC_PROTECTED, setMethod, OBJECT_SET, null, null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
                 int remainingCases = sortedFields.size() - bTypesCount;
@@ -384,8 +377,7 @@ public class JvmObjectGen {
                     mv.visitVarInsn(ALOAD, strKeyVarIndex);
                     mv.visitVarInsn(ALOAD, fieldNameRegIndex);
                     mv.visitVarInsn(ALOAD, valueRegIndex);
-                    mv.visitMethodInsn(INVOKEVIRTUAL, className, setMethod, String.format("(L%s;L%s;L%s;)V",
-                            STRING_VALUE, B_STRING_VALUE, OBJECT), false);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, className, setMethod, OBJECT_SET, false);
                     mv.visitInsn(RETURN);
                 }
                 mv.visitMaxs(0, 0);

@@ -33,7 +33,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.util.Flags;
-
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
 import java.util.List;
 import java.util.Map;
 
@@ -72,10 +72,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_CONFIG_DATA_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VARIABLE_KEY;
 
 /**
@@ -91,7 +88,6 @@ public class ConfigMethodGen {
         innerClassName = JvmCodeGenUtil.getModuleLevelClassName(pkg.packageID, CONFIGURATION_CLASS_NAME);
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V1_8, ACC_PUBLIC | ACC_SUPER, innerClassName, null, OBJECT, null);
-
         MethodVisitor mv = cw.visitMethod(ACC_PRIVATE, JVM_INIT_METHOD, "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
@@ -109,8 +105,7 @@ public class ConfigMethodGen {
 
     private void generateConfigInit(ClassWriter cw, String moduleInitClass, List<PackageID> imprtMods,
                                     PackageID packageID) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, CONFIGURE_INIT, String.format("([L%s;[L%s;L%s;)V"
-                , STRING_VALUE, PATH, STRING_VALUE), null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, CONFIGURE_INIT, INIT_CONFIG, null, null);
         mv.visitCode();
 
         mv.visitTypeInsn(NEW, HASH_MAP);
@@ -123,13 +118,12 @@ public class ConfigMethodGen {
             generateInvokeConfiguration(mv, id);
         }
         generateInvokeConfiguration(mv, packageID);
-        mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", MODULE));
+        mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
         mv.visitVarInsn(ALOAD, 3);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
         mv.visitVarInsn(ALOAD, 2);
-        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "initConfigurableVariables", String.format("(L%s;L%s;[L%s;" +
-                        "[L%s;L%s;)V", MODULE, MAP, STRING_VALUE, PATH, STRING_VALUE), false);
+        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "initConfigurableVariables", INIT_CONFIGURABLES, false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -140,7 +134,7 @@ public class ConfigMethodGen {
         String initClass = JvmCodeGenUtil.getModuleLevelClassName(id, MODULE_INIT_CLASS_NAME);
 
         mv.visitMethodInsn(INVOKESTATIC, moduleClass, POPULATE_CONFIG_DATA_METHOD,
-                String.format("()[L%s;", VARIABLE_KEY), false);
+                POPULATE_CONFIG_DATA, false);
         mv.visitVarInsn(ASTORE, 4);
 
         mv.visitVarInsn(ALOAD, 4);
@@ -148,10 +142,10 @@ public class ConfigMethodGen {
         Label elseLabel = new Label();
         mv.visitJumpInsn(IFEQ, elseLabel);
         mv.visitVarInsn(ALOAD, 3);
-        mv.visitFieldInsn(GETSTATIC, initClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", MODULE));
+        mv.visitFieldInsn(GETSTATIC, initClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
         mv.visitVarInsn(ALOAD, 4);
 
-        mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put", String.format("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), true);
+        mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put", MAP_PUT, true);
         mv.visitInsn(POP);
         mv.visitLabel(elseLabel);
     }
@@ -159,9 +153,9 @@ public class ConfigMethodGen {
     private void populateConfigDataMethod(ClassWriter cw, String moduleClass,
                                           BIRNode.BIRPackage module, JvmTypeGen jvmTypeGen) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, POPULATE_CONFIG_DATA_METHOD,
-                String.format("()[L%s;", VARIABLE_KEY), null, null);
+                POPULATE_CONFIG_DATA, null, null);
         mv.visitCode();
-        mv.visitMethodInsn(INVOKESTATIC, moduleClass, CURRENT_MODULE_INIT, String.format("()L%s;", OBJECT), false);
+        mv.visitMethodInsn(INVOKESTATIC, moduleClass, CURRENT_MODULE_INIT, RETURN_OBJECT, false);
 
         //create configuration data array
         mv.visitIntInsn(BIPUSH, calculateConfigArraySize(module.globalVars));
@@ -184,8 +178,7 @@ public class ConfigMethodGen {
                 } else {
                     mv.visitInsn(ICONST_0);
                 }
-                mv.visitMethodInsn(INVOKESPECIAL, VARIABLE_KEY, JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;L%s;Z)V",
-                        MODULE, STRING_VALUE, TYPE,  STRING_VALUE), false);
+                mv.visitMethodInsn(INVOKESPECIAL, VARIABLE_KEY, JVM_INIT_METHOD, INTI_VARIABLE_KEY, false);
                 mv.visitVarInsn(ASTORE, varCount + 1);
 
                 mv.visitVarInsn(ALOAD, 0);

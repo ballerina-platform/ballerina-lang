@@ -18,6 +18,10 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.split.values;
 
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
+;
+
+
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -60,19 +64,15 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.castToJavaString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COLLECTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_SIMPLE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_FIELDS_PER_SPLIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNSUPPORTED_OPERATION_EXCEPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getFieldIsPresentFlagName;
@@ -95,8 +95,8 @@ public class JvmRecordGen {
 
     public void createAndSplitGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
                                         JvmCastGen jvmCastGen) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get", String.format("(L%s;)L%s;", OBJECT, OBJECT),
-                String.format("(L%s;)TV;", OBJECT), null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get", PASS_OBJECT_RETURN_OBJECT,
+                PASS_OBJECT_RETURN_SAME_TYPE, null);
         mv.visitCode();
         int selfIndex = 0;
         int fieldNameRegIndex = 1;
@@ -114,8 +114,7 @@ public class JvmRecordGen {
         mv.visitVarInsn(ALOAD, selfIndex);
         mv.visitVarInsn(ALOAD, strKeyVarIndex);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, "get", String.format("(L%s;L%s;)L%s;", STRING_VALUE, OBJECT,
-                OBJECT), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "get", RECORD_GET, false);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -142,8 +141,7 @@ public class JvmRecordGen {
         String getMethod = "get";
         for (BField optionalField : sortedFields) {
             if (bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
-                mv = cw.visitMethod(ACC_PUBLIC, getMethod, String.format("(L%s;L%s;)L%s;", STRING_VALUE, OBJECT,
-                        OBJECT), null, null);
+                mv = cw.visitMethod(ACC_PUBLIC, getMethod, RECORD_GET, null, null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
                 int remainingCases = sortedFields.size() - bTypesCount;
@@ -188,8 +186,7 @@ public class JvmRecordGen {
                     mv.visitVarInsn(ALOAD, selfRegIndex);
                     mv.visitVarInsn(ALOAD, strKeyVarIndex);
                     mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-                    mv.visitMethodInsn(INVOKEVIRTUAL, className, getMethod, String.format("(L%s;L%s;)L%s;",
-                            STRING_VALUE, OBJECT, OBJECT), false);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, className, getMethod, RECORD_GET, false);
                     mv.visitInsn(ARETURN);
                 }
                 mv.visitMaxs(i + 10, i + 10);
@@ -207,15 +204,14 @@ public class JvmRecordGen {
         mv.visitLabel(defaultCaseLabel);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, nameRegIndex);
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "get", String.format("(L%s;)L%s;", OBJECT, OBJECT),
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "get", PASS_OBJECT_RETURN_OBJECT,
                 false);
         mv.visitInsn(ARETURN);
     }
 
     public void createAndSplitSetMethod(ClassWriter cw, Map<String, BField> fields, String className,
                                         JvmCastGen jvmCastGen) {
-        MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, "putValue", String.format("(L%s;L%s;)L%s;", OBJECT, OBJECT,
-                OBJECT), "(TK;TV;)TV;", null);
+        MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, "putValue", MAP_PUT, "(TK;TV;)TV;", null);
         mv.visitCode();
         int selfIndex = 0;
         int fieldNameRegIndex = 1;
@@ -235,8 +231,7 @@ public class JvmRecordGen {
         mv.visitVarInsn(ALOAD, strKeyVarIndex);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
         mv.visitVarInsn(ALOAD, valueRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, "putValue", String.format("(L%s;L%s;L%s;)L%s;", STRING_VALUE,
-                OBJECT, OBJECT, OBJECT), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "putValue", RECORD_PUT, false);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -264,8 +259,7 @@ public class JvmRecordGen {
         String setMethod = "putValue";
         for (BField optionalField : sortedFields) {
             if (bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
-                mv = cw.visitMethod(ACC_PROTECTED, setMethod, String.format("(L%s;L%s;L%s;)L%s;", STRING_VALUE,
-                        OBJECT, OBJECT, OBJECT), null, null);
+                mv = cw.visitMethod(ACC_PROTECTED, setMethod, RECORD_PUT, null, null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
                 int remainingCases = sortedFields.size() - bTypesCount;
@@ -313,8 +307,7 @@ public class JvmRecordGen {
                     mv.visitVarInsn(ALOAD, strKeyVarIndex);
                     mv.visitVarInsn(ALOAD, fieldNameRegIndex);
                     mv.visitVarInsn(ALOAD, valueRegIndex);
-                    mv.visitMethodInsn(INVOKEVIRTUAL, className, setMethod, String.format("(L%s;L%s;L%s;)L%s;",
-                            STRING_VALUE, OBJECT, OBJECT, OBJECT), false);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, className, setMethod, RECORD_PUT, false);
                     mv.visitInsn(ARETURN);
                 }
                 mv.visitMaxs(0, 0);
@@ -335,14 +328,13 @@ public class JvmRecordGen {
         mv.visitVarInsn(ALOAD, nameRegIndex);
         mv.visitVarInsn(ALOAD, valueRegIndex);
         mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "putValue",
-                String.format("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), false);
+                MAP_PUT, false);
         mv.visitInsn(ARETURN);
     }
 
     public void createAndSplitEntrySetMethod(ClassWriter cw, Map<String, BField> fields, String className,
                                              JvmCastGen jvmCastGen) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "entrySet", String.format("()L%s;", SET), String.format("()" +
-                "L%s<L%s<TK;TV;>;>;", SET, MAP_ENTRY), null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "entrySet", RECORD_SET, RECORD_SET_MAP_ENTRY, null);
         mv.visitCode();
         int selfIndex = 0;
         int entrySetVarIndex = 1;
@@ -353,15 +345,15 @@ public class JvmRecordGen {
         if (!fields.isEmpty()) {
             mv.visitVarInsn(ALOAD, selfIndex);
             mv.visitVarInsn(ALOAD, entrySetVarIndex);
-            mv.visitMethodInsn(INVOKEVIRTUAL, className, "addEntry", String.format("(L%s;)V", LINKED_HASH_SET),
+            mv.visitMethodInsn(INVOKEVIRTUAL, className, "addEntry", LINKED_HASH_SET_OP,
                     false);
             splitEntrySetMethod(cw, fields, className, jvmCastGen);
         }
         // Add all from super.entrySet() to the current entry set.
         mv.visitVarInsn(ALOAD, entrySetVarIndex);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "entrySet", String.format("()L%s;", SET), false);
-        mv.visitMethodInsn(INVOKEINTERFACE, SET, "addAll", String.format("(L%s;)Z", COLLECTION), true);
+        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "entrySet", RECORD_SET, false);
+        mv.visitMethodInsn(INVOKEINTERFACE, SET, "addAll", ADD_COLLECTION, true);
         mv.visitInsn(POP);
 
         mv.visitVarInsn(ALOAD, entrySetVarIndex);
@@ -381,7 +373,7 @@ public class JvmRecordGen {
         String addEntryMethod = "addEntry";
         for (BField optionalField : fields.values()) {
             if (bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
-                mv = cw.visitMethod(ACC_PRIVATE, addEntryMethod, String.format("(L%s;)V", LINKED_HASH_SET), null,
+                mv = cw.visitMethod(ACC_PRIVATE, addEntryMethod, LINKED_HASH_SET_OP, null,
                         null);
                 mv.visitCode();
                 addEntryMethod = "addEntry" + ++methodCount;
@@ -404,16 +396,15 @@ public class JvmRecordGen {
             // field name as key
             mv.visitLdcInsn(decodeIdentifier(fieldName));
             mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString",
-                    String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
+                    FROM_STRING, false);
 
             // field value as the map-entry value
             mv.visitVarInsn(ALOAD, 0);
             mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(optionalField.type));
             jvmCastGen.addBoxInsn(mv, optionalField.type);
 
-            mv.visitMethodInsn(INVOKESPECIAL, MAP_SIMPLE_ENTRY, JVM_INIT_METHOD,
-                    String.format("(L%s;L%s;)V", OBJECT, OBJECT), false);
-            mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", String.format("(L%s;)Z", OBJECT), true);
+            mv.visitMethodInsn(INVOKESPECIAL, MAP_SIMPLE_ENTRY, JVM_INIT_METHOD, TWO_OBJECTS_ARGS, false);
+            mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", ANY_TO_JBOOLEAN, true);
             mv.visitInsn(POP);
 
             mv.visitLabel(ifNotPresent);
@@ -422,8 +413,7 @@ public class JvmRecordGen {
                 if (bTypesCount != fields.size()) {
                     mv.visitVarInsn(ALOAD, selfRegIndex);
                     mv.visitVarInsn(ALOAD, entrySetVarIndex);
-                    mv.visitMethodInsn(INVOKEVIRTUAL, className, addEntryMethod, String.format("(L%s;)V",
-                            LINKED_HASH_SET), false);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, className, addEntryMethod, LINKED_HASH_SET_OP, false);
                 }
                 mv.visitInsn(RETURN);
                 mv.visitMaxs(0, 0);
@@ -438,7 +428,7 @@ public class JvmRecordGen {
     }
 
     public void createAndSplitContainsKeyMethod(ClassWriter cw, Map<String, BField> fields, String className) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "containsKey", String.format("(L%s;)Z", OBJECT), null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "containsKey", ANY_TO_JBOOLEAN, null, null);
         mv.visitCode();
         int selfIndex = 0;
         int fieldNameRegIndex = 1;
@@ -456,8 +446,7 @@ public class JvmRecordGen {
         mv.visitVarInsn(ALOAD, selfIndex);
         mv.visitVarInsn(ALOAD, strKeyVarIndex);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, "containsKey", String.format("(L%s;L%s;)Z", STRING_VALUE,
-                OBJECT), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "containsKey", CONTAINS_KEY, false);
         mv.visitInsn(IRETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -484,8 +473,7 @@ public class JvmRecordGen {
         String containsMethod = "containsKey";
         for (BField optionalField : sortedFields) {
             if (bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
-                mv = cw.visitMethod(ACC_PUBLIC, containsMethod, String.format("(L%s;L%s;)Z", STRING_VALUE,
-                        OBJECT), null, null);
+                mv = cw.visitMethod(ACC_PUBLIC, containsMethod, CONTAINS_KEY, null, null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
                 int remainingCases = sortedFields.size() - bTypesCount;
@@ -524,9 +512,7 @@ public class JvmRecordGen {
                     mv.visitVarInsn(ALOAD, selfRegIndex);
                     mv.visitVarInsn(ALOAD, strKeyVarIndex);
                     mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-                    mv.visitMethodInsn(INVOKEVIRTUAL, className, containsMethod, String.format("(L%s;L%s;)Z",
-                            STRING_VALUE,
-                            OBJECT), false);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, className, containsMethod, CONTAINS_KEY, false);
                     mv.visitInsn(IRETURN);
                 }
                 mv.visitMaxs(i + 10, i + 10);
@@ -544,15 +530,14 @@ public class JvmRecordGen {
         mv.visitLabel(defaultCaseLabel);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "containsKey", String.format("(L%s;)Z", OBJECT), false);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "containsKey", ANY_TO_JBOOLEAN, false);
         mv.visitInsn(IRETURN);
     }
 
     public void createAndSplitGetValuesMethod(ClassWriter cw, Map<String, BField> fields, String className,
                                               JvmCastGen jvmCastGen) {
 
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "values", String.format("()L%s;", COLLECTION),
-                String.format("()L%s<TV;>;", COLLECTION), null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "values", MAP_VALUES, MAP_VALUES_WITH_COLLECTION, null);
         mv.visitCode();
         int selfIndex = 0;
         int valuesVarIndex = 1;
@@ -563,14 +548,14 @@ public class JvmRecordGen {
         if (!fields.isEmpty()) {
             mv.visitVarInsn(ALOAD, selfIndex);
             mv.visitVarInsn(ALOAD, valuesVarIndex);
-            mv.visitMethodInsn(INVOKEVIRTUAL, className, "values", String.format("(L%s;)V", COLLECTION),
+            mv.visitMethodInsn(INVOKEVIRTUAL, className, "values", COLLECTION_OP,
                     false);
             splitGetValuesMethod(cw, fields, className, jvmCastGen);
         }
         mv.visitVarInsn(ALOAD, valuesVarIndex);
         mv.visitVarInsn(ALOAD, 0); // this
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "values", String.format("()L%s;", COLLECTION), false);
-        mv.visitMethodInsn(INVOKEINTERFACE, LIST, "addAll", String.format("(L%s;)Z", COLLECTION), true);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "values", MAP_VALUES, false);
+        mv.visitMethodInsn(INVOKEINTERFACE, LIST, "addAll", ADD_COLLECTION, true);
         mv.visitInsn(POP);
 
         mv.visitVarInsn(ALOAD, 1);
@@ -589,7 +574,7 @@ public class JvmRecordGen {
         String valuesMethod = "values";
         for (BField optionalField : fields.values()) {
             if (bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
-                mv = cw.visitMethod(ACC_PRIVATE, valuesMethod, String.format("(L%s;)V", COLLECTION), null,
+                mv = cw.visitMethod(ACC_PRIVATE, valuesMethod, COLLECTION_OP, null,
                         null);
                 mv.visitCode();
                 valuesMethod = "values" + ++methodCount;
@@ -609,7 +594,7 @@ public class JvmRecordGen {
             mv.visitVarInsn(ALOAD, 0); // this
             mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(optionalField.type));
             jvmCastGen.addBoxInsn(mv, optionalField.type);
-            mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", String.format("(L%s;)Z", OBJECT), true);
+            mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", ANY_TO_JBOOLEAN, true);
             mv.visitInsn(POP);
             mv.visitLabel(ifNotPresent);
             bTypesCount++;
@@ -617,7 +602,7 @@ public class JvmRecordGen {
                 if (bTypesCount != fields.size()) {
                     mv.visitVarInsn(ALOAD, selfRegIndex);
                     mv.visitVarInsn(ALOAD, valuesVarIndex);
-                    mv.visitMethodInsn(INVOKEVIRTUAL, className, valuesMethod, String.format("(L%s;)V", COLLECTION),
+                    mv.visitMethodInsn(INVOKEVIRTUAL, className, valuesMethod, COLLECTION_OP,
                             false);
                 }
                 mv.visitInsn(RETURN);
@@ -635,8 +620,8 @@ public class JvmRecordGen {
     public void createAndSplitRemoveMethod(ClassWriter cw, Map<String, BField> fields, String className,
                                            JvmCastGen jvmCastGen) {
         // throw an UnsupportedOperationException, since remove is not supported by for records.
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "remove", String.format("(L%s;)L%s;", OBJECT, OBJECT),
-                String.format("(L%s;)TV;", OBJECT), null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "remove", PASS_OBJECT_RETURN_OBJECT,
+                PASS_OBJECT_RETURN_SAME_TYPE, null);
         mv.visitCode();
         int selfRegIndex = 0;
         int fieldNameRegIndex = 1;
@@ -656,8 +641,7 @@ public class JvmRecordGen {
         mv.visitVarInsn(ALOAD, selfRegIndex);
         mv.visitVarInsn(ALOAD, strKeyVarIndex);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, "remove", String.format("(L%s;L%s;)L%s;", STRING_VALUE, OBJECT,
-                OBJECT), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "remove", RECORD_REMOVE, false);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -684,8 +668,7 @@ public class JvmRecordGen {
         String removeMethod = "remove";
         for (BField optionalField : sortedFields) {
             if (bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
-                mv = cw.visitMethod(ACC_PROTECTED, removeMethod, String.format("(L%s;L%s;)L%s;", STRING_VALUE, OBJECT
-                        , OBJECT), null, null);
+                mv = cw.visitMethod(ACC_PROTECTED, removeMethod, RECORD_REMOVE, null, null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
                 int remainingCases = sortedFields.size() - bTypesCount;
@@ -739,8 +722,7 @@ public class JvmRecordGen {
                     mv.visitVarInsn(ALOAD, selfRegIndex);
                     mv.visitVarInsn(ALOAD, strKeyVarIndex);
                     mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-                    mv.visitMethodInsn(INVOKEVIRTUAL, className, removeMethod, String.format("(L%s;L%s;)L%s;",
-                            STRING_VALUE, OBJECT, OBJECT), false);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, className, removeMethod, RECORD_REMOVE, false);
                     mv.visitInsn(ARETURN);
                 }
                 mv.visitMaxs(0, 0);
@@ -759,12 +741,12 @@ public class JvmRecordGen {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
         mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "remove",
-                String.format("(L%s;)L%s;", OBJECT, OBJECT), false);
+                PASS_OBJECT_RETURN_OBJECT, false);
         mv.visitInsn(ARETURN);
     }
 
     public void createAndSplitGetKeysMethod(ClassWriter cw, Map<String, BField> fields, String className) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "getKeys", String.format("()[L%s;", OBJECT), "()[TK;", null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "getKeys", RECORD_GET_KEYS, "()[TK;", null);
         mv.visitCode();
         int selfIndex = 0;
         int keysVarIndex = 1;
@@ -776,21 +758,21 @@ public class JvmRecordGen {
         if (!fields.isEmpty()) {
             mv.visitVarInsn(ALOAD, selfIndex);
             mv.visitVarInsn(ALOAD, keysVarIndex);
-            mv.visitMethodInsn(INVOKEVIRTUAL, className, "getKeys", String.format("(L%s;)V", LINKED_HASH_SET),
+            mv.visitMethodInsn(INVOKEVIRTUAL, className, "getKeys", LINKED_HASH_SET_OP,
                     false);
             splitGetKeysMethod(cw, fields, className);
         }
         mv.visitVarInsn(ALOAD, keysVarIndex);
         mv.visitVarInsn(ALOAD, selfIndex); // this
-        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "keySet", String.format("()L%s;", SET), false);
-        mv.visitMethodInsn(INVOKEINTERFACE, SET, "addAll", String.format("(L%s;)Z", COLLECTION), true);
+        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "keySet", RECORD_SET, false);
+        mv.visitMethodInsn(INVOKEINTERFACE, SET, "addAll", ADD_COLLECTION, true);
         mv.visitInsn(POP);
 
         mv.visitVarInsn(ALOAD, keysVarIndex);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKEINTERFACE, SET, "size", "()I", true);
         mv.visitTypeInsn(ANEWARRAY, B_STRING_VALUE);
-        mv.visitMethodInsn(INVOKEINTERFACE, SET, "toArray", String.format("([L%s;)[L%s;", OBJECT, OBJECT), true);
+        mv.visitMethodInsn(INVOKEINTERFACE, SET, "toArray", TO_ARRAY, true);
 
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
@@ -807,7 +789,7 @@ public class JvmRecordGen {
         String getKeysMethod = "getKeys";
         for (BField optionalField : fields.values()) {
             if (bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
-                mv = cw.visitMethod(ACC_PRIVATE, getKeysMethod, String.format("(L%s;)V", LINKED_HASH_SET), null,
+                mv = cw.visitMethod(ACC_PRIVATE, getKeysMethod, LINKED_HASH_SET_OP, null,
                         null);
                 mv.visitCode();
                 getKeysMethod = "getKeys" + ++methodCount;
@@ -826,8 +808,8 @@ public class JvmRecordGen {
             mv.visitVarInsn(ALOAD, keysVarIndex);
             mv.visitLdcInsn(decodeIdentifier(fieldName));
             mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString",
-                    String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
-            mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", String.format("(L%s;)Z", OBJECT), true);
+                    FROM_STRING, false);
+            mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", ANY_TO_JBOOLEAN, true);
             mv.visitInsn(POP);
             mv.visitLabel(ifNotPresent);
             bTypesCount++;
@@ -835,8 +817,7 @@ public class JvmRecordGen {
                 if (bTypesCount != fields.size()) {
                     mv.visitVarInsn(ALOAD, selfRegIndex);
                     mv.visitVarInsn(ALOAD, keysVarIndex);
-                    mv.visitMethodInsn(INVOKEVIRTUAL, className, getKeysMethod, String.format("(L%s;)V",
-                            LINKED_HASH_SET), false);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, className, getKeysMethod, LINKED_HASH_SET_OP, false);
                 }
                 mv.visitInsn(RETURN);
                 mv.visitMaxs(0, 0);

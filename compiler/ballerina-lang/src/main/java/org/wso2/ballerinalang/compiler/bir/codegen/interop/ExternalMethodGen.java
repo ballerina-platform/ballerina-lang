@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INITIAL_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WRAPPER_GEN_BB_ID_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
@@ -162,8 +163,8 @@ public class ExternalMethodGen {
         } else if (attachedType.tag == TypeTags.OBJECT) {
             lookupKey = currentPackageName + toNameString(attachedType) + "." + birFuncName;
         } else {
-            throw new BLangCompilerException(String.format("Java method generation for the receiver type %s " +
-                    "is not supported: ", attachedType));
+            throw new BLangCompilerException("Java method generation for the receiver type "+ attachedType+" " +
+                    "is not supported: ");
         }
 
         BIRFunctionWrapper birFuncWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
@@ -207,12 +208,12 @@ public class ExternalMethodGen {
     }
 
     public static String getExternMethodDesc(List<BType> paramTypes, BType retType) {
-        return JvmCodeGenUtil.INITIAL_METHOD_DESC + JvmCodeGenUtil.populateMethodDesc(paramTypes) +
+        return INITIAL_METHOD_DESC + JvmCodeGenUtil.populateMethodDesc(paramTypes) +
                 generateExternReturnType(retType);
     }
 
     public static String getExternMethodDesc(List<BType> paramTypes, BType retType, BType attachedType) {
-        return JvmCodeGenUtil.INITIAL_METHOD_DESC + JvmCodeGenUtil.getArgTypeSignature(attachedType) +
+        return INITIAL_METHOD_DESC + JvmCodeGenUtil.getArgTypeSignature(attachedType) +
                 JvmCodeGenUtil.populateMethodDesc(paramTypes) + generateExternReturnType(retType);
     }
 
