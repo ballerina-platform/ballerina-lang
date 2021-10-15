@@ -65,8 +65,11 @@ public class CompletionUtil {
         Here we skip auto completion for the cases where the token at cursor is `>`. `>` is added as a trigger 
         character, in order to trigger completions for `->`. This leads to completion trigger for un wanted cases.
          */
-        String triggerCharacter = ctx.getCompletionParams().getContext().getTriggerCharacter();
-        CompletionTriggerKind triggerKind = ctx.getCompletionParams().getContext().getTriggerKind();
+        boolean contextSupport = Boolean.TRUE.equals(ctx.getCapabilities().getContextSupport());
+        String triggerCharacter = contextSupport ?
+                ctx.getCompletionParams().getContext().getTriggerCharacter() : "";
+        CompletionTriggerKind triggerKind = contextSupport ? 
+                ctx.getCompletionParams().getContext().getTriggerKind() : null;
         if (triggerKind == CompletionTriggerKind.TriggerCharacter
                 && triggerCharacter.equals(SyntaxKind.GT_TOKEN.stringValue())
                 && ctx.getTokenAtCursor().kind() != SyntaxKind.RIGHT_ARROW_TOKEN

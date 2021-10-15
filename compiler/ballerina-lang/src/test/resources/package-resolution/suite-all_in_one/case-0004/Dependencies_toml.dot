@@ -1,0 +1,5 @@
+digraph "DependenciesToml" {
+    "samjs/b:1.3.4"
+    "samjs/c:0.4.5" [transitive = true]
+    "samjs/s:2.0.4" [transitive = true]
+}
