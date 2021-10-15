@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langserver.extensions.connector;
 
-import org.ballerinalang.central.client.model.connector.BalConnector;
 import org.ballerinalang.langserver.extensions.LSExtensionTestUtil;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorListResponse;
 import org.ballerinalang.langserver.util.FileUtils;
