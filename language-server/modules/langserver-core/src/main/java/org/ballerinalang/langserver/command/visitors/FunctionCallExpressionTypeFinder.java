@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
@@ -206,7 +207,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
         FunctionTypeSymbol functionTypeSymbol;
         if (returnTypeSymbol.typeKind() == TypeDescKind.FUNCTION) {
             functionTypeSymbol = (FunctionTypeSymbol) returnTypeSymbol;
-        } else if (returnTypeSymbol instanceof ClassSymbol) {
+        } else if (returnTypeSymbol.kind() == SymbolKind.CLASS) {
             Optional<MethodSymbol> methodSymbol = ((ClassSymbol) returnTypeSymbol).initMethod();
             if (methodSymbol.isEmpty()) {
                 return;
@@ -252,7 +253,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
                     break;
                 }
             }
-            if (argIndex < 0) {
+            if (argIndex < 0 || params.get().size() < argIndex + 1) {
                 return;
             }
             ParameterSymbol parameterSymbol = params.get().get(argIndex);
@@ -269,7 +270,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
         FunctionTypeSymbol functionTypeSymbol;
         if (returnTypeSymbol.typeKind() == TypeDescKind.FUNCTION) {
             functionTypeSymbol = (FunctionTypeSymbol) returnTypeSymbol;
-        } else if (returnTypeSymbol instanceof ClassSymbol) {
+        } else if (returnTypeSymbol.kind() == SymbolKind.CLASS) {
             Optional<MethodSymbol> methodSymbol = ((ClassSymbol) returnTypeSymbol).initMethod();
             if (methodSymbol.isEmpty()) {
                 return;
@@ -279,10 +280,10 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
             return;
         }
         Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
-        if (params.isEmpty() || params.get().isEmpty()) {
+        if (params.isEmpty()) {
             return;
         }
-        params.get().stream().filter(param -> param.getName().isPresent() 
+        params.get().stream().filter(param -> param.getName().isPresent()
                         && param.getName().get().equals(namedArgumentNode.argumentName().name().text())).findFirst()
                 .ifPresent(parameterSymbol -> this.checkAndSetTypeResult(parameterSymbol.typeDescriptor()));
     }
