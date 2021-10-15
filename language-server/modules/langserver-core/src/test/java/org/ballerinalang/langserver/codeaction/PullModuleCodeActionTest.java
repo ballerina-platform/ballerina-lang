@@ -35,7 +35,7 @@ public class PullModuleCodeActionTest extends AbstractCodeActionTest {
     }
 
     @Override
-    @Test(dataProvider = "codeaction-data-provider")
+    @Test(dataProvider = "codeaction-data-provider", enabled = false)
     public void test(String config, String source) throws IOException, WorkspaceDocumentException {
         super.test(config, source);
     }

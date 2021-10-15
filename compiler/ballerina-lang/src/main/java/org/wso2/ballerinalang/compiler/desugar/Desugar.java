@@ -327,6 +327,7 @@ import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVaria
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariableRef;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 import static org.wso2.ballerinalang.compiler.util.Constants.INIT_METHOD_SPLIT_SIZE;
+import static org.wso2.ballerinalang.compiler.util.Names.GENERATED_INIT_SUFFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
 import static org.wso2.ballerinalang.compiler.util.Names.IS_TRANSACTIONAL;
@@ -1097,7 +1098,7 @@ public class Desugar extends BLangNodeVisitor {
             paramRefs.add(ASTBuilderUtil.createVariableRef(location, var.symbol));
         }
 
-        BLangInvocation invocation = ASTBuilderUtil.createInvocationExprMethod(location,
+        BLangInvocation invocation = ASTBuilderUtil.createInvocationExprMethod(null,
                 objectTypeSymbol.initializerFunc.symbol,
                 paramRefs, Collections.emptyList(), symResolver);
         if (generatedInitFunction.restParam != null) {
@@ -5832,10 +5833,17 @@ public class Desugar extends BLangNodeVisitor {
             result = rewriteExpr(typedescExpr);
             return;
         }
-        tupleLiteral.exprs.forEach(expr -> {
+        List<BLangExpression> exprs = tupleLiteral.exprs;
+        BTupleType tupleType = (BTupleType) tupleLiteral.getBType();
+        List<BType> tupleMemberTypes = tupleType.tupleTypes;
+        int tupleMemberTypeSize = tupleMemberTypes.size();
+        int tupleExprSize = exprs.size();
+        for (int i = 0; i < tupleExprSize; i++) {
+            BLangExpression expr = exprs.get(i);
             BType expType = expr.impConversionExpr == null ? expr.getBType() : expr.impConversionExpr.getBType();
-            types.setImplicitCastExpr(expr, expType, symTable.anyType);
-        });
+            BType targetType = i < tupleMemberTypeSize ? tupleMemberTypes.get(i) : tupleType.restType;
+            types.setImplicitCastExpr(expr, expType, targetType);
+        }
         tupleLiteral.exprs = rewriteExprs(tupleLiteral.exprs);
         result = tupleLiteral;
     }
@@ -5951,7 +5959,11 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
+        rewriteFieldBasedAccess(nsPrefixedFieldBasedAccess);
+    }
+
+    private void rewriteFieldBasedAccess(BLangFieldBasedAccess fieldAccessExpr) {
         if (safeNavigate(fieldAccessExpr)) {
             result = rewriteExpr(rewriteSafeNavigationExpr(fieldAccessExpr));
             return;
@@ -5968,11 +5980,11 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.field.pos,
-                                                     StringEscapeUtils.unescapeJava(fieldAccessExpr.field.value));
+                StringEscapeUtils.unescapeJava(fieldAccessExpr.field.value));
         int varRefTypeTag = varRefType.tag;
         if (varRefTypeTag == TypeTags.OBJECT ||
                 (varRefTypeTag == TypeTags.UNION &&
-                         ((BUnionType) varRefType).getMemberTypes().iterator().next().tag == TypeTags.OBJECT)) {
+                        ((BUnionType) varRefType).getMemberTypes().iterator().next().tag == TypeTags.OBJECT)) {
             if (fieldAccessExpr.symbol != null && fieldAccessExpr.symbol.type.tag == TypeTags.INVOKABLE &&
                     ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
                 result = rewriteObjectMemberAccessAsField(fieldAccessExpr);
@@ -5993,13 +6005,13 @@ public class Desugar extends BLangNodeVisitor {
                 }
 
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
-                                                              (BVarSymbol) fieldAccessExpr.symbol, false,
-                                                              isStoreOnCreation);
+                        (BVarSymbol) fieldAccessExpr.symbol, false,
+                        isStoreOnCreation);
                 // Only supporting object field lock at the moment
             }
         } else if (varRefTypeTag == TypeTags.RECORD ||
                 (varRefTypeTag == TypeTags.UNION &&
-                         ((BUnionType) varRefType).getMemberTypes().iterator().next().tag == TypeTags.RECORD)) {
+                        ((BUnionType) varRefType).getMemberTypes().iterator().next().tag == TypeTags.RECORD)) {
             if (fieldAccessExpr.symbol != null && fieldAccessExpr.symbol.type.tag == TypeTags.INVOKABLE
                     && ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
                 targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr, (BVarSymbol) fieldAccessExpr.symbol);
@@ -6026,7 +6038,7 @@ public class Desugar extends BLangNodeVisitor {
         } else if (varRefTypeTag == TypeTags.MAP) {
             // TODO: 7/1/19 remove once foreach field access usage is removed.
             targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
-                                                  fieldAccessExpr.isStoreOnCreation);
+                    fieldAccessExpr.isStoreOnCreation);
         } else if (TypeTags.isXMLTypeTag(varRefTypeTag)) {
             targetVarRef = new BLangXMLAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                     fieldAccessExpr.fieldKind);
@@ -6036,6 +6048,11 @@ public class Desugar extends BLangNodeVisitor {
         targetVarRef.setBType(fieldAccessExpr.getBType());
         targetVarRef.optionalFieldAccess = fieldAccessExpr.optionalFieldAccess;
         result = targetVarRef;
+    }
+
+    @Override
+    public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        rewriteFieldBasedAccess(fieldAccessExpr);
     }
 
     private BLangNode rewriteObjectMemberAccessAsField(BLangFieldBasedAccess fieldAccessExpr) {
@@ -6514,7 +6531,7 @@ public class Desugar extends BLangNodeVisitor {
         if (typeInitExpr.initInvocation.getBType().tag == TypeTags.NIL) {
             BLangExpressionStmt initInvExpr = ASTBuilderUtil.createExpressionStmt(typeInitExpr.pos, blockStmt);
             initInvExpr.expr = typeInitExpr.initInvocation;
-            typeInitExpr.initInvocation.name.value = Names.GENERATED_INIT_SUFFIX.value;
+            typeInitExpr.initInvocation.name.value = GENERATED_INIT_SUFFIX.value;
             BLangStatementExpression stmtExpr = createStatementExpression(blockStmt, objVarRef);
             stmtExpr.setBType(objVarRef.symbol.type);
             return stmtExpr;
@@ -6714,6 +6731,7 @@ public class Desugar extends BLangNodeVisitor {
             }
         });
         BLangExpression expr = new BLangWaitForAllExpr.BLangWaitLiteral(waitExpr.keyValuePairs, waitExpr.getBType());
+        expr.pos = waitExpr.pos;
         result = rewriteExpr(expr);
     }
 
@@ -6762,12 +6780,12 @@ public class Desugar extends BLangNodeVisitor {
                                                          binaryExpr.opKind == OperatorKind.NOT_EQUAL ||
                                                          binaryExpr.opKind == OperatorKind.REF_EQUAL ||
                                                          binaryExpr.opKind == OperatorKind.REF_NOT_EQUAL)) {
-            if (lhsExprTypeTag == TypeTags.INT && rhsExprTypeTag == TypeTags.BYTE) {
+            if (TypeTags.isIntegerTypeTag(lhsExprTypeTag) && rhsExprTypeTag == TypeTags.BYTE) {
                 binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
                 return;
             }
 
-            if (lhsExprTypeTag == TypeTags.BYTE && rhsExprTypeTag == TypeTags.INT) {
+            if (lhsExprTypeTag == TypeTags.BYTE && TypeTags.isIntegerTypeTag(rhsExprTypeTag)) {
                 binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
                 return;
             }
@@ -6786,25 +6804,19 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        if (TypeTags.isStringTypeTag(lhsExprTypeTag) && binaryExpr.opKind == OperatorKind.ADD) {
+        if (binaryExpr.opKind == OperatorKind.ADD && TypeTags.isStringTypeTag(lhsExprTypeTag) &&
+                (rhsExprTypeTag == TypeTags.XML || rhsExprTypeTag == TypeTags.XML_TEXT)) {
             // string + xml ==> (xml string) + xml
-            if (TypeTags.isXMLTypeTag(rhsExprTypeTag)) {
-                binaryExpr.lhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.lhsExpr,
-                        binaryExpr.lhsExpr.pos, symTable.xmlType);
-                return;
-            }
-            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.lhsExpr.getBType());
+            binaryExpr.lhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.lhsExpr,
+                    binaryExpr.lhsExpr.pos, symTable.xmlType);
             return;
         }
 
-        if (TypeTags.isStringTypeTag(rhsExprTypeTag) && binaryExpr.opKind == OperatorKind.ADD) {
+        if (binaryExpr.opKind == OperatorKind.ADD && TypeTags.isStringTypeTag(rhsExprTypeTag) &&
+                (lhsExprTypeTag == TypeTags.XML || lhsExprTypeTag == TypeTags.XML_TEXT)) {
             // xml + string ==> xml + (xml string)
-            if (TypeTags.isXMLTypeTag(lhsExprTypeTag)) {
-                binaryExpr.rhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.rhsExpr,
-                        binaryExpr.rhsExpr.pos, symTable.xmlType);
-                return;
-            }
-            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.rhsExpr.getBType());
+            binaryExpr.rhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.rhsExpr,
+                    binaryExpr.rhsExpr.pos, symTable.xmlType);
             return;
         }
 
@@ -8249,18 +8261,23 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         //This will only check whether last statement is a return and just add a return statement.
-        //This won't analyse if else blocks etc to see whether return statements are present
+        //This won't analyse if else blocks etc. to see whether return statements are present.
         BLangBlockFunctionBody funcBody = (BLangBlockFunctionBody) invokableNode.body;
         if (invokableNode.workers.size() == 0 && invokableNode.symbol.type.getReturnType().isNullable()
                 && (funcBody.stmts.size() < 1 ||
                 funcBody.stmts.get(funcBody.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
-            Location invPos = invokableNode.pos;
-            Location returnStmtPos = new BLangDiagnosticLocation(invPos.lineRange().filePath(),
-                                                            invPos.lineRange().endLine().line(),
-                                                            invPos.lineRange().endLine().line(),
-                                                            invPos.lineRange().startLine().offset(),
-                                                            invPos.lineRange().startLine().offset());
-            BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(returnStmtPos, symTable.nilType);
+            BLangReturn returnStmt;
+            if (invokableNode.name.value.contains(GENERATED_INIT_SUFFIX.value)) {
+                returnStmt = ASTBuilderUtil.createNilReturnStmt(null, symTable.nilType);
+            } else {
+                Location invPos = invokableNode.pos;
+                Location returnStmtPos = new BLangDiagnosticLocation(invPos.lineRange().filePath(),
+                        invPos.lineRange().endLine().line(),
+                        invPos.lineRange().endLine().line(),
+                        invPos.lineRange().startLine().offset(),
+                        invPos.lineRange().startLine().offset(), 0, 0);
+                returnStmt = ASTBuilderUtil.createNilReturnStmt(returnStmtPos, symTable.nilType);
+            }
             funcBody.addStatement(returnStmt);
         }
     }
@@ -9824,10 +9841,10 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangFunction initFunction =
                 TypeDefBuilderHelper.createInitFunctionForStructureType(classDefinition.pos, classDefinition.symbol,
-                                                                        env, names, Names.GENERATED_INIT_SUFFIX,
+                                                                        env, names, GENERATED_INIT_SUFFIX,
                                                                         classDefinition.getBType(), returnType);
         BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) classDefinition.getBType().tsymbol);
-        typeSymbol.generatedInitializerFunc = new BAttachedFunction(Names.GENERATED_INIT_SUFFIX, initFunction.symbol,
+        typeSymbol.generatedInitializerFunc = new BAttachedFunction(GENERATED_INIT_SUFFIX, initFunction.symbol,
                                                                     (BInvokableType) initFunction.getBType(),
                                                                     classDefinition.pos);
         classDefinition.generatedInitFunction = initFunction;
@@ -10131,9 +10148,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     protected void addTransactionInternalModuleImport() {
-        PackageID packageID = new PackageID(Names.BALLERINA_INTERNAL_ORG, Lists.of(Names.TRANSACTION),
-                Names.TRANSACTION_INTERNAL_VERSION);
-        if (!env.enclPkg.packageID.equals(packageID)) {
+        if (!env.enclPkg.packageID.equals(PackageID.TRANSACTION_INTERNAL)) {
             BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
             List<BLangIdentifier> pkgNameComps = new ArrayList<>();
             pkgNameComps.add(ASTBuilderUtil.createIdentifier(env.enclPkg.pos, Names.TRANSACTION.value));

@@ -101,6 +101,51 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Completely parses a given input as statements.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsStatements() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.FUNC_BODY_BLOCK);
+        STNode stmtsNode = parseStatements();
+
+        STNodeList stmtNodeList = (STNodeList) stmtsNode;
+        ArrayList<STNode> stmts = new ArrayList<>(stmtNodeList.size() + 1);
+
+        // add all stmts except last stmt
+        for (int i = 0; i < stmtNodeList.size() - 1; i++) {
+            stmts.add(stmtNodeList.get(i));
+        }
+
+        STNode lastStmt;
+        if (stmtNodeList.isEmpty()) {
+            lastStmt = createMissingSimpleVarDecl(false);
+        } else {
+            lastStmt = stmtNodeList.get(stmtNodeList.size() - 1);
+        }
+
+        lastStmt = invalidateRestAndAddToTrailingMinutiae(lastStmt);
+        stmts.add(lastStmt);
+
+        return STNodeFactory.createNodeList(stmts);
+    }
+
+    /**
+     * Completely parses a given input as an expression.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsExpression() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.VAR_DECL_STMT);
+        STNode expr = parseExpression();
+
+        expr = invalidateRestAndAddToTrailingMinutiae(expr);
+        return expr;
+    }
+
+    /**
      * Start parsing the input from a given context. Supported starting points are:
      * <ul>
      * <li>Module part (a file)</li>
@@ -265,7 +310,7 @@ public class BallerinaParser extends AbstractParser {
             case EOF_TOKEN:
                 if (metadata != null) {
                     metadata = addMissingConstructDiagnostic((STMetadataNode) metadata);
-                    return createMissingSimpleVarDecl(metadata);
+                    return createMissingSimpleVarDecl(metadata, true);
                 }
                 return null;
             case PUBLIC_KEYWORD:
@@ -4555,9 +4600,14 @@ public class BallerinaParser extends AbstractParser {
                 typedBindingPattern, assign, expr, semicolon);
     }
 
-    private STNode createMissingSimpleVarDecl(STNode metadata) {
+    private STNode createMissingSimpleVarDecl(boolean isModuleVar) {
+        STNode metadata = isModuleVar ? STNodeFactory.createEmptyNode() : STNodeFactory.createEmptyNodeList();
+        return createMissingSimpleVarDecl(metadata, isModuleVar);
+    }
+
+    private STNode createMissingSimpleVarDecl(STNode metadata, boolean isModuleVar) {
         STNode publicQualifier = STNodeFactory.createEmptyNode();
-        return createMissingSimpleVarDecl(metadata, publicQualifier, new ArrayList<>(), true);
+        return createMissingSimpleVarDecl(metadata, publicQualifier, new ArrayList<>(), isModuleVar);
     }
 
     private STNode createMissingSimpleVarDecl(STNode metadata, STNode publicQualifier, List<STNode> qualifiers,

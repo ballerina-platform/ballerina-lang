@@ -525,7 +525,7 @@
       "label": "cc",
       "kind": "Field",
       "detail": "module1:TestClass1",
-      "sortText": "H",
+      "sortText": "AF",
       "insertText": "cc",
       "insertTextFormat": "Snippet"
     }

@@ -81,12 +81,15 @@ public class MethodCallExpressionNodeContext extends FieldAccessContext<MethodCa
         eg:
         (3) s<cursor>abc.def.testMethod()
         (4) self.<cursor>Method()
+        
+        Also, will avoid x.method() <cursor>
          */
         int cursor = context.getCursorPositionInTree();
         NameReferenceNode nameRef = node.methodName();
         Token dotToken = node.dotToken();
 
-        return ((cursor >= nameRef.textRange().startOffset() && cursor <= nameRef.textRange().endOffset())
+        return cursor <= node.textRange().endOffset()
+                && ((cursor >= nameRef.textRange().startOffset() && cursor <= nameRef.textRange().endOffset())
                 || (!dotToken.isMissing() && cursor > dotToken.textRange().startOffset()));
     }
 
