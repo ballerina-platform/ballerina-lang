@@ -32,8 +32,8 @@ public class FloatLiteralTest extends AbstractExpressionsTest {
         // DecimalNumber Exponent [FloatingPointTypeSuffix]
         testFile("basic-literals/float_literal_source_01.bal", "basic-literals/float_literal_assert_01.json");
 
-        // DottedDecimalNumber [Exponent] [FloatingPointTypeSuffix] // TODO: enable with proper error for 25.e1742
-//        testFile("basic-literals/float_literal_source_02.bal", "basic-literals/float_literal_assert_02.json");
+        // DottedDecimalNumber [Exponent] [FloatingPointTypeSuffix]
+        testFile("basic-literals/float_literal_source_02.bal", "basic-literals/float_literal_assert_02.json");
 
         // DecimalNumber FloatingPointTypeSuffix
         testFile("basic-literals/float_literal_source_03.bal", "basic-literals/float_literal_assert_03.json");
@@ -53,6 +53,16 @@ public class FloatLiteralTest extends AbstractExpressionsTest {
 
     @Test
     public void testInvalidTrailingDot() {
+
+        // DecimalFloatingPointNumber
         testFile("basic-literals/float_literal_source_06.bal", "basic-literals/float_literal_assert_06.json");
+
+        // HexFloatingPointLiteral
+        testFile("basic-literals/float_literal_source_07.bal", "basic-literals/float_literal_assert_07.json");
+    }
+
+    @Test
+    public void testInvalidFloatingPointLiteral() {
+        testFile("basic-literals/float_literal_source_08.bal", "basic-literals/float_literal_assert_08.json");
     }
 }

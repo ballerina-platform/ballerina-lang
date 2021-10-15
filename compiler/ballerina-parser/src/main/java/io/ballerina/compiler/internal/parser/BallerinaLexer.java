@@ -488,7 +488,11 @@ public class BallerinaLexer extends AbstractLexer {
                 case 'd':
                 case 'D':
                     char nextNextChar = reader.peek(1);
-                    if (nextChar == LexerTerminals.DOT && !isDigit(nextNextChar)) {
+                    if (nextChar == LexerTerminals.DOT &&
+                            (nextNextChar == LexerTerminals.DOT || isDecimalNumberFollowedIdentifier())) {
+                        // This is to handle two cases:
+                        // 1. More than one dot. e.g. 2...10
+                        // 2. Method call. e.g. 2.toString()
                         break;
                     }
 
@@ -553,6 +557,12 @@ public class BallerinaLexer extends AbstractLexer {
         if (nextChar == LexerTerminals.DOT) {
             reader.advance();
             nextChar = peek();
+
+            if (!isDigit(nextChar)) {
+                // Make sure there is at least one digit after the dot
+                // e.g. 2., 2.e12
+                reportLexerError(DiagnosticErrorCode.ERROR_MISSING_DIGIT_AFTER_DOT);
+            }
         }
 
         while (isDigit(nextChar)) {
@@ -685,7 +695,7 @@ public class BallerinaLexer extends AbstractLexer {
         int nextChar = peek();
         switch (nextChar) {
             case LexerTerminals.DOT:
-                if (isLookaheadAnIdentifier()) {
+                if (isHexIntFollowedIdentifier()) {
                     // e.g. 0x.max(), 0xA2.max()
                     return getHexIntegerLiteral();
                 }
@@ -728,7 +738,66 @@ public class BallerinaLexer extends AbstractLexer {
         return getLiteral(SyntaxKind.HEX_INTEGER_LITERAL_TOKEN);
     }
 
-    private boolean isLookaheadAnIdentifier() {
+    /**
+     * Checks whether DecimalNumber is followed by an identifier in order to special case tokenization.
+     *
+     * @return <code>true</code> if DecimalNumber is followed by an identifier. <code>false</code> otherwise.
+     */
+    private boolean isDecimalNumberFollowedIdentifier() {
+        int lookahead = 1;
+        char lookaheadChar = reader.peek(lookahead);
+
+        if (isDigit(lookaheadChar)) {
+            return false;
+        }
+
+        while (isDigit(lookaheadChar)) {
+            lookahead++;
+            lookaheadChar = reader.peek(lookahead);
+        }
+
+        switch (lookaheadChar) {
+            case 'e':
+            case 'E':
+                lookahead++;
+
+                lookaheadChar = reader.peek(lookahead);
+                if (lookaheadChar == LexerTerminals.PLUS || lookaheadChar == LexerTerminals.MINUS) {
+                    lookahead++;
+                }
+
+                lookaheadChar = reader.peek(lookahead);
+                while (isDigit(lookaheadChar)) {
+                    lookahead++;
+                    lookaheadChar = reader.peek(lookahead);
+                }
+
+                if (lookaheadChar == 'd' || lookaheadChar == 'D' || lookaheadChar == 'f' || lookaheadChar == 'F') {
+                    lookahead++;
+                }
+
+                lookaheadChar = reader.peek(lookahead);
+                return isIdentifierInitialChar(lookaheadChar);
+            case 'd':
+            case 'D':
+            case 'f':
+            case 'F':
+                lookahead++;
+                break;
+            default:
+                break;
+        }
+
+        lookaheadChar = reader.peek(lookahead);
+        return isIdentifierInitialChar(lookaheadChar);
+    }
+
+    /**
+     * Checks whether HexIntLiteral is followed by an identifier in order to special case tokenization.
+     *
+     * @return <code>true</code> if HexIntLiteral is followed by an identifier. <code>false</code> otherwise.
+     */
+    private boolean isHexIntFollowedIdentifier() {
         int lookahead = 1;
         char lookaheadChar = reader.peek(lookahead);
 
@@ -741,21 +810,23 @@ public class BallerinaLexer extends AbstractLexer {
             lookaheadChar = reader.peek(lookahead);
         }
 
-        if (lookaheadChar == 'p' || lookaheadChar == 'P') {
-            lookahead++;
-
-            lookaheadChar = reader.peek(lookahead);
-            if (lookaheadChar == LexerTerminals.PLUS || lookaheadChar == LexerTerminals.MINUS) {
+        switch (lookaheadChar) {
+            case 'p':
+            case 'P':
                 lookahead++;
-            }
 
-            lookaheadChar = reader.peek(lookahead);
-            while (isDigit(lookaheadChar)) {
-                lookahead++;
                 lookaheadChar = reader.peek(lookahead);
-            }
+                if (lookaheadChar == LexerTerminals.PLUS || lookaheadChar == LexerTerminals.MINUS) {
+                    lookahead++;
+                }
 
-            return isIdentifierInitialChar(lookaheadChar);
+                lookaheadChar = reader.peek(lookahead);
+                while (isDigit(lookaheadChar)) {
+                    lookahead++;
+                    lookaheadChar = reader.peek(lookahead);
+                }
+
+                return isIdentifierInitialChar(lookaheadChar);
         }
 
         return isIdentifierInitialChar(lookaheadChar);
@@ -1217,12 +1288,8 @@ public class BallerinaLexer extends AbstractLexer {
     }
 
     private boolean isNotIsToken() {
-        if ((reader.peek() == 'i' && reader.peek(1) == 's') &&
-                !(isIdentifierFollowingChar(reader.peek(2)) || reader.peek(2) == LexerTerminals.BACKSLASH)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (reader.peek() == 'i' && reader.peek(1) == 's') &&
+                !(isIdentifierFollowingChar(reader.peek(2)) || reader.peek(2) == LexerTerminals.BACKSLASH);
     }
 
     /**

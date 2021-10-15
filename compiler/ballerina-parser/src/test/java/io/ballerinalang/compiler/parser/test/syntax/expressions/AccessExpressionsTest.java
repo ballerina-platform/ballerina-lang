@@ -96,7 +96,7 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
         test("a + b .c:d .e:f .g .h + k", "access-expr/xml_required_attribute_access_expr_assert_02.json");
     }
 
-    @Test(enabled = false) // TODO: enable and add more tests
+    @Test
     public void testMethodCallOnNumerics() {
         testFile("access-expr/method_call_expr_source_01.bal", "access-expr/method_call_expr_assert_01.json");
     }
@@ -173,5 +173,10 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
     @Test
     public void testMemberAccessRecovery() {
         testFile("access-expr/member_access_expr_source_11.bal", "access-expr/member_access_expr_assert_11.json");
+    }
+
+    @Test
+    public void testMethodCallOnNumericsNegative() {
+        testFile("access-expr/method_call_expr_source_02.bal", "access-expr/method_call_expr_assert_02.json");
     }
 }
