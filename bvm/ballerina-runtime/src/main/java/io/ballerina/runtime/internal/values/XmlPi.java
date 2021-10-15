@@ -80,6 +80,11 @@ public class XmlPi extends XmlNonElementItem {
     }
 
     @Override
+    public boolean isSingleton() {
+        return true;
+    }
+
+    @Override
     public String getItemType() {
         return getNodeType().value();
     }

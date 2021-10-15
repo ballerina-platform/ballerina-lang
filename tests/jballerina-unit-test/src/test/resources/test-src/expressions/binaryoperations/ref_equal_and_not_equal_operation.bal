@@ -406,25 +406,35 @@ function testXMLSequenceRefEquality() {
     xml a1 = xml `<e1/>`;
     xml a2 = xml `<e2/>`;
     xml a3 = xml ``;
+    xml a4 = xml `<?PI ?>`;
+    xml a5 = xml `<!--Comment-->`;
+
     xml s1 = a1 + a2;
     xml s2 = a3 + a1;
     xml s3 = a2 + a3;
+    xml s4 = a3 + a4;
+    xml s5 = a5 + a3;
+
     xml v1 = s1.<e1>;
     xml v2 = s1.<e2>;
 
     test:assertTrue(v1 === a1);
+    test:assertTrue(a1 === v1);
     test:assertTrue(v2 === a2);
+    test:assertTrue(a2 === v2);
     test:assertTrue(s2 === a1);
-    test:assertTrue(s3 === a2);
+    test:assertTrue(a2 === s3);
+    test:assertTrue(a4 === s4);
+    test:assertTrue(s5 === a5);
 }
 
-function testXMLSequenceRefEqualityDifferentLength() returns boolean {
+function testXMLSequenceRefEqualityDifferentLength() {
     xml x = xml `<a>a</a>`;
     xml x1 = xml `<b>b</b>`;
     xml x2 = x + x1;
     xml x3 = x + x1 + xml `<c>c</c>`;
 
-    return x2 === x3;
+    test:assertFalse(x2 === x3);
 }
 
 function testXMLSequenceRefEqualityFalse() {
@@ -433,34 +443,54 @@ function testXMLSequenceRefEqualityFalse() {
     xml c = xml `<b>b</b>`;
     xml d = a + b;
     xml e = a + c;
+    xml f = d.<b>;
+    xml g = e.<b>;
 
     test:assertFalse(d === e);
+    test:assertFalse(f === g);
 }
 
-function testXMLSequenceRefEqualityIncludingString() returns boolean {
+function testXMLSequenceRefEqualityIncludingString() {
     xml x = xml `<a>a</a>`;
     xml x1 = xml `<b>b</b>`;
     xml x2 = x + x1 + "abcd";
     xml x3 = x + x1 + "abcd";
 
-    return x2 === x3;
+    test:assertTrue(x2 === x3);
 }
 
-function testXMLSequenceRefEqualityIncludingDifferentString() returns boolean {
+function testXMLSequenceRefEqualityIncludingDifferentString() {
     xml x = xml `<a>a</a>`;
     xml x1 = xml `<b>b</b>`;
     xml x2 = x + x1 + "abcd";
     xml x3 = x + x1 + "abcde";
 
-    return x2 === x3;
+    test:assertFalse(x2 === x3);
 }
 
-function testEmptyXMLSequencesRefEquality() returns boolean {
+function testEmptyXMLSequencesRefEquality() {
     xml x = xml `<elem></elem>`;
     xml y = xml `<elem></elem>`;
     xml z = x/*;
     xml q = y/*;
-    return z === q;
+    test:assertTrue(z === q);
+}
+
+function testXmlTextRefEquality() {
+    xml x1 = xml `abc`;
+    xml x2 = xml `def`;
+    xml x3 = xml ``;
+    xml:Text x4 = xml `abc`;
+
+    xml x5 = x1 + x3;
+    xml x6 = x3 + x4;
+    xml x7 = x1 + x2;
+    xml x8 = x4 + x2;
+
+    test:assertTrue(x1 === x4);
+    test:assertTrue(x5 === x1);
+    test:assertTrue(x6 === x4);
+    test:assertTrue(x7 === x8);
 }
 
 function testTupleJSONRefEquality() {
