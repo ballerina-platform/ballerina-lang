@@ -46,4 +46,10 @@ public class RuntimeAPITest {
         CompileResult result = BCompileUtil.compile("test-src/runtime/api/types");
         BRunUtil.invoke(result, "main");
     }
+
+    @Test
+    public void asyncCallTest() {
+        CompileResult result = BCompileUtil.compile("test-src/runtime/api/async");
+        BRunUtil.invoke(result, "main");
+    }
 }

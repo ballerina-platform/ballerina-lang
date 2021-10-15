@@ -71,6 +71,7 @@ function testMaps() {
     testSimpleMaps();
     testMapIteration();
     testArrayOfMaps();
+    testArrayIteration();
     testTableOfMaps();
     testTableIteration();
 }
@@ -82,6 +83,12 @@ public function testArrayOfMaps() {
     test:assertEquals(engineerMapArr.toString(), "[{\"p1\":{\"name\":\"Jack\",\"id\":55}," + 
     "\"p2\":{\"name\":\"Jill\",\"id\":88}},{\"p1\":{\"name\":\"John\",\"id\":66}," + 
     "\"p2\":{\"name\":\"Jim\",\"id\":77}}]");
+}
+
+function testArrayIteration() {
+    util:testArrayIterator(intMapArr, 2);
+    util:testArrayIterator(stringMapArr, 2);
+    util:testArrayIterator(engineerMapArr, 2);    
 }
 
 public function testTableOfMaps() {
@@ -172,9 +179,8 @@ function testMapIteration() {
     util:testMapIterator(libIntMap, 3);
     util:testMapIterator(managerMap, 2);
     util:testMapIterator(readonlyManagerMap, 2);
-// These lines should be enabled after fixing #30566
-// util:testMapIterator(studentMap, 3);
-// util:testMapIterator(readonlyStudentMap, 3); 
+    util:testMapIterator(studentMap, 3);
+    util:testMapIterator(readonlyStudentMap, 3);
 }
 
 function testTableIteration() {

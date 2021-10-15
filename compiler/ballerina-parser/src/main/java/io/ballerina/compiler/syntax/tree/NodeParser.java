@@ -17,18 +17,35 @@
  */
 package io.ballerina.compiler.syntax.tree;
 
+import io.ballerina.compiler.internal.parser.BallerinaParser;
+import io.ballerina.compiler.internal.parser.ParserFactory;
+
 /**
- * Parses a given input and produces a {@code Node}.
+ * Parses a given input and produces a {@code Node}  / {@code NodeList}.
  *
  * @since 1.3.0
  */
 public class NodeParser {
 
-    public StatementNode parseStatement(String text) {
-        return null;
+    /**
+     * Parses the input as statements.
+     *
+     * @param text the input
+     * @return a {@code NodeList<StatementNode>}
+     */
+    public static NodeList<StatementNode> parseStatements(String text) {
+        BallerinaParser parser = ParserFactory.getParser(text);
+        return new NodeList<>(parser.parseAsStatements().createUnlinkedFacade());
     }
 
-    public ExpressionNode parseExpression(String text) {
-        return null;
+    /**
+     * Parses the input as an expression.
+     *
+     * @param text the input
+     * @return an {@code ExpressionNode}
+     */
+    public static ExpressionNode parseExpression(String text) {
+        BallerinaParser parser = ParserFactory.getParser(text);
+        return parser.parseAsExpression().createUnlinkedFacade();
     }
 }

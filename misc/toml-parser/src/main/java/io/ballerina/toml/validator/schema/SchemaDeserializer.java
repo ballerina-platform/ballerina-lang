@@ -52,6 +52,8 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
     public static final String REQUIRED = "required";
     public static final String ITEMS = "items";
     public static final String PATTERN = "pattern";
+    public static final String MIN_LENGTH = "minLength";
+    public static final String MAX_LENGTH = "maxLength";
     public static final String MINIMUM = "minimum";
     public static final String MAXIMUM = "maximum";
     public static final String MESSAGE = "message";
@@ -115,8 +117,10 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
     private StringSchema getStringSchema(JsonObject jsonObj) {
         String pattern = parseOptionalStringFromJson(jsonObj, PATTERN);
         String defaultValue = parseOptionalStringFromJson(jsonObj, DEFAULT_VALUE);
+        Integer minLength = parseOptionalIntFromJson(jsonObj, MIN_LENGTH);
+        Integer maxLength = parseOptionalIntFromJson(jsonObj, MAX_LENGTH);
         Map<String, String> customMessages = parseOptionalMapFromMessageJson(jsonObj);
-        return new StringSchema(Type.STRING, customMessages, pattern, defaultValue);
+        return new StringSchema(Type.STRING, customMessages, pattern, defaultValue, minLength, maxLength);
     }
 
     private NumericSchema getNumericSchema(JsonObject jsonObj, Type type) {
@@ -180,6 +184,18 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
         throw new JsonSchemaException(key + " should always be a string");
     }
 
+    private Integer parseOptionalIntFromJson(JsonObject jsonObject, String key) {
+        JsonElement jsonElement = jsonObject.get(key);
+        if (jsonElement == null || jsonElement.isJsonNull()) {
+            return null;
+        }
+
+        if (jsonElement.isJsonPrimitive() && jsonElement.getAsJsonPrimitive().isNumber()) {
+            return jsonElement.getAsInt();
+        }
+        throw new JsonSchemaException(key + " should always be a int");
+    }
+
     private Map<String, String> parseOptionalMapFromMessageJson(JsonObject jsonObject) {
         Map<String, String> customMessages = new LinkedHashMap<>();
         JsonObject customMessageJson = jsonObject.getAsJsonObject(SchemaDeserializer.MESSAGE);
@@ -193,7 +209,9 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
         addFieldToCustomMessagesMap(customMessages, customMessageJson, ADDITIONAL_PROPERTIES);
         addFieldToCustomMessagesMap(customMessages, customMessageJson, MINIMUM);
         addFieldToCustomMessagesMap(customMessages, customMessageJson, MAXIMUM);
-
+        addFieldToCustomMessagesMap(customMessages, customMessageJson, MAX_LENGTH);
+        addFieldToCustomMessagesMap(customMessages, customMessageJson, MIN_LENGTH);
+        
         return customMessages;
     }
 

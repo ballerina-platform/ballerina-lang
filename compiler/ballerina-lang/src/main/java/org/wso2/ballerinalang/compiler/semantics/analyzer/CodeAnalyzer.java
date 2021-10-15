@@ -373,6 +373,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
+        this.workerReferences.clear();
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         pkgNode.accept(this);
         return pkgNode;
@@ -930,6 +931,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.continueAsLastStatement = allClausesContinue && this.hasLastPatternInStatement;
         this.errorThrown = currentErrorThrown;
         analyzeOnFailClause(matchStatement.onFailClause);
+        this.errorTypes.pop();
         this.hasLastPatternInStatement = hasLastPatternInStatement;
     }
 

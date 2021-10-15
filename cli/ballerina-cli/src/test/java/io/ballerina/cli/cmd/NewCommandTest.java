@@ -62,13 +62,19 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String expectedContent = "[build-options]\n" +
+        String expectedContent = "[package]\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
                 "observabilityIncluded = true\n";
         Assert.assertTrue(tomlContent.contains(expectedContent));
 
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
         Assert.assertFalse(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(".devcontainer.json")));
+        String devcontainerContent = Files.readString(packageDir.resolve(".devcontainer.json"));
+        Assert.assertTrue(devcontainerContent.contains(RepoUtils.getBallerinaVersion()));
     }
 
     @Test(description = "Test new command with main template")
@@ -90,7 +96,9 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String expectedContent = "[build-options]\n" +
+        String expectedContent = "[package]\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
                 "observabilityIncluded = true\n";
         Assert.assertTrue(tomlContent.contains(expectedContent));
 
@@ -296,5 +304,21 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.isDirectory(tmpDir.resolve("parent").resolve("sub_dir").resolve("sample")));
     }
 
-    // Test if a path given to new command
+    @Test(description = "Test new command with package name has more than 256 characters")
+    public void testNewCommandWithinPackageNameHasMoreThan256Chars() throws IOException {
+        String packageName = "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting";
+        String[] args = {packageName};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
+        new CommandLine(newCommand).parse(args);
+        newCommand.execute();
+
+        Assert.assertTrue(readOutput().contains("invalid package name : '" + packageName + "' :\n"
+                + "Maximum length of package name is 256 characters."));
+    }
 }
