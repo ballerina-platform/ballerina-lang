@@ -136,55 +136,6 @@ public class SymbolLookupTest {
     }
 
     @Test
-    public void testSymbolLookupInQuery() {
-        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_in_query.bal");
-        Package currentPackage = project.currentPackage();
-        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
-        PackageCompilation packageCompilation = currentPackage.getCompilation();
-        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
-        Document srcFile = getDocumentForSingleSource(project);
-
-        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
-        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
-
-        Map<String, Symbol> symbolsForWhere = getSymbolsInFile(model, srcFile, 22, 21, moduleID);
-        assertList(symbolsForWhere, Arrays.asList("test", "arr1", "arr2", "i", "j", "res1", "Person"));
-
-        Map<String, Symbol> symbolsForSelect = getSymbolsInFile(model, srcFile, 28, 21, moduleID);
-        assertList(symbolsForSelect, Arrays.asList("intVal", "test", "res1", "stringVal", "res2", "i", "j", "arr2",
-                "arr1", "Person"));
-
-        Map<String, Symbol> symbolsForQueryAct = getSymbolsInFile(model, srcFile, 31, 20, moduleID);
-        assertList(symbolsForQueryAct, Arrays.asList("ii", "test", "res1", "res3", "res2", "arr2", "arr1", "Person"));
-
-        Map<String, Symbol> symbolsForJoinLHS = getSymbolsInFile(model, srcFile, 36, 20, moduleID);
-        assertList(symbolsForJoinLHS, Arrays.asList("test", "res1", "res3", "res2", "i", "arr2", "arr1", "Person"));
- 
-        Map<String, Symbol> symbolsForJoinRHS = getSymbolsInFile(model, srcFile, 36, 28, moduleID);
-        assertList(symbolsForJoinRHS, Arrays.asList("test", "res1", "res3", "res2", "j", "arr2", "arr1", "Person"));
-
-        Map<String, Symbol> symbolsForOrderBy = getSymbolsInFile(model, srcFile, 44, 25, moduleID);
-        assertList(symbolsForOrderBy, Arrays.asList("res5", "p", "res4", "p1", "p2", "personList", "test", "res1",
-                "res3", "res2", "arr2", "arr1", "Person"));
-
-        Map<String, Symbol> symbolsForNestedFrom1 = getSymbolsInFile(model, srcFile, 48, 42, moduleID);
-        assertList(symbolsForNestedFrom1, Arrays.asList("res5", "res4", "p1", "p2", "personList", "res6", "test",
-                "res1", "res3", "res2", "k", "arr2", "arr1", "Person"));
- 
-        Map<String, Symbol> symbolsForNestedFrom2 = getSymbolsInFile(model, srcFile, 49, 23, moduleID);
-        assertList(symbolsForNestedFrom2, Arrays.asList("res5", "res4", "p1", "p2", "personList", "res6", "test",
-                "res1", "res3", "res2", "i", "arr2", "arr1", "Person"));
- 
-        Map<String, Symbol> symbolsForNestedFrom3 = getSymbolsInFile(model, srcFile, 53, 58, moduleID);
-        assertList(symbolsForNestedFrom3, Arrays.asList("res5", "res4", "p1", "res7", "p2", "personList", "res6",
-                "test", "res1", "res3", "res2", "m", "arr2", "arr1", "Person"));
-
-        Map<String, Symbol> symbolsForNestedFrom4 = getSymbolsInFile(model, srcFile, 53, 64, moduleID);
-        assertList(symbolsForNestedFrom4, Arrays.asList("res5", "ii", "res4", "p1", "p2", "personList", "res6",
-                "test", "res1", "res3", "res2", "arr2", "arr1", "Person"));
-    }
-
-    @Test
     public void testSymbolLookupWithAnnotationOnFunction() {
         Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_annotation_on_function.bal");
         Package currentPackage = project.currentPackage();
