@@ -221,11 +221,11 @@ public class IntersectionTypeTest {
                 "incompatible types: expected 'DistinctErrorAndSingleDistinctError', " +
                         "found 'DistinctErrorAndSingleDistinctError2'", 39, 11);
         validateError(result, index++,
-                "incompatible types: expected 'error<map<ballerina/lang.value:1.0.0:Cloneable>>', " +
+                "incompatible types: expected 'error<map<ballerina/lang.value:0.0.0:Cloneable>>', " +
                         "found 'SingleDistinctError'", 41, 31);
         validateError(result, index++,
                 "incompatible types: expected 'SingleDistinctError', " +
-                        "found 'error<map<ballerina/lang.value:1.0.0:Cloneable>>'", 42, 10);
+                        "found 'error<map<ballerina/lang.value:0.0.0:Cloneable>>'", 42, 10);
 
         assertEquals(result.getErrorCount(), index);
     }

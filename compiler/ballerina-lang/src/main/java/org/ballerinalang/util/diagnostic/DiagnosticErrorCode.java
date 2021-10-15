@@ -169,6 +169,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE2125", "array.length.greater.that.2147483637.not.yet.supported"),
     INVALID_ARRAY_LENGTH("BCE2126", "invalid.array.length"),
     CANNOT_RESOLVE_CONST("BCE2127", "cannot.resolve.const"),
+    ALREADY_INITIALIZED_SYMBOL_WITH_ANOTHER("BCE2128", "already.initialized.symbol.with.another"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
@@ -744,9 +745,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "invalid.usage.of.check.in.object.field.initializer.in.object.with.no.init.method"),
     INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_WITH_INIT_METHOD_RETURN_TYPE_MISMATCH("BCE4013",
             "invalid.usage.of.check.in.object.field.initializer.with.init.method.return.type.mismatch"),
-    NO_CLASS_DEF_FOUND("BCE4014", "no.class.def.found"),
-
-    INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_LOOP("BCE4015", "invalid.assignment.to.narrowed.var.in.loop")
+    INVALID_NUMBER_OF_PARAMETERS("BCE4014", "invalid.number.of.parameters"),
+    INVALID_PARAMETER_TYPE("BCE4015", "invalid.parameter.type"),
+    NO_CLASS_DEF_FOUND("BCE4016", "no.class.def.found"),
+    INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_LOOP("BCE4017", "invalid.assignment.to.narrowed.var.in.loop")
     ;
 
     private String diagnosticId;
