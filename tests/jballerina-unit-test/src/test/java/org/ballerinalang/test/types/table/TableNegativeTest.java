@@ -35,7 +35,7 @@ public class TableNegativeTest {
     @Test
     public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 32);
+        Assert.assertEquals(compileResult.getErrorCount(), 34);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
@@ -101,7 +101,11 @@ public class TableNegativeTest {
                 "'map<any|error>' but found 'any'", 200, 14);
         validateError(compileResult, index++, "field name 'id' used in key specifier is not " +
                 "found in table constraint type 'Person'", 203, 19);
-        validateError(compileResult, index, "field name 'invalidField' used in key specifier " +
+        validateError(compileResult, index++, "field name 'invalidField' used in key specifier " +
                 "is not found in table constraint type 'Person'", 204, 19);
+        validateError(compileResult, index++, "table key specifier '[leaves]' does not match " +
+                "with key constraint type '[EmployeeId]'", 217, 47);
+        validateError(compileResult, index, "table key specifier mismatch with key constraint. " +
+                "expected: '2' fields but found '1'", 219, 47);
     }
 }

@@ -203,3 +203,19 @@ function testInvalidTableKeys() {
     table<Person> key(id, name) tableVar;
     table<Person> key(invalidField) tableVar2;
 }
+
+type EmployeeId record {
+    readonly string firstname;
+    readonly string lastname;
+};
+
+type Employee1 record {
+    *EmployeeId;
+    readonly int leaves;
+};
+
+table<Employee1> key<EmployeeId> tbl1 = table key(leaves) [{firstname: "John", lastname: "Wick", leaves: 10}];
+
+table<Employee1> key<[string, string]> tbl2 = table key(firstname) [{firstname: "John", lastname: "Wick", leaves: 10}];
+
+table<Employee1> key<EmployeeId> tbl3 = table key(firstname) [{firstname: "John", lastname: "Wick", leaves: 10}];
