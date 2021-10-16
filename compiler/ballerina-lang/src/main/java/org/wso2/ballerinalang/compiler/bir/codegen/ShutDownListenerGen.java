@@ -37,9 +37,10 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LISTENER_REGISTRY_VARIABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
-import static  org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.*;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_LISTENER_REGISTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_LISTENER_REGISTRY;
 
 /**
  * Generate the thread for the addShutDownHook.

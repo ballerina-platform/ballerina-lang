@@ -21,10 +21,10 @@ package org.wso2.ballerinalang.compiler.bir.codegen.split;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -128,7 +128,8 @@ public class JvmAnnotationsGen {
                 jvmPackageGen.lookupGlobalVarClassName(pkgName, ANNOTATION_MAP_NAME);
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, JvmSignatures.GET_MAP_VALUE);
         loadLocalType(mv, typeDef, jvmTypeGen);
-        mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processAnnotations", JvmSignatures.PROCESS_ANNOTATIONS, false);
+        mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processAnnotations",
+                JvmSignatures.PROCESS_ANNOTATIONS, false);
     }
 
     void loadLocalType(MethodVisitor mv, BIRNode.BIRTypeDefinition typeDefinition, JvmTypeGen jvmTypeGen) {

@@ -18,8 +18,6 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.split.values;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
-
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -58,6 +56,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CALLS_PER_CLIENT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_FIELDS_PER_SPLIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BOBJECT_CALL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CHECK_FIELD_UPDATE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JSTRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT_FOR_STRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_BSTRING_RETURN_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_SAME_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 
 /**

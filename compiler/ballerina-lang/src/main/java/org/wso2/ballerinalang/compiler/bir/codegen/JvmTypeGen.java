@@ -16,8 +16,7 @@
  *  under the License.
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
-;
+
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
@@ -117,6 +116,65 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPES_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BOOLEAN_VALUE_OF_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_ERROR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RECORD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RECORD_WITH_MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.DOUBLE_VALUE_OF_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ARRAY_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BDECIMAL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BOBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BSTRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUTURE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_HANDLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STREAM_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_XML;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ARRAY_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FINITE_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUCNTION_PARAM;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUNCTION_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_INTERSECTION_TYPE_WITH_REFERENCE_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_INTERSECTION_TYPE_WITH_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_PARAMETERIZED_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_STREAM_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TABLE_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TABLE_TYPE_WITH_FIELD_NAME_LIST;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WITH_BOOLEAN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_VALUE_OF_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_ANYDATA_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_ANY_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_BOOLEAN_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_BYTE_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_DECIMAL_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_FLOAT_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_HANDLE_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_INTEGER_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_JSON_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_NEVER_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_NULL_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_OBJECT_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_READONLY_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_SERVICE_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_STRING_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_UNION_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_XML_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LONG_VALUE_OF;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_TYPE_ARRAY;
+
+;
 
 /**
  * BIR types to JVM byte code generation class.

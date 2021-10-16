@@ -47,7 +47,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INITIAL_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WRAPPER_GEN_BB_ID_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
@@ -55,6 +54,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.enrich
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.cleanupPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INITIAL_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.desugarInteropFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.genJFieldForInteropField;
 
@@ -163,7 +163,7 @@ public class ExternalMethodGen {
         } else if (attachedType.tag == TypeTags.OBJECT) {
             lookupKey = currentPackageName + toNameString(attachedType) + "." + birFuncName;
         } else {
-            throw new BLangCompilerException("Java method generation for the receiver type "+ attachedType+" " +
+            throw new BLangCompilerException("Java method generation for the receiver type " + attachedType + " " +
                     "is not supported: ");
         }
 

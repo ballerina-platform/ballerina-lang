@@ -22,9 +22,9 @@ import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmErrorTypeGen;
@@ -101,9 +101,16 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_IMMUT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ID_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_TYPE_ID;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FIELD_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_IMMUTABLE_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeFieldName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.TYPE_HASH_COMPARATOR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
+
 ;
 
 /**
@@ -433,9 +440,9 @@ public class JvmCreateTypeGen {
     }
 
     private void generateGetAnonTypeMainMethod(ClassWriter cw, List<BIRTypeDefinition> typeDefinitions,
-                                           String moduleInitClass) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, GET_ANON_TYPE_METHOD, JvmSignatures.GET_ANON_TYPE, null,
-                null);
+                                               String moduleInitClass) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, GET_ANON_TYPE_METHOD,
+                JvmSignatures.GET_ANON_TYPE, null, null);
         mv.visitCode();
         // filter anon types and sorts them before generating switch case.
         Set<BIRTypeDefinition> typeDefSet = new TreeSet<>(TYPE_HASH_COMPARATOR);
@@ -545,7 +552,9 @@ public class JvmCreateTypeGen {
         int count = 0;
         for (Integer integer : labelHashMapping.keySet()) {
             int intValue = integer.intValue();
-            if (hashes.length == count) hashes = Arrays.copyOf(hashes, count * 2);
+            if (hashes.length == count) {
+                hashes = Arrays.copyOf(hashes, count * 2);
+            }
             hashes[count++] = intValue;
         }
         hashes = Arrays.copyOfRange(hashes, 0, count);

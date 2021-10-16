@@ -17,10 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.split.types;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
-;
-
-
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -81,6 +77,21 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_TYPEID_SET_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.METHOD_TYPE_IMPL_ARRAY_PARAM;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.METHOD_TYPE_IMPL_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.METHOD_TYPE_IMPL_PARAM;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.POPULATE_ATTACHED_FUNCTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RESOURCE_METHOD_TYPE_ARRAY_PARAM;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RESOURCE_METHOD_TYPE_IMPL_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_LINKED_HASH_MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_METHODS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_RESOURCE_METHOD_TYPE_ARRAY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_TYPE_ID_SET;
+
+;
 
 /**
  * BIR object type to JVM byte code generation class.

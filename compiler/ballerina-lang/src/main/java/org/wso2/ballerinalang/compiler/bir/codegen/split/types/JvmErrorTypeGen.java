@@ -17,10 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.split.types;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
-;
-
-
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -53,6 +49,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_DETAIL_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_TYPEID_SET_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ERROR_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_TYPE_ID_SET;
+
+;
 
 /**
  * BIR error type to JVM byte code generation class.

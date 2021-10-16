@@ -18,10 +18,6 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.split.values;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
-;
-
-
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -74,9 +70,30 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_FIELD
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNSUPPORTED_OPERATION_EXCEPTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_COLLECTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.COLLECTION_OP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CONTAINS_KEY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.FROM_STRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LINKED_HASH_SET_OP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_VALUES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_VALUES_WITH_COLLECTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_SAME_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_GET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_GET_KEYS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_PUT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_REMOVE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_SET_MAP_ENTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TO_ARRAY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TWO_OBJECTS_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getFieldIsPresentFlagName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.isOptionalRecordField;
+
+;
 
 /**
  * Class for generate {@link io.ballerina.runtime.api.values.BMap} related methods.

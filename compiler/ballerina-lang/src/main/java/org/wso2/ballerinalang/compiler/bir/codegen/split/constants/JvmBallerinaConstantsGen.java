@@ -18,9 +18,6 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.split.constants;
 
-;
-
-
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
@@ -47,6 +44,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTANT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CONSTANTS_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
+
+;
 
 /**
  * Generates Jvm class for the used ballerina module constants for given module.

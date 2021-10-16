@@ -81,7 +81,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -95,7 +94,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_RES
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_OBSERVATION_WITH_ERROR_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CHECKPOINT_CALL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ERROR_CALL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.START_CALLABLE_OBSERVATION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.START_RESOURCE_OBSERVATION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STOP_OBSERVATION;
 
 /**
  * BIR desugar to inject observations class.
@@ -995,7 +997,7 @@ class JvmObservabilityGen {
      * @return The generated ID
      */
     private String generatePackageId(PackageID pkg) {
-        return pkg.orgName.value +"/"+ pkg.name.value + ":"+ pkg.version.value;
+        return pkg.orgName.value + "/" + pkg.name.value + ":" + pkg.version.value;
     }
 
     /**

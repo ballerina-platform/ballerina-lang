@@ -17,8 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
-
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -58,7 +56,6 @@ import static org.objectweb.asm.Opcodes.L2D;
 import static org.objectweb.asm.Opcodes.L2F;
 import static org.objectweb.asm.Opcodes.L2I;
 import static org.objectweb.asm.Opcodes.NEW;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_BYTE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TO_BOOLEAN_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TO_BYTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TO_DECIMAL_METHOD;
@@ -99,6 +96,32 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHEC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CONVERTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_BYTE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_DECIMAL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JDOUBLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JLONG;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BOOLEAN_TO_STRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BOOLEAN_VALUE_OF_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CHECK_CAST;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.DECIMAL_TO_HANDLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.DECIMAL_VALUE_OF_BOOLEAN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.DECIMAL_VALUE_OF_CHAR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.DECIMAL_VALUE_OF_DOUBLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.DECIMAL_VALUE_OF_FLOAT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.DECIMAL_VALUE_OF_INT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.DECIMAL_VALUE_OF_LONG;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.DECIMAL_VALUE_OF_SHORT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.DOUBLE_TO_STRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.DOUBLE_VALUE_OF_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ATTRAIBUTE_MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WITH_STRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_VALUE_OF_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LONG_TO_STRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LONG_VALUE_OF;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TO_CHAR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VALUE_OF_JSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.getSignatureForJType;
 
 /**
@@ -383,7 +406,8 @@ public class JvmCastGen {
                         false);
                 break;
             default:
-                throw new BLangCompilerException("Casting is not supported from '" + sourceType + "' to 'java boolean'");
+                throw new BLangCompilerException("Casting is not supported from '" + sourceType +
+                        "' to 'java boolean'");
         }
 
     }

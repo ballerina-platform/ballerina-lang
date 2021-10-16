@@ -18,8 +18,6 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
-
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANYDATA_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE;

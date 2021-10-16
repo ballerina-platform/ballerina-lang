@@ -51,7 +51,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.CLASS_NOT_FOUND;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.NO_CLASS_DEF_FOUND;
