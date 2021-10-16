@@ -326,4 +326,22 @@ function testInvalidFiniteTypeAsIntSubType() {
     (float|string|int:Unsigned8)[] l = j;
 }
 
+type InvalidIntType int:Signed32|int:Signed16|string;
+type InvalidIntFiniteType 1|2|3|"R";
+
+function testInvalidIntSubtypesInLangLibFunctions() {
+    InvalidIntType intVal1 = "FOO";
+    int:Signed32|int:Signed16|string intVal2 = "FOO";
+    InvalidIntFiniteType intVal3 = 1;
+
+    _ = int:toHexString(intVal1);
+    _ = int:toHexString(intVal2);
+
+    _ = intVal1.toHexString();
+    _ = intVal2.toHexString();
+
+    _ = int:toHexString(intVal3);
+    _ = intVal3.toHexString();
+}
+
 // TODO : Add more test cases.

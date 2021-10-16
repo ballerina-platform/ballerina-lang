@@ -159,19 +159,12 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         // Register LS semantic tokens capabilities if dynamic registration is not available
         if (!LSClientUtil.isDynamicSemanticTokensRegistrationSupported(params.getCapabilities().getTextDocument()) &&
                 enableBallerinaSemanticTokens(params)) {
-            res.getCapabilities().setSemanticTokensProvider(
-                    SemanticTokensUtils.getSemanticTokensRegistrationOptions());
+            res.getCapabilities().setSemanticTokensProvider(SemanticTokensUtils.getSemanticTokensRegistrationOptions());
         }
 
         // Check and set prepare rename provider
-        if (params.getCapabilities().getTextDocument().getRename() != null &&
-                Boolean.TRUE.equals(params.getCapabilities().getTextDocument().getRename().getPrepareSupport())) {
-            RenameOptions renameOptions = new RenameOptions();
-            renameOptions.setPrepareProvider(true);
-            res.getCapabilities().setRenameProvider(renameOptions);
-        } else {
-            res.getCapabilities().setRenameProvider(true);
-        }
+        boolean prepareSupport = LSClientUtil.clientSupportsPrepareRename(params.getCapabilities());
+        res.getCapabilities().setRenameProvider(new RenameOptions(prepareSupport));
 
         // We are not registering commands here because they need to be registered/unregistered dynamically.
         // Only if the client doesn't support dynamic command registration, we do registration here
@@ -326,7 +319,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         LSClientCapabilities capabilities = this.serverContext.get(LSClientCapabilities.class);
         if (LSClientUtil.isDynamicSemanticTokensRegistrationSupported(capabilities.getTextDocCapabilities())) {
             registerSemanticTokensConfigListener();
-            if (capabilities.getWorkspaceCapabilities().getDidChangeConfiguration() == null &&
+            if (capabilities.getWorkspaceCapabilities() != null
+                    && capabilities.getWorkspaceCapabilities().getDidChangeConfiguration() == null &&
                     capabilities.getInitializationOptions().isEnableSemanticTokens()) {
                 SemanticTokensUtils.registerSemanticTokensCapability(serverContext.get(ExtendedLanguageClient.class));
             }

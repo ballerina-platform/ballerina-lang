@@ -25,7 +25,6 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.FUTURE_LANG_LI
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.TYPEDESC_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.VALUE_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 
@@ -82,12 +81,8 @@ public class BallerinaErrorReasons {
     public static final BString STACK_OVERFLOW_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat("StackOverflow"));
 
-    public static final BString CONSTRUCT_FROM_CONVERSION_ERROR = getModulePrefixedReason(TYPEDESC_LANG_LIB,
-                                                                                          "ConversionError");
     public static final BString VALUE_LANG_LIB_CONVERSION_ERROR = getModulePrefixedReason(VALUE_LANG_LIB,
                                                                                           "ConversionError");
-    public static final BString CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR =
-            getModulePrefixedReason(TYPEDESC_LANG_LIB, "CyclicValueReferenceError");
     public static final BString VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR =
             getModulePrefixedReason(VALUE_LANG_LIB, "CyclicValueReferenceError");
     public static final BString MERGE_JSON_ERROR = getModulePrefixedReason(VALUE_LANG_LIB, "MergeJsonError");

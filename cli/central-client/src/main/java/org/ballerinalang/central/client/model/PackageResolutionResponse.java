@@ -43,24 +43,24 @@ public class PackageResolutionResponse {
      *
      */
     public static class Package {
-        private String orgName;
+        private String org;
         private String name;
         private String version;
-        private List<Package> dependencies;
+        private List<Dependency> dependencyGraph;
 
-        public Package(String orgName, String name, String version, List<Package> dependencies) {
-            this.orgName = orgName;
+        public Package(String orgName, String name, String version, List<Dependency> dependencies) {
+            this.org = orgName;
             this.name = name;
             this.version = version;
-            this.dependencies = dependencies;
+            this.dependencyGraph = dependencies;
         }
 
-        public String orgName() {
-            return orgName;
+        public String org() {
+            return org;
         }
 
-        public void setOrgName(String orgName) {
-            this.orgName = orgName;
+        public void setOrg(String org) {
+            this.org = org;
         }
 
         public String name() {
@@ -79,11 +79,60 @@ public class PackageResolutionResponse {
             this.version = version;
         }
 
-        public List<Package> dependencies() {
+        public List<Dependency> dependencyGraph() {
+            return dependencyGraph;
+        }
+
+        public void setDependencies(List<Dependency> dependencies) {
+            this.dependencyGraph = dependencies;
+        }
+    }
+
+    /**
+     * Package resolution response Dependency model.
+     */
+    public static class Dependency {
+        private String org;
+        private String name;
+        private String version;
+        private List<Dependency> dependencies;
+
+        public <T> Dependency(String org, String name, String version, List<Dependency> dependencies) {
+            this.org = org;
+            this.name = name;
+            this.version = version;
+            this.dependencies = dependencies;
+        }
+
+        public String org() {
+            return org;
+        }
+
+        public String name() {
+            return name;
+        }
+
+        public String version() {
+            return version;
+        }
+
+        public List<Dependency> dependencies() {
             return dependencies;
         }
 
-        public void setDependencies(List<Package> dependencies) {
+        public void setOrg(String org) {
+            this.org = org;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setVersion(String version) {
+            this.version = version;
+        }
+
+        public void setDependencies(List<Dependency> dependencies) {
             this.dependencies = dependencies;
         }
     }
