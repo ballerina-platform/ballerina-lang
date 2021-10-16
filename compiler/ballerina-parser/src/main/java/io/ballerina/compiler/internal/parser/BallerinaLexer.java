@@ -751,11 +751,6 @@ public class BallerinaLexer extends AbstractLexer {
             return false;
         }
 
-        while (isDigit(lookaheadChar)) {
-            lookahead++;
-            lookaheadChar = reader.peek(lookahead);
-        }
-
         switch (lookaheadChar) {
             case 'e':
             case 'E':
@@ -763,7 +758,7 @@ public class BallerinaLexer extends AbstractLexer {
 
                 lookaheadChar = reader.peek(lookahead);
                 if (lookaheadChar == LexerTerminals.PLUS || lookaheadChar == LexerTerminals.MINUS) {
-                    lookahead++;
+                    return false;
                 }
 
                 lookaheadChar = reader.peek(lookahead);
@@ -817,7 +812,7 @@ public class BallerinaLexer extends AbstractLexer {
 
                 lookaheadChar = reader.peek(lookahead);
                 if (lookaheadChar == LexerTerminals.PLUS || lookaheadChar == LexerTerminals.MINUS) {
-                    lookahead++;
+                    return false;
                 }
 
                 lookaheadChar = reader.peek(lookahead);

@@ -33,7 +33,7 @@ public class BDecimalValueNegativeTest {
     @Test
     public void testDecimalValue() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/decimal/decimal_value_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 12);
+        Assert.assertEquals(compileResult.getErrorCount(), 13);
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 21, 1);
         BAssertUtil.validateError(compileResult, index++, "missing binary operator", 23, 21);
@@ -42,6 +42,7 @@ public class BDecimalValueNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "Hexadecimal '-0x' too small", 29, 17);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'decimal', found 'int'", 29,
                 17);
+        BAssertUtil.validateError(compileResult, index++, "missing hex number after hex indicator", 29, 18);
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 29, 20);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'X1231'", 29, 20);
         BAssertUtil.validateError(compileResult, index++, "missing pipe token", 29, 25);
