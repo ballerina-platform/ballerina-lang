@@ -1,0 +1,6 @@
+[
+  {
+    "name": "Input reserved function name.",
+    "input": "function __run(string value) { };"
+  }
+]

@@ -105,8 +105,12 @@ public class LangLibTableTest {
 
     @Test
     public void testHasKey() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testHasKey");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        BRunUtil.invoke(compileResult, "testHasKey");
+    }
+
+    @Test
+    public void testHashCollisionHandlingScenarios() {
+        BRunUtil.invoke(compileResult, "testHashCollisionHandlingScenarios");
     }
 
     @Test
@@ -162,7 +166,7 @@ public class LangLibTableTest {
 
     @Test
     public void testCompilerNegativeCases() {
-        assertEquals(negativeResult.getErrorCount(), 21);
+        assertEquals(negativeResult.getErrorCount(), 22);
         int index = 0;
         validateError(negativeResult, index++, "incompatible types: expected 'table<Employee> " +
                 "key(name)', found 'table<Person> key<string>'", 68, 36);
@@ -195,6 +199,8 @@ public class LangLibTableTest {
                 "found 'record {| string name; int age; |}'", 166, 21);
         validateError(negativeResult, index++, "cannot update 'table<Person> key(name)' with member " +
                         "access expression", 177, 5);
+        validateError(negativeResult, index++, "invalid constraint type. expected subtype of 'map<any|error>' " +
+                "but found 'int'", 181, 11);
         validateError(negativeResult, index++, "a type compatible with mapping constructor expressions not found in " +
                 "type 'int'", 181, 38);
         validateError(negativeResult, index++, "missing ellipsis token", 181, 38);

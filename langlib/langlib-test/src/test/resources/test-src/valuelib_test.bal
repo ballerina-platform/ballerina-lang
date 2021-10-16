@@ -1699,15 +1699,24 @@ type RecordWithXmlField record {|
     xml:Text t;
 |};
 
+type RecordWithOptionalAndRestFields record {|
+    int a;
+    map<B> b;
+    string c?;
+    float ...;
+|};
+
+type B [float, string, B...];
+
 function testTableToJsonConversion() {
     table<RecordWithSimpleTypeFields> tb1 = table [
         {a: 5, b: 1, c: 2.5, d: 3.1, e: "abc", f: true},
-        {a: 7, b: 2, c: 4.5, d: 5.2, e: "def", f: false}
+        {a: 7, b: 2, c: 4.5, d: 5.2, e: "def", f: false, "g": 13.5}
     ];
 
     json j1 = tb1.toJson();
     assert(j1.toJsonString(), "[{\"a\":5, \"b\":1, \"c\":2.5, \"d\":3.1, \"e\":\"abc\", \"f\":true}, " +
-                                         "{\"a\":7, \"b\":2, \"c\":4.5, \"d\":5.2, \"e\":\"def\", \"f\":false}]");
+                                 "{\"a\":7, \"b\":2, \"c\":4.5, \"d\":5.2, \"e\":\"def\", \"f\":false, \"g\":13.5}]");
 
     table<RecordWithArrayValueFields> tb2 = table [
         {a: [1.2, 2.4], t: ["abc", 5]},
@@ -1741,6 +1750,15 @@ function testTableToJsonConversion() {
     json j5 = tb5.toJson();
     assert(j5.toJsonString(), "[{\"x\":\"<bar>Text</bar>\", \"e\":\"<foo/>\", \"c\":\"<!--Comment-->\", " +
                                           "\"p\":\"<?PI ?>\", \"t\":\"Text\"}]");
+
+    table<RecordWithOptionalAndRestFields> tb6 = table [
+        {a: 1, b: {x: [12.4, "abc"], y: [23.8, "def", [36.9, "ghi"]]}, c: "xyz"},
+        {a: 5, b: {x: [45.6, "asd"]}, "d": 10, "e": 12.5}
+    ];
+
+    json j6 = tb6.toJson();
+    assert(j6.toJsonString(), "[{\"a\":1, \"b\":{\"x\":[12.4, \"abc\"], \"y\":[23.8, \"def\", [36.9, \"ghi\"]]}, " +
+                                "\"c\":\"xyz\"}, {\"a\":5, \"b\":{\"x\":[45.6, \"asd\"]}, \"d\":10.0, \"e\":12.5}]");
 }
 
 type RecordWithHandleField record {|
@@ -1759,7 +1777,7 @@ function testToJsonConversionError() {
    error err = <error> j;
    assert(err.message(), "{ballerina/lang.value}ConversionError");
    assert(<string> checkpanic err.detail()["message"], "'table<RecordWithHandleField>' value cannot be converted to " +
-                                      "'json': cannot construct the json object from 'handle' type data");
+                                      "'json': cannot construct json object from 'handle' type data");
 }
 
 ///////////////////////// Tests for `ensureType()` ///////////////////////////

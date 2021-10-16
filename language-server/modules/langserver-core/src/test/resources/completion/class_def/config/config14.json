@@ -6,30 +6,12 @@
   "source": "class_def/source/source14.bal",
   "items": [
     {
-      "label": "import",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "B",
-      "filterText": "import",
-      "insertText": "import ",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "type",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "B",
       "filterText": "type",
       "insertText": "type ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "public",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "B",
-      "filterText": "public",
-      "insertText": "public ",
       "insertTextFormat": "Snippet"
     },
     {

@@ -99,12 +99,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath);
         // 2) Load the package
         Package currentPackage = project.currentPackage();
         // 3) Load the default module
@@ -143,12 +138,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject_invalidDependencyPath");
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath);
         // 2) Load the package
         Package currentPackage = project.currentPackage();
         // 3) Load the default module
@@ -237,12 +227,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("test_proj_pkg_compilation");
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath);
         // 2) Load the package
         Package currentPackage = project.currentPackage();
 
@@ -260,12 +245,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("test_proj_pkg_compilation");
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath);
         // 2) Load the package
         Package currentPackage = project.currentPackage();
 
@@ -309,12 +289,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("test_proj_pkg_compilation_simple");
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath);
         // 2) Load the package
         Package currentPackage = project.currentPackage();
 
@@ -342,12 +317,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_with_tests");
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath);
         // 2) Load the package
         Package currentPackage = project.currentPackage();
 
@@ -364,12 +334,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath);
         // 2) Load the package
         Package currentPackage = project.currentPackage();
 
@@ -475,13 +440,9 @@ public class TestBuildProject extends BaseTest {
     public void testOverrideBuildOptionsOnTomlEdit() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("projectWithBuildOptions");
         // Initialize the project instance
-        BuildProject project = null;
         BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
-        try {
-            project = TestUtils.loadBuildProject(projectPath, buildOptions);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath, buildOptions);
+
         // Test when build option provided only during project load
         BallerinaToml newBallerinaToml = project.currentPackage().ballerinaToml().get().modify().apply();
         Package newPackage = newBallerinaToml.packageInstance();
@@ -827,12 +788,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath);
         // 2) Load the package
         Package currentPackage = project.currentPackage();
         // 3) Load the default module
@@ -872,12 +828,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath);
         // 2) Check if files exists
         Package currentPackage = project.currentPackage();
         Assert.assertTrue(currentPackage.ballerinaToml().isPresent());
@@ -914,12 +865,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_with_tests");
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath);
         Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Assert.assertTrue(project.currentPackage().module(moduleId).moduleName().toString().contains("myproject"));
@@ -971,12 +917,7 @@ public class TestBuildProject extends BaseTest {
     @Test(description = "test editing Ballerina.toml")
     public void testModifyDependenciesToml() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_edit_api_tests/package_test_dependencies_toml");
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath, new BuildOptionsBuilder().sticky(true).build());
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath, new BuildOptionsBuilder().sticky(true).build());
 
         PackageCompilation compilation = project.currentPackage().getCompilation();
         ResolvedPackageDependency packageDep =
@@ -1050,12 +991,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath);
         // 2) Check editing files
         DependenciesToml newDependenciesToml = project.currentPackage().dependenciesToml()
                 .get().modify().withContent("" +
@@ -1125,12 +1061,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_without_k8s");
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath);
         // 2) Check editing files
         Package currentPackage = project.currentPackage();
 
@@ -1191,12 +1122,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject_minimalist");
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath);
         // 2) Check editing files
         Package currentPackage = project.currentPackage();
 
@@ -1263,12 +1189,7 @@ public class TestBuildProject extends BaseTest {
                 "}\n";
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath);
         // 2) Load current package
         Package currentPackage = project.currentPackage();
 
@@ -1295,12 +1216,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_edit_api_tests/package_with_dependencies");
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath);
         // 2) Load current package
         Package currentPackage = project.currentPackage();
 
@@ -1331,12 +1247,7 @@ public class TestBuildProject extends BaseTest {
                 "}\n";
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath);
         // 2) Load current package
         Package currentPackage = project.currentPackage();
 
@@ -1368,12 +1279,7 @@ public class TestBuildProject extends BaseTest {
                 "}\n";
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath);
         // 2) Load current package
         Package currentPackage = project.currentPackage();
 
@@ -1406,12 +1312,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("projectForDocumentIdTest");
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath);
         // 2) Load current package
         Package currentPackage = project.currentPackage();
 
@@ -1433,13 +1334,9 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            BuildOptions options = new BuildOptionsBuilder().experimental(true).build();
-            project = TestUtils.loadBuildProject(projectPath, options);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildOptions options = new BuildOptionsBuilder().experimental(true).build();
+        BuildProject project = loadBuildProject(projectPath, options);
+
         Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Assert.assertTrue(project.currentPackage().module(moduleId).moduleName().toString().contains("myproject"));
@@ -1483,13 +1380,9 @@ public class TestBuildProject extends BaseTest {
         BuildOptions buildOptions = buildOptionsBuilder.build();
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath, buildOptions);
-            project.save();
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath, buildOptions);
+        project.save();
+
         Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
         Path buildFile = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
         Assert.assertTrue(buildFile.toFile().exists());
@@ -1499,13 +1392,9 @@ public class TestBuildProject extends BaseTest {
         Assert.assertFalse(initialBuildJson.isExpiredLastUpdateTime());
 
         // 2) Build project again with build file
-        BuildProject projectSecondBuild = null;
-        try {
-            projectSecondBuild = TestUtils.loadBuildProject(projectPath, buildOptions);
-            projectSecondBuild.save();
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject projectSecondBuild = loadBuildProject(projectPath, buildOptions);
+        projectSecondBuild.save();
+
         Assert.assertTrue(buildFile.toFile().exists());
         BuildJson secondBuildJson = readBuildJson(buildFile);
         Assert.assertTrue(secondBuildJson.lastBuildTime() > initialBuildJson.lastBuildTime());
@@ -1516,19 +1405,65 @@ public class TestBuildProject extends BaseTest {
         // 3) Change `last_update-time` in `build` file to a timestamp older than one day and build the project again
         secondBuildJson.setLastUpdateTime(secondBuildJson.lastUpdateTime() - (24 * 60 * 60 * 1000 + 1));
         ProjectUtils.writeBuildFile(buildFile, secondBuildJson);
-        BuildProject projectThirdBuild = null;
-        try {
-            projectThirdBuild = TestUtils.loadBuildProject(projectPath, buildOptions);
-            Assert.assertTrue(projectThirdBuild.currentPackage().getResolution().autoUpdate());
-            projectThirdBuild.save();
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject projectThirdBuild = loadBuildProject(projectPath, buildOptions);
+        Assert.assertTrue(projectThirdBuild.currentPackage().getResolution().autoUpdate());
+        projectThirdBuild.save();
+
         Assert.assertTrue(buildFile.toFile().exists());
         BuildJson thirdBuildJson = readBuildJson(buildFile);
         Assert.assertTrue(thirdBuildJson.lastBuildTime() > initialBuildJson.lastBuildTime());
         Assert.assertTrue(thirdBuildJson.lastUpdateTime() > initialBuildJson.lastUpdateTime());
         Assert.assertFalse(thirdBuildJson.isExpiredLastUpdateTime());
+    }
+
+    @Test(description = "test auto updating dependencies with build file after removing Dependencies.toml")
+    public void testAutoUpdateWithBuildFileWithoutDepsToml() throws IOException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        // Delete build file and Dependencies.toml file if already exists
+        Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+
+        // Set sticky false, to imitate the default build command behavior
+        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        buildOptionsBuilder.sticky(false);
+        BuildOptions buildOptions = buildOptionsBuilder.build();
+
+        // 1) Initialize the project instance
+        BuildProject project = loadBuildProject(projectPath);
+        project.save();
+
+        Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
+        Path buildFile = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        Assert.assertTrue(buildFile.toFile().exists());
+        BuildJson initialBuildJson = readBuildJson(buildFile);
+        Assert.assertTrue(initialBuildJson.lastBuildTime() > 0, "invalid last_build_time in the build file");
+        Assert.assertTrue(initialBuildJson.lastUpdateTime() > 0, "invalid last_update_time in the build file");
+        Assert.assertFalse(initialBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
+        Assert.assertEquals(
+                readFileAsString(projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml")),
+                readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)));
+
+
+        // 2) Build project again with build file after removing Dependencies.toml
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+        Assert.assertTrue(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists());
+        BuildProject projectSecondBuild = loadBuildProject(projectPath, buildOptions);
+        projectSecondBuild.save();
+
+        Assert.assertTrue(buildFile.toFile().exists());
+        BuildJson secondBuildJson = readBuildJson(buildFile);
+        Assert.assertTrue(secondBuildJson.lastBuildTime() > initialBuildJson.lastBuildTime(),
+                          "last_build_time has not updated for the second build");
+        assertEquals(initialBuildJson.lastUpdateTime(), secondBuildJson.lastUpdateTime(),
+                     "last_update_time has updated for the second build");
+        Assert.assertFalse(secondBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
+        Assert.assertFalse(projectSecondBuild.currentPackage().getResolution().autoUpdate());
+        Assert.assertEquals(
+                readFileAsString(projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml")),
+                readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)));
+
+        // Remove generated files
+        Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
     }
 
     @Test(description = "test build package without dependencies")
@@ -1539,13 +1474,9 @@ public class TestBuildProject extends BaseTest {
         Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
 
         // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = TestUtils.loadBuildProject(projectPath);
-            project.save();
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        BuildProject project = loadBuildProject(projectPath);
+        project.save();
+
         Assert.assertEquals(project.currentPackage().packageName().toString(), "project_wo_deps");
         // Dependencies.toml should not be created when there is no package dependencies
         // build file should be deleted, since if not we are not trying to update Dependencies.toml
@@ -1557,12 +1488,9 @@ public class TestBuildProject extends BaseTest {
         // 2) load and save project again
         Files.deleteIfExists(buildFilePath);
         Assert.assertFalse(buildFilePath.toFile().exists());
-        try {
-            project = TestUtils.loadBuildProject(projectPath);
-            project.save();
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+        project = loadBuildProject(projectPath);
+        project.save();
+
         // Existing Dependencies.toml should not be deleted when there is no package dependencies
         Assert.assertTrue(dependenciesTomlPath.toFile().exists());
         // It should consist of the dependency toml version
@@ -1603,6 +1531,24 @@ public class TestBuildProject extends BaseTest {
         // Clean Dependencies.toml and build file if already exists
         Files.deleteIfExists(projectDirPath.resolve(DEPENDENCIES_TOML));
         Files.deleteIfExists(projectDirPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+    }
+
+    private static BuildProject loadBuildProject(Path projectPath) {
+        return loadBuildProject(projectPath, null);
+    }
+
+    private static BuildProject loadBuildProject(Path projectPath, BuildOptions buildOptions) {
+        BuildProject buildProject = null;
+        try {
+            if (buildOptions == null) {
+                buildProject = TestUtils.loadBuildProject(projectPath);
+            } else {
+                buildProject = TestUtils.loadBuildProject(projectPath, buildOptions);
+            }
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        return buildProject;
     }
 
     @AfterClass (alwaysRun = true)

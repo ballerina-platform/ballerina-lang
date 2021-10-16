@@ -1303,6 +1303,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangLambdaFunction lambda) {
         lambda.function.accept(this);
+        lambda.function = desugar.rewrite(lambda.function, env);
         env.enclPkg.lambdaFunctions.add(lambda);
     }
 
@@ -1371,6 +1372,11 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         fieldAccessExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
+        nsPrefixedFieldBasedAccess.expr.accept(this);
     }
 
     @Override

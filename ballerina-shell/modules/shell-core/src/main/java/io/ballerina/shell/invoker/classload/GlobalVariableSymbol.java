@@ -22,7 +22,7 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.shell.utils.QuotedIdentifier;
+import io.ballerina.shell.utils.Identifier;
 
 /**
  * Wraps symbol of a global variable.
@@ -30,11 +30,11 @@ import io.ballerina.shell.utils.QuotedIdentifier;
  * @since 2.0.0
  */
 public class GlobalVariableSymbol {
-    private final QuotedIdentifier name;
+    private final Identifier name;
     private final TypeSymbol typeSymbol;
 
     private GlobalVariableSymbol(String name, TypeSymbol typeSymbol) {
-        this.name = new QuotedIdentifier(name);
+        this.name = new Identifier(name);
         this.typeSymbol = typeSymbol;
     }
 
@@ -50,7 +50,7 @@ public class GlobalVariableSymbol {
         throw new UnsupportedOperationException("Symbol type not supported for creating global variable.");
     }
 
-    public QuotedIdentifier getName() {
+    public Identifier getName() {
         return name;
     }
 

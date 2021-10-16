@@ -15,7 +15,7 @@
           "value": "Maximum value of type `int`."
         }
       },
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "MAX_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -29,7 +29,7 @@
           "value": "Minimum value of type `int`."
         }
       },
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "MIN_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -43,7 +43,7 @@
           "value": "Maximum value of type `Signed32`."
         }
       },
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "SIGNED32_MAX_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -57,7 +57,7 @@
           "value": "Minimum value of type `Signed32`."
         }
       },
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "SIGNED32_MIN_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -71,7 +71,7 @@
           "value": "Maximum value of type `Signed16`."
         }
       },
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "SIGNED16_MAX_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -85,7 +85,7 @@
           "value": "Minimum value of type `Signed16`."
         }
       },
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "SIGNED16_MIN_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -99,7 +99,7 @@
           "value": "Maximum value of type `Signed8`."
         }
       },
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "SIGNED8_MAX_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -113,7 +113,7 @@
           "value": "Minimum value of type `Signed8`."
         }
       },
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "SIGNED8_MIN_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -127,7 +127,7 @@
           "value": "Maximum value of type `Unsigned32`."
         }
       },
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "UNSIGNED32_MAX_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -141,7 +141,7 @@
           "value": "Maximum value of type `Unsigned16`."
         }
       },
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "UNSIGNED16_MAX_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -155,7 +155,7 @@
           "value": "Maximum value of type `Unsigned8`."
         }
       },
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "UNSIGNED8_MAX_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -217,7 +217,7 @@
           "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the absolute value of an int value.\n  \n**Params**  \n- `int` n: int value to be operated on  \n  \n**Return** `int`   \n- absolute value of parameter `n`  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "A",
       "filterText": "abs",
       "insertText": "abs(${1})",
       "insertTextFormat": "Snippet",
@@ -236,7 +236,7 @@
           "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns sum of zero or more int values.\n  \n**Params**  \n- `int[]` ns: int values to sum  \n  \n**Return** `int`   \n- sum of all of parameter `ns`; 0 if parameter `ns` is empty  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "A",
       "filterText": "sum",
       "insertText": "sum(${1})",
       "insertTextFormat": "Snippet",
@@ -255,7 +255,7 @@
           "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the maximum of one or more int values.\n  \n**Params**  \n- `int` n: first int value  \n- `int[]` ns: other int values  \n  \n**Return** `int`   \n- maximum value of value of parameter `x` and all of parameter `xs`  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "A",
       "filterText": "max",
       "insertText": "max(${1})",
       "insertTextFormat": "Snippet",
@@ -274,7 +274,7 @@
           "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the minimum of one or more int values.\n  \n**Params**  \n- `int` n: first int value  \n- `int[]` ns: other int values  \n  \n**Return** `int`   \n- minimum value of parameter `n` and all of parameter `ns`  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "A",
       "filterText": "min",
       "insertText": "min(${1})",
       "insertTextFormat": "Snippet",
@@ -293,7 +293,7 @@
           "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the integer of a string that represents in decimal.\n\nReturns error if parameter `s` is not the decimal representation of an integer.\nThe first character may be `+` or `-`.\nThis is the inverse of function `value:toString` applied to an `int`.\n  \n**Params**  \n- `string` s: string representation of a integer value  \n  \n**Return** `int|error`   \n- int representation of the argument or error  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "A",
       "filterText": "fromString",
       "insertText": "fromString(${1})",
       "insertTextFormat": "Snippet",
@@ -312,7 +312,7 @@
           "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns representation of an integer as hexdecimal string.\n\nThere is no `0x` prefix. Lowercase letters a-f are used.\nNegative numbers will have a `-` prefix. No sign for\nnon-negative numbers.\n  \n**Params**  \n- `int` n: int value  \n  \n**Return** `string`   \n- hexadecimal string representation of int value  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "A",
       "filterText": "toHexString",
       "insertText": "toHexString(${1})",
       "insertTextFormat": "Snippet",
@@ -331,7 +331,7 @@
           "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the integer that a string value represents in hexadecimal.\n\nBoth uppercase A-F and lowercase a-f are allowed.\nIt may start with an optional `+` or `-` sign.\nNo `0x` or `0X` prefix is allowed.\nReturns an error if the parameter `s` is not in an allowed format.\n  \n**Params**  \n- `string` s: hexadecimal string representation of int value  \n  \n**Return** `int|error`   \n- int value or error  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "A",
       "filterText": "fromHexString",
       "insertText": "fromHexString(${1})",
       "insertTextFormat": "Snippet",

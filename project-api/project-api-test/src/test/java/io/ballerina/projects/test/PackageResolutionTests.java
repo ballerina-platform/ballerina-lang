@@ -123,7 +123,7 @@ public class PackageResolutionTests extends BaseTest {
     }
 
     @Test(description = "tests resolution with invalid build file")
-    public void testProjectwithInvalidBuildFile() throws IOException {
+    public void testProjectWithInvalidBuildFile() throws IOException {
         // Package path
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
 
@@ -158,7 +158,7 @@ public class PackageResolutionTests extends BaseTest {
         }
     }
 
-    @Test(dependsOnMethods = "testProjectwithInvalidBuildFile", description = "tests project with empty build file")
+    @Test(dependsOnMethods = "testProjectWithInvalidBuildFile", description = "tests project with empty build file")
     public void testProjectSaveWithEmptyBuildFile() throws IOException {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);

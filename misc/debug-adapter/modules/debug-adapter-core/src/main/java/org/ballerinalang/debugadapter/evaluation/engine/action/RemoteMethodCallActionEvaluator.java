@@ -27,7 +27,6 @@ import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.ClassDefinitionResolver;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.MethodCallExpressionEvaluator;
@@ -40,6 +39,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.CLASS_NOT_FOUND;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.REMOTE_METHOD_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
 
 /**
@@ -73,8 +76,8 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
 
             // If the expression result is an object, try invoking as an object method invocation.
             if (result.getType() != BVariableType.OBJECT) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                        "invalid remote method call: expected a client object, but found 'other'"));
+                throw createEvaluationException("invalid remote method call: expected a client object, but found " +
+                        "'other'");
             }
 
             Value invocationResult = invokeRemoteMethod(resultVar);
@@ -82,8 +85,7 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
-                    syntaxNode.toSourceCode().trim()));
+            throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
         }
     }
 
@@ -93,17 +95,15 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
         String className = resultVar.getDapVariable().getValue();
         Optional<ClassSymbol> classDef = classDefResolver.findBalClassDefWithinModule(className);
         if (classDef.isEmpty()) {
-            // Resolves the JNI signature to see if the the object/class is defined with a dependency module.
+            // Resolves the JNI signature to see if the object/class is defined with a dependency module.
             String signature = resultVar.getJvmValue().type().signature();
             if (!signature.startsWith(QUALIFIED_TYPE_SIGNATURE_PREFIX)) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_NOT_FOUND.getString(),
-                        className));
+                throw createEvaluationException(CLASS_NOT_FOUND, className);
             }
 
             String[] signatureParts = signature.substring(1).split(JNI_SIGNATURE_SEPARATOR);
             if (signatureParts.length < 2) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_NOT_FOUND.getString(),
-                        className));
+                throw createEvaluationException(CLASS_NOT_FOUND, className);
             }
             String orgName = signatureParts[0];
             String packageName = signatureParts[1];
@@ -111,14 +111,13 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
         }
 
         if (classDef.isEmpty()) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_NOT_FOUND.getString(),
-                    className));
+            throw createEvaluationException(CLASS_NOT_FOUND, className);
         }
 
         Optional<MethodSymbol> objectMethodDef = findObjectMethodInClass(classDef.get(), methodName);
         if (objectMethodDef.isEmpty()) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.REMOTE_METHOD_NOT_FOUND.getString(),
-                    syntaxNode.methodName().toString().trim(), className));
+            throw createEvaluationException(REMOTE_METHOD_NOT_FOUND, syntaxNode.methodName().toString().trim(),
+                    className);
         }
 
         GeneratedInstanceMethod objectMethod = getRemoteMethodByName(resultVar, objectMethodDef.get());
@@ -145,11 +144,11 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
                     return new GeneratedInstanceMethod(context, objectVar.getJvmValue(), methods.get(0));
                 }
             }
-            throw new EvaluationException(String.format(EvaluationExceptionKind.REMOTE_METHOD_NOT_FOUND.getString(),
-                    syntaxNode.methodName().toString().trim(), objectVar.computeValue()));
+            throw createEvaluationException(REMOTE_METHOD_NOT_FOUND, syntaxNode.methodName().toString().trim(),
+                    objectVar.computeValue());
         } catch (ClassNotLoadedException e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.REMOTE_METHOD_NOT_FOUND.getString(),
-                    syntaxNode.methodName().toString().trim(), objectVar.computeValue()));
+            throw createEvaluationException(REMOTE_METHOD_NOT_FOUND, syntaxNode.methodName().toString().trim(),
+                    objectVar.computeValue());
         }
     }
 }

@@ -131,7 +131,7 @@ public enum SyntaxKind {
     FAIL_KEYWORD(320, "fail"),
 
     // Separators
-    OPEN_BRACE_TOKEN(500, "{"),
+    OPEN_BRACE_TOKEN(500, "{"), // Any kind above this is considered as a keyword
     CLOSE_BRACE_TOKEN(501, "}"),
     OPEN_PAREN_TOKEN(502, "("),
     CLOSE_PAREN_TOKEN(503, ")"),
@@ -195,6 +195,8 @@ public enum SyntaxKind {
     SLASH_ASTERISK_TOKEN(588, "/*"),
     DOUBLE_GT_TOKEN(589, ">>"),
     TRIPPLE_GT_TOKEN(590, ">>>"),
+    XML_CDATA_START_TOKEN(591, "<![CDATA["),
+    XML_CDATA_END_TOKEN(592, "]]>"),
 
     // Documentation reference types
     TYPE_DOC_REFERENCE_TOKEN(900, "type"),
@@ -479,6 +481,7 @@ public enum SyntaxKind {
     XML_ATTRIBUTE(4009),
     XML_ATTRIBUTE_VALUE(4010),
     INTERPOLATION(4011),
+    XML_CDATA(4012),
 
     // Documentation
     MARKDOWN_DOCUMENTATION(4500),

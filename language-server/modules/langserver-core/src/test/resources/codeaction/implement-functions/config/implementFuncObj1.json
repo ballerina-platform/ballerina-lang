@@ -16,7 +16,7 @@
                             "character": 0
                         }
                     },
-                    "newText": "\n    public function pushText2(string text) returns error? {\n        return error (\"\");\n    }\n"
+                    "newText": "\n    public function pushText2(string text) returns error? {\n        return;\n    }\n"
                 }
             ]
         }

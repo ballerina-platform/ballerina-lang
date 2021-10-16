@@ -30,12 +30,12 @@ import java.util.stream.Collectors;
  */
 public class QuotedImport {
     private final String orgName;
-    private final List<QuotedIdentifier> moduleNames;
+    private final List<Identifier> moduleNames;
 
     public QuotedImport(String orgName, List<String> moduleNames) {
         this.orgName = orgName;
         this.moduleNames = moduleNames.stream()
-                .map(QuotedIdentifier::new)
+                .map(Identifier::new)
                 .collect(Collectors.toList());
     }
 
@@ -43,7 +43,7 @@ public class QuotedImport {
         this(null, moduleNames);
     }
 
-    public QuotedIdentifier getDefaultPrefix() {
+    public Identifier getDefaultPrefix() {
         return moduleNames.get(moduleNames.size() - 1);
     }
 

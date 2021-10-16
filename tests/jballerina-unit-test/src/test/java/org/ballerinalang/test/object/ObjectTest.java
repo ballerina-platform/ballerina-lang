@@ -27,6 +27,8 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -43,8 +45,17 @@ public class ObjectTest {
     private static final String INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT =
             "cannot use 'check' in an object field initializer of an object with no 'init' method";
 
-    private final CompileResult checkInInitializerResult = BCompileUtil.compile(
-            "test-src/object/object_field_initializer_with_check.bal");
+    private CompileResult checkInInitializerResult;
+
+    @BeforeClass
+    public void setUp() {
+        checkInInitializerResult =  BCompileUtil.compile("test-src/object/object_field_initializer_with_check.bal");
+    }
+    
+    @AfterClass
+    public void tearDown() {
+        checkInInitializerResult = null;
+    }
 
     @Test(description = "Test Basic object as struct")
     public void testBasicStructAsObject() {
@@ -739,7 +750,7 @@ public class ObjectTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "cannot infer type of the object from '(InitObjOne|InitObjTwo|float)'", 114, 38);
         BAssertUtil.validateError(resultNegative, i++,
-                "named arg followed by positional arg", 114, 53);
+                "positional argument not allowed after named arguments", 114, 53);
         BAssertUtil.validateError(resultNegative, i++,
                 "cannot infer type of the object from '(InitObjOne|InitObjTwo|int)'", 119, 36);
         BAssertUtil.validateError(resultNegative, i++,
@@ -750,10 +761,14 @@ public class ObjectTest {
                 "incompatible types: expected 'int', found 'string'", 126, 51);
         BAssertUtil.validateError(resultNegative, i++,
                 "cannot infer type of the object from '(InitObjOne|InitObjThree|boolean|string)'", 127, 50);
-        BAssertUtil.validateError(resultNegative, i++, "named arg followed by positional arg", 128, 59);
-        BAssertUtil.validateError(resultNegative, i++, "named arg followed by positional arg", 129  , 70);
-        BAssertUtil.validateError(resultNegative, i++, "named arg followed by positional arg", 129  , 75);
-        BAssertUtil.validateError(resultNegative, i++, "named arg followed by positional arg", 129  , 80);
+        BAssertUtil.validateError(resultNegative, i++,
+                "positional argument not allowed after named arguments", 128, 59);
+        BAssertUtil.validateError(resultNegative, i++,
+                "positional argument not allowed after named arguments", 129  , 70);
+        BAssertUtil.validateError(resultNegative, i++,
+                "positional argument not allowed after named arguments", 129  , 75);
+        BAssertUtil.validateError(resultNegative, i++,
+                "positional argument not allowed after named arguments", 129  , 80);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

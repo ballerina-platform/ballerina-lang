@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 8,
+    "character": 15
+  },
+  "source": "expression_context/source/xml_attribute_access_expr_ctx_source5.bal",
+  "items": [
+    {
+      "label": "TEST_STRING_CONST1",
+      "kind": "Variable",
+      "detail": "HELLO WORLD",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "BG",
+      "insertText": "TEST_STRING_CONST1",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -25,9 +25,12 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,6 +56,8 @@ public class WhileStatementNodeContext extends AbstractCompletionProvider<WhileS
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getModuleCompletionItems(context));
+        List<Snippet> snippets = Arrays.asList(Snippet.KW_TRUE, Snippet.KW_FALSE);
+        snippets.forEach(snippet -> completionItems.add(new SnippetCompletionItem(context, snippet.get())));
         this.sort(context, node, completionItems);
         
         return completionItems;

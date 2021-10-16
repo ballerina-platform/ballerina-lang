@@ -36,7 +36,6 @@ import io.ballerina.projects.Package;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.ClassDefinitionResolver;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedInstanceMethod;
@@ -50,6 +49,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.CLASS_NOT_FOUND;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.LANG_LIB_METHOD_NOT_FOUND;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.LANG_LIB_NOT_FOUND;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
 import static org.ballerinalang.debugadapter.evaluation.engine.expression.FunctionInvocationExpressionEvaluator.modifyName;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_PACKAGE_PREFIX;
@@ -129,8 +134,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
-                    syntaxNode.toSourceCode().trim()));
+            throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
         }
     }
 
@@ -141,17 +145,15 @@ public class MethodCallExpressionEvaluator extends Evaluator {
             String className = resultVar.getDapVariable().getValue();
             Optional<ClassSymbol> classDef = classDefResolver.findBalClassDefWithinModule(className);
             if (classDef.isEmpty()) {
-                // Resolves the JNI signature to see if the the object/class is defined with a dependency module.
+                // Resolves the JNI signature to see if the object/class is defined with a dependency module.
                 String signature = resultVar.getJvmValue().type().signature();
                 if (!signature.startsWith(QUALIFIED_TYPE_SIGNATURE_PREFIX)) {
-                    throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_NOT_FOUND.getString(),
-                            className));
+                    throw createEvaluationException(CLASS_NOT_FOUND, className);
                 }
 
                 String[] signatureParts = signature.substring(1).split(JNI_SIGNATURE_SEPARATOR);
                 if (signatureParts.length < 2) {
-                    throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_NOT_FOUND.getString(),
-                            className));
+                    throw createEvaluationException(CLASS_NOT_FOUND, className);
                 }
                 String orgName = signatureParts[0];
                 String packageName = signatureParts[1];
@@ -159,14 +161,12 @@ public class MethodCallExpressionEvaluator extends Evaluator {
             }
 
             if (classDef.isEmpty()) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_NOT_FOUND.getString(),
-                        className));
+                throw createEvaluationException(CLASS_NOT_FOUND, className);
             }
 
             Optional<MethodSymbol> objectMethodDef = findObjectMethodInClass(classDef.get(), methodName);
             if (objectMethodDef.isEmpty()) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(),
-                        methodName.trim(), className));
+                throw createEvaluationException(OBJECT_METHOD_NOT_FOUND, methodName.trim(), className);
             }
 
             isFoundObjectMethod = true;
@@ -199,7 +199,6 @@ public class MethodCallExpressionEvaluator extends Evaluator {
     }
 
     private Value invokeLangLibMethod(BExpressionValue resultVar) throws EvaluationException {
-
         FunctionDefinitionNode langLibFunctionDef = null;
         GeneratedStaticMethod langLibMethod = null;
 
@@ -219,14 +218,13 @@ public class MethodCallExpressionEvaluator extends Evaluator {
         if (langLibMethod == null) {
             Optional<Package> valueLibPkg = getLangLibPackage(context, LANG_LIB_VALUE);
             if (valueLibPkg.isEmpty()) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.LANG_LIB_NOT_FOUND.getString(),
-                        LANG_LIB_PACKAGE_PREFIX + langLibName + ", " + LANG_LIB_PACKAGE_PREFIX + LANG_LIB_VALUE));
+                throw createEvaluationException(LANG_LIB_NOT_FOUND, LANG_LIB_PACKAGE_PREFIX + langLibName + ", " +
+                        LANG_LIB_PACKAGE_PREFIX + LANG_LIB_VALUE);
             }
 
             Optional<FunctionDefinitionNode> functionDef = getLangLibFunctionDefinition(valueLibPkg.get(), methodName);
             if (functionDef.isEmpty()) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.LANG_LIB_METHOD_NOT_FOUND.
-                        getString(), methodName, langLibName));
+                throw createEvaluationException(LANG_LIB_METHOD_NOT_FOUND, methodName, langLibName);
             }
 
             String langLibCls = getQualifiedLangLibClassName(valueLibPkg.get(), LANG_LIB_VALUE);
@@ -264,8 +262,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
         ReferenceType objectRef = ((ObjectReference) objectVar.getJvmValue()).referenceType();
         List<Method> methods = objectRef.methodsByName(methodName);
         if (methods == null || methods.size() != 1) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(),
-                    methodName.trim(), objectVar.computeValue()));
+            throw createEvaluationException(OBJECT_METHOD_NOT_FOUND, methodName.trim(), objectVar.computeValue());
         }
         return new GeneratedInstanceMethod(context, objectVar.getJvmValue(), methods.get(0));
     }

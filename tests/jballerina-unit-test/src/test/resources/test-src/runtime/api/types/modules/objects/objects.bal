@@ -46,3 +46,7 @@ public function getFunctionString(object {} obj, string name) returns string = @
 public function getParamTypesString(function func) returns string = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
+
+public function getConstituentTypes(any value) returns string[] = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;

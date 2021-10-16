@@ -31,7 +31,6 @@ import io.ballerina.runtime.api.types.BooleanType;
 import io.ballerina.runtime.api.types.ByteType;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
@@ -41,6 +40,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.DEFAULTABLE_PARAM_SUFFIX;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRAND_VAR_NAME;
 
@@ -66,8 +67,7 @@ public abstract class GeneratedMethod extends JvmMethod {
     protected List<Value> getMethodArgs(JvmMethod method) throws EvaluationException {
         try {
             if (argValues == null && argEvaluators == null && namedArgValues == null) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString()
-                        , methodRef.name()));
+                throw createEvaluationException(FUNCTION_EXECUTION_ERROR, methodRef.name());
             }
 
             List<Type> types = method.methodRef.argumentTypes();
@@ -134,8 +134,7 @@ public abstract class GeneratedMethod extends JvmMethod {
 
             return getAsObjects(argValueList);
         } catch (ClassNotLoadedException | AbsentInformationException e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString(),
-                    methodRef.name()));
+            throw createEvaluationException(FUNCTION_EXECUTION_ERROR, methodRef.name());
         }
     }
 
@@ -158,7 +157,7 @@ public abstract class GeneratedMethod extends JvmMethod {
     }
 
     /**
-     * Converts java primitive types into their wrapper implementations, as some of the the JVM runtime util methods
+     * Converts java primitive types into their wrapper implementations, as some of the JVM runtime util methods
      * accepts only the sub classes of @{@link java.lang.Object}.
      */
     private List<Value> getAsObjects(List<Value> argValueList) {

@@ -490,14 +490,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testVar",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "testVar",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "readonly",
       "kind": "Unit",
       "detail": "type",
@@ -575,6 +567,15 @@
           "newText": "import ballerina/lang.value;\n"
         }
       ]
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "null",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

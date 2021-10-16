@@ -17,8 +17,8 @@
 package org.ballerinalang.debugadapter.evaluation.engine;
 
 import com.sun.jdi.Value;
-import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.BallerinaToml;
@@ -276,7 +276,7 @@ public class QueryExpressionProcessor {
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.ENUM_DECLARATION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CLASS_DEFINITION);
 
-        List<ModuleMemberDeclarationNode> declarationList = moduleDefinitionFinder.getModuleDeclarations();
+        List<NonTerminalNode> declarationList = moduleDefinitionFinder.getModuleDeclarations(context.getModule());
         return declarationList.stream()
                 .map(Node::toSourceCode)
                 .reduce((s, s2) -> s + System.lineSeparator() + s2)

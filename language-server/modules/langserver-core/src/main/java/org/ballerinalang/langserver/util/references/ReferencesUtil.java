@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,17 +94,30 @@ public class ReferencesUtil {
     }
     
     public static String getUriFromLocation(Module module, Location location) {
+        return getPathFromLocation(module, location).toUri().toString();
+    }
+    
+    public static Path getPathFromLocation(Module module, Location location) {
         String filePath = location.lineRange().filePath();
 
         if (module.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            return module.project().sourceRoot().toUri().toString();
-        } else if (module.isDefaultModule()) {
-            return module.project().sourceRoot().resolve(filePath).toUri().toString();
+            return module.project().sourceRoot();
+        }
+
+        if (module.project().kind() == ProjectKind.BALA_PROJECT) {
+            // TODO Check if bala projects can exist within nested modules dir
+            return module.project().sourceRoot().resolve("modules")
+                    .resolve(module.moduleName().toString())
+                    .resolve(filePath);
+        }
+        
+        if (module.isDefaultModule()) {
+            return module.project().sourceRoot().resolve(filePath);
         } else {
             return module.project().sourceRoot()
                     .resolve("modules")
                     .resolve(module.moduleName().moduleNamePart())
-                    .resolve(filePath).toUri().toString();
+                    .resolve(filePath);
         }
     }
 

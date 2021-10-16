@@ -435,7 +435,7 @@ public class VariableVisibilityTest extends BaseTestCase {
 
     @Test(description = "Object related variable visibility test")
     public void objectVariableVisibilityTest() throws BallerinaTestException {
-        String testProjectName = "debug-instruction-tests";
+        String testProjectName = "debug-instruction-tests-1";
         String testModuleFileName = "main.bal";
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
 

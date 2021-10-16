@@ -71,7 +71,9 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -233,7 +235,6 @@ public class BTestRunner {
 
         AtomicBoolean shouldSkip = new AtomicBoolean();
         AtomicBoolean shouldSkipAfterSuite = new AtomicBoolean();
-        AtomicBoolean shouldSkipAfterGroups = new AtomicBoolean();
         String packageName = suite.getPackageName();
         ClassLoader classLoader = testClassLoader;
         // Load module init class
@@ -271,9 +272,9 @@ public class BTestRunner {
                 throw new BallerinaTestException("failed to load Test init class :" + testClassName);
             }
         }
+        // 'shouldSkip' sets to true if beforeSuite, beforeEach or afterEach functions fail
         shouldSkip.set(false);
         shouldSkipAfterSuite.set(false);
-        shouldSkipAfterGroups.set(false);
         tReport.addPackageReport(packageName);
         tReport.setReportRequired(suite.isReportRequired());
         // Initialize the test suite.
@@ -282,7 +283,7 @@ public class BTestRunner {
         // Run Before suite functions
         executeBeforeSuiteFunctions(suite, classLoader, scheduler, shouldSkip, shouldSkipAfterSuite);
         // Run Tests
-        executeTests(suite, packageName, classLoader, scheduler, shouldSkip, shouldSkipAfterGroups);
+        executeTests(suite, packageName, classLoader, scheduler, shouldSkip);
         // Run After suite functions
         executeAfterSuiteFunctions(suite, classLoader, scheduler, shouldSkipAfterSuite);
         // Call module stop and test stop function
@@ -377,9 +378,13 @@ public class BTestRunner {
     }
 
     private void executeTests(TestSuite suite, String packageName, ClassLoader classLoader, Scheduler scheduler,
-                              AtomicBoolean shouldSkip, AtomicBoolean shouldSkipAfterGroups) {
+                              AtomicBoolean shouldSkip) {
         List<String> failedOrSkippedTests = new ArrayList<>();
         List<String> failedAfterFuncTests = new ArrayList<>();
+        Map<String, AtomicBoolean> shouldSkipAfterGroups = new HashMap<>();
+        for (String group : suite.getGroups().keySet()) {
+            shouldSkipAfterGroups.put(group, new AtomicBoolean(false));
+        }
         suite.getTests().forEach(test -> {
             AtomicBoolean shouldSkipTest = new AtomicBoolean(false);
 
@@ -388,7 +393,7 @@ public class BTestRunner {
                     shouldSkipTest, shouldSkipAfterGroups);
 
             // run the before each tests
-            executeBeforeEachFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest);
+            executeBeforeEachFunction(test, suite, classLoader, scheduler, shouldSkip);
             // run the before tests
             executeBeforeFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest);
             // run the test
@@ -398,17 +403,15 @@ public class BTestRunner {
             executeAfterFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest, failedAfterFuncTests);
             // run the after each tests
             executeAfterEachFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest);
-
             // execute the after groups functions
-            executeAfterGroupFunctions(test, suite, classLoader, scheduler, shouldSkip,
-                    shouldSkipTest, shouldSkipAfterGroups);
+            executeAfterGroupFunctions(test, suite, classLoader, scheduler, shouldSkip, shouldSkipAfterGroups);
         });
     }
 
     private void executeBeforeGroupFunctions(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
                                              AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
-                                             AtomicBoolean shouldSkipAfterGroups)  {
-        if (!shouldSkip.get() && !shouldSkipTest.get()) {
+                                             Map<String, AtomicBoolean> shouldSkipAfterGroups) {
+        if (!shouldSkip.get()) {
             for (String groupName : test.getGroups()) {
                 if (!suite.getGroups().get(groupName).getBeforeGroupsFunctions().isEmpty()
                         && !suite.getGroups().get(groupName).isFirstTestExecuted()) {
@@ -417,13 +420,13 @@ public class BTestRunner {
                     for (String beforeGroupFunc : suite.getGroups().get(groupName).getBeforeGroupsFunctions()) {
                         try {
                             Object value = invokeTestFunction(suite, beforeGroupFunc, classLoader, scheduler);
-                            if (value instanceof BError || value instanceof  Exception || value instanceof Error) {
+                            if (value instanceof BError || value instanceof Exception || value instanceof Error) {
                                 throw (Throwable) value;
                             }
                         } catch (Throwable e) {
-                            shouldSkip.set(true);
+                            //shouldSkip.set(true);
                             shouldSkipTest.set(true);
-                            shouldSkipAfterGroups.set(true);
+                            shouldSkipAfterGroups.put(groupName, new AtomicBoolean(true));
                             errorMsg = String.format("\t[fail] " + beforeGroupFunc +
                                             " [before test group function for the test %s] :\n\t    %s", test,
                                     formatErrorMessage(e));
@@ -437,8 +440,8 @@ public class BTestRunner {
     }
 
     private void executeBeforeEachFunction(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
-                                           AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest) {
-        if (!shouldSkip.get() && !shouldSkipTest.get()) {
+                                           AtomicBoolean shouldSkip) {
+        if (!shouldSkip.get()) {
             // run the beforeEach tests
             suite.getBeforeEachFunctionNames().forEach(beforeEachTest -> {
                 String errorMsg;
@@ -664,7 +667,7 @@ public class BTestRunner {
 
     private void executeAfterEachFunction(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
                                           AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest) {
-        if (!shouldSkip.get() && !shouldSkipTest.get()) {
+        if (!shouldSkip.get()) {
             suite.getAfterEachFunctionNames().forEach(afterEachTest -> {
                 try {
                     Object value = invokeTestFunction(suite, afterEachTest, classLoader, scheduler);
@@ -683,32 +686,27 @@ public class BTestRunner {
     }
 
     private void executeAfterGroupFunctions(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
-                                            AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
-                                            AtomicBoolean shouldSkipAfterGroups)  {
-        if (!shouldSkipAfterGroups.get() && !shouldSkip.get() && !shouldSkipTest.get()) {
-            for (String groupName : test.getGroups()) {
-                if (!suite.getGroups().get(groupName).getAfterGroupsFunctions().isEmpty()
-                        && suite.getGroups().get(groupName).isLastTestExecuted()) {
-                    // run before tests
-                    String errorMsg;
-                    for (String afterGroupFunc : suite.getGroups().get(groupName).getAfterGroupsFunctions()) {
+                                            AtomicBoolean shouldSkip,
+                                            Map<String, AtomicBoolean> shouldSkipAfterGroups) {
+        for (String groupName : test.getGroups()) {
+            if (!suite.getGroups().get(groupName).getAfterGroupsFunctions().isEmpty()
+                    && suite.getGroups().get(groupName).isLastTestExecuted()) {
+                // run before tests
+                suite.getGroups().get(groupName).getAfterGroupsFunctions().forEach((afterGroupFunc, alwaysRun) -> {
+                    if (!(shouldSkipAfterGroups.get(groupName).get() || shouldSkip.get()) || alwaysRun.get()) {
                         try {
                             Object value = invokeTestFunction(suite, afterGroupFunc, classLoader, scheduler);
-                            if (value instanceof BError || value instanceof  Exception || value instanceof Error) {
+                            if (value instanceof BError || value instanceof Exception || value instanceof Error) {
                                 throw (Throwable) value;
                             }
                         } catch (Throwable e) {
-                            shouldSkip.set(true);
-                            shouldSkipTest.set(true);
-                            shouldSkipAfterGroups.set(true);
-                            errorMsg = String.format("\t[fail] " + afterGroupFunc +
+                            String errorMsg = String.format("\t[fail] " + afterGroupFunc +
                                             " [after test group function for the test %s] :\n\t    %s", test,
                                     formatErrorMessage(e));
                             errStream.println(errorMsg);
                         }
                     }
-
-                }
+                });
             }
         }
     }
