@@ -555,14 +555,14 @@ public class MethodGen {
             mv.visitInsn(DUP);
 
             if (TypeTags.isIntegerTypeTag(bType.tag)) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, "J");
                 mv.visitVarInsn(LSTORE, index);
             } else if (TypeTags.isStringTypeTag(bType.tag)) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
                                  GET_BSTRING);
                 mv.visitVarInsn(ASTORE, index);
             } else if (TypeTags.isXMLTypeTag(bType.tag)) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
                                   GET_XML);
                 mv.visitVarInsn(ASTORE, index);
             } else {
@@ -576,66 +576,66 @@ public class MethodGen {
                                                       int index, BType bType) {
         switch (bType.tag) {
             case TypeTags.BYTE:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, "I");
                 mv.visitVarInsn(ISTORE, index);
                 break;
             case TypeTags.FLOAT:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, "D");
                 mv.visitVarInsn(DSTORE, index);
                 break;
             case TypeTags.DECIMAL:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
                                   GET_BDECIMAL);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.BOOLEAN:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, "Z");
                 mv.visitVarInsn(ISTORE, index);
                 break;
             case TypeTags.MAP:
             case TypeTags.RECORD:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
                                   GET_MAP_VALUE);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.STREAM:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
                                   GET_STREAM_VALUE);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.TABLE:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
                                   GET_TABLE_VALUE_IMPL);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
                                   GET_ARRAY_VALUE);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.OBJECT:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
                                   GET_BOBJECT);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.ERROR:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
                                   GET_ERROR_VALUE);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.FUTURE:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
                                   GET_FUTURE_VALUE);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.INVOKABLE:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
                                   GET_FUNCTION_POINTER);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.TYPEDESC:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
                                   GET_TYPEDESC);
                 mv.visitVarInsn(ASTORE, index);
                 break;
@@ -648,12 +648,12 @@ public class MethodGen {
             case TypeTags.JSON:
             case TypeTags.FINITE:
             case TypeTags.READONLY:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
                                   GET_OBJECT);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.HANDLE:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
                                   GET_HANDLE_VALUE);
                 mv.visitVarInsn(ASTORE, index);
                 break;
@@ -674,28 +674,28 @@ public class MethodGen {
             case JTypeTags.JCHAR:
             case JTypeTags.JSHORT:
             case JTypeTags.JINT:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, "I");
                 mv.visitVarInsn(ISTORE, index);
                 break;
             case JTypeTags.JLONG:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, "J");
                 mv.visitVarInsn(LSTORE, index);
                 break;
             case JTypeTags.JFLOAT:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "F");
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, "F");
                 mv.visitVarInsn(FSTORE, index);
                 break;
             case JTypeTags.JDOUBLE:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, "D");
                 mv.visitVarInsn(DSTORE, index);
                 break;
             case JTypeTags.JBOOLEAN:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, "Z");
                 mv.visitVarInsn(ISTORE, index);
                 break;
             case JTypeTags.JARRAY:
             case JTypeTags.JREF:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
                                   InteropMethodGen.getJTypeSignature(jType));
                 mv.visitVarInsn(ASTORE, index);
                 break;
@@ -717,14 +717,14 @@ public class MethodGen {
 
             if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 mv.visitVarInsn(LLOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, "J");
             } else if (TypeTags.isStringTypeTag(bType.tag)) {
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
                                  GET_BSTRING);
             } else if (TypeTags.isXMLTypeTag(bType.tag)) {
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
                                   GET_XML);
             } else {
                 generateFrameClassFieldUpdateByTypeTag(mv, frameName, localVar, index, bType);
@@ -737,67 +737,67 @@ public class MethodGen {
         switch (bType.tag) {
             case TypeTags.BYTE:
                 mv.visitVarInsn(ILOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, "I");
                 break;
             case TypeTags.FLOAT:
                 mv.visitVarInsn(DLOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, "D");
                 break;
             case TypeTags.DECIMAL:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
                                   GET_BDECIMAL);
                 break;
             case TypeTags.BOOLEAN:
                 mv.visitVarInsn(ILOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, "Z");
                 break;
             case TypeTags.MAP:
             case TypeTags.RECORD:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
                                   GET_MAP_VALUE);
                 break;
             case TypeTags.STREAM:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
                                   GET_STREAM_VALUE);
                 break;
             case TypeTags.TABLE:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
                                   GET_TABLE_VALUE_IMPL);
                 break;
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
                                   GET_ARRAY_VALUE);
                 break;
             case TypeTags.ERROR:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
                                   GET_ERROR_VALUE);
                 break;
             case TypeTags.FUTURE:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
                                   GET_FUTURE_VALUE);
                 break;
             case TypeTags.TYPEDESC:
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitTypeInsn(CHECKCAST, TYPEDESC_VALUE);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
                                   GET_TYPEDESC);
                 break;
             case TypeTags.OBJECT:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
                                   GET_BOBJECT);
                 break;
             case TypeTags.INVOKABLE:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
                                   GET_FUNCTION_POINTER);
                 break;
             case TypeTags.NIL:
@@ -810,12 +810,12 @@ public class MethodGen {
             case TypeTags.FINITE:
             case TypeTags.READONLY:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
                                   GET_OBJECT);
                 break;
             case TypeTags.HANDLE:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
                                   GET_HANDLE_VALUE);
                 break;
             case JTypeTags.JTYPE:
@@ -833,35 +833,35 @@ public class MethodGen {
         switch (jType.jTag) {
             case JTypeTags.JBYTE:
                 mv.visitVarInsn(ILOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "B");
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, "B");
                 break;
             case JTypeTags.JCHAR:
                 mv.visitVarInsn(ILOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "C");
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, "C");
                 break;
             case JTypeTags.JSHORT:
                 mv.visitVarInsn(ILOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "S");
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, "S");
                 break;
             case JTypeTags.JINT:
                 mv.visitVarInsn(ILOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, "I");
                 break;
             case JTypeTags.JLONG:
                 mv.visitVarInsn(LLOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, "J");
                 break;
             case JTypeTags.JFLOAT:
                 mv.visitVarInsn(FLOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "F");
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, "F");
                 break;
             case JTypeTags.JDOUBLE:
                 mv.visitVarInsn(DLOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, "D");
                 break;
             case JTypeTags.JBOOLEAN:
                 mv.visitVarInsn(ILOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, "Z");
                 break;
             case JTypeTags.JARRAY:
             case JTypeTags.JREF:
@@ -869,7 +869,7 @@ public class MethodGen {
                 String className = InteropMethodGen.getSignatureForJType(jType);
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitTypeInsn(CHECKCAST, className);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), classSig);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, classSig);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +

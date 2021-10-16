@@ -87,7 +87,7 @@ public class FrameClassGen {
                 continue;
             }
             BType bType = localVar.type;
-            String fieldName = localVar.name.value.replace("%", "_");
+            String fieldName = localVar.jvmVarName;
             String typeSig = JvmCodeGenUtil.getFieldTypeSignature(bType);
             cw.visitField(Opcodes.ACC_PUBLIC, fieldName, typeSig, null, null).visitEnd();
             k = k + 1;
