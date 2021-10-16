@@ -1237,9 +1237,9 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean validateTableConstructorExpr(BLangTableConstructorExpr tableConstructorExpr,
                                                  BTableType tableType) {
         BType constraintType = tableType.constraint;
-
+        List<String> fieldNameList = new ArrayList<>();
         if (tableConstructorExpr.tableKeySpecifier != null) {
-            List<String> fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
+            fieldNameList.addAll(getTableKeyNameList(tableConstructorExpr.tableKeySpecifier));
 
             if (tableType.fieldNameList == null &&
                     !validateKeySpecifier(fieldNameList,
@@ -1261,12 +1261,23 @@ public class TypeChecker extends BLangNodeVisitor {
         if (keyTypeConstraint != null) {
             List<BType> memberTypes = new ArrayList<>();
 
-            if (keyTypeConstraint.tag == TypeTags.TUPLE) {
-                for (Type type : ((TupleType) keyTypeConstraint).getTupleTypes()) {
-                    memberTypes.add((BType) type);
-                }
-            } else {
-                memberTypes.add(keyTypeConstraint);
+            switch (keyTypeConstraint.tag) {
+                case TypeTags.TUPLE:
+                    for (Type type : ((TupleType) keyTypeConstraint).getTupleTypes()) {
+                        memberTypes.add((BType) type);
+                    }
+                    break;
+                case TypeTags.RECORD:
+                    Map<String, BField> fieldList = ((BRecordType) keyTypeConstraint).getFields();
+                    List<BType> memberFields = fieldList.entrySet().stream()
+                            .filter(e -> fieldNameList.contains(e.getKey())).map(entry -> entry.getValue().type)
+                            .collect(Collectors.toList());
+                    if (!memberFields.isEmpty()) {
+                        memberTypes = memberFields;
+                        break;
+                    }
+                default:
+                    memberTypes.add(keyTypeConstraint);
             }
 
             if (tableConstructorExpr.tableKeySpecifier == null && keyTypeConstraint.tag == TypeTags.NEVER) {
