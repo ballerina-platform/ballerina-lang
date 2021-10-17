@@ -149,9 +149,9 @@ public class RenameUtil {
                 if (context.getHonorsChangeAnnotations() && CommonUtil.isKeyword(newName)) {
                     String escapedNewName = CommonUtil.escapeReservedKeyword(newName);
                     textEdits.add(new AnnotatedTextEdit(editRange,
-                            escapedNewName, RenameChangeAnnotation.QUOTED_KEYWORD.getId()));
+                            escapedNewName, RenameChangeAnnotation.QUOTED_KEYWORD.getID()));
                     textEdits.add(new AnnotatedTextEdit(editRange,
-                            newName, RenameChangeAnnotation.UNQUOTED_KEYWORD.getId()));
+                            newName, RenameChangeAnnotation.UNQUOTED_KEYWORD.getID()));
                 } else {
                     textEdits.add(new TextEdit(editRange, newName));
                 }
@@ -170,9 +170,9 @@ public class RenameUtil {
         Map<String, List<TextEdit>> changes = getChanges(context);
 
         if (context.getHonorsChangeAnnotations() && CommonUtil.isKeyword(context.getParams().getNewName())) {
-            changeAnnotationMap.put(RenameChangeAnnotation.QUOTED_KEYWORD.getId(),
+            changeAnnotationMap.put(RenameChangeAnnotation.QUOTED_KEYWORD.getID(),
                     RenameChangeAnnotation.QUOTED_KEYWORD.getChangeAnnotation());
-            changeAnnotationMap.put(RenameChangeAnnotation.UNQUOTED_KEYWORD.getId(),
+            changeAnnotationMap.put(RenameChangeAnnotation.UNQUOTED_KEYWORD.getID(),
                     RenameChangeAnnotation.UNQUOTED_KEYWORD.getChangeAnnotation());
             List<Either<TextDocumentEdit, ResourceOperation>> docEdits = new ArrayList<>();
             changes.entrySet().forEach(entry -> {
@@ -281,9 +281,9 @@ public class RenameUtil {
                             if (context.getHonorsChangeAnnotations() && CommonUtil.isKeyword(newName)) {
                                 String escapedNewName = CommonUtil.escapeReservedKeyword(newName);
                                 textEdits.add(new AnnotatedTextEdit(editRange,
-                                        "as " + escapedNewName, RenameChangeAnnotation.QUOTED_KEYWORD.getId()));
+                                        "as " + escapedNewName, RenameChangeAnnotation.QUOTED_KEYWORD.getID()));
                                 textEdits.add(new AnnotatedTextEdit(editRange,
-                                        "as " + newName, RenameChangeAnnotation.UNQUOTED_KEYWORD.getId()));
+                                        "as " + newName, RenameChangeAnnotation.UNQUOTED_KEYWORD.getID()));
                             } else {
                                 textEdits.add(new TextEdit(range, " as " + newName));
                             }
@@ -292,9 +292,9 @@ public class RenameUtil {
                             if (context.getHonorsChangeAnnotations() && CommonUtil.isKeyword(newName)) {
                                 String escapedNewName = CommonUtil.escapeReservedKeyword(newName);
                                 textEdits.add(new AnnotatedTextEdit(editRange, escapedNewName,
-                                        RenameChangeAnnotation.QUOTED_KEYWORD.getId()));
+                                        RenameChangeAnnotation.QUOTED_KEYWORD.getID()));
                                 textEdits.add(new AnnotatedTextEdit(editRange, newName,
-                                        RenameChangeAnnotation.UNQUOTED_KEYWORD.getId()));
+                                        RenameChangeAnnotation.UNQUOTED_KEYWORD.getID()));
                             } else {
                                 textEdits.add(new TextEdit(ReferencesUtil.getRange(location), newName));
                             }
@@ -329,9 +329,9 @@ public class RenameUtil {
                         if (context.getHonorsChangeAnnotations() && CommonUtil.isKeyword(newName)) {
                             String escapedNewName = CommonUtil.escapeModuleName(newName);
                             textEdits.add(new AnnotatedTextEdit(editRange,
-                                    escapedNewName, RenameChangeAnnotation.QUOTED_KEYWORD.getId()));
+                                    escapedNewName, RenameChangeAnnotation.QUOTED_KEYWORD.getID()));
                             textEdits.add(new AnnotatedTextEdit(editRange,
-                                    newName, RenameChangeAnnotation.UNQUOTED_KEYWORD.getId()));
+                                    newName, RenameChangeAnnotation.UNQUOTED_KEYWORD.getID()));
                         } else {
                             textEdits.add(new TextEdit(editRange, newName));
                         }
@@ -368,7 +368,7 @@ public class RenameUtil {
             this.needsConfirmation = needsConfirmation;
         }
 
-        public String getId() {
+        public String getID() {
             return this.id;
         }
 
