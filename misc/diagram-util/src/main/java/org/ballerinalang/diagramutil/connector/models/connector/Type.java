@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.diagramutil.connector.models.connector;
 
+import com.google.gson.annotations.Expose;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.symbols.BallerinaRecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
@@ -41,7 +41,6 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
-import org.ballerinalang.central.client.model.connector.BalType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.ArrayType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.EnumType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.ErrorType;
@@ -53,14 +52,30 @@ import org.ballerinalang.diagramutil.connector.models.connector.types.UnionType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
  * Type model.
  */
-public class Type extends BalType {
+public class Type {
 
-    static ArrayList<String> parentSymbols = new ArrayList<String>();
+    @Expose
+    public String name;
+    @Expose
+    public String typeName;
+    @Expose
+    public boolean optional;
+    @Expose
+    public TypeInfo typeInfo;
+    @Expose
+    public String defaultValue;
+    @Expose
+    public Map<String, String> displayAnnotation;
+    @Expose
+    public String documentation;
+
+    static ArrayList<Integer> parentSymbols = new ArrayList<Integer>();
 
     public static Type fromSyntaxNode(Node node, SemanticModel semanticModel) {
         Type type = null;
@@ -173,13 +188,11 @@ public class Type extends BalType {
             }
         } else if (symbol instanceof RecordTypeSymbol) {
             RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) symbol;
-            String symbolName = ((BallerinaRecordTypeSymbol) recordTypeSymbol).getBType().toString();
-            if (parentSymbols.contains(symbolName)) {
+            int signature = recordTypeSymbol.hashCode();
+            if (parentSymbols.contains(signature)) {
                 return null;
-            } else if (!symbolName.contains("record {")) {
-                // TODO: need to figure it out anonymous record types proper way
-                parentSymbols.add(symbolName);
             }
+            parentSymbols.add(signature);
 
             List<Type> fields = new ArrayList<>();
             recordTypeSymbol.fieldDescriptors().forEach((name, field) -> {

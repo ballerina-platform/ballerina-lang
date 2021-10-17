@@ -2,7 +2,6 @@ module io.ballerina.central.client {
     exports org.ballerinalang.central.client;
     exports org.ballerinalang.central.client.model;
     exports org.ballerinalang.central.client.exceptions;
-    exports org.ballerinalang.central.client.model.connector;
     requires com.google.gson;
     requires jsr305;
     requires java.net.http;

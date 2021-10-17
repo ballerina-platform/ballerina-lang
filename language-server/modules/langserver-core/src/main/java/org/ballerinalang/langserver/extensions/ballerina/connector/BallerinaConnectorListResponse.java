@@ -18,7 +18,8 @@
 
 package org.ballerinalang.langserver.extensions.ballerina.connector;
 
-import org.ballerinalang.central.client.model.connector.BalConnector;
+import com.google.gson.JsonElement;
+import org.ballerinalang.diagramutil.connector.models.connector.Connector;
 
 import java.util.List;
 
@@ -29,30 +30,30 @@ import java.util.List;
  */
 public class BallerinaConnectorListResponse {
 
-    private List<BalConnector> central;
-    private List<BalConnector> local;
+    private List<Connector> central;
+    private List<Connector> local;
 
     public BallerinaConnectorListResponse() {
     }
 
-    public BallerinaConnectorListResponse(List<BalConnector> central, List<BalConnector> local) {
+    public BallerinaConnectorListResponse(List<Connector> central, List<Connector> local) {
         this.central = central;
         this.local = local;
     }
 
-    public List<BalConnector> getCentralConnectors() {
+    public List<Connector> getCentralConnectors() {
         return central;
     }
 
-    public void setCentralConnectors(List<BalConnector> central) {
+    public void setCentralConnectors(List<Connector> central) {
         this.central = central;
     }
 
-    public List<BalConnector> getLocalConnectors() {
+    public List<Connector> getLocalConnectors() {
         return local;
     }
 
-    public void setLocalConnectors(List<BalConnector> local) {
+    public void setLocalConnectors(List<Connector> local) {
         this.local = local;
     }
 }

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langserver.extensions.ballerina.connector;
 
-import org.ballerinalang.central.client.model.connector.BalConnector;
+import com.google.gson.JsonElement;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
@@ -35,5 +35,5 @@ public interface BallerinaConnectorService {
     CompletableFuture<BallerinaConnectorListResponse> connectors(BallerinaConnectorListRequest request);
 
     @JsonRequest
-    CompletableFuture<BalConnector> connector(BallerinaConnectorRequest request);
+    CompletableFuture<JsonElement> connector(BallerinaConnectorRequest request);
 }

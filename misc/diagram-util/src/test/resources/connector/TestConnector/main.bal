@@ -19,10 +19,30 @@ public client class TestClient {
 
     # Test send message.
     #
+    # + user - User account
     # + message - Message to send
     # + return -  Message status or an error
     @display {label: "Send Message"}
-    remote isolated function sendMessage(@display {label: "Message"} string message) returns string|error? {
+    remote isolated function sendMessage(User user, @display {label: "Message"} string message) returns string|error? {
         return "success";
     }
 }
+
+# User account.
+# + uid - Unique identifier of the account
+# + name - The name of the account
+@display{label: "User Account"} 
+public type User record {
+    string uid = "1";
+    string name;
+
+    record {|
+        string city;
+        string country;
+    |} address;
+
+    record {|
+        User father;
+        User mother;
+    |} parent;
+};

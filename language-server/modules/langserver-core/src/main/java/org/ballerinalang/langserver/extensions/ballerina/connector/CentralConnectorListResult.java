@@ -15,35 +15,37 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.central.client.model.connector;
+package org.ballerinalang.langserver.extensions.ballerina.connector;
+
+import org.ballerinalang.diagramutil.connector.models.connector.Connector;
 
 import java.util.List;
 
 /**
  * {@code ConnectorJsonSchema} represents package search result from central.
  */
-public class BalConnectorSearchResult {
+public class CentralConnectorListResult {
 
-    private List<BalConnector> connectors;
+    private List<Connector> connectors;
     private int count;
     private int offset;
     private int limit;
 
-    public BalConnectorSearchResult() {
+    public CentralConnectorListResult() {
     }
 
-    public BalConnectorSearchResult(List<BalConnector> connectors, int count, int offset, int limit) {
+    public CentralConnectorListResult(List<Connector> connectors, int count, int offset, int limit) {
         this.connectors = connectors;
         this.count = count;
         this.offset = offset;
         this.limit = limit;
     }
 
-    public List<BalConnector> getConnectors() {
+    public List<Connector> getConnectors() {
         return connectors;
     }
 
-    public void setConnectors(List<BalConnector> connectors) {
+    public void setConnectors(List<Connector> connectors) {
         this.connectors = connectors;
     }
 

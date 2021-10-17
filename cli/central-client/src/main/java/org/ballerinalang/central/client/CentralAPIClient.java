@@ -19,6 +19,7 @@
 package org.ballerinalang.central.client;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
@@ -39,8 +40,6 @@ import org.ballerinalang.central.client.model.PackageNameResolutionResponse;
 import org.ballerinalang.central.client.model.PackageResolutionRequest;
 import org.ballerinalang.central.client.model.PackageResolutionResponse;
 import org.ballerinalang.central.client.model.PackageSearchResult;
-import org.ballerinalang.central.client.model.connector.BalConnector;
-import org.ballerinalang.central.client.model.connector.BalConnectorSearchResult;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -688,7 +687,7 @@ public class CentralAPIClient {
      * @return Connector list.
      * @throws CentralClientException Central Client exception.
      */
-    public BalConnectorSearchResult getConnectors(String packageName, String supportedPlatform, String ballerinaVersion)
+    public JsonElement getConnectors(String packageName, String supportedPlatform, String ballerinaVersion)
             throws CentralClientException {
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
@@ -711,7 +710,7 @@ public class CentralAPIClient {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString()) &&
                         searchResponse.code() == HttpsURLConnection.HTTP_OK) {
-                    return new Gson().fromJson(body.get().string(), BalConnectorSearchResult.class);
+                    return new Gson().toJsonTree(body.get().string());
                 }
             }
             handleResponseErrors(searchResponse, ERR_CANNOT_GET_CONNECTOR + " request:" + packageName);
@@ -738,7 +737,7 @@ public class CentralAPIClient {
      * @return Connector.
      * @throws CentralClientException Central Client exception.
      */
-    public BalConnector getConnector(String id, String supportedPlatform, String ballerinaVersion)
+    public JsonElement getConnector(String id, String supportedPlatform, String ballerinaVersion)
             throws CentralClientException {
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
@@ -756,7 +755,7 @@ public class CentralAPIClient {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString()) &&
                         searchResponse.code() == HttpsURLConnection.HTTP_OK) {
-                    return new Gson().fromJson(body.get().string(), BalConnector.class);
+                    return new Gson().toJsonTree(body.get().string());
                 }
             }
             handleResponseErrors(searchResponse, ERR_CANNOT_GET_CONNECTOR + " id:" + id);

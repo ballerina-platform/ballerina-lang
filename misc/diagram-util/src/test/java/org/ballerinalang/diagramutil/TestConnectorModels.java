@@ -1,7 +1,5 @@
 package org.ballerinalang.diagramutil;
 
-import org.ballerinalang.central.client.model.connector.BalFunction;
-import org.ballerinalang.central.client.model.connector.BalType;
 import org.ballerinalang.diagramutil.connector.models.BalaFile;
 import org.ballerinalang.diagramutil.connector.models.Error;
 import org.ballerinalang.diagramutil.connector.models.connector.Connector;
@@ -45,10 +43,10 @@ public class TestConnectorModels {
         type.optional = false;
         type.typeInfo = this.typeInfo;
 
-        List<BalType> parameters = Arrays.asList(type);
+        List<Type> parameters = Arrays.asList(type);
         function = new Function(initFunc, parameters, type, null, false, documentation);
 
-        List<BalFunction> functions = Arrays.asList(function);
+        List<Function> functions = Arrays.asList(function);
         connector = new Connector(orgName, moduleName, packageName, version, connectorName,
                 documentation, null, functions);
 

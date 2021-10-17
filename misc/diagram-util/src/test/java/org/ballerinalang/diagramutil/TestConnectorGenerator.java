@@ -25,6 +25,8 @@ import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import org.ballerinalang.diagramutil.connector.generator.ConnectorGenerator;
 import org.ballerinalang.diagramutil.connector.models.connector.Connector;
+import org.ballerinalang.diagramutil.connector.models.connector.Function;
+import org.ballerinalang.diagramutil.connector.models.connector.Type;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.generator.model.ModuleDoc;
 import org.testng.Assert;
@@ -45,11 +47,11 @@ public class TestConnectorGenerator {
     private final String orgName = "test";
     private final String packageName = "test";
     private final String moduleName = "TestConnector";
-    private final String version = "0.1.0";
+    private final String version = "0.2.0";
     private final String initFunc = "init";
     private final Path testConnectorBalaFile = TestUtil.RES_DIR
             .resolve("connector")
-            .resolve("test-TestConnector-any-0.1.0.bala");
+            .resolve("test-TestConnector-any-0.2.0.bala");
     private Project balaProject;
 
     @BeforeClass
@@ -74,16 +76,22 @@ public class TestConnectorGenerator {
         Assert.assertEquals(connector.displayAnnotation.get("iconPath"), "logo.svg");
 
         Assert.assertEquals(connector.functions.size(), 3);
-        Assert.assertEquals(connector.functions.get(0).name, initFunc);
-        Assert.assertEquals(connector.functions.get(0).parameters.size(), 0);
+        List<Function> functionList = connector.functions;
 
-        Assert.assertEquals(connector.functions.get(2).name, "sendMessage");
-        Assert.assertEquals(connector.functions.get(2).parameters.size(), 1);
-        Assert.assertEquals(connector.functions.get(2).parameters.get(0).name, "message");
-        Assert.assertEquals(connector.functions.get(2).parameters.get(0).typeName, "string");
-        Assert.assertEquals(connector.functions.get(2).parameters.get(0).documentation,
+        Assert.assertEquals(functionList.get(0).name, initFunc);
+        Assert.assertEquals(functionList.get(0).parameters.size(), 0);
+        Assert.assertEquals(functionList.get(2).name, "sendMessage");
+        Assert.assertEquals(functionList.get(2).parameters.size(), 2);
+        List<Type> sendMsgFuncParams = functionList.get(2).parameters;
+
+        Assert.assertEquals(sendMsgFuncParams.get(0).name, "user");
+        Assert.assertEquals(sendMsgFuncParams.get(0).typeName, "record");
+
+        Assert.assertEquals(sendMsgFuncParams.get(1).name, "message");
+        Assert.assertEquals(sendMsgFuncParams.get(1).typeName, "string");
+        Assert.assertEquals(sendMsgFuncParams.get(1).documentation,
                 "Message to send\n");
-        Assert.assertEquals(connector.functions.get(2).parameters.get(0).displayAnnotation.get("label"),
+        Assert.assertEquals(sendMsgFuncParams.get(1).displayAnnotation.get("label"),
                 "Message");
     }
 

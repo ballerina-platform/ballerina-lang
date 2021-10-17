@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.diagramutil.connector.models.connector;
 
-import org.ballerinalang.central.client.model.connector.BalConnector;
-import org.ballerinalang.central.client.model.connector.BalFunction;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import org.ballerinalang.central.client.model.Package;
 
 import java.util.List;
 import java.util.Map;
@@ -26,15 +27,63 @@ import java.util.Map;
 /**
  * Connector model.
  */
-public class Connector extends BalConnector {
+public class Connector {
 
-    public Connector(String orgName, String moduleName, String packageName, String version, String name,
-                     String documentation, Map<String, String> displayAnnotation) {
-        super(orgName, moduleName, packageName, version, name, documentation, displayAnnotation);
+    public static final String JSON_PROPERTY_PACKAGE = "package";
+    @Expose
+    public String id;
+    @Expose
+    public String orgName;
+    @Expose
+    public String moduleName;
+    @Expose
+    public String packageName;
+    @Expose
+    public String version;
+    @Expose
+    public String name;
+    @Expose
+    public String documentation;
+    @Expose
+    public String platform;
+    @Expose
+    public String ballerinaVersion;
+    @Expose
+    public Map<String, String> displayAnnotation;
+    @Expose
+    public List<Function> functions;
+    @SerializedName(JSON_PROPERTY_PACKAGE)
+    public Package packageInfo;
+
+    public Connector() {
     }
 
     public Connector(String orgName, String moduleName, String packageName, String version, String name,
-                     String documentation, Map<String, String> displayAnnotation, List<BalFunction> functions) {
-        super(orgName, moduleName, packageName, version, name, documentation, displayAnnotation, functions);
+                        String documentation, Map<String, String> displayAnnotation) {
+        this.moduleName = moduleName;
+        this.name = name;
+        this.documentation = documentation;
+        this.displayAnnotation = displayAnnotation;
+
+        Package packageInfo = new Package();
+        packageInfo.setOrganization(orgName);
+        packageInfo.setName(packageName);
+        packageInfo.setVersion(version);
+        this.packageInfo = packageInfo;
+    }
+
+    public Connector(String orgName, String moduleName, String packageName, String version, String name,
+                        String documentation, Map<String, String> displayAnnotation, List<Function> functions) {
+        this.moduleName = moduleName;
+        this.name = name;
+        this.documentation = documentation;
+        this.displayAnnotation = displayAnnotation;
+        this.functions = functions;
+
+        Package packageInfo = new Package();
+        packageInfo.setOrganization(orgName);
+        packageInfo.setName(packageName);
+        packageInfo.setVersion(version);
+        this.packageInfo = packageInfo;
     }
 }

@@ -27,6 +27,7 @@ public class BallerinaConnectorRequest {
 
     private String id;
     private String orgName;
+    private String packageName;
     private String moduleName;
     private String version = "";
     private String name;
@@ -39,7 +40,7 @@ public class BallerinaConnectorRequest {
         this.name = name;
     }
 
-    public String getId() {
+    public String getConnectorId() {
         return id;
     }
 
@@ -53,6 +54,14 @@ public class BallerinaConnectorRequest {
 
     public void setOrgName(String orgName) {
         this.orgName = orgName;
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
     }
 
     public String getModuleName() {
