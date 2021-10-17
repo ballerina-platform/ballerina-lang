@@ -41,6 +41,16 @@ export interface STNode {
   controlFlow?: ControlFlow;
 }
 
+export interface Token extends STNode {
+  isToken?: boolean;
+  value: string;
+  isMissing?: boolean;
+}
+
+export interface IdentifierToken extends Token {
+
+}
+
 {{#treeNodeClasses}}
 export interface {{tsClassName}} extends {{tsSuperClassName}} {
 {{#fields}}

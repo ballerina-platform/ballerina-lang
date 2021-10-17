@@ -10,6 +10,24 @@ export interface Visitor {
     node: Ballerina.STNode,
     parent?: Ballerina.STNode
   ): void;
+
+  beginVisitToken?(
+    node: Ballerina.Token,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitToken?(
+    node: Ballerina.Token,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitIdentifierToken?(
+    node: Ballerina.IdentifierToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitIdentifierToken?(
+    node: Ballerina.IdentifierToken,
+    parent?: Ballerina.STNode
+  ): void;
   {{#treeNodeClasses}}
 
   beginVisit{{tsClassName}}?(

@@ -2,6 +2,12 @@
 import * as Ballerina from './syntax-tree-interfaces';
 
 export class STKindChecker {
+
+  public static isIdentifierToken(
+    node: Ballerina.STNode
+  ): node is Ballerina.IdentifierToken {
+    return node.kind === 'IdentifierToken';
+  }
   {{#treeNodeClasses}}
 
   public static is{{tsClassName}}(
