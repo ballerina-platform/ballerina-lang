@@ -24,4 +24,5 @@ module io.ballerina.language.server.commons {
     exports org.ballerinalang.langserver.commons.toml.visitor;
     exports org.ballerinalang.langserver.commons.toml.common;
     exports org.ballerinalang.langserver.commons.toml.common.completion;
+    exports org.ballerinalang.langserver.commons.registration;
 }

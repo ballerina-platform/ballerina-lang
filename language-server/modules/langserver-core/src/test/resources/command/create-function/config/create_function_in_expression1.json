@@ -1,0 +1,40 @@
+{
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 2,
+        "character": 15
+      },
+      "end": {
+        "line": 2,
+        "character": 32
+      }
+    }
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction computeCount(int val) returns int {\n    return 0;\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

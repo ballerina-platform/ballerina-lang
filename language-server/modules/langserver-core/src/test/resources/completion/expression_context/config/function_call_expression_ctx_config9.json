@@ -704,6 +704,42 @@
       "sortText": "R",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "filterText": "null",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "func = ...",
+      "kind": "Snippet",
+      "detail": "func = ",
+      "sortText": "AR",
+      "filterText": "func",
+      "insertText": "func = ${1:}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "num1 = ...",
+      "kind": "Snippet",
+      "detail": "num1 = 0",
+      "sortText": "AR",
+      "filterText": "num1",
+      "insertText": "num1 = ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "num2 = ...",
+      "kind": "Snippet",
+      "detail": "num2 = 0",
+      "sortText": "AR",
+      "filterText": "num2",
+      "insertText": "num2 = ${1:0}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

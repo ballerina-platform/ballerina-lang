@@ -848,6 +848,15 @@ class SymbolFinder extends BaseVisitor {
     }
 
     @Override
+    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
+        if (setEnclosingNode(nsPrefixedFieldBasedAccess.nsSymbol, nsPrefixedFieldBasedAccess.nsPrefix.pos)) {
+            return;
+        }
+
+        lookupNode(nsPrefixedFieldBasedAccess.expr);
+    }
+
+    @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         lookupNode(indexAccessExpr.expr);
 

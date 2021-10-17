@@ -218,16 +218,18 @@ class PackageContext {
 
     PackageCompilation getPackageCompilation(CompilationOptions compilationOptions) {
         CompilationOptions options = new CompilationOptionsBuilder()
-                .buildOffline(this.compilationOptions.offlineBuild())
+                .offline(this.compilationOptions.offlineBuild())
                 .experimental(this.compilationOptions.experimental())
                 .observabilityIncluded(this.compilationOptions.observabilityIncluded())
                 .dumpBir(this.compilationOptions.dumpBir())
                 .cloud(this.compilationOptions.getCloud())
-                .dumpBirFile(this.compilationOptions.getBirDumpFile())
+                .dumpBirFile(this.compilationOptions.dumpBirFile())
+                .dumpGraph(this.compilationOptions.dumpGraph())
+                .dumpRawGraphs(this.compilationOptions.dumpRawGraphs())
                 .listConflictedClasses(this.compilationOptions.listConflictedClasses())
                 .build();
-        options.acceptTheirs(compilationOptions);
-        return PackageCompilation.from(this, options);
+        CompilationOptions mergedOptions = options.acceptTheirs(compilationOptions);
+        return PackageCompilation.from(this, mergedOptions);
     }
 
     PackageResolution getResolution() {

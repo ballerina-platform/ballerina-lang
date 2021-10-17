@@ -503,6 +503,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRUE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FALSE.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NIL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IS.get()));
@@ -534,6 +535,14 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
 
     protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context, T node) {
         return this.expressionCompletions(context);
+    }
+    
+    protected List<LSCompletionItem> getTypeQualifierItems(BallerinaCompletionContext context) {
+        // Note: here we do not add the service type qualifier since it is being added via getTypeItems call.
+        return Arrays.asList(
+                new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()),
+                new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()),
+                new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
     }
 
     private List<LSCompletionItem> getBasicAndOtherTypeCompletions(BallerinaCompletionContext context) {

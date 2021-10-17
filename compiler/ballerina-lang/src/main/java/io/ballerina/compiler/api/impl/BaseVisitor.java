@@ -624,6 +624,10 @@ abstract class BaseVisitor extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
+    }
+
+    @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
     }
 
