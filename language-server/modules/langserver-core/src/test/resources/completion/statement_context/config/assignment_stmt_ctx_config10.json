@@ -486,21 +486,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "func()",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
-        }
-      },
-      "sortText": "AC",
-      "filterText": "func",
-      "insertText": "func()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
@@ -651,6 +636,23 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "func",
+      "kind": "Variable",
+      "detail": "function () returns string",
+      "sortText": "D",
+      "insertText": "func",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "filterText": "null",
+      "insertText": "null",
       "insertTextFormat": "Snippet"
     }
   ]

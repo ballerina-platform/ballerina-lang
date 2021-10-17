@@ -1,4 +1,4 @@
-const annotation name on object 
+const annotation name on object
 
 Animal a = new Animal();
 

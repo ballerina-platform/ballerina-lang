@@ -20,15 +20,15 @@
               {
                 "range": {
                   "start": {
-                    "line": 34,
-                    "character": 0
+                    "line": 33,
+                    "character": 1
                   },
                   "end": {
-                    "line": 34,
-                    "character": 0
+                    "line": 33,
+                    "character": 1
                   }
                 },
-                "newText": "\n\nfunction partition(string a, string b, function (string) returns boolean c) returns string[][][] {\n    return [[[]]];\n}\n"
+                "newText": "\n\nfunction partition(string recs, string s, function (string) returns boolean spliter) returns string[][][] {\n    return [[[]]];\n}\n"
               }
             ]
           }

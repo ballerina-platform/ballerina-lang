@@ -224,7 +224,7 @@ public class XMLAccessTest {
     @Test
     public void testInvalidXMLAccessWithIndex() {
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "invalid expr in assignment lhs", 4, 10);
+        BAssertUtil.validateError(negativeResult, i++, "invalid expr in assignment lhs", 4, 5);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 9, 15);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 10, 15);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'float'", 11, 15);

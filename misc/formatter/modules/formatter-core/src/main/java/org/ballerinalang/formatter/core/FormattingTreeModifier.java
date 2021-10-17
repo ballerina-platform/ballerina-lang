@@ -219,6 +219,7 @@ import io.ballerina.compiler.syntax.tree.WildcardBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.XMLAtomicNamePatternNode;
 import io.ballerina.compiler.syntax.tree.XMLAttributeNode;
 import io.ballerina.compiler.syntax.tree.XMLAttributeValue;
+import io.ballerina.compiler.syntax.tree.XMLCDATANode;
 import io.ballerina.compiler.syntax.tree.XMLComment;
 import io.ballerina.compiler.syntax.tree.XMLElementNode;
 import io.ballerina.compiler.syntax.tree.XMLEmptyElementNode;
@@ -1972,6 +1973,19 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withCommentStart(commentStart)
                 .withContent(content)
                 .withCommentEnd(commentEnd)
+                .apply();
+    }
+
+    @Override
+    public XMLCDATANode transform(XMLCDATANode xmlCdataNode) {
+        Token cdataStart = formatToken(xmlCdataNode.cdataStart(), 0, 0);
+        NodeList<Node> content = formatNodeList(xmlCdataNode.content(), 0, 0, 0, 0);
+        Token cdataEnd = formatToken(xmlCdataNode.cdataEnd(), env.trailingWS, env.trailingNL);
+
+        return xmlCdataNode.modify()
+                .withCdataStart(cdataStart)
+                .withContent(content)
+                .withCdataEnd(cdataEnd)
                 .apply();
     }
 
@@ -3823,8 +3837,12 @@ public class FormattingTreeModifier extends TreeModifier {
                         leadingMinutiae.add(getNewline());
                     }
                     if (!env.preserveIndentation) {
+                        int indentation = env.currentIndentation;
+                        if (isClosingTypeToken(token)) {
+                            indentation += options.getTabSize();
+                        }
                         // Then add padding to match the current indentation level
-                        addWhitespace(env.currentIndentation, leadingMinutiae);
+                        addWhitespace(indentation, leadingMinutiae);
                     }
 
                     leadingMinutiae.add(minutiae);
@@ -3903,6 +3921,7 @@ public class FormattingTreeModifier extends TreeModifier {
             switch (minutiae.kind()) {
                 case END_OF_LINE_MINUTIAE:
                     preserveIndentation(true);
+                    removeTrailingWS(trailingMinutiae);
                     trailingMinutiae.add(getNewline());
                     consecutiveNewlines++;
                     break;
@@ -3942,6 +3961,18 @@ public class FormattingTreeModifier extends TreeModifier {
         // reset the line length
         env.lineLength = 0;
         return NodeFactory.createEndOfLineMinutiae(FormatterUtils.NEWLINE_SYMBOL);
+    }
+
+    private List<Minutiae> removeTrailingWS(List<Minutiae> trailingMinutiae) {
+        int minutiaeCount = trailingMinutiae.size();
+        for (int i = minutiaeCount - 1; i > -1; i--) {
+            if (trailingMinutiae.get(i).kind() == SyntaxKind.WHITESPACE_MINUTIAE) {
+                trailingMinutiae.remove(i);
+            } else {
+                return trailingMinutiae;
+            }
+        }
+        return trailingMinutiae;
     }
 
     /**
@@ -4134,6 +4165,17 @@ public class FormattingTreeModifier extends TreeModifier {
         }
 
         return false;
+    }
+
+    private boolean isClosingTypeToken(Token token) {
+        switch (token.kind()) {
+            case CLOSE_BRACE_TOKEN:
+            case CLOSE_BRACE_PIPE_TOKEN:
+            case CLOSE_BRACKET_TOKEN:
+                return true;
+            default:
+                return false;
+        }
     }
 
     /**

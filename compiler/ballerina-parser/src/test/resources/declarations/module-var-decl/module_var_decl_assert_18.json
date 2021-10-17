@@ -86,9 +86,6 @@
                 {
                   "kind": "CLOSE_BRACE_TOKEN",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_LOCAL_CONST_DECL_NOT_ALLOWED"
-                  ],
                   "leadingMinutiae": [
                     {
                       "kind": "WHITESPACE_MINUTIAE",
@@ -98,9 +95,14 @@
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
-                            "kind": "CONST_KEYWORD"
+                            "kind": "CONST_KEYWORD",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_LOCAL_CONST_DECL_NOT_ALLOWED"
+                            ]
                           }
                         ]
                       }

@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.model.elements.PackageID;
@@ -48,7 +49,7 @@ public class JvmConstants {
     public static final String ERROR_VALUE = "io/ballerina/runtime/internal/values/ErrorValue";
     public static final String BERROR = "io/ballerina/runtime/api/values/BError";
     public static final String STRING_VALUE = "java/lang/String";
-    public static final String FUNCTION_PARAMETER = "io/ballerina/runtime/api/Parameter";
+    public static final String FUNCTION_PARAMETER = "io/ballerina/runtime/api/types/Parameter";
     public static final String B_STRING_VALUE = "io/ballerina/runtime/api/values/BString";
     public static final String NON_BMP_STRING_VALUE = "io/ballerina/runtime/internal/values/NonBmpStringValue";
     public static final String BMP_STRING_VALUE = "io/ballerina/runtime/internal/values/BmpStringValue";
@@ -126,6 +127,8 @@ public class JvmConstants {
     public static final String NEVER_TYPE = "io/ballerina/runtime/api/types/NeverType";
     public static final String NULL_TYPE = "io/ballerina/runtime/api/types/NullType";
     public static final String HANDLE_TYPE = "io/ballerina/runtime/api/types/HandleType";
+    public static final String INTERSECTABLE_REFERENCE_TYPE
+            = "io/ballerina/runtime/api/types/IntersectableReferenceType";
 
 
     public static final String TYPE_IMPL = "io/ballerina/runtime/internal/types/BType";
@@ -153,6 +156,10 @@ public class JvmConstants {
     public static final String MODULE = "io/ballerina/runtime/api/Module";
     public static final String CURRENT_MODULE_VAR_NAME = "$moduleName";
     public static final String B_STRING_VAR_PREFIX = "$bString";
+    public static final String UNION_TYPE_VAR_PREFIX = "$unionType";
+    public static final String TUPLE_TYPE_VAR_PREFIX = "$tupleType";
+    public static final String MODULE_VAR_PREFIX = "$module";
+
     public static final String VARIABLE_KEY = "io/ballerina/runtime/internal/configurable/VariableKey";
     public static final String TOML_DETAILS = "io/ballerina/runtime/internal/configurable/providers/toml/TomlDetails";
     public static final String TYPE_ID_SET = "io/ballerina/runtime/internal/types/BTypeIdSet";
@@ -195,6 +202,7 @@ public class JvmConstants {
     public static final String LISTENER_REGISTRY_CLASS =
             "io/ballerina/runtime/internal/scheduling/Scheduler$ListenerRegistry";
     public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/ValueComparisonUtils";
+    public static final String IDENTIFIER_UTILS = "io/ballerina/runtime/api/utils/IdentifierUtils";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";
@@ -259,8 +267,28 @@ public class JvmConstants {
 
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
-    public static final String MODULE_STRING_CONSTANT_CLASS_NAME = "$_string_constants";
+    public static final String BUNION_TYPE_CONSTANT_CLASS_NAME = "constants/$_bunion_type_constants";
+    public static final String BTUPLE_TYPE_CONSTANT_CLASS_NAME = "constants/$_tuple_type_constants";
+    public static final String MODULE_STRING_CONSTANT_CLASS_NAME = "constants/$_string_constants";
+    public static final String MODULE_CONSTANT_CLASS_NAME = "constants/$_module_constants";
+    public static final String CONSTANTS_CLASS_NAME = "constants/$_constants";
+    public static final String MODULE_TYPES_CLASS_NAME = "types/$_types";
+    public static final String MODULE_RECORD_TYPES_CLASS_NAME = "types/$_record_types";
+    public static final String MODULE_OBJECT_TYPES_CLASS_NAME = "types/$_object_types";
+    public static final String MODULE_ERROR_TYPES_CLASS_NAME = "types/$_error_types";
+    public static final String MODULE_UNION_TYPES_CLASS_NAME = "types/$_union_types";
+    public static final String MODULE_TUPLE_TYPES_CLASS_NAME = "types/$_tuple_types";
+    public static final String MODULE_ANON_TYPES_CLASS_NAME = "types/$_anon_types";
+    public static final String MODULE_RECORDS_CREATOR_CLASS_NAME = "creators/$_records";
+    public static final String MODULE_OBJECTS_CREATOR_CLASS_NAME = "creators/$_objects";
+    public static final String MODULE_ERRORS_CREATOR_CLASS_NAME = "creators/$_errors";
+    public static final String MODULE_ANNOTATIONS_CLASS_NAME = "annotations/$_annotations";
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
+    public static final String B_UNION_TYPE_INIT_METHOD_PREFIX = "$union_type_init";
+    public static final String B_TUPLE_TYPE_INIT_METHOD_PREFIX = "$tuple_type_init";
+    public static final String MODULE_INIT_METHOD_PREFIX = "$module_init";
+    public static final String CONSTANT_INIT_METHOD_PREFIX = "$constant_init";
+    public static final String ANNOTATIONS_METHOD_PREFIX = "$process_annotations";
     public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
     public static final String MODULE_INIT = "$moduleInit";
     public static final String MODULE_START = "$moduleStart";
@@ -282,6 +310,7 @@ public class JvmConstants {
     public static final String DESUGARED_BB_ID_NAME = "desugaredBB";
     public static final String WRAPPER_GEN_BB_ID_NAME = "wrapperGen";
     public static final String JVM_INIT_METHOD = "<init>";
+    public static final String JVM_STATIC_INIT_METHOD = "<clinit>";
     public static final String JVM_TO_STRING_METHOD = "toString";
     public static final String JVM_TO_UNSIGNED_INT_METHOD = "toUnsignedInt";
     public static final String GET_VALUE_METHOD = "getValue";
@@ -292,6 +321,7 @@ public class JvmConstants {
     public static final String ANY_TO_BOOLEAN_METHOD = "anyToBoolean";
     public static final String DECIMAL_VALUE_OF_J_METHOD = "valueOfJ";
     public static final String VALUE_OF_METHOD = "valueOf";
+    public static final String EQUALS_METHOD = "equals";
     public static final String POPULATE_INITIAL_VALUES_METHOD = "populateInitialValues";
     public static final String CREATE_TYPES_METHOD = "$createTypes";
     public static final String CREATE_TYPE_INSTANCES_METHOD = "$createTypeInstances";
@@ -301,8 +331,9 @@ public class JvmConstants {
     public static final String RECORD_INIT_WRAPPER_NAME = "$init";
     public static final String LISTENER_REGISTRY_VARIABLE = "$listenerRegistry";
     public static final String CONFIGURE_INIT = "$configureInit";
-    public static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
+    public static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
     public static final String POPULATE_CONFIG_DATA_METHOD = "$initAndPopulateConfigData";
+    public static final String HANDLE_ANYDATA_VALUES = "handleAnydataValues";
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
@@ -328,6 +359,7 @@ public class JvmConstants {
     public static final String OBSERVE_UTILS = "io/ballerina/runtime/observability/ObserveUtils";
     public static final String START_RESOURCE_OBSERVATION_METHOD = "startResourceObservation";
     public static final String START_CALLABLE_OBSERVATION_METHOD = "startCallableObservation";
+    public static final String STOP_OBSERVATION_WITH_ERROR_METHOD = "stopObservationWithError";
     public static final String REPORT_ERROR_METHOD = "reportError";
     public static final String STOP_OBSERVATION_METHOD = "stopObservation";
     public static final String OBSERVABLE_ANNOTATION = "ballerina/observe/Observable";
@@ -348,11 +380,23 @@ public class JvmConstants {
     public static final int TYPE_FLAG_ANYDATA = 2;
     public static final int TYPE_FLAG_PURETYPE = 4;
 
-    // ballerina error reasons for ASM operations.
-    public static final String CLASS_TOO_LARGE = "ClassTooLarge";
-
 
     public static final String TYPE_NOT_SUPPORTED_MESSAGE = "JVM generation is not supported for type ";
+
+    public static final int MAX_MEMBERS_PER_METHOD = 100;
+    public static final int MAX_TYPES_PER_METHOD = 100;
+    public static final int MAX_FIELDS_PER_SPLIT_METHOD = 500;
+    public static final int MAX_MODULES_PER_METHOD = 100;
+    public static final int MAX_CALLS_PER_CLIENT_METHOD = 100;
+    public static final int MAX_CONSTANTS_PER_METHOD = 100;
+    /*
+    MAX_STRINGS_PER_METHOD is calculated as below.
+    No of instructions required for create ballerina string constant object = 12
+    Java method limit = 64000
+    Max strings constant initializations per method = 64000/12 -> 5000
+    */
+    public static final int MAX_STRINGS_PER_METHOD = 5000;
+
 
     private JvmConstants() {
     }

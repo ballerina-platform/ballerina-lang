@@ -259,6 +259,8 @@ type Student record {|
     [RESULT, int]...;
 |};
 
+type recursiveTuple [int, string|xml, recursiveTuple...];
+
 function testRuntimeIsTypeForSelectivelyImmutableBasicTypes() {
     xml a = xml `<foo><bar>Text</bar></foo>`;
     any|error b = a;
@@ -282,6 +284,11 @@ function testRuntimeIsTypeForSelectivelyImmutableBasicTypes() {
     [int, string|xml, int...] r = q.cloneReadOnly();
     assertTrue(r is json);
     assertFalse(q is json);
+
+    recursiveTuple p = [1, ""];
+    recursiveTuple s = p.cloneReadOnly();
+    assertTrue(s is json);
+    assertFalse(p is json);
 
     map<string> j = {a: "a", b: "b"};
     any|error k = j;

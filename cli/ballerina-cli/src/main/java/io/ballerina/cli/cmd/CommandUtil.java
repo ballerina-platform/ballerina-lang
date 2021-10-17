@@ -36,7 +36,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +43,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
@@ -55,7 +53,9 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
 public class CommandUtil {
     public static final String ORG_NAME = "ORG_NAME";
     public static final String PKG_NAME = "PKG_NAME";
+    public static final String DIST_VERSION = "DIST_VERSION";
     public static final String GITIGNORE = "gitignore";
+    public static final String DEVCONTAINER = "devcontainer";
     public static final String NEW_CMD_DEFAULTS = "new_cmd_defaults";
     public static final String CREATE_CMD_TEMPLATES = "create_cmd_templates";
     private static FileSystem jarFs;
@@ -124,21 +124,13 @@ public class CommandUtil {
             URISyntaxException {
         // We will be creating following in the project directory
         // - Ballerina.toml
-        // - main.bal
+        // - service.bal
         // - .gitignore       <- git ignore file
+        // - .devcontainer.json
 
         applyTemplate(path, template);
         if (template.equalsIgnoreCase("lib")) {
             initLibPackage(path, packageName);
-            Path source = path.resolve("lib.bal");
-            Files.move(source, source.resolveSibling(guessPkgName(packageName) + ".bal"),
-                    StandardCopyOption.REPLACE_EXISTING);
-
-            String packageMd = FileUtils.readFileAsString(
-                    NEW_CMD_DEFAULTS + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME);
-
-            Files.write(path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME),
-                    packageMd.getBytes(StandardCharsets.UTF_8));
         } else {
             initPackage(path);
         }
@@ -148,6 +140,15 @@ public class CommandUtil {
         }
         String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + GITIGNORE);
         Files.write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
+        // Create dev container
+        Path devcontainer = path.resolve(ProjectConstants.DEVCONTAINER);
+        if (Files.notExists(devcontainer)) {
+            Files.createFile(devcontainer);
+        }
+
+        String defaultDevcontainer = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + DEVCONTAINER);
+        defaultDevcontainer = defaultDevcontainer.replace("latest", RepoUtils.getBallerinaVersion());
+        Files.write(devcontainer, defaultDevcontainer.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -207,7 +208,14 @@ public class CommandUtil {
      */
     public static void applyTemplate(Path modulePath, String template) throws IOException, URISyntaxException {
         Path templateDir = getTemplatePath().resolve(template);
-        Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
+        if (template.equalsIgnoreCase("main")) {
+            templateDir = getTemplatePath().resolve("default");
+            Path tempDirTest = getTemplatePath().resolve("main");
+            Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
+            Files.walkFileTree(tempDirTest, new FileUtils.Copy(tempDirTest, modulePath));
+        } else {
+            Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
+        }
     }
 
     /**
@@ -221,6 +229,8 @@ public class CommandUtil {
         Files.createFile(ballerinaToml);
 
         String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-app.toml");
+        // replace manifest distribution with a guessed value
+        defaultManifest = defaultManifest.replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
         Files.write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -242,8 +252,9 @@ public class CommandUtil {
 
         String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-lib.toml");
         // replace manifest org and name with a guessed value.
-        defaultManifest = defaultManifest.replaceAll(ORG_NAME, ProjectUtils.guessOrgName()).
-                replaceAll(PKG_NAME, ProjectUtils.guessPkgName(packageName));
+        defaultManifest = defaultManifest.replaceAll(ORG_NAME, ProjectUtils.guessOrgName())
+                .replaceAll(PKG_NAME, ProjectUtils.guessPkgName(packageName))
+                .replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
 
         Files.write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
     }

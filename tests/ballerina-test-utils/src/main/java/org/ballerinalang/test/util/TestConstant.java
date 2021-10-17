@@ -37,7 +37,7 @@ public class TestConstant {
     public static final String IDENTITY = "identity";
     public static final String ENABLE_JBALLERINA_TESTS = "enableJBallerinaTests";
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
-    public static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
+    public static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
 
     //HTTP2 related Constants
     public static final long HTTP2_RESPONSE_TIME_OUT = 10;

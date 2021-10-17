@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
@@ -64,11 +65,12 @@ public class ErrorValue extends BError implements RefValue {
     private static final PrintStream outStream = System.err;
 
     private final Type type;
+    private final BTypedesc typedesc;
     private final BString message;
     private final BError cause;
     private final Object details;
 
-    private static final String GENERATE_OBJECT_CLASS_PREFIX = ".$value$";
+    private static final String GENERATE_OBJECT_CLASS_PREFIX = "$value$";
     private static final String GENERATE_PKG_INIT = "___init_";
     private static final String GENERATE_PKG_START = "___start_";
     private static final String GENERATE_PKG_STOP = "___stop_";
@@ -92,6 +94,7 @@ public class ErrorValue extends BError implements RefValue {
         this.message = message;
         this.cause = cause;
         this.details = details;
+        this.typedesc = new TypedescValueImpl(type);
     }
 
     public ErrorValue(Type type, BString message, BError cause, Object details,
@@ -104,6 +107,7 @@ public class ErrorValue extends BError implements RefValue {
         BTypeIdSet typeIdSet = new BTypeIdSet();
         typeIdSet.add(typeIdPkg, typeIdName, true);
         ((BErrorType) type).setTypeIdSet(typeIdSet);
+        this.typedesc = new TypedescValueImpl(type);
     }
 
     @Override
@@ -217,6 +221,10 @@ public class ErrorValue extends BError implements RefValue {
         return this;
     }
 
+    public BTypedesc getTypedesc() {
+        return typedesc;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -291,18 +299,44 @@ public class ErrorValue extends BError implements RefValue {
         String errorMsg = getPrintableError();
         StringBuilder sb = new StringBuilder();
         sb.append(errorMsg);
-        // Append function/action/resource name with package path (if any)
-        StackTraceElement[] stackTrace = this.getStackTrace();
-        if (stackTrace.length == 0) {
-            return sb.toString();
+        addPrintableStackTrace(sb, this, new StackTraceElement[0]);
+        BError cause = this.getCause();
+        StackTraceElement[] enclosingTrace = this.getStackTrace();
+        while (cause != null) {
+            sb.append("\ncause: ")
+                    .append(cause.getMessage());
+            addPrintableStackTrace(sb, cause, enclosingTrace);
+            enclosingTrace = cause.getStackTrace();
+            cause = cause.getCause();
         }
+        return sb.toString();
+    }
+
+    private void addPrintableStackTrace(StringBuilder sb, BError error, StackTraceElement[] enclosingTrace) {
+        // Append function/action/resource name with package path (if any)
+        StackTraceElement[] stackTrace = error.getStackTrace();
+        if (stackTrace.length == 0) {
+            return;
+        }
+        int index = stackTrace.length - 1;
+        for (int n = enclosingTrace.length - 1; index >= 0 && n >= 0 &&
+                stackTrace[index].equals(enclosingTrace[n]); --n) {
+            --index;
+        }
+
         sb.append("\n\tat ");
         // print first element
         printStackElement(sb, stackTrace[0], "");
-        for (int i = 1; i < stackTrace.length; i++) {
+        for (int i = 1; i <= index; i++) {
             printStackElement(sb, stackTrace[i], "\n\t   ");
         }
-        return sb.toString();
+
+        int framesInCommon = stackTrace.length - 1 - index;
+        if (framesInCommon != 0) {
+            sb.append("\n\t   ... ")
+                    .append(framesInCommon)
+                    .append(" more");
+        }
     }
 
     @Override
@@ -347,9 +381,6 @@ public class ErrorValue extends BError implements RefValue {
         StringJoiner joiner = new StringJoiner(" ");
 
         joiner.add(this.message.getValue());
-        if (this.cause != null) {
-            joiner.add("cause: " + this.cause.getMessage());
-        }
         if (!isEmptyDetail()) {
             joiner.add(this.details.toString());
         }
@@ -394,8 +425,9 @@ public class ErrorValue extends BError implements RefValue {
                                                      stackFrame.getLineNumber()));
 
         }
-        if (fileName != null && !fileName.endsWith(BLANG_SRC_FILE_SUFFIX)) {
-            // Remove java sources for bal stacktrace if they are not extern functions.
+        if (fileName != null && !fileName.endsWith(BLANG_SRC_FILE_SUFFIX) || isCompilerAddedName(methodName)) {
+            // Remove java sources for bal stacktrace if they are not extern functions or
+            // the stack frames which have compiler added method names
             return Optional.empty();
         }
         return Optional.of(
@@ -403,6 +435,10 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     private String cleanupClassName(String className) {
-        return className.replace(GENERATE_OBJECT_CLASS_PREFIX, ".");
+        return className.replace(GENERATE_OBJECT_CLASS_PREFIX, "");
+    }
+
+    private boolean isCompilerAddedName(String name) {
+        return name != null && name.startsWith("$") && name.endsWith("$");
     }
 }

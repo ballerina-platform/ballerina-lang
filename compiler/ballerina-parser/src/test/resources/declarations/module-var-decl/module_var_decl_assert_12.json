@@ -33,17 +33,19 @@
                         {
                           "kind": "INT_KEYWORD",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_QUALIFIER_NOT_ALLOWED"
-                          ],
                           "leadingMinutiae": [
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "hasDiagnostics": true,
                                 "children": [
                                   {
-                                    "kind": "ISOLATED_KEYWORD"
+                                    "kind": "ISOLATED_KEYWORD",
+                                    "hasDiagnostics": true,
+                                    "diagnostics": [
+                                      "ERROR_QUALIFIER_NOT_ALLOWED"
+                                    ]
                                   }
                                 ]
                               }
@@ -131,17 +133,19 @@
                         {
                           "kind": "INT_KEYWORD",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_QUALIFIER_NOT_ALLOWED"
-                          ],
                           "leadingMinutiae": [
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "hasDiagnostics": true,
                                 "children": [
                                   {
-                                    "kind": "ISOLATED_KEYWORD"
+                                    "kind": "ISOLATED_KEYWORD",
+                                    "hasDiagnostics": true,
+                                    "diagnostics": [
+                                      "ERROR_QUALIFIER_NOT_ALLOWED"
+                                    ]
                                   }
                                 ]
                               }

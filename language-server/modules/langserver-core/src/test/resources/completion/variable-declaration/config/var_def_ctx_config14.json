@@ -511,31 +511,9 @@
     {
       "label": "func",
       "kind": "Variable",
-      "detail": "int",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
-        }
-      },
+      "detail": "function () returns int",
       "sortText": "AB",
-      "filterText": "func",
       "insertText": "func",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "func()",
-      "kind": "Function",
-      "detail": "int",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "func",
-      "insertText": "func()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -565,31 +543,9 @@
     {
       "label": "myfunc",
       "kind": "Variable",
-      "detail": "int",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
-        }
-      },
+      "detail": "function () returns int",
       "sortText": "AB",
-      "filterText": "myfunc",
       "insertText": "myfunc",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myfunc()",
-      "kind": "Function",
-      "detail": "int",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "myfunc",
-      "insertText": "myfunc()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -741,6 +697,15 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "filterText": "null",
+      "insertText": "null",
       "insertTextFormat": "Snippet"
     }
   ]

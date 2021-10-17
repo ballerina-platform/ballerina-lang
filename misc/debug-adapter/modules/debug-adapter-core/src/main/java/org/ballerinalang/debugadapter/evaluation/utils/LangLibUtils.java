@@ -29,7 +29,6 @@ import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.FunctionNodeFinder;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.variable.BVariableType;
@@ -39,6 +38,9 @@ import java.util.Optional;
 import java.util.StringJoiner;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.LANG_LIB_METHOD_NOT_FOUND;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.LANG_LIB_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getGeneratedMethod;
 import static org.ballerinalang.debugadapter.variable.BVariableType.ARRAY;
@@ -76,8 +78,7 @@ public class LangLibUtils {
         try {
             return getGeneratedMethod(context, langLibCls, method);
         } catch (EvaluationException e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.LANG_LIB_METHOD_NOT_FOUND.getString(),
-                    method, result.getType().getString()));
+            throw createEvaluationException(LANG_LIB_METHOD_NOT_FOUND, method, result.getType().getString());
         }
     }
 
@@ -87,12 +88,11 @@ public class LangLibUtils {
             return new StringJoiner(".")
                     .add(LANG_LIB_ORG)
                     .add(encodeModuleName(LANG_LIB_PACKAGE_PREFIX + langLibName))
-                    .add(langLibPackage.packageVersion().toString().replaceAll("\\.", "_"))
+                    .add(String.valueOf(langLibPackage.packageVersion().value().major()))
                     .add(langLibName)
                     .toString();
         } catch (Exception ignored) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.LANG_LIB_NOT_FOUND.getString(),
-                    langLibName));
+            throw createEvaluationException(LANG_LIB_NOT_FOUND, langLibName);
         }
     }
 

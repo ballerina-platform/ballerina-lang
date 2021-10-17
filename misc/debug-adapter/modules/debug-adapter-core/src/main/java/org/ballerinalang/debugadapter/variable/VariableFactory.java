@@ -102,6 +102,8 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.isService;
  */
 public class VariableFactory {
 
+    private static final String TYPEDESC_IDENTIFIER = "$typedesc$";
+
     public static BVariable getVariable(SuspendedContext context, Value value) {
         return getVariable(context, "unknown", value);
     }
@@ -139,8 +141,8 @@ public class VariableFactory {
             return new BByte(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.DECIMAL.getString())) {
             return new BDecimal(context, varName, value);
-        } else if (valueTypeName.equals(JVMValueType.BMPSTRING.getString())
-                || valueTypeName.equals(JVMValueType.NONBMPSTRING.getString())
+        } else if (valueTypeName.equals(JVMValueType.BMP_STRING.getString())
+                || valueTypeName.equals(JVMValueType.NON_BMP_STRING.getString())
                 || valueTypeName.equals(JVMValueType.J_STRING.getString())) {
             return new BString(context, varName, value);
         } else if (valueTypeName.contains(JVMValueType.ARRAY_VALUE.getString())) {
@@ -149,7 +151,8 @@ public class VariableFactory {
             return new BTuple(context, varName, value);
         } else if (valueTypeName.contains(JVMValueType.ERROR_VALUE.getString())) {
             return new BError(context, varName, value);
-        } else if (valueTypeName.contains(JVMValueType.TYPEDESC_VALUE.getString())) {
+        } else if (valueTypeName.contains(JVMValueType.TYPEDESC_VALUE.getString())
+                || valueTypeName.contains(TYPEDESC_IDENTIFIER)) {
             return new BTypeDesc(context, varName, value);
         } else if (valueTypeName.contains(JVMValueType.TABLE_VALUE.getString())) {
             return new BTable(context, varName, value);
@@ -173,7 +176,7 @@ public class VariableFactory {
             return new BXmlItem(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.XML_ATTRIB_MAP.getString())) {
             return new BXmlItemAttributeMap(context, varName, value);
-        } else if (valueTypeName.contains(JVMValueType.MAP_VALUE.getString()) && !isRecord(value)) {
+        } else if (valueTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
             if (isJson(value)) {
                 return new BJson(context, varName, value);
             } else {

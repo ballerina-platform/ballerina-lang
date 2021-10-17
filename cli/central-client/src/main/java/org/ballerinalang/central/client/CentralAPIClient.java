@@ -33,6 +33,10 @@ import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
 import org.ballerinalang.central.client.model.Error;
 import org.ballerinalang.central.client.model.Package;
+import org.ballerinalang.central.client.model.PackageNameResolutionRequest;
+import org.ballerinalang.central.client.model.PackageNameResolutionResponse;
+import org.ballerinalang.central.client.model.PackageResolutionRequest;
+import org.ballerinalang.central.client.model.PackageResolutionResponse;
 import org.ballerinalang.central.client.model.PackageSearchResult;
 
 import java.io.IOException;
@@ -55,6 +59,7 @@ import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT_ENCODING;
+import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
 import static org.ballerinalang.central.client.CentralClientConstants.AUTHORIZATION;
 import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_PLATFORM;
@@ -76,6 +81,8 @@ import static org.ballerinalang.central.client.Utils.isApplicationJsonContentTyp
 public class CentralAPIClient {
 
     private static final String PACKAGES = "packages";
+    private static final String RESOLVE_DEPENDENCIES = "resolve-dependencies";
+    private static final String RESOLVE_MODULES = "resolve-modules";
     private static final String ERR_CANNOT_FIND_PACKAGE = "error: could not connect to remote repository to find " +
             "package: ";
     private static final String ERR_CANNOT_FIND_VERSIONS = "error: could not connect to remote repository to find " +
@@ -83,6 +90,8 @@ public class CentralAPIClient {
     private static final String ERR_CANNOT_PUSH = "error: failed to push the package: ";
     private static final String ERR_CANNOT_PULL_PACKAGE = "error: failed to pull the package: ";
     private static final String ERR_CANNOT_SEARCH = "error: failed to search packages: ";
+    private static final String ERR_PACKAGE_RESOLUTION = "error: while connecting to central: ";
+    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private final String baseUrl;
     private final Proxy proxy;
     private String accessToken;
@@ -446,7 +455,8 @@ public class CentralAPIClient {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             String errorMsg =
-                                    logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature + "' from" +
+                                    logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature +
+                                                           "' from" +
                                                            " the remote repository '" + url +
                                                            "'. reason: " + error.getMessage());
                             throw new CentralClientException(errorMsg);
@@ -460,6 +470,140 @@ public class CentralAPIClient {
             throw new CentralClientException(errorMsg);
         } catch (IOException e) {
             throw new CentralClientException(e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+    /**
+     * Resolve Package Names of modules.
+     *
+     * @throws CentralClientException   Central Client exception.
+     * @return
+     */
+    public PackageNameResolutionResponse resolvePackageNames(PackageNameResolutionRequest request,
+                                                             String supportedPlatform, String ballerinaVersion,
+                                                             boolean isBuild)
+            throws CentralClientException {
+
+        String url = this.baseUrl + "/" + PACKAGES + "/" + RESOLVE_MODULES;
+
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
+        try {
+            RequestBody requestBody = RequestBody.create(JSON, new Gson().toJson(request));
+            Request resolutionReq = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .post(requestBody)
+                    .url(url)
+                    .addHeader(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(ACCEPT, APPLICATION_JSON)
+                    .build();
+
+            Call resolutionReqCall = client.newCall(resolutionReq);
+            Response packageResolutionResponse = resolutionReqCall.execute();
+
+            body = Optional.ofNullable(packageResolutionResponse.body());
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
+                    // If searching was successful
+                    if (packageResolutionResponse.code() == HTTP_OK) {
+                        return new Gson().fromJson(body.get().string(), PackageNameResolutionResponse.class);
+                    }
+
+                    // If search request was sent wrongly
+                    if (packageResolutionResponse.code() == HTTP_BAD_REQUEST) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new ConnectionErrorException(error.getMessage());
+                        }
+                    }
+
+                    // If error occurred at remote repository
+                    if (packageResolutionResponse.code() == HTTP_INTERNAL_ERROR ||
+                            packageResolutionResponse.code() == HTTP_UNAVAILABLE) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new ConnectionErrorException(ERR_PACKAGE_RESOLUTION + " reason:" +
+                                    error.getMessage());
+                        }
+                    }
+                }
+            }
+            throw new ConnectionErrorException(ERR_PACKAGE_RESOLUTION);
+        } catch (IOException e) {
+            throw new ConnectionErrorException(ERR_PACKAGE_RESOLUTION + ". reason: " + e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+    /**
+     * Resolve Dependencies from central.
+     *
+     * @throws CentralClientException   Central Client exception.
+     */
+    public PackageResolutionResponse resolveDependencies(PackageResolutionRequest request, String supportedPlatform,
+                                                         String ballerinaVersion, boolean isBuild)
+            throws CentralClientException {
+
+        String url = this.baseUrl + "/" + PACKAGES + "/" + RESOLVE_DEPENDENCIES;
+
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
+        try {
+            RequestBody requestBody = RequestBody.create(JSON, new Gson().toJson(request));
+            Request packageResolutionReq = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .post(requestBody)
+                    .url(url)
+                    .addHeader(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(ACCEPT, APPLICATION_JSON)
+                    .build();
+
+            Call packageResolutionReqCall = client.newCall(packageResolutionReq);
+            Response packageResolutionResponse = packageResolutionReqCall.execute();
+
+            body = Optional.ofNullable(packageResolutionResponse.body());
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
+                    // If searching was successful
+                    if (packageResolutionResponse.code() == HTTP_OK) {
+                        return new Gson().fromJson(body.get().string(), PackageResolutionResponse.class);
+                    }
+
+                    // If search request was sent wrongly
+                    if (packageResolutionResponse.code() == HTTP_BAD_REQUEST) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new ConnectionErrorException(error.getMessage());
+                        }
+                    }
+
+                    // If error occurred at remote repository
+                    if (packageResolutionResponse.code() == HTTP_INTERNAL_ERROR ||
+                            packageResolutionResponse.code() == HTTP_UNAVAILABLE) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new ConnectionErrorException(ERR_PACKAGE_RESOLUTION + " reason:" +
+                                    error.getMessage());
+                        }
+                    }
+                }
+            }
+            throw new ConnectionErrorException(ERR_PACKAGE_RESOLUTION);
+        } catch (IOException e) {
+            throw new ConnectionErrorException(ERR_PACKAGE_RESOLUTION + ". reason: " + e.getMessage());
         } finally {
             body.ifPresent(ResponseBody::close);
             try {

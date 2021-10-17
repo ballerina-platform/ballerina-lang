@@ -42,6 +42,11 @@ public class NilLiteralTest extends AbstractExpressionsTest {
         testFile("basic-literals/nil_literal_source_04.bal", "basic-literals/nil_literal_assert_08.json");
     }
 
+    @Test
+    public void testNilLiteralInMatchGuard() {
+        testFile("basic-literals/nil_literal_source_11.bal", "basic-literals/nil_literal_assert_11.json");
+    }
+
     // Recovery test
 
     @Test

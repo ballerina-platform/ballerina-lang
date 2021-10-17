@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'decimal as decimals;
+import ballerina/lang.test;
 
 function testSum(decimal p1, decimal p2) returns decimal {
     return decimals:sum(p1, p2);
@@ -98,6 +99,40 @@ function testLangLibCallOnFiniteType() {
     Decimals x = 12;
     decimal y = x.sum(1, 2, 3);
     assertEquality(18d, y);
+}
+
+decimal d1 = -0.0;
+decimal d2 = 0.0;
+decimal d3 = 1.0;
+decimal d4 = 2.0;
+decimal d5 = 2.00;
+
+function testDecimalEquality() {
+    test:assertTrue(d3 == d3);
+    test:assertFalse(d3 == d4);
+    test:assertTrue(d4 == d5);
+    test:assertTrue(d1 == d2);
+}
+
+function testDecimalNotEquality() {
+    test:assertFalse(d3 != d3);
+    test:assertTrue(d3 != d4);
+    test:assertFalse(d4 != d5);
+    test:assertFalse(d1 != d2);
+}
+
+function testDecimalExactEquality() {
+    test:assertTrue(d5 === d5);
+    test:assertFalse(d3 === d4);
+    test:assertFalse(d4 === d5);
+    test:assertTrue(d1 === d2);
+}
+
+function testDecimalNotExactEquality() {
+    test:assertFalse(d5 !== d5);
+    test:assertTrue(d3 !== d4);
+    test:assertTrue(d4 !== d5);
+    test:assertFalse(d1 !== d2);
 }
 
 function assertEquality(any|error expected, any|error actual) {

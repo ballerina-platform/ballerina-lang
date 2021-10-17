@@ -54,6 +54,22 @@ function testStringFreeze(string a) returns [boolean, boolean] {
     return [a == b, (a.isReadOnly() && b.isReadOnly())];
 }
 
+enum Foo {
+    X
+}
+
+type Bar record {
+    Foo f;
+};
+
+function testRecordWithEnumFreeze() {
+    Bar b = {f: X};
+    anydata g = b;
+    anydata readOnlyBar = g.cloneReadOnly();
+    assertTrue(readOnlyBar.isReadOnly());
+    assertTrue(readOnlyBar is Bar);
+}
+
 function testBasicTypeNullableUnionFreeze() returns [boolean, boolean] {
     int? i = 5;
     anydata j = i.cloneReadOnly();
@@ -359,6 +375,35 @@ function testFrozenTupleUpdate() {
     [int, Employee] t2 = t1.cloneReadOnly();
     Employee e2 = { name: "Zee", id: 1200 };
     t2[1] = e2;
+}
+
+type A [int, string|xml, boolean, A...];
+type B [int, boolean, B[]...];
+
+function cloneReadonlyTupleNegative(A tupleTemp1) returns A {
+    tupleTemp1[2] = true;
+    return tupleTemp1;
+}
+
+function testFrozenRecursiveTupleUpdate() {
+    A tupleTest1 = [1, "text"];
+    A tupleTemp1 = tupleTest1.cloneReadOnly();
+    error|A cloneErr = trap cloneReadonlyTupleNegative(tupleTemp1);
+    assertTrue(cloneErr is error);
+    error err = <error> cloneErr;
+    assertTrue(err.message() == "{ballerina/lang.array}InvalidUpdate");
+}
+
+function testRecursiveTupleFreeze() {
+    A tupleTest1 = [1, ""];
+    A tupleTemp1 = tupleTest1.cloneReadOnly();
+    assertTrue(tupleTemp1.isReadOnly());
+    assertFalse(tupleTest1.isReadOnly());
+
+    B tupleTest2 = [1];
+    B tupleTemp2 = tupleTest2.cloneReadOnly();
+    assertTrue(tupleTemp2.isReadOnly());
+    assertFalse(tupleTest2.isReadOnly());
 }
 
 function testFrozenRecordUpdate() {

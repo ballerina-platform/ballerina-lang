@@ -90,8 +90,8 @@ public class ServiceTest {
         validateError(compileResult, errIdx++, "invalid listener attachment", 17, 20);
         validateError(compileResult, errIdx++, "redeclared symbol '$anonType$_2.foo'", 28, 21);
         validateError(compileResult, errIdx++, "undefined symbol 'invalidVar'", 54, 12);
-        validateError(compileResult, errIdx++, "'private' qualifier not allowed", 60, 13);
-        validateError(compileResult, errIdx++, "'public' qualifier not allowed", 64, 12);
+        validateError(compileResult, errIdx++, "'private' qualifier not allowed", 60, 5);
+        validateError(compileResult, errIdx++, "'public' qualifier not allowed", 64, 5);
         validateError(compileResult, errIdx++, "undefined method 'tuv' in object 'object { function xyz () " +
                 "returns (); }'", 94, 13);
         validateError(compileResult, errIdx++, "undefined symbol 'kgp'", 96, 9);

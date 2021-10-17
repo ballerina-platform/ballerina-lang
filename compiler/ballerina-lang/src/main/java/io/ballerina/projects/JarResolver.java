@@ -21,6 +21,7 @@ import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -141,7 +142,7 @@ public class JarResolver {
         List<JarLibrary> allJarFileForTestExec = new ArrayList<>(getJarFilePathsRequiredForExecution());
 
         // 2) Replace given modules thin jar with it's test-thin jar
-        if (!rootPackageContext.manifest().org().anonymous()) {
+        if (!rootPackageContext.packageManifest().org().anonymous()) {
             PackageId rootPackageId = rootPackageContext.packageId();
 
             // Add the test-thin jar of the specified module
@@ -229,7 +230,8 @@ public class JarResolver {
      */
     public static String getQualifiedClassName(String orgName, String packageName, String version, String className) {
         if (!DOT.equals(packageName)) {
-            className = encodeNonFunctionIdentifier(packageName) + "." + version.replace('.', '_') + "." + className;
+            className = encodeNonFunctionIdentifier(packageName) + "." +
+                    CompilerUtils.getMajorVersion(version) + "." + className;
         }
         if (!ANON_ORG.equals(orgName)) {
             className = encodeNonFunctionIdentifier(orgName) + "." + className;

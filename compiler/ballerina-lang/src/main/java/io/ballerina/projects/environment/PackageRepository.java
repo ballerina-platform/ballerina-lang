@@ -20,7 +20,10 @@ package io.ballerina.projects.environment;
 
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.internal.ImportModuleRequest;
+import io.ballerina.projects.internal.ImportModuleResponse;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,9 +35,48 @@ import java.util.Optional;
  */
 public interface PackageRepository {
 
-    Optional<Package> getPackage(ResolutionRequest resolutionRequest);
+    /**
+     * Return the package specified in {@code ResolutionRequest}.
+     * <p>
+     * if the package is not found, this method returns an empty response.
+     *
+     * @param request package request
+     * @param options resolution options
+     * @return The loaded package or else an empty container
+     */
+    Optional<Package> getPackage(ResolutionRequest request, ResolutionOptions options);
 
-    List<PackageVersion> getPackageVersions(ResolutionRequest resolutionRequest);
+    /**
+     * Returns the available package versions in the repository.
+     *
+     * @param request package request
+     * @param options resolution options
+     * @return the available package versions in the repository
+     */
+    Collection<PackageVersion> getPackageVersions(ResolutionRequest request, ResolutionOptions options);
 
     Map<String, List<String>> getPackages();
+
+    /**
+     * Returns requested packages metadata such as the availability, dependency graph.
+     * <p>
+     * Metadata requests provide an efficient way to complete the dependency graph without
+     * downloading physical packages from Ballerina central.
+     *
+     * @param requests requested package collection
+     * @param options  resolution options
+     * @return a collection of {@code PackageMetadataResponse} instances
+     */
+    Collection<PackageMetadataResponse> getPackageMetadata(Collection<ResolutionRequest> requests,
+                                                           ResolutionOptions options);
+
+    /**
+     * Resolve requested import declaration with hierarchical module name to packages.
+     *
+     * @param requests import declaration collection
+     * @param options  resolution options
+     * @return a collection of resolved package metadata
+     */
+    Collection<ImportModuleResponse> getPackageNames(Collection<ImportModuleRequest> requests,
+                                                     ResolutionOptions options);
 }

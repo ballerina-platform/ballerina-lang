@@ -17,8 +17,6 @@
  */
 package io.ballerina.projects;
 
-import java.util.Objects;
-
 /**
  * Build options of a project.
  */
@@ -26,34 +24,40 @@ public class BuildOptions {
     private Boolean testReport;
     private Boolean codeCoverage;
     private Boolean dumpBuildTime;
+    private Boolean skipTests;
     private CompilationOptions compilationOptions;
 
-    BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime,
+    BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
                  CompilationOptions compilationOptions) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
+        this.skipTests = skipTests;
         this.compilationOptions = compilationOptions;
     }
 
     public boolean testReport() {
-        return toBooleanDefaultIfNull(testReport);
+        return toBooleanDefaultIfNull(this.testReport);
     }
 
     public boolean codeCoverage() {
-        return toBooleanDefaultIfNull(codeCoverage);
+        return toBooleanDefaultIfNull(this.codeCoverage);
     }
 
     public boolean dumpBuildTime() {
-        return toBooleanDefaultIfNull(dumpBuildTime);
+        return toBooleanDefaultIfNull(this.dumpBuildTime);
     }
 
     public boolean skipTests() {
-        return this.compilationOptions.skipTests();
+        return toBooleanDefaultIfNull(this.skipTests);
     }
 
     public boolean offlineBuild() {
         return this.compilationOptions.offlineBuild();
+    }
+
+    public boolean sticky() {
+        return this.compilationOptions.sticky();
     }
 
     public boolean experimental() {
@@ -73,7 +77,7 @@ public class BuildOptions {
     }
 
     CompilationOptions compilationOptions() {
-        return compilationOptions;
+        return this.compilationOptions;
     }
 
     /**
@@ -83,16 +87,41 @@ public class BuildOptions {
      * @return a new {@code BuildOptions} instance that contains our options and their options
      */
     public BuildOptions acceptTheirs(BuildOptions theirOptions) {
+        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        if (theirOptions.skipTests != null) {
+            buildOptionsBuilder.skipTests(theirOptions.skipTests);
+        } else {
+            buildOptionsBuilder.skipTests(this.skipTests);
+        }
+        if (theirOptions.codeCoverage != null) {
+            buildOptionsBuilder.codeCoverage(theirOptions.codeCoverage);
+        } else {
+            buildOptionsBuilder.codeCoverage(this.codeCoverage);
+        }
+        if (theirOptions.testReport != null) {
+            buildOptionsBuilder.testReport(theirOptions.testReport);
+        } else {
+            buildOptionsBuilder.testReport(this.testReport);
+        }
+        if (theirOptions.dumpBuildTime != null) {
+            buildOptionsBuilder.dumpBuildTime(theirOptions.dumpBuildTime);
+        } else {
+            buildOptionsBuilder.dumpBuildTime(this.dumpBuildTime);
+        }
 
-        this.codeCoverage = Objects.requireNonNullElseGet(
-                theirOptions.codeCoverage, () -> toBooleanDefaultIfNull(this.codeCoverage));
-        this.testReport = Objects.requireNonNullElseGet(
-                theirOptions.testReport, () -> toBooleanDefaultIfNull(this.testReport));
-        this.dumpBuildTime = Objects.requireNonNullElseGet(
-                theirOptions.dumpBuildTime, () -> toBooleanDefaultIfNull(this.dumpBuildTime));
-        this.compilationOptions = compilationOptions.acceptTheirs(theirOptions.compilationOptions());
+        CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
+        buildOptionsBuilder.offline(compilationOptions.offlineBuild);
+        buildOptionsBuilder.experimental(compilationOptions.experimental);
+        buildOptionsBuilder.observabilityIncluded(compilationOptions.observabilityIncluded);
+        buildOptionsBuilder.dumpBir(compilationOptions.dumpBir);
+        buildOptionsBuilder.dumpBirFile(compilationOptions.dumpBirFile);
+        buildOptionsBuilder.dumpGraph(compilationOptions.dumpGraph);
+        buildOptionsBuilder.dumpRawGraphs(compilationOptions.dumpRawGraphs);
+        buildOptionsBuilder.cloud(compilationOptions.cloud);
+        buildOptionsBuilder.listConflictedClasses(compilationOptions.listConflictedClasses);
+        buildOptionsBuilder.sticky(compilationOptions.sticky);
 
-        return this;
+        return buildOptionsBuilder.build();
     }
 
     private boolean toBooleanDefaultIfNull(Boolean bool) {
@@ -106,12 +135,13 @@ public class BuildOptions {
      * Enum to represent build options.
      */
     public enum OptionName {
+        SKIP_TESTS("skipTests"),
         TEST_REPORT("testReport"),
         CODE_COVERAGE("codeCoverage"),
         DUMP_BUILD_TIME("dumpBuildTime")
         ;
 
-        private String name;
+        private final String name;
 
         OptionName(String name) {
             this.name = name;

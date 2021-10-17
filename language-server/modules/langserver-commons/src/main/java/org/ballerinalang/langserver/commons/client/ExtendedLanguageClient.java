@@ -16,7 +16,6 @@
 
 package org.ballerinalang.langserver.commons.client;
 
-import org.ballerinalang.langserver.commons.semantichighlighter.SemanticHighlightingParams;
 import org.ballerinalang.langserver.commons.trace.TraceRecord;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
@@ -31,7 +30,4 @@ public interface ExtendedLanguageClient extends LanguageClient {
 
     @JsonNotification("window/showTextDocument")
     void showTextDocument(Location location);
-
-    @JsonNotification("window/highlighting")
-    void publishTextHighlighting(SemanticHighlightingParams semanticHighlightingParams);
 }

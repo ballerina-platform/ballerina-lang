@@ -105,8 +105,8 @@ public class MemberAccessTest {
                       148, 21);
         validateError(negativeResult, i++, "invalid operation: type '(anydata|int|map<float>)' does not support " +
                 "member access", 149, 17);
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 156, 15);
-        validateError(negativeResult, i++, "incompatible types: expected 'float', found 'string'", 157, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string:Char'", 156, 15);
+        validateError(negativeResult, i++, "incompatible types: expected 'float', found 'string:Char'", 157, 17);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 158, 21);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 159, 21);
         validateError(negativeResult, i++, "invalid operation: type 'foo|1' does not support member access", 169, 17);

@@ -139,6 +139,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static org.ballerinalang.test.util.TestConstant.CONFIGURATION_CLASS_NAME;
 import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_MAJOR_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
 
 /**
@@ -452,7 +453,7 @@ public class BRunUtil {
             Scheduler scheduler = new Scheduler(false);
             FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>(),
                     PredefinedTypes.TYPE_ANY, "test",
-                    new StrandMetadata(ANON_ORG, DOT, DEFAULT_VERSION.value,
+                    new StrandMetadata(ANON_ORG, DOT, DEFAULT_MAJOR_VERSION.value,
                             functionName));
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
@@ -1210,9 +1211,9 @@ public class BRunUtil {
             case io.ballerina.runtime.api.TypeTags.FUNCTION_POINTER_TAG:
                 io.ballerina.runtime.api.types.FunctionType jvmBFunctionType =
                         (io.ballerina.runtime.api.types.FunctionType) jvmType;
-                BType[] bParamTypes = new BType[jvmBFunctionType.getParameterTypes().length];
-                for (int i = 0; i < jvmBFunctionType.getParameterTypes().length; i++) {
-                    bParamTypes[i] = getBVMType(jvmBFunctionType.getParameterTypes()[i], selfTypeStack, visitedTypes,
+                BType[] bParamTypes = new BType[jvmBFunctionType.getParameters().length];
+                for (int i = 0; i < jvmBFunctionType.getParameters().length; i++) {
+                    bParamTypes[i] = getBVMType(jvmBFunctionType.getParameters()[i].type, selfTypeStack, visitedTypes,
                             newBTypes);
                 }
                 BType bRetType = getBVMType(jvmBFunctionType.getReturnType(), selfTypeStack, visitedTypes,

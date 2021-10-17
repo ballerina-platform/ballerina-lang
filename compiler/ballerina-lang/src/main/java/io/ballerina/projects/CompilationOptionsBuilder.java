@@ -24,61 +24,73 @@ package io.ballerina.projects;
  *
  * @since 2.0.0
  */
-class CompilationOptionsBuilder {
-    private Boolean skipTests;
-    private Boolean buildOffline;
+public class CompilationOptionsBuilder {
+    private Boolean offline;
     private Boolean experimental;
     private Boolean observabilityIncluded;
     private Boolean dumpBir;
-    private String dumpBirFile;
+    private Boolean dumpBirFile;
     private String cloud;
     private Boolean listConflictedClasses;
+    private Boolean sticky;
+    private Boolean dumpGraph;
+    private Boolean dumpRawGraph;
 
     public CompilationOptionsBuilder() {
     }
 
-    public CompilationOptionsBuilder skipTests(Boolean value) {
-        skipTests = value;
+    public CompilationOptionsBuilder offline(Boolean value) {
+        offline = value;
         return this;
     }
 
-    public CompilationOptionsBuilder buildOffline(Boolean value) {
-        buildOffline = value;
-        return this;
-    }
-
-    public CompilationOptionsBuilder experimental(Boolean value) {
+    CompilationOptionsBuilder experimental(Boolean value) {
         experimental = value;
         return this;
     }
 
-    public CompilationOptionsBuilder observabilityIncluded(Boolean value) {
+    CompilationOptionsBuilder observabilityIncluded(Boolean value) {
         observabilityIncluded = value;
         return this;
     }
 
-    public CompilationOptionsBuilder dumpBir(Boolean value) {
+    CompilationOptionsBuilder dumpBir(Boolean value) {
         dumpBir = value;
         return this;
     }
 
-    public CompilationOptionsBuilder cloud(String value) {
+    CompilationOptionsBuilder cloud(String value) {
         cloud = value;
         return this;
     }
 
-    public CompilationOptionsBuilder dumpBirFile(String value) {
+    CompilationOptionsBuilder dumpBirFile(Boolean value) {
         dumpBirFile = value;
         return this;
     }
 
-    public CompilationOptionsBuilder listConflictedClasses(Boolean value) {
+    CompilationOptionsBuilder dumpGraph(Boolean value) {
+        dumpGraph = value;
+        return this;
+    }
+
+    CompilationOptionsBuilder dumpRawGraphs(Boolean value) {
+        dumpRawGraph = value;
+        return this;
+    }
+
+    CompilationOptionsBuilder listConflictedClasses(Boolean value) {
         listConflictedClasses = value;
         return this;
     }
 
     public CompilationOptions build() {
-        return new CompilationOptions(skipTests, buildOffline, experimental, observabilityIncluded, dumpBir,
-                dumpBirFile, cloud, listConflictedClasses);
+        return new CompilationOptions(offline, experimental, observabilityIncluded, dumpBir,
+                dumpBirFile, cloud, listConflictedClasses, sticky,
+                dumpGraph, dumpRawGraph);
+    }
+
+    public void sticky(Boolean value) {
+        sticky = value;
     }
 }

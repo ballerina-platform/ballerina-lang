@@ -37,14 +37,17 @@ import org.eclipse.lsp4j.CompletionItemCapabilities;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
+import org.eclipse.lsp4j.ExecuteCommandCapabilities;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.RenameCapabilities;
+import org.eclipse.lsp4j.SemanticTokensCapabilities;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
 import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
+import org.eclipse.lsp4j.WorkspaceClientCapabilities;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
@@ -146,11 +149,17 @@ public class TestUtil {
 
         textDocumentClientCapabilities.setCompletion(completionCapabilities);
         textDocumentClientCapabilities.setSignatureHelp(signatureHelpCapabilities);
+        textDocumentClientCapabilities.setSemanticTokens(new SemanticTokensCapabilities(true));
         RenameCapabilities renameCapabilities = new RenameCapabilities();
         renameCapabilities.setPrepareSupport(true);
         textDocumentClientCapabilities.setRename(renameCapabilities);
 
         capabilities.setTextDocument(textDocumentClientCapabilities);
+
+        WorkspaceClientCapabilities workspaceCapabilities = new WorkspaceClientCapabilities();
+        workspaceCapabilities.setExecuteCommand(new ExecuteCommandCapabilities(true));
+        capabilities.setWorkspace(workspaceCapabilities);
+        
         params.setCapabilities(capabilities);
         endpoint.request("initialize", params);
 
@@ -200,7 +209,7 @@ public class TestUtil {
                                                             throws IOException, WorkspaceDocumentException {
         List<Diagnostic> diagnostics = new ArrayList<>();
 
-        DocumentServiceContext context = ContextBuilder.buildBaseContext(sourcePath.toUri().toString(),
+        DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(sourcePath.toUri().toString(),
                 workspaceManager,
                 LSContextOperation.TXT_DID_OPEN,
                 serverContext);

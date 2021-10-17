@@ -1,0 +1,19 @@
+firstField = "yee"
+
+[package]
+org = "foo"
+name = "winery"
+version = "1.0.0"
+newField = "fee"
+
+[userTable]
+name = "bar"
+frequency = 225
+
+[[userContact]]
+name = "hevayo"
+phone = "0123456789"
+
+[[userContact]]
+name = "asma"
+phone = "0123456789"

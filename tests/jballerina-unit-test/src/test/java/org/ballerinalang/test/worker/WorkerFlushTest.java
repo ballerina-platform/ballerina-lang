@@ -73,8 +73,8 @@ public class WorkerFlushTest {
         }
         Assert.assertNotNull(expectedException);
         String result =
-                "error: error3 {\"message\":\"msg3\"}\n" + "\tat flush-workers:$lambda$_13(flush-workers.bal:193)\n" +
-                "\t   flush-workers:$lambda$_13$lambda13$(flush-workers.bal:184)";
+                "error: error3 {\"message\":\"msg3\"}\n" +
+                        "\tat flush-workers:$lambda$_13(flush-workers.bal:193)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 

@@ -18,6 +18,7 @@ package org.ballerinalang.test.types.stream;
 
 import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -259,6 +260,15 @@ public class BStreamValueTest {
         int i = 0;
         BAssertUtil.validateError(incompleteTypeResult, i++, "missing type descriptor", 17, 15);
         Assert.assertEquals(i, incompleteTypeResult.getErrorCount());
+    }
+
+    @Test(description = "Check if completion type is checked at runtime",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp =
+                    "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types: 'stream<Foo>' cannot be "
+                            + "cast to 'stream<Foo,error>'.*")
+    public void testInvalidCast() {
+        BRunUtil.invoke(result, "testInvalidCast");
     }
 
     @AfterClass

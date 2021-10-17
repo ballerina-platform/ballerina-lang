@@ -13,3 +13,10 @@ class Foo {
 }
 const x = 5;
 listener T y = 6;
+
+function foo() {
+    if true {
+    }
+    else {
+    }
+}

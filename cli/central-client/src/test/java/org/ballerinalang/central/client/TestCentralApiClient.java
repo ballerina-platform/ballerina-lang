@@ -31,6 +31,10 @@ import org.awaitility.Duration;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
 import org.ballerinalang.central.client.model.Package;
+import org.ballerinalang.central.client.model.PackageNameResolutionRequest;
+import org.ballerinalang.central.client.model.PackageNameResolutionResponse;
+import org.ballerinalang.central.client.model.PackageResolutionRequest;
+import org.ballerinalang.central.client.model.PackageResolutionResponse;
 import org.ballerinalang.central.client.model.PackageSearchResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -565,4 +569,88 @@ public class TestCentralApiClient extends CentralAPIClient {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
     }
 
+    @Test(description = "Test search package resolution")
+    public void testPackageResolution() throws IOException, CentralClientException {
+        String resString = "{\"resolved\":" +
+                "[{\"org\":\"ballerina\", " +
+                "\"name\":\"http\", " +
+                "\"version\":\"1.1.0\", " +
+                "\"dependencies\":[]}], " +
+                "\"unresolved\":[]}";
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://localhost:9090/registry/packages/resolve-dependencies")
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_OK)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get(APPLICATION_JSON),
+                        resString
+                ))
+                .build();
+
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(any())).thenReturn(this.remoteCall);
+
+        PackageResolutionRequest packageResolutionRequest = new PackageResolutionRequest();
+        packageResolutionRequest.addPackage("ballerina", "http", "1.0.0", PackageResolutionRequest.Mode.MEDIUM);
+        PackageResolutionResponse packageResolutionResponse = this.resolveDependencies(
+                packageResolutionRequest, ANY_PLATFORM, TEST_BAL_VERSION, true);
+        PackageResolutionResponse.Package pkg = packageResolutionResponse.resolved().get(0);
+        Assert.assertEquals(pkg.org(), "ballerina");
+        Assert.assertEquals(pkg.name(), "http");
+        Assert.assertEquals(pkg.version(), "1.1.0");
+    }
+
+    @Test(description = "Test search package name resolution")
+    public void testPackageNameResolution() throws IOException, CentralClientException {
+        String resString = "{\n" +
+                "   \"resolvedModules\":[\n" +
+                "      {\n" +
+                "         \"organization\":\"shehanpa\",\n" +
+                "         \"moduleName\":\"fb\",\n" +
+                "         \"version\":\"0.7.0\",\n" +
+                "         \"packageName\":\"fb\"\n" +
+                "      }\n" +
+                "   ],\n" +
+                "   \"unresolvedModules\":[\n" +
+                "      {\n" +
+                "         \"organization\":\"hevayo\",\n" +
+                "         \"moduleName\":\"fb\",\n" +
+                "         \"version\":null,\n" +
+                "         \"reason\":\"package not found\"\n" +
+                "      }\n" +
+                "   ]\n" +
+                "}";
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://localhost:9090/registry/packages/resolve-modules")
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_OK)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get(APPLICATION_JSON),
+                        resString
+                ))
+                .build();
+
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(any())).thenReturn(this.remoteCall);
+
+
+        PackageNameResolutionRequest packageResolutionRequest = new PackageNameResolutionRequest();
+        PackageNameResolutionResponse packageResolutionResponse = this.resolvePackageNames(
+                packageResolutionRequest, ANY_PLATFORM, TEST_BAL_VERSION, true);
+        PackageNameResolutionResponse.Module module = packageResolutionResponse.resolvedModules().get(0);
+        Assert.assertEquals(module.getPackageName(), "fb");
+
+        PackageNameResolutionResponse.Module unresolvedModule = packageResolutionResponse.unresolvedModules().get(0);
+        Assert.assertEquals(unresolvedModule.getPackageName(), null);
+    }
 }

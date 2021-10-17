@@ -32,7 +32,7 @@ public class MockConstants {
     public static final String MOCK_STRAND_NAME = "mock";
 
     // constants to represent error messages
-    public static final Module TEST_PACKAGE_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "test", "0.8.0");
+    public static final Module TEST_PACKAGE_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "test", "0");
     public static final String FUNCTION_NOT_FOUND_ERROR = "FunctionNotFoundError";
     public static final String INVALID_MOCK_OBJECT_ERROR = "InvalidObjectError";
     public static final String FUNCTION_SIGNATURE_MISMATCH_ERROR = "FunctionSignatureMismatchError";

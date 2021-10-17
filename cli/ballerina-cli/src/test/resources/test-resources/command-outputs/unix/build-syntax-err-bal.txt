@@ -1,3 +1,3 @@
 Compiling source
 	hello_world.bal
-ERROR [hello_world.bal:(3:1,3:1)] invalid token ';'
+ERROR [hello_world.bal:(2:2,2:3)] invalid token ';'

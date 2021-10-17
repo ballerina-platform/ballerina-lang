@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -89,7 +90,7 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     public List<FunctionSymbol> langLibMethods() {
         if (this.langLibFunctions == null) {
             LangLibrary langLibrary = LangLibrary.getInstance(this.context);
-            List<FunctionSymbol> functions = langLibrary.getMethods(this.typeKind());
+            List<FunctionSymbol> functions = langLibrary.getMethods(this.getBType());
             this.langLibFunctions = filterLangLibMethods(functions, this.getBType());
         }
 
@@ -100,6 +101,19 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     public boolean assignableTo(TypeSymbol targetType) {
         Types types = Types.getInstance(this.context);
         return types.isAssignable(this.bType, getTargetBType(targetType));
+    }
+
+    @Override
+    public boolean nameEquals(String name) {
+        Optional<String> symbolName = this.getName();
+        if (symbolName.isEmpty() || name == null) {
+            return false;
+        }
+        String symName = symbolName.get();
+        if (name.equals(symName)) {
+            return true;
+        }
+        return unescapedUnicode(name).equals(unescapedUnicode(symName));
     }
 
     @Override
@@ -170,5 +184,12 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
         }
 
         return ((BallerinaClassSymbol) typeSymbol).getBType();
+    }
+
+    private String unescapedUnicode(String value) {
+        if (value.startsWith("'")) {
+            return IdentifierUtils.unescapeUnicodeCodepoints(value.substring(1));
+        }
+        return IdentifierUtils.unescapeUnicodeCodepoints(value);
     }
 }

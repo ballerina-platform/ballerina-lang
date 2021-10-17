@@ -111,6 +111,7 @@ public abstract class BIRNode {
     public static class BIRVariableDcl extends BIRDocumentableNode {
         public BType type;
         public Name name;
+        public Name originalName;
         public String metaVarName;
         public VarKind kind;
         public VarScope scope;
@@ -118,18 +119,25 @@ public abstract class BIRNode {
         public BIRBasicBlock endBB;
         public BIRBasicBlock startBB;
         public int insOffset;
+        public boolean onlyUsedInSingleBB;
 
         // Stores the scope of the current instruction with respect to local variables.
         public BirScope insScope;
 
-        public BIRVariableDcl(Location pos, BType type, Name name, VarScope scope,
+        public BIRVariableDcl(Location pos, BType type, Name name, Name originalName, VarScope scope,
                               VarKind kind, String metaVarName) {
             super(pos);
             this.type = type;
             this.name = name;
+            this.originalName = originalName;
             this.scope = scope;
             this.kind = kind;
             this.metaVarName = metaVarName;
+        }
+
+        public BIRVariableDcl(Location pos, BType type, Name name, VarScope scope,
+                              VarKind kind, String metaVarName) {
+            this(pos, type, name, name, scope, kind, metaVarName);
         }
 
         public BIRVariableDcl(BType type, Name name, VarScope scope, VarKind kind) {
@@ -202,9 +210,9 @@ public abstract class BIRNode {
         public PackageID pkgId;
         public SymbolOrigin origin;
 
-        public BIRGlobalVariableDcl(Location pos, long flags, BType type, PackageID pkgId, Name name,
+        public BIRGlobalVariableDcl(Location pos, long flags, BType type, PackageID pkgId, Name name, Name originalName,
                                     VarScope scope, VarKind kind, String metaVarName, SymbolOrigin origin) {
-            super(pos, type, name, scope, kind, metaVarName);
+            super(pos, type, name, originalName, scope, kind, metaVarName);
             this.flags = flags;
             this.pkgId = pkgId;
             this.origin = origin;
@@ -247,6 +255,12 @@ public abstract class BIRNode {
          * Name of the function.
          */
         public Name name;
+
+        /**
+         * Original name of the function.
+         * e.g. function `comeHere() {}
+         */
+        public Name originalName;
 
         /**
          * Value represents flags.
@@ -325,9 +339,9 @@ public abstract class BIRNode {
 
         public Set<BIRGlobalVariableDcl> dependentGlobalVars = new TreeSet<>();
 
-        public BIRFunction(Location pos, Name name, long flags, SymbolOrigin origin, BInvokableType type,
-                           List<BIRParameter> requiredParams, BIRVariableDcl receiver, BIRParameter restParam,
-                           int argsCount, List<BIRVariableDcl> localVars,
+        public BIRFunction(Location pos, Name name, Name originalName, long flags, SymbolOrigin origin,
+                           BInvokableType type, List<BIRParameter> requiredParams, BIRVariableDcl receiver,
+                           BIRParameter restParam, int argsCount, List<BIRVariableDcl> localVars,
                            BIRVariableDcl returnVariable, Map<BIRFunctionParameter, List<BIRBasicBlock>> parameters,
                            List<BIRBasicBlock> basicBlocks, List<BIRErrorEntry> errorTable, Name workerName,
                            ChannelDetails[] workerChannels,
@@ -336,6 +350,7 @@ public abstract class BIRNode {
                            Set<BIRGlobalVariableDcl> dependentGlobalVars) {
             super(pos);
             this.name = name;
+            this.originalName = originalName;
             this.flags = flags;
             this.origin = origin;
             this.type = type;
@@ -355,10 +370,11 @@ public abstract class BIRNode {
             this.dependentGlobalVars = dependentGlobalVars;
         }
 
-        public BIRFunction(Location pos, Name name, long flags, BInvokableType type, Name workerName,
+        public BIRFunction(Location pos, Name name, Name originalName, long flags, BInvokableType type, Name workerName,
                            int sendInsCount, SymbolOrigin origin) {
             super(pos);
             this.name = name;
+            this.originalName = originalName;
             this.flags = flags;
             this.type = type;
             this.localVars = new ArrayList<>();
@@ -373,13 +389,18 @@ public abstract class BIRNode {
             this.origin = origin;
         }
 
+        public BIRFunction(Location pos, Name name, long flags, BInvokableType type, Name workerName,
+                           int sendInsCount, SymbolOrigin origin) {
+            this(pos, name, name, flags, type, workerName, sendInsCount, origin);
+        }
+
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
 
         public BIRFunction duplicate() {
-            BIRFunction f = new BIRFunction(pos, name, flags, type, workerName, 0, origin);
+            BIRFunction f = new BIRFunction(pos, name, originalName, flags, type, workerName, 0, origin);
             f.localVars = localVars;
             f.parameters = parameters;
             f.requiredParams = requiredParams;
@@ -435,6 +456,8 @@ public abstract class BIRNode {
 
         public Name name;
 
+        public Name originalName;
+
         /**
          * internal name of the type definition.
          * for anonTypes this will be something like $anonType2 while name will reflect the structure
@@ -464,7 +487,8 @@ public abstract class BIRNode {
         public int index;
 
         public BIRTypeDefinition(Location pos, Name internalName, long flags, boolean isLabel, boolean isBuiltin,
-                                 BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin, Name name) {
+                                 BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin, Name name,
+                                 Name originalName) {
             super(pos);
             this.internalName = internalName;
             this.flags = flags;
@@ -475,12 +499,13 @@ public abstract class BIRNode {
             this.referencedTypes = new ArrayList<>();
             this.origin = origin;
             this.name = name;
+            this.originalName = originalName;
             this.annotAttachments = new ArrayList<>();
         }
 
-        public BIRTypeDefinition(Location pos, Name name, long flags, boolean isLabel, boolean isBuiltin,
-                                 BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin) {
-            this(pos, name, flags, isLabel, isBuiltin, type, attachedFuncs, origin, name);
+        public BIRTypeDefinition(Location pos, Name name, Name originalName, long flags, boolean isLabel,
+                                 boolean isBuiltin, BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin) {
+            this(pos, name, flags, isLabel, isBuiltin, type, attachedFuncs, origin, name, originalName);
         }
 
         @Override
@@ -563,6 +588,11 @@ public abstract class BIRNode {
         public Name name;
 
         /**
+         * Original name of the annotation definition.
+         */
+        public Name originalName;
+
+        /**
          * Value represents flags.
          */
         public long flags;
@@ -582,10 +612,11 @@ public abstract class BIRNode {
          */
         public BType annotationType;
 
-        public BIRAnnotation(Location pos, Name name, long flags,
+        public BIRAnnotation(Location pos, Name name, Name originalName, long flags,
                              Set<AttachPoint> points, BType annotationType, SymbolOrigin origin) {
             super(pos);
             this.name = name;
+            this.originalName = originalName;
             this.flags = flags;
             this.attachPoints = points;
             this.annotationType = annotationType;
@@ -611,6 +642,11 @@ public abstract class BIRNode {
         public Name name;
 
         /**
+         * Original name of the constant.
+         */
+        public Name originalName;
+
+        /**
          * Value for the Flags.
          */
         public long flags;
@@ -630,10 +666,11 @@ public abstract class BIRNode {
          */
         public SymbolOrigin origin;
 
-        public BIRConstant(Location pos, Name name, long flags,
+        public BIRConstant(Location pos, Name name, Name originalName, long flags,
                            BType type, ConstValue constValue, SymbolOrigin origin) {
             super(pos);
             this.name = name;
+            this.originalName = originalName;
             this.flags = flags;
             this.type = type;
             this.constValue = constValue;

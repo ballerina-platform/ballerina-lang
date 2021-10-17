@@ -17,12 +17,16 @@
  */
 package io.ballerina.runtime.api.types;
 
+import java.util.List;
+
 /**
  * {@code BIntersectionType} represents an intersection type in Ballerina.
  *
  * @since 2.0.0
  */
-public interface IntersectionType extends Type {
+public interface IntersectionType extends SelectivelyImmutableReferenceType {
 
     Type getEffectiveType();
+
+    List<Type> getConstituentTypes();
 }

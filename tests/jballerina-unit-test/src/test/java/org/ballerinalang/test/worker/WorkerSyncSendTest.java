@@ -95,8 +95,8 @@ public class WorkerSyncSendTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result = "error: error3 {\"message\":\"msg3\"}\n" + "\tat sync-send:$lambda$_15(sync-send.bal:295)\n" +
-                "\t   sync-send:$lambda$_15$lambda15$(sync-send.bal:283)";
+        String result = "error: error3 {\"message\":\"msg3\"}\n" +
+                "\tat sync-send:$lambda$_15(sync-send.bal:295)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
@@ -115,8 +115,8 @@ public class WorkerSyncSendTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result = "error: err from panic from w2\n\tat sync-send:$lambda$_19(sync-send.bal:348)\n" +
-                "\t   sync-send:$lambda$_19$lambda19$(sync-send.bal:345)";
+        String result = "error: err from panic from w2\n" +
+                "\tat sync-send:$lambda$_19(sync-send.bal:348)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
@@ -129,8 +129,8 @@ public class WorkerSyncSendTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result = "error: err from panic from w1 w1\n\tat sync-send:$lambda$_20(sync-send.bal:364)\n" +
-                "\t   sync-send:$lambda$_20$lambda20$(sync-send.bal:360)";
+        String result = "error: err from panic from w1 w1\n" +
+                "\tat sync-send:$lambda$_20(sync-send.bal:364)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
@@ -143,8 +143,8 @@ public class WorkerSyncSendTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result = "error: err from panic from w2\n\tat sync-send:$lambda$_23(sync-send.bal:396)\n" +
-                "\t   sync-send:$lambda$_23$lambda23$(sync-send.bal:393)";
+        String result = "error: err from panic from w2\n" +
+                "\tat sync-send:$lambda$_23(sync-send.bal:396)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
@@ -157,8 +157,8 @@ public class WorkerSyncSendTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result = "error: err from panic from w3w3\n\tat sync-send:$lambda$_26(sync-send.bal:436)\n" +
-                "\t   sync-send:$lambda$_26$lambda26$(sync-send.bal:425)";
+        String result = "error: err from panic from w3w3\n" +
+                "\tat sync-send:$lambda$_26(sync-send.bal:436)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 

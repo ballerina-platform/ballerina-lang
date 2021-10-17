@@ -169,8 +169,8 @@ public class OpenRecordTest {
                 BCompileUtil.compile("test-src/record/record_literal_with_attached_functions_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 4);
         BAssertUtil.validateError(result, 0, "redeclared symbol 'Person'", 7, 10);
-        BAssertUtil.validateError(result, 1, "invalid token 'getName'", 7, 24);
-        BAssertUtil.validateError(result, 2, "resource path in function definition", 7, 24);
+        BAssertUtil.validateError(result, 1, "resource path in function definition", 7, 16);
+        BAssertUtil.validateError(result, 2, "invalid token 'getName'", 7, 17);
         BAssertUtil.validateError(result, 3, "undefined symbol 'self'", 8, 12);
     }
 

@@ -25,6 +25,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -387,11 +388,6 @@ public class TypeTestExprTest {
     }
 
     @Test
-    public void testObjectIsCheckWithCycles() {
-        BRunUtil.invoke(result, "testObjectIsCheckWithCycles");
-    }
-
-    @Test
     public void testSimpleArrays() {
         BValue[] returns = BRunUtil.invoke(result, "testSimpleArrays");
         Assert.assertEquals(returns.length, 5);
@@ -405,41 +401,6 @@ public class TypeTestExprTest {
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
-    }
-
-    @Test
-    public void testXMLNeverType() {
-        BRunUtil.invoke(result, "testXMLNeverType");
-    }
-
-    @Test
-    public void testXMLTextType() {
-        BRunUtil.invoke(result, "testXMLTextType");
-    }
-
-    @Test
-    public void testRestType() {
-        BRunUtil.invoke(result, "testRestType");
-    }
-
-    @Test
-    public void testUnionType() {
-        BRunUtil.invoke(result, "testUnionType");
-    }
-
-    @Test
-    public void testInferredArrayType() {
-        BRunUtil.invoke(result, "testInferredArrayType");
-    }
-
-    @Test
-    public void testClosedArrayType() {
-        BRunUtil.invoke(result, "testClosedArrayType");
-    }
-
-    @Test
-    public void testEmptyArrayType() {
-        BRunUtil.invoke(result, "testEmptyArrayType");
     }
 
     @Test
@@ -750,28 +711,30 @@ public class TypeTestExprTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test
-    public void testMapAsRecord() {
-        BRunUtil.invoke(result, "testMapAsRecord");
+    @Test(dataProvider = "dataToTypeTestExpressions", description = "Test is-expression with types")
+    public void testTypeTestExpression(String functionName) {
+        BRunUtil.invoke(result, functionName);
     }
 
-    @Test
-    public void testRecordIntersections() {
-        BRunUtil.invoke(result, "testRecordIntersections");
-    }
-
-    @Test
-    public void testRecordIntersectionWithEffectivelyNeverFields() {
-        BRunUtil.invoke(result, "testRecordIntersectionWithEffectivelyNeverFields");
-    }
-
-    @Test
-    public void testRecordIntersectionWithFunctionFields() {
-        BRunUtil.invoke(result, "testRecordIntersectionWithFunctionFields");
-    }
-
-    @Test
-    public void testBuiltInSubTypeTypeTestAgainstFiniteType() {
-        BRunUtil.invoke(result, "testBuiltInSubTypeTypeTestAgainstFiniteType");
+    @DataProvider
+    public Object[] dataToTypeTestExpressions() {
+        return new Object[]{
+                "testObjectIsCheckWithCycles",
+                "testServiceObjects",
+                "testXMLNeverType",
+                "testXMLTextType",
+                "testRestType",
+                "testUnionType",
+                "testInferredArrayType",
+                "testClosedArrayType",
+                "testEmptyArrayType",
+                "testMapAsRecord",
+                "testRecordIntersections",
+                "testRecordIntersectionWithEffectivelyNeverFields",
+                "testRecordIntersectionWithFunctionFields",
+                "testBuiltInSubTypeTypeTestAgainstFiniteType",
+                "testIntSubtypes",
+                "testRecordsWithOptionalFields"
+        };
     }
 }

@@ -24,6 +24,7 @@ package io.ballerina.projects;
  */
 public enum DependencyResolutionType {
     SOURCE,
-    INJECTED,
-    ;
+    PLATFORM_PROVIDED,
+    COMPILER_PLUGIN,
+    LANG_LIB
 }

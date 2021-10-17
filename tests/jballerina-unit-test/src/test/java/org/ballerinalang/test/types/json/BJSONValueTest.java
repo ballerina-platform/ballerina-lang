@@ -78,6 +78,8 @@ public class BJSONValueTest {
                 "incompatible types: expected '(int[]|error)', found 'json'", 29, 21);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected '(int|error)', found '(json|Error)'", 33, 19);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected '(MyJsonDiff|xml)', found '(json|xml)'", 73, 24);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -486,7 +488,7 @@ public class BJSONValueTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.typedesc\\}ConversionError " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.value\\}ConversionError " +
                     "\\{\"message\":\"cannot convert '\\(\\)' to type 'map<json>'.*")
     public void testNullJsonToMap() {
         BRunUtil.invoke(compileResult, "testNullJsonToMap");

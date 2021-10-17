@@ -76,9 +76,6 @@
                     {
                       "kind": "START_KEYWORD",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_INVALID_EXPRESSION_IN_START_ACTION"
-                      ],
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -94,9 +91,14 @@
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
                                 "kind": "IDENTIFIER_TOKEN",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_INVALID_EXPRESSION_IN_START_ACTION"
+                                ],
                                 "value": "a"
                               }
                             ]

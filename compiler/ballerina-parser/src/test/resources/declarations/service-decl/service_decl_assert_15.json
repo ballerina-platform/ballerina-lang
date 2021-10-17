@@ -131,9 +131,6 @@
                 {
                   "kind": "ISOLATED_KEYWORD",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_DUPLICATE_QUALIFIER"
-                  ],
                   "trailingMinutiae": [
                     {
                       "kind": "WHITESPACE_MINUTIAE",
@@ -143,9 +140,14 @@
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
-                            "kind": "TRANSACTIONAL_KEYWORD"
+                            "kind": "TRANSACTIONAL_KEYWORD",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_DUPLICATE_QUALIFIER"
+                            ]
                           }
                         ]
                       }
@@ -246,9 +248,6 @@
                 {
                   "kind": "ISOLATED_KEYWORD",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_DUPLICATE_QUALIFIER"
-                  ],
                   "leadingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
@@ -268,9 +267,14 @@
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
-                            "kind": "ISOLATED_KEYWORD"
+                            "kind": "ISOLATED_KEYWORD",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_DUPLICATE_QUALIFIER"
+                            ]
                           }
                         ]
                       }
@@ -405,9 +409,6 @@
                 {
                   "kind": "REMOTE_KEYWORD",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_REMOTE_METHOD_HAS_A_VISIBILITY_QUALIFIER"
-                  ],
                   "leadingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
@@ -437,9 +438,14 @@
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
-                            "kind": "PUBLIC_KEYWORD"
+                            "kind": "PUBLIC_KEYWORD",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_REMOTE_METHOD_HAS_A_VISIBILITY_QUALIFIER"
+                            ]
                           }
                         ]
                       }
@@ -546,9 +552,6 @@
                 {
                   "kind": "RESOURCE_KEYWORD",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_QUALIFIER_NOT_ALLOWED"
-                  ],
                   "leadingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
@@ -562,9 +565,14 @@
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
-                            "kind": "PUBLIC_KEYWORD"
+                            "kind": "PUBLIC_KEYWORD",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_QUALIFIER_NOT_ALLOWED"
+                            ]
                           }
                         ]
                       }

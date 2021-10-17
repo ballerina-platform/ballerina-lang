@@ -22,6 +22,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -47,9 +48,14 @@ public class ImmutabilityBalaTest {
                 "test-src/bala/test_bala/readonly/test_intersection_with_inherently_immutable_type.bal");
     }
 
-    @Test
-    public void testSelectivelyImmutableTypes() {
-        BRunUtil.invoke(result, "testImmutableTypes");
+    @Test(dataProvider = "immutableTypesTestFunctions")
+    public void testSelectivelyImmutableTypes(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider(name = "immutableTypesTestFunctions")
+    public Object[] immutableTypesTestFunctions() {
+        return new String[]{"testImmutableTypes", "testIterationWithImportedImmutableType"};
     }
 
     @Test
@@ -64,11 +70,11 @@ public class ImmutabilityBalaTest {
         int index = 0;
 
         // Assignment and initialization.
-        validateError(result, index++, "incompatible types: expected '(testorg/selectively_immutable:1.0" +
-                ".0:MixedRecord & readonly)', found 'testorg/selectively_immutable:1.0.0:MixedRecord'", 20, 38);
+        validateError(result, index++, "incompatible types: expected '(testorg/selectively_immutable:1" +
+                ":MixedRecord & readonly)', found 'testorg/selectively_immutable:1.0.0:MixedRecord'", 20, 38);
         validateError(result, index++, "incompatible types: expected 'map<(json & readonly)> & readonly', " +
                               "found 'map<json>'", 23, 31);
-        validateError(result, index++, "incompatible types: expected '(testorg/selectively_immutable:1.0.0:Details & " +
+        validateError(result, index++, "incompatible types: expected '(testorg/selectively_immutable:1:Details & " +
                 "readonly)', found 'testorg/selectively_immutable:1.0.0:Details'", 31, 18);
         validateError(result, index++,
                 "incompatible types: expected 'testorg/selectively_immutable:1.0.0:ReadOnlyStudent', " +
@@ -80,16 +86,16 @@ public class ImmutabilityBalaTest {
                 ".0:ReadOnlyStudent'", 62, 5);
         validateError(result, index++, "cannot update 'readonly' value of type 'testorg/selectively_immutable:1.0" +
                 ".0:ReadOnlyStudent'", 66, 5);
-        validateError(result, index++, "cannot update 'readonly' value of type '(testorg/selectively_immutable:1.0" +
-                ".0:Details & readonly)'", 76, 5);
-        validateError(result, index++, "cannot update 'readonly' value of type '(testorg/selectively_immutable:1.0" +
-                ".0:Details & readonly)'", 77, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type '(testorg/selectively_immutable:1" +
+                ":Details & readonly)'", 76, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type '(testorg/selectively_immutable:1" +
+                ":Details & readonly)'", 77, 5);
         validateError(result, index++, "cannot update 'readonly' value of type 'testorg/selectively_immutable:1.0.0:" +
-                "(testorg/selectively_immutable:1.0.0:Config & readonly)'", 82, 5);
-        validateError(result, index++, "cannot update 'readonly' value of type '(testorg/selectively_immutable:1.0" +
-                ".0:Config & readonly)'", 85, 5);
-        validateError(result, index++, "cannot update 'readonly' value of type 'testorg/selectively_immutable:1.0" +
-                ".0:MyConfig'", 88, 5);
+                "(testorg/selectively_immutable:1:Config & readonly)'", 82, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type '(testorg/selectively_immutable:1" +
+                ":Config & readonly)'", 85, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type 'testorg/selectively_immutable:1.0.0" +
+                ":MyConfig'", 88, 5);
 
         assertEquals(result.getErrorCount(), index);
     }

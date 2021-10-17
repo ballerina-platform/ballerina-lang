@@ -69,9 +69,9 @@ import static io.ballerina.runtime.test.config.ConfigTest.COLOR_ENUM_UNION;
  */
 public class TomlProviderTest {
 
-    private static final Module ROOT_MODULE = new Module("rootOrg", "test_module", "1.0.0");
-    private final Module subModule = new Module("rootOrg", "test_module.util.foo", "1.0.0");
-    private final Module importedModule = new Module("myOrg", "mod12", "1.0.0");
+    private static final Module ROOT_MODULE = new Module("rootOrg", "test_module", "1");
+    private final Module subModule = new Module("rootOrg", "test_module.util.foo", "1");
+    private final Module importedModule = new Module("myOrg", "mod12", "1");
 
     @Test(dataProvider = "arrays-data-provider")
     public void testConfigurableArrays(VariableKey arrayKey,
@@ -157,19 +157,19 @@ public class TomlProviderTest {
         VariableKey[] subVariableKeys = getSimpleVariableKeys(subModule);
         VariableKey[] importedVariableKeys = getSimpleVariableKeys(importedModule);
 
-        Module subModule2 = new Module("rootOrg", "test_module.mod1", "1.0.0");
+        Module subModule2 = new Module("rootOrg", "test_module.mod1", "1");
         VariableKey[] subVariableKeys2 = getSimpleVariableKeys(subModule2);
 
-        Module clashingModule1 = new Module("myOrg", "test_module", "1.0.0");
+        Module clashingModule1 = new Module("myOrg", "test_module", "1");
         VariableKey[] clashingVariableKeys1 = getSimpleVariableKeys(clashingModule1);
 
-        Module clashingModule2 = new Module("myOrg", "test_module.util.foo", "1.0.0");
+        Module clashingModule2 = new Module("myOrg", "test_module.util.foo", "1");
         VariableKey[] clashingVariableKeys2 = getSimpleVariableKeys(clashingModule2);
 
-        Module clashingModule3 = new Module("test_module", "util.foo", "1.0.0");
+        Module clashingModule3 = new Module("test_module", "util.foo", "1");
         VariableKey[] clashingVariableKeys3 = getSimpleVariableKeys(clashingModule3);
 
-        Module clashingModule4 = new Module("test_module", "util", "1.0.0");
+        Module clashingModule4 = new Module("test_module", "util", "1");
         VariableKey[] clashingVariableKeys4 = getSimpleVariableKeys(clashingModule4);
 
         VariableKey[] rootVariables = {new VariableKey(ROOT_MODULE, "a", PredefinedTypes.TYPE_STRING, true),
@@ -473,7 +473,7 @@ public class TomlProviderTest {
     public void testModuleAmbiguities() {
         VariableKey[] rootVariableKeys = getSimpleVariableKeys(ROOT_MODULE);
 
-        Module clashingModule3 = new Module("test_module", "util.foo", "1.0.0");
+        Module clashingModule3 = new Module("test_module", "util.foo", "1");
         VariableKey[] clashingVariableKeys3 = getSimpleVariableKeys(clashingModule3);
 
         Map<Module, VariableKey[]> variableMap = Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
@@ -500,7 +500,7 @@ public class TomlProviderTest {
     public void testRootModuleAmbiguities() {
         VariableKey[] subVariableKeys = getSimpleVariableKeys(subModule);
 
-        Module clashingModule3 = new Module("test_module", "util.foo", "1.0.0");
+        Module clashingModule3 = new Module("test_module", "util.foo", "1");
         VariableKey[] clashingVariableKeys3 = getSimpleVariableKeys(clashingModule3);
 
         Map<Module, VariableKey[]> variableMap = Map.ofEntries(Map.entry(subModule, subVariableKeys),

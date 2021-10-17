@@ -1,9 +1,0 @@
-[[dependency]]
-org = "samjs"
-name = "package_b"
-version = "0.1.0"
-
-[[dependency]]
-org = "samjs"
-name = "package_e"
-version = "0.1.0"

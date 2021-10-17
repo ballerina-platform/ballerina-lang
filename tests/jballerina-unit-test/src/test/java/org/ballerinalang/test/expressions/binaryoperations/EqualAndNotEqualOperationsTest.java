@@ -17,15 +17,8 @@
 package org.ballerinalang.test.expressions.binaryoperations;
 
 import org.ballerinalang.core.model.util.JsonParser;
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BByte;
-import org.ballerinalang.core.model.values.BDecimal;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BNewArray;
 import org.ballerinalang.core.model.values.BRefType;
-import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.BCompileUtil;
@@ -55,819 +48,155 @@ public class EqualAndNotEqualOperationsTest {
                 ("test-src/expressions/binaryoperations/equal_and_not_equal_operation_negative.bal");
     }
 
-    @Test(description = "Test equals/unequals operation with two equal booleans", dataProvider = "equalBooleanValues")
-    public void testBooleanEqualityPositive(boolean i, boolean j) {
-        BValue[] args = {new BBoolean(i), new BBoolean(j)};
-        BValue[] returns = BRunUtil.invoke(result, "checkBooleanEqualityPositive", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
+    @Test(description = "Test equals/unequals operation with simple values", dataProvider = "value-functions")
+    public void testSimpleValueEquality(String function) {
+        BRunUtil.invoke(result, function);
     }
 
-    @Test(description = "Test equals/unequals operation with two unequal booleans",
-            dataProvider = "unequalBooleanValues")
-    public void testBooleanEqualityNegative(boolean i, boolean j) {
-        BValue[] args = {new BBoolean(i), new BBoolean(j)};
-        BValue[] returns = BRunUtil.invoke(result, "checkBooleanEqualityNegative", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as not equal");
+    @DataProvider(name = "value-functions")
+    public Object[] getValueTestFunctions() {
+        return new String[]{
+                "checkBooleanEquality", "checkIntEquality", "checkByteEquality", "checkFloatEquality",
+                "checkStringEquality", "checkEqualityToNil", "checkAnyDataEquality", "testIntByteEqualityPositive",
+                "testIntByteEqualityNegative", "testIntersectingUnionEquality", "testTableEquality",
+                "testEqualityWithNonAnydataType", "testEqualityByteWithIntSubTypes"
+        };
     }
 
-    @Test(description = "Test equals/unequals operation with two equal ints", dataProvider = "equalIntValues")
-    public void testIntEqualityPositive(int i, int j) {
-        BValue[] args = {new BInteger(i), new BInteger(j)};
-        BValue[] returns = BRunUtil.invoke(result, "checkIntEqualityPositive", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected ints to be identified as equal");
+    @Test(description = "Test equals/unequals operation with record values", dataProvider = "record-equality-functions")
+    public void testRecordValueEquality(String function) {
+        BRunUtil.invoke(result, function);
     }
 
-    @Test(description = "Test equals/unequals operation with two unequal ints", dataProvider = "unequalIntValues")
-    public void testIntEqualityNegative(int i, int j) {
-        BValue[] args = {new BInteger(i), new BInteger(j)};
-        BValue[] returns = BRunUtil.invoke(result, "checkIntEqualityNegative", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected ints to be identified as not equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two equal bytes", dataProvider = "equalByteValues")
-    public void testByteEqualityPositive(int i, int j) {
-        BValue[] args = {new BByte(i), new BByte(i)};
-        BValue[] returns = BRunUtil.invoke(result, "checkByteEqualityPositive", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected bytes to be identified as equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two unequal bytes", dataProvider = "unequalByteValues")
-    public void testByteEqualityNegative(int i, int j) {
-        BValue[] args = {new BByte(i), new BByte(j)};
-        BValue[] returns = BRunUtil.invoke(result, "checkByteEqualityNegative", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected bytes to be identified as not equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two equal floats", dataProvider = "equalFloatValues")
-    public void testFloatEqualityPositive(double i, double j) {
-        BValue[] args = {new BFloat(i), new BFloat(j)};
-        BValue[] returns = BRunUtil.invoke(result, "checkFloatEqualityPositive", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected floats to be identified as equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two unequal floats", dataProvider = "unequalFloatValues")
-    public void testFloatEqualityNegative(double i, double j) {
-        BValue[] args = {new BFloat(i), new BFloat(j)};
-        BValue[] returns = BRunUtil.invoke(result, "checkFloatEqualityNegative", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected floats to be identified as not equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two equal strings", dataProvider = "equalStringValues")
-    public void testStringEqualityPositive(String i, String j) {
-        BValue[] args = {new BString(i), new BString(j)};
-        BValue[] returns = BRunUtil.invoke(result, "checkStringEqualityPositive", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected strings to be identified as equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two unequal strings",
-            dataProvider = "unequalStringValues")
-    public void testStringEqualityNegative(String i, String j) {
-        BValue[] args = {new BString(i), new BString(j)};
-        BValue[] returns = BRunUtil.invoke(result, "checkStringEqualityNegative", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected strings to be identified as not equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with nil")
-    public void testEqualityToNilPositive() {
-        BValue[] args = {null};
-        BValue[] returns = BRunUtil.invoke(result, "checkEqualityToNilPositive", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected nil values to be identified as equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with nil and non-nil values", dataProvider = "nonNilBValues")
-    public void testEqualityToNilNegative(BValue b) {
-        BValue[] returns = BRunUtil.invoke(result, "checkEqualityToNilNegative", new BValue[]{b});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected value to be identified as not equal to " +
-                "nil");
-    }
-
-    @Test(description = "Test equals/unequals operation with equal any values", dataProvider = "anyDataValues")
-    public void checkAnyDataEqualityPositive(BValue a, BValue b) {
-        BValue[] returns = BRunUtil.invoke(result, "checkAnyDataEqualityPositive", new BValue[]{a, b});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected values to be identified as equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with not equal any values", dataProvider = "nonAnyDataValues")
-    public void checkAnyDataEqualityNegative(BValue a, BValue b) {
-        BValue[] returns = BRunUtil.invoke(result, "checkAnyDataEqualityNegative", new BValue[]{a, b});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected values to be identified as not equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two equal open records")
-    public void testOpenRecordsEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "checkOpenRecordEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected open records to be identified as equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two unequal open records")
-    public void testOpenRecordsEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "checkOpenRecordEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected open records to be identified as not " +
-                "equal");
-    }
-
-    @Test
-    public void testOpenRecordWithOptionalFieldsEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "testOpenRecordWithOptionalFieldsEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected open records to be identified as equal");
-    }
-
-    @Test
-    public void testOpenRecordWithOptionalFieldsEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "testOpenRecordWithOptionalFieldsEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected open records to be identified as not " +
-                "equal");
-    }
-
-    @Test
-    public void testClosedRecordWithOptionalFieldsEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "testClosedRecordWithOptionalFieldsEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected open records to be identified as equal");
-    }
-
-    @Test
-    public void testClosedRecordWithOptionalFieldsEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "testClosedRecordWithOptionalFieldsEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected open records to be identified as not " +
-                "equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two equal closed records")
-    public void testClosedRecordsEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "checkClosedRecordEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected closed records to be identified as equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two unequal closed records")
-    public void testClosedRecordsEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "checkClosedRecordEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected closed records to be identified as " +
-                "not equal");
+    @DataProvider(name = "record-equality-functions")
+    public Object[] getRecordTestFunctions() {
+        return new String[]{
+                "checkOpenRecordEqualityPositive", "checkOpenRecordEqualityNegative",
+                "testOpenRecordWithOptionalFieldsEqualityPositive", "testOpenRecordWithOptionalFieldsEqualityNegative",
+                "testClosedRecordWithOptionalFieldsEqualityPositive",
+                "testClosedRecordWithOptionalFieldsEqualityNegative", "checkClosedRecordEqualityPositive",
+                "checkClosedRecordEqualityNegative"
+        };
     }
 
     @Test(description = "Test equals/unequals operation with two equal arrays", dataProvider = "equalArrayValues")
     public void test1DArrayEqualityPositive(BNewArray i, BNewArray j) {
         BValue[] args = {i, j};
-        BValue[] returns = BRunUtil.invoke(result, "check1DArrayEqualityPositive", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected array values to be identified as equal");
+        BRunUtil.invoke(result, "check1DArrayEqualityPositive", args);
     }
 
     @Test(description = "Test equals/unequals operation with two unequal arrays", dataProvider =
             "unequalArrayValues")
     public void test1DArrayEqualityNegative(BValue i, BValue j) {
         BValue[] args = {i, j};
-        BValue[] returns = BRunUtil.invoke(result, "check1DArrayEqualityNegative", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected array values to be identified as not equal");
+        BRunUtil.invoke(result, "check1DArrayEqualityNegative", args);
     }
 
-    @Test(description = "Test equals/unequals operation with equal closed arrays")
-    public void test1DClosedArrayEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "check1DClosedArrayEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected closed array values to be identified as " +
-                "equal");
+    @Test(description = "Test equals/unequals operation with array and tuple values", dataProvider = "array-equality" +
+            "-functions")
+    public void testArrayValueEquality(String function) {
+        BRunUtil.invoke(result, function);
     }
 
-    @Test(description = "Test equals/unequals operation with two unequal closed arrays")
-    public void test1DClosedArrayEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "check1DClosedArrayEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected closed array values to be identified as not equal");
+    @DataProvider(name = "array-equality-functions")
+    public Object[] getArrayTestFunctions() {
+        return new String[]{
+                "check1DClosedArrayEqualityPositive", "check1DClosedArrayEqualityNegative",
+                "check1DAnyArrayEqualityPositive", "check1DAnyArrayEqualityNegative",
+                "checkOpenClosedArrayEqualityPositive", "checkOpenClosedArrayEqualityNegative",
+                "check2DBooleanArrayEqualityPositive", "check2DBooleanArrayEqualityNegative",
+                "check2DIntArrayEqualityPositive", "check2DIntArrayEqualityNegative",
+                "check2DByteArrayEqualityPositive", "check2DByteArrayEqualityNegative",
+                "check2DFloatArrayEqualityPositive", "check2DFloatArrayEqualityNegative",
+                "check2DStringArrayEqualityPositive", "check2DStringArrayEqualityNegative",
+                "checkComplex2DArrayEqualityPositive", "checkComplex2DArrayEqualityNegative",
+                "checkTupleEqualityPositive" , "checkTupleEqualityNegative", "checkUnionArrayPositive",
+                "checkUnionArrayNegative", "checkTupleWithUnionPositive", "checkTupleWithUnionNegative",
+                "testArrayTupleEqualityPositive", "testArrayTupleEqualityNegative"
+        };
     }
 
-    @Test(description = "Test equals/unequals operation with two equal any arrays")
-    public void test1DAnyArrayEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "check1DAnyArrayEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected any array values to be identified as " +
-                "equal");
+
+    @Test(description = "Test equals/unequals operation with map values", dataProvider = "map-equality-functions")
+    public void testMapValueEquality(String function) {
+        BRunUtil.invoke(result, function);
     }
 
-    @Test(description = "Test equals/unequals operation with two unequal any arrays")
-    public void test1DAnyArrayEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "check1DAnyArrayEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected any array values to be identified as not equal");
+    @DataProvider(name = "map-equality-functions")
+    public Object[] getMapTestFunctions() {
+        return new String[]{
+                "checkMapEqualityPositive", "checkMapEqualityNegative", "checkComplexMapEqualityPositive",
+                "checkComplexMapEqualityNegative", "checkUnionConstrainedMapsPositive",
+                "checkUnionConstrainedMapsNegative", "testEmptyMapAndRecordEquality"
+        };
     }
 
-    @Test(description = "Test equals/unequals operation with equal open and closed arrays")
-    public void testOpenClosedArrayEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "checkOpenClosedArrayEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected array values to be identified as equal");
+    @Test(description = "Test equals/unequals operation with json values", dataProvider = "json-equality-functions")
+    public void testJsonValueEquality(String function) {
+        BRunUtil.invoke(result, function);
     }
 
-    @Test(description = "Test equals/unequals operation with unequal open and closed arrays")
-    public void testOpenClosedArrayEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "checkOpenClosedArrayEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected array values to be identified as " +
-                "not equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two equal 2D boolean arrays")
-    public void test2DBooleanArrayEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "check2DBooleanArrayEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected 2D boolean array values to be identified" +
-                " as equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two unequal 2D boolean arrays")
-    public void test2DBooleanArrayEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "check2DBooleanArrayEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected 2D boolean array values to be identified as not equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two equal 2D int arrays")
-    public void test2DIntArrayEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "check2DIntArrayEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected 2D int array values to be identified as " +
-                "equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two unequal 2D int arrays")
-    public void test2DIntArrayEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "check2DIntArrayEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected 2D int array values to be identified as not equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two equal 2D byte arrays")
-    public void test2DByteArrayEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "check2DByteArrayEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected 2D byte array values to be identified as" +
-                " equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two unequal 2D byte arrays")
-    public void test2DByteArrayEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "check2DByteArrayEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected 2D byte array values to be identified as not equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two equal 2D float arrays")
-    public void test2DFloatArrayEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "check2DFloatArrayEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected 2D float array values to be identified " +
-                "as equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two unequal 2D float arrays")
-    public void test2DFloatArrayEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "check2DFloatArrayEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected 2D float array values to be identified as not equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two equal 2D string arrays")
-    public void test2DStringArrayEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "check2DStringArrayEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected 2D string array values to be identified " +
-                "as equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two unequal 2D string arrays")
-    public void test2DStringArrayEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "check2DStringArrayEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected 2D string array values to be identified as not equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two complex 2D arrays")
-    public void testComplex2DArrayEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "checkComplex2DArrayEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected complex 2D array values to be identified" +
-                " as equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two complex 2D arrays")
-    public void testComplex2DArrayEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "checkComplex2DArrayEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected complex 2D array values to be identified as not equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two equal map values")
-    public void testMapEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "checkMapEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected map values to be identified as equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two unequal map values")
-    public void testMapEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "checkMapEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected map values to be identified as not equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two equal complex map values")
-    public void testComplexMapEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "checkComplexMapEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
-                          "Expected complex map values to be identified as equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two unequal map values")
-    public void testComplexMapEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "checkComplexMapEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected complex map values to be identified as not equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two equal tuple values")
-    public void testTupleEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "checkTupleEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected tuple values to be identified as equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two unequal tuple values")
-    public void testTupleEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "checkTupleEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected tuple values to be identified as not equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two equal json values", dataProvider = "equalJsonValues")
-    public void testJsonEqualityPositive(BValue i, BValue j) {
-        BValue[] args = {i, j};
-        BValue[] returns = BRunUtil.invoke(result, "checkJsonEqualityPositive", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected json values to be identified as equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two unequal json values", dataProvider =
-            "unequalJsonValues")
-    public void testJsonEqualityNegative(BValue i, BValue j) {
-        BValue[] args = {i, j};
-        BValue[] returns = BRunUtil.invoke(result, "checkJsonEqualityNegative", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected json values to be identified as not equal");
+    @DataProvider(name = "json-equality-functions")
+    public Object[] getJsonTestFunctions() {
+        return new String[]{
+                "checkJsonEquality", "testPrimitiveAndJsonEqualityPositive", "testPrimitiveAndJsonEqualityNegative",
+                "testJsonRecordMapEqualityNegative", "testJsonRecordMapEqualityPositive",
+                "testTupleJSONEquality"
+        };
     }
 
     @Test(description = "Test equals/unequals operation with two equal json arrays", dataProvider = "equalArrayValues")
     public void test1DJsonArrayEqualityPositive(BNewArray i, BNewArray j) {
         BValue[] args = {i, j};
-        BValue[] returns = BRunUtil.invoke(result, "checkJsonEqualityPositive", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected array values to be identified as equal");
-    }
+        BRunUtil.invoke(result, "checkJsonEqualityPositive", args);
+}
 
     @Test(description = "Test equals/unequals operation with two unequal json arrays", dataProvider =
             "unequalArrayValues")
     public void test1DJsonArrayEqualityNegative(BValue i, BValue j) {
         BValue[] args = {i, j};
-        BValue[] returns = BRunUtil.invoke(result, "checkJsonEqualityNegative", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected array values to be identified as not equal");
+        BRunUtil.invoke(result, "checkJsonEqualityNegative", args);
     }
 
-    @Test
-    public void testIntByteEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "testIntByteEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
-                          "Expected int and byte values to be identified as equal");
-    }
-
-    @Test
-    public void testIntByteEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "testIntByteEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected int and byte values to be identified as not equal");
-    }
-
-    @Test
-    public void testPrimitiveAndJsonEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "testPrimitiveAndJsonEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
-                          "Expected primitives and json values to be identified as equal");
-    }
-
-    @Test
-    public void testPrimitiveAndJsonEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "testPrimitiveAndJsonEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected primitives and json values to be identified as not equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two union constrained maps")
-    public void testUnionConstrainedMapsPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "checkUnionConstrainedMapsPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
-                          "Expected union constrained maps to be identified as equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two unequal union constrained maps")
-    public void testUnionConstrainedMapsNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "checkUnionConstrainedMapsNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected union constrained maps to be identified as not equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two union arrays")
-    public void testUnionArrayPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "checkUnionArrayPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
-                          "Expected union arrays to be identified as equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two unequal union arrays")
-    public void testUnionArrayNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "checkUnionArrayNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected union arrays to be identified as not equal");
-    }
-
-
-    @Test(description = "Test equals/unequals operation with two tuples with union type members")
-    public void testTupleWithUnionPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "checkTupleWithUnionPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
-                          "Expected tuples with union type members to be identified as equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two unequal tuples with union type members")
-    public void testTupleWithUnionNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "checkTupleWithUnionNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected tuples with union type members to be identified as not equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two equal json objects")
+    @Test(description = "Test equals/unequals operation with two json objects")
     public void testJsonObjectEqualityPositive() {
         BRefType jsonVal = JsonParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\"}");
         BRefType jsonValTwo = JsonParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\"}");
-
-        BValue[] returns = BRunUtil.invoke(result, "checkJsonEqualityPositive", new BValue[]{jsonVal, jsonValTwo});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected json objects to be identified as equal");
+        BRunUtil.invoke(result, "checkJsonEqualityPositive", new BValue[]{jsonVal, jsonValTwo});
 
         jsonValTwo = JsonParser.parse("{\"helloTwo\": \"worldTwo\", \"hello\": \"world\"}");
+        BRunUtil.invoke(result, "checkJsonEqualityPositive", new BValue[]{jsonVal, jsonValTwo});
 
-        returns = BRunUtil.invoke(result, "checkJsonEqualityPositive", new BValue[]{jsonVal, jsonValTwo});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected json objects to be identified as equal");
-    }
-
-    @Test(description = "Test equals/unequals operation with two unequal json values")
-    public void testJsonObjectEqualityNegative() {
-        BRefType jsonVal = JsonParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\"}");
-        BRefType jsonValTwo = JsonParser.parse("{\"hello\": \"world\"}");
-
-        BValue[] returns = BRunUtil.invoke(result, "checkJsonEqualityNegative", new BValue[]{jsonVal, jsonValTwo});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected json values to be identified as not equal");
+        jsonValTwo = JsonParser.parse("{\"hello\": \"world\"}");
+        BRunUtil.invoke(result, "checkJsonEqualityNegative", new BValue[]{jsonVal, jsonValTwo});
 
         jsonValTwo = JsonParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\", \"helloThree\": " +
                                               "\"worldThree\"}");
-
-        returns = BRunUtil.invoke(result, "checkJsonEqualityNegative", new BValue[]{jsonVal, jsonValTwo});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                           "Expected json values to be identified as not equal");
+        BRunUtil.invoke(result, "checkJsonEqualityNegative", new BValue[]{jsonVal, jsonValTwo});
     }
 
-    @Test
-    public void testSimpleXmlPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "testSimpleXmlPositive");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as equal.");
+    @Test(description = "Test equals/unequals operation with xml values", dataProvider = "xml-equality-functions")
+    public void testXmlValueEquality(String function) {
+        BRunUtil.invoke(result, function);
     }
 
-    @Test
-    public void testXmlStringNegative() {
-        BRunUtil.invoke(result, "testXmlStringNegative");
+    @DataProvider(name = "xml-equality-functions")
+    public Object[] getXmlTestFunctions() {
+        return new String[]{
+                "testSimpleXmlPositive", "testXmlStringNegative", "testReferenceEqualityXml",
+                "testXmlNeverAndXmlSequenceEquality", "testSimpleXmlNegative",
+                "testEqualNestedXml", "testUnequalNestedXml", "testEqualXmlWithComments",
+                "testUnequalXmlWithUnequalComment", "testEqualXmlIgnoringAttributeOrder",
+                "testUnequalXmlIgnoringAttributeOrder", "testEqualXmlWithPI", "testUnequalXmlWithUnequalPI",
+                "testUnequalXmlWithPIInWrongOrder", "testUnequalXmlWithMultiplePIInWrongOrder",
+                "testUnequalXmlWithMissingPI", "testXmlWithNamespacesPositive", "testXmlWithNamespacesNegative",
+                "testXmlSequenceAndXmlItemEqualityPositive", "testXmlSequenceAndXmlItemEqualityNegative"
+        };
     }
 
-    @Test
-    public void testReferenceEqualityXml() {
-        BRunUtil.invoke(result, "testReferenceEqualityXml");
-    }
-
-    @Test
-    public void testXmlNeverAndXmlSequenceEquality() {
-        BRunUtil.invoke(result, "testXmlNeverAndXmlSequenceEquality");
-    }
-
-    @Test
-    public void testSimpleXmlNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "testSimpleXmlNegative");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as not equal.");
-    }
-
-    @Test
-    public void testEqualNestedXml() {
-        BValue[] returns = BRunUtil.invoke(result, "testEqualNestedXml");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as equal.");
-    }
-
-    @Test
-    public void testUnequalNestedXml() {
-        BValue[] returns = BRunUtil.invoke(result, "testUnequalNestedXml");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
-    }
-
-    @Test
-    public void testEqualXmlWithComments() {
-        BValue[] returns = BRunUtil.invoke(result, "testEqualXmlWithComments");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as equal.");
-    }
-
-    @Test
-    public void testUnequalXmlWithUnequalComment() {
-        BValue[] returns = BRunUtil.invoke(result, "testUnequalXmlWithUnequalComment");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
-    }
-
-    @Test
-    public void testEqualXmlIgnoringAttributeOrder() {
-        BValue[] returns = BRunUtil.invoke(result, "testEqualXmlIgnoringAttributeOrder");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as equal.");
-    }
-
-    @Test
-    public void testUnequalXmlIgnoringAttributeOrder() {
-        BValue[] returns = BRunUtil.invoke(result, "testUnequalXmlIgnoringAttributeOrder");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
-    }
-
-    @Test
-    public void testEqualXmlWithPI() {
-        BValue[] returns = BRunUtil.invoke(result, "testEqualXmlWithPI");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as equal.");
-    }
-
-    @Test
-    public void testUnequalXmlWithUnequalPI() {
-        BValue[] returns = BRunUtil.invoke(result, "testUnequalXmlWithUnequalPI");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
-    }
-    @Test
-    public void testUnequalXmlWithPIInWrongOrder() {
-        BValue[] returns = BRunUtil.invoke(result, "testUnequalXmlWithPIInWrongOrder");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
-    }
-
-    @Test
-    public void testUnequalXmlWithMultiplePIInWrongOrder() {
-        BValue[] returns = BRunUtil.invoke(result, "testUnequalXmlWithMultiplePIInWrongOrder");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
-    }
-    @Test
-    public void testUnequalXmlWithMissingPI() {
-        BValue[] returns = BRunUtil.invoke(result, "testUnequalXmlWithMissingPI");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
-    }
-
-    @Test
-    public void testXmlWithNamespacesPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "testXmlWithNamespacesPositive");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as equal.");
-    }
-
-    @Test
-    public void testXmlWithNamespacesNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "testXmlWithNamespacesNegative");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
-    }
-
-    @Test
-    public void testXmlSequenceAndXmlItemEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "testXmlSequenceAndXmlItemEqualityPositive");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as equal.");
-    }
-
-    @Test
-    public void testXmlSequenceAndXmlItemEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "testXmlSequenceAndXmlItemEqualityNegative");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
-    }
-
-    @Test
-    public void testJsonRecordMapEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "testJsonRecordMapEqualityPositive");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected JSON/record/map values to be identified " +
-                "as equal.");
-    }
-
-    @Test
-    public void testJsonRecordMapEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "testJsonRecordMapEqualityNegative");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected JSON/record/map values to be identified" +
-                " as unequal.");
-    }
-
-    @Test
-    public void testArrayTupleEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "testArrayTupleEqualityPositive");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected array and tuple values to be identified" +
-                " as equal.");
-    }
-
-    @Test
-    public void testTupleJSONEquality() {
-        BRunUtil.invoke(result, "testTupleJSONEquality");
-    }
-
-    @Test
-    public void testIntersectingUnionEquality() {
-        BRunUtil.invoke(result, "testIntersectingUnionEquality");
-    }
-
-    @Test
-    public void testArrayTupleEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "testArrayTupleEqualityNegative");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected array and tuple values to be identified" +
-                " as unequal.");
-    }
-
-    @Test(dataProvider = "selfAndCyclicReferencingPositiveFunctions")
-    public void selfAndCyclicReferencingPositiveFunctions(String testFunctionName) {
-        BValue[] returns = BRunUtil.invoke(result, testFunctionName);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected values to be identified as equal.");
-    }
-
-    @Test(dataProvider = "selfAndCyclicReferencingNegativeFunctions")
-    public void selfAndCyclicReferencingNegativeFunctions(String testFunctionName) {
-        BValue[] returns = BRunUtil.invoke(result, testFunctionName);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected values to be identified as unequal.");
-    }
-
-    @Test
-    public void testEmptyMapAndRecordEquality() {
-        BValue[] returns = BRunUtil.invoke(result, "testEmptyMapAndRecordEquality");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected values to be identified as equal.");
+    @Test(dataProvider = "selfAndCyclicReferencingFunctions")
+    public void selfAndCyclicReferencingFunctions(String testFunctionName) {
+        BRunUtil.invoke(result, testFunctionName);
     }
 
     @Test(description = "Test equal and not equal with errors")
@@ -903,138 +232,25 @@ public class EqualAndNotEqualOperationsTest {
         validateError(resultNegative, i++, "operator '!=' not defined for 'int[]' and '[float,float]'", 82, 35);
         validateError(resultNegative, i++, "operator '==' not defined for 'int[]' and '[int,float]'", 85, 23);
         validateError(resultNegative, i++, "operator '!=' not defined for '[int,float]' and 'int[]'", 85, 35);
-        validateError(resultNegative, i++, "operator '==' not defined for '[int,map<int>]' and '[int,float]'", 99,
-                      23);
-        validateError(resultNegative, i++, "operator '!=' not defined for '[int,float]' and '[int,map<int>]'", 99,
-                      35);
-        validateError(resultNegative, i++, "operator '==' not defined for 'any' and 'int'", 103, 15);
-        validateError(resultNegative, i++, "operator '!=' not defined for 'int' and 'any'", 103, 27);
-        validateError(resultNegative, i++, "operator '==' not defined for 'map<(int|string)>' and 'map'", 107, 15);
-        validateError(resultNegative, i++, "operator '!=' not defined for 'map' and 'map<(int|string)>'", 107, 27);
-        validateError(resultNegative, i++, "operator '==' not defined for 'Employee' and '()'", 154, 9);
-        validateError(resultNegative, i++, "operator '==' not defined for 'Foo' and '()'", 160, 9);
+        validateError(resultNegative, i++, "operator '==' not defined for 'Employee' and '()'", 138, 9);
+        validateError(resultNegative, i++, "operator '==' not defined for 'Foo' and '()'", 144, 9);
         validateError(resultNegative, i++, "operator '==' not defined for 'function () returns (string)' and '()'",
-                      166, 9);
+                      150, 9);
         validateError(resultNegative, i++, "operator '!=' not defined for 'readonly' and 'map<int>'",
-                184, 12);
+                168, 12);
+        validateError(resultNegative, i++, "operator '==' not defined for '[int,map<int>]' and '[int,float]'", 179,
+                23);
+        validateError(resultNegative, i++, "operator '!=' not defined for '[int,float]' and '[int,map<int>]'", 179,
+                35);
+        validateError(resultNegative, i++, "operator '==' not defined for 'MyObject' and '()'", 182,
+                15);
+        validateError(resultNegative, i++, "operator '!=' not defined for 'MyObject' and '()'", 182,
+                30);
+        validateError(resultNegative, i++, "operator '==' not defined for 'MyObject' and 'MyObject'", 184,
+                15);
+        validateError(resultNegative, i++, "operator '!=' not defined for 'MyObject' and 'MyObject'", 184,
+                32);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
-    }
-
-    @DataProvider(name = "equalIntValues")
-    public Object[][] equalIntValues() {
-        return new Object[][]{
-                {10, 10},
-                {20193746, 20193746}
-        };
-    }
-
-    @DataProvider(name = "unequalIntValues")
-    public Object[][] unequalIntValues() {
-        return new Object[][]{
-                {10, 111110},
-                {12045966, 100000001}
-        };
-    }
-
-    @DataProvider(name = "equalByteValues")
-    public Object[][] equalByteValues() {
-        return new Object[][]{
-                {0, 0},
-                {10, 10},
-                {255, 255}
-        };
-    }
-
-    @DataProvider(name = "unequalByteValues")
-    public Object[][] unequalByteValues() {
-        return new Object[][]{
-                {0, 255},
-                {12, 122}
-        };
-    }
-
-    @DataProvider(name = "equalFloatValues")
-    public Object[][] equalFloatValues() {
-        return new Object[][]{
-                {5.3, 5.3},
-                {201937.46, 201937.46}
-        };
-    }
-
-    @DataProvider(name = "unequalFloatValues")
-    public Object[][] unequalFloatValues() {
-        return new Object[][]{
-                {1.234, 9.122},
-                {1222.2, 123.2}
-        };
-    }
-
-    @DataProvider(name = "equalBooleanValues")
-    public Object[][] equalBooleanValues() {
-        return new Object[][]{
-                {true, true},
-                {false, false}
-        };
-    }
-
-    @DataProvider(name = "unequalBooleanValues")
-    public Object[][] unequalBooleanValues() {
-        return new Object[][]{
-                {true, false},
-                {false, true}
-        };
-    }
-
-    @DataProvider(name = "equalStringValues")
-    public Object[][] equalStringValues() {
-        return new Object[][]{
-                {"a", "a"},
-                {"Hello, from Ballerina!", "Hello, from Ballerina!"}
-        };
-    }
-
-    @DataProvider(name = "unequalStringValues")
-    public Object[][] unequalStringValues() {
-        return new Object[][]{
-                {"s", "a"},
-                {"Hi here!", "Hi there!"}
-        };
-    }
-
-    @DataProvider(name = "nonNilBValues")
-    public Object[][] nonNilBValues() {
-        return new Object[][]{
-                {new BBoolean(true)},
-                {new BBoolean(false)},
-                {new BInteger(5)},
-                {new BFloat(5.0)},
-                {new BString("Hi from Ballerina!")},
-                {new BMap<String, BInteger>()}
-        };
-    }
-
-    @DataProvider(name = "anyDataValues")
-    public Object[][] anydataValues() {
-        return new Object[][]{
-                {new BInteger(10), new BInteger(10)},
-                {new BInteger(10), new BByte(10)},
-                {new BByte(5), new BByte(5)},
-                {new BByte(24), new BInteger(24)}
-        };
-    }
-
-    @DataProvider(name = "nonAnyDataValues")
-    public Object[][] nonAnyDataValues() {
-        return new Object[][]{
-                {new BInteger(10), new BInteger(12)},
-                {new BInteger(10), new BByte(12)},
-                {new BInteger(10), new BFloat(10)},
-                {new BInteger(10), new BDecimal("10")},
-                {new BByte(16), new BByte(8)},
-                {new BByte(8), new BInteger(4)},
-                {new BByte(10), new BFloat(10)},
-                {new BByte(10), new BDecimal("10")}
-        };
     }
 
     @DataProvider(name = "equalArrayValues")
@@ -1073,52 +289,38 @@ public class EqualAndNotEqualOperationsTest {
         };
     }
 
-    @DataProvider(name = "equalJsonValues")
-    public Object[][] equalJsonValues() {
-        return new Object[][]{
-                {new BInteger(1000), new BInteger(1000)},
-                {new BFloat(12.34), new BFloat(12.34)},
-                {new BString("Hello Ballerina"), new BString("Hello Ballerina")},
-                {new BBoolean(true), new BBoolean(true)},
-                {new BBoolean(false), new BBoolean(false)},
-                {null, null}
+    @DataProvider(name = "selfAndCyclicReferencingFunctions")
+    public Object[] selfAndCyclicReferencingFunctions() {
+        return new String[]{
+                "testSelfAndCyclicReferencingMapEqualityPositive",
+                "testSelfAndCyclicReferencingJsonEqualityPositive",
+                "testSelfAndCyclicReferencingArrayEqualityPositive",
+                "testSelfAndCyclicReferencingTupleEqualityPositive",
+                "testSelfAndCyclicReferencingMapEqualityNegative",
+                "testSelfAndCyclicReferencingJsonEqualityNegative",
+                "testSelfAndCyclicReferencingArrayEqualityNegative",
+                "testSelfAndCyclicReferencingTupleEqualityNegative"
         };
     }
 
-    @DataProvider(name = "unequalJsonValues")
-    public Object[][] unequalJsonValues() {
-        return new Object[][]{
-                {new BInteger(1000), new BInteger(50)},
-                {new BFloat(12224.1), new BFloat(12.34)},
-                {new BString("Hello Ballerina"), new BString("Hi Ballerina")},
-                {new BBoolean(true), new BBoolean(false)},
-                {new BBoolean(false), new BBoolean(true)},
+    @Test(dataProvider = "functionsWithUnionEqualityChecks")
+    public void testFunctionsWithUnionEqualityChecks(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider
+    public  Object[] functionsWithUnionEqualityChecks() {
+        return new String[] {
+                "testEqualityWithFloatUnion",
+                "testNotEqualityWithFloatUnion",
+                "testExactEqualityWithFloatUnion",
+                "testNotExactEqualityWithFloatUnion",
+                "testEqualityWithDecimalUnion",
+                "testNotEqualityWithDecimalUnion",
+                "testExactEqualityWithDecimalUnion",
+                "testNotExactEqualityWithDecimalUnion",
+                "testEqualityWithUnionOfSimpleTypes",
+                "testExactEqualityWithUnionOfNonSimpleTypes"
         };
     }
-
-    @DataProvider(name = "selfAndCyclicReferencingPositiveFunctions")
-    public Object[][] selfAndCyclicReferencingPositiveFunctions() {
-        return new Object[][]{
-                {"testSelfAndCyclicReferencingMapEqualityPositive"},
-                {"testSelfAndCyclicReferencingJsonEqualityPositive"},
-                {"testSelfAndCyclicReferencingArrayEqualityPositive"},
-                {"testSelfAndCyclicReferencingTupleEqualityPositive"}
-        };
-    }
-
-    @DataProvider(name = "selfAndCyclicReferencingNegativeFunctions")
-    public Object[][] selfAndCyclicReferencingNegativeFunctions() {
-        return new Object[][]{
-                {"testSelfAndCyclicReferencingMapEqualityNegative"},
-                {"testSelfAndCyclicReferencingJsonEqualityNegative"},
-                {"testSelfAndCyclicReferencingArrayEqualityNegative"},
-                {"testSelfAndCyclicReferencingTupleEqualityNegative"}
-        };
-    }
-
-    @Test(description = "Test equality with tables")
-    public void testTableEquality() {
-        BRunUtil.invoke(result, "testTableEquality");
-    }
-
 }

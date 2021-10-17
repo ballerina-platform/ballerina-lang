@@ -656,7 +656,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunction($CompilationError$ varToMatch)",
+      "label": "testFunction()",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -673,14 +673,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "varToMatch",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "varToMatch",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "worker",

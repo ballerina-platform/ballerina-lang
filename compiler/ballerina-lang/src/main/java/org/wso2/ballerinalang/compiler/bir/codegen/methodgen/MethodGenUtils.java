@@ -41,6 +41,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
  * Util methods for the method gen classes.
@@ -90,7 +91,7 @@ public class MethodGenUtils {
     static String calculateLambdaStopFuncName(PackageID id) {
         String orgName = id.orgName.value;
         String moduleName = id.name.value;
-        String version = id.version.value;
+        String version = getMajorVersion(id.version.value);
         String funcSuffix = MethodGenUtils.STOP_FUNCTION_SUFFIX;
 
         String funcName;

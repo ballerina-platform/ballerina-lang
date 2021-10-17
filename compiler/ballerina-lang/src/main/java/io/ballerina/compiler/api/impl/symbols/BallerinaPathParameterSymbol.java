@@ -47,7 +47,7 @@ public class BallerinaPathParameterSymbol extends BallerinaSymbol implements Pat
     private String signature;
 
     public BallerinaPathParameterSymbol(PathSegment.Kind kind, BSymbol symbol, CompilerContext context) {
-        super(symbol.name.value, SymbolKind.PATH_PARAMETER, symbol, context);
+        super(symbol.getOriginalName().getValue(), SymbolKind.PATH_PARAMETER, symbol, context);
         this.segmentKind = kind;
     }
 

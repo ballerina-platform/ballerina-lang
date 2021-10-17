@@ -98,9 +98,6 @@
                     {
                       "kind": "INT_KEYWORD",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_TYPE_INCLUSION_IN_OBJECT_CONSTRUCTOR"
-                      ],
                       "leadingMinutiae": [
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
@@ -114,9 +111,14 @@
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "ASTERISK_TOKEN"
+                                "kind": "ASTERISK_TOKEN",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_TYPE_INCLUSION_IN_OBJECT_CONSTRUCTOR"
+                                ]
                               }
                             ]
                           }

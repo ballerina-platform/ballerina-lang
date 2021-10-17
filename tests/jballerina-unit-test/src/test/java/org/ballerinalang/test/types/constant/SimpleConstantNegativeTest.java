@@ -32,7 +32,7 @@ public class SimpleConstantNegativeTest {
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/" +
                 "simple-literal-constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 64);
+        Assert.assertEquals(compileResult.getErrorCount(), 71);
 
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'int'",
@@ -64,7 +64,9 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++,
                                   "a type compatible with mapping constructor expressions not found in type 'string'",
                                   42, 18);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", 46, 7);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", 47, 7);
+        BAssertUtil.validateError(compileResult, index++, "symbol 'abc' is already initialized with 'abc'", 47, 7);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'GET', found 'XYZ'",
                 64, 21);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'",
@@ -145,7 +147,13 @@ public class SimpleConstantNegativeTest {
                 294, 7);
         BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression",
                 294, 17);
-        BAssertUtil.validateError(compileResult, index, "constant declarations are allowed only at module level",
-                298, 1);
+        BAssertUtil.validateError(compileResult, index++, "constant declarations are allowed only at module level",
+                297, 5);
+        BAssertUtil.validateError(compileResult, index++, "type is required for constants with expressions",
+                301, 25);
+        BAssertUtil.validateError(compileResult, index++, "cannot resolve constant 'UT_COUNT'", 302, 27);
+        BAssertUtil.validateError(compileResult, index++, "self referenced constant 'CONST1'", 304, 20);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc2'", 308, 7);
+        BAssertUtil.validateError(compileResult, index, "symbol 'abc2' is already initialized with '1'", 308, 7);
     }
 }

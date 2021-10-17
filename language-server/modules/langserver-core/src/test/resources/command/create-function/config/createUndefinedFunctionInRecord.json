@@ -1,40 +1,40 @@
 {
-    "arguments": {
-        "node.range": {
-            "start": {
-                "line": 18,
-                "character": 22
-            },
-            "end": {
-                "line": 18,
-                "character": 39
-            }
-        }
-    },
-    "expected": {
-        "result": {
-            "edit": {
-                "documentChanges": [
-                    {
-                        "edits": [
-                            {
-                                "range": {
-                                    "start": {
-                                        "line": 25,
-                                        "character": 0
-                                    },
-                                    "end": {
-                                        "line": 25,
-                                        "character": 0
-                                    }
-                                },
-                                "newText": "\n\nfunction getManufacturer() returns Manufacturer {\n    return {name: \"\"};\n}\n"
-                            }
-                        ]
-                    }
-                ]
-            }
-        },
-        "jsonrpc": "2.0"
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 18,
+        "character": 22
+      },
+      "end": {
+        "line": 18,
+        "character": 39
+      }
     }
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 24,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 24,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction getManufacturer() returns Manufacturer {\n    return {name: \"\"};\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
 }

@@ -19,6 +19,7 @@ import io.ballerina.compiler.api.symbols.Documentation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.Position;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -120,19 +121,28 @@ public class DocAttachmentInfo implements Documentation {
         StringBuilder result = new StringBuilder();
         String[] descriptionLines = this.description.trim().split("(\r)?\n");
         for (String descriptionLine : descriptionLines) {
-            result.append(String.format("# %s%n", descriptionLine.trim()));
+            result.append(String.format("%s# %s%n", padding, descriptionLine.trim()));
         }
 
         if (!parameters.isEmpty()) {
             StringJoiner paramJoiner = new StringJoiner(CommonUtil.MD_LINE_SEPARATOR);
             for (Map.Entry<String, String> parameter : this.parameters.entrySet()) {
-                paramJoiner.add(String.format("%s# + %s - %s", padding, parameter.getKey(), parameter.getValue()));
+                String[] parameterLines = parameter.getValue().trim().split("(\r)?\n");
+                paramJoiner.add(String.format("%s# + %s - %s", padding, parameter.getKey(), parameterLines[0].trim()));
+                for (String parameterLine : Arrays.copyOfRange(parameterLines, 1, parameterLines.length)) {
+                    paramJoiner.add(String.format("%s# %s", padding, parameterLine.trim()));
+                }
+                
             }
             result.append(String.format("%s#%n%s%n", padding, paramJoiner.toString()));
         }
 
         if (returnDesc != null) {
-            result.append(String.format("%s# + return - %s%n", padding, this.returnDesc.trim()));
+            String[] returnDescLines = this.returnDesc.trim().split("(\r)?\n");
+            result.append(String.format("%s# + return - %s%n", padding, returnDescLines[0].trim()));
+            for (String returnDescLine : Arrays.copyOfRange(returnDescLines, 1, returnDescLines.length)) {
+                result.append(String.format("%s# %s%n", padding, returnDescLine.trim()));
+            }
         }
 
         if (deprecatedDesc != null) {

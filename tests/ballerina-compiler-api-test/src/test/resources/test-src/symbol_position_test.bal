@@ -74,4 +74,20 @@ function typeNarrowing() {
     }
 }
 
-function exprBodyScope(string myStr) returns string => m
+function exprBodyScope(string myStr) returns string => myStr;
+
+public type Module table<TypeDef> key(id);
+
+type TypeDef record {|
+    readonly int id;
+    string name;
+    int cycleDepth = -1;
+|};
+
+
+function typeDes() {
+    Module mod = table [
+        {id: 1, name: "Mary"},
+        {id: 2, name: "John",  cycleDepth: 25}
+    ];
+}

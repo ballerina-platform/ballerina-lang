@@ -20,15 +20,15 @@
               {
                 "range": {
                   "start": {
-                    "line": 8,
-                    "character": 0
+                    "line": 7,
+                    "character": 1
                   },
                   "end": {
-                    "line": 8,
-                    "character": 0
+                    "line": 7,
+                    "character": 1
                   }
                 },
-                "newText": "\n\nfunction addTwoIntegers(int a, float b, boolean c) {\n    \n}\n"
+                "newText": "\n\nfunction addTwoIntegers(int a, float c, boolean b) {\n    \n}\n"
               }
             ]
           }

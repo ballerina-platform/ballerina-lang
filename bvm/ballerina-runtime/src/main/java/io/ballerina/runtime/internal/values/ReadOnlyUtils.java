@@ -24,7 +24,11 @@ import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.IntersectableReferenceType;
+import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BField;
@@ -111,7 +115,7 @@ public class ReadOnlyUtils {
     }
 
     private static Type getAvailableImmutableType(Type type) {
-        if (TypeChecker.isInherentlyImmutableType(type)) {
+        if (type.isReadOnly() || TypeChecker.isInherentlyImmutableType(type)) {
             return type;
         }
 
@@ -119,9 +123,9 @@ public class ReadOnlyUtils {
             return ((BIntersectionType) type).getEffectiveType();
         }
 
-        Type immutableType = type.getImmutableType();
+        IntersectionType immutableType = ((SelectivelyImmutableReferenceType) type).getImmutableType();
         if (immutableType != null) {
-            return ((BIntersectionType) immutableType).getEffectiveType();
+            return immutableType.getEffectiveType();
         }
 
         return null;
@@ -129,7 +133,7 @@ public class ReadOnlyUtils {
 
 
     private static Type getImmutableType(Type type, Set<Type> unresolvedTypes) {
-        if (TypeChecker.isInherentlyImmutableType(type)) {
+        if (type.isReadOnly() || TypeChecker.isInherentlyImmutableType(type)) {
             return type;
         }
 
@@ -142,7 +146,7 @@ public class ReadOnlyUtils {
 
     private static BIntersectionType setImmutableIntersectionType(Type type, Set<Type> unresolvedTypes) {
 
-        Type immutableType = type.getImmutableType();
+        Type immutableType = ((SelectivelyImmutableReferenceType) type).getImmutableType();
         if (immutableType != null) {
             return (BIntersectionType) immutableType;
         }
@@ -211,11 +215,12 @@ public class ReadOnlyUtils {
                                           originalField.getFieldName(), originalField.getFlags()));
                 }
 
-                BRecordType immutableRecordType = new BRecordType(origRecordType.getName().concat(" & readonly"),
-                                                                  origRecordType.getPackage(),
-                                                                  origRecordType.flags |= SymbolFlags.READONLY, fields,
-                                                                  null, origRecordType.sealed,
-                                                                  origRecordType.typeFlags);
+                BRecordType immutableRecordType = new BRecordType(
+                        IdentifierUtils.decodeIdentifier(origRecordType.getName().concat(" & readonly")),
+                        origRecordType.getPackage(),
+                        origRecordType.flags |= SymbolFlags.READONLY, fields,
+                        null, origRecordType.sealed,
+                        origRecordType.typeFlags);
                 BIntersectionType intersectionType = createAndSetImmutableIntersectionType(origRecordType,
                                                                                            immutableRecordType);
 
@@ -237,7 +242,7 @@ public class ReadOnlyUtils {
                                                         getImmutableType(origKeyType, unresolvedTypes), true);
                 } else {
                     immutableTableType = new BTableType(getImmutableType(origTableType.getConstrainedType(),
-                                                                                     unresolvedTypes),
+                                                                         unresolvedTypes),
                                                         origTableType.getFieldNames(), true);
                 }
 
@@ -247,9 +252,9 @@ public class ReadOnlyUtils {
 
                 Map<String, Field> originalObjectFields = origObjectType.getFields();
                 Map<String, Field> immutableObjectFields = new HashMap<>(originalObjectFields.size());
-                BObjectType immutableObjectType = new BObjectType(origObjectType.getName().concat(" & readonly"),
-                                                                  origObjectType.getPackage(),
-                                                                  origObjectType.flags |= SymbolFlags.READONLY);
+                BObjectType immutableObjectType = new BObjectType(
+                        IdentifierUtils.decodeIdentifier(origObjectType.getName().concat(" & readonly")),
+                        origObjectType.getPackage(), origObjectType.flags |= SymbolFlags.READONLY);
                 immutableObjectType.setFields(immutableObjectFields);
                 immutableObjectType.generatedInitializer = origObjectType.generatedInitializer;
                 immutableObjectType.initializer = origObjectType.initializer;
@@ -326,9 +331,24 @@ public class ReadOnlyUtils {
                                                                    // for records and objects
                                                                    new Type[]{originalType,
                                                                            PredefinedTypes.TYPE_READONLY},
-                                                                   effectiveType, typeFlags, true);
+                                                                   (IntersectableReferenceType) effectiveType,
+                                                                   typeFlags, true);
         originalType.setImmutableType(intersectionType);
         return intersectionType;
+    }
+
+    /**
+     * Provides the mutable type used to create the intersection type.
+     * @param intersectionType intersection type
+     * @return mutable type
+     */
+    public static Type getMutableType(BIntersectionType intersectionType) {
+        for (Type type : intersectionType.getConstituentTypes()) {
+            if (intersectionType.getEffectiveType().getTag() == type.getTag()) {
+                return type;
+            }
+        }
+        throw new IllegalStateException("Unsupported intersection type found: " + intersectionType);
     }
 
     private ReadOnlyUtils() {

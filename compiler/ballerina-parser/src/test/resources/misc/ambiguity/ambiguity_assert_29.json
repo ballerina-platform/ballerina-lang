@@ -92,9 +92,6 @@
                                     {
                                       "kind": "OPEN_PAREN_TOKEN",
                                       "hasDiagnostics": true,
-                                      "diagnostics": [
-                                        "ERROR_INVALID_PARAM_LIST_IN_INFER_ANONYMOUS_FUNCTION_EXPR"
-                                      ],
                                       "leadingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
@@ -106,9 +103,14 @@
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "hasDiagnostics": true,
                                             "children": [
                                               {
                                                 "kind": "IDENTIFIER_TOKEN",
+                                                "hasDiagnostics": true,
+                                                "diagnostics": [
+                                                  "ERROR_INVALID_PARAM_LIST_IN_INFER_ANONYMOUS_FUNCTION_EXPR"
+                                                ],
                                                 "value": "a"
                                               }
                                             ]
@@ -122,9 +124,14 @@
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "hasDiagnostics": true,
                                             "children": [
                                               {
-                                                "kind": "PUBLIC_KEYWORD"
+                                                "kind": "PUBLIC_KEYWORD",
+                                                "hasDiagnostics": true,
+                                                "diagnostics": [
+                                                  "ERROR_INVALID_TOKEN"
+                                                ]
                                               }
                                             ]
                                           }
@@ -133,14 +140,9 @@
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "hasDiagnostics": true,
                                             "children": [
                                               {
-                                                "kind": "PIPE_TOKEN",
-                                                "hasDiagnostics": true,
-                                                "diagnostics": [
-                                                  "ERROR_INVALID_TOKEN"
-                                                ]
+                                                "kind": "PIPE_TOKEN"
                                               }
                                             ]
                                           }

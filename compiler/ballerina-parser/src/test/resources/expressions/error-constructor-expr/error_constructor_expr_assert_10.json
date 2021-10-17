@@ -38,15 +38,14 @@
         {
           "kind": "POSITIONAL_ARG",
           "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_ADDITIONAL_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR"
-          ],
           "children": [
             {
               "kind": "STRING_LITERAL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "STRING_LITERAL_TOKEN",
+                  "hasDiagnostics": true,
                   "value": "msg2",
                   "trailingMinutiae": [
                     {
@@ -68,9 +67,14 @@
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
                             "kind": "STRING_LITERAL_TOKEN",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_ADDITIONAL_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR"
+                            ],
                             "value": "msg3"
                           }
                         ]

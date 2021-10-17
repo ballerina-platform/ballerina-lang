@@ -39,7 +39,7 @@ public class LangLibTypedescTest {
     }
 
     @Test
-    public void testLength() {
+    public void testGetTypeIds() {
         BRunUtil.invoke(compileResult, "testGeTypeIds");
     }
 

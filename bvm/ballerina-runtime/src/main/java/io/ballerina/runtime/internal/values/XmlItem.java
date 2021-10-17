@@ -55,6 +55,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_NULL_VA
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 import static io.ballerina.runtime.api.types.XmlNodeType.ELEMENT;
 import static io.ballerina.runtime.api.types.XmlNodeType.TEXT;
+import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 
 /**
  * {@code XMLItem} represents a single XML element in Ballerina.
@@ -82,6 +83,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         probableParents = new ArrayList<>();
         this.type = PredefinedTypes.TYPE_ELEMENT;
         this.type = readonly ? PredefinedTypes.TYPE_READONLY_ELEMENT : PredefinedTypes.TYPE_ELEMENT;
+        setTypedescValue(type);
     }
 
     public XmlItem(QName name, XmlSequence children) {
@@ -96,6 +98,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
     public XmlItem(QName name) {
         this(name, new XmlSequence(new ArrayList<>()));
         this.type = PredefinedTypes.TYPE_ELEMENT;
+        setTypedescValue(type);
     }
 
     public XmlItem(QName name, boolean readonly) {
@@ -110,6 +113,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         probableParents = new ArrayList<>();
 
         this.type = readonly ? PredefinedTypes.TYPE_READONLY_ELEMENT : PredefinedTypes.TYPE_ELEMENT;
+        setTypedescValue(type);
     }
     private void addDefaultNamespaceAttribute(QName name, AttributeMapValueImpl attributes) {
         String namespace = name.getNamespaceURI();
@@ -626,6 +630,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
         this.children.freezeDirect();
         this.attributes.freezeDirect();
+        this.typedesc = createSingletonTypedesc(this);
     }
 
     private QName getQName(String localName, String namespaceUri, String prefix) {
@@ -662,33 +667,6 @@ public final class XmlItem extends XmlValue implements BXmlItem {
                 return that;
             }
         };
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-
-        if (obj instanceof XmlItem) {
-            XmlItem that = (XmlItem) obj;
-            boolean qNameEquals = that.getQName().equals(this.getQName());
-            if (!qNameEquals) {
-                return false;
-            }
-
-            boolean attrMapEquals = that.attributes.entrySet().equals(this.attributes.entrySet());
-            if (!attrMapEquals) {
-                return false;
-            }
-
-            return that.children.equals(this.children);
-        }
-        if (obj instanceof XmlSequence) {
-            XmlSequence other = (XmlSequence) obj;
-            return other.children.size() == 1 && this.equals(other.children.get(0));
-        }
-        return false;
     }
 
     @Override

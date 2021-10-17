@@ -16,10 +16,13 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -71,6 +74,20 @@ public class LetVariableDeclarationNodeContext extends AbstractCompletionProvide
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, LetVariableDeclarationNode node) {
         int cursor = context.getCursorPositionInTree();
-        return !node.equalsToken().isMissing() && node.equalsToken().textRange().startOffset() < cursor;
+        Token equalsToken = node.equalsToken();
+        ExpressionNode expression = node.expression();
+        /*
+        Following is a special case check added for the example here
+        eg: 
+        1) from var person in personList
+                let var test = 12 s<cursor>
+        Here at the cursor, it is identified as the binary expression where the operator is missing
+         */
+        if (!expression.isMissing() && expression.kind() == SyntaxKind.BINARY_EXPRESSION
+                && cursor > ((BinaryExpressionNode) expression).lhsExpr().textRange().endOffset()) {
+            return false;
+        }
+        return !equalsToken.isMissing() && equalsToken.textRange().startOffset() < cursor
+                && (expression.isMissing() || cursor <= expression.textRange().endOffset());
     }
 }

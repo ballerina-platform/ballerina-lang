@@ -38,3 +38,14 @@ function baz() {
 function getStringVal(any... values) returns string = @java:Method {
     'class:"org/ballerinalang/test/types/string/StringUtilsTest"
 } external;
+
+public function testStringValue() {
+    string expected = "ascii~?£ßóµ¥ęЯλĢŃ☃✈௸ऴᛤ😀🄰🍺";
+    string val = "ascii~?" + "£ßóµ¥" + "ęЯλĢŃ" + "☃✈௸ऴᛤ" + "😀🄰🍺";
+    val = invokeStringValue(val);
+    test:assertEquals(val, expected);
+}
+
+function invokeStringValue(any values) returns string = @java:Method {
+    'class:"org/ballerinalang/test/types/string/StringUtilsTest"
+} external;

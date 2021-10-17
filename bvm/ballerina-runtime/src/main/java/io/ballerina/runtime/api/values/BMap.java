@@ -192,7 +192,5 @@ public interface BMap<K, V> extends BRefValue, BCollection {
 
     Object merge(BMap v2, boolean checkMergeability);
 
-    BTypedesc getTypedesc();
-
     void populateInitialValue(K key, V value);
 }

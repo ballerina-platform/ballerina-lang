@@ -35,9 +35,11 @@ public class ArraySizeDefinitionTest {
             "'intLength' as array size: expected a constant reference expression";
     private String incompatibleTypeError = "incompatible types: expected 'int', found 'string'";
     private String undefinedSymbolError = "undefined symbol 'length'";
-    private String invalidArrayLengthError = "invalid array length";
+    private static final String INVALID_ARRAY_LENGTH_ERROR =
+            "invalid array length: array length should be a non-negative integer";
+    private static final String SIZE_LIMIT_ERROR = "array length greater that '2147483637' not yet supported";
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void testCompilationSizeReferenceErrors() {
         CompileResult resultPositive = BCompileUtil.compile("test-src/statements/arrays/array_size_test.bal");
         Assert.assertEquals(resultPositive.getDiagnostics().length, 0);
@@ -68,11 +70,15 @@ public class ArraySizeDefinitionTest {
         BAssertUtil.validateError(resultNegative, index++, incompatibleTypeError, 42, 12);
         BAssertUtil.validateError(resultNegative, index++, undefinedSymbolError, 43, 5);
         BAssertUtil.validateError(resultNegative, index++, sizeMismatchError, 44, 23);
-        BAssertUtil.validateError(resultNegative, index++, invalidArrayLengthError, 45, 8);
+        BAssertUtil.validateError(resultNegative, index++, INVALID_ARRAY_LENGTH_ERROR, 45, 9);
+        BAssertUtil.validateError(resultNegative, index++, SIZE_LIMIT_ERROR, 47, 9);
+        BAssertUtil.validateError(resultNegative, index++, SIZE_LIMIT_ERROR, 48, 9);
+        BAssertUtil.validateError(resultNegative, index++, INVALID_ARRAY_LENGTH_ERROR, 50, 9);
+        BAssertUtil.validateError(resultNegative, index++, INVALID_ARRAY_LENGTH_ERROR, 51, 9);
         Assert.assertEquals(resultNegative.getDiagnostics().length, index);
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void arraySizeReferenceInDifferentScopeTest() {
         CompileResult resultPositive = BCompileUtil.compile("test-src/statements/arrays/array_size_scope_test.bal");
         Assert.assertEquals(resultPositive.getDiagnostics().length, 0);

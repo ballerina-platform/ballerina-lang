@@ -23,35 +23,39 @@ under the License.
     <test name="language-server-core-tests" preserve-order="true" parallel="false">
         <groups>
             <run>
-                <exclude name="broken" />
+                <exclude name="broken"/>
             </run>
         </groups>
         <packages>
-            <package name="org.ballerinalang.langserver.definition.*" />
-            <package name="org.ballerinalang.langserver.extensions.*" />
-            <package name="org.ballerinalang.langserver.hover.*" />
-            <package name="org.ballerinalang.langserver.references.*" />
-            <package name="org.ballerinalang.langserver.rename.*" />
-            <package name="org.ballerinalang.langserver.signature.*" />
-            <package name="org.ballerinalang.langserver.workspace.*" />
+            <package name="org.ballerinalang.langserver.definition.*"/>
+            <package name="org.ballerinalang.langserver.extensions.*"/>
+            <package name="org.ballerinalang.langserver.hover.*"/>
+            <package name="org.ballerinalang.langserver.references.*"/>
+            <package name="org.ballerinalang.langserver.rename.*"/>
+            <package name="org.ballerinalang.langserver.signature.*"/>
+            <package name="org.ballerinalang.langserver.workspace.*"/>
             <package name="org.ballerinalang.langserver.formatting.*"/>
             <package name="org.ballerinalang.langserver.rangeformat.*"/>
-            <package name="org.ballerinalang.langserver.codeaction.*" />
-            <package name="org.ballerinalang.langserver.codelenses.*" />
-            <package name="org.ballerinalang.langserver.completion.*" />
-            <package name="org.ballerinalang.langserver.diagnostics.*" />
+            <package name="org.ballerinalang.langserver.codeaction.*"/>
+            <package name="org.ballerinalang.langserver.codelenses.*"/>
+            <package name="org.ballerinalang.langserver.completion.*"/>
+            <package name="org.ballerinalang.langserver.diagnostics.*"/>
             <package name="org.ballerinalang.langserver.command.*"/>
-            <package name="org.ballerinalang.langserver.foldingrange.*" />
-            <package name="org.ballerinalang.langserver.common.utils.*" />
-            <package name="org.ballerinalang.langserver.packages.*" />
-            <package name="org.ballerinalang.langserver.stnode.*" />
-            <package name="org.ballerinalang.langserver.execpositions.*" />
+            <package name="org.ballerinalang.langserver.foldingrange.*"/>
+            <package name="org.ballerinalang.langserver.common.utils.*"/>
+            <package name="org.ballerinalang.langserver.packages.*"/>
+            <package name="org.ballerinalang.langserver.stnode.*"/>
+            <package name="org.ballerinalang.langserver.execpositions.*"/>
+            <package name="org.ballerinalang.langserver.toml.ballerinatoml.completion.*"/>
+            <package name="org.ballerinalang.langserver.semantictokens.*"/>
+            <package name="org.ballerinalang.langserver.documentsymbol.*"/>
+            <package name="org.ballerinalang.langserver.performance.*"/>
         </packages>
         <classes>
-            <class name="org.ballerinalang.langserver.workspace.TestWorkspaceManager" />
-            <class name="org.ballerinalang.langserver.extensions.document.SyntaxTreeByRangeTest" />
-            <class name="org.ballerinalang.langserver.extensions.document.SyntaxTreeLocateTest" />
-            <class name="org.ballerinalang.langserver.extensions.document.SyntaxApiCallsGenTest" />
+            <class name="org.ballerinalang.langserver.workspace.TestWorkspaceManager"/>
+            <class name="org.ballerinalang.langserver.extensions.document.SyntaxTreeByRangeTest"/>
+            <class name="org.ballerinalang.langserver.extensions.document.SyntaxTreeLocateTest"/>
+            <class name="org.ballerinalang.langserver.extensions.document.SyntaxApiCallsGenTest"/>
         </classes>
     </test>
 </suite>

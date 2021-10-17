@@ -39,18 +39,20 @@
             {
               "kind": "IDENTIFIER_TOKEN",
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_INVALID_TOKEN"
-              ],
               "value": "a",
               "leadingMinutiae": [
                 {
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "hasDiagnostics": true,
                     "children": [
                       {
-                        "kind": "PERCENT_TOKEN"
+                        "kind": "PERCENT_TOKEN",
+                        "hasDiagnostics": true,
+                        "diagnostics": [
+                          "ERROR_INVALID_TOKEN"
+                        ]
                       }
                     ]
                   }

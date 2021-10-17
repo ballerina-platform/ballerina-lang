@@ -113,6 +113,9 @@ public class ConfigResolver {
             case TypeTags.RECORD_TYPE_TAG:
                 return getConfigValue(key, configProvider -> configProvider
                         .getAsRecordAndMark(module, key));
+            case TypeTags.XML_TEXT_TAG:
+                return getConfigValue(key, configProvider -> configProvider
+                        .getAsXmlAndMark(module, key));
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
                 switch (effectiveType.getTag()) {

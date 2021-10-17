@@ -1,0 +1,40 @@
+{
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 1,
+        "character": 0
+      },
+      "end": {
+        "line": 11,
+        "character": 1
+      }
+    }
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 32
+                  }
+                },
+                "newText": "# This function has a doc with multiple lines. Once updated, it should\n# preserve these lines\n#\n# + a - Parameter Description spans across multiple lines. Once updated,  \n# it should preserve these lines\n# + return - Return Value Description spans across multiple lines. Once updated,\n# it should preserve these lines"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

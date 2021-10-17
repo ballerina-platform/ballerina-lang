@@ -69,8 +69,8 @@ public class ModulePublicVariableTest {
         CompileResult compileResultNegative =
                 BCompileUtil.compile("test-src/statements/vardeclr/access-project-negative");
         int index = 0;
-        validateError(compileResultNegative, index++, "isolated variable cannot be public", 17, 8);
-        validateError(compileResultNegative, index++, "variable declared with var cannot be public", 19, 8);
+        validateError(compileResultNegative, index++, "isolated variable cannot be public", 17, 1);
+        validateError(compileResultNegative, index++, "variable declared with var cannot be public", 19, 1);
         validateError(compileResultNegative, index++, "attempt to refer to non-accessible symbol 'name'", 20, 21);
         validateError(compileResultNegative, index++, "undefined symbol 'name'", 20, 21);
         assertEquals(compileResultNegative.getErrorCount(), index);

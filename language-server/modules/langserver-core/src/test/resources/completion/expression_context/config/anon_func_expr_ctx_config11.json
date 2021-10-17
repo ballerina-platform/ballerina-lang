@@ -529,25 +529,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "x(int, int, string, float)",
-      "kind": "Function",
-      "detail": "R1",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int`  \n- `int`  \n- `string`  \n- `float[]`  \n  \n**Return** `R1`   \n  \n"
-        }
-      },
-      "sortText": "AC",
-      "filterText": "x",
-      "insertText": "x(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "rec",
       "kind": "Variable",
       "detail": "R1",
@@ -625,6 +606,15 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "filterText": "null",
+      "insertText": "null",
       "insertTextFormat": "Snippet"
     }
   ]

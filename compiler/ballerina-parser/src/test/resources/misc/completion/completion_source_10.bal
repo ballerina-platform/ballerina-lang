@@ -3,11 +3,11 @@ function foo1() {
 }
 
 function foo2() {
-    stream 
+    stream
 }
 
 function foo3() {
-    stream<a, 
+    stream<a,
  }
 
 function foo4() {
@@ -31,7 +31,7 @@ function foo8() {
 }
 
 function foo9() {
-    [a, 
+    [a,
  }
 
 function foo10() {
@@ -39,19 +39,19 @@ function foo10() {
  }
 
 function foo11() {
-    record } 
+    record }
 }
 
 function foo12() {
     record {
-        readonly 
-    } 
+        readonly
+    }
 }
 
 function foo13() {
     record {
         *
-    } 
+    }
 }
 
 function foo14() {
@@ -63,7 +63,7 @@ function foo15() {
  }
 
 function foo16() {
-    table<baz> key(a, 
+    table<baz> key(a,
  }
 
 function foo17() {
@@ -71,7 +71,7 @@ function foo17() {
  }
 
 function foo18() {
-    error 
+    error
 }
 
 function foo19() {

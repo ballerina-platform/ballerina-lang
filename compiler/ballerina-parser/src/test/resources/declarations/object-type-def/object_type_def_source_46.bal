@@ -1,5 +1,5 @@
 type MYOBJECT object {
-    p 
+    p
 };
 
 type MYOBJECT object {

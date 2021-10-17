@@ -60,13 +60,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -89,13 +96,18 @@ public class BTestRunner {
     private static final String TEST_INIT_FUNCTION_NAME = ".<testinit>";
     private static final String TEST_START_FUNCTION_NAME = ".<teststart>";
     private static final String TEST_STOP_FUNCTION_NAME = ".<teststop>";
-    private static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
+    private static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
     private static final String CONFIG_FILE_NAME = "Config.toml";
 
     private PrintStream errStream;
     private PrintStream outStream;
     private TesterinaReport tReport;
 
+    private List<String> specialCharacters = new ArrayList<>(Arrays.asList(",", "\\n", "\\r", "\\t", "\n", "\r", "\t",
+            "\"", "\\", "!", "`"));
+    private List<String> bracketCharacters = new ArrayList<>(Arrays.asList("{", "}", "[", "]", "(", ")"));
+    private List<String> regexSpecialCharacters = new ArrayList<>(Arrays.asList("{", "}", "[", "]", "(", ")", "+",
+            "^", "|"));
     /**
      * Create Test Runner with given loggers.
      *
@@ -223,7 +235,6 @@ public class BTestRunner {
 
         AtomicBoolean shouldSkip = new AtomicBoolean();
         AtomicBoolean shouldSkipAfterSuite = new AtomicBoolean();
-        AtomicBoolean shouldSkipAfterGroups = new AtomicBoolean();
         String packageName = suite.getPackageName();
         ClassLoader classLoader = testClassLoader;
         // Load module init class
@@ -261,9 +272,9 @@ public class BTestRunner {
                 throw new BallerinaTestException("failed to load Test init class :" + testClassName);
             }
         }
+        // 'shouldSkip' sets to true if beforeSuite, beforeEach or afterEach functions fail
         shouldSkip.set(false);
         shouldSkipAfterSuite.set(false);
-        shouldSkipAfterGroups.set(false);
         tReport.addPackageReport(packageName);
         tReport.setReportRequired(suite.isReportRequired());
         // Initialize the test suite.
@@ -272,7 +283,7 @@ public class BTestRunner {
         // Run Before suite functions
         executeBeforeSuiteFunctions(suite, classLoader, scheduler, shouldSkip, shouldSkipAfterSuite);
         // Run Tests
-        executeTests(suite, packageName, classLoader, scheduler, shouldSkip, shouldSkipAfterGroups);
+        executeTests(suite, packageName, classLoader, scheduler, shouldSkip);
         // Run After suite functions
         executeAfterSuiteFunctions(suite, classLoader, scheduler, shouldSkipAfterSuite);
         // Call module stop and test stop function
@@ -323,7 +334,7 @@ public class BTestRunner {
             response = testStart.invoke();
             if (response instanceof BError || response instanceof Throwable || response instanceof Error) {
                 throw new BallerinaTestException("Test module invocation for test suite failed due to " +
-                        response.toString(), (Throwable) response);
+                        formatErrorMessage((Throwable) response), (Throwable) response);
             }
         }
         // Once the start function finish we will re start the scheduler with immortal true
@@ -367,9 +378,13 @@ public class BTestRunner {
     }
 
     private void executeTests(TestSuite suite, String packageName, ClassLoader classLoader, Scheduler scheduler,
-                              AtomicBoolean shouldSkip, AtomicBoolean shouldSkipAfterGroups) {
+                              AtomicBoolean shouldSkip) {
         List<String> failedOrSkippedTests = new ArrayList<>();
         List<String> failedAfterFuncTests = new ArrayList<>();
+        Map<String, AtomicBoolean> shouldSkipAfterGroups = new HashMap<>();
+        for (String group : suite.getGroups().keySet()) {
+            shouldSkipAfterGroups.put(group, new AtomicBoolean(false));
+        }
         suite.getTests().forEach(test -> {
             AtomicBoolean shouldSkipTest = new AtomicBoolean(false);
 
@@ -378,7 +393,7 @@ public class BTestRunner {
                     shouldSkipTest, shouldSkipAfterGroups);
 
             // run the before each tests
-            executeBeforeEachFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest);
+            executeBeforeEachFunction(test, suite, classLoader, scheduler, shouldSkip);
             // run the before tests
             executeBeforeFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest);
             // run the test
@@ -388,17 +403,15 @@ public class BTestRunner {
             executeAfterFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest, failedAfterFuncTests);
             // run the after each tests
             executeAfterEachFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest);
-
             // execute the after groups functions
-            executeAfterGroupFunctions(test, suite, classLoader, scheduler, shouldSkip,
-                    shouldSkipTest, shouldSkipAfterGroups);
+            executeAfterGroupFunctions(test, suite, classLoader, scheduler, shouldSkip, shouldSkipAfterGroups);
         });
     }
 
     private void executeBeforeGroupFunctions(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
                                              AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
-                                             AtomicBoolean shouldSkipAfterGroups)  {
-        if (!shouldSkip.get() && !shouldSkipTest.get()) {
+                                             Map<String, AtomicBoolean> shouldSkipAfterGroups) {
+        if (!shouldSkip.get()) {
             for (String groupName : test.getGroups()) {
                 if (!suite.getGroups().get(groupName).getBeforeGroupsFunctions().isEmpty()
                         && !suite.getGroups().get(groupName).isFirstTestExecuted()) {
@@ -407,13 +420,13 @@ public class BTestRunner {
                     for (String beforeGroupFunc : suite.getGroups().get(groupName).getBeforeGroupsFunctions()) {
                         try {
                             Object value = invokeTestFunction(suite, beforeGroupFunc, classLoader, scheduler);
-                            if (value instanceof BError || value instanceof  Exception || value instanceof Error) {
+                            if (value instanceof BError || value instanceof Exception || value instanceof Error) {
                                 throw (Throwable) value;
                             }
                         } catch (Throwable e) {
-                            shouldSkip.set(true);
+                            //shouldSkip.set(true);
                             shouldSkipTest.set(true);
-                            shouldSkipAfterGroups.set(true);
+                            shouldSkipAfterGroups.put(groupName, new AtomicBoolean(true));
                             errorMsg = String.format("\t[fail] " + beforeGroupFunc +
                                             " [before test group function for the test %s] :\n\t    %s", test,
                                     formatErrorMessage(e));
@@ -427,8 +440,8 @@ public class BTestRunner {
     }
 
     private void executeBeforeEachFunction(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
-                                           AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest) {
-        if (!shouldSkip.get() && !shouldSkipTest.get()) {
+                                           AtomicBoolean shouldSkip) {
+        if (!shouldSkip.get()) {
             // run the beforeEach tests
             suite.getBeforeEachFunctionNames().forEach(beforeEachTest -> {
                 String errorMsg;
@@ -499,8 +512,14 @@ public class BTestRunner {
         boolean isIncluded = false;
         List<String> keyList = suite.getDataKeyValues().get(testName);
         for (String keyValue : keyList) {
-            isIncluded = Pattern.matches(keyValue.replace(TesterinaConstants.WILDCARD, DOT +
-                            TesterinaConstants.WILDCARD), key);
+            String pattern = encode(keyValue, regexSpecialCharacters).replace(TesterinaConstants.WILDCARD, DOT +
+                    TesterinaConstants.WILDCARD);
+            String decodedKey = encode(key, regexSpecialCharacters);
+            if (pattern.equals(decodedKey)) {
+                isIncluded = true;
+            } else {
+                isIncluded = Pattern.matches(pattern, decodedKey);
+            }
             if (isIncluded) {
                 break;
             }
@@ -514,10 +533,9 @@ public class BTestRunner {
         Object valueSets;
         if (suite.isSingleDDTExecution()) {
             if (isIncludedKey(suite, testName, key)) {
-                valueSets = invokeTestFunction(suite, testName, classLoader, scheduler,
-                        argTypes, arg);
-                computeFunctionResult(testName + DATA_KEY_SEPARATOR + key,
-                        packageName, shouldSkip, failedOrSkippedTests, valueSets);
+                valueSets = invokeTestFunction(suite, testName, classLoader, scheduler, argTypes, arg);
+                computeFunctionResult(testName + DATA_KEY_SEPARATOR + key, packageName, shouldSkip,
+                        failedOrSkippedTests, valueSets);
             }
         } else {
             valueSets = invokeTestFunction(suite, testName, classLoader, scheduler, argTypes,
@@ -549,27 +567,33 @@ public class BTestRunner {
             } else {
                 if (valueSets instanceof BMap) {
                     // Handle map data sets
-                    List<String> keyValues = getKeyValues((BMap) valueSets);
-                    Class<?>[] argTypes = extractArgumentTypes((BMap) valueSets);
-                    List<Object[]> argList = extractArguments((BMap) valueSets);
-                    int i = 0;
-                    for (Object[] arg : argList) {
-                        invokeDataDrivenTest(suite, test.getTestName(), keyValues.get(i), classLoader, scheduler,
-                                shouldSkip, packageName, arg, argTypes, failedOrSkippedTests);
-                        i++;
+                    if (((BMap) valueSets).isEmpty()) {
+                        computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
+                                new Error("The provided data set is empty."));
+                    } else {
+                        List<String> keyValues = getKeyValues((BMap) valueSets);
+                        Class<?>[] argTypes = extractArgumentTypes((BMap) valueSets);
+                        List<Object[]> argList = extractArguments((BMap) valueSets);
+                        for (int i = 0, argListSize = argList.size(); i < argListSize; i++) {
+                            invokeDataDrivenTest(suite, test.getTestName(), escapeSpecialCharacters(keyValues.get(i)),
+                                    classLoader, scheduler, shouldSkip, packageName, argList.get(i), argTypes,
+                                    failedOrSkippedTests);
+                        }
                     }
                 } else if (valueSets instanceof BArray) {
-                    // Handle array data sets
-                    Class<?>[] argTypes = extractArgumentTypes((BArray) valueSets);
-                    List<Object[]> argList = extractArguments((BArray) valueSets);
-                    int i = 0;
-                    for (Object[] arg : argList) {
-                        invokeDataDrivenTest(suite, test.getTestName(), String.valueOf(i), classLoader, scheduler,
-                                shouldSkip, packageName, arg, argTypes, failedOrSkippedTests);
-                        i++;
+                    if (((BArray) valueSets).isEmpty()) {
+                        computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
+                                new Error("The provided data set is empty."));
+                    } else {
+                        // Handle array data sets
+                        Class<?>[] argTypes = extractArgumentTypes((BArray) valueSets);
+                        List<Object[]> argList = extractArguments((BArray) valueSets);
+                        for (int i = 0, argListSize = argList.size(); i < argListSize; i++) {
+                            invokeDataDrivenTest(suite, test.getTestName(), String.valueOf(i), classLoader, scheduler,
+                                    shouldSkip, packageName, argList.get(i), argTypes, failedOrSkippedTests);
+                        }
                     }
-                } else if (valueSets instanceof BError || valueSets instanceof Error ||
-                        valueSets instanceof Exception) {
+                } else if (valueSets instanceof Error || valueSets instanceof Exception) {
                     computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
                             valueSets);
                 } else {
@@ -643,7 +667,7 @@ public class BTestRunner {
 
     private void executeAfterEachFunction(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
                                           AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest) {
-        if (!shouldSkip.get() && !shouldSkipTest.get()) {
+        if (!shouldSkip.get()) {
             suite.getAfterEachFunctionNames().forEach(afterEachTest -> {
                 try {
                     Object value = invokeTestFunction(suite, afterEachTest, classLoader, scheduler);
@@ -662,32 +686,27 @@ public class BTestRunner {
     }
 
     private void executeAfterGroupFunctions(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
-                                            AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
-                                            AtomicBoolean shouldSkipAfterGroups)  {
-        if (!shouldSkipAfterGroups.get() && !shouldSkip.get() && !shouldSkipTest.get()) {
-            for (String groupName : test.getGroups()) {
-                if (!suite.getGroups().get(groupName).getAfterGroupsFunctions().isEmpty()
-                        && suite.getGroups().get(groupName).isLastTestExecuted()) {
-                    // run before tests
-                    String errorMsg;
-                    for (String afterGroupFunc : suite.getGroups().get(groupName).getAfterGroupsFunctions()) {
+                                            AtomicBoolean shouldSkip,
+                                            Map<String, AtomicBoolean> shouldSkipAfterGroups) {
+        for (String groupName : test.getGroups()) {
+            if (!suite.getGroups().get(groupName).getAfterGroupsFunctions().isEmpty()
+                    && suite.getGroups().get(groupName).isLastTestExecuted()) {
+                // run before tests
+                suite.getGroups().get(groupName).getAfterGroupsFunctions().forEach((afterGroupFunc, alwaysRun) -> {
+                    if (!(shouldSkipAfterGroups.get(groupName).get() || shouldSkip.get()) || alwaysRun.get()) {
                         try {
                             Object value = invokeTestFunction(suite, afterGroupFunc, classLoader, scheduler);
-                            if (value instanceof BError || value instanceof  Exception || value instanceof Error) {
+                            if (value instanceof BError || value instanceof Exception || value instanceof Error) {
                                 throw (Throwable) value;
                             }
                         } catch (Throwable e) {
-                            shouldSkip.set(true);
-                            shouldSkipTest.set(true);
-                            shouldSkipAfterGroups.set(true);
-                            errorMsg = String.format("\t[fail] " + afterGroupFunc +
+                            String errorMsg = String.format("\t[fail] " + afterGroupFunc +
                                             " [after test group function for the test %s] :\n\t    %s", test,
                                     formatErrorMessage(e));
                             errStream.println(errorMsg);
                         }
                     }
-
-                }
+                });
             }
         }
     }
@@ -946,7 +965,96 @@ public class BTestRunner {
             errorMsg = "Could not write to Rerun Test json. Rerunning tests will not work";
             errStream.println(errorMsg + ":" + e.getMessage());
         }
-
     }
 
+    /**
+     * Encode the provided set of special characters in the given key.
+     *
+     * @param key String
+     * @param specialCharacters List<String>
+     * @return String
+     */
+    private String encode(String key, List<String> specialCharacters) {
+        String encodedKey = key;
+        String encodedValue;
+        for (String character : specialCharacters) {
+            try {
+                if (encodedKey.contains(character)) {
+                    encodedValue = URLEncoder.encode(character, StandardCharsets.UTF_8.toString());
+                    encodedKey = encodedKey.replace(character, encodedValue);
+                }
+            } catch (UnsupportedEncodingException e) {
+                errStream.println("Error occurred while encoding special characters in the data provider case value '"
+                        + key + "'");
+            }
+        }
+        return encodedKey;
+    }
+
+    /**
+     * Escape special characters in the given key.
+     *
+     * @param key String
+     * @return String
+     */
+    private String escapeSpecialCharacters(String key) {
+        String updatedKey = key;
+        if (!isBalanced(updatedKey)) {
+            updatedKey = encode(updatedKey, bracketCharacters);
+        }
+        updatedKey = encode(updatedKey, specialCharacters);
+        if (!(updatedKey.startsWith("'") && updatedKey.endsWith("'"))) {
+            updatedKey = "'" + updatedKey + "'";
+        }
+        return updatedKey;
+    }
+
+    /**
+     * Check if the brackets are balanced in given expression.
+     *
+     * @param expr String
+     * @return boolean
+     */
+    private boolean isBalanced(String expr) {
+        Deque<Character> stack = new ArrayDeque<>();
+        for (int i = 0; i < expr.length(); i++) {
+            char val = expr.charAt(i);
+            if (val == '(' || val == '[' || val == '{') {
+                stack.push(val);
+                continue;
+            }
+            if ((val == ')' || val == ']' || val == '}')) {
+                if (stack.isEmpty()) {
+                    return false;
+                }
+                char topElement;
+                switch (val) {
+                    case ')':
+                        topElement = stack.pop();
+                        if (topElement == '{' || topElement == '[') {
+                            return false;
+                        }
+                        break;
+
+                    case '}':
+                        topElement = stack.pop();
+                        if (topElement == '(' || topElement == '[') {
+                            return false;
+                        }
+                        break;
+
+                    case ']':
+                        topElement = stack.pop();
+                        if (topElement == '(' || topElement == '{') {
+                            return false;
+                        }
+                        break;
+                }
+            } else {
+                continue;
+            }
+        }
+        // If the brackets are balanced, stack needs to be empty.
+        return stack.isEmpty();
+    }
 }

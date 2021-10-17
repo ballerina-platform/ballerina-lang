@@ -137,6 +137,33 @@ public function main() {
 
     string stringVar = "foo";
     xml xmlVar = xml `<person gender="male"><firstname>Praveen</firstname><lastname>Nada</lastname></person>`;
+    xml xmlVar2 = xml
+            `<items>
+                <!--Contents-->
+                <book>
+                    <name>A Study in Scarlet</name>
+                    <author><name>Arthur Conan Doyle</name></author>
+                </book>
+                <planner>Daily Planner<kind>day</kind><pages>365</pages></planner>
+                <book>
+                    <name>The Sign of Four</name>
+                    <author><name>Arthur Conan Doyle</name></author>
+                </book>
+                <pen><kind>marker</kind><color>blue</color></pen>
+            </items>
+            <items2>
+                <!--Contents-->
+                <book>
+                    <name>A Study in Scarlet</name>
+                    <author><name>Arthur Conan Doyle</name></author>
+                </book>
+                <planner>Daily Planner<kind>day</kind><pages>365</pages></planner>
+                <book>
+                    <name>The Sign of Four</name>
+                    <author><name>Arthur Conan Doyle</name></author>
+                </book>
+                <pen><kind>marker</kind><color>blue</color></pen>
+            </items2>`;
 
     //------------------------ basic, structured type variables ------------------------//
 
@@ -267,6 +294,7 @@ public function main() {
                    });
 
     intVar = addition(2, 3);
+    intVar = addition(3, 4);
 }
 
 function printSalaryDetails(int baseSalary, int annualIncrement = 20, float bonusRate = 0.02) returns string {

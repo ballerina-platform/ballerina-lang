@@ -72,7 +72,7 @@ public abstract class AbstractExtendedLanguageServer implements LanguageServer, 
             Map<String, JsonRpcMethod> extensions = new LinkedHashMap<>();
             for (ExtendedLanguageServerService ext : this.extendedServices) {
                 if (ext != null) {
-                    ext.init(this, this.workspaceManager);
+                    ext.init(this, this.workspaceManager, serverContext);
                     Map<String, JsonRpcMethod> supportedExtensions = ext.supportedMethods();
                     for (Map.Entry<String, JsonRpcMethod> entry : supportedExtensions.entrySet()) {
                         if (supportedMethods.containsKey(entry.getKey())) {
@@ -119,5 +119,13 @@ public abstract class AbstractExtendedLanguageServer implements LanguageServer, 
             return endpoint.request(method, parameter);
         }
         return null;
+    }
+
+    public WorkspaceManager getWorkspaceManager() {
+        return workspaceManager;
+    }
+
+    public LanguageServerContext getServerContext() {
+        return serverContext;
     }
 }

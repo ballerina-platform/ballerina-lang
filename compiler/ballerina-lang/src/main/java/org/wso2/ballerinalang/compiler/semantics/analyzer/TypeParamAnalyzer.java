@@ -417,13 +417,10 @@ public class TypeParamAnalyzer {
                 }
                 return;
             case TypeTags.ERROR:
-                if (actualType.tag == TypeTags.ERROR) {
-                    findTypeParamInError(loc, (BErrorType) expType, (BErrorType) actualType, env, resolvedTypes,
-                                         result);
+                if (expType == symTable.errorType) {
+                    return;
                 }
-                if (actualType.tag == TypeTags.UNION && types.isSubTypeOfBaseType(actualType, TypeTags.ERROR)) {
-                    findTypeParamInError(loc, (BErrorType) expType, symTable.errorType, env, resolvedTypes, result);
-                }
+                findTypeParamInError(loc, (BErrorType) expType, actualType, env, resolvedTypes, result);
                 return;
             case TypeTags.TYPEDESC:
                 if (actualType.tag == TypeTags.TYPEDESC) {
@@ -654,13 +651,21 @@ public class TypeParamAnalyzer {
         findTypeParam(loc, exp, act, env, resolvedTypes, result);
     }
 
-    private void findTypeParamInError(Location loc, BErrorType expType, BErrorType actualType,
+    private void findTypeParamInError(Location loc, BErrorType expType, BType actualType,
                                       SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
-
-        if (expType == symTable.errorType) {
-            return;
+        if (actualType.tag == TypeTags.ERROR) {
+            findTypeParam(loc, expType.detailType, ((BErrorType) actualType).detailType, env, resolvedTypes,
+                    result);
         }
-        findTypeParam(loc, expType.detailType, actualType.detailType, env, resolvedTypes, result);
+        if (actualType.tag == TypeTags.UNION && types.isSubTypeOfBaseType(actualType, TypeTags.ERROR)) {
+            BUnionType errorUnion = (BUnionType) actualType;
+            LinkedHashSet<BType> errorDetailTypes = new LinkedHashSet<>();
+            for (BType member : errorUnion.getMemberTypes()) {
+                errorDetailTypes.add(((BErrorType) member).detailType);
+            }
+            BUnionType errorDetailUnionType = BUnionType.create(null, errorDetailTypes);
+            findTypeParam(loc, expType.detailType, errorDetailUnionType, env, resolvedTypes, result);
+        }
     }
 
     private BType getMatchingBoundType(BType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
@@ -832,6 +837,7 @@ public class TypeParamAnalyzer {
                                                                     expTSymbol.pkgID, null,
                                                                     expType.tsymbol.scope.owner, expTSymbol.pos,
                                                                     VIRTUAL);
+        recordSymbol.originalName = expTSymbol.getOriginalName();
         recordSymbol.isTypeParamResolved = true;
         recordSymbol.typeParamTSymbol = expTSymbol;
         recordSymbol.scope = new Scope(recordSymbol);
@@ -919,9 +925,11 @@ public class TypeParamAnalyzer {
     private BType getMatchingObjectBoundType(BObjectType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
         boolean hasDifferentType = false;
         BObjectTypeSymbol actObjectSymbol = Symbols.createObjectSymbol(expType.tsymbol.flags,
-                                                                       expType.tsymbol.name, expType.tsymbol.pkgID,
-                                                                       null, expType.tsymbol.scope.owner,
+                                                                       expType.tsymbol.name,
+                                                                       expType.tsymbol.pkgID, null,
+                                                                       expType.tsymbol.scope.owner,
                                                                        expType.tsymbol.pos, VIRTUAL);
+        actObjectSymbol.originalName = expType.tsymbol.originalName;
         actObjectSymbol.isTypeParamResolved = true;
         actObjectSymbol.typeParamTSymbol = expType.tsymbol;
 
@@ -951,8 +959,10 @@ public class TypeParamAnalyzer {
             }
 
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(expFunc.symbol.tag, expFunc.symbol.flags,
-                                                                    expFunc.symbol.name, env.enclPkg.packageID,
-                                                                    matchType, actObjectSymbol, expFunc.pos, VIRTUAL);
+                                                                    expFunc.symbol.name,
+                                                                    expFunc.symbol.getOriginalName(),
+                                                                    env.enclPkg.packageID, matchType, actObjectSymbol,
+                                                                    expFunc.pos, VIRTUAL);
             invokableSymbol.retType = invokableSymbol.getType().retType;
             BInvokableTypeSymbol typeSymbol = (BInvokableTypeSymbol) Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE,
                     invokableSymbol.flags, Names.EMPTY,

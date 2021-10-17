@@ -77,8 +77,18 @@ public interface Type {
 
     boolean isReadOnly();
 
+    long getFlags();
+
+   /*
+    * @deprecated Cast to @SelectivelyImmutableReferenceType and use getImmutableType.
+    */
+   @Deprecated
     Type getImmutableType();
 
+    /*
+     * @deprecated Cast to @SelectivelyImmutableReferenceType and use setImmutableType.
+     */
+    @Deprecated
     void setImmutableType(IntersectionType immutableType);
 
     Module getPkg();

@@ -1408,17 +1408,19 @@
                             {
                               "kind": "TRIPLE_BACKTICK_TOKEN",
                               "hasDiagnostics": true,
-                              "diagnostics": [
-                                "WARNING_CANNOT_HAVE_DOCUMENTATION_INLINE_WITH_A_CODE_REFERENCE_BLOCK"
-                              ],
                               "trailingMinutiae": [
                                 {
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                    "hasDiagnostics": true,
                                     "children": [
                                       {
                                         "kind": "DOCUMENTATION_DESCRIPTION",
+                                        "hasDiagnostics": true,
+                                        "diagnostics": [
+                                          "WARNING_CANNOT_HAVE_DOCUMENTATION_INLINE_WITH_A_CODE_REFERENCE_BLOCK"
+                                        ],
                                         "value": "Cannot have anything inline with code ref end backtick"
                                       }
                                     ]
@@ -1655,17 +1657,19 @@
                             {
                               "kind": "TRIPLE_BACKTICK_TOKEN",
                               "hasDiagnostics": true,
-                              "diagnostics": [
-                                "WARNING_CANNOT_HAVE_DOCUMENTATION_INLINE_WITH_A_CODE_REFERENCE_BLOCK"
-                              ],
                               "trailingMinutiae": [
                                 {
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                    "hasDiagnostics": true,
                                     "children": [
                                       {
                                         "kind": "DOCUMENTATION_DESCRIPTION",
+                                        "hasDiagnostics": true,
+                                        "diagnostics": [
+                                          "WARNING_CANNOT_HAVE_DOCUMENTATION_INLINE_WITH_A_CODE_REFERENCE_BLOCK"
+                                        ],
                                         "value": "Cannot have anything inline with code ref end backtick"
                                       }
                                     ]

@@ -50,13 +50,13 @@ public class ExprBodiedFunctionTest {
         int index = 0;
 
         validateError(result, index++, "operator '+' not defined for 'record {| int a; |}' and 'int'", 18, 43);
-        validateError(result, index++, "invalid token 'return'", 19, 12);
+        validateError(result, index++, "invalid token 'return'", 19, 5);
         validateError(result, index++, "missing close brace token", 19, 14);
-        validateError(result, index++, "invalid token '}'", 23, 1);
+        validateError(result, index++, "invalid token '}'", 20, 1);
+        validateError(result, index++, "invalid token 'external'", 23, 43);
         validateError(result, index++, "incompatible types: expected 'int', found 'function (int,int) returns (int)'",
                 26, 1);
-        validateError(result, index++, "invalid token 'external'", 26, 1);
-        validateError(result, index++, "invalid token 'sum'", 26, 13);
+        validateError(result, index++, "invalid token 'sum'", 26, 10);
         validateError(result, index++, "incompatible types: expected 'int', found 'typedesc<int>'", 26, 43);
         validateError(result, index++, "missing semicolon token", 26, 47);
         validateError(result, index++, "unknown type 'x'", 26, 47);

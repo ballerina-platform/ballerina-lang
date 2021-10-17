@@ -49,8 +49,8 @@ import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
  */
 public class ConfigNegativeTest {
 
-    private static final Module ROOT_MODULE = new Module("rootOrg", "rootMod", "1.0.0");
-    private static final Module MODULE = new Module("org", "mod1", "1.0.0");
+    private static final Module ROOT_MODULE = new Module("rootOrg", "rootMod", "1");
+    private static final Module MODULE = new Module("org", "mod1", "1");
 
     @Test(dataProvider = "different-config-use-cases-data-provider")
     public void testConfigErrors(String[] args, String tomlFilePath, VariableKey[] varKeys, int errorCount,
@@ -142,16 +142,6 @@ public class ConfigNegativeTest {
                                 "warning: invalid toml file : \n" +
                                         "[Invalid.toml:(3:1,3:1)] missing equal token\n" +
                                         "[Invalid.toml:(3:1,3:1)] missing value\n"}},
-                // supported cli type but not toml type
-                {new String[]{"-Corg.mod1.xmlVar=<book/>"}, "MatchedTypeValues.toml",
-                        new VariableKey[]{new VariableKey(MODULE, "xmlVar",
-                                                          new BIntersectionType(MODULE, new Type[]{},
-                                                                                PredefinedTypes.TYPE_XML, 0, true),
-                                                          null, true)}, 0, 3,
-                        new String[]{
-                                "warning: configurable variable 'xmlVar' with type 'xml<(lang.xml:Element|lang" +
-                                        ".xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>' is not " +
-                                        "supported as a toml value"}},
                 // supported toml type but not cli type and cli value given
                 {new String[]{"-Corg.mod1.intArr=3"}, "MatchedTypeValues.toml",
                         new VariableKey[]{new VariableKey(MODULE, "intArr",

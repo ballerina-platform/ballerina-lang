@@ -658,25 +658,6 @@
       }
     },
     {
-      "label": "logic(json)",
-      "kind": "Function",
-      "detail": "boolean|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `json`  \n  \n**Return** `boolean|error`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "logic",
-      "insertText": "logic(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "testFunctionWithParams2(int a, int b)",
       "kind": "Function",
       "detail": "()",
@@ -737,6 +718,14 @@
       "sortText": "P",
       "filterText": "worker",
       "insertText": "worker ${1:name} {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "logic",
+      "kind": "Variable",
+      "detail": "function (json) returns boolean|error",
+      "sortText": "B",
+      "insertText": "logic",
       "insertTextFormat": "Snippet"
     }
   ]

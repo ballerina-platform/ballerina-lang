@@ -1,0 +1,51 @@
+<!--
+  ~  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~  WSO2 Inc. licenses this file to you under the Apache License,
+  ~  Version 2.0 (the "License"); you may not use this file except
+  ~  in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing,
+  ~  software distributed under the License is distributed on an
+  ~  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~  KIND, either express or implied.  See the License for the
+  ~  specific language governing permissions and limitations
+  ~  under the License.
+  -->
+
+<FindBugsFilter>
+    <Match>
+        <Package name="org.ballerina.semtype"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.semtype.subtypedata.IntSubtype"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <!-- should be able to remove below exclusion after adding methods -->
+    <Match>
+        <Class name="io.ballerina.semtype.ComplexSemType"/>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+    <Match>
+        <Or>
+            <Class name="io.ballerina.semtype.Env"/>
+            <Class name="io.ballerina.semtype.ListAtomicType"/>
+            <Class name="io.ballerina.semtype.RecAtom"/>
+            <Class name="io.ballerina.semtype.TypeAtom"/>
+            <Class name="io.ballerina.semtype.TypeCheckContext"/>
+            <Class name="io.ballerina.semtype.UniformTypeBitSet"/>
+            <Class name="io.ballerina.semtype.BddMemo"/>
+            <Class name="io.ballerina.semtype.ComplexSemType"/>
+            <Class name="io.ballerina.semtype.ComplexSemTypeMock"/>
+            <Class name="io.ballerina.semtype.FunctionAtomicType"/>
+            <Class name="io.ballerina.semtype.subtypedata.BddNode"/>
+        </Or>
+        <Or>
+            <Bug pattern="URF_UNREAD_FIELD"/>
+            <Bug pattern="UUF_UNUSED_FIELD"/>
+        </Or>
+    </Match>
+</FindBugsFilter>

@@ -323,7 +323,7 @@
         }
       },
       {
-        "name": "printHelloFuncion",
+        "name": "printHelloFunction",
         "kind": "Function",
         "location": {
           "range": {

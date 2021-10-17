@@ -42,6 +42,7 @@ class PackageContext {
     private final Project project;
     private final PackageId packageId;
     private final PackageManifest packageManifest;
+    private final DependencyManifest dependencyManifest;
     private final TomlDocumentContext ballerinaTomlContext;
     private final TomlDocumentContext dependenciesTomlContext;
     private final TomlDocumentContext cloudTomlContext;
@@ -67,6 +68,7 @@ class PackageContext {
     PackageContext(Project project,
                    PackageId packageId,
                    PackageManifest packageManifest,
+                   DependencyManifest dependencyManifest,
                    TomlDocumentContext ballerinaTomlContext,
                    TomlDocumentContext dependenciesTomlContext,
                    TomlDocumentContext cloudTomlContext,
@@ -78,6 +80,7 @@ class PackageContext {
         this.project = project;
         this.packageId = packageId;
         this.packageManifest = packageManifest;
+        this.dependencyManifest = dependencyManifest;
         this.ballerinaTomlContext = ballerinaTomlContext;
         this.dependenciesTomlContext = dependenciesTomlContext;
         this.cloudTomlContext = cloudTomlContext;
@@ -100,6 +103,7 @@ class PackageContext {
         }
 
         return new PackageContext(project, packageConfig.packageId(), packageConfig.packageManifest(),
+                          packageConfig.dependencyManifest(),
                           packageConfig.ballerinaToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
                           packageConfig.dependenciesToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
                           packageConfig.cloudToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
@@ -132,8 +136,12 @@ class PackageContext {
         return packageManifest.compilerPluginDescriptor();
     }
 
-    PackageManifest manifest() {
+    PackageManifest packageManifest() {
         return packageManifest;
+    }
+
+    DependencyManifest dependencyManifest() {
+        return dependencyManifest;
     }
 
     Optional<TomlDocumentContext> ballerinaTomlContext() {
@@ -208,11 +216,31 @@ class PackageContext {
         return packageCompilation;
     }
 
+    PackageCompilation getPackageCompilation(CompilationOptions compilationOptions) {
+        CompilationOptions options = new CompilationOptionsBuilder()
+                .offline(this.compilationOptions.offlineBuild())
+                .experimental(this.compilationOptions.experimental())
+                .observabilityIncluded(this.compilationOptions.observabilityIncluded())
+                .dumpBir(this.compilationOptions.dumpBir())
+                .cloud(this.compilationOptions.getCloud())
+                .dumpBirFile(this.compilationOptions.dumpBirFile())
+                .dumpGraph(this.compilationOptions.dumpGraph())
+                .dumpRawGraphs(this.compilationOptions.dumpRawGraphs())
+                .listConflictedClasses(this.compilationOptions.listConflictedClasses())
+                .build();
+        CompilationOptions mergedOptions = options.acceptTheirs(compilationOptions);
+        return PackageCompilation.from(this, mergedOptions);
+    }
+
     PackageResolution getResolution() {
         if (packageResolution == null) {
-            packageResolution = PackageResolution.from(this);
+            packageResolution = PackageResolution.from(this, this.compilationOptions);
         }
         return packageResolution;
+    }
+
+    PackageResolution getResolution(CompilationOptions compilationOptions) {
+        return PackageResolution.from(this, compilationOptions);
     }
 
     Collection<PackageDependency> packageDependencies() {

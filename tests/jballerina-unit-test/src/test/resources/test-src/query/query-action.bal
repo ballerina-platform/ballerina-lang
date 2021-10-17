@@ -265,6 +265,34 @@ function testTypeTestInWhereClause() {
     assertEquality(204.0, x);
 }
 
+function testTypeNarrowingVarDefinedWithLet() {
+    map<error> errorMap = {};
+    error? res1 = from int i in 1 ... 2
+        let error|string errorOrStr = getErrorOrString()
+        where errorOrStr is error
+        do {
+            errorMap["1"] = errorOrStr;
+        };
+    error? er1 = errorMap["1"];
+    assertEquality((), res1);
+    assertEquality(er1 is error, true);
+
+    error? res2 = from int i in 1 ... 2
+            let error|string errorOrStr = getErrorOrString()
+            do {
+                if (errorOrStr is error) {
+                  errorMap["2"] = errorOrStr;
+                }
+            };
+    assertEquality((), res2);
+    error? er2 = errorMap["2"];
+    assertEquality(er2 is error, true);
+}
+
+function getErrorOrString() returns error|string {
+    return error("Dummy error");
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

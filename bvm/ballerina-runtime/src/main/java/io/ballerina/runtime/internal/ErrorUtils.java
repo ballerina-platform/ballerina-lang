@@ -31,6 +31,8 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
+import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
  * This class contains internal methods used by codegen and runtime classes to handle errors.
@@ -111,10 +113,21 @@ public class ErrorUtils {
 
     }
 
+    public static BError createTypeCastError(Object sourceVal, Type targetType, String detailMessage) {
+        return createError(BallerinaErrorReasons.TYPE_CAST_ERROR, BLangExceptionHelper.getErrorMessage(
+                RuntimeErrors.TYPE_CAST_ERROR, TypeChecker.getType(sourceVal), targetType)
+                .concat(StringUtils.fromString(": " + detailMessage)));
+    }
+
     public static BError createBToJTypeCastError(Object sourceVal, String targetType) {
         throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
                           BLangExceptionHelper.getErrorMessage(RuntimeErrors.J_TYPE_CAST_ERROR,
                                                                TypeChecker.getType(sourceVal), targetType));
+    }
+
+    public static BError createJToBTypeCastError(Object sourceVal, Type targetType) {
+        throw createError(BLangExceptionHelper.
+                getErrorMessage(RuntimeErrors.TYPE_ASSIGNABLE_ERROR, sourceVal, targetType));
     }
 
     public static BError createNumericConversionError(Object inputValue, Type targetType) {
@@ -137,5 +150,17 @@ public class ErrorUtils {
     public static BError createUnorderedTypesError(Object lhsValue, Object rhsValue) {
         throw createError(BallerinaErrorReasons.UNORDERED_TYPES_ERROR, BLangExceptionHelper.getErrorMessage(
                 RuntimeErrors.UNORDERED_TYPES_IN_COMPARISON, lhsValue, rhsValue));
+    }
+
+    public static BError createConversionError(Object inputValue, Type targetType) {
+        return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
+                BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
+                        TypeChecker.getType(inputValue), targetType));
+    }
+
+    public static BError createConversionError(Object inputValue, Type targetType, String detailMessage) {
+        return createError(VALUE_LANG_LIB_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
+                INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
+                .concat(StringUtils.fromString(": " + detailMessage)));
     }
 }

@@ -29,7 +29,7 @@ dependencies {
     implementation('org.jline:jline:3.11.0')
 
     testImplementation('org.testng:testng')
-    testImplementation('com.google.code.gson:gson')
+    implementation 'com.google.code.gson:gson:2.8.7'
 }
 
 compileJava {

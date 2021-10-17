@@ -21,9 +21,9 @@ public function testStackTraceElements() {
 
     assertEquality(callStackElements.length(), 2);
     assertEquality(callStackElements[0].toString(), "{\"callableName\":\"getStackTrace\",\"moduleName\":" +
-                "\"test_org.stacktrace_project.stacktrace.0_1_0\",\"fileName\":\"stacktrace.bal\",\"lineNumber\":18}");
+                "\"test_org.stacktrace_project.stacktrace.0\",\"fileName\":\"stacktrace.bal\",\"lineNumber\":18}");
     assertEquality(callStackElements[1].toString(), "{\"callableName\":\"testStackTraceElements\",\"moduleName\":" +
-                "\"test_org.stacktrace_project.0_1_0\",\"fileName\":\"main.bal\",\"lineNumber\":20}");
+                "\"test_org.stacktrace_project.0\",\"fileName\":\"main.bal\",\"lineNumber\":20}");
 
     error:CallStackElement callStackElement = callStackElements[0];
     string callableName = callStackElement["callableName"];
@@ -32,7 +32,7 @@ public function testStackTraceElements() {
     int lineNumber = callStackElement["lineNumber"];
 
     assertEquality(callableName, "getStackTrace");
-    assertEquality(moduleName, "test_org.stacktrace_project.stacktrace.0_1_0");
+    assertEquality(moduleName, "test_org.stacktrace_project.stacktrace.0");
     assertEquality(fileName, "stacktrace.bal");
     assertEquality(lineNumber, 18);
 }

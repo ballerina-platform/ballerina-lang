@@ -1,16 +1,19 @@
 {
-  "line": 2,
-  "character": 10,
+  "line": 1,
+  "character": 18,
   "expected": [
     {
-      "title": "Pull from Ballerina Central",
-      "command": "PULL_MODULE",
-      "arguments": [
-        {
-          "argumentK": "module",
-          "argumentV": "org/unpulled_package"
-        }
-      ]
+      "title": "Pull unresolved modules",
+      "command": {
+        "title": "Pull unresolved modules",
+        "command": "PULL_MODULE",
+        "arguments": [
+          {
+            "key": "module",
+            "value": "org/unpulled_package as t"
+          }
+        ]
+      }
     }
   ]
 }

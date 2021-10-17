@@ -33,7 +33,7 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class Errors {
 
-    private static Module errorModule = new Module("testorg", "runtime_api.errors", "1.0.0");
+    private static Module errorModule = new Module("testorg", "runtime_api.errors", "1");
 
     public static BError getError(BString errorName) {
         BMap<BString, Object> errorDetails = ValueCreator.createMapValue();

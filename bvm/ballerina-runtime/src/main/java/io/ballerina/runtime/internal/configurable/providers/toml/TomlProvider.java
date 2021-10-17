@@ -41,6 +41,7 @@ import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
@@ -62,11 +63,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getEffectiveTomlType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getLineRange;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getModuleKey;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getTomlTypeString;
-import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isPrimitiveType;
+import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isSimpleType;
+import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isXMLType;
 import static io.ballerina.runtime.internal.util.RuntimeUtils.isByteLiteral;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_INCOMPATIBLE_TYPE;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_INVALID_BYTE_RANGE;
@@ -182,16 +185,17 @@ public class TomlProvider implements ConfigProvider {
     @Override
     public Optional<ConfigValue> getAsByteAndMark(Module module, VariableKey key) {
         TomlNode valueNode = getBasicTomlValue(module, key);
-        if (valueNode != null) {
-            int byteValue = ((Long) (((TomlBasicValueNode<?>) valueNode).getValue())).intValue();
-            if (!isByteLiteral(byteValue)) {
-                invalidTomlLines.add(valueNode.location().lineRange());
-                throw new ConfigException(RuntimeErrors.CONFIG_INVALID_BYTE_RANGE, getLineRange(valueNode),
-                                          key.variable, byteValue);
-            }
-            return getTomlConfigValue(byteValue, key);
+        if (valueNode == null) {
+            return Optional.empty();
         }
-        return Optional.empty();
+        int byteValue = ((Long) (((TomlBasicValueNode<?>) valueNode).getValue())).intValue();
+        if (!isByteLiteral(byteValue)) {
+            invalidTomlLines.add(valueNode.location().lineRange());
+            throw new ConfigException(RuntimeErrors.CONFIG_INVALID_BYTE_RANGE, getLineRange(valueNode),
+                    key.variable, byteValue);
+        }
+        return getTomlConfigValue(byteValue, key);
+
     }
 
     @Override
@@ -285,7 +289,7 @@ public class TomlProvider implements ConfigProvider {
     }
 
     private void validateValue(TomlNode tomlValue, String variableName, Type type) {
-        if (isPrimitiveType(type.getTag())) {
+        if (isSimpleType(type.getTag()) || isXMLType(type)) {
             validatePrimitiveValue(tomlValue, variableName, type);
         } else {
             validateStructuredValue(tomlValue, variableName, type);
@@ -352,9 +356,11 @@ public class TomlProvider implements ConfigProvider {
 
     @Override
     public Optional<ConfigValue> getAsXmlAndMark(Module module, VariableKey key) {
-        // This will throw error if user has configured xml variable in the toml
-        getPrimitiveTomlValue(module, key);
-        return Optional.empty();
+        Object value = getPrimitiveTomlValue(module, key);
+        if (value == null) {
+            return Optional.empty();
+        }
+        return getTomlConfigValue(createReadOnlyXmlValue((String) value), key);
     }
 
     private Object getPrimitiveTomlValue(Module module, VariableKey key) {
@@ -544,7 +550,7 @@ public class TomlProvider implements ConfigProvider {
 
     private void validateUnionValue(TomlNode tomlValue, String variableName, BUnionType unionType) {
         visitedNodes.add(tomlValue);
-        Object balValue = Utils.getBalValueFromToml(tomlValue, visitedNodes);
+        Object balValue = Utils.getBalValueFromToml(tomlValue, visitedNodes, unionType, invalidTomlLines, variableName);
         List<Type> convertibleTypes = new ArrayList<>();
         for (Type type : unionType.getMemberTypes()) {
             if (TypeChecker.checkIsLikeType(balValue, type, false)) {
@@ -563,7 +569,7 @@ public class TomlProvider implements ConfigProvider {
                     getTomlTypeString(tomlValue));
         }
         Type type = convertibleTypes.get(0);
-        if (isPrimitiveType(type.getTag())) {
+        if (isSimpleType(type.getTag()) || isXMLType(type)) {
             return;
         }
 
@@ -580,7 +586,7 @@ public class TomlProvider implements ConfigProvider {
 
     private void validateArrayValue(TomlNode tomlValue, String variableName, ArrayType arrayType) {
         Type elementType = arrayType.getElementType();
-        if (isPrimitiveType(elementType.getTag())) {
+        if (isSimpleType(elementType.getTag())) {
             if (tomlValue.kind() != TomlType.KEY_VALUE) {
                 invalidTomlLines.add(tomlValue.location().lineRange());
                 throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
@@ -598,6 +604,12 @@ public class TomlProvider implements ConfigProvider {
                                            Type elementType) {
         switch (elementType.getTag()) {
             case TypeTags.ARRAY_TAG:
+            case TypeTags.XML_ATTRIBUTES_TAG:
+            case TypeTags.XML_COMMENT_TAG:
+            case TypeTags.XML_ELEMENT_TAG:
+            case TypeTags.XML_PI_TAG:
+            case TypeTags.XML_TAG:
+            case TypeTags.XML_TEXT_TAG:
                 if (tomlValue.kind() != TomlType.KEY_VALUE) {
                     invalidTomlLines.add(tomlValue.location().lineRange());
                     throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
@@ -617,29 +629,8 @@ public class TomlProvider implements ConfigProvider {
                 break;
             default:
                 Type effectiveType = ((IntersectionType) elementType).getEffectiveType();
-                switch(effectiveType.getTag()) {
-                    case TypeTags.ARRAY_TAG:
-                        if (tomlValue.kind() != TomlType.KEY_VALUE) {
-                            invalidTomlLines.add(tomlValue.location().lineRange());
-                            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
-                                    arrayType, getTomlTypeString(tomlValue));
-                        }
-                        visitedNodes.add(tomlValue);
-                        tomlValue = ((TomlKeyValueNode) tomlValue).value();
-                        validatePrimitiveArray(tomlValue, variableName, arrayType);
-                        break;
-                    case TypeTags.RECORD_TYPE_TAG:
-                    case TypeTags.MAP_TAG:
-                        validateMapValueArray(tomlValue, variableName, arrayType, effectiveType);
-                        break;
-                    case TypeTags.ANYDATA_TAG:
-                    case TypeTags.UNION_TAG:
-                        validateUnionValueArray(tomlValue, variableName, arrayType, effectiveType);
-                        break;
-                    default:
-                        invalidTomlLines.add(tomlValue.location().lineRange());
-                        throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, arrayType.toString());
-                }
+                validateNonPrimitiveArray(tomlValue, variableName, arrayType, effectiveType);
+                break;
         }
     }
 
@@ -686,7 +677,11 @@ public class TomlProvider implements ConfigProvider {
             TomlNode tomlValueNode = arrayList.get(i);
             switch (elementType.getTag()) {
                 case TypeTags.INTERSECTION_TAG:
-                    ArrayType arrayType = (ArrayType) ((BIntersectionType) elementType).getEffectiveType();
+                    validateArrayElements(variableName, arrayList,
+                            ((BIntersectionType) elementType).getEffectiveType());
+                    break;
+                case TypeTags.ARRAY_TAG:
+                    ArrayType arrayType = (ArrayType) elementType;
                     validatePrimitiveArray(tomlValueNode, variableName, arrayType);
                     break;
                 case TypeTags.ANYDATA_TAG:
@@ -709,7 +704,7 @@ public class TomlProvider implements ConfigProvider {
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             recordType = (RecordType) type;
         } else {
-            recordType = (RecordType) ((BIntersectionType) type).getConstituentTypes().get(0);
+            recordType = (RecordType) ReadOnlyUtils.getMutableType((BIntersectionType) type);
         }
         if (tomlNode.kind() != getEffectiveTomlType(recordType, variableName)) {
             invalidTomlLines.add(tomlNode.location().lineRange());

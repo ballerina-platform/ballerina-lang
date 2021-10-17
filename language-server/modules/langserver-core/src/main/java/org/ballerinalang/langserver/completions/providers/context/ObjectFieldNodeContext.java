@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -24,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -35,6 +37,7 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ObjectFieldNode} context.
@@ -51,7 +54,7 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ObjectFieldNode node)
             throws LSCompletionException {
-        
+
         if (this.onExpressionContext(context, node)) {
             List<LSCompletionItem> completionItems = this.getExpressionContextCompletions(context);
             this.sort(context, node, completionItems);
@@ -81,10 +84,18 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
             return this.getCompletionItemList(QNameReferenceUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
         }
         List<LSCompletionItem> completionItems = new ArrayList<>(this.expressionCompletions(ctx));
+
+        // Specifically add the class fields as the completion items
+        List<Symbol> classFields = ctx.visibleSymbols(ctx.getCursorPosition()).stream()
+                .filter(symbol -> symbol.kind() == SymbolKind.CLASS_FIELD)
+                .collect(Collectors.toList());
+        completionItems.addAll(this.getCompletionItemList(classFields, ctx));
+        
         Optional<TypeSymbol> contextType = ctx.getContextType();
-        if (contextType.isPresent() && contextType.get().kind() == SymbolKind.CLASS) {
+        Optional<TypeSymbol> rawContextType = contextType.map(CommonUtil::getRawType);
+        if (rawContextType.isPresent() && rawContextType.get().kind() == SymbolKind.CLASS) {
             LSCompletionItem implicitNewCompletionItem =
-                    this.getImplicitNewCItemForClass((ClassSymbol) contextType.get(), ctx);
+                    this.getImplicitNewCItemForClass((ClassSymbol) rawContextType.get(), ctx);
             completionItems.add(implicitNewCompletionItem);
         }
 
@@ -109,7 +120,7 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         TypeSymbol symbol = typeSymbolAtCursor.get();
         for (LSCompletionItem completionItem : completionItems) {
             completionItem.getCompletionItem()
-                    .setSortText(SortingUtil.genSortTextByAssignability(completionItem, symbol));
+                    .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
         }
     }
 }

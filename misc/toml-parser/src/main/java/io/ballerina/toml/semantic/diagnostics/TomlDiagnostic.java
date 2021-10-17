@@ -22,6 +22,8 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 
 import java.util.List;
 import java.util.Objects;
@@ -80,5 +82,19 @@ public class TomlDiagnostic extends Diagnostic {
     @Override
     public int hashCode() {
         return Objects.hash(location, diagnosticInfo, message);
+    }
+
+    @Override
+    public String toString() {
+        String filePath = this.location().lineRange().filePath();
+
+        LineRange lineRange = this.location().lineRange();
+        LineRange oneBasedLineRange = LineRange.from(
+                filePath,
+                LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
+                LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
+
+        return this.diagnosticInfo().severity().toString() + " ["
+                + filePath + ":" + oneBasedLineRange + "] " + message();
     }
 }

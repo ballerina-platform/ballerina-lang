@@ -93,16 +93,16 @@ public class ObjectConstructorTest {
                 "test-src/expressions/object/object_constructor_expression_negative.bal");
         int index = 0;
         validateError(negativeResult, index++, "incompatible types: 'SampleRec' is not an object", 19, 39);
-        validateError(negativeResult, index++, "remote method has a visibility qualifier", 22, 13);
+        validateError(negativeResult, index++, "remote method has a visibility qualifier", 22, 5);
         validateError(negativeResult, index++,
                 "remote qualifier only allowed in client and service objects", 22, 13);
         validateError(negativeResult, index++, "object constructor 'init' method cannot have parameters",
                 26, 5);
         validateError(negativeResult, index++, "object initializer function can not be declared as " +
                 "private", 30, 5);
-        validateError(negativeResult, index++, "invalid token 'public'", 34, 29);
+        validateError(negativeResult, index++, "invalid token 'public'", 34, 22);
         validateError(negativeResult, index++, "type inclusions are not allowed in object constructor",
-                40, 1);
+                39, 5);
         validateError(negativeResult, index++, "invalid usage of 'object constructor expression' with " +
                         "type 'any'", 42, 9);
         validateError(negativeResult, index++, "invalid usage of 'object constructor expression' with " +

@@ -40,7 +40,7 @@ import java.util.Map;
  */
 public class CliConfigProviderTest {
 
-    private static final Module ROOT_MODULE = new Module("rootOrg", "rootMod", "1.0.0");
+    private static final Module ROOT_MODULE = new Module("rootOrg", "rootMod", "1");
 
     @Test(dataProvider = "different-cli_args-data-provider")
     public void testDifferentUserProvidedCLIConfig(String arg,
@@ -49,7 +49,7 @@ public class CliConfigProviderTest {
                                                    String variableName,
                                                    Type type,
                                                    Object expectedValue) {
-        Module module = new Module(orgName, moduleName, "1.0.0");
+        Module module = new Module(orgName, moduleName, "1");
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
         VariableKey[] keys = {

@@ -27,21 +27,22 @@ import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
+import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
 import org.ballerinalang.debugadapter.config.ClientAttachConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigurationException;
 import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
+import org.ballerinalang.debugadapter.evaluation.DebugExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.ExpressionEvaluator;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
-import org.ballerinalang.debugadapter.launch.PackageLauncher;
-import org.ballerinalang.debugadapter.launch.ProgramLauncher;
-import org.ballerinalang.debugadapter.launch.SingleFileLauncher;
+import org.ballerinalang.debugadapter.runner.BFileRunner;
+import org.ballerinalang.debugadapter.runner.BPackageRunner;
+import org.ballerinalang.debugadapter.runner.BProgramRunner;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
@@ -80,6 +81,7 @@ import org.eclipse.lsp4j.debug.StackTraceArguments;
 import org.eclipse.lsp4j.debug.StackTraceResponse;
 import org.eclipse.lsp4j.debug.StepInArguments;
 import org.eclipse.lsp4j.debug.StepOutArguments;
+import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
 import org.eclipse.lsp4j.debug.TerminateArguments;
 import org.eclipse.lsp4j.debug.Thread;
 import org.eclipse.lsp4j.debug.ThreadsResponse;
@@ -121,7 +123,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private ClientConfigHolder clientConfigHolder;
     private DebugExecutionManager executionManager;
     private JDIEventProcessor eventProcessor;
-    private ExpressionEvaluator evaluator;
+    private DebugExpressionEvaluator evaluator;
     private final ExecutionContext context;
     private ThreadReferenceProxyImpl activeThread;
     private SuspendedContext suspendedContext;
@@ -130,15 +132,15 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private final AtomicInteger nextVarReference = new AtomicInteger();
     private final Map<Integer, StackFrameProxyImpl> stackFramesMap = new ConcurrentHashMap<>();
     private final Map<Long, StackFrame[]> loadedThreadFrames = new ConcurrentHashMap<>();
-    private final Map<Integer, BCompoundVariable> loadedVariables = new ConcurrentHashMap<>();
     private final Map<Integer, Integer> variableToStackFrameMap = new ConcurrentHashMap<>();
     private final Map<Integer, Integer> scopeIdToFrameIdMap = new ConcurrentHashMap<>();
+
+    private final Map<Integer, BCompoundVariable> loadedCompoundVariables = new ConcurrentHashMap<>();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
     private static final String SCOPE_NAME_LOCAL = "Local";
     private static final String SCOPE_NAME_GLOBAL = "Global";
     private static final String VALUE_UNKNOWN = "unknown";
-    private static final String J_INIT_FRAME_NAME = "$init$";
     private static final String EVAL_ARGS_CONTEXT_VARIABLES = "variables";
     private static final String COMPILATION_ERROR_MESSAGE = "error: compilation contains errors";
 
@@ -202,8 +204,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
         SetBreakpointsResponse breakpointsResponse = new SetBreakpointsResponse();
         breakpointsResponse.setBreakpoints(breakpoints);
-        String path = args.getSource().getPath();
-        eventProcessor.setBreakpoints(path, breakpointsMap);
+        String sourcePath = args.getSource().getPath();
+        eventProcessor.setBreakpoints(sourcePath, breakpointsMap);
         return CompletableFuture.completedFuture(breakpointsResponse);
     }
 
@@ -220,11 +222,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             clientConfigHolder = new ClientLaunchConfigHolder(args);
             context.setSourceProject(loadProject(clientConfigHolder.getSourcePath()));
             String sourceProjectRoot = context.getSourceProjectRoot();
-            ProgramLauncher programLauncher = context.getSourceProject() instanceof SingleFileProject ?
-                    new SingleFileLauncher((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
-                    new PackageLauncher((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot);
+            BProgramRunner programRunner = context.getSourceProject() instanceof SingleFileProject ?
+                    new BFileRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
+                    new BPackageRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot);
 
-            context.setLaunchedProcess(programLauncher.start());
+            context.setLaunchedProcess(programRunner.start());
             startListeningToProgramOutput();
             return CompletableFuture.completedFuture(null);
         } catch (Exception e) {
@@ -245,7 +247,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             String hostName = configHolder.getHostName().orElse("");
             int portName = configHolder.getDebuggePort();
             attachToRemoteVM(hostName, portName);
-        } catch (IOException | IllegalConnectorArgumentsException | ClientConfigurationException e) {
+        } catch (Exception e) {
             String host = ((ClientAttachConfigHolder) clientConfigHolder).getHostName().orElse(LOCAL_HOST);
             String portName;
             try {
@@ -256,7 +258,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             LOGGER.error(e.getMessage());
             outputLogger.sendErrorOutput(String.format("Failed to attach to the target VM, address: '%s:%s'.",
                     host, portName));
-            return CompletableFuture.completedFuture(null);
         }
         return CompletableFuture.completedFuture(null);
     }
@@ -279,31 +280,28 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> pause(PauseArguments args) {
+        VirtualMachineProxyImpl debuggeeVM = context.getDebuggeeVM();
+        // Checks if the program VM is a read-only VM. (If a method which would modify the state of the VM is called
+        // on a read-only VM, a `VMCannotBeModifiedException` will be thrown.
+        if (!debuggeeVM.canBeModified()) {
+            getOutputLogger().sendConsoleOutput("Failed to suspend the remote VM due to: pause requests are not " +
+                    "supported on read-only VMs");
+            return CompletableFuture.completedFuture(null);
+        }
+        // Suspends all the threads and notify the `stopped` event to client.
+        debuggeeVM.suspend();
+        eventProcessor.notifyStopEvent(StoppedEventArgumentsReason.PAUSE, args.getThreadId());
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
-        stackTraceResponse.setStackFrames(new StackFrame[0]);
         try {
             activeThread = getAllThreads().get(args.getThreadId());
             if (loadedThreadFrames.containsKey(activeThread.uniqueID())) {
                 stackTraceResponse.setStackFrames(loadedThreadFrames.get(activeThread.uniqueID()));
             } else {
-                try {
-                    // If the active thread's top stack frame name is equal to `J_INIT_FRAME_NAME`, need to abort the
-                    // processing and send a `step-in` request to resume the VM to stop at its next state.
-                    // This is because the above state is related to java-level object initialisation and therefore
-                    // suspending the VM at that intermediate state does not provide any useful information to the user.
-                    if (activeThread.frames().get(0).location().method().name().equals(J_INIT_FRAME_NAME)) {
-                        prepareFor(DebugInstruction.STEP_IN);
-                        eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_INTO);
-                    }
-                } catch (Exception ignored) {
-                    // Ignore the exception and continue the flow.
-                    // This will result in having `J_INIT_FRAME_NAME` on the top of the call stack.
-                }
                 StackFrame[] validFrames = activeThread.frames().stream()
                         .map(this::toDapStackFrame)
                         .filter(JBallerinaDebugServer::isValidFrame)
@@ -312,8 +310,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 loadedThreadFrames.put(activeThread.uniqueID(), validFrames);
             }
             return CompletableFuture.completedFuture(stackTraceResponse);
-        } catch (JdiProxyException e) {
+        } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
+            stackTraceResponse.setStackFrames(new StackFrame[0]);
             return CompletableFuture.completedFuture(stackTraceResponse);
         }
     }
@@ -340,7 +339,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<VariablesResponse> variables(VariablesArguments args) {
         VariablesResponse variablesResponse = new VariablesResponse();
-        variablesResponse.setVariables(new Variable[0]);
         try {
             // 1. If frameId < 0, returns global variables.
             // 2. If frameId >= 0, returns local variables.
@@ -421,10 +419,21 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<EvaluateResponse> evaluate(EvaluateArguments args) {
         EvaluateResponse response = new EvaluateResponse();
-        // If the execution manager is not active, sends null response.
+        // If the execution manager is not active, it implies that the debug server is still not connected to the
+        // remote VM and therefore the request should be rejected immediately.
         if (executionManager == null || !executionManager.isActive()) {
+            context.getOutputLogger().sendErrorOutput(EvaluationExceptionKind.PREFIX + "Debug server is not " +
+                    "connected to any program VM.");
             return CompletableFuture.completedFuture(response);
         }
+        // If the frame ID is missing in the client args, it implies that remote program is still running and therefore
+        // the request should be rejected immediately.
+        if (args.getFrameId() == null) {
+            context.getOutputLogger().sendErrorOutput(EvaluationExceptionKind.PREFIX + "Remote VM is not suspended " +
+                    "and still in running state.");
+            return CompletableFuture.completedFuture(response);
+        }
+
         // Evaluate arguments context becomes `variables` when we do a `Copy Value` from VS Code, and
         // evaluate arguments context becomes `repl` when we evaluate expressions from VS Code.
         // If evaluate arguments context is equal to `variables`, then respond with expression as it is without
@@ -435,11 +444,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         }
         try {
             StackFrameProxyImpl frame = stackFramesMap.get(args.getFrameId());
-            SuspendedContext ctx = new SuspendedContext(context, activeThread, frame);
-            evaluator = Objects.requireNonNullElse(evaluator, new ExpressionEvaluator(ctx));
+            SuspendedContext suspendedContext = new SuspendedContext(context, activeThread, frame);
+            EvaluationContext evaluationContext = new EvaluationContext(suspendedContext);
+            evaluator = Objects.requireNonNullElse(evaluator, new DebugExpressionEvaluator(evaluationContext));
+            evaluator.setExpression(args.getExpression());
+            BVariable variable = evaluator.evaluate().getBVariable();
 
-            Value result = evaluator.evaluate(args.getExpression());
-            BVariable variable = VariableFactory.getVariable(ctx, result);
             if (variable == null) {
                 return CompletableFuture.completedFuture(response);
             } else if (variable instanceof BSimpleVariable) {
@@ -447,7 +457,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             } else if (variable instanceof BCompoundVariable) {
                 int variableReference = nextVarReference.getAndIncrement();
                 variable.getDapVariable().setVariablesReference(variableReference);
-                loadedVariables.put(variableReference, (BCompoundVariable) variable);
+                loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
                 updateVariableToStackFrameMap(args.getFrameId(), variableReference);
             }
             Variable dapVariable = variable.getDapVariable();
@@ -623,7 +633,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             } else if (variable instanceof BCompoundVariable) {
                 int variableReference = nextVarReference.getAndIncrement();
                 variable.getDapVariable().setVariablesReference(variableReference);
-                loadedVariables.put(variableReference, (BCompoundVariable) variable);
+                loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
                 updateVariableToStackFrameMap(stackFrameReference, variableReference);
             }
             globalVars.add(variable.getDapVariable());
@@ -694,14 +704,14 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         } else if (variable instanceof BCompoundVariable) {
             int variableReference = nextVarReference.getAndIncrement();
             variable.getDapVariable().setVariablesReference(variableReference);
-            loadedVariables.put(variableReference, (BCompoundVariable) variable);
+            loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
             updateVariableToStackFrameMap(stackFrameRef, variableReference);
         }
         return variable.getDapVariable();
     }
 
     private Variable[] computeChildVariables(VariablesArguments args) {
-        BCompoundVariable parentVar = loadedVariables.get(args.getVariablesReference());
+        BCompoundVariable parentVar = loadedCompoundVariables.get(args.getVariablesReference());
         Integer stackFrameId = variableToStackFrameMap.get(args.getVariablesReference());
         if (stackFrameId == null) {
             return new Variable[0];
@@ -743,7 +753,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             } else if (variable instanceof BCompoundVariable) {
                 int variableReference = nextVarReference.getAndIncrement();
                 variable.getDapVariable().setVariablesReference(variableReference);
-                loadedVariables.put(variableReference, (BCompoundVariable) variable);
+                loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
                 updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
             }
             return variable.getDapVariable();
@@ -764,7 +774,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             } else if (variable instanceof BCompoundVariable) {
                 int variableReference = nextVarReference.getAndIncrement();
                 variable.getDapVariable().setVariablesReference(variableReference);
-                loadedVariables.put(variableReference, (BCompoundVariable) variable);
+                loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
                 updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
             }
             return variable.getDapVariable();
@@ -901,10 +911,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     }
                     outputLogger.sendProgramOutput(line);
                 }
-            } catch (IOException ignored) {
-                // no-op
-            } catch (ClientConfigurationException | IllegalConnectorArgumentsException e) {
-                String host = ((ClientAttachConfigHolder) clientConfigHolder).getHostName().orElse(LOCAL_HOST);
+            } catch (Exception e) {
+                String host = clientConfigHolder instanceof ClientAttachConfigHolder ?
+                        ((ClientAttachConfigHolder) clientConfigHolder).getHostName().orElse(LOCAL_HOST) : LOCAL_HOST;
                 String portName;
                 try {
                     portName = Integer.toString(clientConfigHolder.getDebuggePort());
@@ -914,6 +923,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 LOGGER.error(e.getMessage());
                 outputLogger.sendDebugServerOutput(String.format("Failed to attach to the target VM, address: '%s:%s'.",
                         host, portName));
+                terminateServer(context.getDebuggeeVM() != null);
             }
         });
     }
@@ -952,7 +962,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         evaluator = null;
         activeThread = null;
         stackFramesMap.clear();
-        loadedVariables.clear();
+        loadedCompoundVariables.clear();
         variableToStackFrameMap.clear();
         scopeIdToFrameIdMap.clear();
         loadedThreadFrames.clear();

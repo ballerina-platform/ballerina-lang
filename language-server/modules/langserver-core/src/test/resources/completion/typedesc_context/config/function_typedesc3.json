@@ -6,19 +6,11 @@
   "source": "typedesc_context/source/function_typedesc3.bal",
   "items": [
     {
-      "label": "TestMap1",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "BN",
-      "insertText": "TestMap1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap2",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "BN",
-      "insertText": "TestMap2",
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "AM",
+      "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -33,11 +25,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestRecord1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "AM",
-      "insertText": "TestRecord1",
+      "label": "TestMap3",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "BN",
+      "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },
     {
@@ -49,11 +41,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestMap3",
+      "label": "TestMap2",
       "kind": "TypeParameter",
       "detail": "Map",
       "sortText": "BN",
-      "insertText": "TestMap3",
+      "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -62,6 +54,14 @@
       "detail": "Union",
       "sortText": "BN",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap1",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "BN",
+      "insertText": "TestMap1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -209,6 +209,29 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CE",
+      "insertText": "array",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.array;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
@@ -232,11 +255,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.value",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
       "sortText": "CE",
-      "insertText": "value",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -250,30 +273,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.array",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "CE",
-      "insertText": "array",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.array;\n"
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -301,11 +301,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "CE",
-      "insertText": "test",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -319,7 +319,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.value;\n"
         }
       ]
     },

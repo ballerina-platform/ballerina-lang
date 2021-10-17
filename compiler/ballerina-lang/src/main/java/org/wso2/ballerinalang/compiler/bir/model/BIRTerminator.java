@@ -65,6 +65,13 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             this.targetBB = targetBB;
         }
 
+        public GOTO(Location pos,
+                    BIRBasicBlock targetBB,
+                    BirScope scope) {
+            this(pos, targetBB);
+            this.scope = scope;
+        }
+
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
@@ -119,6 +126,21 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             this.calleeFlags = calleeFlags;
         }
 
+        public Call(Location pos,
+                    InstructionKind kind,
+                    boolean isVirtual,
+                    PackageID calleePkg,
+                    Name name,
+                    List<BIRArgument> args,
+                    BIROperand lhsOp,
+                    BIRBasicBlock thenBB,
+                    List<BIRAnnotationAttachment> calleeAnnotAttachments,
+                    Set<Flag> calleeFlags,
+                    BirScope scope) {
+            this(pos, kind, isVirtual, calleePkg, name, args, lhsOp, thenBB, calleeAnnotAttachments, calleeFlags);
+            this.scope = scope;
+        }
+
         @Override
         public BIROperand getLhsOperand() {
             return lhsOp;
@@ -160,8 +182,10 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                          BIRBasicBlock thenBB,
                          List<BIRAnnotationAttachment> annotAttachments,
                          List<BIRAnnotationAttachment> calleeAnnotAttachments,
-                         Set<Flag> calleeFlags) {
-            super(pos, kind, isVirtual, calleePkg, name, args, lhsOp, thenBB, calleeAnnotAttachments, calleeFlags);
+                         Set<Flag> calleeFlags,
+                         BirScope scope) {
+            super(pos, kind, isVirtual, calleePkg, name, args, lhsOp, thenBB, calleeAnnotAttachments,
+                    calleeFlags, scope);
             this.annotAttachments = annotAttachments;
         }
 
@@ -195,13 +219,15 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                       List<BIRArgument> args,
                       BIROperand lhsOp,
                       boolean isAsync,
-                      BIRBasicBlock thenBB) {
+                      BIRBasicBlock thenBB,
+                      BirScope scope) {
             super(pos, kind);
             this.fp = fp;
             this.lhsOp = lhsOp;
             this.args = args;
             this.isAsync = isAsync;
             this.thenBB = thenBB;
+            this.scope = scope;
         }
 
         public FPCall(Location pos,
@@ -211,8 +237,9 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                       BIROperand lhsOp,
                       boolean isAsync,
                       boolean transactional,
-                      BIRBasicBlock thenBB) {
-            this(pos, kind, fp, args, lhsOp, isAsync, thenBB);
+                      BIRBasicBlock thenBB,
+                      BirScope scope) {
+            this(pos, kind, fp, args, lhsOp, isAsync, thenBB, scope);
             this.transactional = transactional;
         }
 
@@ -286,6 +313,15 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             this.falseBB = falseBB;
         }
 
+        public Branch(Location pos,
+                      BIROperand op,
+                      BIRBasicBlock trueBB,
+                      BIRBasicBlock falseBB,
+                      BirScope scope) {
+            this(pos, op, trueBB, falseBB);
+            this.scope = scope;
+        }
+
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
@@ -319,6 +355,13 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public Lock(Location pos, BIRBasicBlock lockedBB) {
             super(pos, InstructionKind.LOCK);
             this.lockedBB = lockedBB;
+        }
+
+        public Lock(Location pos,
+                    BIRBasicBlock lockedBB,
+                    BirScope scope) {
+            this(pos, lockedBB);
+            this.scope = scope;
         }
 
         @Override
@@ -389,6 +432,11 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             this.unlockBB = unlockBB;
         }
 
+        public Unlock(Location pos, BIRBasicBlock unlockBB, BirScope scope) {
+            this(pos, unlockBB);
+            this.scope = scope;
+        }
+
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
@@ -419,6 +467,13 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public Panic(Location pos, BIROperand errorOp) {
             super(pos, InstructionKind.PANIC);
             this.errorOp = errorOp;
+        }
+
+        public Panic(Location pos,
+                     BIROperand errorOp,
+                     BirScope scope) {
+            this(pos, errorOp);
+            this.scope = scope;
         }
 
         @Override
@@ -454,6 +509,15 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             this.thenBB = thenBB;
         }
 
+        public Wait(Location pos,
+                    List<BIROperand> exprList,
+                    BIROperand lhsOp,
+                    BIRBasicBlock thenBB,
+                    BirScope scope) {
+            this(pos, exprList, lhsOp, thenBB);
+            this.scope = scope;
+        }
+
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
@@ -485,6 +549,15 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             this.channels = channels;
             this.lhsOp = lhsOp;
             this.thenBB = thenBB;
+        }
+
+        public Flush(Location pos,
+                     ChannelDetails[] channels,
+                     BIROperand lhsOp,
+                     BIRBasicBlock thenBB,
+                     BirScope scope) {
+            this(pos, channels, lhsOp, thenBB);
+            this.scope = scope;
         }
 
         @Override
@@ -523,6 +596,16 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             this.lhsOp = lhsOp;
         }
 
+        public WorkerReceive(Location pos,
+                             Name workerName,
+                             BIROperand lhsOp,
+                             boolean isSameStrand,
+                             BIRBasicBlock thenBB,
+                             BirScope scope) {
+            this(pos, workerName, lhsOp, isSameStrand, thenBB);
+            this.scope = scope;
+        }
+
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
@@ -553,7 +636,8 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public boolean isSync;
 
         public WorkerSend(Location location, Name workerName, BIROperand data,
-                          boolean isSameStrand, boolean isSync, BIROperand lhsOp, BIRBasicBlock thenBB) {
+                          boolean isSameStrand, boolean isSync, BIROperand lhsOp,
+                          BIRBasicBlock thenBB) {
             super(location, InstructionKind.WK_SEND);
             this.channel = workerName;
             this.data = data;
@@ -561,6 +645,18 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             this.lhsOp = lhsOp;
             this.isSameStrand = isSameStrand;
             this.isSync = isSync;
+        }
+
+        public WorkerSend(Location location,
+                          Name workerName,
+                          BIROperand data,
+                          boolean isSameStrand,
+                          boolean isSync,
+                          BIROperand lhsOp,
+                          BIRBasicBlock thenBB,
+                          BirScope scope) {
+            this(location, workerName, data, isSameStrand, isSync, lhsOp, thenBB);
+            this.scope = scope;
         }
 
         @Override
@@ -591,12 +687,13 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public List<BIROperand> valueExprs;
 
         public WaitAll(Location pos, BIROperand lhsOp, List<String> keys, List<BIROperand> valueExprs,
-                       BIRBasicBlock thenBB) {
+                       BIRBasicBlock thenBB, BirScope scope) {
             super(pos, InstructionKind.WAIT_ALL);
             this.lhsOp = lhsOp;
             this.keys = keys;
             this.valueExprs = valueExprs;
             this.thenBB = thenBB;
+            this.scope = scope;
         }
 
         @Override

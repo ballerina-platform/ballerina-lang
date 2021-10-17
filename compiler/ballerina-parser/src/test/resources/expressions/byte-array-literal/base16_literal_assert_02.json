@@ -159,17 +159,19 @@
                         {
                           "kind": "BACKTICK_TOKEN",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_INVALID_BASE16_CONTENT_IN_BYTE_ARRAY_LITERAL"
-                          ],
                           "trailingMinutiae": [
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "hasDiagnostics": true,
                                 "children": [
                                   {
                                     "kind": "TEMPLATE_STRING",
+                                    "hasDiagnostics": true,
+                                    "diagnostics": [
+                                      "ERROR_INVALID_BASE16_CONTENT_IN_BYTE_ARRAY_LITERAL"
+                                    ],
                                     "value": "b3 c e;\n    byte[] arr2 \u003d base16 "
                                   }
                                 ]

@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaFloatTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaIntTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaNilTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaStringTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
@@ -45,6 +46,7 @@ import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
@@ -56,16 +58,23 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -701,8 +710,8 @@ public class TypedescriptorTest {
     @DataProvider(name = "ConstantPosProvider")
     public Object[][] getConstPos() {
         return new Object[][]{
-                {16, 6, "3.14"},
-                {210, 6, "()"},
+                {16, 6, "PI"},
+                {210, 6, "NIL"},
         };
     }
 
@@ -724,11 +733,14 @@ public class TypedescriptorTest {
 
     @Test
     public void testFunctionTypedesc() {
-        FunctionSymbol symbol = (FunctionSymbol) getSymbol(216, 13);
-        assertTrue(symbol.typeDescriptor().params().isEmpty());
-        assertTrue(symbol.typeDescriptor().restParam().isEmpty());
-        assertTrue(symbol.typeDescriptor().returnTypeDescriptor().isEmpty());
-        assertEquals(symbol.typeDescriptor().signature(), "function");
+        VariableSymbol symbol = (VariableSymbol) getSymbol(216, 13);
+        assertEquals(symbol.typeDescriptor().typeKind(), TypeDescKind.FUNCTION);
+
+        FunctionTypeSymbol type = (FunctionTypeSymbol) symbol.typeDescriptor();
+        assertTrue(type.params().isEmpty());
+        assertTrue(type.restParam().isEmpty());
+        assertTrue(type.returnTypeDescriptor().isEmpty());
+        assertEquals(type.signature(), "function");
     }
 
     @Test
@@ -865,6 +877,151 @@ public class TypedescriptorTest {
         assertEquals(expandedMembers.get(1).typeKind(), STRING);
         assertEquals(expandedMembers.get(2).typeKind(), FLOAT);
         assertEquals(expandedMembers.get(3).typeKind(), BOOLEAN);
+    }
+
+    @Test
+    public void testSymbolModuleInfo() {
+        Project project = BCompileUtil.loadProject("test-src/testprojmodules");
+        Package currentPackage = project.currentPackage();
+
+        Collection<ModuleId> moduleIds = currentPackage.moduleIds();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        List<Symbol> symbolList = new ArrayList<>();
+        moduleIds.forEach(moduleId -> {
+            symbolList.addAll(packageCompilation.getSemanticModel(moduleId).moduleSymbols());
+        });
+
+        List<SymbolInfo> expectedSymbolList = createSymbolInfoList(getSymbolModuleInfo());
+        assertList(symbolList, expectedSymbolList);
+    }
+
+    public Object[][] getSymbolModuleInfo() {
+        return new Object[][]{
+                {2, 16, "main.bal", SymbolKind.FUNCTION, "main",
+                        "symbolowner/testprojmodules:0.1.0"},
+                {5, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "Int",
+                        "ballerina/lang.annotations:0.0.0"},
+                {9, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "StreamType1",
+                        "symbolowner/testprojmodules.module1:0.1.0"},
+                {11, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "StreamType2",
+                        "symbolowner/testprojmodules.module1:0.1.0"},
+                {13, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "TestRecord",
+                        "symbolowner/testprojmodules.module1:0.1.0"},
+                {1, 6, "module1.bal", SymbolKind.CLASS, "Class1",
+                        "symbolowner/testprojmodules.module1:0.1.0"},
+                {7, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "ClassType",
+                        "symbolowner/testprojmodules.module1:0.1.0"},
+        };
+    }
+
+    private List<SymbolInfo> createSymbolInfoList(Object[][] infoArr) {
+        List<SymbolInfo> symInfo = new ArrayList<>();
+        for (Object[] objects : infoArr) {
+            symInfo.add(new SymbolInfo((int) objects[0], (int) objects[1], (String) objects[2],
+                    (SymbolKind) objects[3], (String) objects[4], (String) objects[5]));
+        }
+        return symInfo;
+    }
+
+    static class SymbolInfo {
+        int line;
+        int column;
+        String srcFile;
+        SymbolKind symbolKind;
+        String name;
+        String moduleOwner;
+
+        SymbolInfo(int line, int column, String srcFile, SymbolKind symbolKind, String name, String moduleOwner) {
+            this.line = line;
+            this.column = column;
+            this.srcFile = srcFile;
+            this.symbolKind = symbolKind;
+            this.name = name;
+            this.moduleOwner = moduleOwner;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof SymbolInfo)) {
+                return false;
+            }
+
+            SymbolInfo that = (SymbolInfo) obj;
+
+            return line == that.line &&
+                   column == that.column &&
+                   srcFile.equals(that.srcFile) &&
+                   symbolKind == that.symbolKind &&
+                   name.equals(that.name) &&
+                   moduleOwner.equals(that.moduleOwner);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.line,
+                                this.column,
+                                this.srcFile,
+                                this.symbolKind,
+                                this.name,
+                                this.moduleOwner);
+        }
+
+        @Override
+        public String toString() {
+            return "SymbolInfo{" +
+                    "location=" + srcFile +
+                    " (" + line +
+                    "," + column +
+                    "), symbolKind=" + symbolKind +
+                    ", name='" + name + '\'' +
+                    ", moduleOwner='" + moduleOwner + '\'' +
+                    '}';
+        }
+    }
+
+    @Test
+    public void testImportSymbolTypeDesc() {
+        Project project = BCompileUtil.loadProject("test-src/imported_typedesc_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        Optional<Symbol> symbol = model.symbol(srcFile, from(19, 33));
+        TypeSymbol type = (TypeSymbol) symbol.get();
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(type.getName().get(), "StackFrame");
+
+        TypeSymbol typeDescriptorSym = ((TypeReferenceTypeSymbol) type).typeDescriptor();
+        assertEquals(typeDescriptorSym.typeKind(), INTERSECTION);
+        IntersectionTypeSymbol intersectionTypeSymbol = (IntersectionTypeSymbol) typeDescriptorSym;
+        assertEquals(intersectionTypeSymbol.effectiveTypeDescriptor().typeKind(), OBJECT);
+
+        ObjectTypeSymbol effectiveType = (ObjectTypeSymbol) intersectionTypeSymbol.effectiveTypeDescriptor();
+        MethodSymbol methodSymbol = effectiveType.methods().get("toString");
+
+        FunctionTypeSymbol functionSymbol = methodSymbol.typeDescriptor();
+        assertTrue(functionSymbol.params().get().isEmpty());
+        assertEquals(functionSymbol.returnTypeDescriptor().get().typeKind(), STRING);
+    }
+
+    private static void assertList(List<Symbol> actualValues, List<SymbolInfo> expectedValues) {
+        assertEquals(actualValues.size(), expectedValues.size());
+
+        for (SymbolInfo val : expectedValues) {
+            assertTrue(actualValues.stream()
+                            .anyMatch(sym -> {
+                                LineRange lineRange = sym.getLocation().get().lineRange();
+                                LinePosition linePosition = lineRange.startLine();
+                                return val.equals(
+                                        new SymbolInfo(linePosition.line(), linePosition.offset(),
+                                                lineRange.filePath(), sym.kind(), sym.getName().get(),
+                                                ((BallerinaSymbol) sym).getInternalSymbol().owner.toString()));
+                            }),
+                    "Symbol not found: " + val);
+
+        }
     }
 
     private Symbol getSymbol(int line, int column) {

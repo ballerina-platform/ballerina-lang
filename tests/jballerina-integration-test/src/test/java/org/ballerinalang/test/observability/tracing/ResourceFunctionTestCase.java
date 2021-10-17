@@ -124,20 +124,20 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
     public Object[][] getErrorResponseData() {
         return new Object[][] {
                 {"resourceThree", FILE_NAME + ":42:5", "Test Error 1", "Test Error 1\n" +
-                        "    at intg_tests.tracing_tests.0_0_1.$anonType$_0:$post$resourceThree" +
+                        "    at intg_tests.tracing_tests.0.$anonType$_0:$post$resourceThree" +
                         "(02_resource_function.bal:53)"},
                 {"resourceFour", FILE_NAME + ":58:5", "Test Error 2", "Test Error 2\n" +
-                        "    at intg_tests.tracing_tests.0_0_1.$anonType$_0:$post$resourceFour" +
+                        "    at intg_tests.tracing_tests.0.$anonType$_0:$post$resourceFour" +
                         "(02_resource_function.bal:69),"},
                 {"resourceFive", FILE_NAME + ":75:5", "Test Error. Sum: 91", "Test Error. Sum: 91\n" +
-                        "    at intg_tests.tracing_tests.0_0_1:panicAfterCalculatingSum(commons.bal:36)\n" +
-                        "       intg_tests.tracing_tests.0_0_1.$anonType$_0:$post$resourceFive" +
+                        "    at intg_tests.tracing_tests.0:panicAfterCalculatingSum(commons.bal:36)\n" +
+                        "       intg_tests.tracing_tests.0.$anonType$_0:$post$resourceFive" +
                         "(02_resource_function.bal:76)"},
                 {"resourceSix", FILE_NAME + ":81:5", "Test Error. Sum: 153", "Test Error. Sum: 153\n" +
-                        "    at intg_tests.tracing_tests.0_0_1:panicAfterCalculatingSum(commons.bal:36)\n" +
-                        "       intg_tests.tracing_tests.0_0_1.$anonType$_0:panicAfterCalculatingSum$lambda0$" +
+                        "    at intg_tests.tracing_tests.0:panicAfterCalculatingSum(commons.bal:36)\n" +
+                        "       intg_tests.tracing_tests.0.$anonType$_0:panicAfterCalculatingSum$lambda0$" +
                         "(02_resource_function.bal:82)\n" +
-                        "       intg_tests.tracing_tests.0_0_1.$anonType$_0:$post$resourceSix" +
+                        "       intg_tests.tracing_tests.0.$anonType$_0:$post$resourceSix" +
                         "(02_resource_function.bal:83)"}
         };
     }

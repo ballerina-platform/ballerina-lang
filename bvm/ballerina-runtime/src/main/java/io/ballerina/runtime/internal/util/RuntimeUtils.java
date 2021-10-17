@@ -36,6 +36,7 @@ import java.util.logging.Logger;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MIN_VALUE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.INTERNAL_ERROR_MESSAGE;
 
 /**
  * Util methods required for jBallerina runtime.
@@ -174,6 +175,7 @@ public class RuntimeUtils {
 
     public static void logBadSad(Throwable throwable) {
         // These errors are unhandled errors in JVM, hence logging them to bre log.
+        errStream.println(INTERNAL_ERROR_MESSAGE);
         printCrashLog(throwable);
     }
 
@@ -192,6 +194,10 @@ public class RuntimeUtils {
             }
         }
         crashLogger.log(Level.SEVERE, throwable.getMessage(), throwable);
+    }
+
+    public static String getMajorVersion(String version) {
+        return version.split("\\.")[0];
     }
 
     private RuntimeUtils() {

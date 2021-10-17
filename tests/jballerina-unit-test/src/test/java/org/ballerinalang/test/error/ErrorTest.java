@@ -230,16 +230,16 @@ public class ErrorTest {
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "invalid error detail type 'map<any>', expected a subtype of " +
-                        "'map<ballerina/lang.value:1.0.0:Cloneable>'", 41, 28);
+                        "'map<ballerina/lang.value:0.0.0:Cloneable>'", 41, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "invalid error detail type 'boolean', expected a subtype of '" +
-                        "map<ballerina/lang.value:1.0.0:Cloneable>'", 42, 28);
+                        "map<ballerina/lang.value:0.0.0:Cloneable>'", 42, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "error constructor does not accept additional detail args 'one' when error detail type 'Foo' " +
                         "contains individual field descriptors", 45, 58);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "invalid error detail type 'boolean', expected a subtype of " +
-                        "'map<ballerina/lang.value:1.0.0:Cloneable>'", 48, 11);
+                        "'map<ballerina/lang.value:0.0.0:Cloneable>'", 48, 11);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'string', found 'boolean'", 48, 30);
         BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e3'", 54, 22);
@@ -261,13 +261,13 @@ public class ErrorTest {
                 "incompatible types: expected 'error<record {| " +
                         "string message?; error cause?; int i; anydata...; |}>', found 'int'", 122, 65);
         BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'string', expected a subtype" +
-                " of 'map<ballerina/lang.value:1.0.0:Cloneable>'", 139, 11);
-        BAssertUtil.validateError(negativeCompileResult, i++, "invalid token ','", 139, 25);
-        BAssertUtil.validateError(negativeCompileResult, i++, "invalid token 'Detail'", 139, 25);
+                " of 'map<ballerina/lang.value:0.0.0:Cloneable>'", 139, 11);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid token ','", 139, 17);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid token 'Detail'", 139, 19);
         BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'string', expected a subtype" +
-                " of 'map<ballerina/lang.value:1.0.0:Cloneable>'", 140, 11);
+                " of 'map<ballerina/lang.value:0.0.0:Cloneable>'", 140, 11);
         BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'int', expected a subtype of" +
-                " 'map<ballerina/lang.value:1.0.0:Cloneable>'", 141, 11);
+                " 'map<ballerina/lang.value:0.0.0:Cloneable>'", 141, 11);
         BAssertUtil.validateError(negativeCompileResult, i++, "unknown error detail arg 'id' passed to closed error " +
                 "detail type 'CloseDetail'", 143, 47);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
@@ -335,7 +335,7 @@ public class ErrorTest {
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
         Assert.assertEquals(message, "error: array index out of range: index: 4, size: 2\n\t" +
-                "at ballerina.lang.array.1_1_0:slice(array.bal:128)\n\t" +
+                "at ballerina.lang.array.0:slice(array.bal:128)\n\t" +
                 "   error_test:testStackTraceInNative(error_test.bal:339)");
     }
 
@@ -386,6 +386,61 @@ public class ErrorTest {
     @Test
     public void testErrorBindingPattern() {
         BRunUtil.invoke(errorTestResult, "testErrorBindingPattern");
+    }
+
+    @Test
+    public void testStackTraceWithErrorCauseLocation() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(errorTestResult, "testStackTraceWithErrorCauseLocation");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+
+        Assert.assertNotNull(expectedException);
+        String message = expectedException.getMessage();
+        Assert.assertEquals(message, "error: error1\n" +
+                "\tat error_test:foo(error_test.bal:470)\n" +
+                "\t   error_test:testStackTraceWithErrorCauseLocation(error_test.bal:466)\n" +
+                "cause: error2\n" +
+                "\tat error_test:baz(error_test.bal:479)\n" +
+                "\t   error_test:x(error_test.bal:475)\n" +
+                "\t   ... 2 more\n" +
+                "cause: error3\n" +
+                "\tat error_test:foobar(error_test.bal:484)\n" +
+                "\t   ... 4 more");
+    }
+
+    @Test
+    public void testStacktraceWithPanicInsideInitMethod() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(errorTestResult, "testStacktraceWithPanicInsideInitMethod");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+
+        Assert.assertNotNull(expectedException);
+        String message = expectedException.getMessage();
+        Assert.assertEquals(message, "error: error\n" +
+                "\tat Person:init(error_test.bal:495)\n" +
+                "\t   error_test:testStacktraceWithPanicInsideInitMethod(error_test.bal:500)");
+    }
+
+    @Test
+    public void testStacktraceWithPanicInsideAnonymousFunction() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(errorTestResult, "testStacktraceWithPanicInsideAnonymousFunction");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+
+        Assert.assertNotNull(expectedException);
+        String message = expectedException.getMessage();
+        Assert.assertEquals(message, "error: error!!!\n" +
+                "\tat error_test:$lambda$_2(error_test.bal:506)\n" +
+                "\t   error_test:testStacktraceWithPanicInsideAnonymousFunction(error_test.bal:509)");
     }
 
     @AfterClass

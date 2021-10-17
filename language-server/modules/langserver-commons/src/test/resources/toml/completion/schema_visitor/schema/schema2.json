@@ -1,0 +1,210 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "C2C Spec",
+  "description": "Schema for C2C Cloud file",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "container": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string",
+              "pattern": "[a-zA-Z0-9][a-zA-Z0-9_.-]+"
+            },
+            "repository": {
+              "type": "string"
+            },
+            "tag": {
+              "type": "string"
+            },
+            "base": {
+              "type": "string"
+            },
+            "user": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "run_as": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "cloud": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "config": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "envs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "key_ref": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "config_name": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "secrets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "key_ref": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "secret_name": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "file": {
+                    "type": "string"
+                  },
+                  "mount_path": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deployment": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "internal_domain_name": {
+              "type": "string"
+            },
+            "external_accessible": {
+              "type": "boolean"
+            },
+            "min_memory": {
+              "type": "string"
+            },
+            "max_memory": {
+              "type": "string"
+            },
+            "min_cpu": {
+              "type": "string"
+            },
+            "max_cpu": {
+              "type": "string"
+            },
+            "autoscaling": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "enable": {
+                  "type": "boolean"
+                },
+                "min_replicas": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "max_replicas": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "cpu": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                },
+                "memory": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                }
+              }
+            },
+            "probes": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "readiness": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "port": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "path": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "liveness": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "port": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "path": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "storage": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "volumes": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "local_path": {
+                      "type": "string"
+                    },
+                    "size": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

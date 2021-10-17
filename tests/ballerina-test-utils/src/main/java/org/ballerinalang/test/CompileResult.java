@@ -26,6 +26,7 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.tree.PackageNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -58,6 +59,10 @@ public class CompileResult {
 
     Path projectSourceRoot() {
         return pkg.project().sourceRoot();
+    }
+    
+    public Project project() {
+        return pkg.project();
     }
 
     public PackageNode getAST() {
@@ -107,6 +112,10 @@ public class CompileResult {
 
     public DiagnosticResult getDiagnosticResult() {
         return diagnosticResult;
+    }
+
+    public PackageCompilation getPackageCompilation() {
+        return packageCompilation;
     }
 
     public Collection<JarLibrary> getJarPathRequiredForExecution() {

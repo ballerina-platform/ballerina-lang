@@ -300,6 +300,8 @@ public enum Snippet {
 
     KW_FALSE(SnippetGenerator.getKeywordSnippet("false")),
 
+    KW_NIL(SnippetGenerator.getKeywordSnippet("null")),
+
     // Statement Snippets
     STMT_BREAK(SnippetGenerator.getBreakSnippet()),
 

@@ -164,7 +164,7 @@ function testMappingConstrExprWithNoACET() {
     assertEquality(s, r2.s);
     assertEquality(i, r2.i);
     assertEquality(s, r2.s2);
-    assertEquality("typedesc string", r2.t.toString());
+    assertEquality("typedesc global s", r2.t.toString());
 }
 
 public type ExpInferredType2 record {|

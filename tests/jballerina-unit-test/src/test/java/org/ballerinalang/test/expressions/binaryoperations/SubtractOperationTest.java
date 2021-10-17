@@ -107,7 +107,7 @@ public class SubtractOperationTest {
         BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInSubtract");
     }
 
-    @Test(description = "Test substract statement with errors")
+    @Test(description = "Test subtract statement with errors")
     public void testSubtractStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 12);
         BAssertUtil.validateError(resultNegative, 0, "operator '-' not defined for 'float' and 'string'", 4, 9);

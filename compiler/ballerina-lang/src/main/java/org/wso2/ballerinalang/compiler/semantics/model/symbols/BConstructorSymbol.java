@@ -37,7 +37,18 @@ public class BConstructorSymbol extends BInvokableSymbol implements ConstructorS
                               BSymbol owner,
                               Location pos,
                               SymbolOrigin origin) {
-        super(SymTag.CONSTRUCTOR, flags, name, pkgID, type, owner, pos, origin);
+        this(flags, name, name, pkgID, type, owner, pos, origin);
+    }
+
+    public BConstructorSymbol(long flags,
+                              Name name,
+                              Name originalName,
+                              PackageID pkgID,
+                              BType type,
+                              BSymbol owner,
+                              Location pos,
+                              SymbolOrigin origin) {
+        super(SymTag.CONSTRUCTOR, flags, name, originalName, pkgID, type, owner, pos, origin);
     }
 
     @Override

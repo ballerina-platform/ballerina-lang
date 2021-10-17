@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANNOTATION;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getPackageIDStringWithMajorVersion;
 
 /**
  * @since 0.94
@@ -45,9 +46,9 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     public int maskedPoints;
     private List<BAnnotationSymbol> annots;
 
-    public BAnnotationSymbol(Name name, long flags, Set<AttachPoint> points, PackageID pkgID,
+    public BAnnotationSymbol(Name name, Name originalName, long flags, Set<AttachPoint> points, PackageID pkgID,
                              BType type, BSymbol owner, Location pos, SymbolOrigin origin) {
-        super(ANNOTATION, flags, name, pkgID, type, owner, pos, origin);
+        super(ANNOTATION, flags, name, originalName, pkgID, type, owner, pos, origin);
         this.points = points;
         this.maskedPoints = getMaskedPoints(points);
         this.annots = new ArrayList<>();
@@ -73,14 +74,14 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     }
 
     public String bvmAlias() {
-        String pkg = pkgID.toString();
+        String pkg = getPackageIDStringWithMajorVersion(pkgID);
         return !pkg.equals(".") ? pkg + ":" + this.name : this.name.toString();
     }
 
     @Override
     public BAnnotationSymbol createLabelSymbol() {
-        BAnnotationSymbol copy = Symbols.createAnnotationSymbol(flags, points, Names.EMPTY, pkgID, type, owner, pos,
-                                                                origin);
+        BAnnotationSymbol copy = Symbols.createAnnotationSymbol(flags, points, Names.EMPTY, Names.EMPTY,
+                                                                pkgID, type, owner, pos, origin);
         copy.attachedType = attachedType;
         copy.isLabel = true;
         return copy;

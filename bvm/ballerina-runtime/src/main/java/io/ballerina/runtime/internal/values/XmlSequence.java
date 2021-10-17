@@ -23,25 +23,29 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.CycleUtils;
+import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_EMPTY_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
+import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 
 /**
  * <p>
@@ -63,10 +67,12 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
     public XmlSequence() {
         children = new ArrayList<>();
         this.type = PredefinedTypes.TYPE_XML_NEVER;
+        setTypedescValue(type);
     }
 
     public XmlSequence(List<BXml> children) {
         this.children = children;
+        setTypedescValue(type);
     }
 
     public XmlSequence(BXml child) {
@@ -74,6 +80,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         if (!child.isEmpty()) {
             this.children.add(child);
         }
+        setTypedescValue(type);
     }
 
     public List<BXml> getChildrenList() {
@@ -586,6 +593,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         for (BXml elem : children) {
             elem.freezeDirect();
         }
+        this.typedesc = createSingletonTypedesc(this);
     }
 
     @Override
@@ -620,26 +628,6 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         };
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-
-        if (obj instanceof XmlSequence) {
-            XmlSequence that = (XmlSequence) obj;
-            return that.children.equals(this.children);
-        }
-        if (obj instanceof XmlItem) {
-            return this.children.size() == 1 && this.children.get(0).equals(obj);
-        }
-
-        if (this.children.isEmpty() && TypeUtils.getType(obj) == PredefinedTypes.TYPE_XML_NEVER) {
-            return true;
-        }
-        return false;
-    }
-
     private Type getSequenceType(Type tempExprType) {
         switch (tempExprType.getTag()) {
             case TypeTags.XML_ELEMENT_TAG:
@@ -652,5 +640,27 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
                 // Since 'xml:Text is same as xml<'xml:Text>
                 return PredefinedTypes.TYPE_TEXT;
         }
+    }
+
+    private void initializeIteratorNextReturnType() {
+        Type childrenType;
+        if (children.size() == 1) {
+            childrenType = children.get(0).getType();
+        } else {
+            Set<Type> types = new HashSet<>();
+            for (int i = 0; i < children.size(); i++) {
+                types.add(children.get(i).getType());
+            }
+            childrenType = new BUnionType(new ArrayList<>(types));
+        }
+        iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(childrenType);
+    }
+
+    @Override
+    public Type getIteratorNextReturnType() {
+        if (iteratorNextReturnType == null) {
+            initializeIteratorNextReturnType();
+        }
+        return iteratorNextReturnType;
     }
 }

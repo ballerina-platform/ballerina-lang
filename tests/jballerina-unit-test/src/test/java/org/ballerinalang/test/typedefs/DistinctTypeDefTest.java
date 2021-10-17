@@ -21,35 +21,36 @@ package org.ballerinalang.test.typedefs;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
  * Type definition test cases.
  */
 public class DistinctTypeDefTest {
-
-    private CompileResult negative;
-
-    @BeforeClass
-    public void setup() {
-        negative = BCompileUtil.compile("test-src/typedefs/distinct-type-negative.bal");
-    }
-
     @Test
     public void testDistinctTypeNegative() {
-        BAssertUtil.validateError(negative, 0,
-                "distinct typing is only supported for object type and error type", 22, 1);
-        BAssertUtil.validateError(negative, 1,
-                "distinct typing is only supported for object type and error type", 23, 1);
-        BAssertUtil.validateError(negative, 2,
-                "distinct typing is only supported for object type and error type", 24, 1);
+        CompileResult neg = BCompileUtil.compile("test-src/typedefs/distinct-type-negative.bal");
+        int i  = 0;
+        BAssertUtil.validateError(neg, i++, "distinct typing is only supported for object type and error type", 22, 26);
+        BAssertUtil.validateError(neg, i++, "distinct typing is only supported for object type and error type", 23, 22);
+        BAssertUtil.validateError(neg, i++, "distinct typing is only supported for object type and error type", 24, 27);
+        BAssertUtil.validateError(neg, i++, "distinct typing is only supported for object type and error type", 27, 14);
+        BAssertUtil.validateError(neg, i++, "distinct typing is only supported for object type and error type", 28, 14);
+        BAssertUtil.validateError(neg, i++, "distinct typing is only supported for object type and error type", 29, 14);
+        BAssertUtil.validateError(neg, i++, "distinct typing is only supported for object type and error type", 30, 20);
+        BAssertUtil.validateError(neg, i++, "distinct typing is only supported for object type and error type", 31, 23);
+        BAssertUtil.validateError(neg, i++, "distinct typing is only supported for object type and error type", 35, 14);
+        BAssertUtil.validateError(neg, i++, "distinct typing is only supported for object type and error type", 36, 14);
+        BAssertUtil.validateError(neg, i++, "distinct typing is only supported for object type and error type", 37, 14);
+        BAssertUtil.validateError(neg, i++, "distinct typing is only supported for object type and error type", 38, 20);
+        BAssertUtil.validateError(neg, i++, "distinct typing is only supported for object type and error type", 39, 23);
+        BAssertUtil.validateError(neg, i++, "distinct typing is only supported for object type and error type", 43, 14);
+        BAssertUtil.validateError(neg, i++, "distinct typing is only supported for object type and error type", 44, 14);
+        BAssertUtil.validateError(neg, i++, "distinct typing is only supported for object type and error type", 45, 14);
+        BAssertUtil.validateError(neg, i++, "distinct typing is only supported for object type and error type", 46, 20);
+        BAssertUtil.validateError(neg, i++, "distinct typing is only supported for object type and error type", 47, 23);
+        Assert.assertEquals(i, neg.getErrorCount());
 
-    }
-
-    @AfterClass
-    public void tearDown() {
-        negative = null;
     }
 }

@@ -1,0 +1,9 @@
+
+
+[build-options]
+observabilityIncluded = true
+
+[[platform.java11.dependency]]
+path = "/usr/libs/"
+
+

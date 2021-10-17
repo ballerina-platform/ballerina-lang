@@ -55,7 +55,7 @@ public class ReadOnlyObjectBalaTest {
         int index = 0;
 
         validateError(result, index++, "cannot initialize abstract object '(testorg/readonly_objects:" +
-                "1.0.0:CustomController & readonly)'", 20, 54);
+                "1:CustomController & readonly)'", 20, 54);
         assertEquals(result.getErrorCount(), index);
     }
 

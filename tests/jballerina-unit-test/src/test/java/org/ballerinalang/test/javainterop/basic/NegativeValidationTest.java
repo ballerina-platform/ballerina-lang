@@ -378,4 +378,84 @@ public class NegativeValidationTest {
                                   "method_resolve_error.bal", 24, 1);
 
     }
+
+    @Test
+    public void testNoClassDefFoundError() {
+        String path = "test-src/javainterop/negative/project_no_class_def_found";
+        CompileResult compileResult = BCompileUtil.compile(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        BAssertUtil.validateError(compileResult, 0,
+                "{ballerina/jballerina.java}NO_CLASS_DEF_FOUND 'Class definition 'javalibs/app/Bar' " +
+                        "not found'", 19, 1);
+    }
+
+    @Test
+    public void testNoClassDefFoundErrorForConstructorCalls() {
+        String path = "test-src/javainterop/negative/project_no_class_def_found_constructor";
+        CompileResult compileResult = BCompileUtil.compile(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        BAssertUtil.validateError(compileResult, 0,
+                "{ballerina/jballerina.java}NO_CLASS_DEF_FOUND 'Class definition 'javalibs/app/Bar' " +
+                        "not found'", 19, 1);
+    }
+
+    @Test(description = "Test error in instance field set without exactly two parameters")
+    public void testInstanceFieldSetWithoutTwoParameters() {
+        String path = "test-src/javainterop/negative/fieldset_error1.bal";
+        CompileResult compileResult = BCompileUtil.compile(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        BAssertUtil.validateError(compileResult, 0, "{ballerina/jballerina.java}INVALID NUMBER OF PARAMETERS "
+                + "'Two parameters are required to set the value to the instance field 'isEmpty' in class " +
+                "'org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate''", 7, 1);
+    }
+
+    @Test(description = "Test error in instance field set with no handle type first parameter")
+    public void testNotHandleTypeFirstParameterForInstanceFieldSet() {
+        String path = "test-src/javainterop/negative/fieldset_error2.bal";
+        CompileResult compileResult = BCompileUtil.compile(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        BAssertUtil.validateError(compileResult, 0, "{ballerina/jballerina.java}INVALID " +
+                "PARAMETER TYPE 'First parameter needs to be of the handle type to set the value to the instance " +
+                "field 'isEmpty' in class 'org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate''", 7, 1);
+    }
+
+    @Test(description = "Test error in instance field get without exactly one parameter")
+    public void testInstanceFieldGetWithoutOneParameter() {
+        String path = "test-src/javainterop/negative/fieldget_error1.bal";
+        CompileResult compileResult = BCompileUtil.compile(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        BAssertUtil.validateError(compileResult, 0, "{ballerina/jballerina.java}INVALID NUMBER OF PARAMETERS "
+                + "'One parameter is required to get the value of the instance field 'isEmpty' in class " +
+                "'org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate''", 7, 1);
+    }
+
+    @Test(description = "Test error in instance field get with no handle type parameter")
+    public void testNoHandleTypeParameterForInstanceFieldGet() {
+        String path = "test-src/javainterop/negative/fieldget_error2.bal";
+        CompileResult compileResult = BCompileUtil.compile(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        BAssertUtil.validateError(compileResult, 0, "{ballerina/jballerina.java}" +
+                "INVALID PARAMETER TYPE 'The parameter needs to be of the handle type to get the value of the instance "
+                + "field 'isEmpty' in class 'org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate''", 7, 1);
+    }
+
+    @Test(description = "Test error in static field set without exactly one parameter")
+    public void testStaticFieldSetWithoutOneParameter() {
+        String path = "test-src/javainterop/negative/fieldset_error3.bal";
+        CompileResult compileResult = BCompileUtil.compile(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        BAssertUtil.validateError(compileResult, 0, "{ballerina/jballerina.java}INVALID NUMBER OF PARAMETERS "
+                + "'One parameter is required to set the value to the static field 'isAvailable' in class " +
+                "'org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate''", 7, 1);
+    }
+
+    @Test(description = "Test error in static field get with any parameter")
+    public void testStaticFieldGetWithAnyParameter() {
+        String path = "test-src/javainterop/negative/fieldget_error3.bal";
+        CompileResult compileResult = BCompileUtil.compile(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        BAssertUtil.validateError(compileResult, 0, "{ballerina/jballerina.java}INVALID NUMBER OF PARAMETERS "
+                + "'No parameter is required to get the value of the static field 'isAvailable' in class " +
+                "'org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate''", 7, 1);
+    }
 }

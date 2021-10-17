@@ -37,17 +37,19 @@
             {
               "kind": "SEMICOLON_TOKEN",
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED"
-              ],
               "leadingMinutiae": [
                 {
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "hasDiagnostics": true,
                     "children": [
                       {
-                        "kind": "VERSION_KEYWORD"
+                        "kind": "VERSION_KEYWORD",
+                        "hasDiagnostics": true,
+                        "diagnostics": [
+                          "ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED"
+                        ]
                       }
                     ]
                   }
@@ -96,28 +98,20 @@
               "hasDiagnostics": true,
               "diagnostics": [
                 "ERROR_MISSING_SEMICOLON_TOKEN"
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "IMPORT_DECLARATION",
-          "hasDiagnostics": true,
-          "children": [
-            {
-              "kind": "IMPORT_KEYWORD",
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED"
               ],
               "leadingMinutiae": [
                 {
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "hasDiagnostics": true,
                     "children": [
                       {
-                        "kind": "VERSION_KEYWORD"
+                        "kind": "VERSION_KEYWORD",
+                        "hasDiagnostics": true,
+                        "diagnostics": [
+                          "ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED"
+                        ]
                       }
                     ]
                   }
@@ -153,7 +147,16 @@
                   "kind": "END_OF_LINE_MINUTIAE",
                   "value": "\n"
                 }
-              ],
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "IMPORT_DECLARATION",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "IMPORT_KEYWORD",
               "trailingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",
@@ -179,17 +182,19 @@
             {
               "kind": "SEMICOLON_TOKEN",
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED"
-              ],
               "leadingMinutiae": [
                 {
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "hasDiagnostics": true,
                     "children": [
                       {
-                        "kind": "VERSION_KEYWORD"
+                        "kind": "VERSION_KEYWORD",
+                        "hasDiagnostics": true,
+                        "diagnostics": [
+                          "ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED"
+                        ]
                       }
                     ]
                   }

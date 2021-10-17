@@ -267,7 +267,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
                 dArg = new BSymbolicProperty(tsybol);
             } else if (arg instanceof BSymbol) {
                 BSymbol symbolArg = (BSymbol) arg;
-                Symbol symbol = symbolFactory.getBCompiledSymbol(symbolArg, symbolArg.getName().getValue());
+                Symbol symbol = symbolFactory.getBCompiledSymbol(symbolArg, symbolArg.getOriginalName().getValue());
                 dArg = new BSymbolicProperty(symbol);
             } else if (arg instanceof String) {
                 dArg = new BStringProperty((String) arg);

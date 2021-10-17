@@ -19,7 +19,7 @@ package io.ballerina.compiler.internal.parser;
 
 /**
  * Parser rule contexts that represent each point in the grammar.
- * These represents the current scope during the parsing.
+ * These represent the current scope during the parsing.
  *
  * @since 1.2.0
  */
@@ -352,6 +352,7 @@ public enum ParserRuleContext {
 
     // Statements
     STATEMENT("statement"),
+    STATEMENTS("statements"),
     STATEMENT_WITHOUT_ANNOTS("statement-without-annots"),
     ASSIGNMENT_STMT("assignment-stmt"),
     VAR_DECL_STMT("var-decl-stmt"),
@@ -468,6 +469,7 @@ public enum ParserRuleContext {
     ORDER_KEYWORD("order"),
     BY_KEYWORD("by"),
     EQUALS_KEYWORD("equals"),
+    NOT_IS_KEYWORD("!is"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -670,6 +672,10 @@ public enum ParserRuleContext {
     TEMPLATE_STRING_RHS("template-string-rhs"),
     XML_QUOTE_START("xml-quote-start"),
     XML_QUOTE_END("xml-quote-end"),
+    XML_CDATA_START("xml-cdata-start"),
+    XML_OPTIONAL_CDATA_CONTENT("xml-optional-cdata-content"),
+    XML_CDATA_CONTENT("xml-cdata-content"),
+    XML_CDATA_END("xml-cdata-end"),
 
     //Other
     TYPE_DESC_RHS("type-desc-rhs"),

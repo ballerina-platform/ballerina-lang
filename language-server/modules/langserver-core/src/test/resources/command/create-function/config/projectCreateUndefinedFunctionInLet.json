@@ -1,40 +1,40 @@
 {
-    "arguments": {
-        "node.range": {
-            "start": {
-                "line": 7,
-                "character": 59
-            },
-            "end": {
-                "line": 7,
-                "character": 80
-            }
-        }
-    },
-    "expected": {
-        "result": {
-            "edit": {
-                "documentChanges": [
-                    {
-                        "edits": [
-                            {
-                                "range": {
-                                    "start": {
-                                        "line": 11,
-                                        "character": 0
-                                    },
-                                    "end": {
-                                        "line": 11,
-                                        "character": 0
-                                    }
-                                },
-                                "newText": "\n\nfunction createSchool([Grade] a) returns School {\n    return {students: []};\n}\n"
-                            }
-                        ]
-                    }
-                ]
-            }
-        },
-        "jsonrpc": "2.0"
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 7,
+        "character": 59
+      },
+      "end": {
+        "line": 7,
+        "character": 80
+      }
     }
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 10,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 10,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction createSchool([Grade] t) returns School {\n    return {students: []};\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
 }

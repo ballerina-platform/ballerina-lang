@@ -18,6 +18,7 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import org.ballerinalang.model.elements.PackageID;
@@ -27,8 +28,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import static org.ballerinalang.model.elements.PackageID.ANNOTATIONS;
 import static org.ballerinalang.model.elements.PackageID.ARRAY;
@@ -43,6 +44,7 @@ import static org.ballerinalang.model.elements.PackageID.JAVA;
 import static org.ballerinalang.model.elements.PackageID.MAP;
 import static org.ballerinalang.model.elements.PackageID.OBJECT;
 import static org.ballerinalang.model.elements.PackageID.QUERY;
+import static org.ballerinalang.model.elements.PackageID.RUNTIME;
 import static org.ballerinalang.model.elements.PackageID.STREAM;
 import static org.ballerinalang.model.elements.PackageID.STRING;
 import static org.ballerinalang.model.elements.PackageID.TABLE;
@@ -137,6 +139,11 @@ public class Bootstrap {
             symbolTable.langValueModuleSymbol = loadLangLibFromBala(VALUE, compilerContext);
         }
 
+        if (langLib.equals(RUNTIME)) {
+            symbolTable.langArrayModuleSymbol = loadLangLibFromBala(ARRAY, compilerContext);
+            symbolTable.langValueModuleSymbol = loadLangLibFromBala(VALUE, compilerContext);
+        }
+
         symResolver.bootstrapCloneableType();
         symResolver.defineOperators();
     }
@@ -173,6 +180,7 @@ public class Bootstrap {
         symbolTable.langBooleanModuleSymbol = loadLangLibFromBala(BOOLEAN, compilerContext);
         symbolTable.langQueryModuleSymbol = loadLangLibFromBala(QUERY, compilerContext);
         symbolTable.langTransactionModuleSymbol = loadLangLibFromBala(TRANSACTION, compilerContext);
+        symbolTable.langRuntimeModuleSymbol = loadLangLibFromBala(RUNTIME, compilerContext);
         symbolTable.loadPredeclaredModules();
         symResolver.bootstrapIntRangeType();
         symbolTable.updateBuiltinSubtypeOwners();
@@ -180,17 +188,17 @@ public class Bootstrap {
     }
 
     private BPackageSymbol loadLangLibFromBala(PackageID langLib, CompilerContext compilerContext) {
-        ResolutionRequest packageLoadRequest = toPackageLoadRequest(langLib);
-        loadLangLibFromBala(packageLoadRequest);
+        loadLangLibFromBala(toResolutionRequest(langLib));
 
         return getSymbolFromCache(compilerContext, langLib);
     }
 
-    private void loadLangLibFromBala(ResolutionRequest packageLoadRequest) {
-        List<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
-                Collections.singletonList(packageLoadRequest));
-        resolutionResponses.forEach(pkgLoadResp -> {
-            Package pkg = pkgLoadResp.resolvedPackage();
+    private void loadLangLibFromBala(ResolutionRequest resolutionRequest) {
+        Collection<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
+                Collections.singletonList(resolutionRequest),
+                ResolutionOptions.builder().setOffline(true).build());
+        resolutionResponses.forEach(resolutionResponse -> {
+            Package pkg = resolutionResponse.resolvedPackage();
             PackageCompilation compilation = pkg.getCompilation();
             if (compilation.diagnosticResult().hasErrors()) {
                 throw new ProjectException("Error while bootstrapping :" + pkg.packageId().toString() +
@@ -199,12 +207,12 @@ public class Bootstrap {
         });
     }
 
-    private ResolutionRequest toPackageLoadRequest(PackageID packageID) {
+    private ResolutionRequest toResolutionRequest(PackageID packageID) {
         PackageOrg pkgOrg = PackageOrg.from(packageID.orgName.getValue());
         PackageName pkgName = PackageName.from(packageID.name.getValue());
         PackageVersion pkgVersion = PackageVersion.from(packageID.getPackageVersion().toString());
-        PackageDescriptor packageDescriptor = PackageDescriptor.from(pkgOrg, pkgName, pkgVersion);
-        return ResolutionRequest.from(packageDescriptor, PackageDependencyScope.DEFAULT, false);
+        PackageDescriptor pkgDesc = PackageDescriptor.from(pkgOrg, pkgName, pkgVersion);
+        return ResolutionRequest.from(pkgDesc);
     }
 
     private BPackageSymbol getSymbolFromCache(CompilerContext context, PackageID packageID) {

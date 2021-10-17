@@ -24,6 +24,7 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -116,15 +117,20 @@ public abstract class FindAllReferencesTest {
         return new BLangDiagnosticLocation(getFileName(), line, line, startCol, endCol);
     }
 
-    protected Location location(int line, int startCol, int endCol, String fileName) {
+    protected static Location location(int line, int startCol, int endCol, String fileName) {
         return new BLangDiagnosticLocation(fileName, line, line, startCol, endCol);
     }
 
-    private void assertLocations(List<Location> locations, List<Location> expLocations) {
+    protected static void assertLocations(List<Location> locations, List<Location> expLocations) {
         assertEquals(locations.size(), expLocations.size());
 
+        List<LineRange> lineRanges = new ArrayList<>();
+        for (Location location : locations) {
+            lineRanges.add(location.lineRange());
+        }
+
         for (Location expLocation : expLocations) {
-            assertTrue(locations.contains(expLocation));
+            assertTrue(lineRanges.contains(expLocation.lineRange()));
         }
     }
 }

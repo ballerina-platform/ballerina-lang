@@ -17,25 +17,33 @@
  */
 package io.ballerina.projects.internal.repositories;
 
+import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.environment.Environment;
-import io.ballerina.projects.environment.PackageRepository;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
+import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +72,7 @@ import java.util.stream.Stream;
  *
  * @since 2.0.0
  */
-public class FileSystemRepository implements PackageRepository {
+public class FileSystemRepository extends AbstractPackageRepository {
     Path bala;
     private final Path cacheDir;
     private final Environment environment;
@@ -83,23 +91,16 @@ public class FileSystemRepository implements PackageRepository {
     }
 
     @Override
-    public Optional<Package> getPackage(ResolutionRequest resolutionRequest) {
+    public Optional<Package> getPackage(ResolutionRequest request, ResolutionOptions options) {
         // if version and org name is empty we add empty string so we return empty package anyway
-        String packageName = resolutionRequest.packageName().value();
-        String orgName = resolutionRequest.orgName().value();
-        String version = resolutionRequest.version().isPresent() ?
-                resolutionRequest.version().get().toString() : "0.0.0";
+        String packageName = request.packageName().value();
+        String orgName = request.orgName().value();
+        String version = request.version().isPresent() ?
+                request.version().get().toString() : "0.0.0";
 
-        //First we will check for a bala that match any platform
-        Path balaPath = this.bala.resolve(
-                ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
+        Path balaPath = getPackagePath(orgName, packageName, version);
         if (!Files.exists(balaPath)) {
-            //If bala for any platform not exist check for specific platform
-            balaPath = this.bala.resolve(
-                    ProjectUtils.getRelativeBalaPath(orgName, packageName, version, JvmTarget.JAVA_11.code()));
-            if (!Files.exists(balaPath)) {
-                return Optional.empty();
-            }
+            return Optional.empty();
         }
 
         ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
@@ -110,23 +111,18 @@ public class FileSystemRepository implements PackageRepository {
     }
 
     @Override
-    public List<PackageVersion> getPackageVersions(ResolutionRequest resolutionRequest) {
-        // if version and org name is empty we add empty string so we return empty package anyway
-        String packageName = resolutionRequest.packageName().value();
-        String orgName = resolutionRequest.orgName().value();
-        List<Path> versions = new ArrayList<>();
-        try {
-            Path balaPackagePath = bala.resolve(orgName).resolve(packageName);
-            if (Files.exists(balaPackagePath)) {
-                try (Stream<Path> collect = Files.list(balaPackagePath)) {
-                    versions.addAll(collect.collect(Collectors.toList()));
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
-        }
+    public boolean isPackageExists(PackageOrg org,
+                                   PackageName name,
+                                   PackageVersion version) {
+        Path balaPath = getPackagePath(org.value(), name.value(), version.value().toString());
+        return Files.exists(balaPath);
+    }
 
-        return pathToVersions(versions);
+    @Override
+    public Collection<PackageVersion> getPackageVersions(ResolutionRequest request, ResolutionOptions options) {
+        // if version and org name is empty we add empty string so we return empty package anyway
+        return getPackageVersions(request.orgName(), request.packageName(),
+                request.version().orElse(null));
     }
 
     /**
@@ -174,7 +170,97 @@ public class FileSystemRepository implements PackageRepository {
         return packagesMap;
     }
 
-    private List<PackageVersion> pathToVersions(List<Path> versions) {
+    protected List<PackageVersion> getPackageVersions(PackageOrg org, PackageName name, PackageVersion version) {
+        List<Path> versions = new ArrayList<>();
+        try {
+            Path balaPackagePath = bala.resolve(org.value()).resolve(name.value());
+            if (Files.exists(balaPackagePath)) {
+                try (Stream<Path> collect = Files.list(balaPackagePath)) {
+                    versions.addAll(collect.collect(Collectors.toList()));
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
+        }
+
+        versions.removeAll(getIncompatibleVer(versions, org, name));
+        return pathToVersions(versions);
+    }
+
+    protected List<Path> getIncompatibleVer(List<Path> versions, PackageOrg org, PackageName name) {
+        List<Path> incompatibleVersions = new ArrayList<>();
+
+        if (!versions.isEmpty()) {
+            for (Path ver : versions) {
+                Path pkgJsonPath = getPackagePath(org.value(), name.value(),
+                        Optional.of(ver.getFileName()).get().toFile().getName()).resolve(ProjectConstants.PACKAGE_JSON);
+                if (Files.exists(pkgJsonPath)) {
+                    String packageVer = BalaFiles.readPkgJson(pkgJsonPath).getBallerinaVersion();
+                    String packVer = RepoUtils.getBallerinaShortVersion();
+                    if (!isCompatible(packageVer, packVer)) {
+                        incompatibleVersions.add(ver);
+                    }
+                } else {
+                    incompatibleVersions.add(ver);
+                }
+            }
+        }
+
+        return incompatibleVersions;
+    }
+
+    private boolean isCompatible(String pkgBalVer, String distBalVer) {
+        if (!pkgBalVer.equals(distBalVer)) {
+            String pkgBalVerPrefix = pkgBalVer.substring(0, pkgBalVer.length() - 1);
+            String distBalVerPerfix = distBalVer.substring(0, distBalVer.length() - 1);
+
+            // If the prefixes are equal, we need to check the versions
+            if (pkgBalVerPrefix.equals(distBalVerPerfix)) {
+                String pkgBalVerValue = pkgBalVer.substring(pkgBalVer.length() - 1);
+                String distBalVerValue = distBalVer.substring(distBalVer.length() - 1);
+                // If package version is greater than distribution version
+                if (Integer.parseInt(pkgBalVerValue) > Integer.parseInt(distBalVerValue)) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    protected DependencyGraph<PackageDescriptor> getDependencyGraph(PackageOrg org,
+                                                                    PackageName name,
+                                                                    PackageVersion version) {
+        Path balaPath = getPackagePath(org.toString(), name.toString(), version.toString());
+        BalaFiles.DependencyGraphResult dependencyGraphResult = BalaFiles.createPackageDependencyGraph(balaPath);
+        return dependencyGraphResult.packageDependencyGraph();
+    }
+
+    @Override
+    public Collection<ModuleDescriptor> getModules(PackageOrg org,
+                                                      PackageName name,
+                                                      PackageVersion version) {
+        Path balaPath = getPackagePath(org.toString(), name.toString(), version.toString());
+        BalaFiles.DependencyGraphResult dependencyGraphResult = BalaFiles.createPackageDependencyGraph(balaPath);
+        return dependencyGraphResult.moduleDependencies().keySet();
+    }
+
+    protected Path getPackagePath(String org, String name, String version) {
+        //First we will check for a bala that match any platform
+        Path balaPath = this.bala.resolve(
+                ProjectUtils.getRelativeBalaPath(org, name, version, null));
+        if (!Files.exists(balaPath)) {
+            // If bala for any platform not exist check for specific platform
+            balaPath = this.bala.resolve(
+                    ProjectUtils.getRelativeBalaPath(org, name, version, JvmTarget.JAVA_11.code()));
+        }
+        return balaPath;
+    }
+
+    protected List<PackageVersion> pathToVersions(List<Path> versions) {
         List<PackageVersion> availableVersions = new ArrayList<>();
         versions.stream().map(path -> Optional.ofNullable(path)
                 .map(Path::getFileName)

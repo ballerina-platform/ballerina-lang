@@ -22,10 +22,9 @@ import io.ballerina.compiler.syntax.tree.NilLiteralNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
@@ -35,6 +34,8 @@ import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_VALUE_CREATOR_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_DECIMAL_VALUE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
@@ -53,19 +54,19 @@ public class BasicLiteralEvaluator extends Evaluator {
     private static final String FLOAT_TYPE_SUFFIX_PATTERN = "[fF]$";
     private static final String DECIMAL_TYPE_SUFFIX_PATTERN = "[dD]$";
 
-    public BasicLiteralEvaluator(SuspendedContext context, BasicLiteralNode node) {
+    public BasicLiteralEvaluator(EvaluationContext context, BasicLiteralNode node) {
         this(context, node, node.literalToken().text());
     }
 
-    public BasicLiteralEvaluator(SuspendedContext context, NilLiteralNode node) {
+    public BasicLiteralEvaluator(EvaluationContext context, NilLiteralNode node) {
         this(context, node, node.toSourceCode().trim());
     }
 
-    public BasicLiteralEvaluator(SuspendedContext context, Token node) {
+    public BasicLiteralEvaluator(EvaluationContext context, Token node) {
         this(context, node, node.text());
     }
 
-    private BasicLiteralEvaluator(SuspendedContext context, Node node, String literalString) {
+    private BasicLiteralEvaluator(EvaluationContext context, Node node, String literalString) {
         super(context);
         this.syntaxNode = node;
         this.literalString = literalString;
@@ -91,8 +92,7 @@ public class BasicLiteralEvaluator extends Evaluator {
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
-                    syntaxNode.toSourceCode().trim()));
+            throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
         }
     }
 
@@ -161,7 +161,6 @@ public class BasicLiteralEvaluator extends Evaluator {
     }
 
     private static EvaluationException createUnsupportedLiteralError(String literalString) {
-        return new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                "Unsupported basic literal detected: " + literalString));
+        return createEvaluationException("Unsupported basic literal detected: " + literalString);
     }
 }

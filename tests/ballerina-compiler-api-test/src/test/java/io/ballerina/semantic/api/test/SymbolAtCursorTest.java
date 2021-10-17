@@ -19,10 +19,13 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.DiagnosticState;
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
@@ -33,6 +36,8 @@ import org.testng.annotations.Test;
 
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.COMPILATION_ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
@@ -114,6 +119,12 @@ public class SymbolAtCursorTest {
                 {115, 29, "CONST1"},
                 {118, 74, "r"},
                 {122, 56, "myStr"},
+                {135, 5, "Atype"},
+                {150, 12, "ParseError"},
+                {161, 8, "name"},
+                {162, 8, "age"},
+                {163, 9, "foo"},
+                {168, 27, "v5"},
         };
     }
 
@@ -191,13 +202,16 @@ public class SymbolAtCursorTest {
     }
 
     @Test(dataProvider = "QuotedIdentifierProvider")
-    public void testQuotedIdentifiers(int line, int column, String expSymbolName) {
+    public void testQuotedIdentifiers(int line, int column, String expSymbolName, String expSymbolNameUnQuoted) {
         Project project = BCompileUtil.loadProject("test-src/symbol_at_cursor_quoted_identifiers_test.bal");
         SemanticModel model = getDefaultModulesSemanticModel(project);
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertEquals(value.getName().get(), expSymbolName));
+        symbol.ifPresent(value -> {
+            assertTrue(value.nameEquals(expSymbolName));
+            assertTrue(value.nameEquals(expSymbolNameUnQuoted));
+        });
 
         if (symbol.isEmpty()) {
             assertNull(expSymbolName);
@@ -207,41 +221,46 @@ public class SymbolAtCursorTest {
     @DataProvider(name = "QuotedIdentifierProvider")
     public Object[][]  getQuotedIdentifierPositions() {
         return new Object[][]{
-                {18, 5, "'record"},
-                {19, 8, "'float"},
-                {22, 23, "'from"},
-                {23, 28, "'from"},
-                {26, 9, "'function"},
-                {30, 11, "'function"},
-                {31, 7, "'if"},
-                {32, 11, "'if"},
-                {33, 7, "nonReservedVar"},
-                {39, 4, "'any"},
-                {40, 13, "'any"},
-                {43, 11, "w1"},
-                {45, 19, "'worker"},
-                {52, 11, "'worker"},
-                {58, 18, "'string"},
-                {60, 10, "floatNum"},
-                {62, 25, "'foreach"},
-                {63, 13, "'string"},
-                {64, 20, "'int"},
-                {68, 48, "'string"},
-                {70, 13, "'from"},
-                {77, 27, "Example"},
-                {79, 11, "'check"},
-                {84, 7, "'int"},
-                {85, 8, "'from"},
-                {85, 19, "'from"},
-                {87, 4, "Example"},
-                {87, 13, "'new"},
-                {88, 4, "'new"},
-                {88, 9, "'anydata"}
+                {18, 5, "'record", "record"},
+                {19, 8, "'float", "float"},
+                {22, 23, "'from", "from"},
+                {23, 28, "'from", "from"},
+                {26, 9, "'function", "function"},
+                {30, 11, "'function", "function"},
+                {31, 7, "'if", "if"},
+                {32, 11, "'if", "if"},
+                {33, 7, "'nonReservedVar", "nonReservedVar"},
+                {39, 4, "'any", "any"},
+                {40, 13, "'any", "any"},
+                {43, 11, "'w1", "w1"},
+                {45, 19, "'worker", "worker"},
+                {52, 11, "'worker", "worker"},
+                {58, 18, "'string", "string"},
+                {60, 10, "'floatNum", "floatNum"},
+                {62, 25, "'foreach", "foreach"},
+                {63, 13, "'string", "string"},
+                {64, 20, "'int", "int"},
+                {68, 48, "'string", "string"},
+                {70, 13, "'from", "from"},
+                {78, 27, "'Example", "Example"},
+                {80, 11, "'check", "check"},
+                {85, 7, "'int", "int"},
+                {86, 8, "'from", "from"},
+                {86, 19, "'from", "from"},
+                {88, 4, "'Example", "Example"},
+                {88, 13, "'new", "new"},
+                {89, 4, "'new", "new"},
+                {89, 9, "'anydata", "anydata"},
+                {90, 11, "'foo", "foo"},
+                {91, 15, "'string", "string"},
+                {92, 12, "'intVal", "\\u{69}ntVal"},
+                {93, 18, "'intVal2", "intVal2"},
+                {94, 16, "'intVal3", "intVal3"}
         };
     }
 
     @Test(dataProvider = "VarPosProvider")
-    public void testVarsWithFunctionType(int line, int col, String name) {
+    public void testVarsWithFunctionType(int line, int col, String name, SymbolKind symbolKind) {
         Project project = BCompileUtil.loadProject("test-src/regression-tests/field_with_function_type.bal");
         SemanticModel model = getDefaultModulesSemanticModel(project);
         Document srcFile = getDocumentForSingleSource(project);
@@ -249,17 +268,34 @@ public class SymbolAtCursorTest {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
 
         assertTrue(symbol.isPresent());
-        assertEquals(symbol.get().kind(), SymbolKind.FUNCTION);
+        assertEquals(symbol.get().kind(), symbolKind);
         assertEquals(symbol.get().getName().get(), name);
-        assertEquals(((FunctionSymbol) symbol.get()).typeDescriptor().typeKind(), TypeDescKind.FUNCTION);
+
+        TypeSymbol type;
+        switch (symbolKind) {
+            case RECORD_FIELD:
+                type = ((RecordFieldSymbol) symbol.get()).typeDescriptor();
+                break;
+            case OBJECT_FIELD:
+                type = ((ObjectFieldSymbol) symbol.get()).typeDescriptor();
+                break;
+            case VARIABLE:
+                type = ((VariableSymbol) symbol.get()).typeDescriptor();
+                break;
+            default:
+                throw new IllegalStateException("Unexpected symbol kind: " + symbolKind);
+        }
+
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), TypeDescKind.FUNCTION);
     }
 
     @DataProvider(name = "VarPosProvider")
     public Object[][] getVarPos() {
         return new Object[][]{
-                {19, 10, "union"},
-                {23, 10, "op"},
-                {27, 10, "op"}
+                {19, 10, "union", RECORD_FIELD},
+                {23, 10, "op", OBJECT_FIELD},
+                {27, 10, "op", VARIABLE}
         };
     }
 

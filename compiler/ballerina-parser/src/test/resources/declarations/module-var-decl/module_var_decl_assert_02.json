@@ -95,9 +95,6 @@
                 {
                   "kind": "ISOLATED_KEYWORD",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC"
-                  ],
                   "leadingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
@@ -107,9 +104,14 @@
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
-                            "kind": "PUBLIC_KEYWORD"
+                            "kind": "PUBLIC_KEYWORD",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC"
+                            ]
                           }
                         ]
                       }
@@ -305,17 +307,19 @@
                     {
                       "kind": "STRING_KEYWORD",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_QUALIFIER_NOT_ALLOWED"
-                      ],
                       "leadingMinutiae": [
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "ISOLATED_KEYWORD"
+                                "kind": "ISOLATED_KEYWORD",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_QUALIFIER_NOT_ALLOWED"
+                                ]
                               }
                             ]
                           }
@@ -363,9 +367,6 @@
             {
               "kind": "PUBLIC_KEYWORD",
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_INVALID_TOKEN"
-              ],
               "leadingMinutiae": [
                 {
                   "kind": "END_OF_LINE_MINUTIAE",
@@ -375,9 +376,14 @@
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "hasDiagnostics": true,
                     "children": [
                       {
-                        "kind": "PERCENT_TOKEN"
+                        "kind": "PERCENT_TOKEN",
+                        "hasDiagnostics": true,
+                        "diagnostics": [
+                          "ERROR_INVALID_TOKEN"
+                        ]
                       }
                     ]
                   }
@@ -480,9 +486,6 @@
                     {
                       "kind": "VAR_KEYWORD",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC"
-                      ],
                       "leadingMinutiae": [
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
@@ -492,9 +495,14 @@
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "PUBLIC_KEYWORD"
+                                "kind": "PUBLIC_KEYWORD",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC"
+                                ]
                               }
                             ]
                           }
@@ -570,9 +578,6 @@
                 {
                   "kind": "ISOLATED_KEYWORD",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC"
-                  ],
                   "leadingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
@@ -582,9 +587,14 @@
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
-                            "kind": "PUBLIC_KEYWORD"
+                            "kind": "PUBLIC_KEYWORD",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC"
+                            ]
                           }
                         ]
                       }
@@ -697,9 +707,6 @@
                 {
                   "kind": "ISOLATED_KEYWORD",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC"
-                  ],
                   "leadingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
@@ -709,9 +716,14 @@
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
-                            "kind": "PUBLIC_KEYWORD"
+                            "kind": "PUBLIC_KEYWORD",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC"
+                            ]
                           }
                         ]
                       }
@@ -869,9 +881,6 @@
                     {
                       "kind": "VAR_KEYWORD",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC"
-                      ],
                       "leadingMinutiae": [
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
@@ -881,9 +890,14 @@
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "PUBLIC_KEYWORD"
+                                "kind": "PUBLIC_KEYWORD",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC"
+                                ]
                               }
                             ]
                           }
@@ -909,18 +923,20 @@
                     {
                       "kind": "IDENTIFIER_TOKEN",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_INVALID_TOKEN"
-                      ],
                       "value": "a",
                       "leadingMinutiae": [
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "INT_KEYWORD"
+                                "kind": "INT_KEYWORD",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_INVALID_TOKEN"
+                                ]
                               }
                             ]
                           }
@@ -957,9 +973,6 @@
                 {
                   "kind": "CONFIGURABLE_KEYWORD",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC"
-                  ],
                   "leadingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
@@ -969,9 +982,14 @@
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
-                            "kind": "PUBLIC_KEYWORD"
+                            "kind": "PUBLIC_KEYWORD",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC"
+                            ]
                           }
                         ]
                       }

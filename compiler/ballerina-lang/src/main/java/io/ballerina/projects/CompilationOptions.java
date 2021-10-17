@@ -17,27 +17,27 @@
  */
 package io.ballerina.projects;
 
-import java.util.Objects;
-
 /**
  * The class {@code CompilationOptions} holds various Ballerina compilation options.
  *
  * @since 2.0.0
  */
-class CompilationOptions {
-    private Boolean skipTests;
-    private Boolean offlineBuild;
-    private Boolean experimental;
-    private Boolean observabilityIncluded;
-    private Boolean dumpBir;
-    private String dumpBirFile;
-    private String cloud;
-    private Boolean listConflictedClasses;
+public class CompilationOptions {
+    Boolean offlineBuild;
+    Boolean experimental;
+    Boolean observabilityIncluded;
+    Boolean dumpBir;
+    Boolean dumpBirFile;
+    String cloud;
+    Boolean listConflictedClasses;
+    Boolean sticky;
+    Boolean dumpGraph;
+    Boolean dumpRawGraphs;
 
-    public CompilationOptions(Boolean skipTests, Boolean offlineBuild, Boolean experimental,
-                              Boolean observabilityIncluded, Boolean dumpBir, String dumpBirFile,
-                              String cloud, Boolean listConflictedClasses) {
-        this.skipTests = skipTests;
+    CompilationOptions(Boolean offlineBuild, Boolean experimental,
+                       Boolean observabilityIncluded, Boolean dumpBir, Boolean dumpBirFile,
+                       String cloud, Boolean listConflictedClasses, Boolean sticky,
+                       Boolean dumpGraph, Boolean dumpRawGraphs) {
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
@@ -45,38 +45,49 @@ class CompilationOptions {
         this.dumpBirFile = dumpBirFile;
         this.cloud = cloud;
         this.listConflictedClasses = listConflictedClasses;
+        this.sticky = sticky;
+        this.dumpGraph = dumpGraph;
+        this.dumpRawGraphs = dumpRawGraphs;
     }
 
-    boolean skipTests() {
-        return toBooleanDefaultIfNull(skipTests);
+    public boolean offlineBuild() {
+        return toBooleanDefaultIfNull(this.offlineBuild);
     }
 
-    boolean offlineBuild() {
-        return toBooleanDefaultIfNull(offlineBuild);
+    boolean sticky() {
+        return toBooleanTrueIfNull(this.sticky);
     }
 
     boolean experimental() {
-        return toBooleanDefaultIfNull(experimental);
+        return toBooleanDefaultIfNull(this.experimental);
     }
 
     boolean observabilityIncluded() {
-        return toBooleanDefaultIfNull(observabilityIncluded);
+        return toBooleanDefaultIfNull(this.observabilityIncluded);
     }
 
     public Boolean dumpBir() {
-        return toBooleanDefaultIfNull(dumpBir);
+        return toBooleanDefaultIfNull(this.dumpBir);
     }
 
-    public String getBirDumpFile() {
-        return dumpBirFile;
+    public Boolean dumpBirFile() {
+        return toBooleanDefaultIfNull(this.dumpBirFile);
+    }
+
+    public Boolean dumpGraph() {
+        return toBooleanDefaultIfNull(this.dumpGraph);
+    }
+
+    public Boolean dumpRawGraphs() {
+        return toBooleanDefaultIfNull(this.dumpRawGraphs);
     }
 
     public String getCloud() {
-        return cloud;
+        return toStringDefaultIfNull(this.cloud);
     }
 
     public boolean listConflictedClasses() {
-        return toBooleanDefaultIfNull(listConflictedClasses);
+        return toBooleanDefaultIfNull(this.listConflictedClasses);
     }
 
     /**
@@ -86,26 +97,70 @@ class CompilationOptions {
      * @return a new {@code CompilationOptions} instance that contains our options and their options
      */
     CompilationOptions acceptTheirs(CompilationOptions theirOptions) {
-
-        this.skipTests = Objects.requireNonNullElseGet(
-                theirOptions.skipTests, () -> toBooleanDefaultIfNull(this.skipTests));
-        this.offlineBuild = Objects.requireNonNullElseGet(
-                theirOptions.offlineBuild, () -> toBooleanDefaultIfNull(this.offlineBuild));
-        this.experimental = Objects.requireNonNullElseGet(
-                theirOptions.experimental, () -> toBooleanDefaultIfNull(this.experimental));
-        this.observabilityIncluded = Objects.requireNonNullElseGet(
-                theirOptions.observabilityIncluded, () -> toBooleanDefaultIfNull(this.observabilityIncluded));
-        this.dumpBir = Objects.requireNonNullElseGet(theirOptions.dumpBir, () -> toBooleanDefaultIfNull(this.dumpBir));
-        this.cloud = Objects.requireNonNullElse(theirOptions.cloud, toStringDefaultIfNull(this.cloud));
-        this.dumpBirFile = theirOptions.dumpBirFile;
-        this.listConflictedClasses = Objects.requireNonNullElseGet(
-                theirOptions.listConflictedClasses, () -> toBooleanDefaultIfNull(this.listConflictedClasses));
-        return this;
+        CompilationOptionsBuilder compilationOptionsBuilder = new CompilationOptionsBuilder();
+        if (theirOptions.offlineBuild != null) {
+            compilationOptionsBuilder.offline(theirOptions.offlineBuild);
+        } else {
+            compilationOptionsBuilder.offline(this.offlineBuild);
+        }
+        if (theirOptions.experimental != null) {
+            compilationOptionsBuilder.experimental(theirOptions.experimental);
+        } else {
+            compilationOptionsBuilder.experimental(this.experimental);
+        }
+        if (theirOptions.observabilityIncluded != null) {
+            compilationOptionsBuilder.observabilityIncluded(theirOptions.observabilityIncluded);
+        } else {
+            compilationOptionsBuilder.observabilityIncluded(this.observabilityIncluded);
+        }
+        if (theirOptions.dumpBir != null) {
+            compilationOptionsBuilder.dumpBir(theirOptions.dumpBir);
+        } else {
+            compilationOptionsBuilder.dumpBir(this.dumpBir);
+        }
+        if (theirOptions.dumpBirFile != null) {
+            compilationOptionsBuilder.dumpBirFile(theirOptions.dumpBirFile);
+        } else {
+            compilationOptionsBuilder.dumpBirFile(this.dumpBirFile);
+        }
+        if (theirOptions.dumpGraph != null) {
+            compilationOptionsBuilder.dumpGraph(theirOptions.dumpGraph);
+        } else {
+            compilationOptionsBuilder.dumpGraph(this.dumpGraph);
+        }
+        if (theirOptions.dumpRawGraphs != null) {
+            compilationOptionsBuilder.dumpRawGraphs(theirOptions.dumpRawGraphs);
+        } else {
+            compilationOptionsBuilder.dumpRawGraphs(this.dumpRawGraphs);
+        }
+        if (theirOptions.cloud != null) {
+            compilationOptionsBuilder.cloud(theirOptions.cloud);
+        } else {
+            compilationOptionsBuilder.cloud(this.cloud);
+        }
+        if (theirOptions.listConflictedClasses != null) {
+            compilationOptionsBuilder.listConflictedClasses(theirOptions.listConflictedClasses);
+        } else {
+            compilationOptionsBuilder.listConflictedClasses(this.listConflictedClasses);
+        }
+        if (theirOptions.sticky != null) {
+            compilationOptionsBuilder.sticky(theirOptions.sticky);
+        } else {
+            compilationOptionsBuilder.sticky(this.sticky);
+        }
+        return compilationOptionsBuilder.build();
     }
 
     private boolean toBooleanDefaultIfNull(Boolean bool) {
         if (bool == null) {
             return false;
+        }
+        return bool;
+    }
+
+    private boolean toBooleanTrueIfNull(Boolean bool) {
+        if (bool == null) {
+            return true;
         }
         return bool;
     }

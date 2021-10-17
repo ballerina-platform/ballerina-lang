@@ -228,9 +228,9 @@ public class ArrayTest {
         CompileResult compileResultNegative =
                 BCompileUtil.compile("test-src/statements/arrays/array_test_negative.bal");
         int index = 0;
-        BAssertUtil.validateError(compileResultNegative, index++, "invalid token '*'", 18, 12);
-        BAssertUtil.validateError(compileResultNegative, index++, "invalid token '2'", 18, 12);
-        BAssertUtil.validateError(compileResultNegative, index++, "invalid token 'wed2'", 20, 12);
+        BAssertUtil.validateError(compileResultNegative, index++, "invalid token '*'", 18, 10);
+        BAssertUtil.validateError(compileResultNegative, index++, "invalid token '2'", 18, 11);
+        BAssertUtil.validateError(compileResultNegative, index++, "invalid token 'wed2'", 20, 8);
         Assert.assertEquals(compileResultNegative.getErrorCount(), index);
     }
 

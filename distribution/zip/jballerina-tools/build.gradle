@@ -75,7 +75,7 @@ dependencies {
     // dist 'org.ow2.asm:asm:6.2.1'
     dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
     dist 'org.codehaus.woodstox:stax2-api:3.1.1'
-    dist 'org.apache.commons:commons-compress:1.19'
+    dist 'org.apache.commons:commons-compress:1.21'
     dist 'me.tongfei:progressbar:0.7.4'
     dist 'org.jline:jline:3.11.0'
     dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
@@ -321,14 +321,6 @@ def copyLangServerBinSpec = {
     }
 }
 
-def copyDebugAdapterLauncher = {
-    path -> copySpec {
-        from('resources/debug-adapter-launcher.sh')
-        from('resources/debug-adapter-launcher.bat')
-        into(path + 'lib/tools/debug-adapter/launcher')
-    }
-}
-
 def copyCompletionFile = {
     path -> copySpec {
         from('resources/command-completion')
@@ -433,7 +425,6 @@ task createZip(type: Zip) {
     with copyLangServerBinSpec(basePath)
     with copyBallerinaZipSpec(basePath)
     with copyDebugAdapterLibsSpec(basePath)
-    with copyDebugAdapterLauncher(basePath)
     with copyCompletionFile(basePath)
     with apiDocsSpec(basePath)
     with copyStaticSpec(basePath)
@@ -458,7 +449,6 @@ task updateBalHome(type: Copy) {
     with copyLangServerBinSpec(installDir)
     with copyBallerinaZipSpec(installDir)
     with copyDebugAdapterLibsSpec(installDir)
-    with copyDebugAdapterLauncher(installDir)
     with copyCompletionFile(installDir)
     with apiDocsSpec(installDir)
     with copyStaticSpec(installDir)
@@ -485,7 +475,6 @@ task createDistribution(type: Copy) {
     with copyLangServerBinSpec("")
     with copyBallerinaZipSpec("")
     with copyDebugAdapterLibsSpec("")
-    with copyDebugAdapterLauncher("")
     with copyCompletionFile("")
     with apiDocsSpec("")
     with copyStaticSpec("")

@@ -57,9 +57,10 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     public BallerinaTypeReferenceTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType,
                                             BTypeSymbol tSymbol, boolean fromIntersectionType) {
         super(context, TypeDescKind.TYPE_REFERENCE, bType);
-        this.definitionName = tSymbol != null ? tSymbol.getName().getValue() : null;
+        this.definitionName = tSymbol != null ? tSymbol.getOriginalName().getValue() : null;
         this.tSymbol = tSymbol;
         this.fromIntersectionType = fromIntersectionType;
+        this.location = tSymbol != null ? tSymbol.pos : null;
     }
 
     @Override
@@ -138,12 +139,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
 
     @Override
     public Optional<Location> getLocation() {
-        if (this.location != null) {
-            return Optional.of(this.location);
-        }
 
-        BType type = this.getBType();
-        this.location = type.tsymbol.pos;
         return Optional.of(this.location);
     }
 

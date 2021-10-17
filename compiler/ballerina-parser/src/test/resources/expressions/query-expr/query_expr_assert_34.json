@@ -103,9 +103,6 @@
             {
               "kind": "IDENTIFIER_TOKEN",
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MORE_CLAUSES_AFTER_SELECT_CLAUSE"
-              ],
               "value": "c",
               "trailingMinutiae": [
                 {
@@ -116,9 +113,14 @@
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "hasDiagnostics": true,
                     "children": [
                       {
-                        "kind": "SELECT_KEYWORD"
+                        "kind": "SELECT_KEYWORD",
+                        "hasDiagnostics": true,
+                        "diagnostics": [
+                          "ERROR_MORE_CLAUSES_AFTER_SELECT_CLAUSE"
+                        ]
                       }
                     ]
                   }

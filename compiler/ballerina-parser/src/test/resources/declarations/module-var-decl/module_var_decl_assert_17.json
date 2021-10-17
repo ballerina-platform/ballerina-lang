@@ -78,9 +78,6 @@
                 {
                   "kind": "CONFIGURABLE_KEYWORD",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_CONFIGURABLE_VAR_IMPLICITLY_FINAL"
-                  ],
                   "leadingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
@@ -96,9 +93,14 @@
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
-                            "kind": "FINAL_KEYWORD"
+                            "kind": "FINAL_KEYWORD",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_CONFIGURABLE_VAR_IMPLICITLY_FINAL"
+                            ]
                           }
                         ]
                       }
@@ -122,17 +124,19 @@
                     {
                       "kind": "INT_KEYWORD",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_QUALIFIER_NOT_ALLOWED"
-                      ],
                       "leadingMinutiae": [
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "ISOLATED_KEYWORD"
+                                "kind": "ISOLATED_KEYWORD",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_QUALIFIER_NOT_ALLOWED"
+                                ]
                               }
                             ]
                           }

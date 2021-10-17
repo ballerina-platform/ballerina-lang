@@ -11,6 +11,12 @@ type ErrorAndMyOtherError Error & MyOtherError;
 
 type ErrorAndMyOtherErrorD distinct (Error & MyOtherError);
 
+type TwoDistinctKeywords distinct error & distinct error;
+
+type ThreeDistinctKeyworlds distinct error & distinct error & distinct error;
+
+type ThreeDiscintKeyworldsWithGroup (distinct error & distinct error) & distinct error;
+
 public function testGeTypeIds() {
     var tids = MyError.typeIds();
     assertSingleTypeId(tids, ["MyError"]);
@@ -40,27 +46,38 @@ public function testGeTypeIds() {
     assertSingleTypeId(k, ["Error", "MyOtherError"]);
 
     k = ErrorAndMyOtherErrorD.typeIds();
-    assertSingleTypeId(k, ["Error", "MyOtherError", "ErrorAndMyOtherErrorD", "Error"]);
-
-    k = ErrorAndMyOtherErrorD.typeIds(true);
     assertSingleTypeId(k, ["Error", "MyOtherError", "ErrorAndMyOtherErrorD"]);
 
+    k = ErrorAndMyOtherErrorD.typeIds(true);
+    assertSingleTypeId(k, ["ErrorAndMyOtherErrorD"]);
+
+    k = TwoDistinctKeywords.typeIds();
+    assertSingleTypeId(k, [0, 1]);
+
+    k = ThreeDistinctKeyworlds.typeIds();
+    assertSingleTypeId(k, [2, 3, 4]);
+
+    k = ThreeDiscintKeyworldsWithGroup.typeIds();
+    assertSingleTypeId(k, [5, 6, 7]);
+
+    k = ThreeDiscintKeyworldsWithGroup.typeIds(true);
+    assertSingleTypeId(k, [5, 6, 7]);
 }
 
-function assertSingleTypeId(typedesc:TypeId[]? tids, string[] localIds) {
+function assertSingleTypeId(typedesc:TypeId[]? tids, (string|int)[] localIds) {
     if (tids is typedesc:TypeId[]) {
         if (tids.length() != localIds.length()) {
             panic error("Assertion error: Expected length of "
-            + localIds.length().toString() + ", found: " + tids.length().toString());
+            + localIds.length().toString() + ", found: " + tids.toString());
         }
 
         var tempTids = tids; // type of `tids` is not narrowed within query expression.
         foreach var i in 0 ..< localIds.length() {
             var localId = localIds[i];
-            string[] k = from var id in tempTids where id.localId == localId select localId;
+            (string|int)[] k = from var id in tempTids where id.localId == localId select localId;
             if (k.length() == 0) {
                 panic error("Assertion error: Expected localId: "
-                + localId + " not found in " + tids.toString());
+                + localId.toString() + " not found in " + tids.toString());
             }
         }
     } else {

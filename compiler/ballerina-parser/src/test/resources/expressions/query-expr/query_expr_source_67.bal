@@ -1,5 +1,5 @@
 public function main() {
-    Employee[] empList = 
+    Employee[] empList =
         from var person in personList
     let stream<Department> dS = stream from var dep in deptList
         where dep.name != "HR"

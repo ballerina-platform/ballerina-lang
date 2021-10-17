@@ -23,11 +23,14 @@ import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
 import io.ballerina.projects.internal.ModuleContextDataHolder;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.BIRPackageSymbolEnter;
+import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -35,6 +38,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayOutputStream;
@@ -49,7 +53,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.model.tree.SourceKind.REGULAR_SOURCE;
 import static org.ballerinalang.model.tree.SourceKind.TEST_SOURCE;
 
@@ -79,7 +82,7 @@ class ModuleContext {
     private byte[] birBytes = new byte[0];
     private final Bootstrap bootstrap;
     private ModuleCompilationState moduleCompState;
-    private Set<ModuleLoadRequest> allModuleLoadRequests;
+    private Set<ModuleLoadRequest> allModuleLoadRequests = null;
 
     ModuleContext(Project project,
                   ModuleId moduleId,
@@ -172,6 +175,9 @@ class ModuleContext {
     }
 
     Set<ModuleLoadRequest> populateModuleLoadRequests() {
+        if (allModuleLoadRequests != null) {
+            return allModuleLoadRequests;
+        }
         allModuleLoadRequests = new LinkedHashSet<>();
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         for (DocumentContext docContext : srcDocContextMap.values()) {
@@ -305,11 +311,11 @@ class ModuleContext {
     }
 
     private void addModuleDependency(PackageOrg org,
-                                     ModuleName moduleName,
+                                     String moduleName,
                                      PackageDependencyScope scope,
                                      Set<ModuleDependency> moduleDependencies,
                                      DependencyResolution dependencyResolution) {
-        Optional<ModuleContext> resolvedModuleOptional = dependencyResolution.getModule(org, moduleName.toString());
+        Optional<ModuleContext> resolvedModuleOptional = dependencyResolution.getModule(org, moduleName);
         if (resolvedModuleOptional.isEmpty()) {
             return;
         }
@@ -372,7 +378,8 @@ class ModuleContext {
         pkgNode.moduleContextDataHolder = new ModuleContextDataHolder(
                 moduleContext.isExported(),
                 moduleContext.descriptor(),
-                moduleContext.project().kind());
+                moduleContext.project.kind(),
+                moduleContext.project.buildOptions().skipTests());
         packageCache.put(moduleCompilationId, pkgNode);
 
         // Parse source files
@@ -381,21 +388,22 @@ class ModuleContext {
                                                                        REGULAR_SOURCE));
         }
 
-        // Parse test source files if --skip-tests option is set to false
-        CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
-        if (!Boolean.parseBoolean(compilerOptions.get(SKIP_TESTS))
-                && !moduleContext.testSrcDocumentIds().isEmpty()) {
+        if (!moduleContext.testSrcDocumentIds().isEmpty()) {
             moduleContext.parseTestSources(pkgNode, moduleCompilationId, compilerContext);
         }
 
         pkgNode.pos = new BLangDiagnosticLocation(moduleContext.moduleName().toString(), 0, 0, 0, 0);
-        symbolEnter.definePackage(pkgNode);
-        packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
+        try {
+            symbolEnter.definePackage(pkgNode);
+            packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
 
-        if (bootstrapLangLibName != null) {
-            compilerPhaseRunner.performLangLibTypeCheckPhases(pkgNode);
-        } else {
-            compilerPhaseRunner.performTypeCheckPhases(pkgNode);
+            if (bootstrapLangLibName != null) {
+                compilerPhaseRunner.performLangLibTypeCheckPhases(pkgNode);
+            } else {
+                compilerPhaseRunner.performTypeCheckPhases(pkgNode);
+            }
+        } catch (Throwable t) {
+            compilerPhaseRunner.addDiagnosticForUnhandledException(pkgNode, t);
         }
         moduleContext.bLangPackage = pkgNode;
     }
@@ -409,11 +417,16 @@ class ModuleContext {
         if (bootstrapLangLibName != null) {
             compilerPhaseRunner.performLangLibBirGenPhases(moduleContext.bLangPackage);
         } else {
-            compilerPhaseRunner.performBirGenPhases(moduleContext.bLangPackage);
+            try {
+                compilerPhaseRunner.performBirGenPhases(moduleContext.bLangPackage);
+            } catch (Throwable t) {
+                compilerPhaseRunner.addDiagnosticForUnhandledException(moduleContext.bLangPackage, t);
+                return;
+            }
         }
 
         // Serialize the BIR  model
-        cacheBIR(moduleContext);
+        cacheBIR(moduleContext, compilerContext);
 
         // Skip the code generation phase if there are diagnostics
         if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
@@ -422,17 +435,31 @@ class ModuleContext {
         compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
     }
 
-    private static void cacheBIR(ModuleContext moduleContext) {
+    private static void cacheBIR(ModuleContext moduleContext, CompilerContext compilerContext) {
         // Skip caching BIR if there are diagnostics
         if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
             return;
         }
 
+        // Skip caching BIR if it is a Build Project (current package) unless the --dump-bir-file flag is passed
+        if (moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT) && !ProjectUtils.isBuiltInPackage(
+                moduleContext.descriptor().org(), moduleContext.descriptor().packageName().toString())) {
+            CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
+            if (!Boolean.parseBoolean(compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE))) {
+                return;
+            }
+        }
+
         // Can we improve this logic
         ByteArrayOutputStream birContent = new ByteArrayOutputStream();
         try {
-            byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(
-                    moduleContext.bLangPackage.symbol.birPackageFile);
+            CompiledBinaryFile.BIRPackageFile birPackageFile = moduleContext.bLangPackage.symbol.birPackageFile;
+            if (birPackageFile == null) {
+                birPackageFile = new CompiledBinaryFile
+                        .BIRPackageFile(new BIRBinaryWriter(moduleContext.bLangPackage.symbol.bir).serialize());
+                moduleContext.bLangPackage.symbol.birPackageFile = birPackageFile;
+            }
+            byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(birPackageFile);
             birContent.writeBytes(pkgBirBinaryContent);
             moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
         } catch (IOException e) {

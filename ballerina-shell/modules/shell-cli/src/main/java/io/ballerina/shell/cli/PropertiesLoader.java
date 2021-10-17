@@ -33,7 +33,6 @@ public class PropertiesLoader {
     public static final String REPL_PROMPT = "repl.prompt";
     public static final String HEADER_FILE = "resource.header.file";
 
-    public static final String TOPICS_FILE = "resource.topics.file";
     public static final String KEYWORDS_FILE = "resource.keywords.file";
     public static final String COMMANDS_FILE = "resource.commands.file";
     public static final String HELP_FILE = "resource.help.file";

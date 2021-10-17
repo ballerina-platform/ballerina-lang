@@ -1,0 +1,29 @@
+xmlVar1="<book><name>Sherlock Holmes</name><author>Arthur Conan Doyle</author></book>"
+xmlVar2="<!--I am a comment-->"
+xmlVar3="<greet>Hello!</greet>"
+xmlVar4="<?xml-stylesheet href=\"mystyle.css\" type=\"text/css\"?>"
+xmlVar5="xml text"
+
+xmlArr = ["<!--I am a comment-->", "<?target data?>"]
+xmlMap.title =  "<title>This is a title!</title>"
+xmlMap.comment = "<!--I am a comment-->"
+xmlRecord.details = "<TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tylor</ARTIST><COUNTRY>UK</COUNTRY><YEAR>1988</YEAR>"
+
+xmlUnion1 = "<book><name>Harry Potter and the sorcerer's stone</name></book>"
+xmlUnion2 = "<greet>Hello!</greet>"
+xmlUnion3 = "<?xml-stylesheet href=\"mystyle.css\" type=\"text/css\"?>"
+
+[[xmlTable1]]
+title =  "<title>This is a title!</title>"
+comment = "<!--I am a comment-->"
+
+[[xmlTable1]]
+title =  "<greet>Hello!</greet>"
+comment = "<!--comment-->"
+
+[[xmlTable2]]
+details =  "<TITLE>Black angel</TITLE><ARTIST>Savage Rose</ARTIST><COUNTRY>EU</COUNTRY><YEAR>1995</YEAR>"
+price = 10.9
+
+[[xmlTable2]]
+details =  "<TITLE>For the good times</TITLE><ARTIST>Kenny Rogers</ARTIST><COUNTRY>UK</COUNTRY><YEAR>1995</YEAR>"

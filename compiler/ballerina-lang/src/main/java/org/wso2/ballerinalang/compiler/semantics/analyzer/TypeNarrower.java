@@ -321,7 +321,7 @@ public class TypeNarrower extends BLangNodeVisitor {
             rhsTrueType = rhsFalseType = symbol.type;
         }
         BType trueType, falseType;
-        var nonLoggingContext = Types.IntersectionContext.compilerInternalNonGenerativeIntersectionContext();
+        var nonLoggingContext = Types.IntersectionContext.typeTestIntersectionCalculationContext();
         if (operator == OperatorKind.AND) {
             trueType = types.getTypeIntersection(nonLoggingContext, lhsTrueType, rhsTrueType, this.env);
             BType tmpType = types.getTypeIntersection(nonLoggingContext, lhsTrueType, rhsFalseType, this.env);
@@ -417,10 +417,13 @@ public class TypeNarrower extends BLangNodeVisitor {
     }
 
     private void setNarrowedTypeInfo(BLangExpression expr, BVarSymbol varSymbol, BType narrowWithType) {
-        var nonLoggingContext = Types.IntersectionContext.compilerInternalNonGenerativeIntersectionContext();
+        var nonLoggingContext = Types.IntersectionContext.typeTestIntersectionCalculationContext();
         BType trueType;
         BType falseType;
         if (expr.getKind() == NodeKind.BINARY_EXPR && ((BLangBinaryExpr) expr).opKind == OperatorKind.NOT_EQUAL) {
+            trueType = types.getRemainingType(varSymbol.type, narrowWithType);
+            falseType = types.getTypeIntersection(nonLoggingContext, varSymbol.type, narrowWithType, this.env);
+        } else if (expr.getKind() == NodeKind.TYPE_TEST_EXPR && ((BLangTypeTestExpr) expr).isNegation) {
             trueType = types.getRemainingType(varSymbol.type, narrowWithType);
             falseType = types.getTypeIntersection(nonLoggingContext, varSymbol.type, narrowWithType, this.env);
         } else {

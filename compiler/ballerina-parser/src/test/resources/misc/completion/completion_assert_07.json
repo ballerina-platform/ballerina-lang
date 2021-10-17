@@ -91,10 +91,6 @@
                           ],
                           "trailingMinutiae": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            },
-                            {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
                             }
@@ -242,10 +238,6 @@
                           ],
                           "trailingMinutiae": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            },
-                            {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
                             }
@@ -260,7 +252,7 @@
                               "isMissing": true,
                               "hasDiagnostics": true,
                               "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
+                                "ERROR_MISSING_EXPRESSION"
                               ]
                             }
                           ]
@@ -396,10 +388,6 @@
                             }
                           ],
                           "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            },
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
@@ -588,10 +576,6 @@
                               "kind": "ON_KEYWORD",
                               "trailingMinutiae": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
-                                {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
                                 }
@@ -772,10 +756,6 @@
                                   ],
                                   "trailingMinutiae": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    },
-                                    {
                                       "kind": "END_OF_LINE_MINUTIAE",
                                       "value": "\n"
                                     }
@@ -907,10 +887,6 @@
                           ],
                           "trailingMinutiae": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            },
-                            {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
                             }
@@ -967,7 +943,7 @@
                               "isMissing": true,
                               "hasDiagnostics": true,
                               "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
+                                "ERROR_MISSING_EXPRESSION"
                               ]
                             }
                           ]
@@ -1104,10 +1080,6 @@
                           ],
                           "trailingMinutiae": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            },
-                            {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
                             }
@@ -1122,7 +1094,7 @@
                               "isMissing": true,
                               "hasDiagnostics": true,
                               "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
+                                "ERROR_MISSING_EXPRESSION"
                               ]
                             }
                           ]
@@ -1258,10 +1230,6 @@
                             }
                           ],
                           "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            },
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
@@ -1399,10 +1367,6 @@
                             }
                           ],
                           "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            },
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
@@ -1699,10 +1663,6 @@
                           ],
                           "trailingMinutiae": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            },
-                            {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
                             }
@@ -1840,10 +1800,6 @@
                           ],
                           "trailingMinutiae": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            },
-                            {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
                             }
@@ -1858,7 +1814,7 @@
                               "isMissing": true,
                               "hasDiagnostics": true,
                               "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
+                                "ERROR_MISSING_EXPRESSION"
                               ]
                             }
                           ]
@@ -1971,10 +1927,6 @@
                           ],
                           "trailingMinutiae": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            },
-                            {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
                             }
@@ -1989,7 +1941,7 @@
                               "isMissing": true,
                               "hasDiagnostics": true,
                               "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
+                                "ERROR_MISSING_EXPRESSION"
                               ]
                             }
                           ]
@@ -2101,10 +2053,6 @@
                             }
                           ],
                           "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            },
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
@@ -2286,7 +2234,7 @@
                                   "isMissing": true,
                                   "hasDiagnostics": true,
                                   "diagnostics": [
-                                    "ERROR_MISSING_IDENTIFIER"
+                                    "ERROR_MISSING_EXPRESSION"
                                   ]
                                 }
                               ]

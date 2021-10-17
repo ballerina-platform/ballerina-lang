@@ -28,7 +28,7 @@ package io.ballerina.runtime.api.types;
  * @since 2.0.0
  */
 @SuppressWarnings("unchecked")
-public interface ArrayType extends Type {
+public interface ArrayType extends SelectivelyImmutableReferenceType {
 
     Type getElementType();
 

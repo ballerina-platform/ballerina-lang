@@ -91,9 +91,9 @@ public class ClientObjectTest {
     public void testRemoteBasicsNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/remote_basic_negative.bal");
         int errIdx = 0;
-        BAssertUtil.validateError(compileResult, errIdx++, "invalid token 'remote'", 22, 8);
-        BAssertUtil.validateError(compileResult, errIdx++, "invalid token 'remote'", 26, 8);
-        BAssertUtil.validateError(compileResult, errIdx++, "invalid token 'remote'", 30, 8);
+        BAssertUtil.validateError(compileResult, errIdx++, "invalid token 'remote'", 22, 1);
+        BAssertUtil.validateError(compileResult, errIdx++, "invalid token 'remote'", 26, 1);
+        BAssertUtil.validateError(compileResult, errIdx++, "invalid token 'remote'", 30, 1);
         BAssertUtil
                 .validateError(compileResult, errIdx++,
                         "invalid remote method call '.pqr()': use '->pqr()' for remote method calls", 51, 13);

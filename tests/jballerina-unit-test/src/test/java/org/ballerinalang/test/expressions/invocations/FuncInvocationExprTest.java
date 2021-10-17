@@ -160,7 +160,7 @@ public class FuncInvocationExprTest {
         int i = 0;
         validateError(funcInvocationNegative, i++, "incompatible types: expected 'int', found 'string'", 3, 16);
         validateError(funcInvocationNegative, i++, "undefined function 'foo'", 11, 5);
-        validateError(funcInvocationNegative, i++, "invalid token 'private'", 14, 9);
+        validateError(funcInvocationNegative, i++, "invalid token 'private'", 14, 1);
         validateError(funcInvocationNegative, i++, "incompatible types: expected 'string', found 'int'", 22, 16);
         validateError(funcInvocationNegative, i++, "incompatible types: expected 'boolean[]', found '[int,boolean," +
                 "boolean]'", 22, 26);

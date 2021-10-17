@@ -145,6 +145,16 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test(description = "Test object to var assignment.")
+    public void testObjectToVarAssignment() {
+        BRunUtil.invoke(result, "testObjectToVarAssignment");
+    }
+
+    @Test(description = "Test object to var assignment.")
+    public void testObjectToVarAssignment2() {
+        BRunUtil.invoke(result, "testObjectToVarAssignment2");
+    }
+
     @Test(description = "Test var in variable def.", groups = { "disableOnOldParser" })
     public void testVarTypeInVariableDefStatement() {
         //var type is not not allowed in variable def statements
@@ -167,8 +177,9 @@ public class VarDeclaredAssignmentStmtTest {
     @Test
     public void testVarDeclarationWithDuplicateVariableRefs() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-duplicate-variable-ref-lhs-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 1);
+        Assert.assertEquals(res.getErrorCount(), 2);
         BAssertUtil.validateError(res, 0, "redeclared symbol 'age'", 2, 15);
+        BAssertUtil.validateError(res, 1, "undefined symbol 'some'", 11, 16);
     }
 
     @Test
@@ -196,7 +207,15 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "'map<json>' value cannot be converted to 'Person'");
+                            "'map<json>' value cannot be converted to 'Person': " +
+                                    "\n\t\tmissing required field 'a' of type 'anydata' in record 'Person'" +
+                                    "\n\t\tmissing required field 'score' of type 'float' in record 'Person'" +
+                                    "\n\t\tmissing required field 'alive' of type 'boolean' in record 'Person'" +
+                                    "\n\t\tmissing required field 'parent.a' of type 'anydata' in record 'Person'" +
+                                    "\n\t\tmissing required field 'parent.score' of type 'float' in record 'Person'" +
+                                    "\n\t\tmissing required field 'parent.alive' of type 'boolean' in record 'Person'" +
+                                    "\n\t\tfield 'parent.parent' in record 'Person' should be of type 'Person?'" +
+                                    "\n\t\tfield 'parent.marks' in record 'Person' should be of type 'int[]'");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")
@@ -208,7 +227,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "'map<json>' value cannot be converted to 'PersonA'");
+                            "'map<json>' value cannot be converted to 'PersonA': " +
+                "\n\t\tfield 'age' in record 'PersonA' should be of type 'int'");
     }
 
     @Test(description = "Test compatible struct with force casting.")

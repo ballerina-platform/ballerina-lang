@@ -79,7 +79,7 @@ function testAssertDifferentTuples() {
     error? err = trap test:assertEquals(a, b);
     error result = <error>err;
     test:assertEquals(result.message().toString(), 
-    "Assertion Failed!\n \nexpected: <[string,string]> '10 John'\nactual\t: <[int,string]> '10 John'");
+    "Assertion Failed!\n \nexpected: <[string,string]> '[\"10\",\"John\"]'\nactual\t: <[int,string]> '[10,\"John\"]'");
 }
 
 @test:Config {}
@@ -91,8 +91,10 @@ function testAssertTableAndString() {
     string customerTabString = "table [{id: 1, name: \"John\", salary: 300.50},{id: 2, name: \"Bella\", salary: 500.50}]";
     error? err = trap test:assertEquals(customerTab, customerTabString);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), 
-    "Assertion Failed!\n \nexpected: <string> 'table [{id: 1, name: \"John\", salary: 300.50},{id: 2, name: \"Bella\", " + "salary: 500....'\nactual\t: <table> '[{\"id\":1,\"name\":\"John\",\"salary\":300.5},{\"id\":2,\"name\":\"Bella\"," + "\"salary\":500.5}]'");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n \n" +
+    "expected: <string> 'table [{id: 1, name: \"John\", salary: 300.50}," +
+    "{id: 2, name: \"Bella\", salary: 500.\n50}]'" +
+    "\nactual\t: <table> '[{\"id\":1,\"name\":\"John\",\"salary\":300.5},{\"id\":2,\"name\":\"Bella\",\"salary\":500.5}]'");
 }
 
 @test:Config {}
@@ -129,6 +131,10 @@ function testAssertLongValues() {
 
     error? err = trap test:assertEquals(value1, value2);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: <map> '{\"description\":\"Ballerina" + " is an open source programming language and platform fo...'\nactual\t: <string> 'Ballerina is an open source" + 
-    " programming language and platform for cloud-era appl...'");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: <map> '{\"description\":\"Ballerina" +
+    " is an open source programming language and platform fo\n" +
+    "r cloud-era application programmers.\"}'" +
+    "\nactual\t: <string> 'Ballerina is an open source" +
+    " programming language and platform for cloud-era appl\n" +
+    "ication programmers.'");
 }

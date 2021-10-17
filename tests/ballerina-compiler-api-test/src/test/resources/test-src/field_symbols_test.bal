@@ -41,3 +41,13 @@ public class PersonClass {
         return self.fname + " " + self.lname;
     }
 }
+
+type BooleanSubtype readonly & record {|
+    boolean value;
+|};
+
+function booleanSubtypeUnion(anydata d1, anydata d2) returns BooleanSubtype {
+    BooleanSubtype v1 = <BooleanSubtype>d1;
+    BooleanSubtype v2 = <BooleanSubtype>d2;
+    return v1.value == v2.value ? v1 : true;
+}

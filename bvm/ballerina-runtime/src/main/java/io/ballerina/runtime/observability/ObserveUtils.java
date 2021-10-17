@@ -73,7 +73,7 @@ public class ObserveUtils {
 
     static {
         // TODO: Move config initialization to ballerina level once checking config key is possible at ballerina level
-        Module observeModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "observe", "0.9.0");
+        Module observeModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "observe", "1");
         VariableKey enabledKey = new VariableKey(observeModule, "enabled", PredefinedTypes.TYPE_BOOLEAN, false);
         VariableKey providerKey = new VariableKey(observeModule, "provider", PredefinedTypes.TYPE_STRING, false);
         VariableKey metricsEnabledKey = new VariableKey(observeModule, "metricsEnabled", PredefinedTypes.TYPE_BOOLEAN
@@ -145,16 +145,19 @@ public class ObserveUtils {
      *
      * @param env                    Ballerina environment
      * @param module                 The module the resource belongs to
-     * @param position               The source code position the resource in defined in
+     * @param srcFileName            The source code file name the resource in defined in
+     * @param startLine              The source code start line the resource in defined in
+     * @param startColumn            The source code start column the resource in defined in
      * @param serviceName            Name of the service to which the observer context belongs
      * @param resourcePathOrFunction Full path of the resource
      * @param resourceAccessor       Accessor of the resource
      * @param isResource             True if this was a resource function invocation
      * @param isRemote               True if this was a remote function invocation
      */
-    public static void startResourceObservation(Environment env, BString module, BString position,
-                                                BString serviceName, BString resourcePathOrFunction,
-                                                BString resourceAccessor, boolean isResource, boolean isRemote) {
+    public static void startResourceObservation(Environment env, BString module, BString srcFileName,
+                                                long startLine, long startColumn, BString serviceName,
+                                                BString resourcePathOrFunction, BString resourceAccessor,
+                                                boolean isResource, boolean isRemote) {
         if (!enabled) {
             return;
         }
@@ -204,7 +207,7 @@ public class ObserveUtils {
         observerContext.addTag(TAG_KEY_SRC_OBJECT_NAME, serviceName.getValue());
 
         observerContext.addTag(TAG_KEY_SRC_MODULE, module.getValue());
-        observerContext.addTag(TAG_KEY_SRC_POSITION, position.getValue());
+        observerContext.addTag(TAG_KEY_SRC_POSITION, generatePositionId(srcFileName, startLine, startColumn));
 
         if (observerContext.getEntrypointFunctionModule() != null) {
             observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE,
@@ -233,11 +236,14 @@ public class ObserveUtils {
     /**
      * Add record checkpoint data to active Trace Span.
      *
-     * @param env      The Ballerina Environment
-     * @param pkg      The package the instrumented code belongs to
-     * @param position The source code position the instrumented code defined in
+     * @param env         The Ballerina Environment
+     * @param pkg         The package the instrumented code belongs to
+     * @param srcFileName The source code file name the instrumented code defined in
+     * @param startLine   The source code start line the instrumented code defined in
+     * @param startColumn The source code start column the instrumented code defined in
      */
-    public static void recordCheckpoint(Environment env, BString pkg, BString position) {
+    public static void recordCheckpoint(Environment env, BString pkg, BString srcFileName, long startLine,
+                                        long startColumn) {
         if (!tracingEnabled) {
             return;
         }
@@ -254,7 +260,7 @@ public class ObserveUtils {
         // Adding Position and Module ID to the Span
         Attributes eventAttributes = Attributes.builder()
                 .put(TAG_KEY_SRC_MODULE, pkg.getValue())
-                .put(TAG_KEY_SRC_POSITION, position.getValue())
+                .put(TAG_KEY_SRC_POSITION, generatePositionId(srcFileName, startLine, startColumn))
                 .build();
         span.addEvent(CHECKPOINT_EVENT_NAME, eventAttributes);
     }
@@ -294,6 +300,17 @@ public class ObserveUtils {
     }
 
     /**
+     * Stop observation after reporting an error.
+     *
+     * @param env        Ballerina environment
+     * @param errorValue the error value to be attached to the observer context
+     */
+    public static void stopObservationWithError(Environment env, ErrorValue errorValue) {
+        reportError(env, errorValue);
+        stopObservation(env);
+    }
+
+    /**
      * Report an error to an observer context.
      *
      * @param env        Ballerina environment
@@ -316,16 +333,19 @@ public class ObserveUtils {
      *
      * @param env              Ballerina environment
      * @param module           The module the resource belongs to
-     * @param position         The source code position the resource in defined in
+     * @param srcFileName      The source code file name the resource in defined in
+     * @param startLine        The source code start line the resource in defined in
+     * @param startColumn      The source code start column the resource in defined in
      * @param typeDef          The type definition the function was attached to
      * @param functionName     name of the function being invoked
      * @param isMainEntryPoint True if this was a main entry point invocation
      * @param isRemote         True if this was a remote function invocation
      * @param isWorker         True if this was a worker start
      */
-    public static void startCallableObservation(Environment env, BString module, BString position,
-                                                BObject typeDef, BString functionName, boolean isMainEntryPoint,
-                                                boolean isRemote, boolean isWorker) {
+    public static void startCallableObservation(Environment env, BString module, BString srcFileName,
+                                                long startLine, long startColumn, BObject typeDef,
+                                                BString functionName, boolean isMainEntryPoint, boolean isRemote,
+                                                boolean isWorker) {
         if (!enabled) {
             return;
         }
@@ -368,7 +388,7 @@ public class ObserveUtils {
 
         newObContext.addTag(TAG_KEY_SRC_FUNCTION_NAME, functionName.getValue());
         newObContext.addTag(TAG_KEY_SRC_MODULE, module.getValue());
-        newObContext.addTag(TAG_KEY_SRC_POSITION, position.getValue());
+        newObContext.addTag(TAG_KEY_SRC_POSITION, generatePositionId(srcFileName, startLine, startColumn));
 
         if (newObContext.getEntrypointFunctionModule() != null) {
             newObContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE, newObContext.getEntrypointFunctionModule());
@@ -441,5 +461,17 @@ public class ObserveUtils {
             return;
         }
         env.setStrandLocal(KEY_OBSERVER_CONTEXT, observerContext);
+    }
+
+    /**
+     * Generate a ID for a source code position.
+     *
+     * @param srcFileName source file name
+     * @param startLine   start line of the call
+     * @param startColumn start column of the call
+     * @return generated id for source position
+     */
+    private static String generatePositionId(BString srcFileName, long startLine, long startColumn) {
+        return String.format("%s:%d:%d", srcFileName, startLine, startColumn);
     }
 }

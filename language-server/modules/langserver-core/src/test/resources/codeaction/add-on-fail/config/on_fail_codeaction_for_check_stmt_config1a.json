@@ -1,0 +1,24 @@
+{
+  "line": 2,
+  "character": 8,
+  "expected": [
+    {
+      "title": "Surround with do/on-fail",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 27
+            }
+          },
+          "newText": "do {\n\t    int i = \n\t        check checkError();\n    } on fail var e {\n    \t\n    }"
+        }
+      ]
+    }
+  ]
+}

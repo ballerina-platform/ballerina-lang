@@ -36,6 +36,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Utilities for the diagnostics related operations.
@@ -46,10 +49,12 @@ public class DiagnosticsHelper {
     private final List<Diagnostic> emptyDiagnosticList = new ArrayList<>(0);
     private static final LanguageServerContext.Key<DiagnosticsHelper> DIAGNOSTICS_HELPER_KEY =
             new LanguageServerContext.Key<>();
+    private static final long DIAGNOSTIC_DELAY = 1;
     /**
      * Holds last sent diagnostics for the purpose of clear-off when publishing new diagnostics.
      */
-    private Map<String, List<Diagnostic>> lastDiagnosticMap;
+    private final Map<Path, Map<String, List<Diagnostic>>> lastDiagnosticMap;
+    private CompletableFuture<Boolean> latestScheduled = null;
 
     public static DiagnosticsHelper getInstance(LanguageServerContext serverContext) {
         DiagnosticsHelper diagnosticsHelper = serverContext.get(DIAGNOSTICS_HELPER_KEY);
@@ -66,36 +71,110 @@ public class DiagnosticsHelper {
     }
 
     /**
+     * Schedule the diagnostics publishing.
+     * In general the diagnostics publishing is done for document open, close and change events. When the document
+     * change events are triggered frequently in subsequent edits, we do compilations and diagnostic calculation for
+     * each of the change event. This is time consuming for the large projects and from the user experience point of
+     * view, we can publish the diagnostics after a delay. The default delay specified in {@link #DIAGNOSTIC_DELAY}
+     *
+     * @param client  Language client
+     * @param context Document Service context.
+     */
+    public synchronized void schedulePublishDiagnostics(ExtendedLanguageClient client, DocumentServiceContext context) {
+        if (latestScheduled != null && !latestScheduled.isDone()) {
+            latestScheduled.completeExceptionally(new Throwable("Cancelled diagnostic publisher"));
+        }
+
+        Executor delayedExecutor = CompletableFuture.delayedExecutor(DIAGNOSTIC_DELAY, TimeUnit.SECONDS);
+        CompletableFuture<Boolean> scheduledFuture = CompletableFuture.supplyAsync(() -> true, delayedExecutor);
+        latestScheduled = scheduledFuture;
+
+        scheduledFuture.thenApplyAsync((bool) -> {
+            WorkspaceManager workspace = context.workspace();
+            return workspace.waitAndGetPackageCompilation(context.filePath());
+        }).thenAccept(compilation -> {
+            compilation.ifPresent(packageCompilation -> compileAndSendDiagnostics(client, context, packageCompilation));
+        });
+    }
+
+    /**
      * Compiles and publishes diagnostics for a source file.
+     * In order to avoid the unnecessary compilations, we will be scheduling the diagnostic compilations. Hence, instead
+     * of this method, it is highly recommended to use
+     * {@link #schedulePublishDiagnostics(ExtendedLanguageClient, DocumentServiceContext)}
      *
      * @param client  Language server client
      * @param context LS context
      */
+    @Deprecated(forRemoval = true)
     public synchronized void compileAndSendDiagnostics(ExtendedLanguageClient client, DocumentServiceContext context) {
         // Compile diagnostics
         Optional<Project> project = context.workspace().project(context.filePath());
         if (project.isEmpty()) {
             return;
         }
-        Map<String, List<Diagnostic>> diagnosticMap = getLatestDiagnostics(context);
+        Map<String, List<Diagnostic>> latestDiagnostics = getLatestDiagnostics(context);
 
         // If the client is null, returns
         if (client == null) {
             return;
         }
+        Map<String, List<Diagnostic>> lastProjectDiagnostics =
+                lastDiagnosticMap.getOrDefault(project.get().sourceRoot(), new HashMap<>());
 
-        // Clear old entries with an empty list
-        lastDiagnosticMap.forEach((key, value) -> {
+        // Clear old diagnostic entries of the project with an empty list
+        lastProjectDiagnostics.forEach((key, value) -> {
+            if (!latestDiagnostics.containsKey(key)) {
+                client.publishDiagnostics(new PublishDiagnosticsParams(key, emptyDiagnosticList));
+            }
+        });
+
+        // Publish diagnostics for the project
+        latestDiagnostics.forEach((key, value) -> client.publishDiagnostics(new PublishDiagnosticsParams(key, value)));
+
+        // Replace old diagnostic map associated with the project
+        lastDiagnosticMap.put(project.get().sourceRoot(), latestDiagnostics);
+    }
+
+    /**
+     * Compiles and publishes diagnostics for a source file.
+     *
+     * @param client  Language server client
+     * @param context LS context
+     */
+    private synchronized void compileAndSendDiagnostics(ExtendedLanguageClient client, DocumentServiceContext context,
+                                                        PackageCompilation compilation) {
+        // Compile diagnostics
+        Optional<Project> project = context.workspace().project(context.filePath());
+        if (project.isEmpty()) {
+            return;
+        }
+        Path projectRoot = context.workspace().projectRoot(context.filePath());
+        if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            projectRoot = projectRoot.getParent();
+        }
+        Map<String, List<Diagnostic>> diagnosticMap =
+                toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), projectRoot);
+
+        // If the client is null, returns
+        if (client == null) {
+            return;
+        }
+        Map<String, List<Diagnostic>> lastProjectDiagnostics =
+                lastDiagnosticMap.getOrDefault(project.get().sourceRoot(), new HashMap<>());
+
+        // Clear old diagnostic entries of the project with an empty list
+        lastProjectDiagnostics.forEach((key, value) -> {
             if (!diagnosticMap.containsKey(key)) {
                 client.publishDiagnostics(new PublishDiagnosticsParams(key, emptyDiagnosticList));
             }
         });
 
-        // Publish diagnostics
+        // Publish diagnostics for the project
         diagnosticMap.forEach((key, value) -> client.publishDiagnostics(new PublishDiagnosticsParams(key, value)));
 
-        // Replace old map
-        lastDiagnosticMap = diagnosticMap;
+        // Replace old diagnostic map associated with the project
+        lastDiagnosticMap.put(project.get().sourceRoot(), diagnosticMap);
     }
 
     public Map<String, List<Diagnostic>> getLatestDiagnostics(DocumentServiceContext context) {

@@ -73,7 +73,7 @@ public class LValueTest {
         validateError(negativeResult, 0, "uninitialized field 's'", 19, 5);
     }
 
-    @Test(groups = "disableOnOldParser")
+    @Test
     public void testSemanticsNegativeCases() {
         Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 9);
         int i = 0;
@@ -81,8 +81,8 @@ public class LValueTest {
         validateError(semanticsNegativeResult, i++, "undefined field 'y' in object 'A'", 27, 7);
         validateError(semanticsNegativeResult, i++, "invalid operation: type 'A' does not support " +
                 "member access", 28, 5);
-        validateError(semanticsNegativeResult, i++, "invalid expr in compound assignment lhs", 38, 10);
-        validateError(semanticsNegativeResult, i++, "invalid expr in compound assignment lhs", 39, 10);
+        validateError(semanticsNegativeResult, i++, "invalid expr in compound assignment lhs", 38, 5);
+        validateError(semanticsNegativeResult, i++, "invalid expr in compound assignment lhs", 39, 5);
         validateError(semanticsNegativeResult, i++, "invalid operation: type 'map<int>?' does not support member " +
                 "access for assignment", 61, 5);
         validateError(semanticsNegativeResult, i++, "undefined field 'y' in record 'E'", 75, 5);
@@ -92,12 +92,12 @@ public class LValueTest {
                 79, 5);
     }
 
-    @Test(groups = "disableOnOldParser")
+    @Test
     public void testNegativeLvexpr() {
         CompileResult negative = BCompileUtil.compile("test-src/statements/assign/lvexpr_negative.bal");
         int i = 0;
-        validateError(negative, i++, "invalid expr in assignment lhs", 26, 19);
-        validateError(negative, i++, "invalid expr in assignment lhs", 27, 19);
+        validateError(negative, i++, "invalid expr in assignment lhs", 26, 5);
+        validateError(negative, i++, "invalid expr in assignment lhs", 27, 5);
         Assert.assertEquals(i, negative.getErrorCount());
     }
 

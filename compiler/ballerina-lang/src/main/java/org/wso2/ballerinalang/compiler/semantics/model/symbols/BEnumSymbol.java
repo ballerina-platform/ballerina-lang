@@ -40,12 +40,17 @@ public class BEnumSymbol extends BTypeSymbol implements Annotatable {
     public List<BConstantSymbol> members;
     private List<BAnnotationSymbol> annots;
 
-    public BEnumSymbol(List<BConstantSymbol> members, long flags, Name name, PackageID pkgID, BType type,
-                       BSymbol owner, Location pos, SymbolOrigin origin) {
-        super(SymTag.ENUM, flags, name, pkgID, type, owner, pos, origin);
+    public BEnumSymbol(List<BConstantSymbol> members, long flags, Name name, Name originalName,
+                       PackageID pkgID, BType type, BSymbol owner, Location pos, SymbolOrigin origin) {
+        super(SymTag.ENUM, flags, name, originalName, pkgID, type, owner, pos, origin);
         this.members = members;
         this.kind = SymbolKind.ENUM;
         this.annots = new ArrayList<>();
+    }
+
+    public BEnumSymbol(List<BConstantSymbol> members, long flags, Name name, PackageID pkgID, BType type,
+                       BSymbol owner, Location pos, SymbolOrigin origin) {
+        this(members, flags, name, name, pkgID, type, owner, pos, origin);
     }
 
     @Override

@@ -119,18 +119,20 @@
                     {
                       "kind": "IDENTIFIER_TOKEN",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_INVALID_TOKEN"
-                      ],
                       "value": "B",
                       "leadingMinutiae": [
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "PERCENT_TOKEN"
+                                "kind": "PERCENT_TOKEN",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_INVALID_TOKEN"
+                                ]
                               }
                             ]
                           }
@@ -367,18 +369,20 @@
                     {
                       "kind": "IDENTIFIER_TOKEN",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_INVALID_TOKEN"
-                      ],
                       "value": "RED",
                       "leadingMinutiae": [
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "OPEN_BRACE_TOKEN"
+                                "kind": "OPEN_BRACE_TOKEN",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_INVALID_TOKEN"
+                                ]
                               }
                             ]
                           }
@@ -456,19 +460,20 @@
                         {
                           "kind": "IDENTIFIER_TOKEN",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_INVALID_TOKEN",
-                            "ERROR_INVALID_TOKEN"
-                          ],
                           "value": "BLUE",
                           "leadingMinutiae": [
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "hasDiagnostics": true,
                                 "children": [
                                   {
-                                    "kind": "EQUAL_TOKEN"
+                                    "kind": "EQUAL_TOKEN",
+                                    "hasDiagnostics": true,
+                                    "diagnostics": [
+                                      "ERROR_INVALID_TOKEN"
+                                    ]
                                   }
                                 ]
                               }
@@ -485,9 +490,14 @@
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "hasDiagnostics": true,
                                 "children": [
                                   {
                                     "kind": "DOCUMENTATION_STRING",
+                                    "hasDiagnostics": true,
+                                    "diagnostics": [
+                                      "ERROR_INVALID_TOKEN"
+                                    ],
                                     "value": "#doc\n"
                                   }
                                 ]
@@ -603,17 +613,19 @@
             {
               "kind": "OPEN_BRACE_TOKEN",
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_INVALID_TOKEN"
-              ],
               "leadingMinutiae": [
                 {
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "hasDiagnostics": true,
                     "children": [
                       {
                         "kind": "IDENTIFIER_TOKEN",
+                        "hasDiagnostics": true,
+                        "diagnostics": [
+                          "ERROR_INVALID_TOKEN"
+                        ],
                         "value": "ExtraEnumName"
                       }
                     ]
@@ -1067,17 +1079,19 @@
     {
       "kind": "EOF_TOKEN",
       "hasDiagnostics": true,
-      "diagnostics": [
-        "ERROR_INVALID_TOKEN"
-      ],
       "leadingMinutiae": [
         {
           "kind": "INVALID_NODE_MINUTIAE",
           "invalidNode": {
             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+            "hasDiagnostics": true,
             "children": [
               {
-                "kind": "CLOSE_BRACE_TOKEN"
+                "kind": "CLOSE_BRACE_TOKEN",
+                "hasDiagnostics": true,
+                "diagnostics": [
+                  "ERROR_INVALID_TOKEN"
+                ]
               }
             ]
           }

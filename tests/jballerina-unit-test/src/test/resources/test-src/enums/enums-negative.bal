@@ -38,6 +38,19 @@ public enum Food {
     KOTTU = 2.0
 }
 
+public enum LiftStatus {
+    OPEN,
+    OPEN,
+    CLOSED = "0",
+    HOLD = "HO" + "D"
+}
+
+public enum TrailStatus {
+    OPEN,
+    CLOSED,
+    HOLD = "h" + "d"
+}
+
 function testBasicEnumSupportNegative() {
     int circle = CIRCLE;
     float em = EMINEM;
@@ -47,4 +60,12 @@ function testEnumAsType() {
     Shape c = EMINEM;
     Artist e = "Adele";
     ED p = "EMINEM";
+}
+
+const string A = x;
+const B = 1;
+
+enum E1 {
+    A = "1",
+    B = "1"
 }

@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
+import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -36,6 +37,7 @@ import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -56,19 +58,25 @@ public class CompletionUtil {
      * @return {@link List}         List of resolved completion Items
      */
     public static List<CompletionItem> getCompletionItems(BallerinaCompletionContext ctx) throws LSCompletionException {
+        ctx.checkCancelled();
         fillTokenInfoAtCursor(ctx);
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
         /*
         Here we skip auto completion for the cases where the token at cursor is `>`. `>` is added as a trigger 
         character, in order to trigger completions for `->`. This leads to completion trigger for un wanted cases.
          */
-        String triggerCharacter = ctx.getCompletionParams().getContext().getTriggerCharacter();
-        CompletionTriggerKind triggerKind = ctx.getCompletionParams().getContext().getTriggerKind();
+        boolean contextSupport = Boolean.TRUE.equals(ctx.getCapabilities().getContextSupport());
+        String triggerCharacter = contextSupport ?
+                ctx.getCompletionParams().getContext().getTriggerCharacter() : "";
+        CompletionTriggerKind triggerKind = contextSupport ? 
+                ctx.getCompletionParams().getContext().getTriggerKind() : null;
         if (triggerKind == CompletionTriggerKind.TriggerCharacter
                 && triggerCharacter.equals(SyntaxKind.GT_TOKEN.stringValue())
-                && ctx.getTokenAtCursor().kind() != SyntaxKind.RIGHT_ARROW_TOKEN) {
+                && ctx.getTokenAtCursor().kind() != SyntaxKind.RIGHT_ARROW_TOKEN
+                || isWithinComment(ctx)) {
             return Collections.emptyList();
         }
+
         List<LSCompletionItem> items = route(ctx, nodeAtCursor);
 
         return items.stream()
@@ -88,6 +96,7 @@ public class CompletionUtil {
      */
     public static List<LSCompletionItem> route(BallerinaCompletionContext ctx, Node node)
             throws LSCompletionException {
+        ctx.checkCancelled();
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (node == null) {
             return completionItems;
@@ -135,5 +144,27 @@ public class CompletionUtil {
         NonTerminalNode nonTerminalNode = ((ModulePartNode) document.get().syntaxTree().rootNode()).findNode(range);
 
         context.setNodeAtCursor(nonTerminalNode);
+    }
+
+    /**
+     * Check whether the cursor is within a comment.
+     */
+    private static boolean isWithinComment(BallerinaCompletionContext ctx) {
+        Iterator<Minutiae> minutiaeIterator = Collections.emptyIterator();
+        if (ctx.getCursorPositionInTree() <= ctx.getTokenAtCursor().textRange().startOffset()) {
+            minutiaeIterator = ctx.getTokenAtCursor().leadingMinutiae().iterator();
+        } else if (ctx.getTokenAtCursor().textRange().endOffset() <= ctx.getCursorPositionInTree()) {
+            minutiaeIterator = ctx.getTokenAtCursor().trailingMinutiae().iterator();
+        }
+
+        while (minutiaeIterator.hasNext()) {
+            Minutiae minutiae = minutiaeIterator.next();
+            if (minutiae.kind() == SyntaxKind.COMMENT_MINUTIAE
+                    && minutiae.textRange().startOffset() < ctx.getCursorPositionInTree()
+                    && ctx.getCursorPositionInTree() <= minutiae.textRange().endOffset()) {
+                        return true;
+            }
+        }
+        return false;
     }
 }

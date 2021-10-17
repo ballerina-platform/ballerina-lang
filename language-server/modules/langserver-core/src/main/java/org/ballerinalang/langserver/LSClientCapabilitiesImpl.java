@@ -16,11 +16,14 @@
 package org.ballerinalang.langserver;
 
 import org.ballerinalang.langserver.commons.capability.ExperimentalClientCapabilities;
+import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.ballerinalang.langserver.commons.registration.BallerinaClientCapability;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.WorkspaceClientCapabilities;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.langserver.Experimental.INTROSPECTION;
@@ -33,12 +36,15 @@ import static org.ballerinalang.langserver.Experimental.SHOW_TEXT_DOCUMENT;
  */
 public class LSClientCapabilitiesImpl implements LSClientCapabilities {
     private final ExperimentalClientCapabilities experimentalCapabilities;
+    private final InitializationOptions initializationOptions;
     private final WorkspaceClientCapabilities workspaceCapabilities;
     private final TextDocumentClientCapabilities textDocCapabilities;
+    private final List<BallerinaClientCapability> ballerinaClientCapabilities;
 
     LSClientCapabilitiesImpl(TextDocumentClientCapabilities textDocCapabilities,
                              WorkspaceClientCapabilities workspaceCapabilities,
-                             HashMap experimentalClientCapabilities) {
+                             Map experimentalClientCapabilities, 
+                             Map initializationOptionsMap) {
         this.textDocCapabilities = (textDocCapabilities != null) ?
                 textDocCapabilities : new TextDocumentClientCapabilities();
 
@@ -47,6 +53,11 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         this.experimentalCapabilities = (experimentalClientCapabilities != null) ?
                 parseCapabilities(experimentalClientCapabilities) : new ExperimentalClientCapabilitiesImpl();
+
+        this.initializationOptions = initializationOptionsMap != null ?
+                parseInitializationOptions(initializationOptionsMap) : new InitializationOptionsImpl();
+        
+        this.ballerinaClientCapabilities = new ArrayList<>();
     }
 
     /**
@@ -57,6 +68,11 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
     @Override
     public ExperimentalClientCapabilities getExperimentalCapabilities() {
         return experimentalCapabilities;
+    }
+    
+    @Override
+    public InitializationOptions getInitializationOptions() {
+        return initializationOptions;
     }
 
     /**
@@ -79,6 +95,19 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         return textDocCapabilities;
     }
 
+    @Override
+    public void setBallerinaClientCapabilities(List<BallerinaClientCapability> capabilities) {
+        if (!this.ballerinaClientCapabilities.isEmpty()) {
+            throw new IllegalStateException("Cannot populate an already populated capability list");
+        }
+        this.ballerinaClientCapabilities.addAll(capabilities);
+    }
+
+    @Override
+    public List<BallerinaClientCapability> getBallerinaClientCapabilities() {
+        return this.ballerinaClientCapabilities;
+    }
+
     private ExperimentalClientCapabilities parseCapabilities(Map<String, Object> experimentalCapabilities) {
         Object introspection = experimentalCapabilities.get(INTROSPECTION.getValue());
         boolean introspectionEnabled = introspection instanceof Boolean && (Boolean) introspection;
@@ -91,6 +120,23 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         capabilities.setShowTextDocumentEnabled(showTextDocumentEnabled);
 
         return capabilities;
+    }
+
+    /**
+     * Parse initialization options from the initialization options map received.
+     *
+     * @param initOptions Received initialization options map
+     * @return Initialization options.
+     */
+    private InitializationOptions parseInitializationOptions(Map<String, Object> initOptions) {
+        InitializationOptionsImpl initializationOptions = new InitializationOptionsImpl();
+
+        Object semanticTokensSupport = initOptions.get(InitializationOptions.KEY_ENABLE_SEMANTIC_TOKENS);
+        boolean enableSemanticTokens = semanticTokensSupport == null ||
+                Boolean.parseBoolean(String.valueOf(semanticTokensSupport));
+        initializationOptions.setEnableSemanticTokens(enableSemanticTokens);
+
+        return initializationOptions;
     }
 
     /**
@@ -126,6 +172,21 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         private void setShowTextDocumentEnabled(boolean showTextDocumentEnabled) {
             this.showTextDocumentEnabled = showTextDocumentEnabled;
+        }
+    }
+
+    /**
+     * Represents the initialization options the LS client will be sending.
+     */
+    public static class InitializationOptionsImpl implements InitializationOptions {
+        private boolean enableSemanticTokens = false;
+        
+        public boolean isEnableSemanticTokens() {
+            return enableSemanticTokens;
+        }
+
+        public void setEnableSemanticTokens(boolean enableSemanticTokens) {
+            this.enableSemanticTokens = enableSemanticTokens;
         }
     }
 }

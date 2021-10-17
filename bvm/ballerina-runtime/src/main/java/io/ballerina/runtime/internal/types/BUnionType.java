@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
@@ -32,6 +33,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
@@ -41,7 +43,7 @@ import java.util.regex.Pattern;
  *
  * @since 0.995.0
  */
-public class BUnionType extends BType implements UnionType {
+public class BUnionType extends BType implements UnionType, SelectivelyImmutableReferenceType {
 
     public boolean isCyclic = false;
     public static final String  PIPE = "|";
@@ -52,6 +54,7 @@ public class BUnionType extends BType implements UnionType {
     private int typeFlags;
     private boolean readonly;
     protected IntersectionType immutableType;
+    private IntersectionType intersectionType = null;
     private String cachedToString;
     private boolean resolving;
     public boolean resolvingReadonly;
@@ -72,6 +75,15 @@ public class BUnionType extends BType implements UnionType {
         this.flags = flags;
         setMemberTypes(memberTypes, originalMemberTypes);
         this.isCyclic = isCyclic;
+    }
+
+    public BUnionType(int typeFlags, boolean isCyclic, long flags) {
+        super(null, null, Object.class);
+        this.typeFlags = typeFlags;
+        this.readonly = isReadOnlyFlagOn(flags);
+        this.memberTypes = new ArrayList<>(0);
+        this.isCyclic = isCyclic;
+        this.flags = flags;
     }
 
     public BUnionType(List<Type> memberTypes) {
@@ -396,7 +408,7 @@ public class BUnionType extends BType implements UnionType {
     }
 
     @Override
-    public Type getImmutableType() {
+    public IntersectionType getImmutableType() {
         return this.immutableType;
     }
 
@@ -510,5 +522,15 @@ public class BUnionType extends BType implements UnionType {
 
     private boolean isReadOnlyFlagOn(long flags) {
         return SymbolFlags.isFlagOn(flags, SymbolFlags.READONLY);
+    }
+
+    @Override
+    public Optional<IntersectionType> getIntersectionType() {
+        return this.intersectionType ==  null ? Optional.empty() : Optional.of(this.intersectionType);
+    }
+
+    @Override
+    public void setIntersectionType(IntersectionType intersectionType) {
+        this.intersectionType = intersectionType;
     }
 }

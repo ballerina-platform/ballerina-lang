@@ -92,8 +92,11 @@ public class ProjectFiles {
                         // validate moduleName
                         if (!ProjectUtils.validateModuleName(path.toFile().getName())) {
                             throw new ProjectException("Invalid module name : '" + path.getFileName() + "' :\n" +
-                                    "Module name can only contain alphanumerics, underscores and periods " +
-                                    "and the maximum length is 256 characters");
+                                    "Module name can only contain alphanumerics, underscores and periods");
+                        }
+                        if (!ProjectUtils.validateNameLength(path.toFile().getName())) {
+                            throw new ProjectException("Invalid module name : '" + path.getFileName() + "' :\n" +
+                                    "Maximum length of module name is 256 characters");
                         }
                         return true;
                     })
@@ -191,12 +194,10 @@ public class ProjectFiles {
         // Todo figure out how to pass the build options without a performance hit
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML,
                 packageConfig.ballerinaToml().map(t -> t.content()).orElse(""));
-        TomlDocument dependenciesToml = TomlDocument.from(ProjectConstants.DEPENDENCIES_TOML,
-                packageConfig.dependenciesToml().map(t -> t.content()).orElse(""));
         TomlDocument pluginToml = TomlDocument.from(ProjectConstants.COMPILER_PLUGIN_TOML,
                 packageConfig.dependenciesToml().map(t -> t.content()).orElse(""));
         ManifestBuilder manifestBuilder = ManifestBuilder
-                .from(ballerinaToml, dependenciesToml, pluginToml, projectDirPath);
+                .from(ballerinaToml, pluginToml, projectDirPath);
         BuildOptions defaultBuildOptions = manifestBuilder.buildOptions();
         if (defaultBuildOptions == null) {
             defaultBuildOptions = new BuildOptionsBuilder().build();

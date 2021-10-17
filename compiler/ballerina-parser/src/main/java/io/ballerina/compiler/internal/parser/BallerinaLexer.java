@@ -177,19 +177,7 @@ public class BallerinaLexer extends AbstractLexer {
                 token = getSyntaxToken(SyntaxKind.PERCENT_TOKEN);
                 break;
             case LexerTerminals.LT:
-                int nextChar = peek();
-                if (nextChar == LexerTerminals.EQUAL) {
-                    reader.advance();
-                    token = getSyntaxToken(SyntaxKind.LT_EQUAL_TOKEN);
-                } else if (nextChar == LexerTerminals.MINUS) {
-                    reader.advance();
-                    token = getSyntaxToken(SyntaxKind.LEFT_ARROW_TOKEN);
-                } else if (nextChar == LexerTerminals.LT) {
-                    reader.advance();
-                    token = getSyntaxToken(SyntaxKind.DOUBLE_LT_TOKEN);
-                } else {
-                    token = getSyntaxToken(SyntaxKind.LT_TOKEN);
-                }
+                token = processTokenStartWithLt();
                 break;
             case LexerTerminals.GT:
                 token = processTokenStartWithGt();
@@ -499,8 +487,14 @@ public class BallerinaLexer extends AbstractLexer {
                 case 'F':
                 case 'd':
                 case 'D':
+                    char nextNextChar = reader.peek(1);
                     // If there's more than one dot, only capture the integer
-                    if (reader.peek(1) == LexerTerminals.DOT) {
+                    if (nextNextChar == LexerTerminals.DOT) {
+                        break;
+                    }
+
+                    // If dot is followed by an identifier, only capture the integer. e.g. 2.toString()
+                    if (nextChar == LexerTerminals.DOT && isNumericFollowedByIdentifier(nextNextChar)) {
                         break;
                     }
 
@@ -534,6 +528,24 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         return getLiteral(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN);
+    }
+
+    private boolean isNumericFollowedByIdentifier(char nextNextChar) {
+        switch (nextNextChar) {
+            case 'e':
+            case 'E':
+            case 'f':
+            case 'F':
+            case 'd':
+            case 'D':
+                char thirdChar = this.reader.peek(2);
+                if (thirdChar == LexerTerminals.PLUS || thirdChar == LexerTerminals.MINUS) {
+                    return false;
+                }
+                return isIdentifierInitialChar(thirdChar);
+            default:
+                return isIdentifierInitialChar(nextNextChar);
+        }
     }
 
     /**
@@ -880,10 +892,6 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.DISTINCT_KEYWORD);
             case LexerTerminals.FROM:
                 return getSyntaxToken(SyntaxKind.FROM_KEYWORD);
-            case LexerTerminals.WHERE:
-                return getSyntaxToken(SyntaxKind.WHERE_KEYWORD);
-            case LexerTerminals.SELECT:
-                return getSyntaxToken(SyntaxKind.SELECT_KEYWORD);
             case LexerTerminals.START:
                 return getSyntaxToken(SyntaxKind.START_KEYWORD);
             case LexerTerminals.FLUSH:
@@ -912,6 +920,25 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.MATCH_KEYWORD);
             case LexerTerminals.CONFLICT:
                 return getSyntaxToken(SyntaxKind.CONFLICT_KEYWORD);
+
+            case LexerTerminals.CLASS:
+                return getSyntaxToken(SyntaxKind.CLASS_KEYWORD);
+            case LexerTerminals.CONFIGURABLE:
+                return getSyntaxToken(SyntaxKind.CONFIGURABLE_KEYWORD);
+            default:
+                if (this.keywordModes.contains(KeywordMode.QUERY)) {
+                    return getQueryCtxKeywordOrIdentifier(tokenText);
+                }
+                return getIdentifierToken();
+        }
+    }
+
+    private STToken getQueryCtxKeywordOrIdentifier(String tokenText) {
+        switch (tokenText) {
+            case LexerTerminals.WHERE:
+                return getSyntaxToken(SyntaxKind.WHERE_KEYWORD);
+            case LexerTerminals.SELECT:
+                return getSyntaxToken(SyntaxKind.SELECT_KEYWORD);
             case LexerTerminals.LIMIT:
                 return getSyntaxToken(SyntaxKind.LIMIT_KEYWORD);
             case LexerTerminals.JOIN:
@@ -928,10 +955,6 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.ASCENDING_KEYWORD);
             case LexerTerminals.DESCENDING:
                 return getSyntaxToken(SyntaxKind.DESCENDING_KEYWORD);
-            case LexerTerminals.CLASS:
-                return getSyntaxToken(SyntaxKind.CLASS_KEYWORD);
-            case LexerTerminals.CONFIGURABLE:
-                return getSyntaxToken(SyntaxKind.CONFIGURABLE_KEYWORD);
             default:
                 return getIdentifierToken();
         }
@@ -1099,7 +1122,7 @@ public class BallerinaLexer extends AbstractLexer {
                             }
                             continue;
                         default:
-                            reportInvalidEscapeSequence(this.reader.peek(2));
+                            reportInvalidEscapeSequence(this.reader.peek(1));
                             this.reader.advance();
                             continue;
                     }
@@ -1160,8 +1183,22 @@ public class BallerinaLexer extends AbstractLexer {
                     return getSyntaxToken(SyntaxKind.NOT_EQUAL_TOKEN);
                 }
             default:
+                // this is '!is'
+                if (isNotIsToken()) {
+                    reader.advance(2);
+                    return getSyntaxToken(SyntaxKind.NOT_IS_KEYWORD);
+                 }
                 // this is '!'
                 return getSyntaxToken(SyntaxKind.EXCLAMATION_MARK_TOKEN);
+        }
+    }
+
+    private boolean isNotIsToken() {
+        if ((reader.peek() == 'i' && reader.peek(1) == 's') &&
+                !(isIdentifierFollowingChar(reader.peek(2)) || reader.peek(2) == LexerTerminals.BACKSLASH)) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -1384,6 +1421,8 @@ public class BallerinaLexer extends AbstractLexer {
                 case LexerTerminals.NEWLINE:
                 case LexerTerminals.CARRIAGE_RETURN:
                 case LexerTerminals.TAB:
+                    reader.advance();
+                    reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, "");
                     break;
                 case 'u':
                     // NumericEscape
@@ -1422,6 +1461,27 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Unicode pattern white space characters are not allowed
         return !isUnicodePatternWhiteSpaceChar(nextChar);
+    }
+
+    private STToken processTokenStartWithLt() {
+        int nextChar = peek();
+        switch (nextChar) {
+            case LexerTerminals.EQUAL:
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.LT_EQUAL_TOKEN);
+            case LexerTerminals.MINUS:
+                int nextNextChar = reader.peek(1);
+                if (isDigit(nextNextChar)) {
+                    return getSyntaxToken(SyntaxKind.LT_TOKEN);
+                }
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.LEFT_ARROW_TOKEN);
+            case LexerTerminals.LT:
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.DOUBLE_LT_TOKEN);
+        }
+
+        return getSyntaxToken(SyntaxKind.LT_TOKEN);
     }
 
     private STToken processTokenStartWithGt() {

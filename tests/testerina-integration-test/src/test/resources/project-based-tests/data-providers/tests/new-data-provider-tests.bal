@@ -16,6 +16,8 @@
 
 import ballerina/test;
 
+type CodeFragment [string, string];
+
 @test:Config {
     dataProvider: dataGen
 }
@@ -78,6 +80,13 @@ function testFunction2(int value1, int value2, int result1) returns error? {
     test:assertEquals(value1 + value2, result1, msg = "The sum is not correct");
 }
 
+@test:Config {
+    dataProvider: dataGen9
+}
+function testFunction3(string value1, string value2) returns error? {
+   test:assertEquals("E", value1, msg = "The code fragment is not correct.");
+}
+
 function dataGen() returns map<[int, int, int]>|error {
     map<[int, int, int]> dataSet = {
         "Case1": [1, 2, 4],
@@ -131,4 +140,21 @@ function dataGen8() returns map<[int, int, int]>|error {
         "Case#3": [5, 6, 11]
     };
     return dataSet;
+}
+
+function dataGen9() returns map<CodeFragment>|error {
+    CodeFragment[] sources = [
+        ["E", "`'" +  string`"\a"` + string`"`],
+        ["E", "\"\\" + "u{D7FF}\"" + "\"\t\""],
+        ["E",  "a +\n\r b"],
+        ["E", "(x * 1) != (y / 3) || (a ^ b) == (b & c) >> (1 % 2)"],
+        ["E",  "(1"],
+        ["E", "a:x(c,d)[]; ^(x|y).ok();"],
+        ["E",  string`map<any> v = { "x": 1 };`]];
+
+    map<CodeFragment> tests = {};
+    foreach var s in sources {
+        tests[s[1]] = s;
+    }
+    return tests;
 }

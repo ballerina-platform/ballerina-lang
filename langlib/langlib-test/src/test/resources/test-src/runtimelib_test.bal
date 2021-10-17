@@ -20,9 +20,9 @@ import ballerina/lang.runtime as runtime;
 function getCallStacktoStringTest() {
     runtime:StackFrame[] stackFrames = runtime:getStackTrace();
     assertEquality(stackFrames.length(), 3);
-    assertEquality("callableName: externGetStackTrace moduleName: ballerina.lang.runtime.0_0_1 fileName: runtime.bal " +
+    assertEquality("callableName: externGetStackTrace moduleName: ballerina.lang.runtime.0 fileName: runtime.bal " +
                     "lineNumber: 95", stackFrames[0].toString());
-    assertEquality("callableName: getStackTrace moduleName: ballerina.lang.runtime.0_0_1 fileName: runtime.bal " +
+    assertEquality("callableName: getStackTrace moduleName: ballerina.lang.runtime.0 fileName: runtime.bal " +
                     "lineNumber: 85", stackFrames[1].toString());
     assertEquality("callableName: getCallStacktoStringTest  fileName: runtimelib_test.bal lineNumber: 21",
                     stackFrames[2].toString());
@@ -34,7 +34,7 @@ function getCallStacktoStringTest() {
     int lineNumber = stackFrame1.lineNumber;
 
     assertEquality("getStackTrace", callableName);
-    assertEquality("ballerina.lang.runtime.0_0_1", moduleName);
+    assertEquality("ballerina.lang.runtime.0", moduleName);
     assertEquality("runtime.bal", fileName);
     assertEquality(85, lineNumber);
 

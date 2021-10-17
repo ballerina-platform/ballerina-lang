@@ -91,12 +91,21 @@ public class CheckPanicExpressionOperatorTest {
 
     @Test
     public void testSemanticErrors() {
-        Assert.assertEquals(negative.getErrorCount(), 4, negative.toString());
+        Assert.assertEquals(negative.getErrorCount(), 2, negative.toString());
         BAssertUtil.validateError(negative, 0, "invalid usage of the 'checkpanic' expression " +
-                "operator: no expression type is equivalent to error type", 11, 30);
-        BAssertUtil.validateError(negative, 1, "'checkpanic' expression of type 'never' is not allowed", 16, 19);
-        BAssertUtil.validateError(negative, 2, "'checkpanic' expression of type 'never' is not allowed", 29, 19);
-        BAssertUtil.validateError(negative, 3, "incompatible types: expected '(string|error)'" +
-                ", found '(string|int)'", 37, 30);
+                "operator: no expression type is equivalent to error type", 6, 30);
+        BAssertUtil.validateError(negative, 1, "incompatible types: expected '(string|error)'" +
+                ", found '(string|int)'", 19, 30);
+    }
+
+    @Test
+    public void testCodeAnalysisErrors() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/expressions/checkpanicexpr/check_panic_expr_code_analysis_negative.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 2);
+        BAssertUtil.validateError(compileResult, 0, "expression of type 'never' or equivalent to type 'never' " +
+                "not allowed here", 18, 19);
+        BAssertUtil.validateError(compileResult, 1, "expression of type 'never' or equivalent to type 'never' " +
+                "not allowed here", 27, 19);
     }
 }

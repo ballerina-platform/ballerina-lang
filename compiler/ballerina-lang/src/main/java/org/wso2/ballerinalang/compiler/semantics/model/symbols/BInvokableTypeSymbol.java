@@ -47,7 +47,7 @@ public class BInvokableTypeSymbol extends BTypeSymbol {
     public BInvokableTypeSymbol(int symTag, long flags, PackageID pkgID, BType type, BSymbol owner,
                                 Location location,
                                 SymbolOrigin origin) {
-        super(symTag, flags, Names.EMPTY, pkgID, type, owner, location, origin);
+        super(symTag, flags, Names.EMPTY, Names.EMPTY, pkgID, type, owner, location, origin);
         this.params = new ArrayList<>();
         this.returnTypeAnnots = new ArrayList<>();
         this.paramDefaultValTypes = new HashMap<>();

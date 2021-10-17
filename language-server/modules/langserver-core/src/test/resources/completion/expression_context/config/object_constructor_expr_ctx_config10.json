@@ -29,7 +29,7 @@
           "value": ""
         }
       },
-      "sortText": "D",
+      "sortText": "AC",
       "insertText": "TEST_INT_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -43,7 +43,7 @@
           "value": ""
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "insertText": "TEST_STRING_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -159,7 +159,7 @@
       "label": "TestClass1",
       "kind": "Interface",
       "detail": "Class",
-      "sortText": "AK",
+      "sortText": "M",
       "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
@@ -175,7 +175,7 @@
       "label": "listener1",
       "kind": "Variable",
       "detail": "module1:Listener",
-      "sortText": "D",
+      "sortText": "E",
       "insertText": "listener1",
       "insertTextFormat": "Snippet"
     },
@@ -189,7 +189,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n"
         }
       },
-      "sortText": "E",
+      "sortText": "C",
       "filterText": "function1",
       "insertText": "function1()",
       "insertTextFormat": "Snippet"
@@ -204,7 +204,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n"
         }
       },
-      "sortText": "E",
+      "sortText": "C",
       "filterText": "function2",
       "insertText": "function2()",
       "insertTextFormat": "Snippet"
@@ -219,7 +219,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Return** `int`   \n- Return Value Description  \n  \n"
         }
       },
-      "sortText": "E",
+      "sortText": "AA",
       "filterText": "function3",
       "insertText": "function3(${1})",
       "insertTextFormat": "Snippet",
@@ -238,7 +238,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function4 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description"
         }
       },
-      "sortText": "E",
+      "sortText": "C",
       "filterText": "function4",
       "insertText": "function4(${1})",
       "insertTextFormat": "Snippet",

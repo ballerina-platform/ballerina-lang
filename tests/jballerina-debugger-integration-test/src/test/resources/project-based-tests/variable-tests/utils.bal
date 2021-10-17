@@ -34,17 +34,3 @@ public client class Student {
 function sum(int a, int b) returns int {
     return a + b;
 }
-
-function getName(string name) returns string {
-    return "Name: " + name;
-}
-
-public function getSum(int a, int b) returns int {
-    future<int> futureSum = @strand {thread: "any"} start addition(a, b);
-    int|error result = wait futureSum;
-    if result is int {
-        return result;
-    } else {
-        return -1;
-    }
-}

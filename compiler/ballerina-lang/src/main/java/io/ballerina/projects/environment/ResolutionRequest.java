@@ -18,6 +18,7 @@
 
 package io.ballerina.projects.environment;
 
+import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
@@ -35,17 +36,46 @@ import java.util.Optional;
 public final class ResolutionRequest {
     private final PackageDescriptor packageDesc;
     private final PackageDependencyScope scope;
-    private final boolean offline;
+    private final DependencyResolutionType dependencyResolutionType;
 
-    private ResolutionRequest(PackageDescriptor packageDescriptor, PackageDependencyScope scope, boolean offline) {
+    // TODO rethink about this
+    private final PackageLockingMode packageLockingMode;
+
+    private ResolutionRequest(PackageDescriptor packageDescriptor,
+                              PackageDependencyScope scope,
+                              DependencyResolutionType dependencyResolutionType,
+                              PackageLockingMode packageLockingMode) {
         this.packageDesc = packageDescriptor;
         this.scope = scope;
-        this.offline = offline;
+        this.dependencyResolutionType = dependencyResolutionType;
+        this.packageLockingMode = packageLockingMode;
     }
 
-    public static ResolutionRequest from(PackageDescriptor packageDescriptor, PackageDependencyScope scope,
-                                         boolean offline) {
-        return new ResolutionRequest(packageDescriptor, scope, offline);
+    public static ResolutionRequest from(PackageDescriptor packageDescriptor) {
+        return new ResolutionRequest(packageDescriptor, PackageDependencyScope.DEFAULT,
+                DependencyResolutionType.SOURCE, PackageLockingMode.MEDIUM);
+    }
+
+    public static ResolutionRequest from(PackageDescriptor packageDescriptor,
+                                         PackageDependencyScope scope) {
+        return new ResolutionRequest(packageDescriptor, scope,
+                DependencyResolutionType.SOURCE, PackageLockingMode.MEDIUM);
+    }
+
+    public static ResolutionRequest from(PackageDescriptor packageDescriptor,
+                                         PackageDependencyScope scope,
+                                         DependencyResolutionType resolutionType) {
+        return new ResolutionRequest(packageDescriptor, scope,
+                resolutionType, PackageLockingMode.MEDIUM);
+    }
+
+    public static ResolutionRequest from(PackageDescriptor packageDescriptor,
+                                         PackageDependencyScope scope,
+                                         DependencyResolutionType dependencyResolutionType,
+                                         PackageLockingMode packageLockingMode) {
+        return new ResolutionRequest(packageDescriptor, scope,
+                dependencyResolutionType,
+                packageLockingMode);
     }
 
     public PackageOrg orgName() {
@@ -72,8 +102,12 @@ public final class ResolutionRequest {
         return packageDesc.repository();
     }
 
-    public boolean offline() {
-        return offline;
+    public PackageLockingMode packageLockingMode() {
+        return packageLockingMode;
+    }
+
+    public DependencyResolutionType resolutionType() {
+        return dependencyResolutionType;
     }
 
     @Override

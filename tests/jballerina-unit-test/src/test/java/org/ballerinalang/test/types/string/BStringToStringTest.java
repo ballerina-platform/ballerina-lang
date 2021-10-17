@@ -60,7 +60,7 @@ public class BStringToStringTest extends BStringTestCommons {
 
     @Test
     public void testTupleToString() {
-        testAndAssert("testTupleToString", 14);
+        testAndAssert("testTupleToString", 20);
     }
 
     @Test

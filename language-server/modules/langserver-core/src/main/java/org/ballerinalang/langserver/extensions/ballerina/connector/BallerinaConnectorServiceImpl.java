@@ -42,7 +42,6 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
@@ -53,6 +52,7 @@ import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.repos.TempDirCompilationCache;
@@ -74,6 +74,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -145,16 +146,16 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         Environment environment = EnvironmentBuilder.buildDefault();
 
         PackageDescriptor packageDescriptor = PackageDescriptor.from(
-        PackageOrg.from(org), PackageName.from(pkgName), PackageVersion.from(version));
-        ResolutionRequest resolutionRequest = ResolutionRequest
-                .from(packageDescriptor, PackageDependencyScope.DEFAULT, false);
+                PackageOrg.from(org), PackageName.from(pkgName), PackageVersion.from(version));
+        ResolutionRequest resolutionRequest = ResolutionRequest.from(packageDescriptor);
 
         PackageResolver packageResolver = environment.getService(PackageResolver.class);
-        List<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
-            Collections.singletonList(resolutionRequest));
-        ResolutionResponse resolutionResponse = resolutionResponses.stream().findFirst().get();
+        Collection<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
+                Collections.singletonList(resolutionRequest), ResolutionOptions.builder().setOffline(false).build());
+        ResolutionResponse resolutionResponse = resolutionResponses.stream().findFirst().orElse(null);
 
-        if (resolutionResponse.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
+        if (resolutionResponse != null && resolutionResponse.resolutionStatus().equals(
+                ResolutionResponse.ResolutionStatus.RESOLVED)) {
             Package resolvedPackage = resolutionResponse.resolvedPackage();
             if (resolvedPackage != null) {
                 return resolvedPackage.project().sourceRoot();

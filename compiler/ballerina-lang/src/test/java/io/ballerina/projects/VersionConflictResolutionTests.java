@@ -18,8 +18,10 @@
 package io.ballerina.projects;
 
 import com.google.gson.Gson;
-import io.ballerina.projects.internal.DependencyVersionKind;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.PackageDependencyGraphBuilder;
+import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.utils.DependencyGraphJson;
 import io.ballerina.projects.utils.DependencyGraphJson.DependencyJson;
 import org.testng.Assert;
@@ -29,7 +31,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -42,6 +43,11 @@ public class VersionConflictResolutionTests {
     private static final Gson gson = new Gson();
     private static final Path testSourcesDirectory = Paths.get(
             "src/test/resources/project_api/version_conflicts").toAbsolutePath().normalize();
+
+    private static final PackageDescriptor rootPkgDesc = PackageDescriptor.from(PackageOrg.from("samjs"),
+            PackageName.from("a"), PackageVersion.from("0.1.0"));
+
+    private static final ResolutionOptions resolutionOptions = ResolutionOptions.builder().build();
 
     @Test
     public void testNoVersionConflictsCase() throws IOException {
@@ -64,194 +70,200 @@ public class VersionConflictResolutionTests {
 
     @Test(description = "Override default scope dependency with another default version dependency")
     public void testConflictResolutionCase1A() {
-        PackageDescriptor rootNode = PackageDescriptor.from(PackageOrg.from("samjs"),
-                PackageName.from("a"), PackageVersion.from("0.1.0"));
-        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootNode);
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
-        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.DEFAULT,
-                                   DependencyResolutionType.SOURCE, DependencyVersionKind.USER_SPECIFIED);
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyCurrent, PackageDependencyScope.DEFAULT,
+                DependencyResolutionType.SOURCE);
 
         // Now lets add a newer version of the dependency
         PackageDescriptor dependencyNew = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.5.0"));
-        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.DEFAULT,
-                                   DependencyResolutionType.SOURCE, DependencyVersionKind.USER_SPECIFIED);
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyNew, PackageDependencyScope.DEFAULT,
+                DependencyResolutionType.SOURCE);
 
-        DependencyGraph<PackageDescriptor> dependencyGraph = graphBuilder.build();
-        Collection<PackageDescriptor> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
-        // There is only one here
-        PackageDescriptor packageB = directDependencies.iterator().next();
-        Assert.assertEquals(packageB, dependencyNew);
+        assertExpectedPackage(graphBuilder, rootPkgDesc, dependencyNew);
     }
 
     @Test(description = "Override default scope dependency with another default version dependency")
     public void testConflictResolutionCase1B() {
-        PackageDescriptor rootNode = PackageDescriptor.from(PackageOrg.from("samjs"),
-                PackageName.from("a"), PackageVersion.from("0.1.0"));
-        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootNode);
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
-        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.DEFAULT,
-                                   DependencyResolutionType.SOURCE, DependencyVersionKind.USER_SPECIFIED);
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyCurrent, PackageDependencyScope.DEFAULT,
+                DependencyResolutionType.SOURCE);
 
         // Now lets add a older version of the dependency
         PackageDescriptor dependencyNew = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.0.0"));
-        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.DEFAULT,
-                                   DependencyResolutionType.SOURCE, DependencyVersionKind.USER_SPECIFIED);
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyNew, PackageDependencyScope.DEFAULT,
+                DependencyResolutionType.SOURCE);
 
-        DependencyGraph<PackageDescriptor> dependencyGraph = graphBuilder.build();
-        Collection<PackageDescriptor> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
-        // There is only one here
-        PackageDescriptor packageB = directDependencies.iterator().next();
-        Assert.assertEquals(packageB, dependencyCurrent);
+        assertExpectedPackage(graphBuilder, rootPkgDesc, dependencyCurrent);
     }
 
     @Test(description = "Override test scope dependency with another test version dependency")
     public void testConflictResolutionCase2A() {
-        PackageDescriptor rootNode = PackageDescriptor.from(PackageOrg.from("samjs"),
-                PackageName.from("a"), PackageVersion.from("0.1.0"));
-        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootNode);
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
-        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.TEST_ONLY,
-                                   DependencyResolutionType.SOURCE, DependencyVersionKind.USER_SPECIFIED);
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyCurrent, PackageDependencyScope.TEST_ONLY,
+                DependencyResolutionType.SOURCE);
 
         // Now lets add a newer version of the dependency
         PackageDescriptor dependencyNew = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.5.0"));
-        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.TEST_ONLY,
-                                   DependencyResolutionType.SOURCE, DependencyVersionKind.USER_SPECIFIED);
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyNew, PackageDependencyScope.TEST_ONLY,
+                DependencyResolutionType.SOURCE);
 
-        DependencyGraph<PackageDescriptor> dependencyGraph = graphBuilder.build();
-        Collection<PackageDescriptor> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
-        // There is only one here
-        PackageDescriptor packageB = directDependencies.iterator().next();
-        Assert.assertEquals(packageB, dependencyNew);
+        assertExpectedPackage(graphBuilder, rootPkgDesc, dependencyNew);
     }
 
     @Test(description = "Override test scope dependency with another test version dependency")
     public void testConflictResolutionCase2B() {
-        PackageDescriptor rootNode = PackageDescriptor.from(PackageOrg.from("samjs"),
-                PackageName.from("a"), PackageVersion.from("0.1.0"));
-        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootNode);
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
-        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.TEST_ONLY,
-                                   DependencyResolutionType.SOURCE, DependencyVersionKind.USER_SPECIFIED);
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyCurrent, PackageDependencyScope.TEST_ONLY,
+                DependencyResolutionType.SOURCE);
 
         // Now lets add a older version of the dependency
         PackageDescriptor dependencyNew = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.0.0"));
-        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.TEST_ONLY,
-                                   DependencyResolutionType.SOURCE, DependencyVersionKind.USER_SPECIFIED);
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyNew, PackageDependencyScope.TEST_ONLY,
+                DependencyResolutionType.SOURCE);
 
-        DependencyGraph<PackageDescriptor> dependencyGraph = graphBuilder.build();
-        Collection<PackageDescriptor> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
-        // There is only one here
-        PackageDescriptor packageB = directDependencies.iterator().next();
-        Assert.assertEquals(packageB, dependencyCurrent);
+        assertExpectedPackage(graphBuilder, rootPkgDesc, dependencyCurrent);
     }
 
     @Test(description = "Override test scope dependency with another default version dependency")
     public void testConflictResolutionCase3A() {
-        PackageDescriptor rootNode = PackageDescriptor.from(PackageOrg.from("samjs"),
-                PackageName.from("a"), PackageVersion.from("0.1.0"));
-        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootNode);
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
-        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.TEST_ONLY,
-                                   DependencyResolutionType.SOURCE, DependencyVersionKind.USER_SPECIFIED);
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyCurrent, PackageDependencyScope.TEST_ONLY,
+                DependencyResolutionType.SOURCE);
 
         // Now lets add a newer version of the dependency
         PackageDescriptor dependencyNew = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.5.0"));
-        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.DEFAULT,
-                                   DependencyResolutionType.SOURCE, DependencyVersionKind.USER_SPECIFIED);
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyNew, PackageDependencyScope.DEFAULT,
+                DependencyResolutionType.SOURCE);
 
-        DependencyGraph<PackageDescriptor> dependencyGraph = graphBuilder.build();
-        Collection<PackageDescriptor> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
-        // There is only one here
-        PackageDescriptor packageB = directDependencies.iterator().next();
-        Assert.assertEquals(packageB, dependencyNew);
+        assertExpectedPackage(graphBuilder, rootPkgDesc, dependencyNew);
     }
 
     @Test(description = "Override test scope dependency with another default version dependency")
     public void testConflictResolutionCase3B() {
-        PackageDescriptor rootNode = PackageDescriptor.from(PackageOrg.from("samjs"),
-                PackageName.from("a"), PackageVersion.from("0.1.0"));
-        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootNode);
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
-        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.TEST_ONLY,
-                                   DependencyResolutionType.SOURCE, DependencyVersionKind.USER_SPECIFIED);
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyCurrent, PackageDependencyScope.TEST_ONLY,
+                DependencyResolutionType.SOURCE);
 
         // Now lets add a older version of the dependency
         PackageDescriptor dependencyNew = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.0.0"));
-        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.DEFAULT,
-                                   DependencyResolutionType.SOURCE, DependencyVersionKind.USER_SPECIFIED);
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyNew, PackageDependencyScope.DEFAULT,
+                DependencyResolutionType.SOURCE);
 
-        DependencyGraph<PackageDescriptor> dependencyGraph = graphBuilder.build();
-        Collection<PackageDescriptor> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
-        // There is only one here
-        PackageDescriptor packageB = directDependencies.iterator().next();
-        Assert.assertEquals(packageB, dependencyNew);
+        assertExpectedPackage(graphBuilder, rootPkgDesc, dependencyCurrent);
     }
 
     @Test(description = "Override default scope dependency with another test version dependency")
     public void testConflictResolutionCase4A() {
-        PackageDescriptor rootNode = PackageDescriptor.from(PackageOrg.from("samjs"),
-                PackageName.from("a"), PackageVersion.from("0.1.0"));
-        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootNode);
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
-        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.DEFAULT,
-                                   DependencyResolutionType.SOURCE, DependencyVersionKind.USER_SPECIFIED);
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyCurrent, PackageDependencyScope.DEFAULT,
+                DependencyResolutionType.SOURCE);
 
         // Now lets add a newer version of the dependency
         PackageDescriptor dependencyNew = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.5.0"));
-        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.TEST_ONLY,
-                                   DependencyResolutionType.SOURCE, DependencyVersionKind.USER_SPECIFIED);
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyNew, PackageDependencyScope.TEST_ONLY,
+                DependencyResolutionType.SOURCE);
 
-        DependencyGraph<PackageDescriptor> dependencyGraph = graphBuilder.build();
-        Collection<PackageDescriptor> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
-        // There is only one here
-        PackageDescriptor packageB = directDependencies.iterator().next();
-        Assert.assertEquals(packageB, dependencyCurrent);
+        assertExpectedPackage(graphBuilder, rootPkgDesc, dependencyNew);
     }
 
     @Test(description = "Override default scope dependency with another test version dependency")
     public void testConflictResolutionCase4B() {
-        PackageDescriptor rootNode = PackageDescriptor.from(PackageOrg.from("samjs"),
-                PackageName.from("a"), PackageVersion.from("0.1.0"));
-        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootNode);
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
-        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.DEFAULT,
-                                   DependencyResolutionType.SOURCE, DependencyVersionKind.USER_SPECIFIED);
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyCurrent, PackageDependencyScope.DEFAULT,
+                DependencyResolutionType.SOURCE);
 
         // Now lets add a older version of the dependency
         PackageDescriptor dependencyNew = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.0.0"));
-        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.TEST_ONLY,
-                                   DependencyResolutionType.SOURCE, DependencyVersionKind.USER_SPECIFIED);
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyNew, PackageDependencyScope.TEST_ONLY,
+                DependencyResolutionType.SOURCE);
 
-        DependencyGraph<PackageDescriptor> dependencyGraph = graphBuilder.build();
-        Collection<PackageDescriptor> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
-        // There is only one here
-        PackageDescriptor packageB = directDependencies.iterator().next();
-        Assert.assertEquals(packageB, dependencyCurrent);
+        assertExpectedPackage(graphBuilder, rootPkgDesc, dependencyCurrent);
+    }
+
+    @Test(description = "Override local repo dependency with the same version from central repo")
+    public void testConflictResolutionCase5A() {
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
+
+        PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
+                PackageName.from("b"), PackageVersion.from("1.1.0"), ProjectConstants.LOCAL_REPOSITORY_NAME);
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyCurrent, PackageDependencyScope.DEFAULT,
+                DependencyResolutionType.SOURCE);
+
+        // Now lets add a older version of the dependency
+        PackageDescriptor dependencyNew = PackageDescriptor.from(PackageOrg.from("samjs"),
+                PackageName.from("b"), PackageVersion.from("1.1.0"));
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyNew, PackageDependencyScope.DEFAULT,
+                DependencyResolutionType.SOURCE);
+
+        assertExpectedPackage(graphBuilder, rootPkgDesc, dependencyCurrent);
+    }
+
+    @Test(description = "Override local repo dependency with another version")
+    public void testConflictResolutionCase5B() {
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
+
+        PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
+                PackageName.from("b"), PackageVersion.from("1.1.0"), ProjectConstants.LOCAL_REPOSITORY_NAME);
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyCurrent, PackageDependencyScope.DEFAULT,
+                DependencyResolutionType.SOURCE);
+
+        // Now lets add a older version of the dependency
+        PackageDescriptor dependencyNew = PackageDescriptor.from(PackageOrg.from("samjs"),
+                PackageName.from("b"), PackageVersion.from("1.5.0"));
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyNew, PackageDependencyScope.DEFAULT,
+                DependencyResolutionType.SOURCE);
+
+        assertExpectedPackage(graphBuilder, rootPkgDesc, dependencyNew);
+    }
+
+    @Test(description = "Override local repo dependency with another version")
+    public void testConflictResolutionCase5C() {
+        PackageDependencyGraphBuilder graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
+
+        PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
+                PackageName.from("b"), PackageVersion.from("1.1.0"), ProjectConstants.LOCAL_REPOSITORY_NAME);
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyCurrent, PackageDependencyScope.DEFAULT,
+                DependencyResolutionType.SOURCE);
+
+        // Now lets add a older version of the dependency
+        PackageDescriptor dependencyNew = PackageDescriptor.from(PackageOrg.from("samjs"),
+                PackageName.from("b"), PackageVersion.from("1.0.0"));
+        graphBuilder.addUnresolvedDependency(rootPkgDesc, dependencyNew, PackageDependencyScope.DEFAULT,
+                DependencyResolutionType.SOURCE);
+
+        assertExpectedPackage(graphBuilder, rootPkgDesc, dependencyCurrent);
     }
 
     @Test(expectedExceptions = ProjectException.class, expectedExceptionsMessageRegExp =
@@ -260,21 +272,21 @@ public class VersionConflictResolutionTests {
         getDependencyGraph(testSourcesDirectory.resolve("conflicts_negative_1.json"));
     }
 
-    private void compareGraphs(DependencyGraph<PackageDescriptor> actualDependencyGraph,
-                               DependencyGraph<PackageDescriptor> expectedDependencyGraph) {
-        Collection<PackageDescriptor> actualNodes = actualDependencyGraph.getNodes();
-        Collection<PackageDescriptor> expectedNodes = expectedDependencyGraph.getNodes();
+    private void compareGraphs(DependencyGraph<DependencyNode> actualDependencyGraph,
+                               DependencyGraph<DependencyNode> expectedDependencyGraph) {
+        Collection<DependencyNode> actualNodes = actualDependencyGraph.getNodes();
+        Collection<DependencyNode> expectedNodes = expectedDependencyGraph.getNodes();
         Assert.assertEquals(actualNodes.size(), expectedNodes.size());
 
-        for (PackageDescriptor expectedNode : expectedNodes) {
-            Collection<PackageDescriptor> actualNodeDeps = actualDependencyGraph.getDirectDependencies(expectedNode);
-            Collection<PackageDescriptor> expectedNodeDeps =
+        for (DependencyNode expectedNode : expectedNodes) {
+            Collection<DependencyNode> actualNodeDeps = actualDependencyGraph.getDirectDependencies(expectedNode);
+            Collection<DependencyNode> expectedNodeDeps =
                     expectedDependencyGraph.getDirectDependencies(expectedNode);
             Assert.assertNotNull(actualNodeDeps,
                     "Cannot find the node in the expected graph: " + expectedNode);
             Assert.assertEquals(actualNodeDeps.size(), expectedNodeDeps.size());
 
-            for (PackageDescriptor expectedNodeDep : expectedNodeDeps) {
+            for (DependencyNode expectedNodeDep : expectedNodeDeps) {
                 Assert.assertTrue(actualNodeDeps.contains(expectedNodeDep),
                         "Cannot find the dependency node in the expected graph: " + expectedNodeDep);
             }
@@ -287,8 +299,9 @@ public class VersionConflictResolutionTests {
                 PackageVersion.from(dependency.getVersion()));
     }
 
-    private DependencyGraph<PackageDescriptor> getDependencyGraph(Path jsonPath) throws IOException {
-        PackageDependencyGraphBuilder depGraphBuilder = new PackageDependencyGraphBuilder();
+    private DependencyGraph<DependencyNode> getDependencyGraph(Path jsonPath) throws IOException {
+        PackageDependencyGraphBuilder depGraphBuilder =
+                new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
         DependencyGraphJson dependencyGraphJson = gson
                 .fromJson(Files.newBufferedReader(jsonPath),
                         DependencyGraphJson.class);
@@ -296,15 +309,26 @@ public class VersionConflictResolutionTests {
         List<DependencyJson> directDependencies = dependencyGraphJson.directDependencies();
         for (DependencyJson directDependency : directDependencies) {
             PackageDescriptor pkgDesc = getPackageDesc(directDependency);
-            depGraphBuilder.addNode(pkgDesc, PackageDependencyScope.DEFAULT, DependencyVersionKind.USER_SPECIFIED);
-            List<PackageDescriptor> pkgDescDependencies = new ArrayList<>();
+            depGraphBuilder.addUnresolvedNode(pkgDesc, PackageDependencyScope.DEFAULT,
+                    DependencyResolutionType.SOURCE);
             for (DependencyJson dependency : directDependency.getDependencies()) {
                 PackageDescriptor pkgDescDependency = getPackageDesc(dependency);
-                pkgDescDependencies.add(pkgDescDependency);
+                depGraphBuilder.addUnresolvedDependency(pkgDesc, pkgDescDependency,
+                        PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE);
             }
-            depGraphBuilder.addDependencies(pkgDesc, pkgDescDependencies, PackageDependencyScope.DEFAULT,
-                    DependencyVersionKind.USER_SPECIFIED);
         }
-        return depGraphBuilder.build();
+        return depGraphBuilder.buildGraph();
+    }
+
+    private void assertExpectedPackage(PackageDependencyGraphBuilder graphBuilder,
+                                       PackageDescriptor rootPkgDesc,
+                                       PackageDescriptor expectedPkgDesc) {
+        DependencyNode rootNode = new DependencyNode(rootPkgDesc,
+                PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE);
+        DependencyGraph<DependencyNode> dependencyGraph = graphBuilder.buildGraph();
+        Collection<DependencyNode> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
+        // There is only one here
+        PackageDescriptor actualPkgDesc = directDependencies.iterator().next().pkgDesc();
+        Assert.assertEquals(actualPkgDesc, expectedPkgDesc);
     }
 }

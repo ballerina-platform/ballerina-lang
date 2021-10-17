@@ -73,6 +73,7 @@ public class Keywords {
 
 class 'Example {
     string 'anydata = "anydata";
+    function 'foo() {}
 }
 
 function example() returns 'Example {
@@ -87,5 +88,9 @@ public function main() {
 
     'Example 'new = new;
     'new.'anydata = "new anydata";
-
+    'new.foo();
+    int \u{73}tring = 12;
+    string intVal = "5"
+    int 'i\u{6E}tVal2 = 0;
+    int '\u{69}ntVal3 = -1;
 }

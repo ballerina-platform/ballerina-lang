@@ -27,7 +27,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUIL
  */
 public class Constants {
     public static final Module TEST_OBSERVE_PACKAGE = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "testobserve",
-                                                                 "0.0.0");
+                                                                 "0");
     public static final String MOCK_LISTENER_ERROR_TYPE = "MockListenerError";
     public static final String CALLER_TYPE_NAME = "Caller";
 

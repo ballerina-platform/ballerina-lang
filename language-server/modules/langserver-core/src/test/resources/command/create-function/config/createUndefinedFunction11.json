@@ -1,40 +1,40 @@
 {
-    "arguments": {
-        "node.range": {
-            "start": {
-                "line": 23,
-                "character": 4
-            },
-            "end": {
-                "line": 23,
-                "character": 29
-            }
-        }
-    },
-    "expected": {
-        "result": {
-            "edit": {
-                "documentChanges": [
-                    {
-                        "edits": [
-                            {
-                                "range": {
-                                    "start": {
-                                        "line": 34,
-                                        "character": 0
-                                    },
-                                    "end": {
-                                        "line": 34,
-                                        "character": 0
-                                    }
-                                },
-                                "newText": "\n\nfunction printThis(boolean a) {\n    \n}\n"
-                            }
-                        ]
-                    }
-                ]
-            }
-        },
-        "jsonrpc": "2.0"
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 23,
+        "character": 4
+      },
+      "end": {
+        "line": 23,
+        "character": 29
+      }
     }
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 33,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 33,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction printThis(boolean b) {\n    \n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
 }

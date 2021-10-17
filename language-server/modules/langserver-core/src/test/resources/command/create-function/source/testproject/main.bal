@@ -14,4 +14,6 @@ public function main() {
         name: name,
         age: getAge(student)
     };
+
+    generateIndex(module1:intake, name);
 }

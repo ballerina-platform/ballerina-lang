@@ -388,6 +388,12 @@ public class TypeChecker extends BLangNodeVisitor {
         return resultType;
     }
 
+    private void analyzeObjectConstructor(BLangNode node, SymbolEnv env) {
+        if (!nonErrorLoggingCheck) {
+            semanticAnalyzer.analyzeNode(node, env);
+        }
+    }
+
     private void validateAndSetExprExpectedType(BLangExpression expr) {
         if (resultType.tag == TypeTags.SEMANTIC_ERROR) {
             return;
@@ -902,13 +908,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 memTypes.add(recordType);
             }
 
-            if (((BTableType) applicableExpType).constraint.tag == TypeTags.MAP &&
-                    ((BTableType) applicableExpType).isTypeInlineDefined) {
-                validateMapConstraintTable(tableConstructorExpr, applicableExpType);
+            BTableType expectedTableType = (BTableType) applicableExpType;
+            if (expectedTableType.constraint.tag == TypeTags.MAP && expectedTableType.isTypeInlineDefined) {
+                validateMapConstraintTable(applicableExpType);
                 return;
             }
 
-            if (!(validateTableType((BTableType) applicableExpType,
+            if (!(validateKeySpecifierInTableConstructor((BTableType) applicableExpType,
                     tableConstructorExpr.recordLiteralList) &&
                     validateTableConstructorExpr(tableConstructorExpr, (BTableType) applicableExpType))) {
                 resultType = symTable.semanticError;
@@ -926,7 +932,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
             }
 
-            BTableType expectedTableType = (BTableType) applicableExpType;
             if (expectedTableType.fieldNameList != null && tableType.fieldNameList == null) {
                 tableType.fieldNameList = expectedTableType.fieldNameList;
             }
@@ -1118,25 +1123,22 @@ public class TypeChecker extends BLangNodeVisitor {
         return Collectors.toMap(field -> field.name.value, Function.identity(), mergeFunc, LinkedHashMap::new);
     }
 
-    private boolean validateTableType(BTableType tableType, List<BLangRecordLiteral> recordLiterals) {
-
+    private boolean validateTableType(BTableType tableType) {
         BType constraint = tableType.constraint;
         if (tableType.isTypeInlineDefined && !types.isAssignable(constraint, symTable.mapAllType)) {
             dlog.error(tableType.constraintPos, DiagnosticErrorCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, constraint);
             resultType = symTable.semanticError;
             return false;
         }
+        return true;
+    }
 
+    private boolean validateKeySpecifierInTableConstructor(BTableType tableType,
+                                                         List<BLangRecordLiteral> recordLiterals) {
         List<String> fieldNameList = tableType.fieldNameList;
         if (fieldNameList != null) {
-            boolean isKeySpecifierValidated = !tableType.isTypeInlineDefined || validateKeySpecifier(fieldNameList,
-                    constraint.tag != TypeTags.INTERSECTION ? constraint :
-                            ((BIntersectionType) constraint).effectiveType,
-                    tableType.keyPos);
-
-            return (isKeySpecifierValidated && validateTableKeyValue(fieldNameList, recordLiterals));
+            return validateTableKeyValue(fieldNameList, recordLiterals);
         }
-
         return true;
     }
 
@@ -1302,27 +1304,15 @@ public class TypeChecker extends BLangNodeVisitor {
         return true;
     }
 
-    public void validateMapConstraintTable(BLangTableConstructorExpr tableConstructorExpr, BType expType) {
-        if (((BTableType) expType).fieldNameList != null || ((BTableType) expType).keyTypeConstraint != null) {
+    public void validateMapConstraintTable(BType expType) {
+        if (expType != null && (((BTableType) expType).fieldNameList != null ||
+                ((BTableType) expType).keyTypeConstraint != null) &&
+                !expType.tsymbol.owner.getFlags().contains(Flag.LANG_LIB)) {
             dlog.error(((BTableType) expType).keyPos,
                     DiagnosticErrorCode.KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT);
             resultType = symTable.semanticError;
             return;
         }
-
-        if (tableConstructorExpr != null && tableConstructorExpr.tableKeySpecifier != null) {
-            dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
-                    DiagnosticErrorCode.KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT);
-            resultType = symTable.semanticError;
-            return;
-        }
-
-        if (tableConstructorExpr != null && !(validateTableType((BTableType) expType,
-                tableConstructorExpr.recordLiteralList))) {
-            resultType = symTable.semanticError;
-            return;
-        }
-
         resultType = expType;
     }
 
@@ -2177,8 +2167,10 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             // If the variable name is a wildcard('_'), the symbol should be ignorable.
-            varRefExpr.symbol = new BVarSymbol(0, true, varName, env.enclPkg.symbol.pkgID, varRefExpr.getBType(),
-                                               env.scope.owner, varRefExpr.pos, VIRTUAL);
+            varRefExpr.symbol = new BVarSymbol(0, true, varName,
+                                               names.originalNameFromIdNode(varRefExpr.variableName),
+                                               env.enclPkg.symbol.pkgID, varRefExpr.getBType(), env.scope.owner,
+                                               varRefExpr.pos, VIRTUAL);
 
             resultType = varRefExpr.getBType();
             return;
@@ -2273,6 +2265,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BVarSymbol bVarSymbol = (BVarSymbol) bLangVarReference.symbol;
             BField field = new BField(names.fromIdNode(recordRefField.variableName), varRefExpr.pos,
                                       new BVarSymbol(0, names.fromIdNode(recordRefField.variableName),
+                                                     names.originalNameFromIdNode(recordRefField.variableName),
                                                      env.enclPkg.symbol.pkgID, bVarSymbol.type, recordSymbol,
                                                      varRefExpr.pos, SOURCE));
             fields.put(field.name.value, field);
@@ -2292,7 +2285,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BRecordType bRecordType = new BRecordType(recordSymbol);
         bRecordType.fields = fields;
         recordSymbol.type = bRecordType;
-        varRefExpr.symbol = new BVarSymbol(0, recordSymbol.name,
+        varRefExpr.symbol = new BVarSymbol(0, recordSymbol.name, recordSymbol.getOriginalName(),
                                            env.enclPkg.symbol.pkgID, bRecordType, env.scope.owner, varRefExpr.pos,
                                            SOURCE);
 
@@ -2518,7 +2511,16 @@ public class TypeChecker extends BLangNodeVisitor {
                 param.getBType().tag == symbol.type.tag));
     }
 
+    @Override
+    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
+        checkFieldBasedAccess(nsPrefixedFieldBasedAccess, true);
+    }
+
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        checkFieldBasedAccess(fieldAccessExpr, false);
+    }
+
+    private void checkFieldBasedAccess(BLangFieldBasedAccess fieldAccessExpr, boolean isNsPrefixed) {
         markLeafNode(fieldAccessExpr);
 
         // First analyze the accessible expression.
@@ -2533,8 +2535,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType varRefType = types.getTypeWithEffectiveIntersectionTypes(checkExpr(containerExpression, env));
 
         // Disallow `expr.ns:attrname` syntax on non xml expressions.
-        if (fieldAccessExpr instanceof BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess
-                && !isXmlAccess(fieldAccessExpr)) {
+        if (isNsPrefixed && !isXmlAccess(fieldAccessExpr)) {
             dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.INVALID_FIELD_ACCESS_EXPRESSION);
             resultType = symTable.semanticError;
             return;
@@ -2548,7 +2549,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
             }
             actualType = checkOptionalFieldAccessExpr(fieldAccessExpr, varRefType,
-                                                      names.fromIdNode(fieldAccessExpr.field));
+                    names.fromIdNode(fieldAccessExpr.field));
         } else {
             actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, names.fromIdNode(fieldAccessExpr.field));
 
@@ -2871,13 +2872,13 @@ public class TypeChecker extends BLangNodeVisitor {
         // todo: Need to add type-checking when fixing #29247 for positional args beyond second arg.
     }
 
-    private BType checkExprSilent(BLangRecordLiteral recordLiteral, BType expType, SymbolEnv env) {
+    private BType checkExprSilent(BLangExpression expr, BType expType, SymbolEnv env) {
         boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
         this.nonErrorLoggingCheck = true;
         int errorCount = this.dlog.errorCount();
         this.dlog.mute();
 
-        BType type = checkExpr(recordLiteral, env, expType);
+        BType type = checkExpr(expr, env, expType);
 
         this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
         dlog.setErrorCount(errorCount);
@@ -3282,7 +3283,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         handleObjectConstrExprForReadOnly(cIExpr, actualObjectType, classDefForConstructor, pkgEnv,
                                                           true);
                     } else {
-                        semanticAnalyzer.analyzeNode(classDefForConstructor, pkgEnv);
+                        analyzeObjectConstructor(classDefForConstructor, pkgEnv);
                     }
 
                     markConstructedObjectIsolatedness(actualObjectType);
@@ -3674,7 +3675,8 @@ public class TypeChecker extends BLangNodeVisitor {
             BSymbol symbol = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(fieldName));
             BType fieldType = symbol.type.tag == TypeTags.FUTURE ? ((BFutureType) symbol.type).constraint : symbol.type;
             BField field = new BField(names.fromIdNode(keyVal.key), null,
-                                      new BVarSymbol(0, names.fromIdNode(keyVal.key), env.enclPkg.packageID,
+                                      new BVarSymbol(0, names.fromIdNode(keyVal.key),
+                                                     names.originalNameFromIdNode(keyVal.key), env.enclPkg.packageID,
                                                      fieldType, null, keyVal.pos, VIRTUAL));
             retType.fields.put(field.name.value, field);
         }
@@ -4252,11 +4254,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = new BTypedescType(exprType, null);
             }
         } else {
-//            allow both addition and subtraction operators to get expected type as Decimal
-            boolean decimalNegation = OperatorKind.SUB.equals(unaryExpr.operator) && expType.tag == TypeTags.DECIMAL;
-            boolean isAdd = OperatorKind.ADD.equals(unaryExpr.operator);
-            exprType = (decimalNegation || isAdd) ? checkExpr(unaryExpr.expr, env, expType) :
-                    checkExpr(unaryExpr.expr, env);
+            //allow both addition and subtraction operators to get expected type as Decimal
+            boolean decimalAddNegate = expType.tag == TypeTags.DECIMAL &&
+                    (OperatorKind.ADD.equals(unaryExpr.operator) || OperatorKind.SUB.equals(unaryExpr.operator));
+            exprType = decimalAddNegate ? checkExpr(unaryExpr.expr, env, expType) : checkExpr(unaryExpr.expr, env);
             if (exprType != symTable.semanticError) {
                 BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, exprType);
                 if (symbol == symTable.notFoundSymbol) {
@@ -4936,7 +4937,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BTableType tableType = (BTableType) actualType;
             tableType.constraintPos = queryExpr.pos;
             tableType.isTypeInlineDefined = true;
-            if (!validateTableType(tableType, null)) {
+            if (!validateTableType(tableType)) {
                 resultType = symTable.semanticError;
                 return;
             }
@@ -5030,6 +5031,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType getQueryTableType(BLangQueryExpr queryExpr, BType constraintType) {
         final BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
         if (!queryExpr.fieldNameIdentifierList.isEmpty()) {
+            validateKeySpecifier(queryExpr.fieldNameIdentifierList, constraintType);
+            markReadOnlyForConstraintType(constraintType);
             tableType.fieldNameList = queryExpr.fieldNameIdentifierList.stream()
                     .map(identifier -> ((BLangIdentifier) identifier).value).collect(Collectors.toList());
             return BUnionType.create(null, tableType, symTable.errorType);
@@ -5037,6 +5040,33 @@ public class TypeChecker extends BLangNodeVisitor {
         return tableType;
     }
 
+    private void validateKeySpecifier(List<IdentifierNode> fieldList, BType constraintType) {
+        for (IdentifierNode identifier : fieldList) {
+            BField field = types.getTableConstraintField(constraintType, identifier.getValue());
+            if (field == null) {
+                dlog.error(identifier.getPosition(), DiagnosticErrorCode.INVALID_FIELD_NAMES_IN_KEY_SPECIFIER,
+                        identifier.getValue(), constraintType);
+            } else if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
+                field.symbol.flags |= Flags.READONLY;
+            }
+        }
+    }
+
+    private void markReadOnlyForConstraintType(BType constraintType) {
+        if (constraintType.tag != TypeTags.RECORD) {
+            return;
+        }
+        BRecordType recordType = (BRecordType) constraintType;
+        for (BField field : recordType.fields.values()) {
+            if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
+                return;
+            }
+        }
+        if (recordType.sealed) {
+            recordType.flags |= Flags.READONLY;
+            recordType.tsymbol.flags |= Flags.READONLY;
+        }
+    }
 
     private BType getErrorType(BType collectionType, BLangQueryExpr queryExpr) {
         if (collectionType.tag == TypeTags.SEMANTIC_ERROR) {
@@ -5371,11 +5401,6 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = BUnionType.create(null, new LinkedHashSet<>(nonErrorTypes));
         }
 
-        if (actualType.tag == TypeTags.NEVER) {
-            dlog.error(checkedExpr.pos, DiagnosticErrorCode.NEVER_TYPE_NOT_ALLOWED_WITH_CHECKED_EXPR,
-                    operatorType);
-        }
-
         resultType = types.checkType(checkedExpr, actualType, expType);
     }
 
@@ -5567,7 +5592,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void checkSelfReferences(Location pos, SymbolEnv env, BVarSymbol varSymbol) {
+    public void checkSelfReferences(Location pos, SymbolEnv env, BVarSymbol varSymbol) {
         if (env.enclVarSym == varSymbol) {
             dlog.error(pos, DiagnosticErrorCode.SELF_REFERENCE_VAR, varSymbol.name);
         }
@@ -5796,26 +5821,23 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationParamAndReturnType(iExpr);
     }
 
-    // Here, an action invocation can be either of the following two forms:
+    // Here, an action invocation can be either of the following three forms:
     // - foo->bar();
-    // - start foo.bar(); or start foo->bar()
+    // - start foo.bar(); or start foo->bar(); or start (new Foo()).foo();
     private void checkActionInvocation(BLangInvocation.BLangActionInvocation aInv, BObjectType expType) {
-        BLangValueExpression varRef = (BLangValueExpression) aInv.expr;
 
-        if (((varRef.symbol.tag & SymTag.ENDPOINT) != SymTag.ENDPOINT) && !aInv.async) {
-            dlog.error(aInv.pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION, varRef.getBType());
+        if (checkInvalidActionInvocation(aInv)) {
+            dlog.error(aInv.pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION, aInv.expr.getBType());
             this.resultType = symTable.semanticError;
             aInv.symbol = symTable.notFoundSymbol;
             return;
         }
 
-        BVarSymbol epSymbol = (BVarSymbol) varRef.symbol;
-
         Name remoteMethodQName = names
                 .fromString(Symbols.getAttachedFuncSymbolName(expType.tsymbol.name.value, aInv.name.value));
         Name actionName = names.fromIdNode(aInv.name);
         BSymbol remoteFuncSymbol = symResolver
-                .lookupMemberSymbol(aInv.pos, epSymbol.type.tsymbol.scope, env, remoteMethodQName, SymTag.FUNCTION);
+                .resolveObjectMethod(aInv.pos, env, remoteMethodQName, (BObjectTypeSymbol) expType.tsymbol);
 
         if (remoteFuncSymbol == symTable.notFoundSymbol) {
             BSymbol invocableField = symResolver.resolveInvocableObjectField(
@@ -5847,6 +5869,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
         aInv.symbol = remoteFuncSymbol;
         checkInvocationParamAndReturnType(aInv);
+    }
+
+    private boolean checkInvalidActionInvocation(BLangInvocation.BLangActionInvocation aInv) {
+        return aInv.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                (((((BLangSimpleVarRef) aInv.expr).symbol.tag & SymTag.ENDPOINT) !=
+                        SymTag.ENDPOINT) && !aInv.async);
     }
 
     private boolean checkLangLibMethodInvocationExpr(BLangInvocation iExpr, BType bType) {
@@ -6033,7 +6061,16 @@ public class TypeChecker extends BLangNodeVisitor {
             // function call error.
             if (i == 0 && arg.typeChecked && iExpr.expr != null && iExpr.expr == arg) {
                 BType expectedType = paramTypes.get(i);
-                types.checkType(arg.pos, arg.getBType(), expectedType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+                BType actualType = arg.getBType();
+                if (expectedType == symTable.charStringType) {
+                    arg.cloneAttempt++;
+                    BLangExpression clonedArg = nodeCloner.cloneNode(arg);
+                    BType argType = checkExprSilent(clonedArg, expectedType, env);
+                    if (argType != symTable.semanticError) {
+                        actualType = argType;
+                    }
+                }
+                types.checkType(arg.pos, actualType, expectedType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
                 types.setImplicitCastExpr(arg, arg.getBType(), expectedType);
             }
 
@@ -6135,8 +6172,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 tupleMemberTypes.add(paramType);
                 boolean required = requiredParams.contains(nonRestParam);
                 fieldSymbol = new BVarSymbol(Flags.asMask(new HashSet<Flag>() {{
-                                             add(required ? Flag.REQUIRED : Flag.OPTIONAL); }}), paramName,
-                                             pkgID, paramType, recordSymbol, null, VIRTUAL);
+                                            add(required ? Flag.REQUIRED : Flag.OPTIONAL); }}), paramName,
+                                            nonRestParam.getOriginalName(), pkgID, paramType, recordSymbol,
+                                            symTable.builtinPos, VIRTUAL);
                 fields.put(paramName.value, new BField(paramName, null, fieldSymbol));
             }
 
@@ -6308,7 +6346,8 @@ public class TypeChecker extends BLangNodeVisitor {
             BRecordType incRecordType = (BRecordType) incRecordParamAllowAdditionalFields.type;
             checkExpr(expr, env, incRecordType.restFieldType);
             if (!incRecordType.fields.containsKey(argName.value)) {
-                return new BVarSymbol(0, names.fromIdNode(argName), null, symTable.noType, null, argName.pos, VIRTUAL);
+                return new BVarSymbol(0, names.fromIdNode(argName), names.originalNameFromIdNode(argName),
+                                      null, symTable.noType, null, argName.pos, VIRTUAL);
             }
         }
         return null;
@@ -6352,6 +6391,8 @@ public class TypeChecker extends BLangNodeVisitor {
             case LIST_CONSTRUCTOR_EXPR:
             case RECORD_LITERAL_EXPR:
                 return true;
+            case ELVIS_EXPR:
+            case TERNARY_EXPR:
             case NUMERIC_LITERAL:
                 return inferTypeForNumericLiteral;
             default:
@@ -6767,7 +6808,8 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             BType type = expr.getBType();
-            if (type.tag >= TypeTags.JSON) {
+            if (type.tag >= TypeTags.JSON &&
+                    !TypeTags.isIntegerTypeTag(type.tag) && !TypeTags.isStringTypeTag(type.tag)) {
                 if (type != symTable.semanticError && !TypeTags.isXMLTypeTag(type.tag)) {
                     dlog.error(expr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                             BUnionType.create(null, symTable.intType, symTable.floatType,
@@ -6882,7 +6924,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return checkRecordRequiredFieldAccess(fieldAccessExpr, fieldName, (BRecordType) varRefType);
         }
 
-        // If the type is not an record, it needs to be a union of records.
+        // If the type is not a record, it needs to be a union of records.
         // Resultant field type is calculated here.
         Set<BType> memberTypes = ((BUnionType) varRefType).getMemberTypes();
 
@@ -6952,7 +6994,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (fieldType == symTable.semanticError) {
                 return fieldType;
             }
-            return BUnionType.create(null, fieldType, symTable.nilType);
+            return addNilForNillableAccessType(fieldType);
         }
 
         // If the type is not an record, it needs to be a union of records.
@@ -6989,6 +7031,76 @@ public class TypeChecker extends BLangNodeVisitor {
         return nonMatchedRecordExists ? addNilForNillableAccessType(fieldType) : fieldType;
     }
 
+    private RecordUnionDiagnostics checkRecordUnion(BLangFieldBasedAccess fieldAccessExpr, Set<BType> memberTypes,
+                                                    Name fieldName) {
+
+        RecordUnionDiagnostics recordUnionDiagnostics = new RecordUnionDiagnostics();
+
+        for (BType memberType : memberTypes) {
+            BRecordType recordMember = (BRecordType) memberType;
+
+            if (recordMember.getFields().containsKey(fieldName.getValue())) {
+                // If the field being accessed is declared, checks if it is a required field in this record member type
+                BType individualFieldType = checkRecordRequiredFieldAccess(fieldAccessExpr, fieldName, recordMember);
+
+                if (individualFieldType == symTable.semanticError) {
+                    // If the field being accessed is declared as an optional field in this record member type
+                    recordUnionDiagnostics.optionalInRecords.add(recordMember);
+                }
+
+            } else {
+                // The field being accessed is not declared in this record member type
+                recordUnionDiagnostics.undeclaredInRecords.add(recordMember);
+            }
+
+        }
+
+        return recordUnionDiagnostics;
+    }
+
+    private void logRhsFieldAccExprErrors(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
+        if (varRefType.tag == TypeTags.RECORD) {
+
+            BRecordType recordVarRefType = (BRecordType) varRefType;
+            boolean isFieldDeclared = recordVarRefType.getFields().containsKey(fieldName.getValue());
+
+            if (isFieldDeclared) {
+                // The field being accessed using the field access expression is declared as an optional field
+                dlog.error(fieldAccessExpr.pos,
+                        DiagnosticErrorCode.FIELD_ACCESS_CANNOT_BE_USED_TO_ACCESS_OPTIONAL_FIELDS);
+            } else if (recordVarRefType.sealed) {
+                // Accessing an undeclared field in a close record
+                dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.UNDECLARED_FIELD_IN_RECORD, fieldName, varRefType);
+
+            } else {
+                // The field accessed is either not declared or maybe declared as a rest field in an open record
+                dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.INVALID_FIELD_ACCESS_IN_RECORD_TYPE, fieldName,
+                        varRefType);
+            }
+
+        } else {
+            // If the type is not a record, it needs to be a union of records
+            LinkedHashSet<BType> memberTypes = ((BUnionType) varRefType).getMemberTypes();
+            RecordUnionDiagnostics recUnionInfo = checkRecordUnion(fieldAccessExpr, memberTypes, fieldName);
+
+            if (recUnionInfo.hasUndeclaredAndOptional()) {
+
+                dlog.error(fieldAccessExpr.pos,
+                        DiagnosticErrorCode.UNDECLARED_AND_OPTIONAL_FIELDS_IN_UNION_OF_RECORDS, fieldName,
+                        recUnionInfo.recordsToString(recUnionInfo.undeclaredInRecords),
+                        recUnionInfo.recordsToString(recUnionInfo.optionalInRecords));
+            } else if (recUnionInfo.hasUndeclared()) {
+
+                dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.UNDECLARED_FIELD_IN_UNION_OF_RECORDS, fieldName,
+                        recUnionInfo.recordsToString(recUnionInfo.undeclaredInRecords));
+            } else if (recUnionInfo.hasOptional()) {
+
+                dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.OPTIONAL_FIELD_IN_UNION_OF_RECORDS, fieldName,
+                        recUnionInfo.recordsToString(recUnionInfo.optionalInRecords));
+            }
+        }
+    }
+
     private BType checkFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
         BType actualType = symTable.semanticError;
 
@@ -7004,9 +7116,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             if (!fieldAccessExpr.isLValue) {
-                dlog.error(fieldAccessExpr.pos,
-                        DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS_FOR_NON_REQUIRED_FIELD,
-                        varRefType, fieldName);
+                logRhsFieldAccExprErrors(fieldAccessExpr, varRefType, fieldName);
                 return actualType;
             }
 
@@ -7290,8 +7400,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 return symTable.semanticError;
             }
 
-            indexBasedAccessExpr.originalType = symTable.stringType;
-            actualType = symTable.stringType;
+            indexBasedAccessExpr.originalType = symTable.charStringType;
+            actualType = symTable.charStringType;
         } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
             if (indexBasedAccessExpr.isLValue) {
                 indexExpr.setBType(symTable.semanticError);
@@ -7991,8 +8101,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
-                Flags.PUBLIC, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner, false,
-                symTable.builtinPos, VIRTUAL);
+                Flags.PUBLIC, Names.EMPTY, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner,
+                false, symTable.builtinPos, VIRTUAL);
         initFuncSymbol.retType = symTable.nilType;
         recordSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol,
                                                              bInvokableType, location);
@@ -8167,7 +8277,7 @@ public class TypeChecker extends BLangNodeVisitor {
         for (BField field : actualObjectType.fields.values()) {
             BType fieldType = field.type;
             if (!types.isInherentlyImmutableType(fieldType) && !types.isSelectivelyImmutableType(fieldType, false)) {
-                semanticAnalyzer.analyzeNode(classDefForConstructor, env);
+                analyzeObjectConstructor(classDefForConstructor, env);
                 hasNeverReadOnlyField = true;
 
                 if (!logErrors) {
@@ -8191,7 +8301,7 @@ public class TypeChecker extends BLangNodeVisitor {
         ImmutableTypeCloner.markFieldsAsImmutable(classDefForConstructor, env, actualObjectType, types,
                                                   anonymousModelHelper, symTable, names, cIExpr.pos);
 
-        semanticAnalyzer.analyzeNode(classDefForConstructor, env);
+        analyzeObjectConstructor(classDefForConstructor, env);
     }
 
     private void markConstructedObjectIsolatedness(BObjectType actualObjectType) {
@@ -8254,6 +8364,48 @@ public class TypeChecker extends BLangNodeVisitor {
         public TypeSymbolPair(BVarSymbol fieldSymbol, BType determinedType) {
             this.fieldSymbol = fieldSymbol;
             this.determinedType = determinedType;
+        }
+    }
+
+    private static class RecordUnionDiagnostics {
+        // Set of record types which doesn't have the field name declared
+        Set<BRecordType> undeclaredInRecords = new LinkedHashSet<>();
+
+        // Set of record types which has the field name declared as optional
+        Set<BRecordType> optionalInRecords = new LinkedHashSet<>();
+
+        boolean hasUndeclaredAndOptional() {
+            return undeclaredInRecords.size() > 0 && optionalInRecords.size() > 0;
+        }
+
+        boolean hasUndeclared() {
+            return undeclaredInRecords.size() > 0;
+        }
+
+        boolean hasOptional() {
+            return optionalInRecords.size() > 0;
+        }
+
+        String recordsToString(Set<BRecordType> recordTypeSet) {
+            StringBuilder recordNames = new StringBuilder();
+            int recordSetSize = recordTypeSet.size();
+            int index = 0;
+
+            for (BRecordType recordType : recordTypeSet) {
+                index++;
+                recordNames.append(recordType.tsymbol.getName().getValue());
+
+                if (recordSetSize > 1) {
+
+                    if (index == recordSetSize - 1) {
+                        recordNames.append("', and '");
+                    } else if (index < recordSetSize) {
+                        recordNames.append("', '");
+                    }
+                }
+            }
+
+            return recordNames.toString();
         }
     }
 }

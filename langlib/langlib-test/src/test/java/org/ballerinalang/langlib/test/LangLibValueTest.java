@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -45,7 +46,7 @@ import static org.testng.Assert.assertNull;
 @Test
 public class LangLibValueTest {
 
-    private CompileResult compileResult, testFile;
+    private CompileResult compileResult, file;
 
     @BeforeClass
     public void setup() {
@@ -61,7 +62,7 @@ public class LangLibValueTest {
         CompileResult negativeResult = BCompileUtil.compile("test-src/valuelib_test_negative.bal");
         int index = 0;
         validateError(negativeResult, index++, "incompatible types: expected 'any', found " +
-                "'ballerina/lang.value:1.0.0:Cloneable'", 21, 13);
+                "'ballerina/lang.value:0.0.0:Cloneable'", 21, 13);
         validateError(negativeResult, index++, "incompatible type for parameter 't' with inferred typedesc value: " +
                 "expected 'typedesc<anydata>', found 'typedesc<MyClass>'", 30, 23);
         validateError(negativeResult, index++, "incompatible type for parameter 't' with inferred typedesc value: " +
@@ -263,7 +264,7 @@ public class LangLibValueTest {
 
     @Test
     public void testToBalStringMethod() {
-        testFile = BCompileUtil.compile("test-src/valuelib_toBalString_test.bal");
+        CompileResult testFile = BCompileUtil.compile("test-src/valuelib_toBalString_test.bal");
         BRunUtil.invokeFunction(testFile, "testIntValueToBalString");
         BRunUtil.invokeFunction(testFile, "testStringValueToBalString");
         BRunUtil.invokeFunction(testFile, "testFloatingPointNumbersToBalString");
@@ -279,7 +280,7 @@ public class LangLibValueTest {
     }
 
     @Test
-    public void testXmlFromBalString() {
+    public void testFromBalString() {
         CompileResult file = BCompileUtil.compile("test-src/valuelib_fromBalString_test.bal");
         BRunUtil.invokeFunction(file, "testIntValueFromBalString");
         BRunUtil.invokeFunction(file, "testStringValueFromBalString");
@@ -352,7 +353,8 @@ public class LangLibValueTest {
                 { "testCloneWithTypeWithFiniteArrayTypeFromIntArray" },
                 { "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray" },
                 { "testCloneWithTypeWithUnionTypeArrayFromIntArray" },
-                { "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative" }
+                { "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative" },
+                { "testConvertJsonToNestedRecordsWithErrors" }
         };
     }
 
@@ -380,7 +382,8 @@ public class LangLibValueTest {
 
     @Test(dataProvider = "fromJsonWithTypeFunctions")
     public void testFromJsonWithType(String function) {
-        BRunUtil.invoke(compileResult, function);
+        file = BCompileUtil.compile("test-src/valuelib_fromJson_test.bal");
+        BRunUtil.invoke(file, function);
     }
 
     @Test
@@ -414,13 +417,15 @@ public class LangLibValueTest {
                 { "testFromJsonWithTypeWithNullValues" },
                 { "testFromJsonWithTypeWithNullValuesNegative" },
                 { "testFromJsonWithTypeWithInferredArgument" },
-                { "testFromJsonWithTypeWithTypeReferences" }
+                { "testFromJsonWithTypeWithTypeReferences" },
+                { "testFromJsonWithTypeNestedRecordsNegative" }
         };
     }
 
     @Test(dataProvider = "fromJsonStringWithTypeFunctions")
     public void testFromJsonStringWithType(String function) {
-        BRunUtil.invoke(compileResult, function);
+        file = BCompileUtil.compile("test-src/valuelib_fromJson_test.bal");
+        BRunUtil.invoke(file, function);
     }
 
     @DataProvider(name = "fromJsonStringWithTypeFunctions")
@@ -454,7 +459,10 @@ public class LangLibValueTest {
                 { "testToJsonWithMapInt" },
                 { "testToJsonWithStringArray" },
                 { "testToJsonWithIntArray" },
-                { "testToJsonWithTable" }
+                { "testToJsonWithTable" },
+                { "testToJsonWithCyclicParameter" },
+                { "testTableToJsonConversion" },
+                { "testToJsonConversionError" }
         };
     }
 
@@ -471,8 +479,22 @@ public class LangLibValueTest {
         };
     }
 
-    @Test
-    public void testEnsureTypeNegative() {
-        BRunUtil.invokeFunction(compileResult, "testEnsureTypeNegative");
+    @Test(dataProvider = "ensureTypeNegativeFunctions")
+    public void testEnsureTypeNegative(String function) {
+        BRunUtil.invokeFunction(compileResult, function);
+    }
+
+    @DataProvider(name = "ensureTypeNegativeFunctions")
+    public Object[][] ensureTypeNegativeFunctions() {
+        return new Object[][] {
+                { "testEnsureTypeNegative" },
+                { "testEnsureTypeJsonToNestedRecordsWithErrors" }
+        };
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        file = null;
     }
 }

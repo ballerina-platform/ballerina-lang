@@ -54,10 +54,10 @@ public class StringTemplateLiteralNegativeTest {
         resultNegative = BCompileUtil.compile("test-src/types/string/string-template-literal-syntax-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 13);
         int index = 0;
-        BAssertUtil.validateError(resultNegative, index++, "invalid token ';'", 4, 74);
-        BAssertUtil.validateError(resultNegative, index++, "invalid token ';'", 4, 74);
-        BAssertUtil.validateError(resultNegative, index++, "invalid token 'return'", 4, 74);
-        BAssertUtil.validateError(resultNegative, index++, "invalid token 's'", 4, 74);
+        BAssertUtil.validateError(resultNegative, index++, "invalid token ';'", 4, 75);
+        BAssertUtil.validateError(resultNegative, index++, "invalid token 'return'", 5, 5);
+        BAssertUtil.validateError(resultNegative, index++, "invalid token 's'", 5, 12);
+        BAssertUtil.validateError(resultNegative, index++, "invalid token ';'", 5, 13);
         BAssertUtil.validateError(resultNegative, index++, "invalid escape sequence '\\l'", 10, 24);
         BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 24);
         BAssertUtil.validateError(resultNegative, index++, "unknown type 'He\\llo'", 10, 24);
@@ -66,9 +66,9 @@ public class StringTemplateLiteralNegativeTest {
         BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 39);
         BAssertUtil.validateError(resultNegative, index++,
                 "variable declaration having binding pattern must be initialized", 10, 39);
-        BAssertUtil.validateError(resultNegative, index++, "invalid token ';" + System.lineSeparator() +
-                "    return s;" + System.lineSeparator() + "}" + System.lineSeparator() + "'", 13, 1);
-        BAssertUtil.validateError(resultNegative, index, "invalid token '`'", 13, 1);
+        BAssertUtil.validateError(resultNegative, index++, "invalid token '`'", 10, 40);
+        BAssertUtil.validateError(resultNegative, index, "invalid token ';" + System.lineSeparator() +
+                "    return s;" + System.lineSeparator() + "}" + System.lineSeparator() + "'", 10, 41);
     }
 
     @AfterClass

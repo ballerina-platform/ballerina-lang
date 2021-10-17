@@ -1,5 +1,5 @@
 function foo() {
-    retry transaction 
+    retry transaction
     }
 
     retry<T transaction {

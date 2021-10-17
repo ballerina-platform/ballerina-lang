@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/jballerina.java;
 import ballerina/lang.'value as value;
 
 type Address record {
@@ -517,6 +518,8 @@ type Person2 record {
     int age;
 };
 
+type A [int, string|xml, A...];
+
 function testCloneWithTypeTupleToJSON() {
     [string, string, string] tupleValue1 = ["Mohan", "single", "LK2014"];
     json|error jsonValue = tupleValue1.cloneWithType();
@@ -528,7 +531,7 @@ function testCloneWithTypeTupleToJSON() {
     jsonValue = tupleValue2.cloneWithType();
     assert(jsonValue is error, true);
     error err = <error> jsonValue;
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(<string> checkpanic err.detail()["message"], "'[string,string,xml<(lang.xml:Element|lang.xml:Comment|" +
          "lang.xml:ProcessingInstruction|lang.xml:Text)>]' value cannot be converted to 'json'");
 
@@ -551,7 +554,7 @@ function testCloneWithTypeTupleToJSON() {
     jsonValue = tupleValue6.cloneWithType();
     assert(jsonValue is error, true);
     err = <error> jsonValue;
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(<string> checkpanic err.detail()["message"], "'[string,(int|xml<(lang.xml:Element|lang.xml:Comment|" +
          "lang.xml:ProcessingInstruction|lang.xml:Text)>)...]' value cannot be converted to 'json'");
 
@@ -559,16 +562,29 @@ function testCloneWithTypeTupleToJSON() {
     jsonValue = tupleValue7.cloneWithType();
     assert(jsonValue is error, true);
     err = <error> jsonValue;
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(<string> checkpanic err.detail()["message"], "'[string,anydata...]' value cannot be converted to 'json'");
 
     [string, xml|int] tupleValue8 = ["text1", xml `</elem>`];
     jsonValue = tupleValue8.cloneWithType();
     assert(jsonValue is error, true);
     err = <error> jsonValue;
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(<string> checkpanic err.detail()["message"], "'[string,(xml<(lang.xml:Element|lang.xml:Comment|" +
          "lang.xml:ProcessingInstruction|lang.xml:Text)>|int)]' value cannot be converted to 'json'");
+
+    A tupleValue9 = [1, ""];
+    jsonValue = tupleValue9.cloneWithType();
+    assert(jsonValue is error, false);
+    assert(jsonValue is json[], true);
+
+    A tupleValue10 = [1,  xml `</elem>`];
+    jsonValue = tupleValue10.cloneWithType();
+    assert(jsonValue is error, true);
+    err = <error> jsonValue;
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
+    assert(<string> checkpanic err.detail()["message"], "'[int,(string|xml<(lang.xml:Element|lang.xml:Comment|" +
+        "lang.xml:ProcessingInstruction|lang.xml:Text)>),A...]' value cannot be converted to 'json'");
 }
 
 function testCloneWithTypeJsonRec1() {
@@ -607,8 +623,9 @@ public function testCloneWithTypeOptionalFieldToMandotoryField() {
     error bbe = <error> b;
     var message = bbe.detail()["message"];
     string messageString = message is error? message.toString(): message.toString();
-    assert(bbe.message(), "{ballerina/lang.typedesc}ConversionError");
-    assert(messageString, "'CRec' value cannot be converted to 'BRec'");
+    assert(bbe.message(), "{ballerina/lang.value}ConversionError");
+    assert(messageString, "'CRec' value cannot be converted to 'BRec': " +
+    "\n\t\tmissing required field 'i' of type 'int' in record 'BRec'");
 }
 
 type Foo record {
@@ -634,7 +651,7 @@ function testCloneWithTypeAmbiguousTargetType() {
     error bbe = <error> bb;
     var message = bbe.detail()["message"];
     string messageString = message is error? message.toString(): message.toString();
-    assert(bbe.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(bbe.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'Foo' value cannot be converted to '(Bar|Baz)': ambiguous target type");
 }
 
@@ -771,6 +788,7 @@ function testCloneWithTypeNumeric7() {
 }
 
 type ByteArray byte[];
+type IntArray int[];
 
 function testCloneWithTypeDecimalToInt() {
     decimal a = 12.3456;
@@ -820,7 +838,7 @@ function testCloneWithTypeDecimalToIntNegative() {
     error err = <error>result;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'decimal' value cannot be converted to 'int'");
 
     decimal[] a1 = [9223372036854775807.5, -9223372036854775807.6];
@@ -829,7 +847,7 @@ function testCloneWithTypeDecimalToIntNegative() {
     err = <error>a2e;
     message = err.detail()["message"];
     messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'decimal' value cannot be converted to 'int'");
 
     decimal a2 = 0.0 / 0;
@@ -847,7 +865,7 @@ function checkDecimalToIntError(any|error result) {
     error err = <error>result;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'decimal' value cannot be converted to 'int'");
 }
 
@@ -881,7 +899,7 @@ function testCloneWithTypeIntArrayToUnionArray() {
     error err = <error> e;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'int[]' value cannot be converted to '(byte|float)[]'");
 
     float[] y = [10, 20];
@@ -915,7 +933,7 @@ function testCloneWithTypeIntArrayToUnionArray() {
     err = <error> m;
     message = err.detail()["message"];
     messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'float[]' value cannot be converted to '(lang.int:Signed16|lang.int:Unsigned8|decimal)[]'");
 }
 
@@ -938,7 +956,7 @@ function testCloneWithTypeArrayToUnionTupleNegative() {
     error err = <error> c;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'int[]' value cannot be converted to '[(int|decimal),(byte|lang.int:Unsigned8)]'");
 }
 
@@ -949,7 +967,7 @@ function testCloneWithTypeArrayToTupleWithMoreTargetTypes() {
     error err = <error> d;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'int[]' value cannot be converted to '[int,float,decimal,byte]'");
 }
 
@@ -960,7 +978,7 @@ function testCloneWithTypeArrayToTupleWithUnionRestTypeNegative() {
     error err = <error> e;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'int[]' value cannot be converted to '[(float|decimal),(int|byte)...]'");
 }
 
@@ -971,7 +989,7 @@ function testCloneWithTypeArrayToTupleNegative() {
     error err = <error> f;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'float[]' value cannot be converted to '[string,lang.string:Char,(string|lang.string:Char)]'");
 }
 
@@ -982,7 +1000,7 @@ function testCloneWithTypeArrayToTupleWithStructureRestTypeNegative() {
     error err = <error> g;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'int[]' value cannot be converted to '[map<int>,[string,int]...]'");
 }
 
@@ -1008,7 +1026,7 @@ function testCloneWithTypeTupleRestTypeNegative() {
     error err = <error> c;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'[int,float,(int|float)...]' value cannot be converted to '[string...]'");
 }
 
@@ -1020,7 +1038,7 @@ function testCloneWithTypeUnionTupleRestTypeNegative() {
     error err = <error> d;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'[int,float,(int|float)...]' value cannot be converted to '[(int|float),(decimal|int)...]'");
 }
 
@@ -1058,8 +1076,9 @@ function testCloneWithTypeWithInferredArgument() {
    error err = <error>h;
    var message = err.detail()["message"];
    string messageString = message is error ? message.toString() : message.toString();
-   assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
-   assert(messageString, "'CRec' value cannot be converted to 'BRec'");
+   assert(err.message(), "{ballerina/lang.value}ConversionError");
+   assert(messageString, "'CRec' value cannot be converted to 'BRec': " +
+   "\n\t\tmissing required field 'i' of type 'int' in record 'BRec'");
 
    Foo i = {s: "test string"};
    Bar|Baz|error j = i.cloneWithType();
@@ -1068,7 +1087,7 @@ function testCloneWithTypeWithInferredArgument() {
    err = <error>j;
    message = err.detail()["message"];
    messageString = message is error ? message.toString() : message.toString();
-   assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+   assert(err.message(), "{ballerina/lang.value}ConversionError");
    assert(messageString, "'Foo' value cannot be converted to '(Bar|Baz)': ambiguous target type");
 
    anydata k = ();
@@ -1357,372 +1376,116 @@ function testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative() {
     assert(messageString, "'int[]' value cannot be converted to '(IntThreeOrFour[]|FloatThreeOrFour[])': ambiguous target type");
 }
 
-/////////////////////////// Tests for `fromJsonWithType()` ///////////////////////////
+type Boss record {
+    Person5 man;
+    string department;
+};
+
+type Factory record {|
+    Person5 man1;
+    Person5 man2;
+    Boss man3;
+    float grade;
+    boolean permanant = false;
+    Student1 intern;
+    boolean...;
+|};
+
+type Person5 record {|
+    float value?;
+    string name;
+    int age;
+|};
+
+type Apple record {
+    string color;
+};
+
+type Orange record {|
+    string colour;
+|};
+
+type Mango record {
+    string taste;
+    int amount;
+};
+
+type Student1 record {|
+    string name;
+    Apple|Orange|Mango fruit;
+|};
+
+json jsonVal = {
+        "man1": {
+            "fname": "Jane",
+            "age": "14"
+        },
+        "man2": {
+            "name": 2,
+            "aage": 14,
+            "height":67.5
+        },
+        "man3": {
+            "man": {
+                "namee": "Jane",
+                "age": "14",
+                "height":67.5
+            },
+            "department": 4
+        },
+        "intern": {
+            "name": 12,
+            "fruit": {
+                "color": 4,
+                "amount": "five"
+            }
+        },
+        "black": "color",
+        "blue": 4,
+        "white": true,
+        "yellow": "color",
+        "green": 4,
+        "permanant": true
+    };
+
+string errorMsgContent = "\n\t\tmissing required field 'grade' of type 'float' in record 'Factory'" +
+        "\n\t\tmissing required field 'man1.name' of type 'string' in record 'Person5'" +
+        "\n\t\tfield 'man1.fname' cannot be added to the closed record 'Person5'" +
+        "\n\t\tfield 'man1.age' in record 'Person5' should be of type 'int'" +
+        "\n\t\tmissing required field 'man2.age' of type 'int' in record 'Person5'" +
+        "\n\t\tfield 'man2.name' in record 'Person5' should be of type 'string'" +
+        "\n\t\tfield 'man2.aage' cannot be added to the closed record 'Person5'" +
+        "\n\t\tfield 'man2.height' cannot be added to the closed record 'Person5'" +
+        "\n\t\tmissing required field 'man3.man.name' of type 'string' in record 'Person5'" +
+        "\n\t\tfield 'man3.man.namee' cannot be added to the closed record 'Person5'" +
+        "\n\t\tfield 'man3.man.age' in record 'Person5' should be of type 'int'" +
+        "\n\t\tfield 'man3.man.height' cannot be added to the closed record 'Person5'" +
+        "\n\t\tfield 'man3.department' in record 'Boss' should be of type 'string'" +
+        "\n\t\tfield 'intern.name' in record 'Student1' should be of type 'string'" +
+        "\n\t\tfield 'intern.fruit.color' in record 'Apple' should be of type 'string'" +
+        "\n\t\tmissing required field 'intern.fruit.colour' of type 'string' in record 'Orange'" +
+        "\n\t\tfield 'intern.fruit.color' cannot be added to the closed record 'Orange'" +
+        "\n\t\tfield 'intern.fruit.amount' cannot be added to the closed record 'Orange'" +
+        "\n\t\tmissing required field 'intern.fruit.taste' of type 'string' in record 'Mango'" +
+        "\n\t\tfield 'intern.fruit.amount' in record 'Mango' should be of type 'int'" +
+        "\n\t\t...";
+
+function testConvertJsonToNestedRecordsWithErrors() {
+
+    Factory|error val = trap jsonVal.cloneWithType(Factory);
+
+    error err = <error> val;
+    string errorMsg = "'map<json>' value cannot be converted to 'Factory': " + errorMsgContent;
+    assert(<string> checkpanic err.detail()["message"], errorMsg);
+    assert(err.message(),"{ballerina/lang.value}ConversionError");
+}
+
+/////////////////////////// Tests for `toJson()` ///////////////////////////
+
 type Student2 record {
     string name;
     int age;
 };
-
-function testFromJsonWIthTypeNegative() {
-    string s = "foobar";
-    int|error zz = s.fromJsonWithType(int);
-    assert(zz is error, true);
-}
-
-function testFromJsonWithTypeRecord1() {
-    string str = "{\"name\":\"Name\",\"age\":35}";
-    json j = <json> checkpanic str.fromJsonString();
-    Student2|error p = j.fromJsonWithType(Student2);
-
-    assert(p is Student2, true);
-    assert((checkpanic p).toString(), "{\"name\":\"Name\",\"age\":35}");
-}
-
-type Student3 record {
-    string name;
-    int age?;
-};
-
-type Foo2 record {|
-    int x2 = 1;
-    int y3 = 2;
-|};
-
-type Foo3 record {
-    string x3;
-    int y3;
-};
-
-type Foo4 record {
-    string x3;
-    int y3 = 1;
-};
-
-type Foo5 record {
-    string x3;
-    int y3?;
-};
-
-type Foo6 record {
-    string x3;
-};
-
-function testFromJsonWithTypeRecord2() {
-    string str = "{\"name\":\"Name\",\"age\":35}";
-    json j = <json> checkpanic str.fromJsonString();
-    Student3|error p = j.fromJsonWithType(Student3);
-
-    assert(p is Student3, true);
-    assert((checkpanic p).toString(), "{\"name\":\"Name\",\"age\":35}");
-}
-
-function testFromJsonWithTypeRecord3() {
-    json j = {x3: "Chat"};
-
-    Foo2|error f2 = j.fromJsonWithType(Foo2);
-    assert(f2 is error, true);
-
-    Foo3|error f3 = j.fromJsonWithType(Foo3);
-    assert(f2 is error, true);
-
-    Foo4|error f4 = j.fromJsonWithType(Foo4);
-    assert(f4 is Foo4, true);
-
-    Foo5|error f5 = j.fromJsonWithType(Foo5);
-    assert(f5 is Foo5, true);
-}
-
-type Student2Or3 Student2|Student3;
-
-function testFromJsonWithTypeAmbiguousTargetType() {
-    string str = "{\"name\":\"Name\",\"age\":35}";
-    json j = <json> checkpanic str.fromJsonString();
-    Student3|error p = j.fromJsonWithType(Student2Or3);
-    assert(p is error, true);
-}
-
-type XmlType xml;
-
-function testFromJsonWithTypeXML() {
-    string s1 = "<test>name</test>";
-    xml|error xe = s1.fromJsonWithType(XmlType);
-    assert(xe is xml, true);
-
-    xml x = checkpanic xe;
-    json j = x.toJson();
-    assert(j, s1);
-}
-
-type Student4 record {
-    int id;
-    xml x;
-};
-
-function testFromJsonWithTypeRecordWithXMLField() {
-    Student4 student = {id: 1, x: xml `<book>DJ</book>`};
-    json j = <json> student.toJson();
-    Student4|error ss = j.fromJsonWithType(Student4);
-    assert(ss is Student4, true);
-}
-
-type MapOfAnyData map<anydata>;
-
-function testFromJsonWithTypeMap() {
-    json movie = {
-        title: "Some",
-        year: 2010
-    };
-    map<anydata> movieMap = checkpanic movie.fromJsonWithType(MapOfAnyData);
-    assert(movieMap["title"], "Some");
-    assert(movieMap["year"], 2010);
-}
-
-function testFromJsonWithTypeStringArray() {
-    json j = ["Hello", "World"];
-    string[] a = checkpanic j.fromJsonWithType(StringArray);
-    string[] a2 = <string[]> a;
-    assert(a2.length(), 2);
-    assert(a2[0], "Hello");
-}
-
-function testFromJsonWithTypeArrayNegative() {
-    json j = [1, 2];
-    string[]|error s = j.fromJsonWithType(StringArray);
-    assert(s is error, true);
-}
-
-type IntArray int[];
-
-function testFromJsonWithTypeIntArray() {
-    json j = [1, 2];
-    int[] arr = checkpanic j.fromJsonWithType(IntArray);
-    int[] intArr = <int[]> arr;
-    assert(intArr[0], 1);
-    assert(intArr[1], 2);
-}
-
-type TableFoo2 table<Foo2>;
-type TableFoo3 table<Foo3>;
-type TableFoo4 table<Foo4>;
-type TableFoo5 table<Foo5>;
-type TableFoo6 table<Foo6>;
-
-function testFromJsonWithTypeTable() {
-    json jj = [
-        {x3: "abc"},
-        {x3: "abc"}
-    ];
-
-    table<Foo2>|error tabJ2 = jj.fromJsonWithType(TableFoo2);
-    assert(tabJ2 is error, true);
-
-    table<Foo3>|error tabJ3 = jj.fromJsonWithType(TableFoo3);
-    assert(tabJ3 is error, true);
-
-    table<Foo4>|error tabJ4 = jj.fromJsonWithType(TableFoo4);
-    assert(tabJ4 is table<Foo4>, true);
-
-    table<Foo5>|error tabJ5 = jj.fromJsonWithType(TableFoo5);
-    assert(tabJ5 is table<Foo5>, true);
-
-    table<Foo6>|error tabJ6 = jj.fromJsonWithType(TableFoo6);
-    assert(tabJ6 is table<Foo6>, true);
-
-}
-
-type IntVal record {int? x;};
-
-type PostGradStudent record {|
-    boolean employed;
-    string first_name;
-    string last_name?;
-    PermanentAddress? address;
-|};
-
-type PermanentAddress record {
-    string city;
-    string? country;
-};
-
-type PostGradStudentArray PostGradStudent[];
-
-json[] jStudentArr = [
-    {
-        "first_name": "Radha",
-        "address": {
-            "apartment_no": 123,
-            "street": "Perera Mawatha",
-            "city": "Colombo",
-            "country": "Sri Lanka"
-        },
-        "employed": false
-    },
-    {
-        "first_name": "Nilu",
-        "last_name": "Peiris",
-        "address": null,
-        "employed": true
-    },
-    {
-        "first_name": "Meena",
-        "address": {
-            "street": "Main Street",
-            "city": "Colombo",
-            "country": null
-        },
-        "employed": false
-    }
-];
-
-function testFromJsonWithTypeWithNullValues() {
-    json j1 = {x: null};
-    IntVal val = checkpanic j1.fromJsonWithType(IntVal);
-    assert(val, {x:()});
-
-    PostGradStudent[] studentArr = checkpanic jStudentArr.fromJsonWithType(PostGradStudentArray);
-    assert(studentArr, [{employed:false,first_name:"Radha",address:{city:"Colombo",country:"Sri Lanka",
-    apartment_no:123,street:"Perera Mawatha"}},{employed:true,first_name:"Nilu",last_name:"Peiris",address:()},
-    {employed:false,first_name:"Meena",address:{city:"Colombo",country:(),street:"Main Street"}}]);
-}
-
-function testFromJsonWithTypeWithNullValuesNegative() {
-    json jVal = ();
-    PostGradStudent|error val = jVal.fromJsonWithType(PostGradStudent);
-    assert(val is error, true);
-    if (val is error) {
-        assert(val.message(), "{ballerina/lang.value}ConversionError");
-        assert(<string> checkpanic val.detail()["message"], "cannot convert '()' to type 'PostGradStudent'");
-    }
-}
-
-function testFromJsonWithTypeWithInferredArgument() {
-    json movie = {
-        title: "Some",
-        year: 2010
-    };
-    map<anydata> movieMap = checkpanic movie.fromJsonWithType();
-    assert(movieMap["title"], "Some");
-    assert(movieMap["year"], 2010);
-
-    movieMap = checkpanic value:fromJsonWithType(v = movie);
-    assert(movieMap["title"], "Some");
-    assert(movieMap["year"], 2010);
-
-    json arr = [1, 2];
-    string[]|error s = arr.fromJsonWithType();
-    assert(s is error, true);
-}
-
-type FooBar [StringType...];
-type StringType string;
-
-public function testFromJsonWithTypeWithTypeReferences() {
-   json j = ["foo"];
-   FooBar f = checkpanic j.fromJsonWithType();
-   assert(f is FooBar, true);
-   assert(f is [string...], true);
-   assert(f.toString(), "foo");
- }
-
-/////////////////////////// Tests for `fromJsonStringWithType()` ///////////////////////////
-
-function testFromJsonStringWithTypeJson() {
-    string aNil = "()";
-    string aNull = "null";
-    string aString = "\"aString\"";
-    string aNumber = "10";
-    string anArray = "[\"hello\", \"world\"]";
-    string anObject = "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}";
-    string anInvalid = "{\"name\":\"anObject\",";
-    map<json|error> result = {};
-
-    result["aNil"] = aNil.fromJsonStringWithType(json);
-    result["aNull"] = aNull.fromJsonStringWithType(json);
-    result["aString"] = aString.fromJsonStringWithType(json);
-    result["aNumber"] = aNumber.fromJsonStringWithType(json);
-    result["anArray"] = anArray.fromJsonStringWithType(json);
-    result["anObject"] = anObject.fromJsonStringWithType(json);
-    result["anInvalid"] = anInvalid.fromJsonStringWithType(json);
-
-    assert(result["aNil"] is error, true);
-    assert(result["aNull"] is (), true);
-
-    json aStringJson = <json> checkpanic result["aString"];
-    assert(aStringJson.toJsonString(), "\"aString\"");
-
-    json anArrayJson = <json> checkpanic result["anArray"];
-    assert(anArrayJson.toJsonString(), "[\"hello\", \"world\"]");
-
-    json anObjectJson = <json> checkpanic result["anObject"];
-    assert(anObjectJson.toJsonString(), "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}");
-
-    assert(result["anInvalid"] is error, true);
-}
-
-function testFromJsonStringWithTypeRecord() {
-    string str = "{\"name\":\"Name\",\"age\":35}";
-    Student3|error studentOrError = str.fromJsonStringWithType(Student3);
-
-    assert(studentOrError is Student3, true);
-    Student3 student = checkpanic studentOrError;
-    assert(student.name, "Name");
-}
-
-function testFromJsonStringWithAmbiguousType() {
-    string str = "{\"name\":\"Name\",\"age\":35}";
-    Student3|error p = str.fromJsonStringWithType(Student2Or3);
-    assert(p is error, true);
-}
-
-function testFromJsonStringWithTypeMap() {
-    string s = "{\"title\":\"Some\",\"year\":2010}";
-    map<anydata> movieMap = checkpanic s.fromJsonStringWithType(MapOfAnyData);
-    map<anydata> movieMap2 = <map<anydata>> movieMap;
-    assert(movieMap2["title"], "Some");
-    assert(movieMap2["year"], 2010);
-}
-
-function testFromJsonStringWithTypeStringArray() {
-    string s = "[\"Hello\",\"World\"]";
-    string[] a = checkpanic s.fromJsonStringWithType(StringArray);
-    string[] a2 = <string[]> a;
-    assert(a2.length(), 2);
-    assert(a2[0], "Hello");
-}
-
-function testFromJsonStringWithTypeArrayNegative() {
-    string s = "[1, 2]";
-    string[]|error a = s.fromJsonStringWithType(StringArray);
-    assert(a is error, true);
-}
-
-function testFromJsonStringWithTypeIntArray() {
-    string s = "[1, 2]";
-    int[] arr = checkpanic s.fromJsonStringWithType(IntArray);
-    int[] intArr = <int[]> arr;
-    assert(intArr[0], 1);
-    assert(intArr[1], 2);
-}
-
-function testFromJsonStringWithTypeWithInferredArgument() {
-    string s = "[1, 2]";
-    int[] arr = checkpanic s.fromJsonStringWithType();
-    int[] intArr = <int[]> arr;
-    assert(intArr[0], 1);
-    assert(intArr[1], 2);
-
-    string str = "{\"name\":\"Name\",\"age\":35}";
-    Student3|error studentOrError = str.fromJsonStringWithType();
-    assert(studentOrError is Student3, true);
-    Student3 student = checkpanic studentOrError;
-    assert(student.name, "Name");
-
-    string arrStr = "[1, 2]";
-    string[]|error a = value:fromJsonStringWithType(arrStr);
-    assert(a is error, true);
-}
-
-/////////////////////////// Tests for `toJson()` ///////////////////////////
 
 function testToJsonWithRecord1() {
     Student2 s = {name: "Adam", age: 23};
@@ -1756,6 +1519,9 @@ function testToJsonWithArray() {
     assert(arrStringJson is json[], true);
     assert(<json[]> arrStringJson, <json[]> ["hello", "world"]);
 }
+
+type XmlType xml;
+
 
 function testToJsonWithXML() {
     xml x1 = xml `<movie>
@@ -1877,6 +1643,16 @@ function testToStringOnCycles() {
      assert(x.toString(), "{\"ee\":3,\"1\":{\"qq\":5,\"1\":...,\"2\":[2,3,5,...]}}");
 }
 
+function testToJsonWithCyclicParameter() {
+    anydata[] x = [];
+    x.push(x);
+    json|error y = trap x.toJson();
+    assert(y is error, true);
+    error err = <error> y;
+    assert(err.message(), "{ballerina/lang.value}CyclicValueReferenceError");
+    assert(<string> checkpanic err.detail()["message"], "'anydata[]' value has cyclic reference");
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected == actual) {
         return;
@@ -1886,6 +1662,122 @@ function assert(anydata actual, anydata expected) {
     string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
                             + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
     panic error(reason);
+}
+
+type RecordWithSimpleTypeFields record {
+    int a;
+    byte b;
+    float c;
+    decimal d;
+    string e;
+    boolean f;
+};
+
+type RecordWithArrayValueFields record {|
+    float[] a;
+    [string, int] t;
+|};
+
+type RecordAnydata record {|
+    int id;
+    anydata a;
+|};
+
+type RecordWithRecordField record {|
+    RecordAnydata r;
+|};
+
+type RecordWithMapField record {
+    map<anydata> m;
+};
+
+type RecordWithXmlField record {|
+    xml x;
+    xml:Element e;
+    xml:Comment c;
+    xml:ProcessingInstruction p;
+    xml:Text t;
+|};
+
+type RecordWithOptionalAndRestFields record {|
+    int a;
+    map<B> b;
+    string c?;
+    float ...;
+|};
+
+type B [float, string, B...];
+
+function testTableToJsonConversion() {
+    table<RecordWithSimpleTypeFields> tb1 = table [
+        {a: 5, b: 1, c: 2.5, d: 3.1, e: "abc", f: true},
+        {a: 7, b: 2, c: 4.5, d: 5.2, e: "def", f: false, "g": 13.5}
+    ];
+
+    json j1 = tb1.toJson();
+    assert(j1.toJsonString(), "[{\"a\":5, \"b\":1, \"c\":2.5, \"d\":3.1, \"e\":\"abc\", \"f\":true}, " +
+                                 "{\"a\":7, \"b\":2, \"c\":4.5, \"d\":5.2, \"e\":\"def\", \"f\":false, \"g\":13.5}]");
+
+    table<RecordWithArrayValueFields> tb2 = table [
+        {a: [1.2, 2.4], t: ["abc", 5]},
+        {a: [4.0, 6.5], t: ["def", 8]}
+    ];
+
+    json j2 = tb2.toJson();
+    assert(j2.toJsonString(), "[{\"a\":[1.2, 2.4], \"t\":[\"abc\", 5]}, {\"a\":[4.0, 6.5], \"t\":[\"def\", 8]}]");
+
+    table<RecordWithRecordField> tb3 = table [
+        {r: {id: 10001, a: xml `<book>The Lost World</book>`}},
+        {r: {id: 10002, a: xml `<book>Shadows of the Empire</book>`}}
+    ];
+
+    json j3 = tb3.toJson();
+    assert(j3.toJsonString(), "[{\"r\":{\"id\":10001, \"a\":\"<book>The Lost World</book>\"}}, " +
+                                          "{\"r\":{\"id\":10002, \"a\":\"<book>Shadows of the Empire</book>\"}}]");
+
+    table<RecordWithMapField> tb4 = table [
+        {m: {a: 5, b: "abc"}},
+        {m: {c: 12.5, d: "A"}}
+    ];
+
+    json j4 = tb4.toJson();
+    assert(j4.toJsonString(), "[{\"m\":{\"a\":5, \"b\":\"abc\"}}, {\"m\":{\"c\":12.5, \"d\":\"A\"}}]");
+
+    table<RecordWithXmlField> tb5 = table [
+        {x: xml `<bar>Text</bar>`, e: xml `<foo/>`, c: xml `<!--Comment-->`, p: xml `<?PI ?>`, t: xml `Text`}
+    ];
+
+    json j5 = tb5.toJson();
+    assert(j5.toJsonString(), "[{\"x\":\"<bar>Text</bar>\", \"e\":\"<foo/>\", \"c\":\"<!--Comment-->\", " +
+                                          "\"p\":\"<?PI ?>\", \"t\":\"Text\"}]");
+
+    table<RecordWithOptionalAndRestFields> tb6 = table [
+        {a: 1, b: {x: [12.4, "abc"], y: [23.8, "def", [36.9, "ghi"]]}, c: "xyz"},
+        {a: 5, b: {x: [45.6, "asd"]}, "d": 10, "e": 12.5}
+    ];
+
+    json j6 = tb6.toJson();
+    assert(j6.toJsonString(), "[{\"a\":1, \"b\":{\"x\":[12.4, \"abc\"], \"y\":[23.8, \"def\", [36.9, \"ghi\"]]}, " +
+                                "\"c\":\"xyz\"}, {\"a\":5, \"b\":{\"x\":[45.6, \"asd\"]}, \"d\":10.0, \"e\":12.5}]");
+}
+
+type RecordWithHandleField record {|
+    int i;
+    handle h;
+|};
+
+function testToJsonConversionError() {
+    table<RecordWithHandleField> tb = table [
+         {i: 12, h: java:fromString("pqr")},
+         {i: 34, h: java:fromString("pqr")}
+   ];
+
+   json|error j = trap tb.toJson();
+   assert(j is error, true);
+   error err = <error> j;
+   assert(err.message(), "{ballerina/lang.value}ConversionError");
+   assert(<string> checkpanic err.detail()["message"], "'table<RecordWithHandleField>' value cannot be converted to " +
+                                      "'json': cannot construct json object from 'handle' type data");
 }
 
 ///////////////////////// Tests for `ensureType()` ///////////////////////////
@@ -2116,6 +2008,18 @@ function testEnsureTypeNegative() {
     assertEquality("error(\"{ballerina/lang.map}KeyNotFound\",message=\"Key 'children' not found in JSON mapping\")", e6.toString());
 }
 
+function testEnsureTypeJsonToNestedRecordsWithErrors() {
+
+    json clonedJsonVal = jsonVal.cloneReadOnly();
+    Factory|error val = trap clonedJsonVal.ensureType(Factory);
+
+    error err = <error> val;
+    string errorMsgPrefix = "incompatible types: 'map<(json & readonly)> & readonly' cannot be cast to 'Factory': ";
+    string errorMsg =  errorMsgPrefix + errorMsgContent;
+    assert(<string> checkpanic err.detail()["message"], errorMsg);
+    assert(err.message(),"{ballerina}TypeCastError");
+}
+
 function testEnsureTypeWithInferredArgument() {
     int|error age = p.age.ensureType();
     assertEquality(24, age);
@@ -2129,26 +2033,6 @@ function testEnsureTypeWithInferredArgument() {
 
     //int[]|error intArr = a.ensureType();
     //assertEquality(a, intArr);
-}
-
-type OpenRecordWithUnionTarget record {|
-    string|decimal...;
-|};
-
-function tesFromJsonWithTypeMapWithDecimal() {
-    map<json> mp = {
-        name: "foo",
-        factor: 1.23d
-    };
-    var or = mp.fromJsonWithType(OpenRecordWithUnionTarget);
-
-    if (or is error) {
-        panic error("Invalid Response", detail = "Invalid type `error` recieved from cloneWithType");
-    }
-
-    OpenRecordWithUnionTarget castedValue = <OpenRecordWithUnionTarget> checkpanic or;
-    assertEquality(castedValue["factor"], mp["factor"]);
-    assertEquality(castedValue["name"], mp["name"]);
 }
 
 public type Maps record {|int i; int...;|}|record {|int i?;|};

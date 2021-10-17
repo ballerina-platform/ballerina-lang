@@ -26,6 +26,8 @@ import org.testng.annotations.Test;
  */
 public class FunctionTypeTest extends AbstractTypesTest {
 
+    // Valid source tests
+
     @Test
     public void testFuncTypeWithNoReturns() {
         testFile("func-type/func_type_source_01.bal", "func-type/func_type_assert_01.json");
@@ -89,17 +91,18 @@ public class FunctionTypeTest extends AbstractTypesTest {
     }
 
     @Test
-    public void testRecoveryInFuncTypeWithAdditionalToken1() {
+    public void testRecoveryInFuncTypeWithAdditionalToken() {
         testFile("func-type/func_type_source_14.bal", "func-type/func_type_assert_14.json");
-    }
-
-    @Test
-    public void testRecoveryInFuncTypeWithAdditionalToken2() {
         testFile("func-type/func_type_source_15.bal", "func-type/func_type_assert_15.json");
     }
 
     @Test
     public void testRecoveryInFuncTypeWithUnion() {
         testFile("func-type/func_type_source_16.bal", "func-type/func_type_assert_16.json");
+    }
+
+    @Test
+    public void testFuncTypeWithTransactionalQualifier() {
+        testTopLevelNode("func-type/func_type_source_18.bal", "func-type/func_type_assert_18.json");
     }
 }

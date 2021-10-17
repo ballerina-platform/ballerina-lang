@@ -614,7 +614,7 @@ service class ServiceClass {
     }
 }
 
-public class Listener {
+class Listener {
 
     public function 'start() returns error? {}
 
@@ -923,6 +923,12 @@ int x = 1;
 
 function f6(int[] arr) returns boolean => arr[0] == x;
 
+listener Listener ln = new;
+
+function testAccessingListenerOfIsolatedObjectType() {
+    any x = ln;
+}
+
 public function testIsolatedInference() {
     IsolatedClassWithNoMutableFields a = new ([], {val: {i: 1}});
     assertTrue(<any> a is isolated object {});
@@ -1106,6 +1112,8 @@ public function testIsolatedInference() {
     assertFalse(isMethodIsolated(c2, "fn2"));
     assertTrue(<any> f5 is isolated function);
     assertFalse(<any> f6 is isolated function);
+
+    assertTrue(<any> testAccessingListenerOfIsolatedObjectType is isolated function);
 }
 
 isolated function assertTrue(any|error actual) {

@@ -24,7 +24,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.Test;
 
 /**
- * Test class to check the Unicode patterns.
+ * Negative test class to check the Unicode patterns.
  */
 public class UnicodeNegativeTest {
 
@@ -46,7 +46,6 @@ public class UnicodeNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "invalid unicode '\\u{12FFFF}'", 25, 18);
         BAssertUtil.validateError(compileResult, index++, "invalid unicode '\\u{DFFFAAA}'", 25, 33);
         BAssertUtil.validateError(compileResult, index++, "invalid unicode '\\u{FFFFFFF}'", 25, 49);
-        BAssertUtil.validateError(compileResult, index++, "invalid string numeric escape sequence", 26, 17);
-        BAssertUtil.validateError(compileResult, index, "invalid unicode '\\u{001B['", 26, 17);
+        BAssertUtil.validateError(compileResult, index, "invalid string numeric escape sequence", 26, 17);
     }
 }

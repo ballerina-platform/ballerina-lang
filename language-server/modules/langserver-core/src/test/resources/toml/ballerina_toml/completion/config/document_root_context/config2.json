@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 1,
+    "character": 0
+  },
+  "source": "source/project2/Ballerina.toml",
+  "items": [
+    {
+      "label": "platform.java11.dependency",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[platform.java11.dependency]]"
+    },
+    {
+      "label": "dependency",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[dependency]]"
+    }
+  ]
+}

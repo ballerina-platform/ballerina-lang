@@ -230,7 +230,22 @@
         </groups>
         <classes>
             <class name="org.ballerinalang.test.packaging.ModuleExecutionFlowTests"/>
+            <class name="org.ballerinalang.test.packaging.MultipleModuleVersionTests"/>
             <class name="org.ballerinalang.test.packaging.MavenTestCase"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-readonly-intersection-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <classes>
+            <class name="org.ballerinalang.test.readonly.ReadOnlyIntersectionViaMultipleModulesTest"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-isolated-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <classes>
+            <class name="org.ballerinalang.test.isolated.IsolatedInferenceWithTestsTest"/>
         </classes>
     </test>
 

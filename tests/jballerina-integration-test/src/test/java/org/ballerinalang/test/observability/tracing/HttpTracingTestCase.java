@@ -75,7 +75,7 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
             Assert.assertEquals(span.getOperationName(), "resourceOne");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
-                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.0"),
                     new AbstractMap.SimpleEntry<>("src.position", span1Position),
                     new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
                     new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-1"),
@@ -97,7 +97,7 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Client:get");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.0"),
                     new AbstractMap.SimpleEntry<>("src.position", span2Position),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("http.base_url", "http://localhost:19091/test-service"),
@@ -146,7 +146,7 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
             Assert.assertEquals(span.getOperationName(), "resourceTwo");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
-                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.0"),
                     new AbstractMap.SimpleEntry<>("src.position", span4Position),
                     new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
                     new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-2"),
@@ -168,7 +168,7 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Caller:respond");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.0"),
                     new AbstractMap.SimpleEntry<>("src.position", span5Position),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("http.status_code", "200"),
@@ -190,7 +190,7 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Caller:respond");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.0"),
                     new AbstractMap.SimpleEntry<>("src.position", span6Position),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("http.status_code", "200"),
@@ -246,7 +246,7 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
             Assert.assertEquals(span.getOperationName(), "resourceOne");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
-                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.0"),
                     new AbstractMap.SimpleEntry<>("src.position", span1Position),
                     new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
                     new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-1"),
@@ -268,7 +268,7 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Client:get");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.0"),
                     new AbstractMap.SimpleEntry<>("src.position", span2Position),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("http.base_url", "http://localhost:10011/echo-service"),
@@ -317,7 +317,7 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
             Assert.assertEquals(span.getOperationName(), "resourceOne");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
-                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/backend:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/backend:0.0.0"),
                     new AbstractMap.SimpleEntry<>("src.position", span4Position),
                     new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
                     new AbstractMap.SimpleEntry<>("http.url", "/echo-service/echo/Hello%20Echo%20!"),
@@ -339,7 +339,7 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Caller:respond");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/backend:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/backend:0.0.0"),
                     new AbstractMap.SimpleEntry<>("src.position", span5Position),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("http.status_code", "200"),
@@ -361,7 +361,7 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Caller:respond");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.0"),
                     new AbstractMap.SimpleEntry<>("src.position", span6Position),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("http.status_code", "200"),

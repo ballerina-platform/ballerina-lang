@@ -27,6 +27,8 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -43,8 +45,17 @@ public class ObjectTest {
     private static final String INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT =
             "cannot use 'check' in an object field initializer of an object with no 'init' method";
 
-    private final CompileResult checkInInitializerResult = BCompileUtil.compile(
-            "test-src/object/object_field_initializer_with_check.bal");
+    private CompileResult checkInInitializerResult;
+
+    @BeforeClass
+    public void setUp() {
+        checkInInitializerResult =  BCompileUtil.compile("test-src/object/object_field_initializer_with_check.bal");
+    }
+    
+    @AfterClass
+    public void tearDown() {
+        checkInInitializerResult = null;
+    }
 
     @Test(description = "Test Basic object as struct")
     public void testBasicStructAsObject() {
@@ -739,7 +750,7 @@ public class ObjectTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "cannot infer type of the object from '(InitObjOne|InitObjTwo|float)'", 114, 38);
         BAssertUtil.validateError(resultNegative, i++,
-                "named arg followed by positional arg", 114, 42);
+                "positional argument not allowed after named arguments", 114, 53);
         BAssertUtil.validateError(resultNegative, i++,
                 "cannot infer type of the object from '(InitObjOne|InitObjTwo|int)'", 119, 36);
         BAssertUtil.validateError(resultNegative, i++,
@@ -750,10 +761,14 @@ public class ObjectTest {
                 "incompatible types: expected 'int', found 'string'", 126, 51);
         BAssertUtil.validateError(resultNegative, i++,
                 "cannot infer type of the object from '(InitObjOne|InitObjThree|boolean|string)'", 127, 50);
-        BAssertUtil.validateError(resultNegative, i++, "named arg followed by positional arg", 128, 51);
-        BAssertUtil.validateError(resultNegative, i++, "named arg followed by positional arg", 129  , 62);
-        BAssertUtil.validateError(resultNegative, i++, "named arg followed by positional arg", 129  , 62);
-        BAssertUtil.validateError(resultNegative, i++, "named arg followed by positional arg", 129  , 62);
+        BAssertUtil.validateError(resultNegative, i++,
+                "positional argument not allowed after named arguments", 128, 59);
+        BAssertUtil.validateError(resultNegative, i++,
+                "positional argument not allowed after named arguments", 129  , 70);
+        BAssertUtil.validateError(resultNegative, i++,
+                "positional argument not allowed after named arguments", 129  , 75);
+        BAssertUtil.validateError(resultNegative, i++,
+                "positional argument not allowed after named arguments", 129  , 80);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
@@ -860,6 +875,27 @@ public class ObjectTest {
                 " with the return type of the 'init' method: expected 'MyError?', found 'error'", 167, 13);
         BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
                 " with the return type of the 'init' method: expected 'MyError?', found 'error'", 171, 13);
+        BAssertUtil.validateError(result, i++, "let expressions are not yet supported for object fields", 183, 13);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 183, 25);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 183, 43);
+        BAssertUtil.validateError(result, i++, "let expressions are not yet supported for object fields", 187, 13);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected 'MyError?', found 'error'", 187, 25);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected 'MyError?', found 'error'", 187, 43);
+        BAssertUtil.validateError(result, i++, "let expressions are not yet supported for object fields", 195, 13);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 195, 25);
+        BAssertUtil.validateError(result, i++, "let expressions are not yet supported for object fields", 199, 13);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected 'MyError?', found 'error'", 199, 25);
+        BAssertUtil.validateError(result, i++, "let expressions are not yet supported for object fields", 208, 17);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 208, 29);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 208, 51);
+        BAssertUtil.validateError(result, i++, "let expressions are not yet supported for object fields", 211, 17);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected 'MyError?', found 'error'", 211, 29);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected 'MyError?', found 'error'", 211, 51);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

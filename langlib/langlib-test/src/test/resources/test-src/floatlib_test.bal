@@ -44,3 +44,76 @@ function testLangLibCallOnFiniteType() {
     float y = x.sum(1, 2.3);
     test:assertValueEqual(24.3, y);
 }
+
+function testFloatEquality() {
+    test:assertTrue(42.0 == 42.0);
+    test:assertFalse(1.0 == 12.0);
+    test:assertTrue(float:NaN == float:NaN);
+    test:assertTrue(-0.0 == 0.0);
+}
+
+function testFloatNotEquality() {
+    test:assertFalse(42.0 != 42.0);
+    test:assertTrue(1.0 != 12.0);
+    test:assertFalse(float:NaN != float:NaN);
+    test:assertFalse(-0.0 != 0.0);
+}
+
+function testFloatExactEquality() {
+    test:assertTrue(42.0 === 42.0);
+    test:assertFalse(1.0 === 12.0);
+    test:assertTrue(float:NaN === float:NaN);
+    test:assertFalse(-0.0 === 0.0);
+}
+
+function testFloatNotExactEquality() {
+    test:assertFalse(42.0 !== 42.0);
+    test:assertTrue(1.0 !== 12.0);
+    test:assertFalse(float:NaN !== float:NaN);
+    test:assertTrue(-0.0 !== 0.0);
+}
+
+function testFromHexString() {
+    float|error v1 = float:fromHexString("0xa.bp1");
+    test:assertValueEqual(checkpanic v1, 21.375);
+
+    float|error v2 = float:fromHexString("+0xa.bp1");
+    test:assertValueEqual(checkpanic v2, 21.375);
+
+    float|error v3 = float:fromHexString("-0xa.bp1");
+    test:assertValueEqual(checkpanic v3, -21.375);
+
+    float|error v4 = float:fromHexString("0Xa2c.b32p2");
+    test:assertValueEqual(checkpanic v4, 10418.798828125);
+
+    float|error v5 = float:fromHexString("0Xa.b32P-5");
+    test:assertValueEqual(checkpanic v5, 0.3343658447265625);
+
+    float|error v6 = float:fromHexString("-0x123.fp-5");
+    test:assertValueEqual(checkpanic v6, -9.123046875);
+
+    float|error v7 = float:fromHexString("0x123fp-5");
+    test:assertValueEqual(checkpanic v7, 145.96875);
+
+    float|error v8 = float:fromHexString("0x.ab5p2");
+    test:assertValueEqual(checkpanic v8, 2.6767578125);
+
+    float|error v9 = float:fromHexString("0x1a");
+    error err = <error> v9;
+    test:assertValueEqual(err.message(), "{ballerina/lang.float}NumberParsingError");
+    test:assertValueEqual(<string> checkpanic err.detail()["message"], "For input string: \"0x1a\"");
+
+    float|error v10 = float:fromHexString("NaN");
+    test:assertValueEqual(checkpanic v10, float:NaN);
+
+    float|error v11 = float:fromHexString("+Infinity");
+    test:assertValueEqual(checkpanic v11, float:Infinity);
+
+    float|error v12 = float:fromHexString("-Infinity");
+    test:assertValueEqual(checkpanic v12, -float:Infinity);
+
+    float|error v13 = float:fromHexString("AInvalidNum");
+    err = <error> v13;
+    test:assertValueEqual(err.message(), "{ballerina/lang.float}NumberParsingError");
+    test:assertValueEqual(<string> checkpanic err.detail()["message"], "For input string: \"AInvalidNum\"");
+}

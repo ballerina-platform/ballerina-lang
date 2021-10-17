@@ -19,10 +19,9 @@ package org.ballerinalang.debugadapter.evaluation.engine.expression;
 import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
@@ -34,6 +33,9 @@ import org.ballerinalang.debugadapter.variable.VariableFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.UNSUPPORTED_OPERATION;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_ADD_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_ARITHMETIC_EXPR_HELPER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_BITWISE_AND_METHOD;
@@ -78,7 +80,7 @@ public class BinaryExpressionEvaluator extends Evaluator {
     protected final Evaluator lhsEvaluator;
     protected final Evaluator rhsEvaluator;
 
-    public BinaryExpressionEvaluator(SuspendedContext context, BinaryExpressionNode node, Evaluator lhsEvaluator,
+    public BinaryExpressionEvaluator(EvaluationContext context, BinaryExpressionNode node, Evaluator lhsEvaluator,
                                      Evaluator rhsEvaluator) {
         super(context);
         this.syntaxNode = node;
@@ -96,8 +98,7 @@ public class BinaryExpressionEvaluator extends Evaluator {
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
-                    syntaxNode.toSourceCode().trim()));
+            throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
         }
     }
 
@@ -173,7 +174,6 @@ public class BinaryExpressionEvaluator extends Evaluator {
             Value result = runtimeMethod.invokeSafely();
             return new BExpressionValue(context, result);
         } else {
-            // Prepares to invoke the JVM runtime util function which is responsible for XML concatenation.
             List<Value> argList = new ArrayList<>();
             argList.add(getValueAsObject(context, lVar));
             argList.add(getValueAsObject(context, rVar));
@@ -368,7 +368,8 @@ public class BinaryExpressionEvaluator extends Evaluator {
 
     protected EvaluationException createUnsupportedOperationException(BVariable lVar, BVariable rVar,
                                                                       SyntaxKind operator) {
-        return new EvaluationException(String.format(EvaluationExceptionKind.UNSUPPORTED_OPERATION.getString(),
-                operator.stringValue(), lVar.getBType().getString(), rVar.getBType().getString()));
+        return createEvaluationException(UNSUPPORTED_OPERATION, operator.stringValue(), lVar.getBType().getString(),
+                rVar.getBType().getString());
+
     }
 }

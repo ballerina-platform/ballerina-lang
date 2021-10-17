@@ -39,6 +39,7 @@ class CompilerPluginManager {
 
     private CodeAnalyzerManager codeAnalyzerManager;
     private CompilerLifecycleManager compilerLifecycleListenerManager;
+    private CodeActionManager codeActionManager;
 
     private CompilerPluginManager(PackageCompilation compilation,
                                   List<CompilerPluginContextIml> compilerPluginContexts) {
@@ -66,7 +67,7 @@ class CompilerPluginManager {
             CompilerPlugin compilerPlugin;
             try {
                 if (!rootPackage.manifest().descriptor().isBuiltInPackage() &&
-                        rootPackage.project().kind().equals(ProjectKind.BUILD_PROJECT)) {
+                        !rootPackage.project().kind().equals(ProjectKind.BALA_PROJECT)) {
                     compilerPlugin = CompilerPlugins.loadCompilerPlugin(
                             plugin.getClass().getName(), Collections.emptyList());
                     compilerPluginInfoList.add(new BuiltInCompilerPluginInfo(compilerPlugin));
@@ -91,6 +92,15 @@ class CompilerPluginManager {
 
         codeAnalyzerManager = CodeAnalyzerManager.from(compilation, compilerPluginContexts);
         return codeAnalyzerManager;
+    }
+
+    CodeActionManager getCodeActionManager() {
+        if (codeActionManager != null) {
+            return codeActionManager;
+        }
+
+        codeActionManager = CodeActionManager.from(compilerPluginContexts);
+        return codeActionManager;
     }
 
     private static List<CompilerPluginInfo> loadEngagedCompilerPlugins(List<Package> dependencies) {

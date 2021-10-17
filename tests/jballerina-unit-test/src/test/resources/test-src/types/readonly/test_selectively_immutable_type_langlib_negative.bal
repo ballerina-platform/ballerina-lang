@@ -21,7 +21,7 @@ import ballerina/lang.value as val;
 import ballerina/lang.'xml;
 
 type Details record {
-    string name;
+    readonly string name;
     int id;
 };
 

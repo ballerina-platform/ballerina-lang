@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.TableUtils;
@@ -59,6 +60,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
+import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
+import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
@@ -77,21 +80,23 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     private TableType type;
     private Type iteratorNextReturnType;
-    private ConcurrentHashMap<Long, Map.Entry<K, V>> entries;
-    private LinkedHashMap<Long, V> values;
+    private ConcurrentHashMap<Long, List<Map.Entry<K, V>>> entries;
+    private LinkedHashMap<Long, List<V>> values;
     private LinkedHashMap<Long, K> keys;
     private String[] fieldNames;
     private ValueHolder valueHolder;
     private long maxIntKey = 0;
 
     //These are required to achieve the iterator behavior
-    private LinkedHashMap<Long, Long> indexToKeyMap;
-    private LinkedHashMap<Long, Long> keyToIndexMap;
+    private LinkedHashMap<Long, K> indexToKeyMap;
+    private LinkedHashMap<K, Long> keyToIndexMap;
+    private LinkedHashMap<K, V> keyValues;
     private long noOfAddedEntries = 0;
 
     private boolean nextKeySupported;
 
     private final Map<String, Object> nativeData = new HashMap<>();
+    private BTypedesc typedesc;
 
     public TableValueImpl(TableType type) {
         this.type = type;
@@ -102,11 +107,13 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         this.keyToIndexMap = new LinkedHashMap<>();
         this.indexToKeyMap = new LinkedHashMap<>();
         this.fieldNames = type.getFieldNames();
+        this.keyValues = new LinkedHashMap<>();
         if (type.getFieldNames() != null) {
             this.valueHolder = new KeyHashValueHolder();
         } else {
             this.valueHolder = new ValueHolder();
         }
+        this.typedesc = getTypedescValue(type, this);
     }
 
     public TableValueImpl(TableType type, ArrayValue data, ArrayValue fieldNames) {
@@ -116,6 +123,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         addData(data);
+        if (type.isReadOnly()) {
+            this.typedesc = createSingletonTypedesc(this);
+        }
     }
 
     private void addData(ArrayValue data) {
@@ -180,6 +190,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     @Override
+    public BTypedesc getTypedesc() {
+        return typedesc;
+    }
+
+    @Override
     public V get(Object key) {
         return valueHolder.getData((K) key);
     }
@@ -215,12 +230,21 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     @Override
     public Set<Map.Entry<K, V>> entrySet() {
-        return new LinkedHashSet<>(entries.values());
+        LinkedHashSet<Map.Entry<K, V>> entrySet = new LinkedHashSet<>();
+        for (List<Map.Entry<K, V>> entry: entries.values()) {
+            entrySet.addAll(entry);
+        }
+        return new LinkedHashSet(entries.values());
     }
 
     @Override
     public Collection<V> values() {
-        return values.values();
+        ArrayList<V> newValues = new ArrayList<>();
+        Set<Long> keys = values.keySet();
+        for (long key: keys) {
+            newValues.addAll(values.get(key));
+        }
+        return newValues;
     }
 
     @Override
@@ -293,7 +317,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     @Override
     public int size() {
-        return entries.size();
+        return values().size();
     }
 
     @Override
@@ -320,10 +344,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         this.type = (BTableType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
         //we know that values are always RefValues
         this.values().forEach(val -> ((RefValue) val).freezeDirect());
+        this.typedesc = createSingletonTypedesc(this);
     }
 
     public String stringValue(BLink parent) {
-        Iterator<Map.Entry<Long, V>> itr = values.entrySet().iterator();
+        Iterator<Map.Entry<Long, List<V>>> itr = values.entrySet().iterator();
         return createStringValueDataEntry(itr, parent);
     }
 
@@ -334,21 +359,28 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     @Override
     public String expressionStringValue(BLink parent) {
-        Iterator<Map.Entry<Long, V>> itr = values.entrySet().iterator();
+        Iterator<Map.Entry<Long, List<V>>> itr = values.entrySet().iterator();
         return createExpressionStringValueDataEntry(itr, parent);
     }
 
-    private String createStringValueDataEntry(Iterator<Map.Entry<Long, V>> itr, BLink parent) {
+    private String createStringValueDataEntry(Iterator<Map.Entry<Long, List<V>>> itr, BLink parent) {
         StringJoiner sj = new StringJoiner(",");
         while (itr.hasNext()) {
-            Map.Entry<Long, V> struct = itr.next();
-            sj.add(StringUtils.getStringValue(struct.getValue(),
-                                              new CycleUtils.Node(this, parent)));
+            Map.Entry<Long, List<V>> struct = itr.next();
+            if (struct.getValue().size() > 1) {
+                for (V data: struct.getValue()) {
+                    sj.add(StringUtils.getStringValue(data,
+                            new CycleUtils.Node(this, parent)));
+                }
+            } else {
+                sj.add(StringUtils.getStringValue(struct.getValue().get(0),
+                        new CycleUtils.Node(this, parent)));
+            }
         }
-        return "[" + sj.toString() + "]";
+        return "[" + sj + "]";
     }
 
-    private String createExpressionStringValueDataEntry(Iterator<Map.Entry<Long, V>> itr, BLink parent) {
+    private String createExpressionStringValueDataEntry(Iterator<Map.Entry<Long, List<V>>> itr, BLink parent) {
         StringJoiner sj = new StringJoiner(",");
         StringJoiner keyJoiner = new StringJoiner(",");
         if (type.getFieldNames() != null) {
@@ -358,11 +390,18 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             }
         }
         while (itr.hasNext()) {
-            Map.Entry<Long, V> struct = itr.next();
-            sj.add(StringUtils.getExpressionStringValue(struct.getValue(),
-                                                        new CycleUtils.Node(this, parent)));
+            Map.Entry<Long, List<V>> struct = itr.next();
+            if (struct.getValue().size() > 1) {
+                for (V data: struct.getValue()) {
+                    sj.add(StringUtils.getExpressionStringValue(data,
+                            new CycleUtils.Node(this, parent)));
+                }
+            } else {
+                sj.add(StringUtils.getExpressionStringValue(struct.getValue().get(0),
+                        new CycleUtils.Node(this, parent)));
+            }
         }
-        return "table key(" + keyJoiner.toString() + ") [" + sj.toString() + "]";
+        return "table key(" + keyJoiner + ") [" + sj + "]";
     }
 
     private Type getTableConstraintField(Type constraintType, String fieldName) {
@@ -413,11 +452,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         @Override
         public Object next() {
-            Long hash = indexToKeyMap.get(cursor);
-            if (hash != null) {
-                Map.Entry<K, V> next = (Map.Entry<K, V>) entries.get(hash);
-                V value = next.getValue();
-                K key = next.getKey();
+            K key = (K) indexToKeyMap.get(cursor);
+            if (key != null) {
+                V value = (V) keyValues.get(key);
 
                 List<Type> types = new ArrayList<>();
                 types.add(TypeChecker.getType(key));
@@ -459,11 +496,19 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public V putData(V data) {
             checkInherentTypeViolation((MapValue) data, type);
+
+            ArrayList<V> newData = new ArrayList<>();
+            newData.add(data);
+
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(data, data);
+            List<Map.Entry<K, V>> entryList = new ArrayList<>();
+            entryList.add(entry);
             UUID uuid = UUID.randomUUID();
-            entries.put((long) uuid.hashCode(), entry);
-            updateIndexKeyMappings((long) uuid.hashCode());
-            return values.put((long) uuid.hashCode(), data);
+            entries.put((long) uuid.hashCode(), entryList);
+            updateIndexKeyMappings((K) data);
+            values.put((long) uuid.hashCode(), newData);
+            keyValues.put((K) data, data);
+            return data;
         }
 
         public V remove(K key) {
@@ -508,59 +553,125 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 maxIntKey = ((Long) TypeChecker.anyToInt(key)).intValue();
             }
 
-            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
             Long hash = TableUtils.hash(key, null);
-            putData(key, data, entry, hash);
+
+            if (keys.containsKey(hash)) {
+                List<Map.Entry<K, V>> extEntries = entries.get(hash);
+                Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
+                extEntries.add(entry);
+                List<V> extValues = values.get(hash);
+                extValues.add(data);
+                keyValues.put(key, data);
+                updateIndexKeyMappings(key);
+                return;
+            }
+
+            ArrayList<V> newData = new ArrayList<>();
+            newData.add(data);
+            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
+            putData(key, data, newData, entry, hash);
         }
 
         public V getData(K key) {
-            return values.get(TableUtils.hash(key, null));
+            List<Map.Entry<K, V>> entryList = entries.get(TableUtils.hash(key, null));
+            if (entryList == null) {
+                return null;
+            }
+            if (entryList.size() > 1) {
+                for (Map.Entry<K, V> entry: entryList) {
+                    if (TypeChecker.isEqual(key, entry.getKey())) {
+                        return entry.getValue();
+                    }
+                }
+            }
+            return entryList.get(0).getValue();
         }
 
         public V putData(K key, V data) {
-            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, data);
+            ArrayList<V> newData = new ArrayList<>();
+            newData.add(data);
+
+            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
             Object actualKey = this.keyWrapper.wrapKey((MapValue) data);
             Long actualHash = TableUtils.hash(actualKey, null);
             Long hash = TableUtils.hash(key, null);
 
             if (!hash.equals(actualHash)) {
                 throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR, StringUtils.fromString("The key '" +
-                        key + "' not found in value " + data.toString()));
+                        key + "' not found in value " + data));
             }
 
-            return putData(key, data, entry, hash);
+            return putData(key, data, newData, entry, hash);
         }
 
-        private V putData(K key, V data, Map.Entry<K, V> entry, Long hash) {
-            entries.put(hash, entry);
+        private V putData(K key, V value, List<V> data, Map.Entry<K, V> entry, Long hash) {
+
+            List<Map.Entry<K, V>> entryList = new ArrayList<>();
+            entryList.add(entry);
+            entries.put(hash, entryList);
             keys.put(hash, key);
-            updateIndexKeyMappings(hash);
-            return values.put(hash, data);
+            updateIndexKeyMappings(key);
+            values.put(hash, data);
+            keyValues.put(key, value);
+            return data.get(0);
         }
 
         public V putData(V data) {
             MapValue dataMap = (MapValue) data;
             checkInherentTypeViolation(dataMap, type);
             K key = this.keyWrapper.wrapKey(dataMap);
+
+            ArrayList<V> newData = new ArrayList<>();
+            newData.add(data);
+
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, data);
             Long hash = TableUtils.hash(key, null);
-            return putData((K) key, data, entry, hash);
+            return putData((K) key, data, newData, entry, hash);
         }
 
         public V remove(K key) {
+            keyValues.remove(key);
             Long hash = TableUtils.hash(key, null);
+            List<Map.Entry<K, V>> entryList = entries.get(hash);
+            if (entryList != null && entryList.size() > 1) {
+                for (Map.Entry<K, V> entry: entryList) {
+                    if (TypeChecker.isEqual(key, entry.getKey())) {
+                        List<V> valueList = values.get(hash);
+                        valueList.remove(entry.getValue());
+                        entryList.remove(entry);
+                        Long index = keyToIndexMap.remove(key);
+                        indexToKeyMap.remove(index);
+                        if (index != null && index == noOfAddedEntries - 1) {
+                            noOfAddedEntries--;
+                        }
+                        return entry.getValue();
+                    }
+                }
+            }
             entries.remove(hash);
             keys.remove(hash);
-            Long index = keyToIndexMap.remove(hash);
+            Long index = keyToIndexMap.remove(key);
             indexToKeyMap.remove(index);
             if (index != null && index == noOfAddedEntries - 1) {
                 noOfAddedEntries--;
             }
-            return values.remove(hash);
+            List<V> removedValue = values.remove(hash);
+            if (removedValue == null) {
+                return null;
+            }
+            return removedValue.get(0);
         }
 
         public boolean containsKey(K key) {
-            return keys.containsKey(TableUtils.hash(key, null));
+            if (keys.containsKey(TableUtils.hash(key, null))) {
+                List<Map.Entry<K, V>> entryList = entries.get(TableUtils.hash(key, null));
+                for (Map.Entry<K, V> entry: entryList) {
+                    if (TypeChecker.isEqual(entry.getKey(), key)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         public Type getKeyType() {
@@ -612,10 +723,10 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     // This method updates the indexes and the order required by the iterators
-    private void updateIndexKeyMappings(Long hash) {
-        if (!keyToIndexMap.containsKey(hash)) {
-            keyToIndexMap.put(hash, noOfAddedEntries);
-            indexToKeyMap.put(noOfAddedEntries, hash);
+    private void updateIndexKeyMappings(K key) {
+        if (!keyToIndexMap.containsKey(key)) {
+            keyToIndexMap.put(key, noOfAddedEntries);
+            indexToKeyMap.put(noOfAddedEntries, key);
             noOfAddedEntries++;
         }
     }

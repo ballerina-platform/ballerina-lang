@@ -99,7 +99,7 @@ header2="header2"
 password=["1", 2, 3]
 
 
-[configUnionTypes.mod2]
+[configUnionTypes.imported_unions]
 httpVersion = "HTTP_2"
 countryCode = "United States"
 countryCodes = ["Sri Lanka", "United States"]
@@ -108,78 +108,96 @@ intStringVar=12345
 anydataArray = ["hello", 1, 2, 3.4, false]
 number="three"
 
-[configUnionTypes.mod2.httpResponse]
+[configUnionTypes.imported_unions.httpResponse]
 httpVersion = "HTTP_1_1"
-[configUnionTypes.mod2.country]
+[configUnionTypes.imported_unions.country]
 countryCode = "Sri Lanka"
 
 
-[configUnionTypes.mod2.anydataMap]
+[configUnionTypes.imported_unions.anydataMap]
 username="waruna"
 age=14
 marks=85.67
 isAdmin=true
 
-[[configUnionTypes.mod2.anydataTable]]
+[[configUnionTypes.imported_unions.anydataTable]]
 username="manu"
 age=12
 marks=123.456
 isAdmin=false
 
-[[configUnionTypes.mod2.anydataTable]]
+[[configUnionTypes.imported_unions.anydataTable]]
 username="hinduja"
 age=16
 marks=98.76
 isAdmin=true
 
-[configUnionTypes.mod2.config1]
+[configUnionTypes.imported_unions.config1]
 clientId =123456
 clientSecret="hello"
-[configUnionTypes.mod2.config1.clientConfig]
+[configUnionTypes.imported_unions.config1.clientConfig]
 httpVersion="HTTP_1_1"
-[configUnionTypes.mod2.config1.clientConfig.customHeaders]
+[configUnionTypes.imported_unions.config1.clientConfig.customHeaders]
 header1="header1"
 header2="header2"
 
-[configUnionTypes.mod2.config2]
+[configUnionTypes.imported_unions.config2]
 token ="123456"
 timeLimit=12.5
-[configUnionTypes.mod2.config2.clientConfig]
+[configUnionTypes.imported_unions.config2.clientConfig]
 httpVersion="HTTP_2"
-[configUnionTypes.mod2.config2.clientConfig.customHeaders]
+[configUnionTypes.imported_unions.config2.clientConfig.customHeaders]
 header3="header3"
 header4="header4"
 
-[configUnionTypes.mod2.config3]
+[configUnionTypes.imported_unions.config3]
 password=["1", 2, 3]
 
-[configUnionTypes.mod2.configMap1.config1]
+[configUnionTypes.imported_unions.configMap1.config1]
 clientId =123456
 clientSecret="hello"
-[configUnionTypes.mod2.configMap1.config1.clientConfig]
+[configUnionTypes.imported_unions.configMap1.config1.clientConfig]
 httpVersion="HTTP_1_1"
-[configUnionTypes.mod2.configMap1.config1.clientConfig.customHeaders]
+[configUnionTypes.imported_unions.configMap1.config1.clientConfig.customHeaders]
 header1="header1"
 header2="header2"
 
-[configUnionTypes.mod2.configMap1.config2]
+[configUnionTypes.imported_unions.configMap1.config2]
 clientId =654321
 clientSecret="hello"
-[configUnionTypes.mod2.configMap1.config2.clientConfig]
+[configUnionTypes.imported_unions.configMap1.config2.clientConfig]
 httpVersion="HTTP_2"
-[configUnionTypes.mod2.configMap1.config2.clientConfig.customHeaders]
+[configUnionTypes.imported_unions.configMap1.config2.clientConfig.customHeaders]
 header3="header3"
 header4="header4"
 
-[configUnionTypes.mod2.configMap2.config1]
+[configUnionTypes.imported_unions.configMap2.config1]
 clientId =123456
 clientSecret="hello"
-[configUnionTypes.mod2.configMap2.config1.clientConfig]
+[configUnionTypes.imported_unions.configMap2.config1.clientConfig]
 httpVersion="HTTP_1_1"
-[configUnionTypes.mod2.configMap2.config1.clientConfig.customHeaders]
+[configUnionTypes.imported_unions.configMap2.config1.clientConfig.customHeaders]
 header1="header1"
 header2="header2"
 
-[configUnionTypes.mod2.configMap2.config2]
+[configUnionTypes.imported_unions.configMap2.config2]
 password=["1", 2, 3]
 
+[configUnionTypes.union_ambiguity]
+decimalVar = 34.56
+floatVar = 78.91
+unionVar1 = "This is a union variable"
+xmlVar = "<name>Jane Doe</name>"
+stringVar = "This is a string"
+unionVar2 = true
+unionVar3 = 24
+
+[[configUnionTypes.union_ambiguity.mapArrayVar]]
+a = "test string"
+b = 12
+c = false
+
+[[configUnionTypes.union_ambiguity.tableVar]]
+a = "Hello World!"
+b = 34
+c = true

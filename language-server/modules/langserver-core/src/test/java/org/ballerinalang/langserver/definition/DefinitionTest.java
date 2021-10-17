@@ -22,6 +22,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
@@ -37,6 +38,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -47,7 +49,6 @@ public class DefinitionTest {
     protected Path configRoot;
     protected Path sourceRoot;
     protected Gson gson = new Gson();
-    protected JsonParser parser = new JsonParser();
     protected Endpoint serviceEndpoint;
     private static final Logger log = LoggerFactory.getLogger(DefinitionTest.class);
 
@@ -69,11 +70,22 @@ public class DefinitionTest {
     }
 
     @Test(description = "Test goto definitions for standard libs", dataProvider = "testStdLibDataProvider")
-    public void testStdLibDefinition(String configPath, String configDir) throws IOException {
+    public void testStdLibDefinition(String configPath, String configDir) throws IOException, URISyntaxException {
+        performStdLibDefinitionTest(sourceRoot, configPath, configDir);
+    }
+
+    @Test(dataProvider = "testInterStdLibDataProvider")
+    public void testInterStdLibDefinition(String configPath, String configDir) throws IOException, URISyntaxException {
+        Path ballerinaHome = Paths.get(CommonUtil.BALLERINA_HOME);
+        performStdLibDefinitionTest(ballerinaHome, configPath, configDir);
+    }
+
+    private void performStdLibDefinitionTest(Path sourceRootPath, String configPath, String configDir)
+            throws IOException, URISyntaxException {
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
                 .resolve(configPath).toString());
         JsonObject source = configObject.getAsJsonObject("source");
-        Path sourcePath = sourceRoot.resolve(source.get("file").getAsString());
+        Path sourcePath = sourceRootPath.resolve(source.get("file").getAsString());
         Position position = gson.fromJson(configObject.get("position"), Position.class);
 
         TestUtil.openDocument(serviceEndpoint, sourcePath);
@@ -81,9 +93,10 @@ public class DefinitionTest {
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
         JsonArray expected = configObject.getAsJsonArray("result");
-        JsonArray actual = parser.parse(actualStr).getAsJsonObject().getAsJsonObject("result").getAsJsonArray("left");
+        JsonArray actual = JsonParser.parseString(actualStr).getAsJsonObject().getAsJsonObject("result")
+                .getAsJsonArray("left");
         this.alterExpectedStdlibUri(expected);
-        this.alterActualUri(actual);
+        this.alterActualStdLibUri(actual);
         Assert.assertEquals(actual, expected);
     }
 
@@ -94,7 +107,8 @@ public class DefinitionTest {
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
         JsonArray expected = configObject.getAsJsonArray("result");
-        JsonArray actual = parser.parse(actualStr).getAsJsonObject().getAsJsonObject("result").getAsJsonArray("left");
+        JsonArray actual = JsonParser.parseString(actualStr).getAsJsonObject().getAsJsonObject("result")
+                .getAsJsonArray("left");
         this.alterExpectedUri(expected, root);
         this.alterActualUri(actual);
         Assert.assertEquals(actual, expected);
@@ -113,6 +127,8 @@ public class DefinitionTest {
                 {"defProject7.json", "project"},
                 {"defProject9.json", "project"},
                 {"defProject10.json", "project"},
+                {"defProject11.json", "project"},
+                {"defProject12.json", "project"},
                 {"def_record_config1.json", "project"},
                 // TODO Blocked by #30688 causing module of user defined errors to become lang.annotations
                 // {"def_error_config1.json", "project"},
@@ -126,6 +142,15 @@ public class DefinitionTest {
                 {"defProject8.json", "project"},
                 {"def_error_config2.json", "project"},
                 {"def_retry_spec_config1.json", "project"}
+        };
+    }
+
+    @DataProvider
+    private Object[][] testInterStdLibDataProvider() throws IOException {
+        log.info("Test textDocument/definition for Inter Std Lib Cases");
+        return new Object[][]{
+                {"inter_stdlib_config1.json", "stdlib"},
+                {"inter_stdlib_config2.json", "stdlib"}
         };
     }
 
@@ -160,6 +185,25 @@ public class DefinitionTest {
         }
     }
 
+    protected void alterActualStdLibUri(JsonArray actual) throws IOException, URISyntaxException {
+        for (JsonElement jsonElement : actual) {
+            JsonObject item = jsonElement.getAsJsonObject();
+            String fileUri = item.get("uri").toString().replace("\"", "");
+            
+            // Check bala URI scheme
+            URI  uri = new URI(fileUri);
+            Assert.assertEquals(uri.getScheme(), CommonUtil.URI_SCHEME_BALA, "Expected bala: URI scheme");
+            fileUri = CommonUtil.convertUriSchemeFromBala(fileUri);
+            uri = new URI(fileUri);
+            Assert.assertEquals(uri.getScheme(), CommonUtil.URI_SCHEME_FILE, 
+                    "Expected file URI scheme after conversion");
+            
+            String canonicalPath = new File(URI.create(fileUri)).getCanonicalPath();
+            item.remove("uri");
+            item.addProperty("uri", canonicalPath);
+        }
+    }
+    
     protected void alterActualUri(JsonArray actual) throws IOException {
         for (JsonElement jsonElement : actual) {
             JsonObject item = jsonElement.getAsJsonObject();

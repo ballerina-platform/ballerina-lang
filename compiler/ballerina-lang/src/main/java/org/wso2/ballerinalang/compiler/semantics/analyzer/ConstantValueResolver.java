@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -61,6 +62,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private BLangDiagnosticLog dlog;
     private Location currentPos;
     private Map<BConstantSymbol, BLangConstant> unresolvedConstants = new HashMap<>();
+    private Map<String, BLangConstantValue> constantMap = new HashMap<String, BLangConstantValue>();
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -79,6 +81,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         this.dlog.setCurrentPackageId(packageID);
         constants.forEach(constant -> this.unresolvedConstants.put(constant.symbol, constant));
         constants.forEach(constant -> constant.accept(this));
+        constantMap.clear();
+        constants.forEach(constant -> checkUniqueness(constant));
     }
 
     @Override
@@ -119,8 +123,19 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             return;
         }
 
+        if (this.currentConstSymbol == constSymbol) {
+            dlog.error(varRef.pos, DiagnosticErrorCode.SELF_REFERENCE_CONSTANT, constSymbol.name);
+            return;
+        }
+
+        if (!this.unresolvedConstants.containsKey(constSymbol)) {
+            dlog.error(varRef.pos, DiagnosticErrorCode.CANNOT_RESOLVE_CONST, constSymbol.name.value);
+            this.result = null;
+            return;
+        }
+
         // if the referring constant is not yet resolved, then go and resolve it first.
-        this.unresolvedConstants.get(varRef.symbol).accept(this);
+        this.unresolvedConstants.get(constSymbol).accept(this);
         this.result = constSymbol.value;
     }
 
@@ -426,6 +441,27 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 return newResult;
             default:
                 return null;
+        }
+    }
+
+    private void checkUniqueness(BLangConstant constant) {
+        if (constant.symbol.kind == SymbolKind.CONSTANT) {
+            String nameString = constant.name.value;
+            BLangConstantValue value = constant.symbol.value;
+
+            if (constantMap.containsKey(nameString)) {
+                BLangConstantValue lastValue = constantMap.get(nameString);
+                if (!value.equals(lastValue)) {
+                    if (lastValue == null) {
+                        dlog.error(constant.name.pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL, nameString);
+                    } else {
+                        dlog.error(constant.name.pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL_WITH_ANOTHER,
+                                nameString, lastValue);
+                    }
+                }
+            } else {
+                constantMap.put(nameString, value);
+            }
         }
     }
 }

@@ -58,9 +58,6 @@
         {
           "kind": "FUNCTION_DEFINITION",
           "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_IMPORT_DECLARATION_AFTER_OTHER_DECLARATIONS"
-          ],
           "children": [
             {
               "kind": "LIST",
@@ -112,6 +109,7 @@
             },
             {
               "kind": "FUNCTION_BODY_BLOCK",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "OPEN_BRACE_TOKEN",
@@ -128,6 +126,7 @@
                 },
                 {
                   "kind": "CLOSE_BRACE_TOKEN",
+                  "hasDiagnostics": true,
                   "leadingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
@@ -147,9 +146,14 @@
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
-                            "kind": "IMPORT_KEYWORD"
+                            "kind": "IMPORT_KEYWORD",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_IMPORT_DECLARATION_AFTER_OTHER_DECLARATIONS"
+                            ]
                           }
                         ]
                       }

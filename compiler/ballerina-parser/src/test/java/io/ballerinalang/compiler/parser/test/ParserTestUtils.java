@@ -1111,6 +1111,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ANNOTATION_KEYWORD;
             case "IS_KEYWORD":
                 return SyntaxKind.IS_KEYWORD;
+            case "NOT_IS_KEYWORD":
+                return SyntaxKind.NOT_IS_KEYWORD;
             case "MAP_KEYWORD":
                 return SyntaxKind.MAP_KEYWORD;
             case "FUTURE_KEYWORD":
@@ -1284,6 +1286,12 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_ATTRIBUTE_VALUE;
             case "TEMPLATE_STRING":
                 return SyntaxKind.TEMPLATE_STRING;
+            case "XML_CDATA":
+                return SyntaxKind.XML_CDATA;
+            case "XML_CDATA_START_TOKEN":
+                return SyntaxKind.XML_CDATA_START_TOKEN;
+            case "XML_CDATA_END_TOKEN":
+                return SyntaxKind.XML_CDATA_END_TOKEN;
             default:
                 return getDocumentationKind(kind);
         }

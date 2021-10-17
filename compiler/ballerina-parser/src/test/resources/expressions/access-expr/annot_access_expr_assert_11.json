@@ -114,24 +114,19 @@
                       ]
                     },
                     {
-                      "kind": "ANNOT_CHAINING_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "ANNOT_CHAINING_TOKEN"
                     },
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",
-                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_IDENTIFIER"
+                          "value": "c",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
                           ]
                         }
                       ]

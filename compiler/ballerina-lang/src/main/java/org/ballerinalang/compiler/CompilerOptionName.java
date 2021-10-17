@@ -32,8 +32,6 @@ public enum CompilerOptionName {
 
     OFFLINE("offline"),
 
-    SKIP_TESTS("skipTests"),
-
     OBSERVABILITY_INCLUDED("observabilityIncluded"),
 
     COMPILER_PHASE("compilerPhase"),
@@ -63,6 +61,8 @@ public enum CompilerOptionName {
     EXPERIMENTAL("experimental"),
 
     LIST_CONFLICTED_CLASSES("listConflictedClasses"),
+
+    STICKY("sticky"),
 
     /**
      * We've introduced this temporary option to support old-project structure and the new package structure.

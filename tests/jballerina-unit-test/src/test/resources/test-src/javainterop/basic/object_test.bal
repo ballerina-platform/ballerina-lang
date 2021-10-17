@@ -133,7 +133,7 @@ public function testInteropsInsideObject() {
 
     // Test get current Module
     string moduleString =  p.getCurrentModuleForObject(4);
-    assertEquality(moduleString, "$anon#.#0.0.0#12#4");
+    assertEquality(moduleString, "$anon#.#0#12#4");
 
     int defaultValue = p.getDefaultValueWithBEnvForObject();
     assertEquality(defaultValue, 2021);

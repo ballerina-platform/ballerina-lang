@@ -18,8 +18,8 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.projects.DependencyManifest;
 import io.ballerina.projects.JvmTarget;
-import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
@@ -205,7 +205,7 @@ public class PushCommand implements BLauncherCmd {
     private void pushPackage(BuildProject project) {
         Path balaFilePath = validateBalaFile(project);
         pushBalaToCustomRepo(balaFilePath);
-        errStream.println("Successfully pushed " + userDir.relativize(balaFilePath)
+        outStream.println("Successfully pushed " + userDir.relativize(balaFilePath)
                 + " to '" + repositoryName + "' repository.");
     }
 
@@ -219,7 +219,7 @@ public class PushCommand implements BLauncherCmd {
         Path packageBalaFile = validateBalaFile(project);
 
         // check if the package is already there in remote repository
-        PackageManifest.Dependency pkgAsDependency = new PackageManifest.Dependency(
+        DependencyManifest.Package pkgAsDependency = new DependencyManifest.Package(
                 project.currentPackage().packageName(),
                 project.currentPackage().packageOrg(),
                 project.currentPackage().packageVersion());
@@ -380,7 +380,7 @@ public class PushCommand implements BLauncherCmd {
      * @param pkg package
      * @return is package available in the remote
      */
-    private static boolean isPackageAvailableInRemote(PackageManifest.Dependency pkg, CentralAPIClient client)
+    private static boolean isPackageAvailableInRemote(DependencyManifest.Package pkg, CentralAPIClient client)
             throws CentralClientException {
         List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
         supportedPlatforms.add("any");

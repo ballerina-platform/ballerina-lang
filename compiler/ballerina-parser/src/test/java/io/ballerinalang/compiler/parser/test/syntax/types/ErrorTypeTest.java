@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 public class ErrorTypeTest extends AbstractTypesTest {
 
     // Valid source tests
+
     @Test
     public void testValidLocalLevelErrorType() {
         testTopLevelNode("error-type/error_type_assert_01.bal", "error-type/error_type_assert_01.json");

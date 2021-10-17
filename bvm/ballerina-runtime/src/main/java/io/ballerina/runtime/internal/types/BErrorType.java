@@ -20,9 +20,12 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ErrorType;
+import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
+
+import java.util.Optional;
 
 /**
  * {@code BErrorType} represents error type in Ballerina.
@@ -33,6 +36,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType {
 
     public Type detailType;
     public BTypeIdSet typeIdSet;
+    private IntersectionType intersectionType = null;
 
     public BErrorType(String typeName, Module pkg, Type detailType) {
         super(typeName, pkg, ErrorValue.class);
@@ -97,5 +101,15 @@ public class BErrorType extends BAnnotatableType implements ErrorType {
     @Override
     public BTypeIdSet getTypeIdSet() {
         return typeIdSet;
+    }
+
+    @Override
+    public Optional<IntersectionType> getIntersectionType() {
+        return this.intersectionType ==  null ? Optional.empty() : Optional.of(this.intersectionType);
+    }
+
+    @Override
+    public void setIntersectionType(IntersectionType intersectionType) {
+        this.intersectionType = intersectionType;
     }
 }

@@ -11,11 +11,11 @@ function foo3() {
 }
 
 function foo4() {
-    var a = [b, 
+    var a = [b,
 }
 
 function foo5() {
-    var a = table 
+    var a = table
 }
 
 function foo6() {
@@ -23,11 +23,11 @@ function foo6() {
  }
 
 function foo7() {
-    var a = object 
+    var a = object
 }
 
 function foo8() {
-    var a = let 
+    var a = let
 }
 
 function foo9() {
@@ -35,15 +35,15 @@ function foo9() {
 }
 
 function foo10() {
-    var a = b is 
+    var a = b is
 }
 
 function foo11() {
-    var a = stream 
+    var a = stream
          }
 
 function foo12() {
-    var a = from 
+    var a = from
          }
 
 function bar() returns int {

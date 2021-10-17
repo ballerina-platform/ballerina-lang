@@ -462,7 +462,8 @@ public class TypeCastExprTest {
         Assert.assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
         String errorMsg = ((BMap<String, BString>) error.getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'B' value cannot be converted to 'A'");
+        Assert.assertEquals(errorMsg, "'B' value cannot be converted to 'A': " +
+                "\n\t\tmissing required field 'y' of type 'int' in record 'A'");
     }
 
     @Test (description = "Test any to int casting happens without errors, error struct should be null")
@@ -605,6 +606,16 @@ public class TypeCastExprTest {
     @Test(description = "Test any boolean to union with errors.")
     public void testAnyBooleanToUnionWithErrors() {
         BRunUtil.invoke(result, "testAnyBooleanToUnionWithErrors");
+    }
+
+    @Test(description = "Test type cast to union type with int subtypes.")
+    public void testCastingToIntSubtypesInUnion() {
+        BRunUtil.invoke(result, "testCastingToIntSubtypesInUnion");
+    }
+
+    @Test(description = "Test erroneous type cast to union type with int subtypes.")
+    public void testCastingToIntSubtypesInUnionNegative() {
+        BRunUtil.invoke(result, "testCastingToIntSubtypesInUnionNegative");
     }
 
     @Test

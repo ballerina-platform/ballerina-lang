@@ -142,9 +142,6 @@
                     {
                       "kind": "SEMICOLON_TOKEN",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MORE_RECORD_FIELDS_AFTER_REST_FIELD"
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
@@ -154,9 +151,14 @@
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "INT_KEYWORD"
+                                "kind": "INT_KEYWORD",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_MORE_RECORD_FIELDS_AFTER_REST_FIELD"
+                                ]
                               }
                             ]
                           }
@@ -295,9 +297,6 @@
                     {
                       "kind": "CLOSE_BRACE_PIPE_TOKEN",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_INVALID_TOKEN"
-                      ],
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -307,9 +306,14 @@
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "IN_KEYWORD"
+                                "kind": "IN_KEYWORD",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_INVALID_TOKEN"
+                                ]
                               }
                             ]
                           }

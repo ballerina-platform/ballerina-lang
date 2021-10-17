@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 
 import java.util.Map;
@@ -28,20 +29,75 @@ import java.util.Map;
  *
  * @since 1.0.5
  */
-public interface StringValue extends BString, SimpleValue {
+public abstract class StringValue implements BString, SimpleValue {
+
+    final String value;
+    final boolean isNonBmp;
+
+    protected StringValue(String value, boolean isNonBmp) {
+        this.value = value;
+        this.isNonBmp = isNonBmp;
+    }
 
     @Override
-    default Type getType() {
+    public Type getType() {
         return PredefinedTypes.TYPE_STRING;
     }
 
     @Override
-    default Object copy(Map<Object, Object> refs) {
+    public Object copy(Map<Object, Object> refs) {
         return this;
     }
 
     @Override
-    default Object frozenCopy(Map<Object, Object> refs) {
+    public Object frozenCopy(Map<Object, Object> refs) {
         return this;
     }
+
+    @Override
+    public IteratorValue getIterator() {
+        return new CharIterator(this);
+    }
+
+    @Override
+    public String getValue() {
+        return value;
+    }
+
+    @Override
+    public String stringValue(BLink parent) {
+        return value;
+    }
+
+    @Override
+    public String informalStringValue(BLink parent) {
+        return "\"" + this + "\"";
+    }
+
+    @Override
+    public String expressionStringValue(BLink parent) {
+        return informalStringValue(parent);
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object str) {
+        if (str == this) {
+            return true;
+        }
+        if (str instanceof BString) {
+            return ((BString) str).getValue().equals(value);
+        }
+        return false;
+    }
+
 }

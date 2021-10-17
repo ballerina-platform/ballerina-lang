@@ -50,7 +50,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
         final String span4Position = FILE_NAME + ":24:15";
         final String span5Position = FILE_NAME + ":32:21";
         final String span6Position = FILE_NAME + ":38:16";
-        final String entryPointFunctionModule = "intg_tests/tracing_tests:0.0.1";
+        final String entryPointFunctionModule = DEFAULT_MODULE_ID;
         final String entryPointFunctionName = "main";
         final List<BMockSpan.CheckPoint> expectedCheckpoints = Arrays.asList(
                 new BMockSpan.CheckPoint(entryPointFunctionModule, FILE_NAME + ":20:5"),
@@ -182,9 +182,9 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.function.name", "callWithPanic"),
                     new AbstractMap.SimpleEntry<>("error", "true"),
                     new AbstractMap.SimpleEntry<>("error.message", "Test Error\n" +
-                            "\tat intg_tests.tracing_tests.utils.0_0_1.MockClient:callWithPanic(" +
+                            "\tat intg_tests.tracing_tests.utils.0.MockClient:callWithPanic(" +
                             "mock_client_endpoint.bal:58)\n" +
-                            "\t   intg_tests.tracing_tests.0_0_1:main(01_main_function.bal:32)")
+                            "\t   intg_tests.tracing_tests.0:main(01_main_function.bal:32)")
             ));
         });
 
@@ -207,9 +207,9 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.function.name", "callWithErrorReturn"),
                     new AbstractMap.SimpleEntry<>("error", "true"),
                     new AbstractMap.SimpleEntry<>("error.message", "Test Error\n" +
-                            "\tat intg_tests.tracing_tests.utils.0_0_1.MockClient:callWithErrorReturn(" +
+                            "\tat intg_tests.tracing_tests.utils.0.MockClient:callWithErrorReturn(" +
                             "mock_client_endpoint.bal:46)\n" +
-                            "\t   intg_tests.tracing_tests.0_0_1:main(01_main_function.bal:38)")
+                            "\t   intg_tests.tracing_tests.0:main(01_main_function.bal:38)")
             ));
         });
     }

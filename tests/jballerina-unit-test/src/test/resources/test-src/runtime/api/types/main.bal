@@ -17,11 +17,41 @@
 import ballerina/test;
 import testorg/runtime_api_types.objects;
 
+objects:PublicClientObject obj = new ();
+
 public function main() {
-    objects:PublicClientObject obj = new ();
-    [string,boolean] [] parameters = objects:getParameters(obj, "getRemoteCounter");
+    testRemoteFunctionParameters();
+    testFunctionToString();
+    testParamTypesString();
+    testConstituentTypes();
+}
+
+function testConstituentTypes() {
+    int[] arr = [1, 2, 3];
+    string[] types = objects:getConstituentTypes(arr.cloneReadOnly());
+    test:assertEquals(types.length(), 2);
+    test:assertEquals(types[0], "int[]");
+    test:assertEquals(types[1], "readonly");
+}
+
+function testFunctionToString() {
+    test:assertEquals(objects:getFunctionString(obj, "testFunction"), "function testFunction(int,decimal,string) returns (())");
+    test:assertEquals(objects:getFunctionString(obj, "getRemoteCounter"), "remote function (int,decimal,string) returns (())");
+
+    objects:Service serviceVal = new ();
+    test:assertEquals(objects:getFunctionString(serviceVal, "remoteFunction"), "remote function (int,decimal,string) returns (())");
+    test:assertEquals(objects:getFunctionString(serviceVal, "resourceFunction"), "resource function get resourceFunction(string test) returns (string)");
+}
+
+function testRemoteFunctionParameters() {
+    [string, boolean, string][] parameters = objects:getParameters(obj, "getRemoteCounter");
     test:assertEquals(parameters.length(), 3);
-    test:assertEquals(parameters[0], ["num", false]);
-    test:assertEquals(parameters[1], ["value", false]);
-    test:assertEquals(parameters[2], ["msg", true]);
+    test:assertEquals(parameters[0], ["num", false, "int"]);
+    test:assertEquals(parameters[1], ["value", false, "decimal"]);
+    test:assertEquals(parameters[2], ["msg", true, "string"]);
+}
+
+function testParamTypesString() {
+    //Need to be removed after removing getParamTypes() API
+    test:assertEquals(objects:getParamTypesString(obj.testFunction), "int decimal string ");
 }

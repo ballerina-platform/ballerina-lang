@@ -126,6 +126,51 @@ function testMapping() {
     record { string i;} t3 = rec;
     test:assertError(trap updateRecord(t3, "abc"));
 }
+
+function testFromCodePointIntInSurrogateRange() {
+    int cp1 = 0xD800;
+    s:Char|error ch1 = s:fromCodePointInt(cp1);
+    test:assertTrue(ch1 is error);
+    test:assertValueEqual("Invalid codepoint: 55296", (<error>ch1).message());
+    cp1 = 0xDFFF;
+    ch1 = s:fromCodePointInt(cp1);
+    test:assertTrue(ch1 is error);
+    test:assertValueEqual("Invalid codepoint: 57343", (<error>ch1).message());
+    cp1 = 0xD8FF;
+    ch1 = s:fromCodePointInt(cp1);
+    test:assertTrue(ch1 is error);
+    test:assertValueEqual("Invalid codepoint: 55551", (<error>ch1).message());
+}
+
+function testFromCodePointIntsInSurrogateRange() {
+    int[] cp1 = [0xA3456, 0xD800, 0xB51F];
+    string|error ch1 = s:fromCodePointInts(cp1);
+    test:assertTrue(ch1 is error);
+    test:assertValueEqual("Invalid codepoint: 55296", (<error>ch1).message());
+    cp1 = [0xA3456, 0xDFFF, 0xB51F];
+    ch1 = s:fromCodePointInts(cp1);
+    test:assertTrue(ch1 is error);
+    test:assertValueEqual("Invalid codepoint: 57343", (<error>ch1).message());
+    cp1 = [0xA3456, 0xD8FF, 0xB51F];
+    ch1 = s:fromCodePointInts(cp1);
+    test:assertTrue(ch1 is error);
+    test:assertValueEqual("Invalid codepoint: 55551", (<error>ch1).message());
+}
+
+function testStringAssignabilityToSingleCharVarDef() {
+    var charVar = "a";
+    test:assertValueEqual(true, charVar is string);
+    test:assertValueEqual(true, charVar is string:Char);
+    charVar = "Hello";
+    test:assertValueEqual(true, charVar is string);
+    test:assertValueEqual(false, charVar is string:Char);
+}
+
+function testToCodePointWithChaType() {
+    int backslash = ("\\").toCodePointInt();
+    test:assertValueEqual(92, backslash);
+}
+
 function insertListValue(string[] list, int pos, string value) {
     list[pos] = value;
 }
@@ -166,4 +211,18 @@ function testFiniteTypeAsStringSubType() {
     test:assertValueEqual(true, <any> g is (int:Signed32|string:Char)[]);
     test:assertValueEqual(true, <any> g is (int:Signed32|string)[]);
     test:assertValueEqual(false, <any> g is (int:Unsigned32|string:Char)[]);
+}
+
+type StringFiniteType "ABC" | "D";
+type StringType s:Char|string;
+
+public function testLanglibFunctionsForUnionStringSubtypes() {
+    StringFiniteType str1 = "D";
+    StringType str2 = "D";
+
+    test:assertValueEqual("d", string:toLowerAscii(str1));
+    test:assertValueEqual("d", string:toLowerAscii(str2));
+
+    test:assertValueEqual("d", str1.toLowerAscii());
+    test:assertValueEqual("d", str2.toLowerAscii());
 }

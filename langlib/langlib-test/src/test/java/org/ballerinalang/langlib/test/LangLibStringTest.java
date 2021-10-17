@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.test;
 
 
 import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
@@ -60,8 +59,7 @@ public class LangLibStringTest {
 
     @Test
     public void testLength() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testLength");
-        assertEquals(((BInteger) returns[0]).intValue(), "Hello Ballerina!".length());
+        BRunUtil.invoke(compileResult, "testLength");
     }
 
     @Test
@@ -148,7 +146,7 @@ public class LangLibStringTest {
     public void testToCodepointInts(String st1, int[] expected) {
         BValue[] args = {new BString(st1)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToCodepointInts", args);
-        assertEquals(((BValueArray) returns[0]).size(), expected.length);
+        assertEquals(returns[0].size(), expected.length);
         int[] codePoints = toIntArray((BValueArray) returns[0]);
         assertEquals(codePoints, expected);
     }
@@ -157,14 +155,14 @@ public class LangLibStringTest {
     public void testFromCodePointInts(long[] array, String expected) {
         BValue[] args = {new BValueArray(array)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testFromCodePointInts", args);
-        assertEquals(((BString) returns[0]).stringValue(), expected);
+        assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testFromCodePointIntsNegative() {
         BValue[] args = {new BValueArray(new long[]{0x10FFFF, 0x10FFFF + 1})};
         BValue[] returns = BRunUtil.invoke(compileResult, "testFromCodePointInts", args);
-        assertEquals(((BError) returns[0]).stringValue(), "Invalid codepoint: 1114112 {}");
+        assertEquals(returns[0].stringValue(), "Invalid codepoint: 1114112 {}");
     }
 
     private int[] toIntArray(BValueArray array) {
@@ -281,5 +279,48 @@ public class LangLibStringTest {
     @Test
     public void testLangLibCallOnFiniteType() {
         BRunUtil.invoke(compileResult, "testLangLibCallOnFiniteType");
+    }
+
+    @Test(dataProvider = "unicodeCharProvider")
+    public void testIteratorWithUnicodeChar(long codePoint, long[] expected) {
+        BValue[] args = {new BInteger(codePoint), new BValueArray(expected)};
+        BRunUtil.invoke(compileResult, "testIteratorWithUnicodeChar", args);
+    }
+
+    @DataProvider(name = "unicodeCharProvider")
+    public Object[][] testUnicodeCharIteratorProvider() {
+        long asciiValue = Long.parseLong("7E", 16);
+        long nonAsciiLatinValue = Long.parseLong("DF", 16);
+        long twoByteValue = Long.parseLong("03BB", 16);
+        long threeByteValue = Long.parseLong("0BF8", 16);
+        long emojiValue = Long.parseLong("1F4A9", 16);
+        long encodedValue = Long.parseLong("DFFFF", 16);
+
+        return new Object[][]{
+                {asciiValue, new long[]{asciiValue}},
+                {nonAsciiLatinValue, new long[]{nonAsciiLatinValue}},
+                {twoByteValue, new long[]{twoByteValue}},
+                {threeByteValue, new long[]{threeByteValue}},
+                {emojiValue, new long[]{emojiValue}},
+                {encodedValue, new long[]{encodedValue}},
+        };
+    }
+
+    @Test(dataProvider = "StringPrefixProvider")
+    public void testConcatNonBMPStrings(String prefix) {
+        BString bString = new BString(prefix);
+        BString resultString = new BString(prefix + "👋world🤷!");
+        BRunUtil.invoke(compileResult, "concatNonBMP", new BValue[]{bString, resultString});
+    }
+
+    @Test(dataProvider = "StringPrefixProvider")
+    public void testCharIterator(String prefix) {
+        BString bString = new BString(prefix + "👋world🤷!");
+        BRunUtil.invoke(compileResult, "testCharIterator", new BValue[]{bString});
+    }
+
+    @DataProvider(name = "StringPrefixProvider")
+    public Object[] testBMPStringProvider() {
+        return new String[]{"ascii~?", "£ßóµ¥", "ęЯλĢŃ", "☃✈௸ऴᛤ", "😀🄰🍺" };
     }
 }

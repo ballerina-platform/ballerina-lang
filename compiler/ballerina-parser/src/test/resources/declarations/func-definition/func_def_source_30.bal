@@ -5,5 +5,5 @@ function testIterableOperation() {
 }
 
 type Customer record {|
-// certain record
+    // certain record
 |};

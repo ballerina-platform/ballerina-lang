@@ -1,0 +1,4 @@
+[package]
+org = "pram"
+name = "project_wo_deps"
+version = "0.1.0"

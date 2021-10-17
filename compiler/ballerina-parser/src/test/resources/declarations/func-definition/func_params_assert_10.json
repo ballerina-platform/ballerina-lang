@@ -49,18 +49,20 @@
                     {
                       "kind": "IDENTIFIER_TOKEN",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_DEFAULTABLE_PARAMETER_CANNOT_BE_INCLUDED_RECORD_PARAMETER"
-                      ],
                       "value": "Person",
                       "leadingMinutiae": [
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "ASTERISK_TOKEN"
+                                "kind": "ASTERISK_TOKEN",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_DEFAULTABLE_PARAMETER_CANNOT_BE_INCLUDED_RECORD_PARAMETER"
+                                ]
                               }
                             ]
                           }
@@ -111,13 +113,7 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "a",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "value": "a"
                             },
                             {
                               "kind": "COLON_TOKEN",
@@ -125,36 +121,36 @@
                               "hasDiagnostics": true,
                               "diagnostics": [
                                 "ERROR_MISSING_COLON_TOKEN"
+                              ],
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "INVALID_NODE_MINUTIAE",
+                                  "invalidNode": {
+                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                    "hasDiagnostics": true,
+                                    "children": [
+                                      {
+                                        "kind": "EQUAL_TOKEN",
+                                        "hasDiagnostics": true,
+                                        "diagnostics": [
+                                          "ERROR_INVALID_TOKEN"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "  "
+                                }
                               ]
                             },
                             {
                               "kind": "NUMERIC_LITERAL",
-                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_INVALID_TOKEN"
-                                  ],
-                                  "value": "2",
-                                  "leadingMinutiae": [
-                                    {
-                                      "kind": "INVALID_NODE_MINUTIAE",
-                                      "invalidNode": {
-                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                        "children": [
-                                          {
-                                            "kind": "EQUAL_TOKEN"
-                                          }
-                                        ]
-                                      }
-                                    },
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "value": "2"
                                 }
                               ]
                             }

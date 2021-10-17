@@ -21,9 +21,10 @@ package org.ballerinalang.langlib.string;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import org.wso2.ballerinalang.compiler.util.Constants;
 
 /**
- * Extern function lang.string:fromCodePointInts(string).
+ * Extern function lang.string:fromCodePointInts(int[]).
  *
  * @since 1.0
  */
@@ -35,6 +36,11 @@ public class FromCodePointInts {
             StringBuilder builder = new StringBuilder();
             for (int i = 0; i < codePoints.size(); i++) {
                 codePoint = (int) codePoints.getInt(i);
+
+                if (codePoint <= Constants.MIDDLE_LIMIT_UNICODE && codePoint >= Constants.MIN_UNICODE) {
+                    return ErrorCreator.createError(StringUtils.fromString("Invalid codepoint: " + codePoint));
+                }
+
                 builder.appendCodePoint(codePoint);
             }
             return StringUtils.fromString(builder.toString());

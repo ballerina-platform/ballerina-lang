@@ -5,7 +5,7 @@
 function foo() {
     // hello
     int a = 6; // var decl
-// more statements
+    // more statements
 }
 // first comment at the bottom
 // second comment at the bottom

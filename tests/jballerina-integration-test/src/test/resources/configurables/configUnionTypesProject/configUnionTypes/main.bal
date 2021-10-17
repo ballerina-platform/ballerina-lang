@@ -15,27 +15,28 @@
 // under the License.
 
 
-import configUnionTypes.mod1;
-import configUnionTypes.mod2;
+import configUnionTypes.type_defs;
+import configUnionTypes.imported_unions;
 import testOrg/configLib.mod1 as configLib;
 import testOrg/configLib.util;
+import configUnionTypes.union_ambiguity;
 import ballerina/test;
 
 configurable configLib:HttpVersion & readonly httpVersion = ?;
-configurable mod1:CountryCodes & readonly countryCode = ?;
-configurable mod1:CountryCodes[] countryCodes = ?;
+configurable type_defs:CountryCodes & readonly countryCode = ?;
+configurable type_defs:CountryCodes[] countryCodes = ?;
 
 type HttpResponse record {|
     configLib:HttpVersion httpVersion;
 |};
 
 type Person record {
-    string name;
+    readonly string name;
     int age?;
 };
 
 configurable HttpResponse httpResponse = ?;
-configurable mod1:Country country = ?;
+configurable type_defs:Country country = ?;
 
 configurable anydata anydataVar = ?;
 configurable int|string intStringVar = 2;
@@ -56,17 +57,18 @@ configurable float|table<Person> key(name) tableUnionVar = ?;
 
 public function main() {
     testEnumValues();
-    mod2:testEnumValues();
+    imported_unions:testEnumValues();
+    union_ambiguity:test_ambiguous_union_type();
     util:print("Tests passed");
 }
 
 function testEnumValues() {
     test:assertEquals(httpVersion, configLib:HTTP_1_1);
-    test:assertEquals(countryCode, mod1:SL);
+    test:assertEquals(countryCode, type_defs:SL);
     test:assertEquals(httpResponse.httpVersion, configLib:HTTP_2);
-    test:assertEquals(country.countryCode, mod1:US);
-    test:assertEquals(countryCodes[0], mod1:US);
-    test:assertEquals(countryCodes[1], mod1:SL);
+    test:assertEquals(country.countryCode, type_defs:US);
+    test:assertEquals(countryCodes[0], type_defs:US);
+    test:assertEquals(countryCodes[1], type_defs:SL);
     test:assertEquals(anydataVar, "hello");
     test:assertEquals(intStringVar, 12345);
     test:assertEquals(anydataArray.toString(), "[\"hello\",1,2,3.4,false]");

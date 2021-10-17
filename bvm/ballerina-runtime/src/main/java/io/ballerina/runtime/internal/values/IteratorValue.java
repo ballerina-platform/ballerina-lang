@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BTypedesc;
 
 import java.util.Map;
 
@@ -35,6 +36,8 @@ import java.util.Map;
  * @since 0.995.0
  */
 public interface IteratorValue extends RefValue, BIterator {
+
+    final BTypedesc TYPEDESC = new TypedescValueImpl(PredefinedTypes.TYPE_ITERATOR);
 
     /* Default implementation */
 
@@ -61,5 +64,10 @@ public interface IteratorValue extends RefValue, BIterator {
     @Override
     default Object frozenCopy(Map<Object, Object> refs) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    default BTypedesc getTypedesc() {
+        return TYPEDESC;
     }
 }

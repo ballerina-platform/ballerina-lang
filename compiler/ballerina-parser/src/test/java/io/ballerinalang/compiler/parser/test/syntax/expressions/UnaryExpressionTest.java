@@ -50,6 +50,12 @@ public class UnaryExpressionTest extends AbstractExpressionsTest {
         test("~ a + b / !c + + d", "unary-expr/unary_expr_assert_08.json");
     }
 
+    @Test
+    public void testUnaryExprWithNegation() {
+        test("!isNotFound", "unary-expr/unary_expr_assert_12.json");
+        testFile("unary-expr/unary_expr_source_13.bal", "unary-expr/unary_expr_assert_13.json");
+    }
+
     // Recovery test
 
     @Test

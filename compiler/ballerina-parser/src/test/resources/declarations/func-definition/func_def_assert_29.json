@@ -119,7 +119,7 @@
                               "isMissing": true,
                               "hasDiagnostics": true,
                               "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
+                                "ERROR_MISSING_EXPRESSION"
                               ]
                             }
                           ]
@@ -247,6 +247,10 @@
                 {
                   "kind": "CLOSE_BRACE_TOKEN",
                   "leadingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    },
                     {
                       "kind": "COMMENT_MINUTIAE",
                       "value": "// here goes a certain task"

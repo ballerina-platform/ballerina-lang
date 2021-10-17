@@ -21,7 +21,7 @@ function testTypeOfNeverReturnTypedFunction() {
 }
 
 function testNeverReturnTypedFunctionCall() {
-    foo:sigma();
+    error e = trap foo:sigma();
 }
 
 function testInclusiveRecord() {

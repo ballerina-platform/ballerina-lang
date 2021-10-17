@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -40,7 +41,10 @@ public class BasicLiteralNodeContext extends BlockNodeContextProvider<BasicLiter
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, BasicLiteralNode node)
             throws LSCompletionException {
-        if (node.kind() == SyntaxKind.STRING_LITERAL) {
+        int cursor = context.getCursorPositionInTree();
+        Token literalToken = node.literalToken();
+        if (cursor <= literalToken.textRange().endOffset()
+                && (node.kind() == SyntaxKind.STRING_LITERAL || node.kind() == SyntaxKind.NUMERIC_LITERAL)) {
             return Collections.emptyList();
         }
 

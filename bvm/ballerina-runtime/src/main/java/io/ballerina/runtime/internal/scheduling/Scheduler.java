@@ -32,17 +32,16 @@ import io.ballerina.runtime.internal.values.ChannelDetails;
 import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.io.PrintStream;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-import java.util.WeakHashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -55,7 +54,8 @@ import static io.ballerina.runtime.internal.scheduling.ItemGroup.POISON_PILL;
  */
 public class Scheduler {
 
-    private PrintStream err = System.err;
+    private static PrintStream err = System.err;
+
     /**
      * Scheduler does not get killed if the immortal value is true. Specific to services.
      */
@@ -67,6 +67,7 @@ public class Scheduler {
     private BlockingQueue<ItemGroup> runnableList = new LinkedBlockingDeque<>();
 
     private static final ThreadLocal<StrandHolder> strandHolder = ThreadLocal.withInitial(StrandHolder::new);
+    private final Strand previousStrand;
 
     private AtomicInteger totalStrands = new AtomicInteger();
 
@@ -82,35 +83,30 @@ public class Scheduler {
 
     private Semaphore mainBlockSem;
     private ListenerRegistry listenerRegistry;
-    private Map<BObject, ItemGroup> objectGroups = Collections.synchronizedMap(new WeakHashMap<>());
+    private AtomicReference<ItemGroup> objectGroup = new AtomicReference<>();
 
     public Scheduler(boolean immortal) {
-        try {
-            if (poolSizeConf != null) {
-                poolSize = Integer.parseInt(poolSizeConf);
-            }
-        } catch (Throwable t) {
-            // Log and continue with default
-            err.println("ballerina: error occurred in scheduler while reading system variable:" +
-                                RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
-        }
-        this.numThreads = poolSize;
-        this.immortal = immortal;
-        listenerRegistry = new ListenerRegistry();
+        this(getPoolSize(), immortal);
     }
 
     public Scheduler(int numThreads, boolean immortal) {
         this.numThreads = numThreads;
         this.immortal = immortal;
-        listenerRegistry = new ListenerRegistry();
+        this.listenerRegistry = new ListenerRegistry();
+        this.previousStrand = numThreads == 1 ? strandHolder.get().strand : null;
     }
 
     public static Strand getStrand() {
         Strand strand = strandHolder.get().strand;
         if (strand == null) {
-            throw new IllegalStateException("strand is not accessible form non-strand-worker threads");
+            throw new IllegalStateException("strand is not accessible from non-strand-worker threads");
         }
         return strand;
+    }
+
+    public static Strand getStrandNoException() {
+        // issue #22871 is opened to fix this
+        return strandHolder.get().strand;
     }
 
     /**
@@ -164,7 +160,7 @@ public class Scheduler {
         return future;
     }
 
-    public FutureValue scheduleToObjectGroup(BObject object, Object[] params, Function function, Strand parent,
+    public FutureValue scheduleToObjectGroup(Object[] params, Function function, Strand parent,
                                              Callback callback, Map<String, Object> properties, Type returnType,
                                              String strandName, StrandMetadata metadata) {
         FutureValue future = createFuture(parent, callback, properties, returnType, strandName, metadata);
@@ -172,14 +168,13 @@ public class Scheduler {
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
-        ItemGroup group = objectGroups.compute(object, (o, groupInMap) -> {
-            if (groupInMap == null) {
-                return new ItemGroup(item);
-            } else {
-                groupInMap.add(item);
-                return groupInMap;
-            }
-        });
+        ItemGroup group = objectGroup.get();
+        if (group == null) {
+            group = new ItemGroup(item);
+            objectGroup.set(group);
+        } else {
+            group.add(item);
+        }
         future.strand.strandGroup = group;
         if (group.scheduled.compareAndSet(false, true)) {
             runnableList.add(group);
@@ -339,7 +334,7 @@ public class Scheduler {
                         RuntimeUtils.printCrashLog(panic);
                     }
                 } finally {
-                    strandHolder.get().strand = null;
+                    strandHolder.get().strand = previousStrand;
                 }
                 postProcess(item, result, panic);
                 if (group.items.empty()) {
@@ -399,7 +394,6 @@ public class Scheduler {
 
                 justCompleted.setState(State.DONE);
 
-
                 for (WaitContext ctx : justCompleted.waitingContexts) {
                     ctx.lock();
                     if (!ctx.completed) {
@@ -420,7 +414,7 @@ public class Scheduler {
                 int strandsLeft = totalStrands.decrementAndGet();
                 if (strandsLeft == 0) {
                     // (number of started stands - finished stands) = 0, all the work is done
-                    assert runnableList.size() == 0;
+                    assert runnableList.isEmpty();
 
                     if (!immortal) {
                         poison();
@@ -473,7 +467,7 @@ public class Scheduler {
     private void notifyChannels(SchedulerItem item, Throwable panic) {
         Set<ChannelDetails> channels = item.future.strand.channelDetails;
 
-        for (ChannelDetails details: channels) {
+        for (ChannelDetails details : channels) {
             WorkerDataChannel wdChannel;
 
             if (details.channelInSameStrand) {
@@ -544,6 +538,19 @@ public class Scheduler {
 
     public ListenerRegistry getListenerRegistry() {
         return listenerRegistry;
+    }
+
+    private static int getPoolSize() {
+        try {
+            if (poolSizeConf != null) {
+                poolSize = Integer.parseInt(poolSizeConf);
+            }
+        } catch (Throwable t) {
+            // Log and continue with default
+            err.println("ballerina: error occurred in scheduler while reading system variable:" +
+                    RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
+        }
+        return poolSize;
     }
 
     /**

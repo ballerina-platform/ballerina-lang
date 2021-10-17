@@ -135,7 +135,7 @@ public class LangLibFunctionTest {
         assertEquals(type.typeKind(), STRING);
 
         List<String> expFunctions = List.of("length", "iterator", "getCodePoint", "substring", "codePointCompare",
-                                            "join", "indexOf", "lastIndexOf", "startsWith", "endsWith", "toLowerAscii",
+                                            "'join", "indexOf", "lastIndexOf", "startsWith", "endsWith", "toLowerAscii",
                                             "toUpperAscii", "equalsIgnoreCaseAscii", "trim", "toBytes",
                                             "toCodePointInts", "clone", "cloneReadOnly", "cloneWithType", "isReadOnly",
                                             "toString", "toBalString", "fromBalString", "toJson", "toJsonString",

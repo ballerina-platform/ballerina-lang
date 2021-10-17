@@ -32,6 +32,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -50,7 +51,7 @@ public class DebugOutputTest extends BaseTestCase {
 
     @Test(description = "Debug output test for Ballerina programs with runtime errors")
     public void testProgramOutput() throws BallerinaTestException {
-        String filePath = debugTestRunner.testEntryFilePath;
+        Path filePath = debugTestRunner.testEntryFilePath;
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 19));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
@@ -85,7 +86,7 @@ public class DebugOutputTest extends BaseTestCase {
                 "{\"message\":\" / by zero\"}");
         Assert.assertEquals(outputs.get(1).getRight().getCategory(), OutputEventArgumentsCategory.STDERR);
         Assert.assertEquals(outputs.get(1).getLeft().trim(), "at debug_test_resources.debug_output_test." +
-                "0_0_1:main(main.bal:19)");
+                "0:main(main.bal:19)");
         Assert.assertEquals(outputs.get(2).getRight().getCategory(), OutputEventArgumentsCategory.CONSOLE);
         Assert.assertTrue(outputs.get(2).getLeft().trim().startsWith("Disconnected from the target VM, address: " +
                 "'localhost:"));

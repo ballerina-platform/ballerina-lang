@@ -161,7 +161,7 @@ public class LimitClauseTest {
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 38, 19);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 78, 19);
-        validateError(negativeResult, i, "more clauses after select clause", 123, 13);
+        validateError(negativeResult, i, "more clauses after select clause", 124, 13);
     }
 
     @AfterClass

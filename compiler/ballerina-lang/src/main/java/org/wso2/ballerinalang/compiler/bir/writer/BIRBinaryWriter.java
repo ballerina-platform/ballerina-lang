@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -90,6 +91,8 @@ public class BIRBinaryWriter {
         // Write the constant pool entries.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (DataOutputStream dataOut = new DataOutputStream(baos)) {
+            dataOut.write(CompiledBinaryFile.BIRPackageFile.BIR_MAGIC);
+            dataOut.writeInt(CompiledBinaryFile.BIRPackageFile.BIR_VERSION);
             dataOut.write(cp.serialize());
             dataOut.write(birbuf.nioBuffer().array(), 0, birbuf.nioBuffer().limit());
             return baos.toByteArray();
@@ -172,6 +175,8 @@ public class BIRBinaryWriter {
         writePosition(buf, typeDef.pos);
         // Type name CP Index
         buf.writeInt(addStringCPEntry(typeDef.internalName.value));
+        // Type original-name CP Index
+        buf.writeInt(addStringCPEntry(typeDef.originalName.value));
         // Flags
         buf.writeLong(typeDef.flags);
         buf.writeByte(typeDef.isLabel ? 1 : 0);
@@ -195,6 +200,8 @@ public class BIRBinaryWriter {
         writePosition(buf, birFunction.pos);
         // Function name CP Index
         buf.writeInt(addStringCPEntry(birFunction.name.value));
+        // Function original name CP Index
+        buf.writeInt(addStringCPEntry(birFunction.originalName.value));
         // Function worker name CP Index
         buf.writeInt(addStringCPEntry(birFunction.workerName.value));
         // Flags
@@ -332,6 +339,8 @@ public class BIRBinaryWriter {
                                  BIRNode.BIRAnnotation birAnnotation) {
         // Annotation name CP Index
         buf.writeInt(addStringCPEntry(birAnnotation.name.value));
+        // Annotation original name CP Index
+        buf.writeInt(addStringCPEntry(birAnnotation.originalName.value));
 
         buf.writeLong(birAnnotation.flags);
         buf.writeByte(birAnnotation.origin.value());

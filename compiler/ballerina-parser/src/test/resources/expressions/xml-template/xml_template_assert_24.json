@@ -152,12 +152,6 @@
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_INVALID_TOKEN",
-                                    "ERROR_INVALID_TOKEN",
-                                    "ERROR_INVALID_TOKEN",
-                                    "ERROR_INVALID_TOKEN"
-                                  ],
                                   "value": "a",
                                   "trailingMinutiae": [
                                     {
@@ -182,6 +176,7 @@
                                             "kind": "OPEN_BRACE_TOKEN",
                                             "hasDiagnostics": true,
                                             "diagnostics": [
+                                              "ERROR_INVALID_TOKEN",
                                               "ERROR_INVALID_TOKEN"
                                             ]
                                           }
@@ -192,9 +187,14 @@
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
                                         "children": [
                                           {
                                             "kind": "IDENTIFIER_TOKEN",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_INVALID_TOKEN"
+                                            ],
                                             "value": "b"
                                           }
                                         ]
@@ -204,9 +204,14 @@
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
                                         "children": [
                                           {
-                                            "kind": "CLOSE_BRACE_TOKEN"
+                                            "kind": "CLOSE_BRACE_TOKEN",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_INVALID_TOKEN"
+                                            ]
                                           }
                                         ]
                                       }
@@ -215,9 +220,14 @@
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
                                         "children": [
                                           {
                                             "kind": "IDENTIFIER_TOKEN",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_INVALID_TOKEN"
+                                            ],
                                             "value": "c"
                                           }
                                         ]
@@ -379,21 +389,6 @@
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_INVALID_TOKEN",
-                                    "ERROR_INVALID_TOKEN",
-                                    "ERROR_INVALID_TOKEN",
-                                    "ERROR_INVALID_TOKEN",
-                                    "ERROR_INVALID_TOKEN",
-                                    "ERROR_INVALID_TOKEN",
-                                    "ERROR_INVALID_TOKEN",
-                                    "ERROR_INVALID_TOKEN",
-                                    "ERROR_INVALID_TOKEN",
-                                    "ERROR_INVALID_TOKEN",
-                                    "ERROR_INVALID_TOKEN",
-                                    "ERROR_INVALID_TOKEN",
-                                    "ERROR_INVALID_TOKEN"
-                                  ],
                                   "value": "bb",
                                   "trailingMinutiae": [
                                     {
@@ -418,6 +413,7 @@
                                             "kind": "OPEN_BRACE_TOKEN",
                                             "hasDiagnostics": true,
                                             "diagnostics": [
+                                              "ERROR_INVALID_TOKEN",
                                               "ERROR_INVALID_TOKEN"
                                             ]
                                           }
@@ -428,9 +424,14 @@
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
                                         "children": [
                                           {
                                             "kind": "IDENTIFIER_TOKEN",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_INVALID_TOKEN"
+                                            ],
                                             "value": "v2"
                                           }
                                         ]
@@ -440,9 +441,14 @@
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
                                         "children": [
                                           {
-                                            "kind": "CLOSE_BRACE_TOKEN"
+                                            "kind": "CLOSE_BRACE_TOKEN",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_INVALID_TOKEN"
+                                            ]
                                           }
                                         ]
                                       }
@@ -451,9 +457,14 @@
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
                                         "children": [
                                           {
                                             "kind": "IDENTIFIER_TOKEN",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_INVALID_TOKEN"
+                                            ],
                                             "value": "c\\}cc"
                                           }
                                         ]
@@ -463,9 +474,14 @@
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
                                         "children": [
                                           {
-                                            "kind": "OPEN_BRACE_TOKEN"
+                                            "kind": "OPEN_BRACE_TOKEN",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_INVALID_TOKEN"
+                                            ]
                                           }
                                         ]
                                       }
@@ -474,9 +490,14 @@
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
                                         "children": [
                                           {
                                             "kind": "IDENTIFIER_TOKEN",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_INVALID_TOKEN"
+                                            ],
                                             "value": "d"
                                           }
                                         ]
@@ -486,9 +507,14 @@
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
                                         "children": [
                                           {
-                                            "kind": "OPEN_BRACE_TOKEN"
+                                            "kind": "OPEN_BRACE_TOKEN",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_INVALID_TOKEN"
+                                            ]
                                           }
                                         ]
                                       }
@@ -497,9 +523,14 @@
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
                                         "children": [
                                           {
-                                            "kind": "CLOSE_BRACE_TOKEN"
+                                            "kind": "CLOSE_BRACE_TOKEN",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_INVALID_TOKEN"
+                                            ]
                                           }
                                         ]
                                       }
@@ -508,9 +539,14 @@
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
                                         "children": [
                                           {
                                             "kind": "IDENTIFIER_TOKEN",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_INVALID_TOKEN"
+                                            ],
                                             "value": "e"
                                           }
                                         ]
@@ -520,9 +556,14 @@
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
                                         "children": [
                                           {
-                                            "kind": "CLOSE_BRACE_TOKEN"
+                                            "kind": "CLOSE_BRACE_TOKEN",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_INVALID_TOKEN"
+                                            ]
                                           }
                                         ]
                                       }
@@ -531,9 +572,14 @@
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
                                         "children": [
                                           {
-                                            "kind": "OPEN_BRACE_TOKEN"
+                                            "kind": "OPEN_BRACE_TOKEN",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_INVALID_TOKEN"
+                                            ]
                                           }
                                         ]
                                       }
@@ -542,9 +588,14 @@
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
                                         "children": [
                                           {
                                             "kind": "IDENTIFIER_TOKEN",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_INVALID_TOKEN"
+                                            ],
                                             "value": "f"
                                           }
                                         ]
@@ -554,9 +605,14 @@
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
                                         "children": [
                                           {
-                                            "kind": "OPEN_BRACE_TOKEN"
+                                            "kind": "OPEN_BRACE_TOKEN",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_INVALID_TOKEN"
+                                            ]
                                           }
                                         ]
                                       }
@@ -819,24 +875,6 @@
                                                             {
                                                               "kind": "IDENTIFIER_TOKEN",
                                                               "hasDiagnostics": true,
-                                                              "diagnostics": [
-                                                                "ERROR_INVALID_TOKEN",
-                                                                "ERROR_INVALID_TOKEN",
-                                                                "ERROR_INVALID_TOKEN",
-                                                                "ERROR_INVALID_TOKEN",
-                                                                "ERROR_INVALID_TOKEN",
-                                                                "ERROR_INVALID_TOKEN",
-                                                                "ERROR_INVALID_TOKEN",
-                                                                "ERROR_INVALID_TOKEN",
-                                                                "ERROR_INVALID_TOKEN",
-                                                                "ERROR_INVALID_TOKEN",
-                                                                "ERROR_INVALID_TOKEN",
-                                                                "ERROR_INVALID_TOKEN",
-                                                                "ERROR_INVALID_TOKEN",
-                                                                "ERROR_INVALID_TOKEN",
-                                                                "ERROR_INVALID_TOKEN",
-                                                                "ERROR_INVALID_TOKEN"
-                                                              ],
                                                               "value": "b",
                                                               "trailingMinutiae": [
                                                                 {
@@ -861,145 +899,9 @@
                                                                         "kind": "OPEN_BRACE_TOKEN",
                                                                         "hasDiagnostics": true,
                                                                         "diagnostics": [
+                                                                          "ERROR_INVALID_TOKEN",
                                                                           "ERROR_INVALID_TOKEN"
                                                                         ]
-                                                                      }
-                                                                    ]
-                                                                  }
-                                                                },
-                                                                {
-                                                                  "kind": "INVALID_NODE_MINUTIAE",
-                                                                  "invalidNode": {
-                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                    "children": [
-                                                                      {
-                                                                        "kind": "IDENTIFIER_TOKEN",
-                                                                        "value": "v2"
-                                                                      }
-                                                                    ]
-                                                                  }
-                                                                },
-                                                                {
-                                                                  "kind": "INVALID_NODE_MINUTIAE",
-                                                                  "invalidNode": {
-                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                    "children": [
-                                                                      {
-                                                                        "kind": "CLOSE_BRACE_TOKEN"
-                                                                      }
-                                                                    ]
-                                                                  }
-                                                                },
-                                                                {
-                                                                  "kind": "INVALID_NODE_MINUTIAE",
-                                                                  "invalidNode": {
-                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                    "children": [
-                                                                      {
-                                                                        "kind": "IDENTIFIER_TOKEN",
-                                                                        "value": "c\\}cc"
-                                                                      }
-                                                                    ]
-                                                                  }
-                                                                },
-                                                                {
-                                                                  "kind": "INVALID_NODE_MINUTIAE",
-                                                                  "invalidNode": {
-                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                    "children": [
-                                                                      {
-                                                                        "kind": "OPEN_BRACE_TOKEN"
-                                                                      }
-                                                                    ]
-                                                                  }
-                                                                },
-                                                                {
-                                                                  "kind": "INVALID_NODE_MINUTIAE",
-                                                                  "invalidNode": {
-                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                    "children": [
-                                                                      {
-                                                                        "kind": "IDENTIFIER_TOKEN",
-                                                                        "value": "d"
-                                                                      }
-                                                                    ]
-                                                                  }
-                                                                },
-                                                                {
-                                                                  "kind": "INVALID_NODE_MINUTIAE",
-                                                                  "invalidNode": {
-                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                    "children": [
-                                                                      {
-                                                                        "kind": "OPEN_BRACE_TOKEN"
-                                                                      }
-                                                                    ]
-                                                                  }
-                                                                },
-                                                                {
-                                                                  "kind": "INVALID_NODE_MINUTIAE",
-                                                                  "invalidNode": {
-                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                    "children": [
-                                                                      {
-                                                                        "kind": "CLOSE_BRACE_TOKEN"
-                                                                      }
-                                                                    ]
-                                                                  }
-                                                                },
-                                                                {
-                                                                  "kind": "INVALID_NODE_MINUTIAE",
-                                                                  "invalidNode": {
-                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                    "children": [
-                                                                      {
-                                                                        "kind": "IDENTIFIER_TOKEN",
-                                                                        "value": "e"
-                                                                      }
-                                                                    ]
-                                                                  }
-                                                                },
-                                                                {
-                                                                  "kind": "INVALID_NODE_MINUTIAE",
-                                                                  "invalidNode": {
-                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                    "children": [
-                                                                      {
-                                                                        "kind": "CLOSE_BRACE_TOKEN"
-                                                                      }
-                                                                    ]
-                                                                  }
-                                                                },
-                                                                {
-                                                                  "kind": "INVALID_NODE_MINUTIAE",
-                                                                  "invalidNode": {
-                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                    "children": [
-                                                                      {
-                                                                        "kind": "OPEN_BRACE_TOKEN"
-                                                                      }
-                                                                    ]
-                                                                  }
-                                                                },
-                                                                {
-                                                                  "kind": "INVALID_NODE_MINUTIAE",
-                                                                  "invalidNode": {
-                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                    "children": [
-                                                                      {
-                                                                        "kind": "IDENTIFIER_TOKEN",
-                                                                        "value": "f"
-                                                                      }
-                                                                    ]
-                                                                  }
-                                                                },
-                                                                {
-                                                                  "kind": "INVALID_NODE_MINUTIAE",
-                                                                  "invalidNode": {
-                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                    "children": [
-                                                                      {
-                                                                        "kind": "OPEN_BRACE_TOKEN"
                                                                       }
                                                                     ]
                                                                   }
@@ -1014,7 +916,205 @@
                                                                         "kind": "IDENTIFIER_TOKEN",
                                                                         "hasDiagnostics": true,
                                                                         "diagnostics": [
-                                                                          "ERROR_INCOMPLETE_QUOTED_IDENTIFIER"
+                                                                          "ERROR_INVALID_TOKEN"
+                                                                        ],
+                                                                        "value": "v2"
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                                  "invalidNode": {
+                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                    "hasDiagnostics": true,
+                                                                    "children": [
+                                                                      {
+                                                                        "kind": "CLOSE_BRACE_TOKEN",
+                                                                        "hasDiagnostics": true,
+                                                                        "diagnostics": [
+                                                                          "ERROR_INVALID_TOKEN"
+                                                                        ]
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                                  "invalidNode": {
+                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                    "hasDiagnostics": true,
+                                                                    "children": [
+                                                                      {
+                                                                        "kind": "IDENTIFIER_TOKEN",
+                                                                        "hasDiagnostics": true,
+                                                                        "diagnostics": [
+                                                                          "ERROR_INVALID_TOKEN"
+                                                                        ],
+                                                                        "value": "c\\}cc"
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                                  "invalidNode": {
+                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                    "hasDiagnostics": true,
+                                                                    "children": [
+                                                                      {
+                                                                        "kind": "OPEN_BRACE_TOKEN",
+                                                                        "hasDiagnostics": true,
+                                                                        "diagnostics": [
+                                                                          "ERROR_INVALID_TOKEN"
+                                                                        ]
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                                  "invalidNode": {
+                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                    "hasDiagnostics": true,
+                                                                    "children": [
+                                                                      {
+                                                                        "kind": "IDENTIFIER_TOKEN",
+                                                                        "hasDiagnostics": true,
+                                                                        "diagnostics": [
+                                                                          "ERROR_INVALID_TOKEN"
+                                                                        ],
+                                                                        "value": "d"
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                                  "invalidNode": {
+                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                    "hasDiagnostics": true,
+                                                                    "children": [
+                                                                      {
+                                                                        "kind": "OPEN_BRACE_TOKEN",
+                                                                        "hasDiagnostics": true,
+                                                                        "diagnostics": [
+                                                                          "ERROR_INVALID_TOKEN"
+                                                                        ]
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                                  "invalidNode": {
+                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                    "hasDiagnostics": true,
+                                                                    "children": [
+                                                                      {
+                                                                        "kind": "CLOSE_BRACE_TOKEN",
+                                                                        "hasDiagnostics": true,
+                                                                        "diagnostics": [
+                                                                          "ERROR_INVALID_TOKEN"
+                                                                        ]
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                                  "invalidNode": {
+                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                    "hasDiagnostics": true,
+                                                                    "children": [
+                                                                      {
+                                                                        "kind": "IDENTIFIER_TOKEN",
+                                                                        "hasDiagnostics": true,
+                                                                        "diagnostics": [
+                                                                          "ERROR_INVALID_TOKEN"
+                                                                        ],
+                                                                        "value": "e"
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                                  "invalidNode": {
+                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                    "hasDiagnostics": true,
+                                                                    "children": [
+                                                                      {
+                                                                        "kind": "CLOSE_BRACE_TOKEN",
+                                                                        "hasDiagnostics": true,
+                                                                        "diagnostics": [
+                                                                          "ERROR_INVALID_TOKEN"
+                                                                        ]
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                                  "invalidNode": {
+                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                    "hasDiagnostics": true,
+                                                                    "children": [
+                                                                      {
+                                                                        "kind": "OPEN_BRACE_TOKEN",
+                                                                        "hasDiagnostics": true,
+                                                                        "diagnostics": [
+                                                                          "ERROR_INVALID_TOKEN"
+                                                                        ]
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                                  "invalidNode": {
+                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                    "hasDiagnostics": true,
+                                                                    "children": [
+                                                                      {
+                                                                        "kind": "IDENTIFIER_TOKEN",
+                                                                        "hasDiagnostics": true,
+                                                                        "diagnostics": [
+                                                                          "ERROR_INVALID_TOKEN"
+                                                                        ],
+                                                                        "value": "f"
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                                  "invalidNode": {
+                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                    "hasDiagnostics": true,
+                                                                    "children": [
+                                                                      {
+                                                                        "kind": "OPEN_BRACE_TOKEN",
+                                                                        "hasDiagnostics": true,
+                                                                        "diagnostics": [
+                                                                          "ERROR_INVALID_TOKEN"
+                                                                        ]
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                                  "invalidNode": {
+                                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                    "hasDiagnostics": true,
+                                                                    "children": [
+                                                                      {
+                                                                        "kind": "IDENTIFIER_TOKEN",
+                                                                        "hasDiagnostics": true,
+                                                                        "diagnostics": [
+                                                                          "ERROR_INCOMPLETE_QUOTED_IDENTIFIER",
+                                                                          "ERROR_INVALID_TOKEN"
                                                                         ],
                                                                         "value": "\u0027"
                                                                       }
@@ -1025,9 +1125,14 @@
                                                                   "kind": "INVALID_NODE_MINUTIAE",
                                                                   "invalidNode": {
                                                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                    "hasDiagnostics": true,
                                                                     "children": [
                                                                       {
-                                                                        "kind": "SLASH_TOKEN"
+                                                                        "kind": "SLASH_TOKEN",
+                                                                        "hasDiagnostics": true,
+                                                                        "diagnostics": [
+                                                                          "ERROR_INVALID_TOKEN"
+                                                                        ]
                                                                       }
                                                                     ]
                                                                   }
@@ -1036,9 +1141,14 @@
                                                                   "kind": "INVALID_NODE_MINUTIAE",
                                                                   "invalidNode": {
                                                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                    "hasDiagnostics": true,
                                                                     "children": [
                                                                       {
-                                                                        "kind": "GT_TOKEN"
+                                                                        "kind": "GT_TOKEN",
+                                                                        "hasDiagnostics": true,
+                                                                        "diagnostics": [
+                                                                          "ERROR_INVALID_TOKEN"
+                                                                        ]
                                                                       }
                                                                     ]
                                                                   }

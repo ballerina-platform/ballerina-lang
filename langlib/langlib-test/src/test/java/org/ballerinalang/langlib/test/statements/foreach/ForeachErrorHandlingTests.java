@@ -47,9 +47,8 @@ public class ForeachErrorHandlingTests {
     @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp =
             "error: \\{ballerina/lang.int\\}NumberParsingError \\{\"message\":\"'string' value 'waruna' cannot be " +
                     "converted to 'int'\"\\}\n" +
-                    "\tat ballerina.lang.int.1_1_0:fromString\\(int.bal:128\\)\n" +
-                    "\t   foreach_error_handling:\\$lambda\\$_0\\(foreach_error_handling.bal:41\\)\n" +
-                    "\t   foreach_error_handling:\\$lambda\\$_0\\$lambda0\\$\\(foreach_error_handling.bal:40\\)")
+                    "\tat ballerina.lang.int.0:fromString\\(int.bal:128\\)\n" +
+                    "\t   foreach_error_handling:\\$lambda\\$_0\\(foreach_error_handling.bal:41\\)")
     public void testArrayForeachAndPanic() {
         BRunUtil.invoke(program, "testArrayForeachAndPanic");
     }

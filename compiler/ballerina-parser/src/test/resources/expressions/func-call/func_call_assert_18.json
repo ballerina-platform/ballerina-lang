@@ -114,18 +114,17 @@
         {
           "kind": "REST_ARG",
           "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_REST_ARG_FOLLOWED_BY_ANOTHER_ARG"
-          ],
           "children": [
             {
               "kind": "ELLIPSIS_TOKEN"
             },
             {
               "kind": "SIMPLE_NAME_REFERENCE",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
+                  "hasDiagnostics": true,
                   "value": "subjects",
                   "trailingMinutiae": [
                     {
@@ -147,9 +146,14 @@
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
                             "kind": "IDENTIFIER_TOKEN",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_REST_ARG_FOLLOWED_BY_ANOTHER_ARG"
+                            ],
                             "value": "b"
                           }
                         ]

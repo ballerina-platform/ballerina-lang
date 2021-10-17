@@ -5,9 +5,9 @@ module io.ballerina.language.server.commons {
     requires org.eclipse.lsp4j;
     requires org.eclipse.lsp4j.jsonrpc;
     requires com.google.gson;
+    requires io.ballerina.toml;
     exports org.ballerinalang.langserver.commons;
     exports org.ballerinalang.langserver.commons.client;
-    exports org.ballerinalang.langserver.commons.semantichighlighter;
     exports org.ballerinalang.langserver.commons.service.spi;
     exports org.ballerinalang.langserver.commons.trace;
     exports org.ballerinalang.langserver.commons.workspace;
@@ -20,4 +20,9 @@ module io.ballerina.language.server.commons {
     exports org.ballerinalang.langserver.commons.codelenses;
     exports org.ballerinalang.langserver.commons.codelenses.spi;
     exports org.ballerinalang.langserver.commons.completion.spi;
+    exports org.ballerinalang.langserver.commons.toml;
+    exports org.ballerinalang.langserver.commons.toml.visitor;
+    exports org.ballerinalang.langserver.commons.toml.common;
+    exports org.ballerinalang.langserver.commons.toml.common.completion;
+    exports org.ballerinalang.langserver.commons.registration;
 }

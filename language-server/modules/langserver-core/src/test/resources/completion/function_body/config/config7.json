@@ -472,13 +472,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "example(Currency 'from, string to)",
+      "label": "example(Currency 'from, string 'to)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `Currency` 'from  \n- `string` to"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `Currency` 'from  \n- `string` 'to"
         }
       },
       "sortText": "E",
@@ -496,14 +496,6 @@
       "detail": "Currency",
       "sortText": "AB",
       "insertText": "fromCurrency",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "to",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "D",
-      "insertText": "to",
       "insertTextFormat": "Snippet"
     },
     {
@@ -594,6 +586,23 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "'to",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "D",
+      "insertText": "'to",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "filterText": "null",
+      "insertText": "null",
       "insertTextFormat": "Snippet"
     }
   ]

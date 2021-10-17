@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public interface UnionType extends Type {
+public interface UnionType extends SelectivelyImmutableReferenceType {
 
     List<Type> getMemberTypes();
 

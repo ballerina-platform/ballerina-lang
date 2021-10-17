@@ -51,7 +51,7 @@ public class MatchStatementSyntaxErrorsTest {
         BAssertUtil.validateError(result, ++i, "missing open brace token", 12, 1);
         BAssertUtil.validateError(result, ++i, "missing close brace token", 13, 1);
         BAssertUtil.validateError(result, ++i, "match statement should have one or more match clauses", 17, 1);
-        BAssertUtil.validateError(result, ++i, "missing identifier", 17, 1);
+        BAssertUtil.validateError(result, ++i, "missing expression", 17, 1);
         BAssertUtil.validateError(result, ++i, "missing open brace token", 17, 1);
         BAssertUtil.validateError(result, ++i, "missing close brace token", 18, 1);
         BAssertUtil.validateError(result, ++i, "missing colon token", 21, 11);

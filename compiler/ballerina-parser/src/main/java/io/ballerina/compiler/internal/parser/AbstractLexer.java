@@ -42,6 +42,7 @@ public abstract class AbstractLexer {
     protected CharReader reader;
     protected ParserMode mode;
     protected ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
+    protected ArrayDeque<KeywordMode> keywordModes = new ArrayDeque<>();
 
     public AbstractLexer(CharReader charReader, ParserMode initialParserMode) {
         this(charReader, initialParserMode, new ArrayList<>(INITIAL_TRIVIA_CAPACITY), new ArrayList<>());
@@ -53,6 +54,7 @@ public abstract class AbstractLexer {
                          Collection<STNodeDiagnostic> diagnostics) {
         this.reader = charReader;
         startMode(initialParserMode);
+        startKeywordMode(KeywordMode.DEFAULT);
         this.leadingTriviaList = leadingTriviaList;
         this.diagnostics = diagnostics;
     }
@@ -101,6 +103,23 @@ public abstract class AbstractLexer {
     public void endMode() {
         this.modeStack.pop();
         this.mode = this.modeStack.peek();
+    }
+
+    /**
+     * Start the given keyword operation mode in the lexer.
+     *
+     * @param keywordMode mode to add
+     */
+    public void startKeywordMode(KeywordMode keywordMode) {
+        this.keywordModes.push(keywordMode);
+    }
+
+    /**
+     * End the current keyword mode in the lexer.
+     *
+     */
+    public void endKeywordMode() {
+        this.keywordModes.pop();
     }
 
     private void resetDiagnosticList() {

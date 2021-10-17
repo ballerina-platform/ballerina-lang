@@ -37,9 +37,10 @@ public class RemoteMethodCallActionNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/action/remote_method_call_action_negative.bal");
         int i = 0;
         validateError(result, i++, "undefined module 'wss'", 27, 27);
-        validateError(result, i++, "action invocation as an expression not allowed here", 28, 1);
-        validateError(result, i++, "missing comma token", 28, 1);
         validateError(result, i++, "missing identifier", 28, 1);
+        validateError(result, i++, "invalid token 'checkpanic'", 28, 4);
+        validateError(result, i++, "action invocation as an expression not allowed here", 28, 16);
+        validateError(result, i++, "missing comma token", 28, 16);
         validateError(result, i++, "missing close parenthesis token", 28, 90);
         assertEquals(result.getErrorCount(), i);
     }

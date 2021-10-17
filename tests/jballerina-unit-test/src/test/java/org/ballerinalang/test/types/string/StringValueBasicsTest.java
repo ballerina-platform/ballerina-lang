@@ -67,7 +67,7 @@ public class StringValueBasicsTest extends BStringTestCommons {
 
     @Test
     public void testStringIndexAccess() {
-        testAndAssert("testStringIndexAccess", 1);
+        BRunUtil.invoke(result, "testStringIndexAccess");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,

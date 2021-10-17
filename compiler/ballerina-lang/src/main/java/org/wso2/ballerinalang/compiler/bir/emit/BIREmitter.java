@@ -17,19 +17,14 @@
  */
 package org.wso2.ballerinalang.compiler.bir.emit;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
-import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitBasicBlockRef;
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitFlags;
@@ -55,7 +50,6 @@ public class BIREmitter {
     private static final CompilerContext.Key<BIREmitter> BIR_EMITTER = new CompilerContext.Key<>();
     private static final PrintStream console = System.out;
     private boolean dumbBIR;
-    private final String dumpBIRFile;
 
     public static BIREmitter getInstance(CompilerContext context) {
 
@@ -72,19 +66,11 @@ public class BIREmitter {
         context.put(BIR_EMITTER, this);
         CompilerOptions compilerOptions = CompilerOptions.getInstance(context);
         this.dumbBIR = getBooleanValueIfSet(compilerOptions, CompilerOptionName.DUMP_BIR);
-        this.dumpBIRFile = compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE);
     }
 
     public BLangPackage emit(BLangPackage bLangPackage) {
         if (dumbBIR) {
             console.println(emitModule(bLangPackage.symbol.bir));
-        }
-        if (dumpBIRFile != null) {
-            try {
-                Files.write(Paths.get(dumpBIRFile), bLangPackage.symbol.birPackageFile.pkgBirBinaryContent);
-            } catch (IOException e) {
-                throw new BLangCompilerException("BIR file dumping failed", e);
-            }
         }
         return bLangPackage;
     }
@@ -223,9 +209,6 @@ public class BIREmitter {
         funcString += emitSpaces(1);
         funcString += "{";
         funcString += emitLBreaks(1);
-        funcString += emitLocalVar(func.returnVariable, tabs + 1);
-        funcString += emitLBreaks(1);
-        funcString += emitArguments(func.parameters, tabs + 1);
         funcString += emitLocalVars(func.localVars, tabs + 1);
         funcString += emitLBreaks(1);
         funcString += emitBasicBlocks(func.basicBlocks, tabs + 1);
@@ -259,16 +242,6 @@ public class BIREmitter {
         str += emitTypeRef(lVar.type, 0);
         str += ";";
         return str;
-    }
-
-    private String emitArguments(Map<BIRNode.BIRFunctionParameter, List<BIRNode.BIRBasicBlock>> localVars, int tabs) {
-
-        StringBuilder varStr = new StringBuilder();
-        for (BIRNode.BIRFunctionParameter parameter : localVars.keySet()) {
-            varStr.append(emitLocalVar(parameter, tabs));
-            varStr.append(emitLBreaks(1));
-        }
-        return varStr.toString();
     }
 
     private String emitBasicBlocks(List<BIRNode.BIRBasicBlock> basicBlocks, int tabs) {

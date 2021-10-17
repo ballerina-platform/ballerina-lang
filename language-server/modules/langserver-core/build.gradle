@@ -33,6 +33,9 @@ configurations {
     }
     libs
     distributionBala
+    tests {
+        transitive true
+    }
 }
 
 dependencies {
@@ -75,6 +78,7 @@ dependencies {
     dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.12.0'
     dependency 'commons-io:commons-io:2.7'
     dependency 'com.google.guava:guava:30.0-jre'
+    
     testCompile 'org.testng:testng'
 }
 
@@ -100,9 +104,16 @@ task createZip(type: Zip) {
     dependsOn createBalHome
 }
 
+task testJar(type: Jar, dependsOn: testClasses) {
+    baseName = "test-${project.archivesBaseName}"
+    from sourceSets.test.output
+}
+
 artifacts {
     dist file: file(createZip.archiveFile), builtBy: createZip
     libs configurations.dependency.files
+    
+    tests testJar
 }
 
 createJavadoc {
@@ -115,6 +126,7 @@ test {
     systemProperty "ballerina.home", "$buildDir/"
     systemProperty "experimental", "true"
     systemProperty "ballerina.version", project.version
+    systemProperty "responseTimeThreshold", 2000
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

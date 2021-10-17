@@ -107,8 +107,8 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
             if (scopeEntry.symbol != null
                     && scopeEntry.symbol.kind == org.ballerinalang.model.symbols.SymbolKind.FUNCTION
                     && isFlagOn(scopeEntry.symbol.flags, Flags.PUBLIC)
-                    && scopeEntry.symbol.origin == COMPILED_SOURCE) {
-                String funcName = scopeEntry.symbol.getName().getValue();
+                    && (scopeEntry.symbol.origin == SOURCE || scopeEntry.symbol.origin == COMPILED_SOURCE)) {
+                String funcName = scopeEntry.symbol.getOriginalName().getValue();
                 functions.add(symbolFactory.createFunctionSymbol((BInvokableSymbol) scopeEntry.symbol, funcName));
             }
         }

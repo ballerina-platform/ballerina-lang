@@ -42,3 +42,23 @@ const XAny = "any";
 type XUnion1 "union"|P;
 
 type S [XNil|S[]|XListRef];
+
+type J [int, J[2]];
+type J [int, map<J>];
+
+type K string|int|K[];
+type K map<K>|string|K[]|int;
+
+type T [XNil, "text1", xInt, L[1]];
+const xInt = 1;
+type L [int, L[2], T[1]];
+type M [int, L[]];
+
+type N [int, N[2]];
+type N int|N[];
+
+function testFillerValueCyclicTuple() {
+    M a = [1];
+    L b = [1];
+    T c = ["nil"];
+}

@@ -20,6 +20,7 @@ package org.ballerinalang.test.error;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -32,15 +33,34 @@ import org.testng.annotations.Test;
 public class ErrorStackTraceTest {
 
     private CompileResult compileResult;
+    private CompileResult compileResultWithInterop;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/error/stacktrace-project");
+        compileResultWithInterop = BCompileUtil.compile("test-src/error/stacktrace_test_with_interop.bal");
     }
 
     @Test
     public void testStackTraceElements() {
         BRunUtil.invoke(compileResult, "testStackTraceElements");
+    }
+
+    @Test
+    public void testErrorStacktraceWithInterop() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(compileResultWithInterop, "testErrorStacktraceWithInterop");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+
+        Assert.assertNotNull(expectedException);
+        String message = expectedException.getMessage();
+        Assert.assertEquals(message, "error: error!!!\n" +
+                "\tat stacktrace_test_with_interop:errorStacktraceTest(stacktrace_test_with_interop.bal:23)\n" +
+                "\t   stacktrace_test_with_interop:" +
+                "testErrorStacktraceWithInterop(stacktrace_test_with_interop.bal:20)");
     }
 
     @AfterClass

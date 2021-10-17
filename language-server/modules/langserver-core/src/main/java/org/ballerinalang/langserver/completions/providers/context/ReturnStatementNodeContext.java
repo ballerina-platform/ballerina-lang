@@ -65,15 +65,21 @@ public class ReturnStatementNodeContext extends AbstractCompletionProvider<Retur
     @Override
     public void sort(BallerinaCompletionContext context, ReturnStatementNode node,
                      List<LSCompletionItem> completionItems) {
-
         Optional<TypeSymbol> typeSymbolAtCursor = context.getContextType();
         if (typeSymbolAtCursor.isEmpty()) {
             super.sort(context, node, completionItems);
+            return;
         }
         TypeSymbol symbol = typeSymbolAtCursor.get();
         for (LSCompletionItem completionItem : completionItems) {
             completionItem.getCompletionItem()
-                    .setSortText(SortingUtil.genSortTextByAssignability(completionItem, symbol));
+                    .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
         }
+    }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, ReturnStatementNode node) {
+        int cursor = context.getCursorPositionInTree();
+        return !node.returnKeyword().isMissing() && node.returnKeyword().textRange().endOffset() <= cursor;
     }
 }

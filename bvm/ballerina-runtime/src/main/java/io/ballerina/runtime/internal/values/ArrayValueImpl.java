@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
@@ -48,6 +49,8 @@ import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
+import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
+import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
@@ -74,6 +77,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private byte[] byteValues;
     private double[] floatValues;
     private BString[] bStringValues;
+    private BTypedesc typedesc;
     // ------------------------ Constructors -------------------------------------------------------------------
 
     public ArrayValueImpl(Object[] values, ArrayType type) {
@@ -83,30 +87,35 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (type.getTag() == TypeTags.ARRAY_TAG) {
             this.elementType = type.getElementType();
         }
+        this.typedesc = getTypedescValue(arrayType, this);
     }
 
     public ArrayValueImpl(long[] values, boolean readonly) {
         this.intValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_INT, readonly);
+        this.typedesc = getTypedescValue(arrayType, this);
     }
 
     public ArrayValueImpl(boolean[] values, boolean readonly) {
         this.booleanValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_BOOLEAN, readonly);
+        this.typedesc = getTypedescValue(arrayType, this);
     }
 
     public ArrayValueImpl(byte[] values, boolean readonly) {
         this.byteValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_BYTE, readonly);
+        this.typedesc = getTypedescValue(arrayType, this);
     }
 
     public ArrayValueImpl(double[] values, boolean readonly) {
         this.floatValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_FLOAT, readonly);
+        this.typedesc = getTypedescValue(arrayType, this);
     }
 
     public ArrayValueImpl(String[] values, boolean readonly) {
@@ -116,12 +125,14 @@ public class ArrayValueImpl extends AbstractArrayValue {
             bStringValues[i] = StringUtils.fromString(values[i]);
         }
         setArrayType(PredefinedTypes.TYPE_STRING, readonly);
+        this.typedesc = getTypedescValue(arrayType, this);
     }
 
     public ArrayValueImpl(BString[] values, boolean readonly) {
         this.bStringValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_STRING, readonly);
+        this.typedesc = getTypedescValue(arrayType, this);
     }
 
     public ArrayValueImpl(ArrayType type) {
@@ -131,6 +142,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (type.getState() == ArrayState.CLOSED) {
             this.size = maxSize = type.getSize();
         }
+        this.typedesc = getTypedescValue(arrayType, this);
     }
 
     private void initArrayValues(Type elementType) {
@@ -165,6 +177,11 @@ public class ArrayValueImpl extends AbstractArrayValue {
                     fillValues(initialArraySize);
                 }
         }
+    }
+
+    @Override
+    public BTypedesc getTypedesc() {
+        return typedesc;
     }
 
     @Override
@@ -229,6 +246,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (size != -1) {
             this.size = this.maxSize = (int) size;
         }
+        this.typedesc = getTypedescValue(arrayType, this);
     }
 
     public ArrayValueImpl(ArrayType type, long size, BListInitialValueEntry[] initialValues) {
@@ -244,10 +262,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (size != -1) {
             this.size = this.maxSize = (int) size;
         }
-
         for (int index = 0; index < initialValues.length; index++) {
             addRefValue(index, ((ListInitialValueEntry.ExpressionEntry) initialValues[index]).value);
         }
+        this.typedesc = getTypedescValue(arrayType, this);
     }
 
     // ----------------------- get methods ----------------------------------------------------
@@ -663,7 +681,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 }
                 break;
         }
-        return "[" + sj.toString() + "]";
+        return "[" + sj + "]";
     }
 
     @Override
@@ -713,7 +731,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 }
                 break;
         }
-        return "[" + sj.toString() + "]";
+        return "[" + sj + "]";
     }
 
     @Override
@@ -941,6 +959,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 }
             }
         }
+        this.typedesc = createSingletonTypedesc(this);
     }
 
     /**
@@ -1123,7 +1142,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     private void prepareForAdd(long index, Object value, Type sourceType, int currentArraySize) {
         // check types
-        if (!TypeChecker.checkIsType(value, sourceType, this.elementType)) {
+        if (!TypeChecker.checkIsType(null, value, sourceType, this.elementType)) {
             BString reason = getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER);
             BString detail = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, this.elementType,
                     sourceType);

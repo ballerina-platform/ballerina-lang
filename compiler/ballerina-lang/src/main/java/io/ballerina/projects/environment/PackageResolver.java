@@ -17,9 +17,10 @@
  */
 package io.ballerina.projects.environment;
 
-import io.ballerina.projects.Project;
+import io.ballerina.projects.internal.ImportModuleRequest;
+import io.ballerina.projects.internal.ImportModuleResponse;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Defines the interface that will be used by the resolution logic to resolve
@@ -29,7 +30,39 @@ import java.util.List;
  */
 public interface PackageResolver {
 
-    List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests);
+    /**
+     * Resolve requested import declaration with hierarchical module name to packages.
+     *
+     * @param requests import declaration collection
+     * @param options  resolution options
+     * @return a collection of resolved package metadata
+     */
+    Collection<ImportModuleResponse> resolvePackageNames(Collection<ImportModuleRequest> requests,
+                                                         ResolutionOptions options);
 
-    List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests, Project project);
+    /**
+     * Loads requested packages metadata such as the availability, dependency graph.
+     * <p>
+     * Metadata requests provide an efficient way to complete the dependency graph without
+     * downloading physical packages from Ballerina central.
+     * <p>
+     * An implementation of the {@code PackageResolver} should issue separate requests
+     * to local, dist and central repositories and aggregate their responses.
+     *
+     * @param requests requested package collection
+     * @param options  resolution options
+     * @return a collection of {@code PackageMetadataResponse} instances
+     */
+    Collection<PackageMetadataResponse> resolvePackageMetadata(Collection<ResolutionRequest> requests,
+                                                               ResolutionOptions options);
+
+    /**
+     * Loads the packages specified in {@code ResolutionRequest} collection.
+     *
+     * @param requests package requests
+     * @param options  resolution options
+     * @return a collection of loaded packages
+     */
+    Collection<ResolutionResponse> resolvePackages(Collection<ResolutionRequest> requests,
+                                                   ResolutionOptions options);
 }

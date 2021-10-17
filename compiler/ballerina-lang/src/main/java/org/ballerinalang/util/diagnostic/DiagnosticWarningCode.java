@@ -55,15 +55,13 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
     MATCH_STMT_PATTERN_UNREACHABLE("BCE20250", "match.stmt.unreachable.pattern.available"),
     MATCH_STMT_UNMATCHED_PATTERN("BCE20251", "match.stmt.unmatched.pattern"),
 
-    FUNCTION_CAN_BE_MARKED_ISOLATED("BCE20300", "function.can.be.marked.isolated"),
+    COMPILER_PLUGIN_ERROR("BCE20300", "compiler.plugin.crashed"),
 
-    COMPILER_PLUGIN_ERROR("BCE20400", "compiler.plugin.crashed"),
-
-    CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD_IN_NON_ISOLATED_SERVICE("BCE20401",
+    CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD_IN_NON_ISOLATED_SERVICE("BCE20400",
             "concurrent.calls.will.not.be.made.to.non.isolated.method.in.non.isolated.service"),
-    CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_SERVICE("BCE20402",
+    CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_SERVICE("BCE20401",
             "concurrent.calls.will.not.be.made.to.non.isolated.service"),
-    CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD("BCE20403",
+    CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD("BCE20402",
             "concurrent.calls.will.not.be.made.to.non.isolated.method")
     ;
 

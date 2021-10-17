@@ -62,9 +62,6 @@
                     {
                       "kind": "RECORD_FIELD",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_INCLUSIVE_RECORD_TYPE_CANNOT_CONTAIN_REST_FIELD"
-                      ],
                       "children": [
                         {
                           "kind": "INT_TYPE_DESC",
@@ -92,6 +89,7 @@
                         },
                         {
                           "kind": "SEMICOLON_TOKEN",
+                          "hasDiagnostics": true,
                           "trailingMinutiae": [
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
@@ -105,9 +103,14 @@
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "hasDiagnostics": true,
                                 "children": [
                                   {
-                                    "kind": "STRING_KEYWORD"
+                                    "kind": "STRING_KEYWORD",
+                                    "hasDiagnostics": true,
+                                    "diagnostics": [
+                                      "ERROR_INCLUSIVE_RECORD_TYPE_CANNOT_CONTAIN_REST_FIELD"
+                                    ]
                                   }
                                 ]
                               }
@@ -205,9 +208,6 @@
                 {
                   "kind": "OPEN_BRACE_TOKEN",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_INCLUSIVE_RECORD_TYPE_CANNOT_CONTAIN_REST_FIELD"
-                  ],
                   "trailingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
@@ -221,9 +221,14 @@
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
                             "kind": "IDENTIFIER_TOKEN",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_INCLUSIVE_RECORD_TYPE_CANNOT_CONTAIN_REST_FIELD"
+                            ],
                             "value": "T"
                           }
                         ]
@@ -335,9 +340,6 @@
                     {
                       "kind": "RECORD_FIELD",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_INCLUSIVE_RECORD_TYPE_CANNOT_CONTAIN_REST_FIELD"
-                      ],
                       "children": [
                         {
                           "kind": "STRING_TYPE_DESC",
@@ -368,6 +370,7 @@
                         },
                         {
                           "kind": "SEMICOLON_TOKEN",
+                          "hasDiagnostics": true,
                           "trailingMinutiae": [
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
@@ -381,9 +384,14 @@
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "hasDiagnostics": true,
                                 "children": [
                                   {
-                                    "kind": "XML_KEYWORD"
+                                    "kind": "XML_KEYWORD",
+                                    "hasDiagnostics": true,
+                                    "diagnostics": [
+                                      "ERROR_INCLUSIVE_RECORD_TYPE_CANNOT_CONTAIN_REST_FIELD"
+                                    ]
                                   }
                                 ]
                               }

@@ -1,6 +1,5 @@
 mapInits function() -> (string|(), int|()) {
     %0(RETURN) (string|(), int|());
-    %0(RETURN) (string|(), int|());
     %1(LOCAL) map<Employee>;
     %2(TEMP) typeDesc<any|error{map<Cloneable>}>;
     %4(LOCAL) Person;
@@ -11,15 +10,12 @@ mapInits function() -> (string|(), int|()) {
     %11(TEMP) string;
     %12(TEMP) string;
     %13(TEMP) Employee;
-    %16(TEMP) string;
-    %18(TEMP) int;
     %19(SYNTHETIC) string|();
     %20(SYNTHETIC) Employee|();
     %25(TEMP) ();
     %26(TEMP) boolean;
     %27(SYNTHETIC) ();
     %33(SYNTHETIC) Employee;
-    %37(TEMP) string;
     %45(SYNTHETIC) int|();
     %46(SYNTHETIC) Employee|();
     %53(SYNTHETIC) ();
@@ -38,11 +34,11 @@ mapInits function() -> (string|(), int|()) {
         %12 = ConstLoad Usa;
         %4 = NewMap %2;
         %13 = <Employee> %4;
-        %16 = ConstLoad jack;
-        %1[%16] = %13;
-        %18 = ConstLoad 2;
-        %16 = ConstLoad jack;
-        %20 = %1[%16];
+        %7 = ConstLoad jack;
+        %1[%7] = %13;
+        %10 = ConstLoad 2;
+        %8 = ConstLoad jack;
+        %20 = %1[%8];
         %25 = ConstLoad 0;
         %26 = %20 == %25;
         %26? bb1 : bb2;
@@ -58,9 +54,9 @@ mapInits function() -> (string|(), int|()) {
     }
     bb3 {
         %33 = <Employee> %20;
-        %16 = ConstLoad name;
-        %37 = %33[%16];
-        %19 = <string|()> %37;
+        %9 = ConstLoad name;
+        %11 = %33[%9];
+        %19 = <string|()> %11;
         GOTO bb7;
     }
     bb4 {
@@ -79,8 +75,8 @@ mapInits function() -> (string|(), int|()) {
         GOTO bb8;
     }
     bb8 {
-        %16 = ConstLoad jack;
-        %46 = %1[%16];
+        %12 = ConstLoad jack;
+        %46 = %1[%12];
         %25 = ConstLoad 0;
         %26 = %46 == %25;
         %26? bb9 : bb10;
@@ -96,8 +92,8 @@ mapInits function() -> (string|(), int|()) {
     }
     bb11 {
         %59 = <Employee> %46;
-        %37 = ConstLoad age;
-        %63 = %59[%37];
+        %7 = ConstLoad age;
+        %63 = %59[%7];
         %45 = <int|()> %63;
         GOTO bb15;
     }
@@ -117,7 +113,7 @@ mapInits function() -> (string|(), int|()) {
         GOTO bb16;
     }
     bb16 {
-        %0 = newArray (string|(), int|())[%18];
+        %0 = newArray (string|(), int|())[%10];
         GOTO bb18;
     }
     bb17 {

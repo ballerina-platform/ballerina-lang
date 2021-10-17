@@ -84,12 +84,12 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "invalid type for configurable variable: expected a subtype" +
                 " of 'anydata'", 22, 14);
         BAssertUtil.validateError(result, i++, "missing close brace token", 27, 1);
+        BAssertUtil.validateError(result, i++, "invalid token '}'", 29, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
                 "'(json & readonly)'", 31, 1);
-        BAssertUtil.validateError(result, i++, "invalid token '}'", 31, 1);
         BAssertUtil.validateError(result, i++, "only simple variables are allowed to be configurable", 34, 1);
         BAssertUtil.validateError(result, i++, "'final' qualifier not allowed: configurable variables are " +
-                "implicitly final", 37, 7);
+                "implicitly final", 37, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(table<Person> key" +
                 "(name)[] & readonly)'\n\t" +
                 "array element type 'table<Person> key(name) & readonly' is not supported", 71, 1);
@@ -121,6 +121,8 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(table<json> & " +
                 "readonly)'\n\t" +
                 "table constraint type '(json & readonly)' is not supported", 84, 1);
+        BAssertUtil.validateError(result, i++, "invalid constraint type. expected subtype of " +
+                "'map<any|error>' but found 'json'", 84, 20);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(json[] & " +
                 "readonly)'\n\t" +
                 "array element type 'json & readonly' is not supported", 87, 1);

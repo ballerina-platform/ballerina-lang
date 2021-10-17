@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.compiler.CompilerOptionName;
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 
@@ -48,6 +49,24 @@ public class CompilerUtils {
     public static boolean getBooleanValueIfSet(CompilerOptions compilerOptions, CompilerOptionName optionName) {
 
         return compilerOptions.isSet(optionName) && Boolean.parseBoolean(compilerOptions.get(optionName));
+    }
+
+    public static String getMajorVersion(String version) {
+        return version.split("\\.")[0];
+    }
+
+    public static String getPackageIDStringWithMajorVersion(PackageID packageID) {
+        if (Names.DOT.equals(packageID.name)) {
+            return packageID.name.value;
+        }
+        String org = "";
+        if (packageID.orgName != null && !packageID.orgName.equals(Names.ANON_ORG)) {
+            org = packageID.orgName + Names.ORG_NAME_SEPARATOR.value;
+        }
+        if (packageID.version.equals(Names.EMPTY)) {
+            return org + packageID.name.value;
+        }
+        return org + packageID.name + Names.VERSION_SEPARATOR.value + getMajorVersion(packageID.version.value);
     }
 
 }

@@ -134,6 +134,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATO
  * @since 0.94
  */
 public class SymbolResolver extends BLangNodeVisitor {
+    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
     private static final CompilerContext.Key<SymbolResolver> SYMBOL_RESOLVER_KEY =
             new CompilerContext.Key<>();
 
@@ -215,8 +216,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                 dlog.error(pos, DiagnosticErrorCode.UNSUPPORTED_REMOTE_METHOD_NAME_IN_SCOPE, name);
                 return false;
             }
-
-            dlog.error(pos, DiagnosticErrorCode.REDECLARED_SYMBOL, name);
+            if (symbol.kind != SymbolKind.CONSTANT) {
+                dlog.error(pos, DiagnosticErrorCode.REDECLARED_SYMBOL, name);
+            }
             return false;
         }
 
@@ -508,8 +510,42 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
         }
 
+        validateDistinctType(typeNode, resultType);
+
         typeNode.setBType(resultType);
         return resultType;
+    }
+
+    private void validateDistinctType(BLangType typeNode, BType type) {
+        if (typeNode.flagSet.contains(Flag.DISTINCT) && !isDistinctAllowedOnType(type)) {
+            dlog.error(typeNode.pos, DiagnosticErrorCode.DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS);
+        }
+    }
+
+    private boolean isDistinctAllowedOnType(BType type) {
+        if (type.tag == TypeTags.INTERSECTION) {
+            for (BType constituentType : ((BIntersectionType) type).getConstituentTypes()) {
+                if (!isDistinctAllowedOnType(constituentType)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        if (type.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (!isDistinctAllowedOnType(memberType)) {
+                    return false;
+                }
+            }
+            return true;
+
+        }
+
+        return type.tag == TypeTags.ERROR
+                || type.tag == TypeTags.OBJECT
+                || type.tag == TypeTags.NONE
+                || type.tag == TypeTags.SEMANTIC_ERROR;
     }
 
     /**
@@ -673,6 +709,15 @@ public class SymbolResolver extends BLangNodeVisitor {
                 }
 
                 BType member = itr.next();
+
+                if (TypeTags.isIntegerTypeTag(member.tag) || member.tag == TypeTags.BYTE) {
+                    member = symTable.intType;
+                }
+
+                if (TypeTags.isStringTypeTag(member.tag)) {
+                    member = symTable.stringType;
+                }
+
                 if (types.isSubTypeOfBaseType(type, member.tag)) {
                     bSymbol = lookupLangLibMethod(member, name);
                 } else {
@@ -1108,7 +1153,15 @@ public class SymbolResolver extends BLangNodeVisitor {
                         continue;
                     }
 
-                    int length = Integer.parseInt(sizeConstSymbol.type.toString());
+                    int length;
+                    long lengthCheck = Long.parseLong(sizeConstSymbol.type.toString());
+                    if (lengthCheck > MAX_ARRAY_SIZE) {
+                        length = 0;
+                        dlog.error(size.pos,
+                                DiagnosticErrorCode.ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED);
+                    } else {
+                        length = (int) lengthCheck;
+                    }
                     arrType = new BArrayType(resultType, arrayTypeSymbol, length, BArrayState.CLOSED);
                 }
             }
@@ -1222,8 +1275,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         BType streamType = new BStreamType(TypeTags.STREAM, constraintType, error, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         streamType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                                                      typeSymbol.pkgID, streamType, typeSymbol.owner,
-                                                      streamTypeNode.pos, SOURCE);
+                                                      typeSymbol.originalName, typeSymbol.pkgID, streamType,
+                                                      env.scope.owner, streamTypeNode.pos, SOURCE);
 
         markParameterizedType(streamType, constraintType);
         if (error != null) {
@@ -1245,8 +1298,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         tableType.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet.noneOf(Flag.class)),
-                typeSymbol.name, env.enclPkg.symbol.pkgID, tableType,
-                env.scope.owner, tableTypeNode.pos, SOURCE);
+                                                     typeSymbol.name, typeSymbol.originalName, typeSymbol.pkgID,
+                                                     tableType, env.scope.owner, tableTypeNode.pos, SOURCE);
         tableType.tsymbol.flags = typeSymbol.flags;
         tableType.constraintPos = tableTypeNode.constraint.pos;
         tableType.isTypeInlineDefined = tableTypeNode.isTypeInlineDefined;
@@ -1340,21 +1393,25 @@ public class SymbolResolver extends BLangNodeVisitor {
             errorTypeNode.flagSet.add(Flag.ANONYMOUS);
         }
 
+        // The builtin error type
+        BErrorType bErrorType = symTable.errorType;
+
         boolean distinctErrorDef = errorTypeNode.flagSet.contains(Flag.DISTINCT);
         if (detailType == symTable.detailType && !distinctErrorDef &&
                 !this.env.enclPkg.packageID.equals(PackageID.ANNOTATIONS)) {
-            resultType = symTable.errorType;
+            resultType = bErrorType;
             return;
         }
 
         // Define user define error type.
         BErrorTypeSymbol errorTypeSymbol = Symbols
-                .createErrorSymbol(Flags.asMask(errorTypeNode.flagSet), Names.EMPTY, env.enclPkg.symbol.pkgID,
-                                   null, env.scope.owner, errorTypeNode.pos, SOURCE);
+                .createErrorSymbol(Flags.asMask(errorTypeNode.flagSet), Names.EMPTY, bErrorType.tsymbol.pkgID, null,
+                        bErrorType.tsymbol.owner, errorTypeNode.pos, SOURCE);
 
+        PackageID packageID = env.enclPkg.packageID;
         if (env.node.getKind() != NodeKind.PACKAGE) {
             errorTypeSymbol.name = names.fromString(
-                    anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
+                    anonymousModelHelper.getNextAnonymousTypeKey(packageID));
             symbolEnter.defineSymbol(errorTypeNode.pos, errorTypeSymbol, env);
         }
 
@@ -1365,6 +1422,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         markParameterizedType(errorType, detailType);
 
         errorType.typeIdSet = BTypeIdSet.emptySet();
+
+        if (errorTypeNode.isAnonymous && errorTypeNode.flagSet.contains(Flag.DISTINCT)) {
+            errorType.typeIdSet.add(
+                    BTypeIdSet.from(packageID, anonymousModelHelper.getNextAnonymousTypeId(packageID), true));
+        }
 
         resultType = errorType;
     }
@@ -1400,8 +1462,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BTypeSymbol typeSymbol = type.tsymbol;
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                                                           typeSymbol.pkgID, constrainedType, typeSymbol.owner,
-                                                           constrainedTypeNode.pos, SOURCE);
+                                                           typeSymbol.originalName, typeSymbol.pkgID, constrainedType,
+                                                           typeSymbol.owner, constrainedTypeNode.pos, SOURCE);
         markParameterizedType(constrainedType, constraintType);
         resultType = constrainedType;
     }
@@ -1486,8 +1548,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
                 if (paramValType != null) {
                     BTypeSymbol tSymbol = new BTypeSymbol(SymTag.TYPE, Flags.PARAMETERIZED | tempSymbol.flags,
-                                                          tempSymbol.name, tempSymbol.pkgID, null, func.symbol,
-                                                          tempSymbol.pos, VIRTUAL);
+                                                          tempSymbol.name, tempSymbol.originalName, tempSymbol.pkgID,
+                                                          null, func.symbol, tempSymbol.pos, VIRTUAL);
                     tSymbol.type = new BParameterizedType(paramValType, (BVarSymbol) tempSymbol,
                                                           tSymbol, tempSymbol.name, parameterizedTypeInfo.index);
                     tSymbol.type.flags |= Flags.PARAMETERIZED;
@@ -1589,6 +1651,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         for (BLangVariable paramNode : paramVars) {
             BLangSimpleVariable param = (BLangSimpleVariable) paramNode;
             Name paramName = names.fromIdNode(param.name);
+            Name paramOrigName = names.originalNameFromIdNode(param.name);
             if (paramName != Names.EMPTY) {
                 if (paramNames.contains(paramName.value)) {
                     dlog.error(param.name.pos, DiagnosticErrorCode.REDECLARED_SYMBOL, paramName.value);
@@ -1604,8 +1667,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             paramTypes.add(type);
 
             long paramFlags = Flags.asMask(paramNode.flagSet);
-            BVarSymbol symbol = new BVarSymbol(paramFlags, paramName, env.enclPkg.symbol.pkgID, type, env.scope.owner,
-                                               param.pos, SOURCE);
+            BVarSymbol symbol = new BVarSymbol(paramFlags, paramName, paramOrigName, env.enclPkg.symbol.pkgID,
+                                               type, env.scope.owner, param.pos, SOURCE);
             param.symbol = symbol;
 
             if (param.expr != null) {
@@ -1632,9 +1695,10 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (restType == symTable.noType) {
                 return symTable.noType;
             }
+            BLangIdentifier id = ((BLangSimpleVariable) restVariable).name;
             restVariable.setBType(restType);
             restParam = new BVarSymbol(Flags.asMask(restVariable.flagSet),
-                                       names.fromIdNode(((BLangSimpleVariable) restVariable).name),
+                                       names.fromIdNode(id), names.originalNameFromIdNode(id),
                                        env.enclPkg.symbol.pkgID, restType, env.scope.owner, restVariable.pos, SOURCE);
         }
 
@@ -1703,7 +1767,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             default:
                 return symTable.notFoundSymbol;
         }
-
 
         if (validEqualityIntersectionExists) {
             if ((!types.isValueType(lhsType) && !types.isValueType(rhsType)) ||
@@ -2090,7 +2153,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 }
             }
 
-            return defineIntersectionType((BErrorType) potentialIntersectionType, intersectionTypeNode.pos,
+            return createIntersectionErrorType((BErrorType) potentialIntersectionType, intersectionTypeNode.pos,
                                           constituentBTypes, existingErrorDetailType, env);
         }
 
@@ -2129,10 +2192,10 @@ public class SymbolResolver extends BLangNodeVisitor {
                                                                 env, symTable, anonymousModelHelper, names, flagSet);
     }
 
-    private BIntersectionType defineIntersectionType(BErrorType intersectionErrorType,
-                                                     Location pos,
-                                                     LinkedHashSet<BType> constituentBTypes,
-                                                     boolean isAlreadyDefinedDetailType, SymbolEnv env) {
+    private BIntersectionType createIntersectionErrorType(BErrorType intersectionErrorType,
+                                                          Location pos,
+                                                          LinkedHashSet<BType> constituentBTypes,
+                                                          boolean isAlreadyDefinedDetailType, SymbolEnv env) {
 
         BSymbol owner = intersectionErrorType.tsymbol.owner;
         PackageID pkgId = intersectionErrorType.tsymbol.pkgID;
@@ -2141,10 +2204,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (!isAlreadyDefinedDetailType && intersectionErrorType.detailType.tag == TypeTags.RECORD) {
             defineErrorDetailRecord((BRecordType) intersectionErrorType.detailType, pos, pkgEnv);
         }
-        return defineErrorIntersectionType(intersectionErrorType, constituentBTypes, pkgId, owner);
+        return createIntersectionErrorType(intersectionErrorType, constituentBTypes, pkgId, owner, pos);
     }
 
-    private BLangTypeDefinition defineErrorDetailRecord(BRecordType detailRecord, Location pos, SymbolEnv env) {
+    private void defineErrorDetailRecord(BRecordType detailRecord, Location pos, SymbolEnv env) {
         BRecordTypeSymbol detailRecordSymbol = (BRecordTypeSymbol) detailRecord.tsymbol;
 
         for (BField field : detailRecord.fields.values()) {
@@ -2160,22 +2223,19 @@ public class SymbolResolver extends BLangNodeVisitor {
                                                                                                 detailRecordTypeNode,
                                                                                                 env);
         detailRecordTypeDefinition.pos = pos;
-        return detailRecordTypeDefinition;
     }
 
-    private BIntersectionType defineErrorIntersectionType(IntersectableReferenceType effectiveType,
+    private BIntersectionType createIntersectionErrorType(IntersectableReferenceType effectiveType,
                                                           LinkedHashSet<BType> constituentBTypes, PackageID pkgId,
-                                                          BSymbol owner) {
+                                                          BSymbol owner, Location pos) {
 
-        BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,
-                                                                      Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                                                                      Names.EMPTY, pkgId, null, owner,
-                                                                      symTable.builtinPos, VIRTUAL);
+        BTypeSymbol intersectionTypeSymbol =
+                Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY,
+                        pkgId, null, owner, pos, VIRTUAL);
 
-        BIntersectionType intersectionType = new BIntersectionType(intersectionTypeSymbol, constituentBTypes,
-                                                                   effectiveType);
+        BIntersectionType intersectionType =
+                new BIntersectionType(intersectionTypeSymbol, constituentBTypes, effectiveType);
         intersectionTypeSymbol.type = intersectionType;
-
         return intersectionType;
     }
 

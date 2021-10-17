@@ -37,6 +37,8 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -47,6 +49,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+import static org.ballerinalang.debugadapter.DebugSourceType.DEPENDENCY;
+import static org.ballerinalang.debugadapter.DebugSourceType.PACKAGE;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 
 /**
@@ -55,17 +59,24 @@ import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encod
 public class PackageUtils {
 
     public static final String BAL_FILE_EXT = ".bal";
+    public static final String BAL_TOML_FILE_NAME = "Ballerina.toml";
     public static final String INIT_CLASS_NAME = "$_init";
     public static final String INIT_TYPE_INSTANCE_PREFIX = "$type$";
     public static final String GENERATED_VAR_PREFIX = "$";
     static final String MODULE_DIR_NAME = "modules";
+    private static final String URI_SCHEME_FILE = "file";
+    private static final String URI_SCHEME_BALA = "bala";
 
-    private static final String SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
+    private static final String FILE_SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
 
     /**
-     * Retrieves the absolute path of the breakpoint location using JDI breakpoint hit information.
+     * Returns the corresponding debug source path based on the given stack frame location.
+     *
+     * @param stackFrameLocation stack frame location
+     * @param sourceProject      project instance of the detected debug source
      */
-    public static Optional<Path> getSrcPathFromBreakpointLocation(Location location, Project sourceProject) {
+    public static Optional<Map.Entry<Path, DebugSourceType>> getStackFrameSourcePath(Location stackFrameLocation,
+                                                                                     Project sourceProject) {
         // Source resolving is processed according to the following order .
         // 1. Checks whether debug hit location resides within the current debug source project and if so, returns
         // the absolute path of the project file source.
@@ -79,16 +90,19 @@ public class PackageUtils {
         sourceResolvers.add(new DependencySourceResolver(sourceProject));
 
         for (SourceResolver sourceResolver : sourceResolvers) {
-            if (sourceResolver.isSupported(location)) {
-                Optional<Path> resolvedPath = sourceResolver.resolve(location);
+            if (sourceResolver.isSupported(stackFrameLocation)) {
+                Optional<Path> resolvedPath = sourceResolver.resolve(stackFrameLocation);
                 if (resolvedPath.isPresent()) {
-                    return resolvedPath;
+                    if (sourceResolver instanceof DependencySourceResolver) {
+                        return Optional.of(new AbstractMap.SimpleEntry<>(resolvedPath.get(), DEPENDENCY));
+                    } else {
+                        return Optional.of(new AbstractMap.SimpleEntry<>(resolvedPath.get(), PACKAGE));
+                    }
                 }
             }
         }
         return Optional.empty();
     }
-
 
     /**
      * Loads the target ballerina source project instance using the Project API, from the file path of the open/active
@@ -156,7 +170,7 @@ public class PackageUtils {
 
     public static String getFileNameFrom(Path filePath) {
         try {
-            String[] split = filePath.toString().split(SEPARATOR_REGEX);
+            String[] split = filePath.toString().split(FILE_SEPARATOR_REGEX);
             String fileName = split[split.length - 1];
             if (fileName.endsWith(BAL_FILE_EXT)) {
                 return fileName.replace(BAL_FILE_EXT, "");
@@ -181,7 +195,7 @@ public class PackageUtils {
         StringJoiner classNameJoiner = new StringJoiner(".");
         classNameJoiner.add(context.getPackageOrg().get())
                 .add(context.getModuleName().get())
-                .add(context.getPackageVersion().get().replace(".", "_"))
+                .add(context.getPackageMajorVersion().get())
                 .add(className);
         return classNameJoiner.toString();
     }
@@ -192,29 +206,37 @@ public class PackageUtils {
      * @param filePath file path
      * @return full-qualified class name
      */
-    public static String getQualifiedClassName(ExecutionContext context, String filePath) {
-        Path path = Paths.get(filePath);
-        Project project = context.getProjectCache().getProject(path);
-        if (project instanceof SingleFileProject) {
-            DocumentId documentId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
-            String docName = project.currentPackage().getDefaultModule().document(documentId).name();
-            if (docName.endsWith(BAL_FILE_EXT)) {
-                docName = docName.replace(BAL_FILE_EXT, "");
+    public static Optional<String> getQualifiedClassName(ExecutionContext context, String filePath) {
+        try {
+            Path path = Paths.get(filePath);
+            Project project = context.getProjectCache().getProject(path);
+            if (project instanceof SingleFileProject) {
+                DocumentId documentId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
+                String docName = project.currentPackage().getDefaultModule().document(documentId).name();
+                if (docName.endsWith(BAL_FILE_EXT)) {
+                    docName = docName.replace(BAL_FILE_EXT, "");
+                }
+                return Optional.of(docName);
             }
-            return docName;
+
+            DocumentId documentId = project.documentId(path);
+            Module module = project.currentPackage().module(documentId.moduleId());
+            Document document = module.document(documentId);
+
+            // Need to use only the major version of the packages/modules, as qualified class names of the generated
+            // ballerina classes includes only the major version.
+            int packageMajorVersion = document.module().packageInstance().packageVersion().value().major();
+            StringJoiner classNameJoiner = new StringJoiner(".");
+            classNameJoiner.add(document.module().packageInstance().packageOrg().value())
+                    .add(encodeModuleName(document.module().moduleName().toString()))
+                    .add(String.valueOf(packageMajorVersion))
+                    .add(document.name().replace(BAL_FILE_EXT, "").replace(FILE_SEPARATOR_REGEX, ".")
+                            .replace("/", "."));
+
+            return Optional.ofNullable(classNameJoiner.toString());
+        } catch (Exception e) {
+            return Optional.empty();
         }
-
-        DocumentId documentId = project.documentId(path);
-        Module module = project.currentPackage().module(documentId.moduleId());
-        Document document = module.document(documentId);
-
-        StringJoiner classNameJoiner = new StringJoiner(".");
-        classNameJoiner.add(document.module().packageInstance().packageOrg().value())
-                .add(encodeModuleName(document.module().moduleName().toString()))
-                .add(document.module().packageInstance().packageVersion().toString().replace(".", "_"))
-                .add(document.name().replace(BAL_FILE_EXT, "").replace(SEPARATOR_REGEX, ".").replace("/", "."));
-
-        return classNameJoiner.toString();
     }
 
     /**
@@ -278,6 +300,20 @@ public class PackageUtils {
             moduleParts = new String[]{path};
         }
         return moduleParts;
+    }
+
+    /**
+     * Converts a given file URI to a Ballerina-specific custom URI scheme.
+     *
+     * @param fileUri file URI
+     * @return bala URI
+     */
+    public static URI covertToBalaUri(URI fileUri) throws URISyntaxException, IllegalArgumentException {
+        if (fileUri.getScheme().equals(URI_SCHEME_FILE)) {
+            return new URI(URI_SCHEME_BALA, fileUri.getHost(), fileUri.getPath(), fileUri.getFragment());
+        }
+
+        throw new IllegalArgumentException("unsupported URI with scheme: " + fileUri.getScheme());
     }
 
     private static String replaceSeparators(String path) {

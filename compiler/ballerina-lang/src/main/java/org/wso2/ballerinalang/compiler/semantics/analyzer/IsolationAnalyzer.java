@@ -319,19 +319,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
+        this.arrowFunctionTempSymbolMap.clear();
+        this.isolationInferenceInfoMap.clear();
         this.dlog.setCurrentPackageId(pkgNode.packageID);
-        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
-
-        Set<BSymbol> moduleLevelVarSymbols = getModuleLevelVarSymbols(pkgNode.globalVars);
-        populateNonPublicMutableOrNonIsolatedVars(moduleLevelVarSymbols);
-        List<BLangClassDefinition> classDefinitions = pkgNode.classDefinitions;
-        populateNonPublicIsolatedInferableClasses(classDefinitions);
-
-        analyzeNode(pkgNode, pkgEnv);
-
-        inferIsolation(moduleLevelVarSymbols, getPubliclyExposedObjectTypes(pkgNode), classDefinitions);
-        logServiceIsolationWarnings(classDefinitions);
-
+        pkgNode.accept(this);
         return pkgNode;
     }
 
@@ -341,8 +332,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+
+        Set<BSymbol> moduleLevelVarSymbols = getModuleLevelVarSymbols(pkgNode.globalVars);
+        populateNonPublicMutableOrNonIsolatedVars(moduleLevelVarSymbols);
+        List<BLangClassDefinition> classDefinitions = pkgNode.classDefinitions;
+        populateNonPublicIsolatedInferableClasses(classDefinitions);
+
         for (BLangTypeDefinition typeDefinition : pkgNode.typeDefinitions) {
-            analyzeNode(typeDefinition.typeNode, env);
+            analyzeNode(typeDefinition.typeNode, pkgEnv);
         }
 
         for (BLangClassDefinition classDefinition : pkgNode.classDefinitions) {
@@ -354,19 +352,24 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 classDefinition.symbol.flags |= Flags.ISOLATED;
             }
 
-            analyzeNode(classDefinition, env);
+            analyzeNode(classDefinition, pkgEnv);
         }
 
         for (BLangFunction function : pkgNode.functions) {
-            analyzeNode(function, env);
+            analyzeNode(function, pkgEnv);
         }
 
         for (BLangVariable globalVar : pkgNode.globalVars) {
-            analyzeNode(globalVar, env);
+            analyzeNode(globalVar, pkgEnv);
         }
 
+        inferIsolation(moduleLevelVarSymbols, getPubliclyExposedObjectTypes(pkgNode), classDefinitions);
+        logServiceIsolationWarnings(classDefinitions);
+        this.arrowFunctionTempSymbolMap.clear();
+        this.isolationInferenceInfoMap.clear();
+
         for (BLangTestablePackage testablePkg : pkgNode.testablePkgs) {
-            analyze(testablePkg);
+            visit((BLangPackage) testablePkg);
         }
 
         pkgNode.completedPhases.add(CompilerPhase.ISOLATION_ANALYZE);
@@ -416,17 +419,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         analyzeNode(funcNode.body, funcEnv);
 
-        if (!isIsolated(symbol.flags) && this.inferredIsolated && !Symbols.isFlagOn(symbol.flags, Flags.WORKER)) {
-            if (isBallerinaModule(env.enclPkg)) {
-                dlog.warning(funcNode.pos, DiagnosticWarningCode.FUNCTION_CAN_BE_MARKED_ISOLATED, funcNode.name);
-            }
-
-            if (functionIsolationInferenceInfo != null &&
-                    functionIsolationInferenceInfo.dependsOnlyOnInferableConstructs &&
-                    // Init method isolation depends on the object field-initializers too, so we defer inference.
-                    !funcNode.objInitFunction) {
-                functionIsolationInferenceInfo.inferredIsolated = true;
-            }
+        if (this.inferredIsolated &&
+                !isIsolated(symbol.flags) &&
+                !Symbols.isFlagOn(symbol.flags, Flags.WORKER) &&
+                functionIsolationInferenceInfo != null &&
+                functionIsolationInferenceInfo.dependsOnlyOnInferableConstructs &&
+                // Init method isolation depends on the object field-initializers too, so we defer inference.
+                !funcNode.objInitFunction) {
+            functionIsolationInferenceInfo.inferredIsolated = true;
         }
 
         this.inferredIsolated = this.inferredIsolated && prevInferredIsolated;
@@ -1330,6 +1330,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        analyzeFieldBasedAccess(fieldAccessExpr);
+    }
+
+    @Override
+    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
+        analyzeFieldBasedAccess(nsPrefixedFieldBasedAccess);
+    }
+
+    private void analyzeFieldBasedAccess(BLangFieldBasedAccess fieldAccessExpr) {
         BLangExpression expr = fieldAccessExpr.expr;
         analyzeNode(expr, env);
 
@@ -2370,11 +2379,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean isBallerinaModule(BLangPackage module) {
-        String orgName = module.packageID.orgName.value;
-        return orgName.equals("ballerina") || orgName.equals("ballerinax");
-    }
-
     private boolean isInIsolatedFunction(BLangInvokableNode enclInvokable) {
         if (enclInvokable == null) {
             // TODO: 14/11/20 This feels hack-y but cannot think of a different approach without a class variable
@@ -3299,10 +3303,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private Set<BSymbol> getModuleLevelVarSymbols(List<BLangVariable> moduleLevelVars) {
         Set<BSymbol> symbols = new HashSet<>(moduleLevelVars.size());
         for (BLangVariable globalVar : moduleLevelVars) {
-            if (globalVar.flagSet.contains(Flag.LISTENER)) {
-                continue;
-            }
-
             symbols.add(globalVar.symbol);
         }
         return symbols;
@@ -3518,6 +3518,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
             boolean isObjectType = symbol.kind == SymbolKind.OBJECT;
 
+            if (!isObjectType &&
+                    // If it is a final var that is of a type that is a subtype of `readonly|isolated object {}`
+                    // don't infer isolated for it, since it can directly be accessed without a lock statement.
+                    isFinalVarOfReadOnlyOrIsolatedObjectTypeWithInference(publiclyExposedObjectTypes, classDefinitions,
+                                                                          symbol, new HashSet<>())) {
+                continue;
+            }
+
             if (inferVariableOrClassIsolation(publiclyExposedObjectTypes, classDefinitions, symbol,
                                               (VariableIsolationInferenceInfo) value, isObjectType, new HashSet<>())) {
                 symbol.flags |= Flags.ISOLATED;
@@ -3652,6 +3660,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         } else if (isFinalVarOfReadOnlyOrIsolatedObjectTypeWithInference(publiclyExposedObjectTypes,
                                                                          classDefinitions, symbol, unresolvedSymbols)) {
             return true;
+        } else if (Symbols.isFlagOn(symbol.flags, Flags.LISTENER)) {
+            // Listeners aren't allowed as isolated variables.
+            return false;
         }
 
         for (LockInfo lockInfo : inferenceInfo.accessedLockInfo) {

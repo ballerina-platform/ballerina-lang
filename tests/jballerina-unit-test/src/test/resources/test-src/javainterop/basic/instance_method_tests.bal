@@ -100,12 +100,12 @@ function testInstanceResolve() {
 
 public function testGetCurrentModule(handle receiver) {
      string moduleString =  getCurrentModule(receiver, 4);
-     assertEquals(moduleString, "$anon#.#0.0.0#4");
+     assertEquals(moduleString, "$anon#.#0#4");
      // calling overloaded method using self as a parameter.
      moduleString =  getCurrentModuleAndOverloadParams(receiver, 4);
-     assertEquals(moduleString, "$anon#.#0.0.0#8");
+     assertEquals(moduleString, "$anon#.#0#8");
      moduleString =  getCurrentModuleAndOverloadParamsWithReceiver(receiver, receiver, 4);
-     assertEquals(moduleString, "$anon#.#0.0.0#16");
+     assertEquals(moduleString, "$anon#.#0#16");
 }
 
 // Interop functions

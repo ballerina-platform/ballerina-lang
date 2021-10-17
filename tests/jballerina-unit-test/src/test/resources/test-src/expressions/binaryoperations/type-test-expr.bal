@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 // ========================== Basics ==========================
 
 function testValueTypeInUnion() returns string {
@@ -222,6 +224,30 @@ function testSealedRecordTypes() returns [boolean, boolean] {
     A3 a3 = {};
     any a = a3;
     return [a is A3, a is B3];
+}
+
+type Country record {|
+    readonly string code?;
+    string name?;
+    record {|
+        string code?;
+        readonly string name?;
+        int grade = 0;
+    |} continent?;
+|};
+
+type MyCountry record {|
+    readonly string code?;
+    record {|
+        string code?;
+        int grade = 4;
+    |} continent?;
+|};
+
+function testRecordsWithOptionalFields() {
+    MyCountry x = {};
+    Country y = x;
+    test:assertTrue(x is Country);
 }
 
 // ========================== Objects ==========================
@@ -522,18 +548,70 @@ function testObjectIsCheckWithCycles() {
     Qux f2 = new (f1);
 
     any a1 = <any> f1;
-    assertTrue(a1 is Quux);
-    assertFalse(a1 is Quuz);
+    test:assertTrue(a1 is Quux);
+    test:assertFalse(a1 is Quuz);
 
     any a2 = <any> f2;
-    assertTrue(a2 is Quux);
-    assertFalse(a2 is Quuz);
+    test:assertTrue(a2 is Quux);
+    test:assertFalse(a2 is Quuz);
 
     ABC ob = new (f2, "ballerina");
 
     any a3 = ob;
-    assertTrue(a3 is object { Qux f; });
-    assertFalse(a3 is object { Quuz f; });
+    test:assertTrue(a3 is object { Qux f; });
+    test:assertFalse(a3 is object { Quuz f; });
+}
+
+service class ServiceClassA {
+    remote function x() {
+    }
+}
+
+service class ServiceClassB {
+}
+
+service class ServiceClassC {
+    resource function get hello(string name) returns string {
+        return "Hello, " + name;
+    }
+}
+
+service class ServiceClassD {
+    remote function x() {
+        int a = 0;
+        float b = 0.0;
+    }
+
+    resource function get weight() returns float {
+        return 123.4;
+    }
+}
+
+function testServiceObjects() {
+    any a = new ServiceClassA();
+    any b = new ServiceClassB();
+    any c = new ServiceClassC();
+    any d = new ServiceClassD();
+
+    test:assertTrue(a is ServiceClassA);
+    test:assertTrue(a is ServiceClassB);
+    test:assertTrue(a is ServiceClassC);
+    test:assertTrue(a is ServiceClassD);
+
+    test:assertFalse(b is ServiceClassA);
+    test:assertTrue(b is ServiceClassB);
+    test:assertTrue(b is ServiceClassC);
+    test:assertFalse(b is ServiceClassD);
+
+    test:assertFalse(c is ServiceClassA);
+    test:assertTrue(c is ServiceClassB);
+    test:assertTrue(c is ServiceClassC);
+    test:assertFalse(c is ServiceClassD);
+
+    test:assertTrue(d is ServiceClassA);
+    test:assertTrue(d is ServiceClassB);
+    test:assertTrue(d is ServiceClassC);
+    test:assertTrue(d is ServiceClassD);
 }
 
 // ========================== Arrays ==========================
@@ -557,80 +635,80 @@ function testRecordArrays() returns [boolean, boolean, boolean, boolean] {
 public function testUnionType() {
     [int, ()] x = [1, ()];
     any y = x;
-    assertEquality(y is (string|int?)[2], true);
-    assertEquality(y is (string|int?)[], true);
-    assertEquality(y is (int|string?)[], true);
-    assertEquality(y is (int|string?)[3], false);
-    assertEquality(y is (int|string)[], false);
-    assertEquality(y is int?[], true);
-    assertEquality(y is int?[2], true);
+    test:assertEquals(y is (string|int?)[2], true);
+    test:assertEquals(y is (string|int?)[], true);
+    test:assertEquals(y is (int|string?)[], true);
+    test:assertEquals(y is (int|string?)[3], false);
+    test:assertEquals(y is (int|string)[], false);
+    test:assertEquals(y is int?[], true);
+    test:assertEquals(y is int?[2], true);
 
     [int, string?] a = [1, "union"];
     any b = a;
-    assertEquality(b is (int|string?)[], true);
-    assertEquality(b is (int|string?)[2], true);
-    assertEquality(b is (int?|string)[2], true);
-    assertEquality(b is (int|string?)[1], false);
-    assertEquality(b is int?[2], false);
+    test:assertEquals(b is (int|string?)[], true);
+    test:assertEquals(b is (int|string?)[2], true);
+    test:assertEquals(b is (int?|string)[2], true);
+    test:assertEquals(b is (int|string?)[1], false);
+    test:assertEquals(b is int?[2], false);
 
     (int|string)[] c = [1, 2];
     any d = c;
-    assertEquality(d is (int|string?)[], true);
-    assertEquality(d is (int|string)[2], false);
-    assertEquality(d is [int, string], false);
-    assertEquality(d is [int, int], false);
-    assertEquality(d is [string, string], false);
-    assertEquality(d is [int, ()], false);
-    assertEquality(d is [int...], false);
-    assertEquality(d is [string...], false);
-    assertEquality(d is [string, int...], false);
+    test:assertEquals(d is (int|string?)[], true);
+    test:assertEquals(d is (int|string)[2], false);
+    test:assertEquals(d is [int, string], false);
+    test:assertEquals(d is [int, int], false);
+    test:assertEquals(d is [string, string], false);
+    test:assertEquals(d is [int, ()], false);
+    test:assertEquals(d is [int...], false);
+    test:assertEquals(d is [string...], false);
+    test:assertEquals(d is [string, int...], false);
 }
 
 public function testClosedArrayType(){
       int[2] b = [1, 2];
       any y = b;
-      assertEquality(y is [int, int], true);
-      assertEquality(y is [int...], true);
-      assertEquality(y is [int, int, int...], true);
-      assertEquality(y is [string, string, int...], false);
-      assertEquality(y is [int, int, int], false);
-      assertEquality(y is [int, int, int, int...], false);
-      assertEquality(y is [int, int, string...], true);
+      test:assertEquals(y is [int, int], true);
+      test:assertEquals(y is [int...], true);
+      test:assertEquals(y is [int, int, int...], true);
+      test:assertEquals(y is [string, string, int...], false);
+      test:assertEquals(y is [int, int, int], false);
+      test:assertEquals(y is [int, int, int, int...], false);
+      test:assertEquals(y is [int, int, string...], true);
 }
 
 public function testInferredArrayType() {
     int[*] b = [1, 2];
     any y = b;
-    assertEquality(y is [int, int], true);
-    assertEquality(y is [int...], true);
-    assertEquality(y is [int, int, int...], true);
-    assertEquality(y is [string, string, int...], false);
-    assertEquality(y is [int, int, int], false);
-    assertEquality(y is [int, int, int, int...], false);
-    assertEquality(y is [int, int, string...], true);
+    test:assertEquals(y is [int, int], true);
+    test:assertEquals(y is [int...], true);
+    test:assertEquals(y is [int, int, int...], true);
+    test:assertEquals(y is [string, string, int...], false);
+    test:assertEquals(y is [int, int, int], false);
+    test:assertEquals(y is [int, int, int, int...], false);
+    test:assertEquals(y is [int, int, string...], true);
 }
 
 public function testEmptyArrayType() {
     var x = [];
     any a = x;
-    assertEquality(a is int[2], false);
-    assertEquality(a is int[], true);
-    assertEquality(a is [int...], true);
+    test:assertEquals(a is int[2], false);
+    test:assertEquals(a is int[], true);
+    test:assertEquals(a is [int...], true);
 
     string[] sa = [];
     any arr = sa;
-    assertEquality(arr is string[], true);
-    assertEquality(arr is int[], false);
+    test:assertEquals(arr is string[], true);
+    test:assertEquals(arr is int[], false);
 
     int[0] ia = [];
     any iarr = ia;
-    assertEquality(iarr is int[0], true);
-    assertEquality(iarr is int[], true);
+    test:assertEquals(iarr is int[0], true);
+    test:assertEquals(iarr is int[], true);
 
     int[] b = [1, 2];
     any c = b;
-    assertEquality(c is [int...], true);
-    assertEquality(c is int[], true);
+    test:assertEquals(c is [int...], true);
+    test:assertEquals(c is int[], true);
 }
 
 // ========================== Tuples ==========================
@@ -668,18 +746,18 @@ function testTupleWithAssignableTypes_2() returns boolean {
 public function testRestType() {
     [int...] x = [1, 2];
     any y = x;
-    assertEquality(y is string[], false);
-    assertEquality(y is [int...], true);
-    assertEquality(y is int[0], false);
-    assertEquality(y is int[], true);
-    assertEquality(y is [int], false);
-    assertEquality(y is int[2], false);
+    test:assertEquals(y is string[], false);
+    test:assertEquals(y is [int...], true);
+    test:assertEquals(y is int[0], false);
+    test:assertEquals(y is int[], true);
+    test:assertEquals(y is [int], false);
+    test:assertEquals(y is int[2], false);
 
     [int, int, int...] a = [1, 2];
     any b = a;
-    assertEquality(b is int[2], false);
-    assertEquality(b is [int, int...], true);
-    assertEquality(b is [int...], true);
+    test:assertEquals(b is int[2], false);
+    test:assertEquals(b is [int, int...], true);
+    test:assertEquals(b is [int...], true);
 }
 
 // ========================== Map ==========================
@@ -1018,38 +1096,38 @@ public function testMapAsRecord() {
         biology: 80.5
     };
 
-    assertTrue(<any> mp1 is MarksWithOptionalPhysics);
-    assertTrue(<any> mp1 is OpenMarks);
-    assertFalse(<any> mp1 is MarksWithRequiredPhysics);
-    assertFalse(<any> mp1 is NoRestFieldMarks);
-    assertFalse(<any> mp1 is MarksWithOptionalPhysicsAndFloatRestField);
+    test:assertTrue(<any> mp1 is MarksWithOptionalPhysics);
+    test:assertTrue(<any> mp1 is OpenMarks);
+    test:assertFalse(<any> mp1 is MarksWithRequiredPhysics);
+    test:assertFalse(<any> mp1 is NoRestFieldMarks);
+    test:assertFalse(<any> mp1 is MarksWithOptionalPhysicsAndFloatRestField);
 
-    assertTrue(<any> mp2 is MarksWithOptionalPhysics);
-    assertTrue(<any> mp2 is OpenMarks);
-    assertFalse(<any> mp2 is MarksWithRequiredPhysics);
-    assertFalse(<any> mp2 is NoRestFieldMarks);
-    assertFalse(<any> mp2 is MarksWithOptionalPhysicsAndFloatRestField);
+    test:assertTrue(<any> mp2 is MarksWithOptionalPhysics);
+    test:assertTrue(<any> mp2 is OpenMarks);
+    test:assertFalse(<any> mp2 is MarksWithRequiredPhysics);
+    test:assertFalse(<any> mp2 is NoRestFieldMarks);
+    test:assertFalse(<any> mp2 is MarksWithOptionalPhysicsAndFloatRestField);
 
-    assertFalse(<any> mp3 is MarksWithOptionalPhysics);
-    assertFalse(<any> mp3 is OpenMarks);
-    assertFalse(<any> mp3 is MarksWithRequiredPhysics);
-    assertFalse(<any> mp3 is NoRestFieldMarks);
-    assertFalse(<any> mp3 is MarksWithOptionalPhysicsAndFloatRestField);
+    test:assertFalse(<any> mp3 is MarksWithOptionalPhysics);
+    test:assertFalse(<any> mp3 is OpenMarks);
+    test:assertFalse(<any> mp3 is MarksWithRequiredPhysics);
+    test:assertFalse(<any> mp3 is NoRestFieldMarks);
+    test:assertFalse(<any> mp3 is MarksWithOptionalPhysicsAndFloatRestField);
 
-    assertFalse(<any> mp4 is MarksWithOptionalPhysics);
-    assertTrue(<any> mp4 is OpenMarks);
-    assertFalse(<any> mp4 is MarksWithRequiredPhysics);
-    assertFalse(<any> mp4 is NoRestFieldMarks);
-    assertFalse(<any> mp4 is MarksWithOptionalPhysicsAndFloatRestField);
+    test:assertFalse(<any> mp4 is MarksWithOptionalPhysics);
+    test:assertTrue(<any> mp4 is OpenMarks);
+    test:assertFalse(<any> mp4 is MarksWithRequiredPhysics);
+    test:assertFalse(<any> mp4 is NoRestFieldMarks);
+    test:assertFalse(<any> mp4 is MarksWithOptionalPhysicsAndFloatRestField);
 
     int|error x = 'int:fromString("foo");
     any det = ();
     if x is error {
         det = x.detail();
     }
-    assertTrue(det is map<anydata|readonly>);
-    assertTrue(det is 'error:Detail);
-    assertTrue(det is record {| string message; |});
+    test:assertTrue(det is map<anydata|readonly>);
+    test:assertTrue(det is 'error:Detail);
+    test:assertTrue(det is record {| string message; |});
 }
 
 // ========================== XML ==========================
@@ -1058,80 +1136,80 @@ public function testXMLNeverType() {
     string empty = "";
     'xml:Text a = xml `${empty}`;
     any y = a;
-    assertEquality(y is xml<never>, true);
-    assertEquality(y is xml, true);
-    assertEquality(y is 'xml:Text, true);
-    assertEquality(y is 'xml:Element, false);
+    test:assertEquals(y is xml<never>, true);
+    test:assertEquals(y is xml, true);
+    test:assertEquals(y is 'xml:Text, true);
+    test:assertEquals(y is 'xml:Element, false);
 
     xml b = 'xml:createText("");
     any x = b;
-    assertEquality(x is xml<never>, true);
-    assertEquality(x is xml, true);
-    assertEquality(x is 'xml:Text, true);
-    assertEquality(x is 'xml:ProcessingInstruction, false);
+    test:assertEquals(x is xml<never>, true);
+    test:assertEquals(x is xml, true);
+    test:assertEquals(x is 'xml:Text, true);
+    test:assertEquals(x is 'xml:ProcessingInstruction, false);
 
     'xml:Text c = xml ``;
     any z = c;
-    assertEquality(z is xml<never>, true);
-    assertEquality(z is xml, true);
-    assertEquality(z is 'xml:Text, true);
-    assertEquality(z is 'xml:Comment, false);
+    test:assertEquals(z is xml<never>, true);
+    test:assertEquals(z is xml, true);
+    test:assertEquals(z is 'xml:Text, true);
+    test:assertEquals(z is 'xml:Comment, false);
 
     xml<never> d = xml ``;
     any w = d;
-    assertEquality(w is xml<never>, true);
-    assertEquality(w is xml, true);
-    assertEquality(w is 'xml:Text, true);
-    assertEquality(w is 'xml:Element, false);
-    assertEquality(w is xml<'xml:Text|'xml:Comment>, true);
+    test:assertEquals(w is xml<never>, true);
+    test:assertEquals(w is xml, true);
+    test:assertEquals(w is 'xml:Text, true);
+    test:assertEquals(w is 'xml:Element, false);
+    test:assertEquals(w is xml<'xml:Text|'xml:Comment>, true);
 
     xml e = xml ``;
-    assertEquality(<any> e is byte, false);
-    assertEquality(<any> e is xml<'xml:Element>, false);
-    assertEquality(<any> e is xml<'xml:Text>, true);
-    assertEquality(<any> e is xml, true);
-    assertEquality(<any> e is 'xml:Text, true);
-    assertEquality(<any> e is 'xml:Element, false);
-    assertEquality(<any> e is xml<'xml:Element|'xml:Comment>, false);
+    test:assertEquals(<any> e is byte, false);
+    test:assertEquals(<any> e is xml<'xml:Element>, false);
+    test:assertEquals(<any> e is xml<'xml:Text>, true);
+    test:assertEquals(<any> e is xml, true);
+    test:assertEquals(<any> e is 'xml:Text, true);
+    test:assertEquals(<any> e is 'xml:Element, false);
+    test:assertEquals(<any> e is xml<'xml:Element|'xml:Comment>, false);
 }
 
 function testXMLTextType(){
     'xml:Text t = xml `foo`;
-    assertEquality(<any> t is string, false);
+    test:assertEquals(<any> t is string, false);
 }
 
 function testRecordIntersections() {
     Baz|int val = 11;
-    assertFalse(val is Bar);
+    test:assertFalse(val is Bar);
 
     Baz|int val2 = {};
-    assertFalse(val2 is Bar);
+    test:assertFalse(val2 is Bar);
 
     Baz|int val3 = <Bar> {code: new};
-    assertTrue(val3 is Bar);
+    test:assertTrue(val3 is Bar);
 
     Bar val4 = {code: new};
-    assertFalse(val4 is Foo);
+    test:assertFalse(val4 is Foo);
 
     Bar val5 = <Foo> {code: new, index: 0};
-    assertTrue(val5 is Foo);
+    test:assertTrue(val5 is Foo);
 
     OpenRecordWithIntField val6 = {i: 1, "s": "hello"};
-    assertFalse(val6 is record {| int i; string s; |});
+    test:assertFalse(val6 is record {| int i; string s; |});
 
     record {| int i; string s; |} v = {i: 2, s: "world"};
     OpenRecordWithIntField val7 = v;
-    assertTrue(val7 is record {| int i; string s; |});
+    test:assertTrue(val7 is record {| int i; string s; |});
 
     ClosedRecordWithIntField val8 = {i: 10};
-    assertFalse(val8 is record {| byte i; |});
-    assertTrue(<any> val8 is record {});
-    assertTrue(<any> val8 is record {| int...; |});
+    test:assertFalse(val8 is record {| byte i; |});
+    test:assertTrue(<any> val8 is record {});
+    test:assertTrue(<any> val8 is record {| int...; |});
 
     int|ClosedRecordWithIntField val9 = <record {| byte i; |}> {i: 10};
-    assertTrue(val9 is record {| byte i; |});
-    assertTrue(val9 is record {});
-    assertTrue(val9 is record {| int...; |});
+    test:assertTrue(val9 is record {| byte i; |});
+    test:assertTrue(val9 is record {});
+    test:assertTrue(val9 is record {| int...; |});
 }
 
 type Baz record {|
@@ -1176,19 +1254,19 @@ type OpenRecordWithIntFieldAndEffectivelyNeverRestField record {|
 
 function testRecordIntersectionWithEffectivelyNeverFields() {
     RecordWithIntFieldAndNeverField rec = {i: 1};
-    assertTrue(rec is ClosedRecordWithIntField);
-    assertTrue(rec is OpenRecordWithIntFieldAndEffectivelyNeverRestField);
+    test:assertTrue(rec is ClosedRecordWithIntField);
+    test:assertTrue(rec is OpenRecordWithIntFieldAndEffectivelyNeverRestField);
 
     RecordWithIntFieldAndEffectivelyNeverField rec2 = {i: 1};
-    assertTrue(rec2 is ClosedRecordWithIntField);
-    assertTrue(rec2 is OpenRecordWithIntFieldAndEffectivelyNeverRestField);
+    test:assertTrue(rec2 is ClosedRecordWithIntField);
+    test:assertTrue(rec2 is OpenRecordWithIntFieldAndEffectivelyNeverRestField);
 
     OpenRecordWithIntFieldAndEffectivelyNeverRestField rec3 = {i: 1};
-    assertTrue(rec3 is record {| int...; |});
+    test:assertTrue(rec3 is record {| int...; |});
 
     record {| int...; |} rec4 = {"i": 1};
-    assertFalse(rec4 is OpenRecordWithIntFieldAndEffectivelyNeverRestField);
-    assertFalse(rec4 is ClosedRecordWithIntField);
+    test:assertFalse(rec4 is OpenRecordWithIntFieldAndEffectivelyNeverRestField);
+    test:assertFalse(rec4 is ClosedRecordWithIntField);
 }
 
 type Foo2 record {|
@@ -1209,7 +1287,7 @@ function recordIntersectionWithFunctionFields() returns boolean {
 }
 
 function testRecordIntersectionWithFunctionFields() {
-    assertFalse(recordIntersectionWithFunctionFields());
+    test:assertFalse(recordIntersectionWithFunctionFields());
 }
 
 type Colour "r"|"g"|"b";
@@ -1217,28 +1295,82 @@ type Ints 1|2;
 
 function testBuiltInSubTypeTypeTestAgainstFiniteType() {
     string:Char a = "r";
-    assertTrue(a is Colour);
+    test:assertTrue(a is Colour);
     a = "x";
-    assertFalse(a is Colour);
+    test:assertFalse(a is Colour);
 
     int:Unsigned16 b = 1;
-    assertTrue(b is Ints);
+    test:assertTrue(b is Ints);
     b = 4;
-    assertFalse(b is Ints);
+    test:assertFalse(b is Ints);
 }
 
-function assertTrue(anydata actual) {
-    assertEquality(true, actual);
-}
+// ========================== int subtypes ==========================
 
-function assertFalse(anydata actual) {
-    assertEquality(false, actual);
-}
+function testIntSubtypes() {
+    byte val1 = 255;
+    test:assertTrue(val1 is byte);
+    test:assertTrue(val1 is int:Unsigned8);
+    test:assertTrue(val1 is int:Unsigned16);
+    test:assertTrue(val1 is int:Unsigned32);
+    test:assertTrue(val1 is int:Signed16);
+    test:assertTrue(val1 is int:Signed32);
+    test:assertTrue(val1 is int);
 
-function assertEquality(anydata expected, anydata actual) {
-    if expected == actual {
-        return;
-    }
+    int:Unsigned8 val2 = 0;
+    test:assertTrue(val2 is byte);
+    test:assertTrue(val2 is int:Unsigned8);
+    test:assertTrue(val2 is int:Unsigned16);
+    test:assertTrue(val2 is int:Unsigned32);
+    test:assertTrue(val2 is int:Signed16);
+    test:assertTrue(val2 is int:Signed32);
+    test:assertTrue(val2 is int);
 
-    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    int:Unsigned16 val3 = 0x100;
+    test:assertFalse(val3 is byte);
+    test:assertFalse(val3 is int:Unsigned8);
+    test:assertTrue(val3 is int:Unsigned16);
+    test:assertTrue(val3 is int:Unsigned32);
+    test:assertTrue(val3 is int:Signed32);
+    test:assertTrue(val3 is int);
+
+    int:Unsigned32 val4 = 0x3;
+    test:assertTrue(val4 is byte);
+    test:assertTrue(val4 is int:Unsigned8);
+    test:assertTrue(val4 is int:Unsigned16);
+    test:assertTrue(val4 is int:Unsigned32);
+    test:assertTrue(val4 is int);
+
+    int:Signed8 val5 = 0x7f;
+    test:assertTrue(val5 is int:Signed8);
+    test:assertTrue(val5 is int:Signed16);
+    test:assertTrue(val5 is int:Signed32);
+    test:assertTrue(val5 is int);
+
+    int:Signed16 val6 = -128;
+    test:assertFalse(val6 is byte);
+    test:assertFalse(val6 is int:Unsigned8);
+    test:assertTrue(val6 is int:Signed8);
+    test:assertTrue(val6 is int:Signed16);
+    test:assertTrue(val6 is int:Signed32);
+    test:assertTrue(val6 is int);
+
+    int:Signed32 val7 = -2147483648;
+    test:assertFalse(val7 is byte);
+    test:assertFalse(val7 is int:Unsigned8);
+    test:assertFalse(val7 is int:Unsigned16);
+    test:assertFalse(val7 is int:Signed8);
+    test:assertFalse(val7 is int:Signed16);
+    test:assertTrue(val7 is int:Signed32);
+    test:assertTrue(val7 is int);
+
+    int val8 = 0;
+    test:assertTrue(val8 is byte);
+    test:assertTrue(val8 is int:Unsigned8);
+    test:assertTrue(val8 is int:Unsigned16);
+    test:assertTrue(val8 is int:Unsigned32);
+    test:assertTrue(val8 is int:Signed8);
+    test:assertTrue(val8 is int:Signed16);
+    test:assertTrue(val8 is int:Signed32);
+    test:assertTrue(val8 is int);
 }

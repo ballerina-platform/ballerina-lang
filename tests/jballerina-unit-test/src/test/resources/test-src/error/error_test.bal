@@ -462,6 +462,53 @@ function testLocalErrorTypeWithClosure() {
 //    assertEquality(err.detail()["i"], k);
 //}
 
+function testStackTraceWithErrorCauseLocation() {
+    panic foo();
+}
+
+function foo() returns error {
+    error err = error("error1", x());
+    return err;
+}
+
+function x() returns error {
+    return baz();
+}
+
+function baz() returns error {
+    error err = error("error2", foobar());
+    return err;
+}
+
+function foobar() returns error {
+    error err = error("error3");
+    return err;
+}
+
+class Person {
+    public  string name;
+    public int age;
+
+    function init(string name, int age) {
+        self.name = name;
+        self.age = age;
+        panic error("error");
+    }
+}
+
+function testStacktraceWithPanicInsideInitMethod() {
+    Person person = new("John", 25);
+}
+
+function testStacktraceWithPanicInsideAnonymousFunction() {
+    function () anonFunction =
+                function () {
+                    panic(error("error!!!"));
+                };
+
+    anonFunction();
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error actual, any|error expected) {

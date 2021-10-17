@@ -32,7 +32,6 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeInstanceMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
@@ -47,6 +46,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.CLASS_LOADING_FAILED;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND;
+
 /**
  * Debug expression evaluation utils.
  *
@@ -55,7 +58,7 @@ import java.util.stream.IntStream;
 public class EvaluationUtils {
 
     // Debugger runtime helper classes
-    private static final String DEBUGGER_HELPER_PREFIX = "ballerina.debugger_helpers.1_0_0.";
+    private static final String DEBUGGER_HELPER_PREFIX = "ballerina.debugger_helpers.1.";
     public static final String B_UNARY_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "unary_operations";
     public static final String B_ARITHMETIC_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "arithmetic_operations";
     public static final String B_RELATIONAL_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "relational_operations";
@@ -64,10 +67,10 @@ public class EvaluationUtils {
     public static final String B_LOGICAL_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "logical_operations";
     public static final String B_RANGE_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "range_operations";
     public static final String B_UTILS_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "utils";
+    public static final String B_DEBUGGER_RUNTIME_CLASS = "org.ballerinalang.debugadapter.runtime.DebuggerRuntime";
 
     // Ballerina runtime helper classes
     private static final String RUNTIME_HELPER_PREFIX = "io.ballerina.runtime.";
-    public static final String B_DEBUGGER_RUNTIME_CLASS = "org.ballerinalang.debugadapter.runtime.DebuggerRuntime";
     public static final String B_TYPE_CHECKER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeChecker";
     public static final String B_TYPE_CREATOR_CLASS = RUNTIME_HELPER_PREFIX + "api.creators.TypeCreator";
     public static final String B_TYPE_CONVERTER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeConverter";
@@ -76,13 +79,17 @@ public class EvaluationUtils {
     public static final String B_TYPE_UTILS_CLASS = RUNTIME_HELPER_PREFIX + "api.utils.TypeUtils";
     public static final String B_XML_FACTORY_CLASS = RUNTIME_HELPER_PREFIX + "internal.XmlFactory";
     public static final String B_DECIMAL_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.DecimalValue";
+    public static final String B_XML_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BXml";
     public static final String B_XML_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.XmlValue";
     public static final String B_XML_SEQUENCE_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BXmlSequence";
     public static final String B_STRING_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BString";
+    public static final String B_STRING_ARRAY_CLASS = B_STRING_CLASS + "[]";
     public static final String B_OBJECT_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BObject";
     public static final String B_TYPE_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type";
     public static final String B_VALUE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BValue[]";
     public static final String B_TYPE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type[]";
+    public static final String B_SCHEDULER_CLASS = RUNTIME_HELPER_PREFIX + "internal.scheduling.Scheduler";
+    public static final String B_STRAND_CLASS = RUNTIME_HELPER_PREFIX + "internal.scheduling.Strand";
     private static final String B_LINK_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BLink";
     private static final String B_ERROR_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.ErrorValue";
 
@@ -91,9 +98,9 @@ public class EvaluationUtils {
     public static final String JAVA_LANG_CLASSLOADER = "java.lang.ClassLoader";
     public static final String JAVA_OBJECT_ARRAY_CLASS = JAVA_OBJECT_CLASS + "[]";
     public static final String JAVA_STRING_CLASS = "java.lang.String";
+    public static final String JAVA_LONG_CLASS = "java.lang.Long";
     private static final String JAVA_BOOLEAN_CLASS = "java.lang.Boolean";
     private static final String JAVA_INT_CLASS = "java.lang.Integer";
-    private static final String JAVA_LONG_CLASS = "java.lang.Long";
     private static final String JAVA_FLOAT_CLASS = "java.lang.Float";
     private static final String JAVA_DOUBLE_CLASS = "java.lang.Double";
     private static final String JAVA_LANG_CLASS = "java.lang.Class";
@@ -121,6 +128,7 @@ public class EvaluationUtils {
     public static final String B_UNARY_INVERT_METHOD = "unaryInvert";
     public static final String B_UNARY_NOT_METHOD = "unaryNot";
     public static final String B_GET_TRAP_RESULT_METHOD = "getTrapResult";
+    public static final String GET_ANNOT_VALUE_METHOD = "getAnnotationValue";
     public static final String GET_TYPEDESC_METHOD = "getTypedesc";
     public static final String CHECK_IS_TYPE_METHOD = "checkIsType";
     public static final String CHECK_CAST_METHOD = "checkCast";
@@ -139,8 +147,12 @@ public class EvaluationUtils {
     public static final String STRING_TO_XML_METHOD = "stringToXml";
     public static final String INVOKE_OBJECT_METHOD_ASYNC = "invokeObjectMethod";
     public static final String INVOKE_FUNCTION_ASYNC = "invokeFunction";
+    public static final String CLASSLOAD_AND_INVOKE_METHOD = "classloadAndInvokeFunction";
     public static final String CREATE_INT_RANGE_METHOD = "createIntRange";
     public static final String GET_REST_ARG_ARRAY_METHOD = "getRestArgArray";
+    public static final String GET_XML_FILTER_RESULT_METHOD = "getXMLFilterResult";
+    public static final String GET_XML_STEP_RESULT_METHOD = "getXMLStepResult";
+    public static final String GET_STRING_AT_METHOD = "getStringAt";
     static final String FROM_STRING_METHOD = "fromString";
     private static final String B_STRING_CONCAT_METHOD = "concat";
     private static final String FOR_NAME_METHOD = "forName";
@@ -153,6 +165,9 @@ public class EvaluationUtils {
     // Misc
     public static final String STRAND_VAR_NAME = "__strand";
     public static final String REST_ARG_IDENTIFIER = "...";
+    public static final String MODULE_NAME_SEPARATOR = ".";
+    public static final String MODULE_VERSION_SEPARATOR_REGEX = "\\.";
+    public static final String MODULE_NAME_SEPARATOR_REGEX = "\\.";
 
     private EvaluationUtils() {
     }
@@ -176,14 +191,12 @@ public class EvaluationUtils {
         }
         List<Method> methods = classesRef.get(0).methodsByName(methodName);
         if (methods == null || methods.isEmpty()) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
-                    methodName));
+            throw createEvaluationException(HELPER_UTIL_NOT_FOUND, methodName);
         }
         methods = methods.stream().filter(method -> method.isPublic() && method.isStatic() &&
                 compare(method.argumentTypeNames(), argTypeNames)).collect(Collectors.toList());
         if (methods.size() != 1) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
-                    methodName));
+            throw createEvaluationException(HELPER_UTIL_NOT_FOUND, methodName);
         }
         return new RuntimeStaticMethod(context, classesRef.get(0), methods.get(0));
     }
@@ -198,16 +211,14 @@ public class EvaluationUtils {
         }
         List<Method> methods = classesRef.get(0).methodsByName(methodName);
         if (methods == null || methods.isEmpty()) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
-                    methodName));
+            throw createEvaluationException(HELPER_UTIL_NOT_FOUND, methodName);
         }
         methods = methods.stream()
                 .filter(method -> method.isPublic() && method.isStatic())
                 .collect(Collectors.toList());
 
         if (methods.size() != 1) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
-                    methodName));
+            throw createEvaluationException(HELPER_UTIL_NOT_FOUND, methodName);
         }
         return new GeneratedStaticMethod(context, classesRef.get(0), methods.get(0));
     }
@@ -217,8 +228,7 @@ public class EvaluationUtils {
         try {
             ClassType classType = (ClassType) evaluationContext.getAttachedVm().classesByName(JAVA_LANG_CLASS).get(0);
             if (classType == null) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_LOADING_FAILED.getString(),
-                        methodName));
+                throw createEvaluationException(CLASS_LOADING_FAILED, methodName);
             }
             Method forNameMethod = null;
             List<Method> methods = classType.methodsByName(FOR_NAME_METHOD);
@@ -228,8 +238,7 @@ public class EvaluationUtils {
                 }
             }
             if (forNameMethod == null) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_LOADING_FAILED.getString(),
-                        methodName));
+                throw createEvaluationException(CLASS_LOADING_FAILED, methodName);
             }
 
             // Do not use unmodifiable lists because the list will be modified by JPDA.
@@ -241,13 +250,12 @@ public class EvaluationUtils {
                     forNameMethod, args, ObjectReference.INVOKE_SINGLE_THREADED);
             return ((ClassObjectReference) classReference).reflectedType();
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_LOADING_FAILED.getString(),
-                    methodName));
+            throw createEvaluationException(CLASS_LOADING_FAILED, methodName);
         }
     }
 
     /**
-     * As some of the the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
+     * As some of the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
      * java primitive types need to be converted into their wrapper implementations.
      *
      * @param value JDI value instance.
@@ -273,16 +281,16 @@ public class EvaluationUtils {
             String typeName = value.type().name();
             List<Method> method;
             switch (typeName) {
-                case EvaluationUtils.JAVA_INT_CLASS:
+                case JAVA_INT_CLASS:
                     method = ((ObjectReference) value).referenceType().methodsByName(INT_VALUE_METHOD);
                     break;
-                case EvaluationUtils.JAVA_LONG_CLASS:
+                case JAVA_LONG_CLASS:
                     method = ((ObjectReference) value).referenceType().methodsByName(LONG_VALUE_METHOD);
                     break;
-                case EvaluationUtils.JAVA_FLOAT_CLASS:
+                case JAVA_FLOAT_CLASS:
                     method = ((ObjectReference) value).referenceType().methodsByName(FLOAT_VALUE_METHOD);
                     break;
-                case EvaluationUtils.JAVA_DOUBLE_CLASS:
+                case JAVA_DOUBLE_CLASS:
                     method = ((ObjectReference) value).referenceType().methodsByName(DOUBLE_VALUE_METHOD);
                     break;
                 default:
@@ -301,7 +309,7 @@ public class EvaluationUtils {
     }
 
     /**
-     * As some of the the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
+     * As some of the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
      * java primitive types need to be converted into their wrapper implementations.
      *
      * @param variable ballerina variable instance.
@@ -378,23 +386,6 @@ public class EvaluationUtils {
     }
 
     /**
-     * Creates a "BUnionType" instance by combining all member types.
-     *
-     * @param resolvedTypes member types
-     * @return a 'BUnionType' instance by combining all its member types
-     */
-    public static Value getUnionTypeFrom(SuspendedContext context, List<Value> resolvedTypes)
-            throws EvaluationException {
-        List<String> methodArgTypeNames = new ArrayList<>();
-        methodArgTypeNames.add(B_TYPE_ARRAY_CLASS);
-        RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CREATOR_CLASS, CREATE_UNION_TYPE_METHOD,
-                methodArgTypeNames);
-        List<Value> methodArgs = new ArrayList<>(resolvedTypes);
-        method.setArgValues(methodArgs);
-        return method.invokeSafely();
-    }
-
-    /**
      * Concatenates multiple BString values and returns the result an instance of BString.
      *
      * @param bStrings input BString instances.
@@ -405,8 +396,8 @@ public class EvaluationUtils {
         List<Method> method = ((ObjectReference) result).referenceType().methodsByName(B_STRING_CONCAT_METHOD);
         for (int i = 1; i < bStrings.length; i++) {
             if (method.size() != 1) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
-                        "occurred when trying to load required methods to execute BString concatenation"));
+                throw createEvaluationException("Error occurred when trying to load required methods to execute " +
+                        "BString concatenation");
             }
             RuntimeInstanceMethod concatMethod = new RuntimeInstanceMethod(context, result, method.get(0));
             concatMethod.setArgValues(Collections.singletonList(bStrings[i]));

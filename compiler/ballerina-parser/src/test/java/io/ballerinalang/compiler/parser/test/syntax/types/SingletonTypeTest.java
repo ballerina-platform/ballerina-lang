@@ -24,7 +24,8 @@ import org.testng.annotations.Test;
  */
 public class SingletonTypeTest extends AbstractTypesTest {
 
-    //Valid source test
+    // Valid source test
+
     @Test
     public void testValidLocalLevelSingletonType() {
         testTopLevelNode("singleton-type/singleton_type_source_01.bal",
@@ -48,7 +49,8 @@ public class SingletonTypeTest extends AbstractTypesTest {
         test("true a;", "singleton-type/singleton_type_assert_04.json");
     }
 
-    //Recovery tests
+    // Recovery tests
+
     @Test
     public void testInValidSingletonTypeAsReturnType() {
         testTopLevelNode("singleton-type/singleton_type_source_05.bal",
@@ -62,7 +64,7 @@ public class SingletonTypeTest extends AbstractTypesTest {
     }
 
     @Test
-    public void testInValidModuleLevelSingletonType() {
+    public void testInvalidModuleLevelSingletonType() {
         test("+ % a;",
                 "singleton-type/singleton_type_assert_07.json");
     }

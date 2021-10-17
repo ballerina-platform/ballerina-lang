@@ -21,7 +21,6 @@ import io.ballerina.tools.diagnostics.Location;
 import io.netty.buffer.ByteBuf;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -88,11 +87,18 @@ public class BIRInstructionWriter extends BIRVisitor {
         bbList.forEach(bb -> bb.accept(this));
     }
 
-    void writeScopes(BIRAbstractInstruction instruction) {
+    void writeScopes(BIRNonTerminator instruction) {
         this.instructionOffset++;
         BirScope currentScope = instruction.scope;
 
         writeScope(currentScope);
+    }
+
+    void writeScope(BIRTerminator terminator) {
+        if (terminator.kind != InstructionKind.RETURN) {
+            BirScope currentScope = terminator.scope;
+            writeScope(currentScope);
+        }
     }
 
     private void writeScope(BirScope currentScope) {
@@ -138,6 +144,7 @@ public class BIRInstructionWriter extends BIRVisitor {
 
         // write pos and kind
         writePosition(terminator.pos);
+        writeScope(terminator);
         buf.writeByte(terminator.kind.getValue());
         // write instruction
         terminator.accept(this);

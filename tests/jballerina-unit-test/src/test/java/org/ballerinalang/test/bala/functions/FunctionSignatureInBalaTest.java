@@ -340,14 +340,14 @@ public class FunctionSignatureInBalaTest {
         int i = 0;
         validateError(resultNegative, i++, "missing required parameter 'b' in call to 'functionWithAllTypesParams()'",
                 4, 12);
-        validateError(resultNegative, i++, "named arg followed by positional arg", 4, 47);
-        validateError(resultNegative, i++, "named arg followed by positional arg", 4, 62);
-        validateError(resultNegative, i++, "named arg followed by positional arg", 4, 62);
+        validateError(resultNegative, i++, "positional argument not allowed after named arguments", 4, 56);
+        validateError(resultNegative, i++, "positional argument not allowed after named arguments", 4, 72);
+        validateError(resultNegative, i++, "positional argument not allowed after named arguments", 4, 76);
         validateError(resultNegative, i++, "missing required parameter 'b' in call to 'functionWithAllTypesParams()'",
                 9, 12);
-        validateError(resultNegative, i++, "named arg followed by positional arg", 9, 47);
-        validateError(resultNegative, i++, "rest arg followed by another arg", 9, 72);
+        validateError(resultNegative, i++, "positional argument not allowed after named arguments", 9, 56);
         validateError(resultNegative, i++, "rest argument not allowed after named arguments", 9, 72);
+        validateError(resultNegative, i++, "arguments not allowed after rest argument", 9, 82);
         validateError(resultNegative, i++, "rest argument not allowed after named arguments", 13, 78);
         validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 17, 53);
         validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 17, 61);

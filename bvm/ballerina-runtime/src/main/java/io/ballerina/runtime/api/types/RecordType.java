@@ -22,7 +22,7 @@ package io.ballerina.runtime.api.types;
  *
  * @since 2.0.0
  */
-public interface RecordType extends StructureType {
+public interface RecordType extends StructureType, SelectivelyImmutableReferenceType {
 
     boolean isSealed();
 

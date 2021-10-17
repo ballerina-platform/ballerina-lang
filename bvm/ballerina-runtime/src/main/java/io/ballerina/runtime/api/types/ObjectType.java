@@ -22,9 +22,25 @@ package io.ballerina.runtime.api.types;
  *
  * @since 2.0.0
  */
-public interface ObjectType extends StructureType {
+public interface ObjectType extends StructureType, SelectivelyImmutableReferenceType {
 
     void setMethods(MethodType[] methodTypes);
 
     MethodType[] getMethods();
+
+    /**
+     * Provides given @{@link ObjectType} is isolated.
+     *
+     * @return true if object is isolated otherwise false.
+     */
+    boolean isIsolated();
+
+    /**
+     * Provides given @{@link ObjectType} method is isolated.
+     *
+     * @param methodName method name
+     * @return true if @{@link ObjectType} method is isolated otherwise false.
+     */
+    boolean isIsolated(String methodName);
+
 }

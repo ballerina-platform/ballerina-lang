@@ -78,9 +78,6 @@
                             {
                               "kind": "IDENTIFIER_TOKEN",
                               "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_PRIVATE_QUALIFIER_IN_OBJECT_MEMBER_DESCRIPTOR"
-                              ],
                               "value": "age",
                               "leadingMinutiae": [
                                 {
@@ -95,9 +92,14 @@
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                    "hasDiagnostics": true,
                                     "children": [
                                       {
-                                        "kind": "PRIVATE_KEYWORD"
+                                        "kind": "PRIVATE_KEYWORD",
+                                        "hasDiagnostics": true,
+                                        "diagnostics": [
+                                          "ERROR_PRIVATE_QUALIFIER_IN_OBJECT_MEMBER_DESCRIPTOR"
+                                        ]
                                       }
                                     ]
                                   }
@@ -172,9 +174,6 @@
                         {
                           "kind": "IDENTIFIER_TOKEN",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_FIELD_INITIALIZATION_NOT_ALLOWED_IN_OBJECT_TYPE"
-                          ],
                           "value": "name",
                           "trailingMinutiae": [
                             {
@@ -185,9 +184,14 @@
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "hasDiagnostics": true,
                                 "children": [
                                   {
-                                    "kind": "EQUAL_TOKEN"
+                                    "kind": "EQUAL_TOKEN",
+                                    "hasDiagnostics": true,
+                                    "diagnostics": [
+                                      "ERROR_FIELD_INITIALIZATION_NOT_ALLOWED_IN_OBJECT_TYPE"
+                                    ]
                                   }
                                 ]
                               }

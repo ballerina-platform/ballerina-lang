@@ -301,7 +301,7 @@ function testUpdatingGuardedVar_2() returns string {
     } else {
         if (value is string) {
             value = value + " - updated once";
-            value = getUpdatedString(value);
+            value = getUpdatedString(<string> value);
         } else {
             return "an int or float";
         }
@@ -492,19 +492,6 @@ public function testUpdatingTypeNarrowedVar_1() returns string {
         string z = x;
         return "outer string: " + z;
     }
-}
-
-public function testUpdatingTypeNarrowedVar_2(int|string|boolean a) returns string {
-    int|string|boolean x = a;
-    if (x is int) {
-        if (x > 5) {
-            x = -1;
-        }
-        int z = x;
-        return "int: " + z.toString();
-    }
-
-    return "not an int";
 }
 
 public function testUpdatingTypeNarrowedVar_3() returns string {
@@ -1619,6 +1606,166 @@ function testIntersectionOfBuiltInSubTypeWithFiniteType() {
         Colour e2 = e;
         assertEquality("r", e2);
     }
+}
+
+type Quux record {|
+    int i;
+    boolean b?;
+|};
+
+type Corge record {|
+    byte i;
+    boolean|string b?;
+|};
+
+type Grault record {|
+    byte i = 101;
+    boolean b?;
+|};
+
+function testTypeDefinitionForNewTypeCreatedInTypeGuard() {
+    Grault rec = {};
+    Quux f = rec;
+    assertEquality(true, f is Corge);
+    if f is Corge {
+        var x = [f];
+        x[0] = {i: 1};
+        any v = x[0];
+        assertEquality(true, v is Grault);
+        assertEquality(false, v is record {| byte i = 101; boolean s; |});
+    }
+}
+
+public type SomeRecord record {
+    int intField;
+};
+
+public function testIfElseWithTypeTest() {
+    SomeRecord? c = {intField: 10};
+    SomeRecord? f = ();
+    any x = true;
+
+    if c is () {
+
+    } else if x is int {
+        c = f;
+    } else if (x is boolean) {
+        foo(c);
+    }
+}
+
+public function testIfElseWithTypeTestMultipleVariables() {
+    SomeRecord? c = {intField: 10};
+    SomeRecord? f = ();
+    SomeRecord|int|() g = 4;
+    any x = true;
+
+    if c is () {
+
+    } else if g is () {
+
+    } else if x is int {
+        c = f;
+        g = ();
+        g = 4;
+    } else if (x is boolean) {
+        foo(c);
+    } else if (g is SomeRecord) {
+        foo(g);
+    } else {
+        SomeRecord|int w = 4;
+        g = w;
+    }
+}
+
+public function testIfElseWithTypeTestMultipleVariablesInMultipleBlocks() {
+    SomeRecord? c = {intField: 10};
+    SomeRecord? f = ();
+    SomeRecord|int|() g = 4;
+    any x = true;
+
+    if c is () {
+        assertFalse(c is ());
+    } else if g is () {
+        assertFalse(g is ());
+    } else if x is int {
+        c = f;
+    } else if (x is float) {
+        assertFalse(x is float);
+         SomeRecord|int|() s = 5;
+         g = s;
+    } else if (x is boolean) {
+        assertTrue(x is boolean);
+        foo(c);
+    } else if (x is string) {
+        assertFalse(x is string);
+        goo(g);
+    } else {
+        SomeRecord|int w = 4;
+        g = w;
+    }
+}
+
+public function testIfElseWithTypeTestMultipleVariablesInNestedBlocks() {
+    SomeRecord? c = {intField: 10};
+    SomeRecord? f = ();
+    SomeRecord|int|() g = 4;
+    any x = true;
+
+    if c is () {
+        assertFalse(c is ());
+    } else if g is () {
+        assertFalse(g is ());
+    } else if x is int {
+        assertFalse(x is int);
+        c = f;
+        if (f is SomeRecord) {
+            hoo(c);
+            if (g is int) {
+                g = ();
+            } else {
+                SomeRecord s = g;
+                g = 4;
+                yoo(g);
+            }
+        }
+    } else if (x is float) {
+        assertFalse(x is float);
+         SomeRecord|int|() s = 5;
+         g = s;
+    } else if (x is boolean) {
+        assertTrue(x is boolean);
+        foo(c);
+    } else if (x is string) {
+        goo(g);
+    } else {
+        SomeRecord|int w = 4;
+        g = w;
+    }
+}
+
+function foo(SomeRecord aa) {
+    assertEquality(10, aa.intField);
+}
+
+function hoo(SomeRecord? aa) {
+
+}
+
+function goo(SomeRecord|int aa) {
+
+}
+
+function yoo(SomeRecord|int|() aa) {
+
+}
+
+function assertTrue(anydata actual) {
+    assertEquality(true, actual);
+}
+
+function assertFalse(anydata actual) {
+    assertEquality(false, actual);
 }
 
 function assertEquality(anydata expected, anydata actual) {

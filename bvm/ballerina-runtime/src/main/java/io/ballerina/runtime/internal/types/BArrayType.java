@@ -26,6 +26,8 @@ import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
+import java.util.Optional;
+
 /**
  * {@code BArrayType} represents a type of an arrays in Ballerina.
  * <p>
@@ -46,6 +48,7 @@ public class BArrayType extends BType implements ArrayType {
 
     private final boolean readonly;
     private IntersectionType immutableType;
+    private IntersectionType intersectionType = null;
 
     public BArrayType(Type elementType) {
         this(elementType, false);
@@ -182,12 +185,22 @@ public class BArrayType extends BType implements ArrayType {
     }
 
     @Override
-    public Type getImmutableType() {
+    public IntersectionType getImmutableType() {
         return this.immutableType;
     }
 
     @Override
     public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
+    }
+
+    @Override
+    public Optional<IntersectionType> getIntersectionType() {
+        return this.intersectionType ==  null ? Optional.empty() : Optional.of(this.intersectionType);
+    }
+
+    @Override
+    public void setIntersectionType(IntersectionType intersectionType) {
+        this.intersectionType = intersectionType;
     }
 }

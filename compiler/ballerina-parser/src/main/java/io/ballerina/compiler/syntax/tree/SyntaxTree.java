@@ -19,6 +19,7 @@ package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.BallerinaParser;
 import io.ballerina.compiler.internal.parser.ParserFactory;
+import io.ballerina.compiler.internal.parser.ParserRuleContext;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextDocument;
@@ -62,6 +63,34 @@ public class SyntaxTree {
         BallerinaParser parser = ParserFactory.getParser(oldTree, newTextDocument, textDocumentChange);
         return new SyntaxTree(parser.parse().createUnlinkedFacade(),
                 newTextDocument, oldTree.filePath(), false);
+    }
+
+    @Deprecated(forRemoval = true)
+    public static SyntaxTree asTopLevel(TextDocument textDocument) {
+        return from(ParserRuleContext.TOP_LEVEL_NODE, textDocument);
+    }
+
+    @Deprecated(forRemoval = true)
+    public static SyntaxTree asStatement(TextDocument textDocument) {
+        return from(ParserRuleContext.STATEMENT, textDocument);
+    }
+
+    @Deprecated(forRemoval = true)
+    public static SyntaxTree asStatements(TextDocument textDocument) {
+        return from(ParserRuleContext.STATEMENTS, textDocument);
+    }
+
+    @Deprecated(forRemoval = true)
+    public static SyntaxTree asExpression(TextDocument textDocument) {
+        return from(ParserRuleContext.EXPRESSION, textDocument);
+    }
+
+    @Deprecated(forRemoval = true)
+    private static SyntaxTree from(ParserRuleContext context, TextDocument textDocument) {
+        // TODO: Remove other APIs such as asStatement(), once ParserRuleContext is exposed to outside.
+        BallerinaParser parser = ParserFactory.getParser(textDocument);
+        return new SyntaxTree(parser.parse(context).createUnlinkedFacade(),
+                textDocument, null, false);
     }
 
     public TextDocument textDocument() {

@@ -48,7 +48,7 @@ public class SpanContextTestCase extends TracingBaseTestCase {
         Map<String, Object> spanContext = new Gson().fromJson(data, type);
 
         List<BMockSpan> spanList = getFinishedSpans("testServiceSeven",
-                "intg_tests/tracing_tests:0.0.1", "/resourceOne");
+                DEFAULT_MODULE_ID, "/resourceOne");
         Optional<BMockSpan> span1 = spanList.stream()
                 .filter(bMockSpan -> bMockSpan.getTags().get("src.position").equals(FILE_NAME + ":22:5"))
                 .findFirst();

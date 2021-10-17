@@ -141,3 +141,156 @@ function testInvalidFieldAccessOnInvocation2() {
 function getNonFieldAccessibleValue() returns Foo[] {
     return [];
 }
+
+type R1 record {|
+    int x;
+|};
+
+type R2 record {|
+    int y;
+    R1 r1;
+|};
+
+function testUndeclared(R2 r2) {
+    int a = r2.r1.a;
+}
+
+type R3 record {|
+    int x;
+    int y?;
+|};
+
+function testOptionalInClosedRecord(R3 r) {
+    int a = r.y;
+}
+
+type R4 record {
+    int x;
+    int y?;
+};
+
+function testOptionalInOpenRecord(R4 r) {
+    int a = r.y;
+}
+
+type R5 record {
+    int x;
+};
+
+function testRestDeclaredInRuntime() {
+    R5 r = {x:1, "y":2};
+    anydata a = r.y;
+}
+
+type R6 record {
+    int x;
+};
+
+function testUndeclaredInOpenRecord() {
+    R6 r = {x:1};
+    anydata a = r.y;
+}
+
+type R7 record {|
+    int x;
+    int|string...;
+|};
+
+
+function exclusiveRecordTypeWithRestField() {
+    R7 r = {x:1};
+    anydata a = r.y;
+}
+
+type RA record {
+    int a;
+    int b;
+    int c;
+    int x;
+    int y;
+    int z;
+};
+
+type SA record {
+    int a?;
+    int b?;
+    int c;
+    int z;
+};
+
+type TA record {|
+    int a;
+    int b;
+    int c?;
+    int x;
+    int y;
+|};
+
+type UA record {
+    int a?;
+    int b?;
+    int c;
+    int z;
+};
+
+type VA record {|
+    int a?;
+    int b;
+    int c;
+    int y;
+    int z;
+|};
+
+function testUndeclaredFieldInUnion() {
+    RA r = {a: 1, b: 2, c: 3, x: 4, y: 5, z: 6};
+    (RA|SA|TA|UA|VA) rstuv = r;
+    anydata a = rstuv.a;
+    anydata b = rstuv.b;
+    anydata c = rstuv.c;
+
+    anydata x = rstuv.x;
+    anydata y = rstuv.y;
+    anydata z = rstuv.z;
+}
+
+type PB record {
+    int x;
+    int y;
+    string z;
+};
+
+type QB record {
+    int x?;
+    string z?;
+};
+
+type RB record {
+    int y?;
+};
+
+type SB record {
+    int x?;
+    int y;
+};
+
+type TB record {
+    string z?;
+};
+
+type UB record {
+    int y?;
+    string z;
+};
+
+type VB record {
+    int x?;
+    int y?;
+};
+
+function testUndeclaredAndOptional() {
+    PB r = {x: 5, y: 6, z: "test"};
+    (PB|QB|RB|SB|TB|UB|VB) pqrstuv = r;
+    anydata x = pqrstuv.x;
+    anydata y = pqrstuv.y;
+    anydata z = pqrstuv.z;
+}

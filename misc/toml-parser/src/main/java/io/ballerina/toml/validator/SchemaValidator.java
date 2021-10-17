@@ -173,6 +173,26 @@ public class SchemaValidator extends TomlNodeVisitor {
         return typeCustomMessage;
     }
 
+    private String getMaxLengthErrorMessage(int maxLength) {
+        Map<String, String> message = this.schema.message();
+        String typeCustomMessage = message.get(SchemaDeserializer.MAX_LENGTH);
+        if (typeCustomMessage == null) {
+            return String.format("length of the value for key '%s' is greater than defined max length %s", this.key,
+                    maxLength);
+        }
+        return typeCustomMessage;
+    }
+
+    private String getMinLengthErrorMessage(int maxLength) {
+        Map<String, String> message = this.schema.message();
+        String typeCustomMessage = message.get(SchemaDeserializer.MIN_LENGTH);
+        if (typeCustomMessage == null) {
+            return String.format("length of the value for key '%s' is lower than defined min length %s", this.key,
+                    maxLength);
+        }
+        return typeCustomMessage;
+    }
+
     @Override
     public void visit(TomlStringValueNode tomlStringValueNode) {
         if (schema.type() != Type.STRING) {
@@ -189,6 +209,24 @@ public class SchemaValidator extends TomlNodeVisitor {
             if (!Pattern.compile(pattern).matcher(tomlStringValueNode.getValue()).matches()) {
                 TomlDiagnostic diagnostic = getTomlDiagnostic(tomlStringValueNode.location(), "TVE0003",
                         "error.regex.mismatch", DiagnosticSeverity.ERROR, getPatternErrorMessage(pattern));
+                tomlStringValueNode.addDiagnostic(diagnostic);
+            }
+        }
+        if (stringSchema.maxLength().isPresent()) {
+            int maxLength = stringSchema.maxLength().get();
+            String value = tomlStringValueNode.getValue();
+            if (value.length() > maxLength) {
+                TomlDiagnostic diagnostic = getTomlDiagnostic(tomlStringValueNode.location(), "TVE0007",
+                        "error.maxlen.exceeded", DiagnosticSeverity.ERROR, getMaxLengthErrorMessage(maxLength));
+                tomlStringValueNode.addDiagnostic(diagnostic);
+            }
+        }
+        if (stringSchema.minLength().isPresent()) {
+            int minLength = stringSchema.minLength().get();
+            String value = tomlStringValueNode.getValue();
+            if (value.length() < minLength) {
+                TomlDiagnostic diagnostic = getTomlDiagnostic(tomlStringValueNode.location(), "TVE0008",
+                        "error.minlen.deceed", DiagnosticSeverity.ERROR, getMinLengthErrorMessage(minLength));
                 tomlStringValueNode.addDiagnostic(diagnostic);
             }
         }
@@ -316,7 +354,10 @@ public class SchemaValidator extends TomlNodeVisitor {
             String key = topLevelNode.key().name();
             AbstractSchema abstractSchema = properties.get(key);
             requiredFields.remove(key);
-            visitNode(topLevelNode, abstractSchema, key);
+            if (abstractSchema != null) {
+                visitNode(topLevelNode, abstractSchema, key);
+                continue;
+            }
             if (!schema.hasAdditionalProperties()) {
                 DiagnosticInfo diagnosticInfo = new DiagnosticInfo("TVE0001", "error.unexpected.property",
                         DiagnosticSeverity.ERROR);

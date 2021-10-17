@@ -61,6 +61,7 @@ class BallerinaLangLibBuildTask extends JavaExec {
 
     @Override
     void exec() {
+//        jvmArgs '-Xdebug', '-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005'
         def args = []
         args << projectDir
         args << distCache
@@ -99,7 +100,7 @@ ext.modName = project.projectDir.name
 def ballerinaConfigFile = new File("${project.projectDir}/src/main/ballerina/Ballerina.toml")
 def ballerinaConfigFileContent = ballerinaConfigFile.text
 def modOrg = (ballerinaConfigFileContent =~ /org = "(.+)"/)[0][1]
-def modVersion = (ballerinaConfigFileContent =~ /version = "(.+)"/)[0][1]
+def modVersion = "0.0.0"
 def jarFileName = modOrg + "-" + project.ext.modName + "-" + modVersion
 
 task copyBallerinaProject(type: Copy) {

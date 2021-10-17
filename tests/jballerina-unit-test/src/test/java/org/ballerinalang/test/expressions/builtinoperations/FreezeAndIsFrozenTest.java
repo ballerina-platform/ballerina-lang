@@ -130,6 +130,11 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test
+    public void testRecordWithEnumFreeze() {
+        BRunUtil.invoke(result, "testRecordWithEnumFreeze");
+    }
+
+    @Test
     public void testBasicTypeNullableUnionFreeze() {
         BValue[] returns = BRunUtil.invoke(result, "testBasicTypeNullableUnionFreeze", new BValue[]{});
         Assert.assertEquals(returns.length, 2);
@@ -317,6 +322,11 @@ public class FreezeAndIsFrozenTest {
         BRunUtil.invoke(result, "testFrozenTupleUpdate", new BValue[0]);
     }
 
+    @Test
+    public void testFrozenRecursiveTupleUpdate() {
+        BRunUtil.invoke(result, "testFrozenRecursiveTupleUpdate");
+    }
+
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InherentTypeViolation \\{\"message\":" +
                     "\"cannot update 'readonly' field 'name' in record of type '\\(DeptEmployee & readonly\\)'\".*")
@@ -362,6 +372,11 @@ public class FreezeAndIsFrozenTest {
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be readonly since no error " +
                 "was encountered");
+    }
+
+    @Test
+    public void testRecursiveTupleFreeze() {
+        BRunUtil.invoke(result, "testRecursiveTupleFreeze");
     }
 
     @Test(description = "test an array of type not purely anydata, a combination of anydata and non-anydata")
@@ -446,58 +461,58 @@ public class FreezeAndIsFrozenTest {
         Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 20);
         int index = 0;
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found 'PersonObj'", 19, 39);
+                "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found 'PersonObj'", 19, 39);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found 'map<PersonObj>'", 24, 9);
+                "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found 'map<PersonObj>'", 24, 9);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found 'PersonObj[]'", 29, 9);
+                "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found 'PersonObj[]'", 29, 9);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found '" +
+                      "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found '" +
                               "(PersonObjTwo|PersonObj)?[]'", 32, 10);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found '[" +
+                      "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found '[" +
                               "(PersonObj|PersonObjTwo),PersonObjTwo]'",
                 39, 9);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found 'Department'", 44, 9);
+                "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found 'Department'", 44, 9);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found 'map<" +
+                      "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found 'map<" +
                               "(string|PersonObj)>'", 49, 32);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found 'map<[(string|PersonObj)," +
+                "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found 'map<[(string|PersonObj)," +
                         "(FreezeAllowedDepartment|float)]>'", 52, 26);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found '" +
+                      "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found '" +
                               "(boolean|PersonObj|float)?[]'", 55, 39);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found '" +
+                      "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found '" +
                               "(boolean|PersonObj|float)?[]'", 57, 16);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found '[(string|PersonObj),"
+                "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found '[(string|PersonObj),"
                 + "(FreezeAllowedDepartment|float)]'", 60, 60);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found " +
+                "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found " +
                         "'FreezeAllowedDepartment'", 63, 35);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found '(string|PersonObj)'", 66
+                "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found '(string|PersonObj)'", 66
                 , 27);
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'any', found 'error'", 71, 9);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found 'map<(string|PersonObj)" +
+                "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found 'map<(string|PersonObj)" +
                         ">'", 81, 39);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found '" +
+                "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found '" +
                         "(string|stream<int>|float)?[]'", 92, 47);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found " +
+                "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found " +
                         "'FreezeAllowedDepartment2'", 100, 42);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found '[int," +
+                "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found '[int," +
                         "(string|PersonObj|float),boolean]'",
                 106, 21);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found '" +
+                "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found '" +
                         "(int|Department|PersonObj)'", 113, 42);
         validateError(semanticsNegativeResult, index,
                 "incompatible types: expected 'anydata', found '((anydata & readonly)|error)'", 120, 19);

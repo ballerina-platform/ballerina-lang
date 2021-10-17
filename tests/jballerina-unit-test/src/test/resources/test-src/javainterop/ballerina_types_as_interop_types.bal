@@ -137,7 +137,7 @@ public function interopWithAnyReturn() returns boolean {
     return true;
 }
 
-public function acceptIntAnyReturn(int s) returns any= @java:Method {
+public function acceptIntAnyReturn(int s) returns any = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
     name:"acceptIntAnyReturn"
 } external;
@@ -155,15 +155,23 @@ public function interopWithAnydataReturn() returns boolean {
     if (!(c is float)) {
         return false;
     }
-    var d = acceptIntAnydataReturn(-1);
-    if (!(d is boolean)) {
+    var d = acceptIntAnydataReturn(4);
+    if (!(d is ())) {
+        return false;
+    }
+    var e = acceptIntAnydataReturn(5);
+    if (!(e is anydata)) {
+        return false;
+    }
+    var f = acceptIntAnydataReturn(-1);
+    if (!(f is boolean)) {
         return false;
     }
     return true;
 }
 
 public function interopWithJavaStringReturn() returns anydata {
-    return acceptNothingInvalidAnyReturn();
+    return acceptNothingInvalidAnydataReturn();
 }
 
 public function interopWithHandleOrErrorReturn() {
@@ -180,12 +188,12 @@ public function interopWithHandleOrErrorReturn() {
     test:assertEquals(messageString, "Invalid state");
 }
 
-public function acceptIntAnydataReturn(int s) returns anydata= @java:Method {
+public function acceptIntAnydataReturn(int s) returns anydata = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
     name:"acceptIntUnionReturn"
 } external;
 
-public function acceptNothingInvalidAnyReturn() returns anydata = @java:Method {
+public function acceptNothingInvalidAnydataReturn() returns anydata = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 

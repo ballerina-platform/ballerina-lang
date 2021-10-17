@@ -86,15 +86,39 @@
                       "hasDiagnostics": true,
                       "diagnostics": [
                         "ERROR_MISSING_OPEN_PAREN_TOKEN"
+                      ],
+                      "leadingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
+                            "children": [
+                              {
+                                "kind": "LISTENER_KEYWORD",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_INVALID_TOKEN"
+                                ]
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
                       ]
                     },
                     {
                       "kind": "LIST",
-                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "DEFAULTABLE_PARAM",
-                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
@@ -102,36 +126,10 @@
                             },
                             {
                               "kind": "QUALIFIED_NAME_REFERENCE",
-                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_INVALID_TOKEN"
-                                  ],
-                                  "value": "udp",
-                                  "leadingMinutiae": [
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    },
-                                    {
-                                      "kind": "INVALID_NODE_MINUTIAE",
-                                      "invalidNode": {
-                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                        "children": [
-                                          {
-                                            "kind": "LISTENER_KEYWORD"
-                                          }
-                                        ]
-                                      }
-                                    },
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "value": "udp"
                                 },
                                 {
                                   "kind": "COLON_TOKEN"
@@ -507,6 +505,36 @@
                       "hasDiagnostics": true,
                       "diagnostics": [
                         "ERROR_MISSING_OPEN_PAREN_TOKEN"
+                      ],
+                      "leadingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
+                            "children": [
+                              {
+                                "kind": "PUBLIC_KEYWORD",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_INVALID_TOKEN"
+                                ]
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
                       ]
                     },
                     {
@@ -537,7 +565,6 @@
         },
         {
           "kind": "FUNCTION_DEFINITION",
-          "hasDiagnostics": true,
           "children": [
             {
               "kind": "LIST",
@@ -545,29 +572,10 @@
             },
             {
               "kind": "FUNCTION_KEYWORD",
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_INVALID_TOKEN"
-              ],
               "leadingMinutiae": [
                 {
                   "kind": "END_OF_LINE_MINUTIAE",
                   "value": "\n"
-                },
-                {
-                  "kind": "INVALID_NODE_MINUTIAE",
-                  "invalidNode": {
-                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                    "children": [
-                      {
-                        "kind": "PUBLIC_KEYWORD"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
                 }
               ],
               "trailingMinutiae": [

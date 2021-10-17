@@ -24,8 +24,6 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.ConfigValue;
@@ -53,9 +51,9 @@ import static io.ballerina.runtime.test.TestUtils.getConfigPath;
  */
 public class ConfigTest {
 
-    private static final Module module = new Module("myOrg", "test_module", "1.0.0");
+    private static final Module module = new Module("myOrg", "test_module", "1");
 
-    private static final Module ROOT_MODULE = new Module("rootOrg", "mod12", "1.0.0");
+    private static final Module ROOT_MODULE = new Module("rootOrg", "mod12", "1");
     private static final Type[] COLOR_ENUM_MEMBERS = new Type[]{
             new BFiniteType("Colors", Set.of(StringUtils.fromString("RED")), 0),
             new BFiniteType("Colors", Set.of(StringUtils.fromString("GREEN")), 0)};
@@ -122,13 +120,6 @@ public class ConfigTest {
                 {new VariableKey(module, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true), DecimalValue.class,
                         new DecimalValue("876.54"),
                         new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.decimalVar=876.54")},
-                // Xml value given only with cli
-                {new VariableKey(module, "xmlVar",
-                                 new BIntersectionType(module, new Type[]{}, PredefinedTypes.TYPE_XML, 0, true),
-                                 true),
-                        BXml.class, TypeConverter.stringToXml("<book>The Lost World</book>\n<!--I am a comment-->"),
-                        new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.xmlVar=<book>The Lost World</book>\n<!--I " +
-                                "am a comment-->")},
                 // Multiple provider but use the first registered provider ( CLI arg as final value)
                 {new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 42L,
                         new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.intVar=13579"),

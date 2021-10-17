@@ -22,10 +22,10 @@ import org.testng.annotations.Test;
 /**
  * Test parsing stream type.
  */
-
 public class StreamTypeTest extends AbstractTypesTest {
 
     // Valid source tests
+
     @Test
     public void testValidLocalLevelStreamTypes() {
         testTopLevelNode("stream-type/stream_type_source_01.bal", "stream-type/stream_type_assert_01.json");
@@ -47,6 +47,7 @@ public class StreamTypeTest extends AbstractTypesTest {
     }
 
     // Recovery tests
+
     @Test
     public void testInValidLocalLevelStreamTypes() {
         testTopLevelNode("stream-type/stream_type_source_05.bal", "stream-type/stream_type_assert_05.json");

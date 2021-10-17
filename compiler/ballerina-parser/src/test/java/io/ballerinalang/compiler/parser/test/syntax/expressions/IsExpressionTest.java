@@ -46,6 +46,11 @@ public class IsExpressionTest extends AbstractExpressionsTest {
         testFile("is-expr/is_expr_assert_07.bal", "is-expr/is_expr_assert_07.json");
     }
 
+    @Test
+    public void testSimpleNotIsExpr() {
+        test("3 !is int", "is-expr/is_expr_assert_08.json");
+    }
+
     // Recovery test
 
     @Test
@@ -61,5 +66,21 @@ public class IsExpressionTest extends AbstractExpressionsTest {
     @Test
     public void testIsExprRecovery() {
         test("x a is b c is d", "is-expr/is_expr_assert_06.json");
+    }
+
+    @Test
+    public void testNotIsExprRecoveryInIfStmt() {
+        testFile("is-expr/is_expr_source_09.bal", "is-expr/is_expr_assert_09.json");
+        testFile("is-expr/is_expr_source_12.bal", "is-expr/is_expr_assert_12.json");
+    }
+
+    @Test
+    public void testNotIsExprWithMissingTypeDescriptor() {
+        test("3 !is", "is-expr/is_expr_assert_10.json");
+    }
+
+    @Test
+    public void testNotIsExprWithMissingExpr() {
+        test("!is int", "is-expr/is_expr_assert_11.json");
     }
 }

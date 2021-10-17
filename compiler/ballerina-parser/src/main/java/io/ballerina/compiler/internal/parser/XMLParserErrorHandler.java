@@ -31,7 +31,7 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] XML_CONTENT =
             { ParserRuleContext.XML_START_OR_EMPTY_TAG, ParserRuleContext.XML_TEXT, ParserRuleContext.XML_END_TAG,
-                    ParserRuleContext.XML_COMMENT_START, ParserRuleContext.XML_PI };
+                    ParserRuleContext.XML_COMMENT_START, ParserRuleContext.XML_PI, ParserRuleContext.XML_CDATA_START };
 
     private static final ParserRuleContext[] XML_ATTRIBUTES =
             { ParserRuleContext.XML_ATTRIBUTE, ParserRuleContext.XML_START_OR_EMPTY_TAG_END };
@@ -45,13 +45,26 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] XML_PI_TARGET_RHS =
             { ParserRuleContext.XML_PI_END, ParserRuleContext.XML_PI_DATA };
 
+    private static final ParserRuleContext[] XML_OPTIONAL_CDATA_CONTENT =
+            { ParserRuleContext.XML_CDATA_END, ParserRuleContext.XML_CDATA_CONTENT };
+
     public XMLParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
 
     @Override
     protected boolean hasAlternativePaths(ParserRuleContext currentCtx) {
-        return false;
+        switch (currentCtx) {
+            case XML_CONTENT:
+            case XML_ATTRIBUTES:
+            case XML_START_OR_EMPTY_TAG_END:
+            case XML_ATTRIBUTE_VALUE_ITEM:
+            case XML_PI_TARGET_RHS:
+            case XML_OPTIONAL_CDATA_CONTENT:
+                return true;
+            default:
+                return false;
+        }
     }
 
     @Override
@@ -92,21 +105,13 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                 case ASSIGN_OP:
                     hasMatch = nextToken.kind == SyntaxKind.EQUAL_TOKEN;
                     break;
-                case XML_CONTENT:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, XML_CONTENT,
-                            isEntryPoint);
-                case XML_ATTRIBUTES:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, XML_ATTRIBUTES,
-                            isEntryPoint);
-                case XML_START_OR_EMPTY_TAG_END:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
-                            XML_START_OR_EMPTY_TAG_END, isEntryPoint);
                 case XML_COMMENT_START:
                     hasMatch = nextToken.kind == SyntaxKind.XML_COMMENT_START_TOKEN;
                     break;
                 case XML_COMMENT_CONTENT:
                 case XML_ATTRIBUTE_VALUE_TEXT:
                 case XML_PI_DATA:
+                case XML_CDATA_CONTENT:
                     hasMatch = nextToken.kind == SyntaxKind.XML_TEXT_CONTENT;
                     break;
                 case XML_COMMENT_END:
@@ -123,14 +128,17 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.DOUBLE_QUOTE_TOKEN ||
                             nextToken.kind == SyntaxKind.SINGLE_QUOTE_TOKEN;
                     break;
-                case XML_ATTRIBUTE_VALUE_ITEM:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
-                            XML_ATTRIBUTE_VALUE_ITEM, isEntryPoint);
-                case XML_PI_TARGET_RHS:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, XML_PI_TARGET_RHS,
-                            isEntryPoint);
-
+                case XML_CDATA_START:
+                    hasMatch = nextToken.kind == SyntaxKind.XML_CDATA_START_TOKEN;
+                    break;
+                case XML_CDATA_END:
+                    hasMatch = nextToken.kind == SyntaxKind.XML_CDATA_END_TOKEN;
+                    break;
                 default:
+                    if (hasAlternativePaths(currentCtx)) {
+                        return seekMatchInAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
+                                isEntryPoint);
+                    }
                     // Stay at the same place
                     skipRule = true;
                     hasMatch = true;
@@ -155,6 +163,35 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
         result.solution =
                 new Solution(Action.KEEP, currentCtx, getExpectedTokenKind(currentCtx), currentCtx.toString());
         return result;
+    }
+
+    private Result seekMatchInAlternativePaths(ParserRuleContext currentCtx, int lookahead, int currentDepth,
+                                               int matchingRulesCount, boolean isEntryPoint) {
+        ParserRuleContext[] alternativeRules;
+        switch (currentCtx) {
+            case XML_CONTENT:
+                alternativeRules = XML_CONTENT;
+                break;
+            case XML_ATTRIBUTES:
+                alternativeRules = XML_ATTRIBUTES;
+                break;
+            case XML_START_OR_EMPTY_TAG_END:
+                alternativeRules = XML_START_OR_EMPTY_TAG_END;
+                break;
+            case XML_ATTRIBUTE_VALUE_ITEM:
+                alternativeRules = XML_ATTRIBUTE_VALUE_ITEM;
+                break;
+            case XML_PI_TARGET_RHS:
+                alternativeRules = XML_PI_TARGET_RHS;
+                break;
+            case XML_OPTIONAL_CDATA_CONTENT:
+                alternativeRules = XML_OPTIONAL_CDATA_CONTENT;
+                break;
+            default:
+                throw new IllegalStateException("seekMatchInExprRelatedAlternativePaths found: " + currentCtx);
+        }
+
+        return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules, isEntryPoint);
     }
 
     @Override
@@ -237,6 +274,12 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
             case XML_QUOTE_START:
             case XML_ATTRIBUTE_VALUE_TEXT:
                 return ParserRuleContext.XML_ATTRIBUTE_VALUE_ITEM;
+            case XML_CDATA_START:
+                return ParserRuleContext.XML_OPTIONAL_CDATA_CONTENT;
+            case XML_CDATA_CONTENT:
+                return ParserRuleContext.XML_CDATA_END;
+            case XML_CDATA_END:
+                return ParserRuleContext.XML_CONTENT;
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -287,6 +330,8 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
             case XML_QUOTE_END:
             case XML_QUOTE_START:
                 return SyntaxKind.DOUBLE_QUOTE_TOKEN;
+            case XML_CDATA_END:
+                return SyntaxKind.XML_CDATA_END_TOKEN;
             default:
                 return SyntaxKind.NONE;
         }

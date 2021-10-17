@@ -256,7 +256,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private boolean flowTerminated = false;
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
-    private Deque<BSymbol> currDependentSymbol;
+    private Deque<BSymbol> currDependentSymbolDeque;
     private final GlobalVariableRefAnalyzer globalVariableRefAnalyzer;
 
     private DataflowAnalyzer(CompilerContext context) {
@@ -266,7 +266,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
-        this.currDependentSymbol = new ArrayDeque<>();
+        this.currDependentSymbolDeque = new ArrayDeque<>();
         this.globalVariableRefAnalyzer = GlobalVariableRefAnalyzer.getInstance(context);
 
     }
@@ -350,13 +350,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeModuleInitFunc(BLangFunction funcNode) {
-        this.currDependentSymbol.push(funcNode.symbol);
+        this.currDependentSymbolDeque.push(funcNode.symbol);
         SymbolEnv moduleInitFuncEnv = SymbolEnv.createModuleInitFunctionEnv(funcNode, funcNode.symbol.scope, env);
         for (BLangAnnotationAttachment bLangAnnotationAttachment : funcNode.annAttachments) {
             analyzeNode(bLangAnnotationAttachment.expr, env);
         }
         analyzeNode(funcNode.body, moduleInitFuncEnv);
-        this.currDependentSymbol.pop();
+        this.currDependentSymbolDeque.pop();
     }
 
     private void checkForUninitializedGlobalVars(List<BLangVariable> globalVars) {
@@ -374,13 +374,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
-        this.currDependentSymbol.push(funcNode.symbol);
+        this.currDependentSymbolDeque.push(funcNode.symbol);
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         funcNode.annAttachments.forEach(bLangAnnotationAttachment -> analyzeNode(bLangAnnotationAttachment.expr, env));
         funcNode.requiredParams.forEach(param -> analyzeNode(param, funcEnv));
         analyzeNode(funcNode.restParam, funcEnv);
         analyzeBranch(funcNode.body, funcEnv);
-        this.currDependentSymbol.pop();
+        this.currDependentSymbolDeque.pop();
     }
 
     @Override
@@ -427,14 +427,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService service) {
-        this.currDependentSymbol.push(service.serviceClass.symbol);
+        this.currDependentSymbolDeque.push(service.serviceClass.symbol);
         for (BLangExpression attachedExpr : service.attachedExprs) {
             analyzeNode(attachedExpr, env);
         }
 
         service.annAttachments.forEach(bLangAnnotationAttachment -> analyzeNode(bLangAnnotationAttachment.expr, env));
         service.resourceFunctions.forEach(function -> analyzeNode(function, env));
-        this.currDependentSymbol.pop();
+        this.currDependentSymbolDeque.pop();
     }
 
     @Override
@@ -444,15 +444,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
         SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeDefinition.typeNode, typeDefinition.symbol.scope, env);
-        this.currDependentSymbol.push(typeDefinition.symbol);
+        this.currDependentSymbolDeque.push(typeDefinition.symbol);
         analyzeNode(typeDefinition.typeNode, typeDefEnv);
-        this.currDependentSymbol.pop();
+        this.currDependentSymbolDeque.pop();
     }
 
     @Override
     public void visit(BLangClassDefinition classDefinition) {
         SymbolEnv objectEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, env);
-        this.currDependentSymbol.push(classDefinition.symbol);
+        this.currDependentSymbolDeque.push(classDefinition.symbol);
 
         classDefinition.fields.forEach(field -> analyzeNode(field, objectEnv));
         classDefinition.referencedFields.forEach(field -> analyzeNode(field, objectEnv));
@@ -493,12 +493,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         classDefinition.functions.forEach(function -> analyzeNode(function, env));
         classDefinition.typeRefs.forEach(type -> analyzeNode(type, env));
-        this.currDependentSymbol.pop();
+        this.currDependentSymbolDeque.pop();
     }
 
     @Override
     public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
         visit(objectConstructorExpression.typeInit);
+        addDependency(objectConstructorExpression.getBType().tsymbol, objectConstructorExpression.classNode.symbol);
     }
 
     @Override
@@ -523,14 +524,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        this.currDependentSymbol.push(symbol);
+        this.currDependentSymbolDeque.push(symbol);
         if (variable.typeNode != null && variable.typeNode.getBType() != null) {
             recordGlobalVariableReferenceRelationship(variable.typeNode.getBType().tsymbol);
         }
         boolean withInModuleVarLetExpr = symbol.owner.tag == SymTag.LET && isGlobalVarSymbol(env.enclVarSym);
         if (withInModuleVarLetExpr) {
             BVarSymbol dependentVar = env.enclVarSym;
-            this.currDependentSymbol.push(dependentVar);
+            this.currDependentSymbolDeque.push(dependentVar);
         }
         try {
             if (variable.isDeclaredWithVar) {
@@ -555,10 +556,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
             addUninitializedVar(variable);
         } finally {
-            if (withInModuleVarLetExpr) {
-                this.currDependentSymbol.pop();
+            if (withInModuleVarLetExpr) { // double pop
+                this.currDependentSymbolDeque.pop();
             }
-            this.currDependentSymbol.pop();
+            this.currDependentSymbolDeque.pop();
         }
     }
 
@@ -1043,6 +1044,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
+        if (!nsPrefixedFieldBasedAccess.isLValue && isObjectMemberAccessWithSelf(nsPrefixedFieldBasedAccess)) {
+            checkVarRef(nsPrefixedFieldBasedAccess.symbol, nsPrefixedFieldBasedAccess.pos);
+        }
+        analyzeNode(nsPrefixedFieldBasedAccess.expr, env);
+    }
+
+    @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         analyzeNode(indexAccessExpr.expr, env);
         analyzeNode(indexAccessExpr.indexExpr, env);
@@ -1100,7 +1109,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
         } else if (invocationExpr.symbol != null && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
             BInvokableSymbol invokableProviderSymbol = (BInvokableSymbol) invocationExpr.symbol;
-            BSymbol curDependent = this.currDependentSymbol.peek();
+            BSymbol curDependent = this.currDependentSymbolDeque.peek();
             if (curDependent != null && isGlobalVarSymbol(curDependent)) {
                 addDependency(curDependent, invokableProviderSymbol);
             }
@@ -1327,8 +1336,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeInit typeInitExpr) {
         typeInitExpr.argsExpr.forEach(argExpr -> analyzeNode(argExpr, env));
-        if (this.currDependentSymbol.peek() != null) {
-            addDependency(this.currDependentSymbol.peek(), typeInitExpr.getBType().tsymbol);
+        if (this.currDependentSymbolDeque.peek() != null) {
+            addDependency(this.currDependentSymbolDeque.peek(), typeInitExpr.getBType().tsymbol);
         }
     }
 
@@ -1563,13 +1572,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangConstant constant) {
         boolean validVariable = constant.symbol != null;
         if (validVariable) {
-            this.currDependentSymbol.push(constant.symbol);
+            this.currDependentSymbolDeque.push(constant.symbol);
         }
         try {
             analyzeNode(constant.expr, env);
         } finally {
             if (validVariable) {
-                this.currDependentSymbol.pop();
+                this.currDependentSymbolDeque.pop();
             }
         }
     }
@@ -1605,15 +1614,19 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
-        if (this.currDependentSymbol.isEmpty()) {
+        if (this.currDependentSymbolDeque.isEmpty()) {
             return;
         }
-        BTypeSymbol tsymbol = userDefinedType.getBType().tsymbol;
-        BSymbol pop = this.currDependentSymbol.pop();
-        this.currDependentSymbol.push(tsymbol);
+        BType resolvedType = userDefinedType.getBType();
+        if (resolvedType == symTable.semanticError) {
+            return;
+        }
+        BTypeSymbol tsymbol = resolvedType.tsymbol;
+        BSymbol pop = this.currDependentSymbolDeque.pop();
+        this.currDependentSymbolDeque.push(tsymbol);
         recordGlobalVariableReferenceRelationship(pop);
-        this.currDependentSymbol.pop();
-        this.currDependentSymbol.push(pop);
+        this.currDependentSymbolDeque.pop();
+        this.currDependentSymbolDeque.push(pop);
     }
 
     @Override
@@ -1736,8 +1749,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
-        if (this.currDependentSymbol.peek() != null) {
-            addDependency(this.currDependentSymbol.peek(), serviceConstructorExpr.getBType().tsymbol);
+        if (this.currDependentSymbolDeque.peek() != null) {
+            addDependency(this.currDependentSymbolDeque.peek(), serviceConstructorExpr.getBType().tsymbol);
         }
 
         addDependency(serviceConstructorExpr.getBType().tsymbol, serviceConstructorExpr.serviceNode.symbol);
@@ -1799,9 +1812,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
         analyzeNode(bLangTupleVariable.typeNode, env);
-        this.currDependentSymbol.push(bLangTupleVariable.symbol);
+        this.currDependentSymbolDeque.push(bLangTupleVariable.symbol);
         analyzeNode(bLangTupleVariable.expr, env);
-        this.currDependentSymbol.pop();
+        this.currDependentSymbolDeque.pop();
     }
 
     @Override
@@ -1812,9 +1825,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
         analyzeNode(bLangRecordVariable.typeNode, env);
-        this.currDependentSymbol.push(bLangRecordVariable.symbol);
+        this.currDependentSymbolDeque.push(bLangRecordVariable.symbol);
         analyzeNode(bLangRecordVariable.expr, env);
-        this.currDependentSymbol.pop();
+        this.currDependentSymbolDeque.pop();
     }
 
     @Override
@@ -1825,9 +1838,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
         analyzeNode(bLangErrorVariable.typeNode, env);
-        this.currDependentSymbol.push(bLangErrorVariable.symbol);
+        this.currDependentSymbolDeque.push(bLangErrorVariable.symbol);
         analyzeNode(bLangErrorVariable.expr, env);
-        this.currDependentSymbol.pop();
+        this.currDependentSymbolDeque.pop();
     }
 
     @Override
@@ -1939,7 +1952,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         // Restrict to observations made in pkg level.
         if (isInPkgLevel && (globalVarSymbol || symbol instanceof BTypeSymbol)
             || (ownerSymbol.tag == SymTag.LET && globalVarSymbol)) {
-            BSymbol dependent = this.currDependentSymbol.peek();
+            BSymbol dependent = this.currDependentSymbolDeque.peek();
             addDependency(dependent, symbol);
         } else if (ownerSymbol.kind == SymbolKind.FUNCTION && globalVarSymbol) {
             // Global variable ref from non package level.
@@ -2034,7 +2047,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             BSymbol symbol = ((BLangSimpleVarRef) varRef).symbol;
             checkFinalEntityUpdate(varRef.pos, varRef, symbol);
 
-            BSymbol owner = this.currDependentSymbol.peek();
+            BSymbol owner = this.currDependentSymbolDeque.peek();
             addFunctionToGlobalVarDependency(owner, ((BLangSimpleVarRef) varRef).symbol);
         }
 

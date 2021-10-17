@@ -258,6 +258,34 @@ function testXMLTextValueAssignment(){
     assert(x3.toString(), "abcd");
 }
 
+function testXMLCDATASection() {
+    xml x1 = xml `<![CDATA[some text]]>`;
+    assert(x1.toString(), "some text");
+    assert(x1 is xml:Text, true);
+
+    int intVar = 5;
+    xml:Text x2 = xml `<![CDATA[${intVar}]]>`;
+    assert(x2.toString(), "5");
+
+    xml:Text x3 = xml `XML stands for <![CDATA[eXtensible]]> Markup Language`;
+    assert(x3.toString(), "XML stands for eXtensible Markup Language");
+
+    float floatVar = 3.2;
+    xml:Element x4 = xml `<element>some text <![CDATA[example of a flaot ${floatVar} some other text]]></element>`;
+    assert(x4.toString(), "<element>some text example of a flaot 3.2 some other text</element>");
+
+    xml x5 = x4/*;
+    assert(x5.toString(), "some text example of a flaot 3.2 some other text");
+
+    xml x6 = xml `<![CDATA[]]>`;
+    assert(x6.toString(), "");
+    assert(x6 is xml:Text, true);
+
+   xml x7 = xml `<![CDATA[ abc --> <!-- --> some more text ]]>`;
+   assert(x7.toString(), " abc --&gt; &lt;!-- --&gt; some more text ");
+   assert(x7 is xml:Text, true);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;

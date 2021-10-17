@@ -50,6 +50,12 @@ public class IdentifierTest extends AbstractMiscTest {
         testFile("identifiers/unicode_codepoint_source.bal", "identifiers/unicode_codepoint_assert.json");
     }
 
+    @Test
+    public void testKeywordsAsIdentifiers() {
+        testFile("identifiers/keywords_as_identifiers_source.bal",
+                "identifiers/keywords_as_identifiers_assert.json");
+    }
+
     // Invalid Syntax
 
     @Test

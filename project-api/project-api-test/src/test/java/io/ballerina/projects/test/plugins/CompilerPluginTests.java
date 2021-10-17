@@ -21,6 +21,7 @@ import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.test.TestUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.test.BAssertUtil;
@@ -47,6 +48,7 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public class CompilerPluginTests {
+
     private static final Path RESOURCE_DIRECTORY = Paths.get(
             "src/test/resources/compiler_plugin_tests").toAbsolutePath();
     private static final PrintStream OUT = System.out;
@@ -62,6 +64,8 @@ public class CompilerPluginTests {
                 "compiler_plugin_tests/package_comp_plugin_with_func_node_analyzer");
         BCompileUtil.compileAndCacheBala(
                 "compiler_plugin_tests/package_comp_plugin_lifecycle_listener");
+        BCompileUtil.compileAndCacheBala(
+                "compiler_plugin_tests/package_comp_plugin_with_codeactions");
     }
 
     @Test
@@ -73,7 +77,7 @@ public class CompilerPluginTests {
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        diagnosticResult.errors().forEach(OUT::println);
+        diagnosticResult.diagnostics().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
         // Check direct package dependencies
@@ -131,7 +135,7 @@ public class CompilerPluginTests {
     }
 
     @Test
-    public void testInBuiltCompilerPlugin() throws IOException {
+    public void testInBuiltCompilerPluginBuildProject() throws IOException {
         Package currentPackage = loadPackage("package_test_inbuilt_plugin");
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
@@ -147,6 +151,24 @@ public class CompilerPluginTests {
         Assert.assertTrue(logFileContent.contains(diagnosticResult.errors().stream().findFirst().get().toString()));
     }
 
+    @Test
+    public void testInBuiltCompilerPluginSingleFile() throws IOException {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_test_inbuilt_plugin/single-file/main.bal");
+        Package currentPackage = TestUtils.loadSingleFileProject(projectDirPath).currentPackage();
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 2,
+                "Unexpected number of compilation diagnostics");
+        Assert.assertEquals(diagnosticResult.errorCount(), 1);
+        Assert.assertEquals(diagnosticResult.warningCount(), 1);
+
+        Path logFilePath = Paths.get("build/logs/single-file/diagnostics.log");
+        Assert.assertTrue(Files.exists(logFilePath));
+        String logFileContent = Files.readString(logFilePath, Charset.defaultCharset());
+        Assert.assertTrue(logFileContent.contains(diagnosticResult.warnings().stream().findFirst().get().toString()));
+        Assert.assertTrue(logFileContent.contains(diagnosticResult.errors().stream().findFirst().get().toString()));
+    }
+
     @Test(description = "Test `package-semantic-analyzer` compiler plugin by checking invalid export "
             + "modules in `Ballerina.toml`")
     public void testPkgInvalidExportedModule() {
@@ -154,11 +176,11 @@ public class CompilerPluginTests {
         DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 3, "Unexpected number of compilation diagnostics");
         Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
-        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(7:0,7:64)] "
+        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(8:1,8:65)] "
                 + "could not locate dependency path '../libs/ballerina-runtime-api-2.0.0-beta.2-SNAPSHOT.jar'");
-        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(4:10,4:15)] "
+        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(5:11,5:16)] "
                 + "exported module 'abc' is not a module of the package");
-        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(4:17,4:22)] "
+        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(5:18,5:23)] "
                 + "exported module 'xyz' is not a module of the package");
     }
 
@@ -192,7 +214,7 @@ public class CompilerPluginTests {
 
     private Package loadPackage(String path) {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve(path);
-        BuildProject buildProject = BuildProject.load(projectDirPath);
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         return buildProject.currentPackage();
     }
 }

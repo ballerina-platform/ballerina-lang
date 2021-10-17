@@ -35,48 +35,48 @@ public class BByteArrayValueNegativeTest {
         int index = 0;
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'other'", 2, 16);
         BAssertUtil.validateError(result, index++, "undefined symbol 'base1'", 2, 16);
+        BAssertUtil.validateError(result, index++, "invalid expr in assignment lhs", 2, 22);
         BAssertUtil.validateError(result, index++, "missing semicolon token", 2, 22);
-        BAssertUtil.validateError(result, index++, "invalid expr in assignment lhs", 2, 24);
         BAssertUtil.validateError(result, index++, "invalid literal for type 'other': raw templates can only " +
-                "be assigned to abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 2, 24);
+                "be assigned to abstract subtypes of 'ballerina/lang.object:0.0.0:RawTemplate'", 2, 24);
         BAssertUtil.validateError(result, index++, "missing equal token", 2, 24);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'other'", 3, 16);
         BAssertUtil.validateError(result, index++, "undefined symbol 'base'", 3, 16);
+        BAssertUtil.validateError(result, index++, "invalid expr in assignment lhs", 3, 21);
         BAssertUtil.validateError(result, index++, "missing semicolon token", 3, 21);
-        BAssertUtil.validateError(result, index++, "invalid expr in assignment lhs", 3, 24);
         BAssertUtil.validateError(result, index++, "invalid literal for type 'other': raw templates can only " +
-                "be assigned to abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 3, 24);
+                "be assigned to abstract subtypes of 'ballerina/lang.object:0.0.0:RawTemplate'", 3, 24);
         BAssertUtil.validateError(result, index++, "missing equal token", 3, 24);
-        BAssertUtil.validateError(result, index++, "invalid base16 content in byte array literal", 4, 23);
-        BAssertUtil.validateError(result, index++, "invalid base16 content in byte array literal", 5, 23);
-        BAssertUtil.validateError(result, index++, "invalid base16 content in byte array literal", 6, 23);
-        BAssertUtil.validateError(result, index++, "invalid base16 content in byte array literal", 7, 23);
+        BAssertUtil.validateError(result, index++, "invalid base16 content in byte array literal", 4, 24);
+        BAssertUtil.validateError(result, index++, "invalid base16 content in byte array literal", 5, 24);
+        BAssertUtil.validateError(result, index++, "invalid base16 content in byte array literal", 6, 24);
+        BAssertUtil.validateError(result, index++, "invalid base16 content in byte array literal", 7, 24);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'other'", 8, 16);
         BAssertUtil.validateError(result, index++, "missing byte array content", 8, 16);
         BAssertUtil.validateError(result, index++, "operator '+' not defined for 'byte[]' and 'string'", 8, 16);
         BAssertUtil.validateError(result, index++, "missing binary operator", 8, 23);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'other'", 12, 16);
         BAssertUtil.validateError(result, index++, "undefined symbol 'base6'", 12, 16);
+        BAssertUtil.validateError(result, index++, "invalid expr in assignment lhs", 12, 22);
         BAssertUtil.validateError(result, index++, "missing semicolon token", 12, 22);
-        BAssertUtil.validateError(result, index++, "invalid expr in assignment lhs", 12, 24);
         BAssertUtil.validateError(result, index++, "invalid literal for type 'other': raw templates can only " +
-                "be assigned to abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 12, 24);
+                "be assigned to abstract subtypes of 'ballerina/lang.object:0.0.0:RawTemplate'", 12, 24);
         BAssertUtil.validateError(result, index++, "missing equal token", 12, 24);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'other'", 13, 16);
         BAssertUtil.validateError(result, index++, "undefined symbol 'base'", 13, 16);
+        BAssertUtil.validateError(result, index++, "invalid expr in assignment lhs", 13, 21);
         BAssertUtil.validateError(result, index++, "missing semicolon token", 13, 21);
-        BAssertUtil.validateError(result, index++, "invalid expr in assignment lhs", 13, 24);
         BAssertUtil.validateError(result, index++, "invalid literal for type 'other': raw templates can only " +
-                "be assigned to abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 13, 24);
+                "be assigned to abstract subtypes of 'ballerina/lang.object:0.0.0:RawTemplate'", 13, 24);
         BAssertUtil.validateError(result, index++, "missing equal token", 13, 24);
-        BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 14, 23);
-        BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 15, 23);
+        BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 14, 24);
+        BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 15, 24);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'other'", 16, 16);
         BAssertUtil.validateError(result, index++, "missing byte array content", 16, 16);
         BAssertUtil.validateError(result, index++, "operator '+' not defined for 'byte[]' and 'string'", 16, 16);
         BAssertUtil.validateError(result, index++, "missing binary operator", 16, 23);
-        BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 17, 23);
-        BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 18, 23);
+        BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 17, 24);
+        BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 18, 24);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 }

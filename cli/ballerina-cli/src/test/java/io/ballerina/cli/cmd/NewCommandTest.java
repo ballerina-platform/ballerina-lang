@@ -22,6 +22,7 @@ import io.ballerina.projects.util.ProjectConstants;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -61,12 +62,19 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String expectedContent = "[build-options]\n" +
+        String expectedContent = "[package]\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
                 "observabilityIncluded = true\n";
-        Assert.assertEquals(tomlContent, expectedContent);
+        Assert.assertTrue(tomlContent.contains(expectedContent));
 
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
+        Assert.assertFalse(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(".devcontainer.json")));
+        String devcontainerContent = Files.readString(packageDir.resolve(".devcontainer.json"));
+        Assert.assertTrue(devcontainerContent.contains(RepoUtils.getBallerinaVersion()));
     }
 
     @Test(description = "Test new command with main template")
@@ -78,18 +86,27 @@ public class NewCommandTest extends BaseCommandTest {
         // Check with spec
         // project_name/
         // - Ballerina.toml
+        // - Package.md
         // - main.bal
+        // - tests
+        //      - main_test.bal
 
         Path packageDir = tmpDir.resolve("main_sample");
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String expectedContent = "[build-options]\n" +
+        String expectedContent = "[package]\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
                 "observabilityIncluded = true\n";
-        Assert.assertEquals(tomlContent, expectedContent);
+        Assert.assertTrue(tomlContent.contains(expectedContent));
 
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
+        Assert.assertTrue(Files.notExists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.TEST_DIR_NAME)));
+        Path resourcePath = packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME);
+        Assert.assertFalse(Files.exists(resourcePath));
 
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
@@ -105,12 +122,9 @@ public class NewCommandTest extends BaseCommandTest {
         // project_name/
         // - Ballerina.toml
         // - Package.md
-        // - Module.md
-        // - hello_service.bal
-        // - resources
+        // - service.bal
         // - tests
-        //      - hello_service_test.bal
-        //      - resources/
+        //      - service_test.bal
         // - .gitignore       <- git ignore file
 
         Path packageDir = tmpDir.resolve("service_sample");
@@ -121,9 +135,13 @@ public class NewCommandTest extends BaseCommandTest {
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[build-options]\n" +
                 "observabilityIncluded = true\n";
-        Assert.assertEquals(tomlContent, expectedContent);
+        Assert.assertTrue(tomlContent.contains(expectedContent));
 
         Assert.assertTrue(Files.exists(packageDir.resolve("service.bal")));
+        Assert.assertTrue(Files.notExists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.TEST_DIR_NAME)));
+        Path resourcePath = packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME);
+        Assert.assertFalse(Files.exists(resourcePath));
 
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
@@ -140,11 +158,10 @@ public class NewCommandTest extends BaseCommandTest {
         // - Ballerina.toml
         // - Package.md
         // - Module.md
-        // - main.bal
+        // - lib.bal
         // - resources
         // - tests
-        //      - main_test.bal
-        //      - resources/
+        //      - lib_test.bal
         // - .gitignore       <- git ignore file
 
         Path packageDir = tmpDir.resolve("lib_sample");
@@ -159,12 +176,13 @@ public class NewCommandTest extends BaseCommandTest {
                 "org = \"" + System.getProperty("user.name").replaceAll("[^a-zA-Z0-9_]", "_") + "\"\n" +
                 "name = \"lib_sample\"\n" +
                 "version = \"0.1.0\"\n" +
-                "\n" +
-                "[build-options]\n" +
-                "observabilityIncluded = true\n";
-        Assert.assertEquals(tomlContent, expectedTomlContent);
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"" +
+                "\n";
+        Assert.assertTrue(tomlContent.contains(expectedTomlContent));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
-        Assert.assertTrue(Files.exists(packageDir.resolve("lib_sample.bal")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("lib.bal")));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.TEST_DIR_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
 
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
@@ -286,5 +304,21 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.isDirectory(tmpDir.resolve("parent").resolve("sub_dir").resolve("sample")));
     }
 
-    // Test if a path given to new command
+    @Test(description = "Test new command with package name has more than 256 characters")
+    public void testNewCommandWithinPackageNameHasMoreThan256Chars() throws IOException {
+        String packageName = "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting";
+        String[] args = {packageName};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
+        new CommandLine(newCommand).parse(args);
+        newCommand.execute();
+
+        Assert.assertTrue(readOutput().contains("invalid package name : '" + packageName + "' :\n"
+                + "Maximum length of package name is 256 characters."));
+    }
 }

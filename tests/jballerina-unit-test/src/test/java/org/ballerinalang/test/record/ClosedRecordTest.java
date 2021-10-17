@@ -168,8 +168,8 @@ public class ClosedRecordTest {
                 BCompileUtil.compile("test-src/record/sealed_record_literal_with_attached_functions_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 4);
         BAssertUtil.validateError(result, 0, "redeclared symbol 'Person'", 7, 10);
-        BAssertUtil.validateError(result, 1, "invalid token 'getName'", 7, 24);
-        BAssertUtil.validateError(result, 2, "resource path in function definition", 7, 24);
+        BAssertUtil.validateError(result, 1, "resource path in function definition", 7, 16);
+        BAssertUtil.validateError(result, 2, "invalid token 'getName'", 7, 17);
         BAssertUtil.validateError(result, 3, "undefined symbol 'self'", 8, 12);
     }
 
@@ -218,21 +218,21 @@ public class ClosedRecordTest {
     public void testRestDescriptorSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/record/closed_record_invalid_delimiter.bal");
         int i = 0;
-        BAssertUtil.validateError(result, i++, "missing close brace pipe token", 5, 1);
-        BAssertUtil.validateError(result, i++, "invalid token '}'", 5, 2);
-        BAssertUtil.validateError(result, i++, "missing close brace token", 11, 1);
-        BAssertUtil.validateError(result, i++, "invalid token '|}'", 11, 3);
+        BAssertUtil.validateError(result, i++, "invalid token '}'", 5, 1);
+        BAssertUtil.validateError(result, i++, "missing close brace pipe token", 5, 2);
+        BAssertUtil.validateError(result, i++, "invalid token '|}'", 11, 1);
+        BAssertUtil.validateError(result, i++, "missing close brace token", 11, 3);
         BAssertUtil.validateError(result, i++, "missing type descriptor", 13, 23);
-        BAssertUtil.validateError(result, i++, "invalid token '|'", 17, 3);
-        BAssertUtil.validateError(result, i++, "missing close brace pipe token", 19, 25);
-        BAssertUtil.validateError(result, i++, "invalid token '|'", 19, 28);
-        BAssertUtil.validateError(result, i++, "invalid token '}'", 19, 28);
-        BAssertUtil.validateError(result, i++, "invalid token '||'", 21, 27);
-        BAssertUtil.validateError(result, i++, "invalid token '||'", 23, 28);
+        BAssertUtil.validateError(result, i++, "invalid token '|'", 17, 1);
+        BAssertUtil.validateError(result, i++, "invalid token '|'", 19, 25);
+        BAssertUtil.validateError(result, i++, "invalid token '}'", 19, 27);
+        BAssertUtil.validateError(result, i++, "missing close brace pipe token", 19, 28);
+        BAssertUtil.validateError(result, i++, "invalid token '||'", 21, 25);
+        BAssertUtil.validateError(result, i++, "invalid token '||'", 23, 25);
         BAssertUtil.validateError(result, i++, "missing close brace token", 25, 25);
         BAssertUtil.validateError(result, i++, "missing type descriptor", 25, 27);;
         BAssertUtil.validateError(result, i++, "missing object keyword", 25, 29);;
-        BAssertUtil.validateError(result, i++, "missing open brace token", 25, 29);;
+        BAssertUtil.validateError(result, i, "missing open brace token", 25, 29);;
     }
 
     @Test(description = "Test ambiguous type resolution negative cases")
@@ -320,11 +320,11 @@ public class ClosedRecordTest {
         BRunUtil.invoke(compileResult, "removeIfHasKeyRest");
     }
 
-    @Test
-    public void testCyclicRecordViaFields() {
-        CompileResult cyclicBal = BCompileUtil.compile("test-src/record/cyclic_record_via_fields.bal");
-        BRunUtil.invoke(cyclicBal, "testCyclicRecordResolution");
-    }
+//    @Test
+//    public void testCyclicRecordViaFields() {
+//        CompileResult cyclicBal = BCompileUtil.compile("test-src/record/cyclic_record_via_fields.bal");
+//        BRunUtil.invoke(cyclicBal, "testCyclicRecordResolution");
+//    }
 
     @AfterClass
     public void tearDown() {

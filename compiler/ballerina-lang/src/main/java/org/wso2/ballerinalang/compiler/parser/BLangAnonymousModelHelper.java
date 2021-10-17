@@ -39,7 +39,7 @@ public class BLangAnonymousModelHelper {
     private Map<PackageID, Integer> anonServiceCount;
     private Map<PackageID, Integer> anonFunctionCount;
     private Map<PackageID, Integer> anonForkCount;
-    private Map<PackageID, Integer> errorTypeIdCount;
+    private Map<PackageID, Integer> distinctTypeIdCount;
     private Map<PackageID, Integer> rawTemplateTypeCount;
     private Map<PackageID, Integer> tupleVarCount;
     private Map<PackageID, Integer> recordVarCount;
@@ -55,7 +55,6 @@ public class BLangAnonymousModelHelper {
     private static final String BUILTIN_ANON_TYPE = ANON_PREFIX + "Type$builtin$";
     private static final String BUILTIN_LAMBDA = "$lambda$builtin$";
     private static final String FORK = "$fork$";
-    private static final String ANON_TYPE_ID = ANON_PREFIX + "Typeid$";
     private static final String RAW_TEMPLATE_TYPE = "$rawTemplate$";
     private static final String ANON_INTERSECTION_RECORD = ANON_PREFIX + "IntersectionRecordType$";
     private static final String ANON_INTERSECTION_ERROR_TYPE = ANON_PREFIX + "IntersectionErrorType$";
@@ -72,13 +71,13 @@ public class BLangAnonymousModelHelper {
         anonServiceCount = new HashMap<>();
         anonFunctionCount = new HashMap<>();
         anonForkCount = new HashMap<>();
-        errorTypeIdCount = new HashMap<>();
         rawTemplateTypeCount = new HashMap<>();
         tupleVarCount = new HashMap<>();
         recordVarCount = new HashMap<>();
         errorVarCount = new HashMap<>();
         intersectionRecordCount = new HashMap<>();
         intersectionErrorCount = new HashMap<>();
+        distinctTypeIdCount = new HashMap<>();
     }
 
     public static BLangAnonymousModelHelper getInstance(CompilerContext context) {
@@ -122,10 +121,10 @@ public class BLangAnonymousModelHelper {
         return FORK + UNDERSCORE + nextValue;
     }
 
-    public String getNextDistinctErrorId(PackageID packageID) {
-        Integer nextValue = Optional.ofNullable(errorTypeIdCount.get(packageID)).orElse(0);
-        anonFunctionCount.put(packageID, nextValue + 1);
-        return ANON_TYPE_ID + String.valueOf(nextValue);
+    public String getNextAnonymousTypeId(PackageID packageID) {
+        Integer nextValue = Optional.ofNullable(distinctTypeIdCount.get(packageID)).orElse(0);
+        distinctTypeIdCount.put(packageID, nextValue + 1);
+        return nextValue.toString();
     }
 
     public String getNextRawTemplateTypeKey(PackageID packageID, Name rawTemplateTypeName) {

@@ -24,6 +24,7 @@ import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -204,6 +205,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -283,6 +285,7 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
+        lookupNode(funcNode.markdownDocumentationAttachment);
         lookupNodes(funcNode.annAttachments);
         lookupNodes(funcNode.requiredParams);
         lookupNode(funcNode.restParam);
@@ -330,6 +333,7 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
+        lookupNode(typeDefinition.markdownDocumentationAttachment);
         lookupNodes(typeDefinition.annAttachments);
         lookupNode(typeDefinition.typeNode);
     }
@@ -844,6 +848,15 @@ class SymbolFinder extends BaseVisitor {
     }
 
     @Override
+    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
+        if (setEnclosingNode(nsPrefixedFieldBasedAccess.nsSymbol, nsPrefixedFieldBasedAccess.nsPrefix.pos)) {
+            return;
+        }
+
+        lookupNode(nsPrefixedFieldBasedAccess.expr);
+    }
+
+    @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         lookupNode(indexAccessExpr.expr);
 
@@ -1103,7 +1116,10 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangAnnotAccessExpr annotAccessExpr) {
-
+        lookupNode(annotAccessExpr.expr);
+        if (annotAccessExpr.annotationName != null) {
+            setEnclosingNode(annotAccessExpr.annotationSymbol, annotAccessExpr.annotationName.pos);
+        }
     }
 
     @Override
@@ -1157,7 +1173,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(streamType.error);
 
         if (symbolAtCursor == null) {
-            this.symbolAtCursor = streamType.type.getBType().tsymbol;
+            this.symbolAtCursor = streamType.getBType().tsymbol;
         }
     }
 
@@ -1168,7 +1184,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(tableType.tableKeyTypeConstraint);
 
         if (this.symbolAtCursor == null) {
-            this.symbolAtCursor = tableType.type.getBType().tsymbol;
+            this.symbolAtCursor = tableType.tableType.tsymbol;
         }
     }
 
@@ -1211,6 +1227,7 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
+        lookupNode(classDefinition.markdownDocumentationAttachment);
         lookupNodes(classDefinition.annAttachments);
 
         for (BLangSimpleVariable field : classDefinition.fields) {
@@ -1247,6 +1264,11 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
+        // Special case handling for singleton types.
+        if (finiteTypeNode.valueSpace.size() == 1 && this.symbolAtCursor == null) {
+            this.symbolAtCursor = finiteTypeNode.getBType().tsymbol;
+        }
+
         lookupNodes(finiteTypeNode.valueSpace);
     }
 
@@ -1259,6 +1281,10 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangErrorType errorType) {
         lookupNode(errorType.detailType);
+
+        if (symbolAtCursor == null) {
+            this.symbolAtCursor = errorType.getBType().tsymbol;
+        }
     }
 
     @Override
@@ -1417,7 +1443,7 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangMarkdownParameterDocumentation bLangDocumentationParameter) {
-        // ignore
+        setEnclosingNode(bLangDocumentationParameter.symbol, bLangDocumentationParameter.pos);
     }
 
     @Override
@@ -1437,7 +1463,7 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangMarkdownDocumentation bLangMarkdownDocumentation) {
-        // ignore
+        lookupNodes(bLangMarkdownDocumentation.parameters);
     }
 
     @Override
@@ -1518,7 +1544,7 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangRecordLiteral.BLangRecordKey recordKey) {
-        if (setEnclosingNode(recordKey.fieldSymbol, recordKey.pos)) {
+        if (!recordKey.computedKey && setEnclosingNode(recordKey.fieldSymbol, recordKey.pos)) {
             return;
         }
 
@@ -1542,7 +1568,7 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangXMLElementFilter xmlElementFilter) {
-        setEnclosingNode(xmlElementFilter.namespaceSymbol, xmlElementFilter.elemNamePos);
+        setEnclosingNode(xmlElementFilter.namespaceSymbol, xmlElementFilter.nsPos);
     }
 
     @Override
@@ -1582,16 +1608,28 @@ class SymbolFinder extends BaseVisitor {
     }
 
     private boolean isWithinNodeMetaData(TopLevelNode node) {
-        if (!(node instanceof AnnotatableNode)) {
-            return false;
+        if (node instanceof  AnnotatableNode) {
+
+            List<AnnotationAttachmentNode> nodes =
+                    (List<AnnotationAttachmentNode>) ((AnnotatableNode) node).getAnnotationAttachments();
+
+            for (AnnotationAttachmentNode annotAttachment : nodes) {
+                if (PositionUtil.withinBlock(this.cursorPos, annotAttachment.getPosition())) {
+                    return true;
+                }
+            }
         }
 
-        List<AnnotationAttachmentNode> nodes =
-                (List<AnnotationAttachmentNode>) ((AnnotatableNode) node).getAnnotationAttachments();
+        if (node instanceof DocumentableNode) {
+            BLangMarkdownDocumentation markdown = ((DocumentableNode) node).getMarkdownDocumentationAttachment();
+            if (markdown != null) {
+                LinkedList<BLangMarkdownParameterDocumentation> parameters = markdown.getParameters();
+                for (BLangMarkdownParameterDocumentation parameter : parameters) {
+                    if (PositionUtil.withinBlock(this.cursorPos, parameter.getPosition())) {
+                        return true;
+                    }
+                }
 
-        for (AnnotationAttachmentNode annotAttachment : nodes) {
-            if (PositionUtil.withinBlock(this.cursorPos, annotAttachment.getPosition())) {
-                return true;
             }
         }
 

@@ -82,9 +82,6 @@
                 {
                   "kind": "IDENTIFIER_TOKEN",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_FIELD_INITIALIZATION_NOT_ALLOWED_IN_OBJECT_TYPE"
-                  ],
                   "value": "b",
                   "trailingMinutiae": [
                     {
@@ -95,9 +92,14 @@
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
-                            "kind": "EQUAL_TOKEN"
+                            "kind": "EQUAL_TOKEN",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_FIELD_INITIALIZATION_NOT_ALLOWED_IN_OBJECT_TYPE"
+                            ]
                           }
                         ]
                       }
@@ -162,9 +164,6 @@
                 {
                   "kind": "IDENTIFIER_TOKEN",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_FIELD_INITIALIZATION_NOT_ALLOWED_IN_OBJECT_TYPE"
-                  ],
                   "value": "c",
                   "trailingMinutiae": [
                     {
@@ -175,9 +174,14 @@
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
-                            "kind": "EQUAL_TOKEN"
+                            "kind": "EQUAL_TOKEN",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_FIELD_INITIALIZATION_NOT_ALLOWED_IN_OBJECT_TYPE"
+                            ]
                           }
                         ]
                       }

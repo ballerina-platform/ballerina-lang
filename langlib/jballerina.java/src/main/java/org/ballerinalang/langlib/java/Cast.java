@@ -41,7 +41,7 @@ public class Cast {
 
     private static final String moduleName = "{ballerina/jballerina.java}";
     private static final String annotationName = "@java:Binding";
-    private static final String annotationType = "ballerina/jballerina.java:0.9.0:Binding";
+    private static final String annotationType = "ballerina/jballerina.java:0:Binding";
     private static final String classAttribute = "class";
     private static final String jObjField = "jObj";
 

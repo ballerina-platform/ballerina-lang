@@ -1,0 +1,24 @@
+{
+  "line": 3,
+  "character": 20,
+  "expected": [
+    {
+      "title": "Create on fail clause",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 5
+            },
+            "end": {
+              "line": 5,
+              "character": 5
+            }
+          },
+          "newText": " on fail var e {\n    \t\n    }"
+        }
+      ]
+    }
+  ]
+}

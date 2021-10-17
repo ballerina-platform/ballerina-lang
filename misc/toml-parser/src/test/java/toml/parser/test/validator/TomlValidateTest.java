@@ -126,4 +126,36 @@ public class TomlValidateTest {
         Assert.assertEquals(diagnostic.message(), "'version' of the dependency is missing");
         Assert.assertEquals(diagnostic1.message(), "'version' of the dependency is missing");
     }
+
+    @Test
+    public void testInlineValue() throws IOException {
+        Path resourceDirectory = basePath.resolve("inline-value.json");
+        Path sampleInput = basePath.resolve("inline-value.toml");
+
+        Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
+
+        List<Diagnostic> diagnostics = toml.diagnostics();
+        Assert.assertEquals(diagnostics.size(), 2);
+
+        Diagnostic diagnostic = diagnostics.get(0);
+        Diagnostic diagnostic1 = diagnostics.get(1);
+        Assert.assertEquals(diagnostic.message(), "missing required field 'name'");
+        Assert.assertEquals(diagnostic1.message(), "key 'test' not supported in schema 'Dependencies Toml Spec'");
+    }
+
+    @Test
+    public void testMinMaxLengthMessage() throws IOException {
+        Path resourceDirectory = basePath.resolve("schema.json");
+        Path sampleInput = basePath.resolve("string-length.toml");
+
+        Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
+
+        Diagnostic maxLenDiag = toml.diagnostics().get(0);
+        Assert.assertEquals(maxLenDiag.message(),
+                "length of the value for key 'name' is greater than defined max length 10");
+
+        Diagnostic minLenDiag = toml.diagnostics().get(1);
+        Assert.assertEquals(minLenDiag.message(),
+                "length of the value for key 'org' is lower than defined min length 3");
+    }
 }

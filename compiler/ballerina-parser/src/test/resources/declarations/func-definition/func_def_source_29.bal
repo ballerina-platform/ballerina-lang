@@ -4,5 +4,5 @@ public function testFunction() {
     }
 
 function doSomeTask() {
-// here goes a certain task
+    // here goes a certain task
 }
