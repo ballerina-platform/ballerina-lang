@@ -564,7 +564,7 @@ function testCloneWithTypeTupleToJSON() {
     assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
     assert(<string> checkpanic err.detail()["message"], "'[string,anydata...]' value cannot be converted to 'json'");
 
-    [string, xml|int] tupleValue8 = ["text1", xml `</elem>`];
+    [string, xml|int] tupleValue8 = ["text1", xml `<elem></elem>`];
     jsonValue = tupleValue8.cloneWithType();
     assert(jsonValue is error, true);
     err = <error> jsonValue;
@@ -577,7 +577,7 @@ function testCloneWithTypeTupleToJSON() {
     assert(jsonValue is error, false);
     assert(jsonValue is json[], true);
 
-    A tupleValue10 = [1,  xml `</elem>`];
+    A tupleValue10 = [1,  xml `<elem></elem>`];
     jsonValue = tupleValue10.cloneWithType();
     assert(jsonValue is error, true);
     err = <error> jsonValue;
