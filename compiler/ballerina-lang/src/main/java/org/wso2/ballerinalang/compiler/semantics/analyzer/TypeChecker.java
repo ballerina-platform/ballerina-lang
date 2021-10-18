@@ -1288,9 +1288,9 @@ public class TypeChecker extends BLangNodeVisitor {
                     tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList.size() != memberTypes.size()) {
                 dlog.error(tableConstructorExpr.pos,
                         DiagnosticErrorCode.KEY_SPECIFIER_SIZE_MISMATCH_WITH_KEY_CONSTRAINT,
-                        memberTypes.size(),
+                        memberTypes,
                         tableConstructorExpr.tableKeySpecifier == null ?
-                                0 : tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList.size());
+                                "none" : tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList);
                 resultType = symTable.semanticError;
                 return false;
             }
