@@ -748,7 +748,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_NUMBER_OF_PARAMETERS("BCE4014", "invalid.number.of.parameters"),
     INVALID_PARAMETER_TYPE("BCE4015", "invalid.parameter.type"),
     NO_CLASS_DEF_FOUND("BCE4016", "no.class.def.found"),
-    INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_LOOP("BCE4017", "invalid.assignment.to.narrowed.var.in.loop")
+    INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_LOOP("BCE4017", "invalid.assignment.to.narrowed.var.in.loop"),
+
+    INVALID_NON_ISOLATED_CALL_IN_MATCH_GUARD("BCE4018", "invalid.non.isolated.call.in.match.guard"),
+    INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD("BCE4019", "invalid.call.with.mutable.args.in.match.guard")
     ;
 
     private String diagnosticId;
