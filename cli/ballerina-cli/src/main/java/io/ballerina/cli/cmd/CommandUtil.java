@@ -350,10 +350,13 @@ public class CommandUtil {
                     ProjectUtils.getRelativeBalaPath(orgName, packageName, version, platform));
             String balaGlob = "glob:**" + File.separator + orgName + File.separator + packageName + File.separator
                     + version + File.separator + platform;
+            System.out.println("balaGlob>>>>>>>>>" + balaGlob);
             PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(balaGlob);
+            System.out.println("pathMatcher>>>>>>>>>" + pathMatcher);
 
             if (pathMatcher.matches(Paths.get(balaGlob))) {
                 if (Files.exists(balaPath)) {
+                    System.out.println("balaPath>>>>>>>>>" + balaPath);
                     return balaPath;
                 } else {
                     return null;
