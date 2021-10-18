@@ -35,19 +35,19 @@ import java.util.Optional;
  */
 public class StringSubtype implements ProperSubtypeData {
 
+    CharStringSubtype charData;
+    NonCharStringSubtype nonChar;
+
     public CharStringSubtype getChar() {
-        return chara;
+        return charData;
     }
 
     public NonCharStringSubtype getNonChar() {
         return nonChar;
     }
 
-    CharStringSubtype chara;
-    NonCharStringSubtype nonChar;
-
-    private StringSubtype(CharStringSubtype chara, NonCharStringSubtype nonChar) {
-        this.chara = chara;
+    private StringSubtype(CharStringSubtype charData, NonCharStringSubtype nonChar) {
+        this.charData = charData;
         this.nonChar = nonChar;
     }
 
@@ -60,10 +60,10 @@ public class StringSubtype implements ProperSubtypeData {
             return ((AllOrNothingSubtype) d).isAllSubtype();
         }
         StringSubtype st = (StringSubtype) d;
-        CharStringSubtype chara = st.chara;
+        CharStringSubtype chara = st.charData;
         NonCharStringSubtype nonChar = st.nonChar;
         if (s.length() == 1) {
-            return Arrays.asList(chara.values).contains(EnumerableCharString.from(s.charAt(0))) ?
+            return Arrays.asList(chara.values).contains(EnumerableCharString.from(s)) ?
                     chara.allowed : !chara.allowed;
         }
         return Arrays.asList(nonChar.values).contains(EnumerableString.from(s)) ? nonChar.allowed : !nonChar.allowed;
@@ -85,13 +85,13 @@ public class StringSubtype implements ProperSubtypeData {
             return Optional.empty();
         }
         StringSubtype st = (StringSubtype) d;
-        CharStringSubtype chara = st.chara;
+        CharStringSubtype chara = st.charData;
         NonCharStringSubtype nonChar = st.nonChar;
         int charCount = chara.allowed ? chara.values.length : 2;
         int nonCharCount = nonChar.allowed ? nonChar.values.length : 2;
         if (charCount + nonCharCount == 1) {
             return charCount != 0 ?
-                    Optional.of(Character.toString(chara.values[0].value)) : Optional.of(nonChar.values[0].value);
+                    Optional.of(chara.values[0].value) : Optional.of(nonChar.values[0].value);
         }
         return Optional.empty();
     }
@@ -101,7 +101,7 @@ public class StringSubtype implements ProperSubtypeData {
         NonCharStringSubtype nonChar;
         if (value.length() == 1) {
             chara = CharStringSubtype.from(true,
-                    new EnumerableCharString[]{EnumerableCharString.from(value.charAt(0))});
+                    new EnumerableCharString[]{EnumerableCharString.from(value)});
             nonChar = NonCharStringSubtype.from(true, new EnumerableString[]{});
         } else {
             chara = CharStringSubtype.from(true, new EnumerableCharString[]{});

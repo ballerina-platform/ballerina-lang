@@ -23,13 +23,14 @@ package io.ballerina.types;
  * @since 3.0.0
  */
 public class EnumerableCharString implements EnumerableType {
-    public final char value;
+    // String since Java char can't hold some Unicode characters
+    public final String value;
 
-    private EnumerableCharString(char value) {
+    private EnumerableCharString(String value) {
         this.value = value;
     }
 
-    public static EnumerableCharString from(char v) {
+    public static EnumerableCharString from(String v) {
         return new EnumerableCharString(v);
     }
 }
