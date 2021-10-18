@@ -36,10 +36,7 @@ import java.util.Optional;
 public final class ResolutionRequest {
     private final PackageDescriptor packageDesc;
     private final PackageDependencyScope scope;
-
-    // TODO Why did we introduce the offline flag here.
     private final DependencyResolutionType dependencyResolutionType;
-    private final boolean offline;
 
     // TODO rethink about this
     private final PackageLockingMode packageLockingMode;
@@ -47,25 +44,38 @@ public final class ResolutionRequest {
     private ResolutionRequest(PackageDescriptor packageDescriptor,
                               PackageDependencyScope scope,
                               DependencyResolutionType dependencyResolutionType,
-                              boolean offline,
                               PackageLockingMode packageLockingMode) {
         this.packageDesc = packageDescriptor;
         this.scope = scope;
         this.dependencyResolutionType = dependencyResolutionType;
-        this.offline = offline;
         this.packageLockingMode = packageLockingMode;
     }
 
-    public static ResolutionRequest from(PackageDescriptor packageDescriptor, PackageDependencyScope scope,
-                                         boolean offline) {
-        return new ResolutionRequest(packageDescriptor, scope, DependencyResolutionType.SOURCE,
-                offline, PackageLockingMode.MEDIUM);
+    public static ResolutionRequest from(PackageDescriptor packageDescriptor) {
+        return new ResolutionRequest(packageDescriptor, PackageDependencyScope.DEFAULT,
+                DependencyResolutionType.SOURCE, PackageLockingMode.MEDIUM);
     }
 
-    public static ResolutionRequest from(PackageDescriptor packageDescriptor, PackageDependencyScope scope,
-                                         DependencyResolutionType dependencyResolutionType, boolean offline,
+    public static ResolutionRequest from(PackageDescriptor packageDescriptor,
+                                         PackageDependencyScope scope) {
+        return new ResolutionRequest(packageDescriptor, scope,
+                DependencyResolutionType.SOURCE, PackageLockingMode.MEDIUM);
+    }
+
+    public static ResolutionRequest from(PackageDescriptor packageDescriptor,
+                                         PackageDependencyScope scope,
+                                         DependencyResolutionType resolutionType) {
+        return new ResolutionRequest(packageDescriptor, scope,
+                resolutionType, PackageLockingMode.MEDIUM);
+    }
+
+    public static ResolutionRequest from(PackageDescriptor packageDescriptor,
+                                         PackageDependencyScope scope,
+                                         DependencyResolutionType dependencyResolutionType,
                                          PackageLockingMode packageLockingMode) {
-        return new ResolutionRequest(packageDescriptor, scope, dependencyResolutionType, offline, packageLockingMode);
+        return new ResolutionRequest(packageDescriptor, scope,
+                dependencyResolutionType,
+                packageLockingMode);
     }
 
     public PackageOrg orgName() {
@@ -92,15 +102,11 @@ public final class ResolutionRequest {
         return packageDesc.repository();
     }
 
-    public boolean offline() {
-        return offline;
-    }
-
     public PackageLockingMode packageLockingMode() {
         return packageLockingMode;
     }
 
-    public DependencyResolutionType dependencyResolutionType() {
+    public DependencyResolutionType resolutionType() {
         return dependencyResolutionType;
     }
 

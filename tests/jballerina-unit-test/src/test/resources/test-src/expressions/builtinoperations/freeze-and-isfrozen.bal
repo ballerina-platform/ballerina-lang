@@ -67,7 +67,7 @@ function testRecordWithEnumFreeze() {
     anydata g = b;
     anydata readOnlyBar = g.cloneReadOnly();
     assertTrue(readOnlyBar.isReadOnly());
-    assertTrue(readOnlyBar is Bar & readonly);
+    assertTrue(readOnlyBar is Bar);
 }
 
 function testBasicTypeNullableUnionFreeze() returns [boolean, boolean] {
