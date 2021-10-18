@@ -54,7 +54,7 @@ public class BType implements ValueType {
     public Name name;
     public long flags;
 
-    public SemType semtype;
+    private SemType semtype;
 
     public BType(int tag, BTypeSymbol tsymbol) {
         this.tag = tag;
@@ -75,6 +75,14 @@ public class BType implements ValueType {
         this.tsymbol = tsymbol;
         this.name = name;
         this.flags = flags;
+    }
+
+    public SemType getSemtype() {
+        return semtype;
+    }
+
+    public void setSemtype(SemType semtype) {
+        this.semtype = semtype;
     }
 
     public BType getReturnType() {

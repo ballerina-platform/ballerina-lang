@@ -474,7 +474,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void addSemtypeBType(BLangTypeDefinition typeDefinition) {
-        typeDefinition.typeNode.getBType().semtype = typeDefinition.semType;
+        typeDefinition.typeNode.getBType().setSemtype(typeDefinition.semType);
     }
 
     private void defineSemTypes(List<BLangNode> moduleDefs, SymbolEnv pkgEnv) {
