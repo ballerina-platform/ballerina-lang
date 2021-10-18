@@ -8484,7 +8484,9 @@ public class Desugar extends BLangNodeVisitor {
             // statement(s).
             BLangExpression firstNonRestArg = iExpr.requiredArgs.remove(0);
             BLangStatementExpression stmtExpression = createStatementExpression(blockStmt, firstNonRestArg);
-            stmtExpression.setBType(firstNonRestArg.getBType());
+            BType type = firstNonRestArg.impConversionExpr == null ?
+                                              firstNonRestArg.getBType() : firstNonRestArg.impConversionExpr.targetType;
+            stmtExpression.setBType(type);
             iExpr.requiredArgs.add(0, stmtExpression);
 
             // If there's no rest param, the vararg only provided for required/defaultable params.
