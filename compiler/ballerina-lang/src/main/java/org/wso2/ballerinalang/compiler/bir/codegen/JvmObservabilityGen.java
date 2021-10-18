@@ -368,7 +368,7 @@ class JvmObservabilityGen {
                     funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type,
                             argName, VarScope.FUNCTION, VarKind.ARG, argName.value, false);
                     desugaredFunc.localVars.add(funcParam);
-                    desugaredFunc.parameters.put(funcParam, Collections.emptyList());
+                    desugaredFunc.parameters.add(funcParam);
                     desugaredFunc.requiredParams.add(new BIRParameter(asyncCallIns.pos, argName, 0));
                     desugaredFunc.argsCount++;
                 }

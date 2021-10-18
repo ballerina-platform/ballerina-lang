@@ -45,7 +45,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WRAPPER_GEN_BB_ID_NAME;
@@ -134,9 +133,7 @@ public class ExternalMethodGen {
             args.add(argRef);
         }
 
-        Set<BIRNode.BIRFunctionParameter> birFuncParams = birFunc.parameters.keySet();
-
-        for (BIRNode.BIRFunctionParameter birFuncParam : birFuncParams) {
+        for (BIRNode.BIRFunctionParameter birFuncParam : birFunc.parameters) {
             BIROperand argRef = new BIROperand(birFuncParam);
             args.add(argRef);
         }

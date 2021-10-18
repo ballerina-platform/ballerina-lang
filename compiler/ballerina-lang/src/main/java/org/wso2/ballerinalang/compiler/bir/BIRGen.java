@@ -194,6 +194,7 @@ import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.CLASS_DEFN;
 import static org.ballerinalang.model.tree.NodeKind.INVOCATION;
+import static org.ballerinalang.model.tree.NodeKind.STATEMENT_EXPRESSION;
 import static org.wso2.ballerinalang.compiler.desugar.AnnotationDesugar.ANNOTATION_DATA;
 import static org.wso2.ballerinalang.compiler.util.Constants.DESUGARED_MAPPING_CONSTR_KEY;
 
@@ -712,7 +713,6 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.unlockVars.clear();
 
         // Rearrange basic block ids.
-        birFunc.parameters.values().forEach(basicBlocks -> basicBlocks.forEach(bb -> bb.id = this.env.nextBBId(names)));
         birFunc.basicBlocks.forEach(bb -> bb.id = this.env.nextBBId(names));
         // Rearrange error entries.
         birFunc.errorTable.sort(Comparator.comparingInt(o -> Integer.parseInt(o.trapBB.id.value.replace("bb", ""))));
@@ -1023,7 +1023,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         BIRParameter parameter = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
         birFunc.requiredParams.add(parameter);
-        birFunc.parameters.put(birVarDcl, bbsOfDefaultValueExpr);
+        birFunc.parameters.add(birVarDcl);
 
         // We maintain a mapping from variable symbol to the bir_variable declaration.
         // This is required to pull the correct bir_variable declaration for variable references.
@@ -1033,7 +1033,7 @@ public class BIRGen extends BLangNodeVisitor {
     private void addRestParam(BIRFunction birFunc, BVarSymbol paramSymbol, Location pos) {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false);
-        birFunc.parameters.put(birVarDcl, new ArrayList<>());
+        birFunc.parameters.add(birVarDcl);
         birFunc.localVars.add(birVarDcl);
 
         birFunc.restParam = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
@@ -1046,7 +1046,7 @@ public class BIRGen extends BLangNodeVisitor {
     private void addRequiredParam(BIRFunction birFunc, BVarSymbol paramSymbol, Location pos) {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false);
-        birFunc.parameters.put(birVarDcl, new ArrayList<>());
+        birFunc.parameters.add(birVarDcl);
         birFunc.localVars.add(birVarDcl);
 
         BIRParameter parameter = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
@@ -1202,9 +1202,11 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
-        exprStmtNode.expr.accept(this);
-        if (this.env.returnBB == null && exprStmtNode.expr.getKind() == NodeKind.INVOCATION &&
-                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(exprStmtNode.expr.getBType())) {
+        BLangExpression expr = exprStmtNode.expr;
+        expr.accept(this);
+        if (this.env.returnBB == null && expr.getKind() == STATEMENT_EXPRESSION &&
+                ((BLangStatementExpression) expr).expr.getKind() == INVOCATION &&
+        types.isNeverTypeOrStructureTypeWithARequiredNeverMember(expr.getBType())) {
             BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId(names));
             returnBB.terminator = new BIRTerminator.Return(exprStmtNode.pos);
             this.env.returnBB = returnBB;

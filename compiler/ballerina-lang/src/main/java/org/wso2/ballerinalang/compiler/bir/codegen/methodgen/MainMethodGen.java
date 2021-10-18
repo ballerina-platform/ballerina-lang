@@ -236,7 +236,7 @@ public class MainMethodGen {
     private void generateUserMainFunctionCall(BIRNode.BIRFunction userMainFunc, String initClass, MethodVisitor mv) {
         int schedulerVarIndex = indexMap.get(SCHEDULER_VAR);
         mv.visitVarInsn(ALOAD, schedulerVarIndex);
-        loadCLIArgsForMain(mv, new ArrayList<>(userMainFunc.parameters.keySet()), userMainFunc.annotAttachments);
+        loadCLIArgsForMain(mv, userMainFunc.parameters, userMainFunc.annotAttachments);
 
         // invoke the user's main method
         genSubmitToScheduler(initClass, mv, "$lambda$main$", "main", MAIN_FUTURE_VAR);
