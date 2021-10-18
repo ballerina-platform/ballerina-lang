@@ -162,6 +162,22 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 611, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 621, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 630, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 637, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 642, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 649, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 658, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 663, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 670, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 679, 9);
+        validateError(result, i++, ERROR_MUST_RETURN_A_RESULT, 682, 1);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 690, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 704, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 720, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 730, 9);
+        validateError(result, i++, ERROR_MUST_RETURN_A_RESULT, 733, 1);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 741, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 755, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 771, 5);
         Assert.assertEquals(result.getErrorCount(), i - 16);
         Assert.assertEquals(result.getHintCount(), 15);
         Assert.assertEquals(result.getWarnCount(), 1);
@@ -194,6 +210,12 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, "incompatible types: expected 'int', found '(int|string)'", 218, 13);
         validateError(result, i++, "incompatible types: expected 'string', found 'int'", 220, 16);
         validateError(result, i++, "incompatible types: expected 'string', found 'string?'", 223, 16);
+        validateError(result, i++, "incompatible types: expected '10', found '20'", 233, 12);
+        validateError(result, i++, "incompatible types: expected 'string', found '10'", 243, 16);
+        validateError(result, i++, "incompatible types: expected '20', found '10'", 253, 12);
+        validateError(result, i++, "incompatible types: expected '10', found '20'", 266, 12);
+        validateError(result, i++, "incompatible types: expected 'string', found '10'", 276, 16);
+        validateError(result, i++, "incompatible types: expected '20', found '10'", 286, 12);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }

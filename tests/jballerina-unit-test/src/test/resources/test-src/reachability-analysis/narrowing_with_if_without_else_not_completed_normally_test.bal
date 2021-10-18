@@ -222,3 +222,66 @@ function testTypeNarrowingWithIfWithoutElseNotCompletedNormally2() {
     c = "B";
     string v = c;
 }
+
+function testTypeNarrowingWithIfWithoutElseNotCompletedNormally3() {
+    10|20 b = 10;
+
+    if b == 10 {
+        return;
+    }
+
+    10 c = b;
+}
+
+function testTypeNarrowingWithIfWithoutElseNotCompletedNormally4() {
+    10 b = 10;
+
+    if b == 10 {
+        return;
+    }
+
+    string a = b;
+}
+
+function testTypeNarrowingWithIfWithoutElseNotCompletedNormally5() {
+    10|20 b = 10;
+
+    if b != 10 {
+        return;
+    }
+
+    20 c = b;
+}
+
+type Type1 10|20;
+type Type2 10;
+
+function testTypeNarrowingWithIfWithoutElseNotCompletedNormally6() {
+    Type1 b = 10;
+
+    if b == 10 {
+        return;
+    }
+
+    10 c = b;
+}
+
+function testTypeNarrowingWithIfWithoutElseNotCompletedNormally7() {
+    Type2 b = 10;
+
+    if b == 10 {
+        return;
+    }
+
+    string a = b;
+}
+
+function testTypeNarrowingWithIfWithoutElseNotCompletedNormally8() {
+    Type1 b = 10;
+
+    if b != 10 {
+        return;
+    }
+
+    20 c = b;
+}

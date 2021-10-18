@@ -629,3 +629,144 @@ function testUnreachableCodeWithUnaryCondition4() {
     }
     int b = 2; // unreachable code
 }
+
+function testUnreachableCodeWithUnaryCondition6() {
+    if true == true {
+        return;
+    }
+    int a = 10; // unreachable code
+}
+
+function testUnreachableCodeWithUnaryCondition7() {
+    if !true == true {
+        int a = 10; // unreachable code
+    }
+    int b = 10;
+}
+
+function testUnreachableCodeWithUnaryCondition8() {
+    if false == true {
+        int a = 10; // unreachable code
+    }
+    int b = 10;
+}
+
+function testUnreachableCodeWithUnaryCondition9() {
+    while true == true {
+        return;
+    }
+    int a = 10; // unreachable code
+}
+
+function testUnreachableCodeWithUnaryCondition10() {
+    while !true == true {
+        int a = 10; // unreachable code
+    }
+    int b = 10;
+}
+
+function testUnreachableCodeWithUnaryCondition11() {
+    while false == true {
+        int a = 10; // unreachable code
+    }
+    int b = 10;
+}
+
+function testReachableCodeWithBinaryCondition12() returns int {
+    10 b = 10;
+
+    if b != 10 {
+        return 10; // unreachable code
+    }
+    // must return a result
+}
+
+function testReachableCodeWithBinaryCondition13() {
+    10 b = 10;
+
+    if b == 10 {
+        return;
+    }
+    int c = 10; // unreachable code
+}
+
+function testReachableCodeWithBinaryCondition14() {
+    10|20 b = 10;
+
+    if b == 10 {
+        return;
+    }
+
+    if b == 20 {
+        return;
+    }
+
+    int c = 10; // unreachable code
+}
+
+function testReachableCodeWithBinaryCondition15() {
+    10|20 b = 10;
+
+    if b != 10 {
+        return;
+    }
+
+    10 a = b;
+
+    if b != 20 {
+        return;
+    }
+
+    int c = 10; // unreachable code
+}
+
+type Type1 10|20;
+type Type2 10;
+
+function testReachableCodeWithBinaryCondition16() returns int {
+    Type2 b = 10;
+
+    if b != 10 {
+        return 10; // unreachable code
+    }
+    // must return a result
+}
+
+function testReachableCodeWithBinaryCondition17() {
+    Type2 b = 10;
+
+    if b == 10 {
+        return;
+    }
+    int c = 10; // unreachable code
+}
+
+function testReachableCodeWithBinaryCondition18() {
+    Type1 b = 10;
+
+    if b == 10 {
+        return;
+    }
+
+    if b == 20 {
+        return;
+    }
+
+    int c = 10; // unreachable code
+}
+
+function testReachableCodeWithBinaryCondition19() {
+    Type1 b = 10;
+
+    if b != 10 {
+        return;
+    }
+
+    10 a = b;
+
+    if b != 20 {
+        return;
+    }
+
+    int c = 10; // unreachable code
+}

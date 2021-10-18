@@ -563,6 +563,68 @@ function testReachableCodeWithBinaryCondition3() {
     int b = 1;
 }
 
+function testReachableCodeWithBinaryCondition4() returns int {
+    10|20 b = 10;
+
+    if b == 10 {
+        return 10;
+    }
+
+    20 c = b;
+
+    if b  == 20 {
+        return 20;
+    }
+}
+
+function testReachableCodeWithBinaryCondition5() returns int {
+    10 b = 10;
+
+    if b == 10 {
+        return 10;
+    }
+}
+
+type Type1 10|20;
+
+function testReachableCodeWithBinaryCondition6() returns int {
+    Type1 b = 10;
+
+    if b != 10 {
+        return 20;
+    }
+
+    10 c = b;
+
+    if b != 20 {
+        return 10;
+    }
+}
+
+type Type2 10;
+
+function testReachableCodeWithBinaryCondition8() returns int {
+    Type2 b = 10;
+
+    if b == 10 {
+        return 10;
+    }
+}
+
+function testReachableCodeWithBinaryCondition9() returns int {
+    Type1 b = 10;
+
+    if b != 10 {
+        return 20;
+    }
+
+    10 c = b;
+
+    if b != 20 {
+        return 10;
+    }
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;
