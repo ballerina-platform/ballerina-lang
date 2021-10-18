@@ -55,6 +55,9 @@ public class PackCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--with-tests"}, description = "perform test compilation and execution")
     private Boolean withTests;
 
+    @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
+    private Boolean skipTests;
+
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
     private Boolean sticky;
 
@@ -64,14 +67,45 @@ public class PackCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
     private String debugPort;
 
+    @CommandLine.Option(names = "--list-conflicted-classes",
+            description = "list conflicted classes when generating executable")
+    private Boolean listConflictedClasses;
 
-    // TODO : Not sure if we need to include these
+
+    //TODO: REVIEW : Not sure if we need to include these
     @CommandLine.Option(names = "--includes", hidden = true,
             description = "hidden option for code coverage to include all classes")
     private String includes;
 
     @CommandLine.Option(names = "--coverage-format", description = "list of supported coverage report formats")
     private String coverageFormat;
+
+    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
+    private Boolean experimentalFlag;
+
+    @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
+    private String cloud;
+
+    @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
+            "JAR file(s).")
+    private Boolean observabilityIncluded;
+
+    @CommandLine.Option(names = "--dump-bir", hidden = true)
+    private boolean dumpBIR;
+
+    @CommandLine.Option(names = "--dump-bir-file", hidden = true)
+    private Boolean dumpBIRFile;
+
+    @CommandLine.Option(names = "--dump-graph", hidden = true)
+    private boolean dumpGraph;
+
+    @CommandLine.Option(names = "--dump-raw-graphs", hidden = true)
+    private boolean dumpRawGraphs;
+
+    @CommandLine.Option(names = "--dump-build-time", description = "calculate and dump build time")
+    private Boolean dumpBuildTime;
+
+
 
     public PackCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -201,7 +235,7 @@ public class PackCommand implements BLauncherCmd {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
 
-        // TODO : INCLUDE CODE COVERAGE IF REQUIRED
+        // TODO : REVIEW : INCLUDE CODE COVERAGE IF REQUIRED
 
         // Validate Settings.toml file
 
@@ -229,7 +263,17 @@ public class PackCommand implements BLauncherCmd {
 
     private BuildOptions constructBuildOptions() {
         return new BuildOptionsBuilder()
+                .experimental(experimentalFlag)
                 .offline(offline)
+                .skipTests(skipTests)
+                .observabilityIncluded(observabilityIncluded)
+                .cloud(cloud)
+                .dumpBir(dumpBIR)
+                .dumpBirFile(dumpBIRFile)
+                .dumpGraph(dumpGraph)
+                .dumpRawGraphs(dumpRawGraphs)
+                .listConflictedClasses(listConflictedClasses)
+                .dumpBuildTime(dumpBuildTime)
                 .sticky(sticky)
                 .build();
     }
