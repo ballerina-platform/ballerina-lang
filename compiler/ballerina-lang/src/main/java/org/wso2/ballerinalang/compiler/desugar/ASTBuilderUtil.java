@@ -930,11 +930,12 @@ public class ASTBuilderUtil {
         return xmlTextLiteral;
     }
 
-    public static BLangDynamicArgExpr createDynamicParamExpression(BLangExpression condition,
+    public static BLangDynamicArgExpr createDynamicParamExpression(BLangExpression condition, BVarSymbol param,
                                                                    BLangExpression conditionalArg) {
         BLangDynamicArgExpr dynamicExpression = new BLangDynamicArgExpr();
         dynamicExpression.condition = condition;
         dynamicExpression.conditionalArgument = conditionalArg;
+        dynamicExpression.setBType(param.getType());
         return dynamicExpression;
     }
 
