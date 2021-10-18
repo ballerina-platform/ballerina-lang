@@ -17,6 +17,7 @@
 package org.ballerinalang.debugadapter.variable;
 
 import com.sun.jdi.Field;
+import com.sun.jdi.IncompatibleThreadStateException;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.sun.jdi.ThreadReference.THREAD_STATUS_RUNNING;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 
 /**
@@ -144,14 +146,29 @@ public class VariableUtils {
                 return UNKNOWN_VALUE;
             }
             Optional<Method> method = VariableUtils.getMethod(jvmObject, METHOD_STRINGVALUE);
-            if (method.isPresent()) {
-                Value stringValue = ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread()
-                                .getThreadReference(), method.get(), Collections.singletonList(null),
-                        ObjectReference.INVOKE_SINGLE_THREADED);
-                return VariableUtils.getStringFrom(stringValue);
+            if (method.isEmpty()) {
+                return UNKNOWN_VALUE;
             }
+
+            // Since the remote VM's active thread will be accessed from multiple debugger threads, there's a chance
+            // for 'IncompatibleThreadStateException's. Therefore debugger might need to retry few times until the
+            // thread gets released. (current wait time => ~100ms)
+            for (int attempt = 0; attempt < 10; attempt++) {
+                try {
+                    Value stringValue = ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread()
+                                    .getThreadReference(), method.get(), Collections.singletonList(null),
+                            ObjectReference.INVOKE_SINGLE_THREADED);
+                    return VariableUtils.getStringFrom(stringValue);
+                } catch (IncompatibleThreadStateException e) {
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException ignored) {
+                    }
+                }
+            }
+
             return UNKNOWN_VALUE;
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             return UNKNOWN_VALUE;
         }
     }
