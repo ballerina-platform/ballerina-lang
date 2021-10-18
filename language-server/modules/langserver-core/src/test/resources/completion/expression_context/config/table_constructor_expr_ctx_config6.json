@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 13,
+    "character": 47
+  },
+  "source": "expression_context/source/table_constructor_expr_ctx_source6.bal",
+  "items": [
+    {
+      "label": "salary",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "AG",
+      "insertText": "salary",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "numOfLeaves",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "BG",
+      "insertText": "numOfLeaves",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "firstname",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "AG",
+      "insertText": "firstname",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lastname",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "AG",
+      "insertText": "lastname",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

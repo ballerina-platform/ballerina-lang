@@ -1,0 +1,30 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Ballerina Manifest Spec",
+    "description": "Schema for Ballerina Manifest",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "package": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 10,
+                    "message" : {
+                        "type" : "invalid type"
+                    }
+                },
+                "org": {
+                    "type": "string",
+                    "pattern": ".*?",
+                    "minLength": 3,
+                    "message" : {
+                        "pattern" : "org cant be empty"
+                    }
+                }
+            }
+        }
+    }
+}

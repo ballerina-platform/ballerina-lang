@@ -24,6 +24,9 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClientAware;
+import org.ballerinalang.langserver.commons.registration.BallerinaClientCapability;
+import org.ballerinalang.langserver.commons.registration.BallerinaInitializeParams;
+import org.ballerinalang.langserver.commons.registration.BallerinaInitializeResult;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.ballerinalang.langserver.config.ClientConfigListener;
 import org.ballerinalang.langserver.config.LSClientConfig;
@@ -31,16 +34,6 @@ import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.ballerinalang.langserver.extensions.AbstractExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
-import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorService;
-import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorServiceImpl;
-import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentService;
-import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentServiceImpl;
-import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleService;
-import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleServiceImpl;
-import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageService;
-import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageServiceImpl;
-import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolService;
-import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolServiceImpl;
 import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
 import org.ballerinalang.langserver.task.BackgroundTaskService;
 import org.ballerinalang.langserver.util.LSClientUtil;
@@ -93,11 +86,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     private ExtendedLanguageClient client = null;
     private final TextDocumentService textService;
     private final WorkspaceService workspaceService;
-    private final BallerinaDocumentService ballerinaDocumentService;
-    private final BallerinaConnectorService ballerinaConnectorService;
-    private final BallerinaExampleService ballerinaExampleService;
-    private final BallerinaSymbolService ballerinaSymbolService;
-    private final BallerinaPackageService ballerinaPackageService;
     private int shutdown = 1;
 
     private static final String LS_INIT_MODE_PROPERTY = "enableLightWeightMode";
@@ -111,11 +99,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         super(serverContext);
         this.textService = new BallerinaTextDocumentService(this, workspaceManager, this.serverContext);
         this.workspaceService = new BallerinaWorkspaceService(this, workspaceManager, this.serverContext);
-        this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(workspaceManager, this.serverContext);
-        this.ballerinaConnectorService = new BallerinaConnectorServiceImpl(this.serverContext);
-        this.ballerinaExampleService = new BallerinaExampleServiceImpl(this.serverContext);
-        this.ballerinaSymbolService = new BallerinaSymbolServiceImpl(workspaceManager, this.serverContext);
-        this.ballerinaPackageService = new BallerinaPackageServiceImpl(workspaceManager, this.serverContext);
     }
 
     public ExtendedLanguageClient getClient() {
@@ -160,19 +143,12 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         // Register LS semantic tokens capabilities if dynamic registration is not available
         if (!LSClientUtil.isDynamicSemanticTokensRegistrationSupported(params.getCapabilities().getTextDocument()) &&
                 enableBallerinaSemanticTokens(params)) {
-            res.getCapabilities().setSemanticTokensProvider(
-                    SemanticTokensUtils.getSemanticTokensRegistrationOptions());
+            res.getCapabilities().setSemanticTokensProvider(SemanticTokensUtils.getSemanticTokensRegistrationOptions());
         }
 
         // Check and set prepare rename provider
-        if (params.getCapabilities().getTextDocument().getRename() != null &&
-                Boolean.TRUE.equals(params.getCapabilities().getTextDocument().getRename().getPrepareSupport())) {
-            RenameOptions renameOptions = new RenameOptions();
-            renameOptions.setPrepareProvider(true);
-            res.getCapabilities().setRenameProvider(renameOptions);
-        } else {
-            res.getCapabilities().setRenameProvider(true);
-        }
+        boolean prepareSupport = LSClientUtil.clientSupportsPrepareRename(params.getCapabilities());
+        res.getCapabilities().setRenameProvider(new RenameOptions(prepareSupport));
 
         // We are not registering commands here because they need to be registered/unregistered dynamically.
         // Only if the client doesn't support dynamic command registration, we do registration here
@@ -327,7 +303,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         LSClientCapabilities capabilities = this.serverContext.get(LSClientCapabilities.class);
         if (LSClientUtil.isDynamicSemanticTokensRegistrationSupported(capabilities.getTextDocCapabilities())) {
             registerSemanticTokensConfigListener();
-            if (capabilities.getWorkspaceCapabilities().getDidChangeConfiguration() == null &&
+            if (capabilities.getWorkspaceCapabilities() != null
+                    && capabilities.getWorkspaceCapabilities().getDidChangeConfiguration() == null &&
                     capabilities.getInitializationOptions().isEnableSemanticTokens()) {
                 SemanticTokensUtils.registerSemanticTokensCapability(serverContext.get(ExtendedLanguageClient.class));
             }
@@ -358,20 +335,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         return this.workspaceService;
     }
 
-    public BallerinaDocumentService getBallerinaDocumentService() {
-        return this.ballerinaDocumentService;
-    }
-
-    @Override
-    public BallerinaConnectorService getBallerinaConnectorService() {
-        return this.ballerinaConnectorService;
-    }
-
-    @Override
-    public BallerinaExampleService getBallerinaExampleService() {
-        return this.ballerinaExampleService;
-    }
-
     @Override
     public void connect(ExtendedLanguageClient languageClient) {
         this.client = languageClient;
@@ -379,13 +342,18 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         LSClientLogger.getInstance(this.serverContext).initialize(this.client, this.serverContext);
     }
 
-    public BallerinaSymbolService getBallerinaSymbolService() {
-        return ballerinaSymbolService;
-    }
-
     @Override
-    public BallerinaPackageService getBallerinaPackageService() {
-        return this.ballerinaPackageService;
+    public CompletableFuture<BallerinaInitializeResult> initBalServices(BallerinaInitializeParams params) {
+        return CompletableFuture.supplyAsync(() -> {
+            BallerinaInitializeResult balInitResult = new BallerinaInitializeResult();
+            List<BallerinaClientCapability> balClientCapabilities =
+                    ExtendedClientCapabilityBuilder.get(params.getBallerinaClientCapabilities());
+            LSClientCapabilities capabilities = this.serverContext.get(LSClientCapabilities.class);
+            capabilities.setBallerinaClientCapabilities(balClientCapabilities);
+            balInitResult.setExtendedServerCapabilities(ExtendedServerCapabilityBuilder.get());
+
+            return balInitResult;
+        });
     }
 
     /**

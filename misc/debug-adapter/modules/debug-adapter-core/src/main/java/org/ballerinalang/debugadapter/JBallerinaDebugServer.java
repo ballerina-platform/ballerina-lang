@@ -27,6 +27,7 @@ import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
+import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
 import org.ballerinalang.debugadapter.config.ClientAttachConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigurationException;
@@ -418,10 +419,21 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<EvaluateResponse> evaluate(EvaluateArguments args) {
         EvaluateResponse response = new EvaluateResponse();
-        // If the execution manager is not active, sends null response.
+        // If the execution manager is not active, it implies that the debug server is still not connected to the
+        // remote VM and therefore the request should be rejected immediately.
         if (executionManager == null || !executionManager.isActive()) {
+            context.getOutputLogger().sendErrorOutput(EvaluationExceptionKind.PREFIX + "Debug server is not " +
+                    "connected to any program VM.");
             return CompletableFuture.completedFuture(response);
         }
+        // If the frame ID is missing in the client args, it implies that remote program is still running and therefore
+        // the request should be rejected immediately.
+        if (args.getFrameId() == null) {
+            context.getOutputLogger().sendErrorOutput(EvaluationExceptionKind.PREFIX + "Remote VM is not suspended " +
+                    "and still in running state.");
+            return CompletableFuture.completedFuture(response);
+        }
+
         // Evaluate arguments context becomes `variables` when we do a `Copy Value` from VS Code, and
         // evaluate arguments context becomes `repl` when we evaluate expressions from VS Code.
         // If evaluate arguments context is equal to `variables`, then respond with expression as it is without

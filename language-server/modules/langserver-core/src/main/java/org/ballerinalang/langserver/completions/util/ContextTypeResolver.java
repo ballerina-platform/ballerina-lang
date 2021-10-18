@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -48,6 +49,7 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
@@ -208,6 +210,11 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     public Optional<TypeSymbol> transform(VariableDeclarationNode node) {
         return this.visit(node.typedBindingPattern().bindingPattern());
     }
+    
+    @Override
+    public Optional<TypeSymbol> transform(LetVariableDeclarationNode node) {
+        return this.visit(node.typedBindingPattern().bindingPattern());
+    }
 
     @Override
     public Optional<TypeSymbol> transform(ObjectFieldNode node) {
@@ -271,18 +278,17 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
         /*
-         * For error constructor node we return the detailed type descriptor of the error type desc.
+         * For error constructor node we return the detail type descriptor of the error type desc.
          */
-        Optional<TypeDescriptorNode> typeRef = errorConstructorExpressionNode.typeReference();
         Optional<SemanticModel> semanticModel = context.currentSemanticModel();
-        if (typeRef.isEmpty() || semanticModel.isEmpty()) {
+        if (semanticModel.isEmpty()) {
             return Optional.empty();
         }
-        Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(typeRef.get());
-        if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.TYPE) {
+        Optional<TypeSymbol> typeRefSymbol = semanticModel.get().typeOf(errorConstructorExpressionNode);
+        if (typeRefSymbol.isEmpty() || typeRefSymbol.get().typeKind() != TypeDescKind.TYPE_REFERENCE) {
             return Optional.empty();
         }
-        TypeSymbol typeSymbol = ((TypeReferenceTypeSymbol) symbol.get()).typeDescriptor();
+        TypeSymbol typeSymbol = ((TypeReferenceTypeSymbol) typeRefSymbol.get()).typeDescriptor();
         if (typeSymbol.typeKind() != TypeDescKind.ERROR) {
             return Optional.empty();
         }
@@ -528,7 +534,18 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                 }
                 break;
             case ERROR_CONSTRUCTOR: {
-                // TODO: Couldn't find a way to get this done yet due to a limitation. Need to implement
+                Optional<TypeSymbol> errorDetail = this.visit(namedArgumentNode.parent());
+                if (errorDetail.isEmpty() || errorDetail.get().typeKind() != TypeDescKind.RECORD) {
+                    return Optional.empty();
+                }
+                Optional<RecordFieldSymbol> fieldSymbol =
+                        ((RecordTypeSymbol) errorDetail.get()).fieldDescriptors().values().stream()
+                                .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent()
+                                        && namedArgumentNode.argumentName().name().text().trim()
+                                        .equals(recordFieldSymbol.getName().get())).findFirst();
+                if (fieldSymbol.isPresent()) {
+                    return Optional.of(fieldSymbol.get().typeDescriptor());
+                }
             }
         }
 

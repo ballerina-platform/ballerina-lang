@@ -53,7 +53,9 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(projectPath.resolve(ProjectConstants.BALLERINA_TOML)));
         String tomlContent = Files.readString(
                 projectPath.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String expectedContent = "[build-options]\n" +
+        String expectedContent = "[package]\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
                 "observabilityIncluded = true\n";
         Assert.assertTrue(tomlContent.contains(expectedContent));
 
@@ -90,7 +92,9 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String expectedContent = "[build-options]\n" +
+        String expectedContent = "[package]\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
                 "observabilityIncluded = true\n";
         Assert.assertTrue(tomlContent.contains(expectedContent));
 
@@ -125,7 +129,9 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String expectedContent = "[build-options]\n" +
+        String expectedContent = "[package]\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
                 "observabilityIncluded = true\n";
         Assert.assertTrue(tomlContent.contains(expectedContent));
 
@@ -244,13 +250,37 @@ public class InitCommandTest extends BaseCommandTest {
     public void testInitCommandWithInvalidProjectName() throws IOException {
         // Test if no arguments was passed in
         Path projectPath = tmpDir.resolve("sample5");
-        Files.createDirectory(projectPath);
+        if (Files.notExists(projectPath)) {
+            Files.createDirectory(projectPath);
+        }
         String[] args = {"hello-app"};
         InitCommand initCommand = new InitCommand(projectPath, printStream, false);
         new CommandLine(initCommand).parseArgs(args);
         initCommand.execute();
 
         Assert.assertTrue(readOutput().contains("invalid package name :"));
+    }
+
+    @Test(description = "Test init command with project name has more than 256 characters")
+    public void testInitCommandWithProjectNameHasMoreThan256Chars() throws IOException {
+        Path projectPath = tmpDir.resolve("sample5");
+        if (Files.notExists(projectPath)) {
+            Files.createDirectory(projectPath);
+        }
+        String packageName = "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting";
+        String[] args = {packageName};
+        InitCommand initCommand = new InitCommand(projectPath, printStream, false);
+        new CommandLine(initCommand).parseArgs(args);
+        initCommand.execute();
+
+        Assert.assertTrue(readOutput().contains("invalid package name : '" + packageName + "' :\n"
+                + "Maximum length of package name is 256 characters."));
     }
 
     @Test(description = "Test init command inside a ballerina project", dependsOnMethods = "testInitCommand")

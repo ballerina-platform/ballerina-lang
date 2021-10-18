@@ -407,7 +407,7 @@ public class DocModelTest {
         Assert.assertEquals(uuidRec.get().fields.get(0).name, "timeLow");
         Assert.assertEquals(uuidRec.get().fields.get(0).type.orgName, "ballerina");
         Assert.assertEquals(uuidRec.get().fields.get(0).type.moduleName, "lang.int");
-        Assert.assertEquals(uuidRec.get().fields.get(0).type.version, "1.1.0");
+        Assert.assertEquals(uuidRec.get().fields.get(0).type.version, "0.0.0");
         Assert.assertEquals(uuidRec.get().fields.get(0).type.name, "Unsigned32");
         Assert.assertEquals(uuidRec.get().fields.get(0).type.category, "types");
 
