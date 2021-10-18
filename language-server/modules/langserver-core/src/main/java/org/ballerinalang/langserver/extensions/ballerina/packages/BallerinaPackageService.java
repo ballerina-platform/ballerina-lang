@@ -15,21 +15,13 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.packages;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import io.ballerina.compiler.api.symbols.AbsResourcePathAttachPoint;
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.LiteralAttachPoint;
-import io.ballerina.compiler.api.symbols.ServiceAttachPointKind;
-import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
-import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -44,11 +36,8 @@ import org.eclipse.lsp4j.services.LanguageServer;
 
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-
 /**
  * Implementation of Ballerina package extension for Language Server.
  *

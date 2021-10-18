@@ -15,9 +15,6 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.packages;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
@@ -32,135 +29,110 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.tools.text.LineRange;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
  * The node transformer class to get the list of module level components.
  */
-public class DocumentComponentTransformer extends NodeTransformer<JsonElement> {
-    private final JsonObject module;
+public class DocumentComponentTransformer extends NodeTransformer<Optional<MapperObject>> {
+    private final ModuleObject module;
 
-    DocumentComponentTransformer(JsonObject module) {
-        this.module = module;
+    DocumentComponentTransformer(ModuleObject moduleObject) {
+        this.module = moduleObject;
     }
 
-    @Override
-    public JsonElement transformSyntaxNode(Node node) {
-        if (!(node instanceof NonTerminalNode)) {
-            return this.module;
-        }
-        ((NonTerminalNode) node).children().forEach(child -> {
-            child.apply(this);
-        });
+    public ModuleObject getModuleObject(Node node) {
+        this.transformSyntaxNode(node);
         return this.module;
     }
 
-    public JsonElement transform(FunctionDefinitionNode functionDefinitionNode) {
-        JsonObject jsonFunction = new JsonObject();
-        jsonFunction.addProperty(PackageServiceConstants.NAME, functionDefinitionNode.functionName().text());
-        setPositionData(functionDefinitionNode, jsonFunction);
-        module.getAsJsonArray(PackageServiceConstants.FUNCTIONS).add(jsonFunction);
-        return null;
+    @Override
+    public Optional<MapperObject> transformSyntaxNode(Node node) {
+        if (!(node instanceof NonTerminalNode)) {
+            return Optional.empty();
+        }
+        ((NonTerminalNode) node).children().forEach(child -> {
+            Optional<MapperObject> mapperObject = child.apply(this);
+            if (mapperObject != null) {
+                mapperObject.ifPresent(this.module::addDataObject);
+            }
+        });
+        return Optional.empty();
     }
 
-    public JsonElement transform(ListenerDeclarationNode listenerDeclarationNode) {
-        addJsonObject(PackageServiceConstants.LISTENERS, listenerDeclarationNode.variableName().text(),
-                listenerDeclarationNode, this.module);
-        return null;
+    public Optional<MapperObject> transform(FunctionDefinitionNode functionDefinitionNode) {
+        return Optional.of(new MapperObject(PackageServiceConstants.FUNCTIONS,
+                createDataObject(functionDefinitionNode.functionName().text(), functionDefinitionNode)));
     }
 
-    public JsonElement transform(ServiceDeclarationNode serviceDeclarationNode) {
-        JsonObject jsonService = new JsonObject();
+    public Optional<MapperObject> transform(ListenerDeclarationNode listenerDeclarationNode) {
+        return Optional.of(new MapperObject(PackageServiceConstants.LISTENERS,
+                createDataObject(listenerDeclarationNode.variableName().text(), listenerDeclarationNode)));
+    }
+
+    public Optional<MapperObject> transform(ServiceDeclarationNode serviceDeclarationNode) {
         String name = serviceDeclarationNode.absoluteResourcePath().stream().map(node -> String.join("_",
                 node.toString())).collect(Collectors.joining());
-        jsonService.addProperty(PackageServiceConstants.NAME, name);
-        jsonService.add(PackageServiceConstants.RESOURCES, new JsonArray());
-        setPositionData(serviceDeclarationNode, jsonService);
+        DataObject dataObject = createDataObject(name, serviceDeclarationNode);
         serviceDeclarationNode.members().forEach(member -> {
             if (member.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
-                addJsonObject(PackageServiceConstants.RESOURCES,
-                        ((FunctionDefinitionNode) member).functionName().text(), member, jsonService);
+                dataObject.addResource(createDataObject(((FunctionDefinitionNode) member).functionName().text(),
+                        member));
             }
         });
-        module.getAsJsonArray(PackageServiceConstants.SERVICES).add(jsonService);
-        return null;
+        return Optional.of(new MapperObject(PackageServiceConstants.SERVICES, dataObject));
     }
 
-    public JsonElement transform(ClassDefinitionNode classDefinitionNode) {
-        JsonObject jsonClass = new JsonObject();
-        jsonClass.addProperty(PackageServiceConstants.NAME, classDefinitionNode.className().text());
-        jsonClass.add(PackageServiceConstants.FUNCTIONS, new JsonArray());
-        setPositionData(classDefinitionNode, jsonClass);
+    public Optional<MapperObject> transform(ClassDefinitionNode classDefinitionNode) {
+        DataObject dataObject = createDataObject(classDefinitionNode.className().text(), classDefinitionNode);
         classDefinitionNode.members().forEach(member -> {
             if (member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
-                addJsonObject(PackageServiceConstants.FUNCTIONS,
-                        ((FunctionDefinitionNode) member).functionName().text(), member, jsonClass);
+                dataObject.addFunction(createDataObject(((FunctionDefinitionNode) member).functionName().text(),
+                        member));
             }
         });
-        this.module.getAsJsonArray(PackageServiceConstants.CLASSES).add(jsonClass);
-        return null;
+        return Optional.of(new MapperObject(PackageServiceConstants.CLASSES, dataObject));
     }
 
-    public JsonElement transform(TypeDefinitionNode typeDefinitionNode) {
-        JsonObject jsonType = new JsonObject();
-        jsonType.addProperty(PackageServiceConstants.NAME, typeDefinitionNode.typeName().text());
-        setPositionData(typeDefinitionNode, jsonType);
+    public Optional<MapperObject> transform(TypeDefinitionNode typeDefinitionNode) {
         if (typeDefinitionNode.typeDescriptor().kind() == SyntaxKind.RECORD_TYPE_DESC) {
-            module.getAsJsonArray(PackageServiceConstants.RECORDS).add(jsonType);
+            return Optional.of(new MapperObject(PackageServiceConstants.RECORDS,
+                    createDataObject(typeDefinitionNode.typeName().text(), typeDefinitionNode)));
         } else if (typeDefinitionNode.typeDescriptor().kind() == SyntaxKind.OBJECT_TYPE_DESC) {
-            module.getAsJsonArray(PackageServiceConstants.OBJECTS).add(jsonType);
+            return Optional.of(new MapperObject(PackageServiceConstants.OBJECTS,
+                    createDataObject(typeDefinitionNode.typeName().text(), typeDefinitionNode)));
         } else {
-            module.getAsJsonArray(PackageServiceConstants.TYPES).add(jsonType);
+            return Optional.of(new MapperObject(PackageServiceConstants.TYPES,
+                    createDataObject(typeDefinitionNode.typeName().text(), typeDefinitionNode)));
         }
-        return null;
     }
 
-    public JsonElement transform(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
-        addJsonObject(PackageServiceConstants.MODULE_LEVEL_VARIABLE,
-                moduleVariableDeclarationNode.typedBindingPattern().bindingPattern().toString(),
-                moduleVariableDeclarationNode, this.module);
-        return null;
+    public Optional<MapperObject> transform(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
+        return Optional.of(new MapperObject(PackageServiceConstants.MODULE_LEVEL_VARIABLE,
+                createDataObject(moduleVariableDeclarationNode.typedBindingPattern().bindingPattern().toString(),
+                moduleVariableDeclarationNode)));
     }
 
-    public JsonElement transform(ConstantDeclarationNode constantDeclarationNode) {
-        addJsonObject(PackageServiceConstants.CONSTANTS, constantDeclarationNode.variableName().text(),
-                constantDeclarationNode, this.module);
-        return null;
+    public Optional<MapperObject> transform(ConstantDeclarationNode constantDeclarationNode) {
+        return Optional.of(new MapperObject(PackageServiceConstants.CONSTANTS,
+                createDataObject(constantDeclarationNode.variableName().text(), constantDeclarationNode)));
     }
 
-    public JsonElement transform(EnumDeclarationNode enumDeclarationNode) {
-        addJsonObject(PackageServiceConstants.ENUMS, enumDeclarationNode.identifier().text(), enumDeclarationNode,
-                this.module);
-        return null;
-    }
-
-    /**
-     * Set positional data for a node.
-     *
-     * @param node       {@link Node}
-     * @param jsonObject JSON Node to set positional data
-     */
-    private static void setPositionData(Node node, JsonObject jsonObject) {
-        LineRange lineRange = node.lineRange();
-        jsonObject.addProperty(PackageServiceConstants.FILE_PATH, lineRange.filePath());
-        jsonObject.addProperty(PackageServiceConstants.START_LINE, lineRange.startLine().line());
-        jsonObject.addProperty(PackageServiceConstants.START_COLUMN, lineRange.startLine().offset());
-        jsonObject.addProperty(PackageServiceConstants.END_LINE, lineRange.endLine().line());
-        jsonObject.addProperty(PackageServiceConstants.END_COLUMN, lineRange.endLine().offset());
+    public Optional<MapperObject> transform(EnumDeclarationNode enumDeclarationNode) {
+        return Optional.of(new MapperObject(PackageServiceConstants.ENUMS,
+                createDataObject(enumDeclarationNode.identifier().text(), enumDeclarationNode)));
     }
 
     /**
      * Create a json object with the component data and add it to the module array.
      *
-     * @param type Module component type
      * @param name Object name
      * @param node Node to infer data
-     * @param parentObject The parent json object into which the new object is added
      */
-    private void addJsonObject(String type, String name, Node node, JsonObject parentObject) {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty(PackageServiceConstants.NAME, name);
-        setPositionData(node, jsonObject);
-        parentObject.getAsJsonArray(type).add(jsonObject);
+    private DataObject createDataObject(String name, Node node) {
+        LineRange lineRange = node.lineRange();
+        return new DataObject(name, lineRange.filePath(), lineRange.startLine().line(), lineRange.startLine().offset(),
+                lineRange.endLine().line(), lineRange.endLine().offset());
     }
 }
