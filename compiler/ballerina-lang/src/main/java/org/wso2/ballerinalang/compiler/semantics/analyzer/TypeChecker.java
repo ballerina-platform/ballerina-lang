@@ -3230,7 +3230,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (actualType.tag == TypeTags.INTERSECTION) {
             actualType = ((BIntersectionType) actualType).effectiveType;
         }
-
+        BLangInvocation initInvocation = (BLangInvocation) cIExpr.initInvocation;
         switch (actualType.tag) {
             case TypeTags.OBJECT:
                 BObjectType actualObjectType = (BObjectType) actualType;
@@ -3259,15 +3259,15 @@ public class TypeChecker extends BLangNodeVisitor {
                 if ((actualType.tsymbol.flags & Flags.CLASS) != Flags.CLASS) {
                     dlog.error(cIExpr.pos, DiagnosticErrorCode.CANNOT_INITIALIZE_ABSTRACT_OBJECT,
                             actualType.tsymbol);
-                    cIExpr.initInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
+                    initInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
                     resultType = symTable.semanticError;
                     return;
                 }
 
                 if (((BObjectTypeSymbol) actualType.tsymbol).initializerFunc != null) {
-                    cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) actualType.tsymbol).initializerFunc.symbol;
-                    checkInvocationParam(cIExpr.initInvocation);
-                    cIExpr.initInvocation.setBType(((BInvokableSymbol) cIExpr.initInvocation.symbol).retType);
+                    initInvocation.symbol = ((BObjectTypeSymbol) actualType.tsymbol).initializerFunc.symbol;
+                    checkInvocationParam(initInvocation);
+                    initInvocation.setBType(((BInvokableSymbol) initInvocation.symbol).retType);
                 } else {
                     // If the initializerFunc is null then this is a default constructor invocation. Hence should not
                     // pass any arguments.
@@ -3277,8 +3277,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.STREAM:
-                if (cIExpr.initInvocation.argExprs.size() > 1) {
-                    dlog.error(cIExpr.pos, DiagnosticErrorCode.INVALID_STREAM_CONSTRUCTOR, cIExpr.initInvocation);
+                if (initInvocation.argExprs.size() > 1) {
+                    dlog.error(cIExpr.pos, DiagnosticErrorCode.INVALID_STREAM_CONSTRUCTOR, initInvocation);
                     resultType = symTable.semanticError;
                     return;
                 }
@@ -3293,8 +3293,8 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
 
-                if (!cIExpr.initInvocation.argExprs.isEmpty()) {
-                    BLangExpression iteratorExpr = cIExpr.initInvocation.argExprs.get(0);
+                if (!initInvocation.argExprs.isEmpty()) {
+                    BLangExpression iteratorExpr = initInvocation.argExprs.get(0);
                     BType constructType = checkExpr(iteratorExpr, env, symTable.noType);
                     BUnionType expectedNextReturnType = createNextReturnType(cIExpr.pos, (BStreamType) actualType);
                     if (constructType.tag != TypeTags.OBJECT) {
@@ -3345,13 +3345,13 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.UNION:
                 List<BType> matchingMembers = findMembersWithMatchingInitFunc(cIExpr, (BUnionType) actualType);
                 BType matchedType = getMatchingType(matchingMembers, cIExpr, actualType);
-                cIExpr.initInvocation.setBType(symTable.nilType);
+                initInvocation.setBType(symTable.nilType);
 
                 if (matchedType.tag == TypeTags.OBJECT) {
                     if (((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc != null) {
-                        cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc.symbol;
-                        checkInvocationParam(cIExpr.initInvocation);
-                        cIExpr.initInvocation.setBType(((BInvokableSymbol) cIExpr.initInvocation.symbol).retType);
+                        initInvocation.symbol = ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc.symbol;
+                        checkInvocationParam(initInvocation);
+                        initInvocation.setBType(((BInvokableSymbol) initInvocation.symbol).retType);
                         actualType = matchedType;
                         break;
                     } else {
@@ -3370,10 +3370,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
         }
 
-        if (cIExpr.initInvocation.getBType() == null) {
-            cIExpr.initInvocation.setBType(symTable.nilType);
+        if (initInvocation.getBType() == null) {
+            initInvocation.setBType(symTable.nilType);
         }
-        BType actualTypeInitType = getObjectConstructorReturnType(actualType, cIExpr.initInvocation.getBType());
+        BType actualTypeInitType = getObjectConstructorReturnType(actualType, initInvocation.getBType());
         resultType = types.checkType(cIExpr, actualTypeInitType, expType);
     }
 
@@ -3407,12 +3407,12 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isValidInitInvocation(BLangTypeInit cIExpr, BObjectType objType) {
-
-        if (!cIExpr.initInvocation.argExprs.isEmpty()
+        BLangInvocation initInvocation = (BLangInvocation) cIExpr.initInvocation;
+        if (!initInvocation.argExprs.isEmpty()
                 && ((BObjectTypeSymbol) objType.tsymbol).initializerFunc == null) {
             dlog.error(cIExpr.pos, DiagnosticErrorCode.TOO_MANY_ARGS_FUNC_CALL,
-                    cIExpr.initInvocation.name.value);
-            cIExpr.initInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
+                    initInvocation.name.value);
+            initInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
             resultType = symTable.semanticError;
             return false;
         }

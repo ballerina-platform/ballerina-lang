@@ -3230,7 +3230,7 @@ public class Desugar extends BLangNodeVisitor {
                                                       env.scope.owner.pkgID, retryManagerType, this.env.scope.owner,
                                                       pos, VIRTUAL);
         BLangTypeInit managerInit = ASTBuilderUtil.createEmptyTypeInit(pos, retryManagerType);
-        managerInit.initInvocation.requiredArgs = retrySpec.argExprs;
+        ((BLangInvocation) managerInit.initInvocation).requiredArgs = retrySpec.argExprs;
         BLangSimpleVariable retryManagerVariable = ASTBuilderUtil.createVariable(pos, "$retryManager$",
                 retryManagerType, managerInit, retryMangerSymbol);
         return ASTBuilderUtil.createVariableDef(pos, retryManagerVariable);
@@ -7389,8 +7389,9 @@ public class Desugar extends BLangNodeVisitor {
         // Create an instance of the generated object class
         BLangTypeInit typeNewExpr = ASTBuilderUtil.createEmptyTypeInit(pos, classObjType);
         typeNewExpr.argsExpr.add(insertionsList);
-        typeNewExpr.initInvocation.argExprs.add(insertionsList);
-        typeNewExpr.initInvocation.requiredArgs.add(insertionsList);
+        BLangInvocation initInvocation = (BLangInvocation) typeNewExpr.initInvocation;
+        initInvocation.argExprs.add(insertionsList);
+        initInvocation.requiredArgs.add(insertionsList);
 
         result = rewriteExpr(typeNewExpr);
     }
