@@ -393,6 +393,8 @@ function f19() {
         }
         [3] if new stream<int>(new IntStreamImplementor()) is stream<byte> => {
         }
+        [] if new stream<int>() is stream<byte> => {
+        }
     }
 }
 
