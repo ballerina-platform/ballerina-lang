@@ -473,7 +473,8 @@ public class Package {
 
         private void updateDependencyManifest() {
             DependencyManifestBuilder manifestBuilder = DependencyManifestBuilder.from(
-                     Optional.ofNullable(this.dependenciesTomlContext).map(d -> d.tomlDocument()).orElse(null));
+                     Optional.ofNullable(this.dependenciesTomlContext).map(d -> d.tomlDocument()).orElse(null),
+                     project.currentPackage().descriptor());
             this.dependencyManifest = manifestBuilder.dependencyManifest();
         }
 

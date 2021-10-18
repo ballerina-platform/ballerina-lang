@@ -19,7 +19,6 @@ package io.ballerina.projects.test;
 
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.model.Target;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -43,7 +42,7 @@ public class TestTarget {
         // 1) Initialize the project instance
         Project project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }

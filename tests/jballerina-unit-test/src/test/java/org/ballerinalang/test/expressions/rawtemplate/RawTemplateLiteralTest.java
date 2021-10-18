@@ -48,15 +48,15 @@ public class RawTemplateLiteralTest {
 
         // Attempts to assign raw templates to incompatible types
         validateError(errors, indx++, "invalid literal for type 'string': raw templates can only be assigned " +
-                "to abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 21, 18);
+                "to abstract subtypes of 'ballerina/lang.object:0.0.0:RawTemplate'", 21, 18);
         validateError(errors, indx++, "invalid literal for type 'anydata': raw templates can only be assigned " +
-                "to abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 22, 19);
+                "to abstract subtypes of 'ballerina/lang.object:0.0.0:RawTemplate'", 22, 19);
         validateError(errors, indx++, "invalid literal for type 'object { public (string[] & readonly) strings; " +
                 "public int insertions; }': raw templates can only be assigned to abstract subtypes of " +
-                "'ballerina/lang.object:1.0.0:RawTemplate'", 32, 15);
+                "'ballerina/lang.object:0.0.0:RawTemplate'", 32, 15);
         validateError(errors, indx++, "invalid literal for type 'object { public string strings; public int[] " +
                 "insertions; }': raw templates can only be assigned to abstract subtypes of " +
-                "'ballerina/lang.object:1.0.0:RawTemplate'", 37, 15);
+                "'ballerina/lang.object:0.0.0:RawTemplate'", 37, 15);
 
         validateError(errors, indx++, "invalid raw template: expected 2 insertion(s), but found " +
                 "3 insertion(s)", 51, 19);
@@ -74,15 +74,15 @@ public class RawTemplateLiteralTest {
                 "'insertions' fields", 104, 13);
 
         validateError(errors, indx++, "invalid literal for type 'object { }': raw templates can only be assigned " +
-                "to abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 107, 13);
+                "to abstract subtypes of 'ballerina/lang.object:0.0.0:RawTemplate'", 107, 13);
         validateError(errors, indx++, "invalid literal for type 'object { public (string[] & readonly) strings; }':" +
-                " raw templates can only be assigned to abstract subtypes of 'ballerina/lang.object:1.0" +
+                " raw templates can only be assigned to abstract subtypes of 'ballerina/lang.object:0.0" +
                 ".0:RawTemplate'", 111, 13);
         validateError(errors, indx++, "invalid literal for type 'object { public int[] insertions; }': raw templates " +
-                "can only be assigned to abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 115, 13);
+                "can only be assigned to abstract subtypes of 'ballerina/lang.object:0.0.0:RawTemplate'", 115, 13);
         validateError(errors, indx++, "invalid literal for type 'object { public int[] insertions; int foo; }': raw " +
                 "templates can only be assigned to abstract subtypes of " +
-                "'ballerina/lang.object:1.0.0:RawTemplate'", 120, 13);
+                "'ballerina/lang.object:0.0.0:RawTemplate'", 120, 13);
 
         validateError(errors, indx++, "invalid raw template assignment: 'object { public (string[] & readonly) " +
                 "strings; public int[] insertions; function shouldNotBeHere () returns (); }' should be a type " +
@@ -105,10 +105,10 @@ public class RawTemplateLiteralTest {
         validateError(errors, indx++, "included field 'strings' of type '(string[] & readonly)' cannot be overridden " +
                 "by a field of type 'string[]': expected a subtype of '(string[] & readonly)'", 155, 5);
         validateError(errors, indx++, "invalid literal for type 'Temp3': raw templates can only be assigned to " +
-                "abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 160, 15);
+                "abstract subtypes of 'ballerina/lang.object:0.0.0:RawTemplate'", 160, 15);
 
         validateError(errors, indx++, "ambiguous type for raw template: found multiple types compatible with " +
-                "'ballerina/lang.object:1.0.0:RawTemplate' in '(ballerina/lang.object:1.0" +
+                "'ballerina/lang.object:0.0.0:RawTemplate' in '(ballerina/lang.object:0.0" +
                 ".0:RawTemplate|Template1)'", 164, 35);
 
         assertEquals(errors.getErrorCount(), indx);
