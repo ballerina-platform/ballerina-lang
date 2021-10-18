@@ -94,6 +94,7 @@ function testContextuallyExpectedTypeOfNumericLiteralInMultiply() {
 type Ints 1|2;
 type T1 1|2|()|3;
 type T2 1|2|3?;
+type Decimals 1d|2d;
 
 function testMultiplyNullable() {
     int? a1 = 10;
@@ -121,8 +122,12 @@ function testMultiplyNullable() {
     Ints? a20 = 2;
 
     T1 a21 = 2;
-    T2 a22 = 1;
+    T2? a22 = 1;
     ()|int a23 = ();
+    T2? a24 = 1;
+
+    Decimals? a25 = 1;
+    Decimals? a26 = 2;
 
     int:Unsigned8 a = 1;
     int:Unsigned16 b = 2;
@@ -147,6 +152,8 @@ function testMultiplyNullable() {
     assertEqual(a22 * a22, 1);
     assertEqual(a22 * a23, ());
     assertEqual(a23 * a23, ());
+    assertEqual(a24 * a21, 2);
+    assertEqual(a25 * a26, 2d);
 
     assertEqual(a * a, 1);
     assertEqual(a * b, 2);

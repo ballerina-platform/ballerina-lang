@@ -104,6 +104,7 @@ function testContextuallyExpectedTypeOfNumericLiteralInDivision() {
 type Ints 1|2;
 type T1 1|2|()|3;
 type T2 1|2|3?;
+type Decimals 1d|2d;
 
 function testDivisionNullable() {
     int? a1 = 10;
@@ -131,8 +132,12 @@ function testDivisionNullable() {
     Ints? a20 = 2;
 
     T1 a21 = 2;
-    T2 a22 = 1;
+    T2? a22 = 1;
     ()|int a23 = ();
+    T2? a24 = 1;
+
+    Decimals? a25 = 1;
+    Decimals? a26 = 2;
 
     int:Unsigned32 a = 1000;
     int:Unsigned16 b = 500;
@@ -157,6 +162,8 @@ function testDivisionNullable() {
     assertEqual(a22 / a22, 1);
     assertEqual(a22 / a23, ());
     assertEqual(a23 / a23, ());
+    assertEqual(a21 / a24, 2);
+    assertEqual(a26 / a25, 2d);
 
     assertEqual(a / a, 1);
     assertEqual(a / b, 2);

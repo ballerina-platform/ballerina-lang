@@ -220,8 +220,6 @@ function testUnaryOperationsWithNonBasicTypes() {
     test:assertEquals(a15, -17);
 }
 
-function assertEquality(anydata expected, anydata actual) {
-    if expected == actual {
 function testNullableUnaryExpressions() {
     int? a1 = 10;
     int? a2 = 5;

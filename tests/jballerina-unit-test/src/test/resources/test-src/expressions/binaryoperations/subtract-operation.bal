@@ -78,6 +78,7 @@ function testSubtractSingleton() {
 type Ints 1|2;
 type T1 1|2|()|3;
 type T2 1|2|3?;
+type Decimals 1d|2d;
 
 function testSubNullable() {
     int? a1 = 5;
@@ -105,8 +106,12 @@ function testSubNullable() {
     Ints? a20 = 2;
 
     T1 a21 = 2;
-    T2 a22 = 1;
+    T2? a22 = 1;
     ()|int a23 = ();
+    T2? a24 = 1;
+
+    Decimals? a25 = 1;
+    Decimals? a26 = 2;
 
     int:Unsigned8 a = 1;
     int:Unsigned16 b = 2;
@@ -131,6 +136,8 @@ function testSubNullable() {
     assertEqual(a22 - a22, 0);
     assertEqual(a22 - a23, ());
     assertEqual(a23 - a23, ());
+    assertEqual(a21 - a24, 1);
+    assertEqual(a26 - a25, 1d);
 
     assertEqual(a - a, 0);
     assertEqual(a - b, -1);

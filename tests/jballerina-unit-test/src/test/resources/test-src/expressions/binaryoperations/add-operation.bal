@@ -142,22 +142,21 @@ function testContextuallyExpectedTypeOfNumericLiteralInAdd() {
     float a2 = 5 + 3 + 10.0;
     decimal a3 = 5 + 15.0;
     decimal a4 = 5.0 + 10.0 + 10;
+    float? a5 = 10 + 5;
+    decimal? a6 = 5 + 3;
 
     test:assertEquals(a1, 15.0);
     test:assertEquals(a2, 18.0);
     test:assertEquals(a3, 20.0d);
     test:assertEquals(a4, 25.0d);
-    assertEqual(a1, 15.0);
-    assertEqual(a2, 18.0);
-    assertEqual(a3, 20.0d);
-    assertEqual(a4, 25.0d);
-    assertEqual(a5, 15.0);
-    assertEqual(a6, 8.0d);
+    test:assertEquals(a5, 15.0);
+    test:assertEquals(a6, 8.0d);
 }
 
 type Ints 1|2;
 type T1 1|2|()|3;
 type T2 1|2|3?;
+type Decimals 1d|2d;
 
 function testAddNullable() {
     int? a1 = 5;
@@ -185,8 +184,12 @@ function testAddNullable() {
     Ints? a20 = 2;
 
     T1 a21 = 2;
-    T2 a22 = 1;
+    T2? a22 = 1;
     ()|int a23 = ();
+    T2? a24 = 1;
+
+    Decimals? a25 = 1;
+    Decimals? a26 = 2;
 
     int:Unsigned8 a = 1;
     int:Unsigned16 b = 2;
@@ -196,56 +199,56 @@ function testAddNullable() {
     int:Signed32 f = 10;
     byte g = 30;
 
-    assertEqual(a10, 33);
-    assertEqual(a11, 22);
-    assertEqual(a12, ());
-    assertEqual(a13, 15.5);
-    assertEqual(a14, 10.5);
-    assertEqual(a15, ());
-    assertEqual(a18, 3);
-    assertEqual(a19 + a20, 27);
+    test:assertEquals(a10, 33);
+    test:assertEquals(a11, 22);
+    test:assertEquals(a12, ());
+    test:assertEquals(a13, 15.5);
+    test:assertEquals(a14, 10.5);
+    test:assertEquals(a15, ());
+    test:assertEquals(a18, 3);
+    test:assertEquals(a19 + a20, 27);
 
-    assertEqual(a21 + a21, 4);
-    assertEqual(a21 + a22, 3);
-    assertEqual(a21 + a23, ());
-    assertEqual(a22 + a22, 2);
-    assertEqual(a22 + a23, ());
-    assertEqual(a23 + a23, ());
+    test:assertEquals(a21 + a21, 4);
+    test:assertEquals(a21 + a22, 3);
+    test:assertEquals(a21 + a23, ());
+    test:assertEquals(a22 + a22, 2);
+    test:assertEquals(a22 + a23, ());
+    test:assertEquals(a23 + a23, ());
+    test:assertEquals(a24 + a21, 3);
+    test:assertEquals(a25 + a26, 3d);
 
-    assertEqual(a + a, 2);
-    assertEqual(a + b, 3);
-    assertEqual(a + c, 6);
-    assertEqual(a + d, 21);
-    assertEqual(a + e, 11);
-    assertEqual(a + f, 11);
-    assertEqual(a + g, 31);
+    test:assertEquals(a + a, 2);
+    test:assertEquals(a + b, 3);
+    test:assertEquals(a + c, 6);
+    test:assertEquals(a + d, 21);
+    test:assertEquals(a + e, 11);
+    test:assertEquals(a + f, 11);
+    test:assertEquals(a + g, 31);
 
-    assertEqual(b + c, 7);
-    assertEqual(b + d, 22);
-    assertEqual(b + e, 12);
-    assertEqual(b + f, 12);
-    assertEqual(b + g, 32);
-    assertEqual(b + b, 4);
+    test:assertEquals(b + c, 7);
+    test:assertEquals(b + d, 22);
+    test:assertEquals(b + e, 12);
+    test:assertEquals(b + f, 12);
+    test:assertEquals(b + g, 32);
+    test:assertEquals(b + b, 4);
 
-    assertEqual(c + c, 10);
-    assertEqual(c + d, 25);
-    assertEqual(c + e, 15);
-    assertEqual(c + f, 15);
-    assertEqual(c + g, 35);
+    test:assertEquals(c + c, 10);
+    test:assertEquals(c + d, 25);
+    test:assertEquals(c + e, 15);
+    test:assertEquals(c + f, 15);
+    test:assertEquals(c + g, 35);
 
-    assertEqual(d + d, 40);
-    assertEqual(d + e, 30);
-    assertEqual(d + f, 30);
-    assertEqual(d + g, 50);
+    test:assertEquals(d + d, 40);
+    test:assertEquals(d + e, 30);
+    test:assertEquals(d + f, 30);
+    test:assertEquals(d + g, 50);
 
-    assertEqual(e + e, 20);
-    assertEqual(e + f, 20);
-    assertEqual(e + g, 40);
+    test:assertEquals(e + e, 20);
+    test:assertEquals(e + f, 20);
+    test:assertEquals(e + g, 40);
 
-    assertEqual(f + f, 20);
-    assertEqual(f + g, 40);
-
-    assertEqual(g + g, 60);
+    test:assertEquals(f + f, 20);
+    test:assertEquals(f + g, 40);
 }
 
 type Strings "x"|"yz";
