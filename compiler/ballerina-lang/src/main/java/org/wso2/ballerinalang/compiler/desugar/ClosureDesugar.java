@@ -184,6 +184,7 @@ import java.util.TreeMap;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createStatementExpression;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
 /**
@@ -208,6 +209,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private Names names;
     private int funClosureMapCount = 1;
     private int blockClosureMapCount = 1;
+    private int funcParamCount = 1;
 
     static {
         CLOSURE_MAP_NOT_FOUND = new BVarSymbol(0, new Name("$not$found"), null, null, null, null, VIRTUAL);
@@ -995,7 +997,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     public void rewriteInvocationExpr(BLangInvocation invocation) {
-        invocation.expr = rewriteExpr(invocation.expr);
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(invocation.pos);
         invocation.requiredArgs = rewriteExprs(invocation.requiredArgs);
         BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) invocation.symbol.type.tsymbol;
         if (invokableTypeSymbol == null) {
@@ -1007,6 +1009,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         for (int i = 0; i < invokableTypeSymbol.params.size(); i++) {
             BLangExpression arg;
+            BLangSimpleVariableDef variableDef;
+            BLangSimpleVarRef simpleVarRef;
             if (invocation instanceof BLangInvocation.BLangAttachedFunctionInvocation) {
                 arg = invocation.requiredArgs.get(i + 1);
             } else {
@@ -1015,7 +1019,20 @@ public class ClosureDesugar extends BLangNodeVisitor {
             BVarSymbol param = invokableTypeSymbol.params.get(i);
             String paramName = param.name.value;
             if (arg.getKind() != NodeKind.IGNORE_EXPR) {
-                arguments.put(paramName, arg);
+                if (invocation.expr == arg) {
+                    arguments.put(paramName, arg);
+                    continue;
+                }
+                variableDef = createVarDef(paramName + "$" + funcParamCount++, arg.getBType(), arg, arg.pos);
+                simpleVarRef = ASTBuilderUtil.createVariableRef(invocation.pos, variableDef.var.symbol);
+                simpleVarRef = desugar.rewrite(simpleVarRef, env);
+                blockStmt.addStatement(variableDef);
+                arguments.put(paramName, simpleVarRef);
+                if (invocation instanceof BLangInvocation.BLangAttachedFunctionInvocation) {
+                    invocation.requiredArgs.set(i + 1, simpleVarRef);
+                } else {
+                    invocation.requiredArgs.set(i, simpleVarRef);
+                }
                 continue;
             }
 
@@ -1048,22 +1065,38 @@ public class ClosureDesugar extends BLangNodeVisitor {
                                                         BLangLocalVarRef((BVarSymbol) varRef.symbol));
                 }
             });
-            arguments.put(paramName, closureInvocation);
+            variableDef = createVarDef(paramName, closureInvocation.getBType(), closureInvocation, arg.pos);
+            simpleVarRef = ASTBuilderUtil.createVariableRef(invocation.pos, variableDef.var.symbol);
+            simpleVarRef = desugar.rewrite(simpleVarRef, env);
+            blockStmt.addStatement(variableDef);
+            arguments.put(paramName, simpleVarRef);
             if (invocation instanceof BLangInvocation.BLangAttachedFunctionInvocation) {
-                invocation.requiredArgs.set(i + 1, closureInvocation);
+                invocation.requiredArgs.set(i + 1, simpleVarRef);
             } else {
-                invocation.requiredArgs.set(i, closureInvocation);
+                invocation.requiredArgs.set(i, simpleVarRef);
             }
         }
         invocation.restArgs = rewriteExprs(invocation.restArgs);
-        result = invocation;
+        BLangStatementExpression stmtExpr = createStatementExpression(blockStmt, invocation);
+        stmtExpr.setBType(invocation.getBType());
+        result = stmtExpr;
 
+    }
+
+    public BLangSimpleVariableDef createVarDef(String name, BType type, BLangExpression expr, Location location) {
+        BVarSymbol symbol = new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID, type,
+                ((BLangFunction) this.env.enclInvokable).originalFuncSymbol, location, VIRTUAL);
+        BLangSimpleVariable simpleVariable = ASTBuilderUtil.createVariable(location, name, type, expr, symbol);
+        BLangSimpleVariableDef simpleVariableDef = ASTBuilderUtil.createVariableDef(location);
+        simpleVariableDef.var = simpleVariable;
+        simpleVariableDef.setBType(simpleVariable.getBType());
+        return simpleVariableDef;
     }
 
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         rewriteExprs(errorConstructorExpr.positionalArgs);
-        rewriteExpr(errorConstructorExpr.errorDetail);
+        errorConstructorExpr.errorDetail = rewriteExpr(errorConstructorExpr.errorDetail);
         result = errorConstructorExpr;
     }
 
@@ -1610,6 +1643,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation.BFunctionPointerInvocation fpInvocation) {
+        fpInvocation.expr = rewriteExpr(fpInvocation.expr);
         rewriteInvocationExpr(fpInvocation);
     }
 
