@@ -303,6 +303,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean failVisited;
     private boolean hasLastPatternInStatement;
     private boolean withinLockBlock;
+    private boolean inMatchGuard;
     private SymbolTable symTable;
     private Types types;
     private BLangDiagnosticLog dlog;
@@ -942,9 +943,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         boolean hasLastPatternInClause = false;
 
         List<BLangMatchPattern> matchPatterns = matchClause.matchPatterns;
+        BLangMatchGuard matchGuard = matchClause.matchGuard;
         for (int i = 0; i < matchPatterns.size(); i++) {
             BLangMatchPattern matchPattern = matchPatterns.get(i);
-            if (this.hasLastPatternInStatement || (hasLastPatternInClause && matchClause.matchGuard == null)) {
+            if (this.hasLastPatternInStatement || (hasLastPatternInClause && matchGuard == null)) {
                 dlog.warning(matchPattern.pos, DiagnosticWarningCode.MATCH_STMT_PATTERN_UNREACHABLE);
             }
             if (matchPattern.getBType() == symTable.noType) {
@@ -962,13 +964,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             hasLastPatternInClause = hasLastPatternInClause || matchPattern.isLastPattern;
         }
 
+        if (matchGuard != null) {
+            analyzeNode(matchGuard, env);
+        }
+
         if (!patternListContainsSameVars) {
             dlog.error(matchClause.pos, DiagnosticErrorCode.MATCH_PATTERNS_SHOULD_CONTAIN_SAME_SET_OF_VARIABLES);
         }
 
         analyzeNode(matchClause.blockStmt, env);
         this.hasLastPatternInStatement =
-                    this.hasLastPatternInStatement || (matchClause.matchGuard == null && hasLastPatternInClause);
+                    this.hasLastPatternInStatement || (matchGuard == null && hasLastPatternInClause);
     }
 
     @Override
@@ -978,6 +984,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFieldMatchPattern fieldMatchPattern) {
 
+    }
+
+    @Override
+    public void visit(BLangMatchGuard matchGuard) {
+        boolean prevInMatchGuard = this.inMatchGuard;
+        this.inMatchGuard = true;
+        analyzeExpr(matchGuard.expr, env);
+        this.inMatchGuard = prevInMatchGuard;
     }
 
     private void checkSimilarMatchPatternsBetweenClauses(BLangMatchClause firstClause, BLangMatchClause secondClause) {
@@ -3363,6 +3377,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExprs(invocationExpr.requiredArgs);
         analyzeExprs(invocationExpr.restArgs);
 
+        validateInvocationInMatchGuard(invocationExpr);
+
         if ((invocationExpr.symbol != null) && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
             BSymbol funcSymbol = invocationExpr.symbol;
             if (Symbols.isFlagOn(funcSymbol.flags, Flags.TRANSACTIONAL) && !withinTransactionScope) {
@@ -3384,6 +3400,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
+        validateInvocationInMatchGuard(actionInvocation);
+
         if (!actionInvocation.async && !this.withinTransactionScope &&
                 Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL)) {
             dlog.error(actionInvocation.pos, DiagnosticErrorCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED,
@@ -4892,6 +4910,109 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         prevInfo.locations.addAll(currentBranchLocations);
+    }
+
+    private void validateInvocationInMatchGuard(BLangInvocation invocation) {
+        BLangExpression matchedExpr = getMatchedExprIfCalledInMatchGuard(invocation);
+
+        if (matchedExpr == null) {
+            return;
+        }
+
+        BType matchedExprType = matchedExpr.getBType();
+
+        if (types.isInherentlyImmutableType(matchedExprType) ||
+                Symbols.isFlagOn(matchedExprType.flags, Flags.READONLY)) {
+            return;
+        }
+
+        BSymbol invocationSymbol = invocation.symbol;
+
+        if (invocationSymbol == null) {
+            BLangNode parent = invocation.parent;
+            if (parent == null || parent.getKind() != NodeKind.TYPE_INIT_EXPR) {
+                return;
+            }
+
+            BLangTypeInit newExpr = (BLangTypeInit) parent;
+            if (newExpr.getBType().tag != TypeTags.STREAM) {
+                return;
+            }
+
+            List<BLangExpression> argsExpr = newExpr.argsExpr;
+            if (argsExpr.isEmpty()) {
+                return;
+            }
+
+            BLangExpression streamImplementorExpr = argsExpr.get(0);
+            BType type = streamImplementorExpr.getBType();
+            if (!types.isInherentlyImmutableType(type) && !Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+                dlog.error(streamImplementorExpr.pos,
+                           DiagnosticErrorCode.INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD);
+            }
+            return;
+        }
+
+        long flags = invocationSymbol.flags;
+        boolean methodCall = Symbols.isFlagOn(flags, Flags.ATTACHED);
+
+        boolean callsNonIsolatedFunction = !Symbols.isFlagOn(flags, Flags.ISOLATED) ||
+                (methodCall && !Symbols.isFlagOn(invocationSymbol.owner.flags, Flags.ISOLATED));
+
+        if (callsNonIsolatedFunction) {
+            dlog.error(invocation.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_CALL_IN_MATCH_GUARD);
+        }
+
+        List<BLangExpression> args = new ArrayList<>(invocation.requiredArgs);
+        args.addAll(invocation.restArgs);
+
+        for (BLangExpression arg : args) {
+            BType type = arg.getBType();
+
+            if (type != symTable.semanticError &&
+                    !types.isInherentlyImmutableType(type) &&
+                    !Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+                dlog.error(arg.pos, DiagnosticErrorCode.INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD);
+            }
+        }
+    }
+
+    private BLangExpression getMatchedExprIfCalledInMatchGuard(BLangInvocation invocation) {
+        BLangNode prevParent = invocation;
+        BLangNode parent = invocation.parent;
+        boolean encounteredMatchGuard = false;
+        while (parent != null) {
+            NodeKind parentKind = parent.getKind();
+            switch (parentKind) {
+                // If the parent is a function before we reach a match clause, this isn't directly called in the
+                // match guard.
+                case LAMBDA:
+                case FUNCTION:
+                case RESOURCE_FUNC:
+                    return null;
+                case MATCH_CLAUSE:
+                    if (encounteredMatchGuard) {
+                        return ((BLangMatchStatement) parent.parent).expr;
+                    }
+                    // If the parent is a match clause before we reach a match guard this isn't directly called in the
+                    // match guard.
+                    return null;
+                case MATCH_GUARD:
+                    encounteredMatchGuard = true;
+                    break;
+                case INVOCATION:
+                    BLangInvocation parentInvocation = (BLangInvocation) parent;
+
+                    if (parentInvocation.langLibInvocation || prevParent != parentInvocation.expr) {
+                        // Argument to a call. Return early and let it be handled for the parent invocation.
+                        return null;
+                    }
+            }
+
+            prevParent = parent;
+            parent = parent.parent;
+        }
+        return null;
     }
 
     /**
