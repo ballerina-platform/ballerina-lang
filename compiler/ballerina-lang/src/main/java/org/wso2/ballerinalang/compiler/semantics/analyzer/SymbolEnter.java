@@ -457,6 +457,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
+        pkgNode.typeDefinitions.forEach(this::addSemtypeBType);
+
         // Update globalVar for endpoints.
         for (BLangVariable var : pkgNode.globalVars) {
             if (var.getKind() == NodeKind.VARIABLE) {
@@ -469,6 +471,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
         }
+    }
+
+    private void addSemtypeBType(BLangTypeDefinition typeDefinition) {
+        typeDefinition.typeNode.getBType().semtype = typeDefinition.semType;
     }
 
     private void defineSemTypes(List<BLangNode> moduleDefs, SymbolEnv pkgEnv) {

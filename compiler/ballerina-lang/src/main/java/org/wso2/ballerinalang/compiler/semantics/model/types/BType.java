@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.ValueType;
@@ -52,6 +53,8 @@ public class BType implements ValueType {
     // TODO: Refactor this after JBallerina 1.0.
     public Name name;
     public long flags;
+
+    public SemType semtype;
 
     public BType(int tag, BTypeSymbol tsymbol) {
         this.tag = tag;
