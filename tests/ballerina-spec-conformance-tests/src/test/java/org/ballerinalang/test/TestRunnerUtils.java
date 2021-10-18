@@ -412,6 +412,9 @@ public class TestRunnerUtils {
 
     public static void validateOutput(CompileResult compileResult, List<String> outputValues, List<Integer> lineNumbers,
                                       int absLineNum, ITestContext context) {
+        if (lineNumbers.isEmpty() || outputValues.isEmpty()) {
+            Assert.fail("Test output is empty");
+        }
         Collection<Diagnostic> diagnostics = compileResult.getDiagnosticResult().errors();
         if (!diagnostics.isEmpty()) {
             Diagnostic diagnostic = diagnostics.iterator().next();
