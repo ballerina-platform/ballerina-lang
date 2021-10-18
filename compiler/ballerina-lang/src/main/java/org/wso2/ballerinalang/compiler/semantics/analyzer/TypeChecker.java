@@ -1269,13 +1269,13 @@ public class TypeChecker extends BLangNodeVisitor {
                     break;
                 case TypeTags.RECORD:
                     Map<String, BField> fieldList = ((BRecordType) keyTypeConstraint).getFields();
-                    List<BType> memberFields = fieldList.entrySet().stream()
+                    memberTypes = fieldList.entrySet().stream()
                             .filter(e -> fieldNameList.contains(e.getKey())).map(entry -> entry.getValue().type)
                             .collect(Collectors.toList());
-                    if (!memberFields.isEmpty()) {
-                        memberTypes = memberFields;
-                        break;
+                    if (memberTypes.isEmpty()) {
+                        memberTypes.add(keyTypeConstraint);
                     }
+                    break;
                 default:
                     memberTypes.add(keyTypeConstraint);
             }
