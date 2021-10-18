@@ -424,7 +424,7 @@ function panicWithMultipleSendStmtsTest() returns error? {
     @strand{thread:"any"}
     worker w3 returns string {
         int b = <- w1;
-        if (2 != 2) {
+        if (b == 2) {
             error err = error("err returned from w3");
             panic err;
         }

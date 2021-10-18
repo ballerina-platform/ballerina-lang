@@ -35,7 +35,7 @@ public function main() {
 }
 
 function earlyReturnFunc(int a, int b) {
-    if (1 == 1) {
+    if (a == 1) {
         return;
     }
 
