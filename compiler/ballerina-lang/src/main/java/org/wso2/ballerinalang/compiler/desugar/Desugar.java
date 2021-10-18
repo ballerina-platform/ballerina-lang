@@ -6632,28 +6632,31 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(typeInitExpr.pos);
 
         // Person $obj$ = new;
+        BLangInvocation initInvocation = (BLangInvocation) typeInitExpr.initInvocation;
         BType objType = getObjectType(typeInitExpr.getBType());
         BLangSimpleVariableDef objVarDef = createVarDef("$obj$", objType, typeInitExpr, typeInitExpr.pos);
+        // var $temp$ = $obj$.init();
+        BLangSimpleVariableDef initInvRetValVarDef = createVarDef("$temp$", initInvocation.getBType(),
+                                                                  initInvocation, initInvocation.pos);
         objVarDef.var.name.pos = symTable.builtinPos;
         BLangSimpleVarRef objVarRef = ASTBuilderUtil.createVariableRef(typeInitExpr.pos, objVarDef.var.symbol);
+        BLangSimpleVarRef objInitVarRef = ASTBuilderUtil.createVariableRef(initInvocation.pos,
+                                                                           initInvRetValVarDef.var.symbol);
         blockStmt.addStatement(objVarDef);
-        typeInitExpr.initInvocation.exprSymbol = objVarDef.var.symbol;
-        typeInitExpr.initInvocation.symbol = ((BObjectTypeSymbol) objType.tsymbol).generatedInitializerFunc.symbol;
+        blockStmt.addStatement(initInvRetValVarDef);
+        initInvocation.exprSymbol = objVarDef.var.symbol;
+        initInvocation.symbol = ((BObjectTypeSymbol) objType.tsymbol).generatedInitializerFunc.symbol;
 
         // init() returning nil is the common case and the type test is not needed for it.
-        if (typeInitExpr.initInvocation.getBType().tag == TypeTags.NIL) {
+        if (initInvocation.getBType().tag == TypeTags.NIL) {
             BLangExpressionStmt initInvExpr = ASTBuilderUtil.createExpressionStmt(typeInitExpr.pos, blockStmt);
-            initInvExpr.expr = typeInitExpr.initInvocation;
-            typeInitExpr.initInvocation.name.value = Names.GENERATED_INIT_SUFFIX.value;
+            initInvExpr.expr = objInitVarRef;
+            initInvocation.name.value = Names.GENERATED_INIT_SUFFIX.value;
+            typeInitExpr.initInvocation = objInitVarRef;
             BLangStatementExpression stmtExpr = createStatementExpression(blockStmt, objVarRef);
             stmtExpr.setBType(objVarRef.symbol.type);
             return stmtExpr;
         }
-
-        // var $temp$ = $obj$.init();
-        BLangSimpleVariableDef initInvRetValVarDef = createVarDef("$temp$", typeInitExpr.initInvocation.getBType(),
-                                                                  typeInitExpr.initInvocation, typeInitExpr.pos);
-        blockStmt.addStatement(initInvRetValVarDef);
 
         // Person|error $result$;
         BLangSimpleVariableDef resultVarDef = createVarDef("$result$", typeInitExpr.getBType(), null, typeInitExpr.pos);
