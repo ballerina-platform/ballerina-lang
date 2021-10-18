@@ -8668,15 +8668,25 @@ public class Desugar extends BLangNodeVisitor {
                 // Thus, any missing args should come from the vararg.
                 if (varargRef.getBType().tag == TypeTags.RECORD) {
                     if (param.isDefaultable) {
+                        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varargRef.pos);
                         BLangInvocation hasKeyInvocation = createLangLibInvocationNode(HAS_KEY, varargRef,
                                 List.of(createStringLiteral(param.pos, param.name.value)), null, varargRef.pos);
+                        BLangSimpleVariableDef variableDef = createVarDef("$hasKey$", hasKeyInvocation.getBType(),
+                                                                          hasKeyInvocation, hasKeyInvocation.pos);
+                        blockStmt.stmts.add(variableDef);
+                        BLangSimpleVarRef simpleVarRef = ASTBuilderUtil.createVariableRef(variableDef.pos,
+                                                                                          variableDef.var.symbol);
                         BLangExpression indexExpr = rewriteExpr(createStringLiteral(param.pos, param.name.value));
                         BLangIndexBasedAccess memberAccessExpr =
                                 ASTBuilderUtil.createMemberAccessExprNode(param.type, varargRef, indexExpr);
                         BLangExpression ignoreExpr = ASTBuilderUtil.createIgnoreExprNode(param.type);
-                        BLangTernaryExpr ternaryExpr = ASTBuilderUtil.createTernaryExprNode(param.type,
-                                                                        hasKeyInvocation, memberAccessExpr, ignoreExpr);
-                        args.add(ASTBuilderUtil.createDynamicParamExpression(hasKeyInvocation, ternaryExpr));
+                        BLangTernaryExpr ternaryExpr = ASTBuilderUtil.createTernaryExprNode(param.type, simpleVarRef,
+                                                                                          memberAccessExpr, ignoreExpr);
+                        BLangDynamicArgExpr dynamicArgExpr =
+                                ASTBuilderUtil.createDynamicParamExpression(simpleVarRef, param, ternaryExpr);
+                        BLangStatementExpression stmtExpr = createStatementExpression(blockStmt, dynamicArgExpr);
+                        stmtExpr.setBType(dynamicArgExpr.getBType());
+                        args.add(rewriteExpr(stmtExpr));
                     } else {
                         BLangFieldBasedAccess fieldBasedAccessExpression =
                                 ASTBuilderUtil.createFieldAccessExpr(varargRef,
