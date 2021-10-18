@@ -54,13 +54,13 @@ public class XMLParser extends AbstractParser {
      * content :=  CharData? ((element | Reference | CDSect | PI | Comment | Interpolation ) CharData?)*
      * </code>
      *
-     * @param hasStartTag Whether there is preceding start tag
+     * @param isInXMLElement Whether inside the XML Element parsing
      * @return XML content node
      */
-    private STNode parseXMLContent(boolean hasStartTag) {
+    private STNode parseXMLContent(boolean isInXMLElement) {
         List<STNode> items = new ArrayList<>();
         STToken nextToken = peek();
-        while (!isEndOfXMLContent(nextToken.kind, hasStartTag)) {
+        while (!isEndOfXMLContent(nextToken.kind, isInXMLElement)) {
             STNode contentItem = parseXMLContentItem();
             items.add(contentItem);
             nextToken = peek();
@@ -71,18 +71,18 @@ public class XMLParser extends AbstractParser {
     /**
      * Check whether the parser has reached the end of the back-tick literal.
      *
-     * @param kind        Next token kind
-     * @param hasStartTag Whether there is preceding start tag
+     * @param kind           Next token kind
+     * @param isInXMLElement Whether inside the XML Element parsing
      * @return <code>true</code> if this is the end of the back-tick literal. <code>false</code> otherwise
      */
-    private boolean isEndOfXMLContent(SyntaxKind kind, boolean hasStartTag) {
+    private boolean isEndOfXMLContent(SyntaxKind kind, boolean isInXMLElement) {
         switch (kind) {
             case EOF_TOKEN:
             case BACKTICK_TOKEN:
                 return true;
             case LT_TOKEN:
                 STToken nextNextToken = getNextNextToken();
-                return hasStartTag &&
+                return isInXMLElement &&
                         (nextNextToken.kind == SyntaxKind.SLASH_TOKEN || nextNextToken.kind == SyntaxKind.LT_TOKEN);
             default:
                 return false;
