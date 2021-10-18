@@ -54,7 +54,9 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(projectPath.resolve(ProjectConstants.BALLERINA_TOML)));
         String tomlContent = Files.readString(
                 projectPath.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String expectedContent = "[build-options]\n" +
+        String expectedContent = "[package]\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
                 "observabilityIncluded = true\n";
         Assert.assertTrue(tomlContent.contains(expectedContent));
 
@@ -91,7 +93,9 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String expectedContent = "[build-options]\n" +
+        String expectedContent = "[package]\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
                 "observabilityIncluded = true\n";
         Assert.assertTrue(tomlContent.contains(expectedContent));
 
@@ -126,7 +130,9 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String expectedContent = "[build-options]\n" +
+        String expectedContent = "[package]\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
                 "observabilityIncluded = true\n";
         Assert.assertTrue(tomlContent.contains(expectedContent));
 

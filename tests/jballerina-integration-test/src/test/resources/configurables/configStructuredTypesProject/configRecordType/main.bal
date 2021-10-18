@@ -19,8 +19,13 @@ import testOrg/configLib.util;
 
 public function main() {
     testRecords();
+    testRecordIteration();
+
     testComplexRecords();
+    testComplexRecordIteration();
+
     imported_records:testRecords();
+    imported_records:testRecordIteration();
 
     util:print("Tests passed");
 }

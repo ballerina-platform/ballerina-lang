@@ -26,7 +26,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
- * Tests to test thypeof operator over literal expressions.
+ * Tests to test typeof operator over literal expressions.
  *
  * @since 0.995
  */
@@ -48,7 +48,8 @@ public class TypeofOverLiteralExpressionTest {
     public Object[] provideFunctionNames() {
         return new String[]{"typeDescOfExpressionsOfLiterals", "passTypeofToAFunction", "typeDescOfARecord",
                 "typeDescOrAObject", "passTypeofAsRestParams", "compareTypeOfValues", "typeDescOfLiterals",
-                "typeOfImmutableStructuralValues", "typeOfWithCloneReadOnly"};
+                "typeOfImmutableStructuralValues", "typeOfWithCloneReadOnly", "typeOfWithCloneWithTypeOnSameValue",
+                "typeOfWithCloneWithTypeOnDifferentValue", "typeOfWithEnsureTypeOnSameValue"};
     }
 
     @AfterClass

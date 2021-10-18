@@ -53,7 +53,7 @@ public class MetricsTestCase extends ObservabilityBaseTest {
     protected static final String TEST_SRC_PROJECT_NAME = "metrics_tests";
     private static final String TEST_SRC_ORG_NAME = "intg_tests";
     protected static final String TEST_SRC_PACKAGE_NAME = "metrics_tests";
-    private static final String MODULE_ID = TEST_SRC_ORG_NAME + "/" + TEST_SRC_PACKAGE_NAME + ":0";
+    private static final String TEST_SRC_MODULE_ID = TEST_SRC_ORG_NAME + "/" + TEST_SRC_PACKAGE_NAME + ":0.0.1";
 
     protected static final String MOCK_CLIENT_OBJECT_NAME = TEST_SRC_ORG_NAME + "/" + TEST_SRC_PACKAGE_NAME
             + "/MockClient";
@@ -151,7 +151,7 @@ public class MetricsTestCase extends ObservabilityBaseTest {
         Metrics functionMetrics = filterByTag(allMetrics, "src.position", invocationPosition);
 
         Set<Tag> startTags = new HashSet<>(Arrays.asList(startObservationTags));
-        startTags.add(Tag.of("src.module", MODULE_ID));
+        startTags.add(Tag.of("src.module", TEST_SRC_MODULE_ID));
         startTags.add(Tag.of("src.position", invocationPosition));
 
         Set<Tag> endTags = new HashSet<>(startTags);
@@ -268,7 +268,7 @@ public class MetricsTestCase extends ObservabilityBaseTest {
                 Duration.ofMinutes(5));
         Assert.assertTrue(durations.contains(snapshot.getTimeWindow()), "time window "
                 + snapshot.getTimeWindow() + " of snapshot not equal to either one of "
-                + durations.toString());
+                + durations);
 
         if (invocationCount > 0) {
             Assert.assertTrue(snapshot.getMax() > 0, "Expected max of "
@@ -307,7 +307,7 @@ public class MetricsTestCase extends ObservabilityBaseTest {
         List<Double> expectedPercentiles = Arrays.asList(0.33, 0.5, 0.66, 0.75, 0.95, 0.99, 0.999);
         Assert.assertTrue(expectedPercentiles.contains(percentileValue.getPercentile()),
                 "percentile " + percentileValue.getPercentile()
-                        + " is not one of the expected percentiles " + expectedPercentiles.toString());
+                        + " is not one of the expected percentiles " + expectedPercentiles);
         if (invocationCount > 0) {
             Assert.assertTrue(percentileValue.getValue() > 0, "percentile "
                     + percentileValue.getPercentile() + " expected to be greater than 0, but found "
@@ -325,18 +325,18 @@ public class MetricsTestCase extends ObservabilityBaseTest {
         testFunctionMetrics(metrics, fileName + ":19:1", 1,
                 Tag.of("src.function.name", "main"),
                 Tag.of("src.main", "true"),
-                Tag.of("entrypoint.function.module", "intg_tests/metrics_tests:0"),
+                Tag.of("entrypoint.function.module", TEST_SRC_MODULE_ID),
                 Tag.of("entrypoint.function.name", "main")
         );
         testFunctionMetrics(metrics, fileName + ":24:24", 1,
                 Tag.of("src.object.name", OBSERVABLE_ADDER_OBJECT_NAME),
                 Tag.of("src.function.name", "getSum"),
-                Tag.of("entrypoint.function.module", "intg_tests/metrics_tests:0"),
+                Tag.of("entrypoint.function.module", TEST_SRC_MODULE_ID),
                 Tag.of("entrypoint.function.name", "main")
         );
         testFunctionMetrics(metrics, fileName + ":38:12", 3,
                 Tag.of("src.function.name", "calculateSumWithObservability"),
-                Tag.of("entrypoint.function.module", "intg_tests/metrics_tests:0"),
+                Tag.of("entrypoint.function.module", TEST_SRC_MODULE_ID),
                 Tag.of("entrypoint.function.name", "main")
         );
     }
