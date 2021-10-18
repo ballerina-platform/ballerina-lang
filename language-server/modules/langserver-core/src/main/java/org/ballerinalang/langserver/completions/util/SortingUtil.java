@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -235,7 +236,8 @@ public class SortingUtil {
      * Sorting order is defined as follows
      * 1.Variables assignable to the given type symbol
      * 2.Functions with return type descriptor assignable to given type symbol
-     * 3.Other symbols follow the default sorting order
+     * 3.Snippets assignable to given type symbol
+     * 4.Other symbols follow the default sorting order
      *
      * @param context        Ballerina completion context
      * @param completionItem Completion item.
@@ -287,6 +289,11 @@ public class SortingUtil {
                 optionalTypeSymbol = ((FunctionPointerCompletionItem) completionItem).getSymbol()
                         .flatMap(SymbolUtil::getTypeDescriptor);
                 break;
+            case SNIPPET:
+                if (typeSymbol.typeKind() == TypeDescKind.FUNCTION
+                        && ((SnippetCompletionItem) completionItem).id().equals(ItemResolverConstants.ANON_FUNCTION)) {
+                        return true;
+                }
         }
 
         return optionalTypeSymbol.isPresent() && optionalTypeSymbol.get().assignableTo(typeSymbol);

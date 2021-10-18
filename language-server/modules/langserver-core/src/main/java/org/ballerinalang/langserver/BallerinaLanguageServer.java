@@ -34,14 +34,6 @@ import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.ballerinalang.langserver.extensions.AbstractExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
-import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorService;
-import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorServiceImpl;
-import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleService;
-import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleServiceImpl;
-import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageService;
-import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageServiceImpl;
-import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolService;
-import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolServiceImpl;
 import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
 import org.ballerinalang.langserver.task.BackgroundTaskService;
 import org.ballerinalang.langserver.util.LSClientUtil;
@@ -94,10 +86,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     private ExtendedLanguageClient client = null;
     private final TextDocumentService textService;
     private final WorkspaceService workspaceService;
-    private final BallerinaConnectorService ballerinaConnectorService;
-    private final BallerinaExampleService ballerinaExampleService;
-    private final BallerinaSymbolService ballerinaSymbolService;
-    private final BallerinaPackageService ballerinaPackageService;
     private int shutdown = 1;
 
     private static final String LS_INIT_MODE_PROPERTY = "enableLightWeightMode";
@@ -111,10 +99,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         super(serverContext);
         this.textService = new BallerinaTextDocumentService(this, workspaceManager, this.serverContext);
         this.workspaceService = new BallerinaWorkspaceService(this, workspaceManager, this.serverContext);
-        this.ballerinaConnectorService = new BallerinaConnectorServiceImpl(this.serverContext);
-        this.ballerinaExampleService = new BallerinaExampleServiceImpl(this.serverContext);
-        this.ballerinaSymbolService = new BallerinaSymbolServiceImpl(workspaceManager, this.serverContext);
-        this.ballerinaPackageService = new BallerinaPackageServiceImpl(workspaceManager, this.serverContext);
     }
 
     public ExtendedLanguageClient getClient() {
@@ -352,29 +336,10 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     }
 
     @Override
-    public BallerinaConnectorService getBallerinaConnectorService() {
-        return this.ballerinaConnectorService;
-    }
-
-    @Override
-    public BallerinaExampleService getBallerinaExampleService() {
-        return this.ballerinaExampleService;
-    }
-
-    @Override
     public void connect(ExtendedLanguageClient languageClient) {
         this.client = languageClient;
         this.serverContext.put(ExtendedLanguageClient.class, client);
         LSClientLogger.getInstance(this.serverContext).initialize(this.client, this.serverContext);
-    }
-
-    public BallerinaSymbolService getBallerinaSymbolService() {
-        return ballerinaSymbolService;
-    }
-
-    @Override
-    public BallerinaPackageService getBallerinaPackageService() {
-        return this.ballerinaPackageService;
     }
 
     @Override
