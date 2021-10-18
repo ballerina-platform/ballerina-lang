@@ -185,9 +185,11 @@ public class FunctionGenerator {
         if (newLineAtStart) {
             fnBuilder.append(CommonUtil.LINE_SEPARATOR);
         }
-
-        fnBuilder.append(CommonUtil.LINE_SEPARATOR)
-                .append("function").append(" ").append(functionName)
+        if (!functionName.isEmpty()) {
+            fnBuilder.append(CommonUtil.LINE_SEPARATOR);
+        }
+        
+        fnBuilder.append("function").append(" ").append(functionName)
                 .append(CommonKeys.OPEN_PARENTHESES_KEY)
                 .append(String.join(", ", args))
                 .append(CommonKeys.CLOSE_PARENTHESES_KEY);
@@ -199,8 +201,11 @@ public class FunctionGenerator {
         fnBuilder.append(" ").append(CommonKeys.OPEN_BRACE_KEY)
                 .append(CommonUtil.LINE_SEPARATOR)
                 .append(body)
-                .append(CommonKeys.CLOSE_BRACE_KEY)
-                .append(CommonUtil.LINE_SEPARATOR);
+                .append(CommonKeys.CLOSE_BRACE_KEY);
+
+        if (!functionName.isEmpty()) {
+            fnBuilder.append(CommonUtil.LINE_SEPARATOR);
+        }
 
         return fnBuilder.toString();
     }

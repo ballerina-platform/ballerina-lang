@@ -53,7 +53,7 @@ public class ConnectorTest {
     }
 
     // TODO: Need to add mock server.
-     @Test(description = "Test search twilio connectors.")
+//     @Test(description = "Test search twilio connectors.")
 //     public void searchConnectors() {
 //         BallerinaConnectorListResponse connectorsResponse = LSExtensionTestUtil
 //                 .getConnectors(testConnectorFilePath.toString(), "twilio", this.serviceEndpoint);
