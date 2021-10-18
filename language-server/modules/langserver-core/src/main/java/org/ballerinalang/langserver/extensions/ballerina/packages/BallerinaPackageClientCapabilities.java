@@ -15,22 +15,36 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.packages;
 
+import org.ballerinalang.langserver.commons.registration.BallerinaClientCapability;
+
 /**
- * Ballerina package service constants.
+ * Client capabilities for the ballerinaPackage service.
  *
  * @since 2.0.0
  */
-public class PackageServiceConstants {
+public class BallerinaPackageClientCapabilities extends BallerinaClientCapability {
 
-    protected static final String CAPABILITY_NAME = "ballerinaPackage";
-    protected static final String NAME = "name";
-    protected static final String FILE_PATH = "filePath";
-    protected static final String START_LINE = "startLine";
-    protected static final String START_COLUMN = "startColumn";
-    protected static final String END_LINE = "endLine";
-    protected static final String END_COLUMN = "endColumn";
-    protected static final String FUNCTIONS = "functions";
-    protected static final String SERVICES = "services";
-    protected static final String MODULES = "modules";
-    protected static final String RESOURCES = "resources";
+    private boolean metadata;
+
+    private boolean components;
+
+    public boolean isMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(boolean metadata) {
+        this.metadata = metadata;
+    }
+
+    public boolean isComponents() {
+        return components;
+    }
+
+    public void setComponents(boolean components) {
+        this.components = components;
+    }
+
+    public BallerinaPackageClientCapabilities() {
+        super(PackageServiceConstants.CAPABILITY_NAME);
+    }
 }

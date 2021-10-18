@@ -15,11 +15,26 @@
  */
 package io.ballerina.converters;
 
+import org.ballerinalang.langserver.commons.registration.BallerinaServerCapability;
+
 /**
- * Represents the Service constants.
+ * Server capabilities for the jsonToRecord service.
  *
  * @since 2.0.0
  */
-public class Constants {
-    public static final String CAPABILITY_NAME = "jsonToRecord";
+public class JsonToRecordConverterServerCapabilities extends BallerinaServerCapability {
+
+    private boolean convert;
+
+    public boolean isConvert() {
+        return convert;
+    }
+
+    public void setConvert(boolean convert) {
+        this.convert = convert;
+    }
+
+    public JsonToRecordConverterServerCapabilities() {
+        super(Constants.CAPABILITY_NAME);
+    }
 }

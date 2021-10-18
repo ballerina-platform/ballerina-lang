@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.ballerina.converters;
+package org.ballerinalang.langserver.extensions.ballerina.example;
 
 /**
- * Represents the Service constants.
+ * Ballerina example service constants.
  *
  * @since 2.0.0
  */
 public class Constants {
-    public static final String CAPABILITY_NAME = "jsonToRecord";
+
+    protected static final String CAPABILITY_NAME = "ballerinaExample";
 }
