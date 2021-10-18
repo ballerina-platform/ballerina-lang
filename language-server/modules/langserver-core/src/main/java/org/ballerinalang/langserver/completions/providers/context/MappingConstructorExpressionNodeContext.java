@@ -247,8 +247,8 @@ public class MappingConstructorExpressionNodeContext extends
 
         return fieldSymbols;
     }
-    
+
     private Predicate<Symbol> getVariableFilter() {
-        return CommonUtil.getVariableFilterPredicate().or(symbol -> symbol.kind() ==SymbolKind.CONSTANT);
+        return CommonUtil.getVariableFilterPredicate().or(symbol -> symbol.kind() == SymbolKind.CONSTANT);
     }
 }
