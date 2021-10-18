@@ -40,7 +40,7 @@
             },
             {
               "type": "string",
-              "pattern": "^(?!.*__).*$",
+              "pattern": "(^(?!.*__).*$|^lang.*)",
               "maxLength": 256,
               "message": {
                 "pattern": "invalid 'name' under [package]: 'name' cannot have consecutive underscore characters",

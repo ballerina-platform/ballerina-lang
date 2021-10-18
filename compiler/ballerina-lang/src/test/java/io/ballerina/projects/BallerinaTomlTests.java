@@ -307,6 +307,14 @@ public class BallerinaTomlTests {
     }
 
     @Test
+    public void testLangPackageHasNameWithConsecutiveUnderscores() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("underscores-lang-package.toml"));
+        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 0);
+    }
+
+    @Test
     public void testBallerinaTomlWithPlatformDependencyAsInlineTable() throws IOException {
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("inline-table.toml"));
         DiagnosticResult diagnostics = packageManifest.diagnostics();
