@@ -624,8 +624,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         // If the flow was terminated within 'else' block, then after the if-else block,
         // only the results of the 'if' block matters.
-        if (elseResult.flowTerminated || ConditionResolver.checkConstCondition(types, symTable, ifNode.expr) ==
-                symTable.trueType) {
+        if (elseResult.flowTerminated ||
+                ConditionResolver.checkConstCondition(types, symTable, ifNode.expr) == symTable.trueType) {
             this.uninitializedVars = ifResult.uninitializedVars;
             return;
         }

@@ -29,9 +29,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
-import java.util.Set;
+import java.util.HashSet;
 
 /**
  * This analyzes the condition in if statement and while statement.
@@ -46,10 +45,12 @@ public class ConditionResolver {
                 return checkConstCondition(types, symTable, ((BLangGroupExpr) condition).expression);
             case LITERAL:
                 Object value = ((BLangLiteral) condition).value;
-                if (!(value instanceof Boolean)) {
-                    return symTable.semanticError;
+                if (value instanceof Boolean) {
+                    return value == Boolean.TRUE ? symTable.trueType : symTable.falseType;
                 }
-                return value == Boolean.TRUE ? symTable.trueType : symTable.falseType;
+                return new BFiniteType(null, new HashSet<>() { { add(condition); } });
+            case NUMERIC_LITERAL:
+                return new BFiniteType(null, new HashSet<>() { { add(condition); } });
             case TYPE_TEST_EXPR:
                 BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) condition;
                 BType exprType = typeTestExpr.expr.getBType();
@@ -62,11 +63,14 @@ public class ConditionResolver {
                         symTable.falseType : symTable.semanticError;
             case BINARY_EXPR:
                 BLangBinaryExpr binaryExpr = (BLangBinaryExpr) condition;
-                if (!checkAndOrOperator(binaryExpr.opKind)) {
+                boolean operatorIsAND = binaryExpr.opKind == OperatorKind.AND;
+                boolean operatorIsOR = binaryExpr.opKind == OperatorKind.OR;
+                boolean operatorIsEqual = binaryExpr.opKind == OperatorKind.EQUAL;
+                boolean operatorIsNotEqual = binaryExpr.opKind == OperatorKind.NOT_EQUAL;
+                if (!(operatorIsAND || operatorIsOR || operatorIsEqual || operatorIsNotEqual)) {
                     return symTable.semanticError;
                 }
                 BType lhsConst = checkConstCondition(types, symTable, binaryExpr.lhsExpr);
-                boolean operatorIsOR = binaryExpr.opKind == OperatorKind.OR;
                 if (operatorIsOR && lhsConst == symTable.trueType) {
                     return lhsConst;
                 }
@@ -80,18 +84,27 @@ public class ConditionResolver {
                     }
                     return symTable.semanticError;
                 }
-                if (lhsConst == symTable.falseType || rhsConst == symTable.falseType) {
-                    return symTable.falseType;
+                if (operatorIsAND) {
+                    if (lhsConst == symTable.falseType || rhsConst == symTable.falseType) {
+                        return symTable.falseType;
+                    }
+                    if (lhsConst == symTable.semanticError || rhsConst == symTable.semanticError) {
+                        return symTable.semanticError;
+                    }
+                    return lhsConst == rhsConst && lhsConst == symTable.trueType ?
+                            symTable.trueType : symTable.falseType;
                 }
-                if (lhsConst == symTable.semanticError ||
-                        rhsConst == symTable.semanticError) {
+                if (!(types.isSingletonType(lhsConst) && types.isSingletonType(rhsConst))) {
                     return symTable.semanticError;
                 }
-                return lhsConst == rhsConst && lhsConst == symTable.trueType ?
+                if (operatorIsEqual) {
+                    return types.isSameSingletonType((BFiniteType) lhsConst, (BFiniteType) rhsConst) ?
+                            symTable.trueType : symTable.falseType;
+                }
+                return !types.isSameSingletonType((BFiniteType) lhsConst, (BFiniteType) rhsConst) ?
                         symTable.trueType : symTable.falseType;
             case UNARY_EXPR:
-                BType conditionValue = checkConstCondition(types, symTable,
-                        ((BLangUnaryExpr) condition).expr);
+                BType conditionValue = checkConstCondition(types, symTable, ((BLangUnaryExpr) condition).expr);
                 if (conditionValue == symTable.trueType) {
                     return symTable.falseType;
                 }
@@ -103,20 +116,12 @@ public class ConditionResolver {
                 BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) condition;
                 BType type = (simpleVarRef.symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT ?
                         simpleVarRef.symbol.type : condition.getBType();
-                if (type.tag != TypeTags.FINITE) {
+                if (!types.isSingletonType(type)) {
                     return symTable.semanticError;
                 }
-                Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
-                if (valueSpace.size() != 1) {
-                    return symTable.semanticError;
-                }
-                return checkConstCondition(types, symTable, valueSpace.iterator().next());
+                return checkConstCondition(types, symTable, ((BFiniteType) type).getValueSpace().iterator().next());
             default:
                 return symTable.semanticError;
         }
-    }
-
-    static boolean checkAndOrOperator(OperatorKind operatorKind) {
-        return operatorKind == OperatorKind.AND || operatorKind == OperatorKind.OR;
     }
 }

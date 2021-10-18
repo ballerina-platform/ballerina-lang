@@ -168,7 +168,7 @@ public class TypeNarrower extends BLangNodeVisitor {
      * @return target environment
      */
     public SymbolEnv evaluateFalsityFollowingIfWithoutElse(BLangExpression expr, SymbolEnv currentEnv) {
-        if (!checkIsTypeTestExpr(expr)) {
+        if (!checkValidExpressionToEvaluateFalsity(expr)) {
             return currentEnv;
         }
 
@@ -188,12 +188,20 @@ public class TypeNarrower extends BLangNodeVisitor {
         return narrowedEnv;
     }
 
-    private boolean checkIsTypeTestExpr(BLangExpression expr) {
+    private boolean checkValidExpressionToEvaluateFalsity(BLangExpression expr) {
         switch (expr.getKind()) {
             case TYPE_TEST_EXPR:
+            case LITERAL:
+            case NUMERIC_LITERAL:
                 return true;
             case GROUP_EXPR:
-                return checkIsTypeTestExpr(((BLangGroupExpr) expr).expression);
+                return checkValidExpressionToEvaluateFalsity(((BLangGroupExpr) expr).expression);
+            case BINARY_EXPR:
+                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) expr;
+                return checkValidExpressionToEvaluateFalsity(binaryExpr.lhsExpr) &&
+                        checkValidExpressionToEvaluateFalsity(binaryExpr.rhsExpr);
+            case SIMPLE_VARIABLE_REF:
+                return expr.getBType().tag == TypeTags.FINITE;
             default:
                 return false;
         }

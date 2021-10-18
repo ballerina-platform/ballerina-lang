@@ -2409,6 +2409,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     ConditionResolver.checkConstCondition(types, symTable, expr) == symTable.trueType;
             if (!constTrueCondition) {
                 SymbolEnv narrowedEnv = typeNarrower.evaluateFalsityFollowingIfWithoutElse(expr, env);
+                // Push narrowed env to prevEnvs if the `if` statement without `else` clause is not completed normally,
+                // so that the narrowed types are considered in the statements following the `if` statement.
                 this.prevEnvs.push(narrowedEnv);
             }
             this.notCompletedNormally = constTrueCondition;

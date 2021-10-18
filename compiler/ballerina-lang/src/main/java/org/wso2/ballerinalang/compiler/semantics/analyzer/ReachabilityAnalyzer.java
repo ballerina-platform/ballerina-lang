@@ -183,13 +183,13 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangAssignment assignNode) {
         checkStatementExecutionValidity(assignNode);
-        validateAssignmentToNarrowedVariable(assignNode.varRef, assignNode.pos);
+        validateAssignmentToNarrowedVariable(assignNode.varRef, assignNode.pos, env);
     }
 
     @Override
     public void visit(BLangCompoundAssignment compoundAssignment) {
         checkStatementExecutionValidity(compoundAssignment);
-        validateAssignmentToNarrowedVariable(compoundAssignment.varRef, compoundAssignment.pos);
+        validateAssignmentToNarrowedVariable(compoundAssignment.varRef, compoundAssignment.pos, env);
     }
 
     @Override
@@ -292,7 +292,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorDestructure errorDestructureStmt) {
         checkStatementExecutionValidity(errorDestructureStmt);
-        validateAssignmentToNarrowedVariables(getVarRefs(errorDestructureStmt.varRef), errorDestructureStmt.pos);
+        validateAssignmentToNarrowedVariables(getVarRefs(errorDestructureStmt.varRef), errorDestructureStmt.pos, env);
     }
 
     @Override
@@ -402,7 +402,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordDestructure recordDestructureStmt) {
         checkStatementExecutionValidity(recordDestructureStmt);
-        validateAssignmentToNarrowedVariables(getVarRefs(recordDestructureStmt.varRef), recordDestructureStmt.pos);
+        validateAssignmentToNarrowedVariables(getVarRefs(recordDestructureStmt.varRef), recordDestructureStmt.pos, env);
     }
 
     @Override
@@ -427,14 +427,15 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeOnFailClause(BLangOnFailClause onFailClause) {
-        if (onFailClause != null) {
-            boolean currentStatementReturns = this.statementReturnsPanicsOrFails;
-            this.booleanConstCondition = symTable.semanticError;
-            resetStatementReturnsPanicsOrFails();
-            resetLastStatement();
-            analyzeReachability(onFailClause, env);
-            this.statementReturnsPanicsOrFails = currentStatementReturns;
+        if (onFailClause == null) {
+            return;
         }
+        boolean currentStatementReturns = this.statementReturnsPanicsOrFails;
+        this.booleanConstCondition = symTable.semanticError;
+        resetStatementReturnsPanicsOrFails();
+        resetLastStatement();
+        analyzeReachability(onFailClause, env);
+        this.statementReturnsPanicsOrFails = currentStatementReturns;
     }
 
     @Override
@@ -530,7 +531,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleDestructure tupleDestructureStmt) {
         checkStatementExecutionValidity(tupleDestructureStmt);
-        validateAssignmentToNarrowedVariables(getVarRefs(tupleDestructureStmt.varRef), tupleDestructureStmt.pos);
+        validateAssignmentToNarrowedVariables(getVarRefs(tupleDestructureStmt.varRef), tupleDestructureStmt.pos, env);
     }
 
     @Override
@@ -671,7 +672,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         this.booleanConstCondition = symTable.semanticError;
     }
 
-    private void validateAssignmentToNarrowedVariables(List<BLangExpression> exprs, Location location) {
+    private void validateAssignmentToNarrowedVariables(List<BLangExpression> exprs, Location location, SymbolEnv env) {
         for (BLangExpression expr : exprs) {
             if (expr == null) {
                 continue;
@@ -679,21 +680,21 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
 
             switch (expr.getKind()) {
                 case SIMPLE_VARIABLE_REF:
-                    validateAssignmentToNarrowedVariable(expr, location);
+                    validateAssignmentToNarrowedVariable(expr, location, env);
                     continue;
                 case RECORD_VARIABLE_REF:
-                    validateAssignmentToNarrowedVariables(getVarRefs((BLangRecordVarRef) expr), location);
+                    validateAssignmentToNarrowedVariables(getVarRefs((BLangRecordVarRef) expr), location, env);
                     continue;
                 case TUPLE_VARIABLE_REF:
-                    validateAssignmentToNarrowedVariables(getVarRefs((BLangTupleVarRef) expr), location);
+                    validateAssignmentToNarrowedVariables(getVarRefs((BLangTupleVarRef) expr), location, env);
                     continue;
                 case ERROR_VARIABLE_REF:
-                    validateAssignmentToNarrowedVariables(getVarRefs((BLangErrorVarRef) expr), location);
+                    validateAssignmentToNarrowedVariables(getVarRefs((BLangErrorVarRef) expr), location, env);
             }
         }
     }
 
-    private void validateAssignmentToNarrowedVariable(BLangExpression expr, Location location) {
+    private void validateAssignmentToNarrowedVariable(BLangExpression expr, Location location, SymbolEnv env) {
         if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
             return;
         }
@@ -708,16 +709,26 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        validateAssignmentToNarrowedVariable(names.fromIdNode(varRef.variableName), location);
+        validateAssignmentToNarrowedVariable(names.fromIdNode(varRef.variableName), location, env);
     }
 
-    private void validateAssignmentToNarrowedVariable(Name name, Location location) {
+    private void validateAssignmentToNarrowedVariable(Name name, Location location, SymbolEnv env) {
         SymbolEnv loopEnv = this.loopEnvs.peek();
+        SymbolEnv currentEnv = env;
 
-        BSymbol foundSym = symResolver.lookupSymbolInMainSpace(loopEnv, name);
-        if (foundSym != symTable.notFoundSymbol && foundSym.tag == SymTag.VARIABLE &&
-                ((BVarSymbol) foundSym).originalSymbol == null) {
-            return;
+        while (currentEnv != null) {
+            BSymbol foundSym = symResolver.lookupSymbolInMainSpace(currentEnv, name);
+
+            if (foundSym != symTable.notFoundSymbol && foundSym.tag == SymTag.VARIABLE &&
+                    ((BVarSymbol) foundSym).originalSymbol == null) {
+                return;
+            }
+
+            if (currentEnv == loopEnv) {
+                break;
+            }
+
+            currentEnv = currentEnv.enclEnv;
         }
 
         this.potentiallyInvalidAssignmentInLoopsInfo.peek().locations.add(location);
