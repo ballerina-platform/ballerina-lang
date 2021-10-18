@@ -2475,18 +2475,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             matchClause.patternsType = types.mergeTypes(matchClause.patternsType, matchPattern.getBType());
         }
 
-        if (matchClause.matchGuard != null) {
-            typeChecker.checkExpr(matchClause.matchGuard.expr, blockEnv);
-            blockEnv = typeNarrower.evaluateTruth(matchClause.matchGuard.expr, matchClause.blockStmt, blockEnv);
+        BLangMatchGuard matchGuard = matchClause.matchGuard;
+        if (matchGuard != null) {
+            analyzeNode(matchGuard, blockEnv);
+            blockEnv = typeNarrower.evaluateTruth(matchGuard.expr, matchClause.blockStmt, blockEnv);
 
             for (Map.Entry<BVarSymbol, BType.NarrowedTypes> entry :
-                    matchClause.matchGuard.expr.narrowedTypeInfo.entrySet()) {
+                    matchGuard.expr.narrowedTypeInfo.entrySet()) {
                 if (entry.getValue().trueType == symTable.semanticError) {
                     dlog.warning(matchClause.pos, DiagnosticWarningCode.MATCH_STMT_UNMATCHED_PATTERN);
                 }
             }
 
-            evaluatePatternsTypeAccordingToMatchGuard(matchClause, matchClause.matchGuard.expr, blockEnv);
+            evaluatePatternsTypeAccordingToMatchGuard(matchClause, matchGuard.expr, blockEnv);
         }
         analyzeStmt(matchClause.blockStmt, blockEnv);
     }
@@ -2598,7 +2599,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchGuard matchGuard) {
-        matchGuard.expr.accept(this);
+        typeChecker.checkExpr(matchGuard.expr, env, symTable.booleanType);
     }
 
     @Override
