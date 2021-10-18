@@ -480,9 +480,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (BLangStatement stmt : body.stmts) {
             analyzeStmt(stmt, env);
         }
-
-        // Make sure that the block's env is removed from the immediate prevEnv
-        removeBlockEnv(body);
         resetNotCompletedNormally();
     }
 
@@ -1754,15 +1751,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangBlockStmt blockNode) {
         env = SymbolEnv.createBlockEnv(blockNode, env);
         blockNode.stmts.forEach(stmt -> analyzeStmt(stmt, env));
-
-        // Make sure that the block's env is removed from the immediate prevEnv
-        removeBlockEnv(blockNode);
-    }
-
-    private void removeBlockEnv(BLangNode block) {
-        if (this.prevEnvs.peek() != null && this.prevEnvs.peek().node == block) {
-            this.prevEnvs.pop();
-        }
     }
 
     public void visit(BLangSimpleVariableDef varDefNode) {
@@ -2378,8 +2366,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.narrowedTypeInfo = new HashMap<>();
 
         analyzeStmt(ifNode.body, ifEnv);
-        boolean ifCompletionStatus = this.notCompletedNormally;
-        resetNotCompletedNormally();
 
         if (ifNode.expr.narrowedTypeInfo == null || ifNode.expr.narrowedTypeInfo.isEmpty()) {
             ifNode.expr.narrowedTypeInfo = this.narrowedTypeInfo;
@@ -2403,20 +2389,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             prevNarrowedTypeInfo.putAll(this.narrowedTypeInfo);
         }
 
-        if (ifNode.elseStmt == null && ifCompletionStatus) {
-            BLangExpression expr = ifNode.expr;
-            boolean constTrueCondition =
-                    ConditionResolver.checkConstCondition(types, symTable, expr) == symTable.trueType;
-            if (!constTrueCondition) {
-                SymbolEnv narrowedEnv = typeNarrower.evaluateFalsityFollowingIfWithoutElse(expr, env);
-                // Push narrowed env to prevEnvs if the `if` statement without `else` clause is not completed normally,
-                // so that the narrowed types are considered in the statements following the `if` statement.
-                this.prevEnvs.push(narrowedEnv);
-            }
-            this.notCompletedNormally = constTrueCondition;
-        }
-
         if (ifNode.elseStmt != null) {
+            boolean ifCompletionStatus = this.notCompletedNormally;
+            resetNotCompletedNormally();
             SymbolEnv elseEnv = typeNarrower.evaluateFalsity(ifNode.expr, ifNode.elseStmt, env);
             BLangStatement elseStmt = ifNode.elseStmt;
             analyzeStmt(elseStmt, elseEnv);
@@ -3914,11 +3889,43 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.expType = expType;
         this.diagCode = diagCode;
         node.accept(this);
+        updateAndCleanPrevEnvsForNarrowedEnvFollowingIfWithoutElse(node);
         this.env = this.prevEnvs.pop();
         this.expType = preExpType;
         this.diagCode = preDiagCode;
 
         return resType;
+    }
+
+    private void updateAndCleanPrevEnvsForNarrowedEnvFollowingIfWithoutElse(BLangNode node) {
+        if (node.getKind() != NodeKind.IF && node.getKind() != NodeKind.BLOCK &&
+                node.getKind() != NodeKind.BLOCK_FUNCTION_BODY) {
+            return;
+        }
+        if (node.getKind() == NodeKind.BLOCK || node.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
+            // If types have been narrowed following `if` statement without an `else`, prevEnvs would still
+            // have the block's env as its immediate prevEnv. It should be removed once analysis of the block
+            // is completed.
+            if (this.prevEnvs.peek() != null && this.prevEnvs.peek().node == node) {
+                this.prevEnvs.pop();
+            }
+            return;
+        }
+        BLangIf ifNode = (BLangIf) node;
+        if (ifNode.elseStmt == null && this.notCompletedNormally) {
+            BLangExpression expr = ifNode.expr;
+            boolean constTrueCondition =
+                    ConditionResolver.checkConstCondition(types, symTable, expr) == symTable.trueType;
+            if (!constTrueCondition) {
+                SymbolEnv narrowedEnv = typeNarrower.evaluateFalsityFollowingIfWithoutElse(expr, env);
+                // Push narrowed env to prevEnvs if the `if` statement without `else` clause is not completed normally,
+                // so that the narrowed types are considered in the statements following the `if` statement.
+                // The immediate prevEnv would still have the block's env to handle resetting type narrowing
+                // when required.
+                this.prevEnvs.push(narrowedEnv);
+            }
+            this.notCompletedNormally = constTrueCondition;
+        }
     }
 
     @Override
