@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langserver.extensions.ballerina.connector;
 
-import com.google.gson.JsonElement;
 import org.ballerinalang.diagramutil.connector.models.connector.Connector;
 
 import java.util.List;
