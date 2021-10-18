@@ -28,7 +28,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmBStringConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -66,15 +66,15 @@ public class ExternalMethodGen {
     public static void genJMethodForBExternalFunc(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule,
                                                   BType attachedType, MethodGen methodGen, JvmPackageGen jvmPackageGen,
                                                   JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
-                                                  JvmBStringConstantsGen stringConstantsGen,
+                                                 JvmConstantsGen jvmConstantsGen,
                                                   String moduleClassName, AsyncDataCollector lambdaGenMetadata,
                                                   CompilerContext compilerContext) {
         if (birFunc instanceof JFieldBIRFunction) {
             genJFieldForInteropField((JFieldBIRFunction) birFunc, cw, birModule.packageID,
-                                     jvmPackageGen, jvmTypeGen, jvmCastGen, stringConstantsGen,
+                                     jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen,
                                      moduleClassName, lambdaGenMetadata, compilerContext);
         } else {
-            methodGen.genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, stringConstantsGen,
+            methodGen.genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, jvmConstantsGen,
                                          moduleClassName, attachedType, lambdaGenMetadata);
         }
     }

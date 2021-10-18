@@ -34,6 +34,8 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,6 +46,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+import static org.ballerinalang.debugadapter.DebugSourceType.DEPENDENCY;
+import static org.ballerinalang.debugadapter.DebugSourceType.PACKAGE;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 
 /**
@@ -57,13 +61,19 @@ public class PackageUtils {
     public static final String INIT_TYPE_INSTANCE_PREFIX = "$type$";
     public static final String GENERATED_VAR_PREFIX = "$";
     static final String MODULE_DIR_NAME = "modules";
+    private static final String URI_SCHEME_FILE = "file";
+    private static final String URI_SCHEME_BALA = "bala";
 
     private static final String FILE_SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
 
     /**
-     * Retrieves the absolute path of the breakpoint location using JDI breakpoint hit information.
+     * Returns the corresponding debug source path based on the given stack frame location.
+     *
+     * @param stackFrameLocation stack frame location
+     * @param sourceProject      project instance of the detected debug source
      */
-    public static Optional<Path> getSrcPathFromBreakpointLocation(Location location, Project sourceProject) {
+    public static Optional<Map.Entry<Path, DebugSourceType>> getStackFrameSourcePath(Location stackFrameLocation,
+                                                                                     Project sourceProject) {
         // Source resolving is processed according to the following order .
         // 1. Checks whether debug hit location resides within the current debug source project and if so, returns
         // the absolute path of the project file source.
@@ -77,10 +87,14 @@ public class PackageUtils {
         sourceResolvers.add(new DependencySourceResolver(sourceProject));
 
         for (SourceResolver sourceResolver : sourceResolvers) {
-            if (sourceResolver.isSupported(location)) {
-                Optional<Path> resolvedPath = sourceResolver.resolve(location);
+            if (sourceResolver.isSupported(stackFrameLocation)) {
+                Optional<Path> resolvedPath = sourceResolver.resolve(stackFrameLocation);
                 if (resolvedPath.isPresent()) {
-                    return resolvedPath;
+                    if (sourceResolver instanceof DependencySourceResolver) {
+                        return Optional.of(new AbstractMap.SimpleEntry<>(resolvedPath.get(), DEPENDENCY));
+                    } else {
+                        return Optional.of(new AbstractMap.SimpleEntry<>(resolvedPath.get(), PACKAGE));
+                    }
                 }
             }
         }
@@ -263,6 +277,20 @@ public class PackageUtils {
             moduleParts = new String[]{path};
         }
         return moduleParts;
+    }
+
+    /**
+     * Converts a given file URI to a Ballerina-specific custom URI scheme.
+     *
+     * @param fileUri file URI
+     * @return bala URI
+     */
+    public static URI covertToBalaUri(URI fileUri) throws URISyntaxException, IllegalArgumentException {
+        if (fileUri.getScheme().equals(URI_SCHEME_FILE)) {
+            return new URI(URI_SCHEME_BALA, fileUri.getHost(), fileUri.getPath(), fileUri.getFragment());
+        }
+
+        throw new IllegalArgumentException("unsupported URI with scheme: " + fileUri.getScheme());
     }
 
     private static String replaceSeparators(String path) {

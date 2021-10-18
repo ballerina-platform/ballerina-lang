@@ -101,6 +101,51 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Completely parses a given input as statements.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsStatements() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.FUNC_BODY_BLOCK);
+        STNode stmtsNode = parseStatements();
+
+        STNodeList stmtNodeList = (STNodeList) stmtsNode;
+        ArrayList<STNode> stmts = new ArrayList<>(stmtNodeList.size() + 1);
+
+        // add all stmts except last stmt
+        for (int i = 0; i < stmtNodeList.size() - 1; i++) {
+            stmts.add(stmtNodeList.get(i));
+        }
+
+        STNode lastStmt;
+        if (stmtNodeList.isEmpty()) {
+            lastStmt = createMissingSimpleVarDecl(false);
+        } else {
+            lastStmt = stmtNodeList.get(stmtNodeList.size() - 1);
+        }
+
+        lastStmt = invalidateRestAndAddToTrailingMinutiae(lastStmt);
+        stmts.add(lastStmt);
+
+        return STNodeFactory.createNodeList(stmts);
+    }
+
+    /**
+     * Completely parses a given input as an expression.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsExpression() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.VAR_DECL_STMT);
+        STNode expr = parseExpression();
+
+        expr = invalidateRestAndAddToTrailingMinutiae(expr);
+        return expr;
+    }
+
+    /**
      * Start parsing the input from a given context. Supported starting points are:
      * <ul>
      * <li>Module part (a file)</li>
@@ -265,7 +310,7 @@ public class BallerinaParser extends AbstractParser {
             case EOF_TOKEN:
                 if (metadata != null) {
                     metadata = addMissingConstructDiagnostic((STMetadataNode) metadata);
-                    return createMissingSimpleVarDecl(metadata);
+                    return createMissingSimpleVarDecl(metadata, true);
                 }
                 return null;
             case PUBLIC_KEYWORD:
@@ -4555,9 +4600,14 @@ public class BallerinaParser extends AbstractParser {
                 typedBindingPattern, assign, expr, semicolon);
     }
 
-    private STNode createMissingSimpleVarDecl(STNode metadata) {
+    private STNode createMissingSimpleVarDecl(boolean isModuleVar) {
+        STNode metadata = isModuleVar ? STNodeFactory.createEmptyNode() : STNodeFactory.createEmptyNodeList();
+        return createMissingSimpleVarDecl(metadata, isModuleVar);
+    }
+
+    private STNode createMissingSimpleVarDecl(STNode metadata, boolean isModuleVar) {
         STNode publicQualifier = STNodeFactory.createEmptyNode();
-        return createMissingSimpleVarDecl(metadata, publicQualifier, new ArrayList<>(), true);
+        return createMissingSimpleVarDecl(metadata, publicQualifier, new ArrayList<>(), isModuleVar);
     }
 
     private STNode createMissingSimpleVarDecl(STNode metadata, STNode publicQualifier, List<STNode> qualifiers,
@@ -6033,7 +6083,20 @@ public class BallerinaParser extends AbstractParser {
                 argsList.add(curArg);
                 lastValidArgKind = curArg.kind;
             } else if (errorCode == DiagnosticErrorCode.ERROR_NAMED_ARG_FOLLOWED_BY_POSITIONAL_ARG &&
-                    isMissingPositionalArg(curArg)) {
+                    ((STPositionalArgumentNode) curArg).expression.kind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                STNode missingEqual = SyntaxErrors.createMissingToken(SyntaxKind.EQUAL_TOKEN);
+                STToken missingIdentifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+                STNode nameRef = STNodeFactory.createSimpleNameReferenceNode(missingIdentifier);
+
+                STNode expr = ((STPositionalArgumentNode) curArg).expression;
+                if (((STSimpleNameReferenceNode) expr).name.isMissing()) {
+                    errorCode = DiagnosticErrorCode.ERROR_MISSING_NAMED_ARG;
+                    expr = nameRef; // this is to clean up the missing identifier diagnostic in the expr.
+                }
+
+                curArg = STNodeFactory.createNamedArgumentNode(expr, missingEqual, nameRef);
+                curArg = SyntaxErrors.addDiagnostic(curArg, errorCode);
+
                 argsList.add(argEnd);
                 argsList.add(curArg);
             } else {
@@ -6065,11 +6128,6 @@ public class BallerinaParser extends AbstractParser {
                 throw new IllegalStateException("Invalid SyntaxKind in an argument");
         }
         return errorCode;
-    }
-
-    private boolean isMissingPositionalArg(STNode arg) {
-        STNode expr = ((STPositionalArgumentNode) arg).expression;
-        return expr.kind == SyntaxKind.SIMPLE_NAME_REFERENCE && ((STSimpleNameReferenceNode) expr).name.isMissing();
     }
 
     private STNode parseArgEnd() {
@@ -12593,10 +12651,12 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseFieldAccessIdentifier(boolean isInConditionalExpr) {
-        if (isEndOfStatements()) {
+        STToken nextToken = peek();
+        if (!isPredeclaredIdentifier(nextToken.kind)) {
+            // foo.<cursor>
             STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
                     DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER);
-            return STNodeFactory.createSimpleNameReferenceNode(identifier);
+            return parseQualifiedIdentifier(identifier, isInConditionalExpr);
         }
 
         return parseQualifiedIdentifier(ParserRuleContext.FIELD_ACCESS_IDENTIFIER, isInConditionalExpr);

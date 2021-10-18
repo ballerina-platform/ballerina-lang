@@ -144,7 +144,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
             String className = resultVar.getDapVariable().getValue();
             Optional<ClassSymbol> classDef = classDefResolver.findBalClassDefWithinModule(className);
             if (classDef.isEmpty()) {
-                // Resolves the JNI signature to see if the the object/class is defined with a dependency module.
+                // Resolves the JNI signature to see if the object/class is defined with a dependency module.
                 String signature = resultVar.getJvmValue().type().signature();
                 if (!signature.startsWith(QUALIFIED_TYPE_SIGNATURE_PREFIX)) {
                     throw createEvaluationException(CLASS_NOT_FOUND, className);

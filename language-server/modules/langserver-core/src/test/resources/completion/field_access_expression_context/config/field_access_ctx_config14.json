@@ -1,0 +1,56 @@
+{
+  "position": {
+    "line": 16,
+    "character": 10
+  },
+  "source": "field_access_expression_context/source/field_access_ctx_source14.bal",
+  "items": [
+    {
+      "label": "brandName",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "BA",
+      "insertText": "brandName",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "modelName",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "BA",
+      "insertText": "modelName",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "manufacturedYear",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "BA",
+      "insertText": "manufacturedYear",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "owner",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "BA",
+      "insertText": "owner",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getModel()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "getModel",
+      "insertText": "getModel()",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

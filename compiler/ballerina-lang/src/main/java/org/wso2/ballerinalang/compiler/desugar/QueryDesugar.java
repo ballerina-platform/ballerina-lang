@@ -1376,6 +1376,11 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
+        nsPrefixedFieldBasedAccess.expr.accept(this);
+    }
+
+    @Override
     public void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef structFunctionVarRef) {
         structFunctionVarRef.expr.accept(this);
     }

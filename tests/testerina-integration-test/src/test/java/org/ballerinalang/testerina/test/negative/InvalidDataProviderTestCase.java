@@ -96,4 +96,17 @@ public class InvalidDataProviderTestCase extends BaseTestCase {
             AssertionUtils.assertForTestFailures(output, "error while handling invalid data providers");
         }
     }
+
+    @Test
+    public void testEmptyDataProvider() throws BallerinaTestException {
+        String errMsg1 = "[fail] test";
+        String errMsg2 = "[fail] test2";
+        String errMsg3 = "The provided data set is empty.";
+        String[] args = mergeCoverageArgs(new String[]{"empty-data-provider-test.bal"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(errMsg1) || !output.contains(errMsg2) || !output.contains(errMsg3)) {
+            AssertionUtils.assertForTestFailures(output, "error while handling empty data providers");
+        }
+    }
 }

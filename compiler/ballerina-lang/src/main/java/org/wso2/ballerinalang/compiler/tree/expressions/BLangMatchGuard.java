@@ -22,6 +22,8 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.MatchGuard;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
+import static org.ballerinalang.model.tree.NodeKind.MATCH_GUARD;
+
 /**
  * @since 2.0.0
  */
@@ -46,6 +48,6 @@ public class BLangMatchGuard extends BLangExpression implements MatchGuard {
 
     @Override
     public NodeKind getKind() {
-        return null;
+        return MATCH_GUARD;
     }
 }

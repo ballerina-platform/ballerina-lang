@@ -30,6 +30,7 @@ import org.eclipse.lsp4j.debug.LoadedSourceEventArguments;
 import org.eclipse.lsp4j.debug.ModuleEventArguments;
 import org.eclipse.lsp4j.debug.NextArguments;
 import org.eclipse.lsp4j.debug.OutputEventArguments;
+import org.eclipse.lsp4j.debug.PauseArguments;
 import org.eclipse.lsp4j.debug.ProcessEventArguments;
 import org.eclipse.lsp4j.debug.ScopesArguments;
 import org.eclipse.lsp4j.debug.ScopesResponse;
@@ -240,6 +241,19 @@ public class DAPRequestManager {
         }
     }
 
+    public void pause(PauseArguments args) throws Exception {
+        pause(args, DefaultTimeouts.PAUSE.getValue());
+    }
+
+    public void pause(PauseArguments args, long timeoutMillis) throws Exception {
+        if (checkStatus()) {
+            CompletableFuture<Void> resp = server.pause(args);
+            resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
+        } else {
+            throw new IllegalStateException("DAP request manager is not active");
+        }
+    }
+
     public void disconnect(DisconnectArguments args) throws Exception {
         disconnect(args, DefaultTimeouts.DISCONNECT.getValue());
     }
@@ -315,12 +329,13 @@ public class DAPRequestManager {
         THREADS(2000),
         STACK_TRACE(7000),
         SCOPES(2000),
-        VARIABLES(10000),
+        VARIABLES(15000),
         EVALUATE(15000),
         STEP_OVER(5000),
         STEP_IN(10000),
         STEP_OUT(5000),
-        RESUME(10000),
+        RESUME(5000),
+        PAUSE(5000),
         DISCONNECT(5000);
 
         private final long value;

@@ -45,7 +45,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.AsyncCall;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
-import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.FPCall;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Panic;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
@@ -74,7 +73,6 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -97,7 +95,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REPORT_ER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_CALLABLE_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_RESOURCE_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_OBSERVATION_METHOD;
-import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_OBSERVATION_WITH_ERROR_METHOD;
 
 /**
  * BIR desugar to inject observations class.
@@ -116,6 +114,7 @@ class JvmObservabilityGen {
     private final SymbolTable symbolTable;
     private int lambdaIndex;
     private int desugaredBBIndex;
+    private int localVarIndex;
     private int constantIndex;
     private int defaultServiceIndex;
 
@@ -130,6 +129,7 @@ class JvmObservabilityGen {
         this.lambdaIndex = 0;
         this.desugaredBBIndex = 0;
         this.constantIndex = 0;
+        this.localVarIndex = 0;
         this.defaultServiceIndex = 0;
     }
 
@@ -140,6 +140,7 @@ class JvmObservabilityGen {
      */
     void instrumentPackage(BIRPackage pkg) {
         for (int i = 0; i < pkg.functions.size(); i++) {
+            localVarIndex = 0;
             BIRFunction func = pkg.functions.get(i);
 
             if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.value)) {
@@ -188,6 +189,7 @@ class JvmObservabilityGen {
             }
             for (int i = 0; i < typeDef.attachedFuncs.size(); i++) {
                 BIRFunction func = typeDef.attachedFuncs.get(i);
+                localVarIndex = 0;
                 if (isService && ((func.flags & Flags.RESOURCE) == Flags.RESOURCE ||
                         (func.flags & Flags.REMOTE) == Flags.REMOTE)) {
                     rewriteControlFlowInvocation(func, pkg);
@@ -245,7 +247,7 @@ class JvmObservabilityGen {
             if (desugaredPos != null && desugaredPos.lineRange().startLine().line() >= 0) {
                 BIRBasicBlock newBB = insertBasicBlock(func, i + 1);
                 swapBasicBlockContent(currentBB, newBB);
-                injectCheckpointCall(currentBB, pkg, desugaredPos);
+                injectCheckpointCall(func, currentBB, pkg, desugaredPos);
                 currentBB.terminator.thenBB = newBB;
                 // Fix error entries in the error entry table
                 fixErrorTable(func, currentBB, newBB);
@@ -258,24 +260,20 @@ class JvmObservabilityGen {
     /**
      * Inject checkpoint JI method call to a basic block.
      *
+     * @param func Bir Function
      * @param currentBB The basic block to which the checkpoint call should be injected
      * @param pkg The package the invocation belongs to
      * @param originalInsPosition The source code position of the invocation
      */
-    private void injectCheckpointCall(BIRBasicBlock currentBB, BIRPackage pkg, Location originalInsPosition) {
-        String pkgId = generatePackageId(pkg.packageID);
-        String position = generatePositionId(originalInsPosition);
-
-        BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, pkgId);
-        BIROperand originalInsPosOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, position);
-
+    private void injectCheckpointCall(BIRFunction func, BIRBasicBlock currentBB, BIRPackage pkg,
+                                      Location originalInsPosition) {
         JIMethodCall recordCheckPointCallTerminator = new JIMethodCall(null);
         recordCheckPointCallTerminator.invocationType = INVOKESTATIC;
         recordCheckPointCallTerminator.jClassName = OBSERVE_UTILS;
-        recordCheckPointCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;)V",
+        recordCheckPointCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;JJ)V",
                 BAL_ENV, B_STRING_VALUE, B_STRING_VALUE);
         recordCheckPointCallTerminator.name = RECORD_CHECKPOINT_METHOD;
-        recordCheckPointCallTerminator.args = Arrays.asList(pkgOperand, originalInsPosOperand);
+        recordCheckPointCallTerminator.args = generatePositionArgs(pkg, func, currentBB, originalInsPosition);
         currentBB.terminator = recordCheckPointCallTerminator;
     }
 
@@ -440,11 +438,11 @@ class JvmObservabilityGen {
                         }
                     }
                 }
-                injectStartResourceObservationCall(startBB, serviceName, resourcePathOrFunction, resourceAccessor,
+                injectStartResourceObservationCall(func, startBB, serviceName, resourcePathOrFunction, resourceAccessor,
                         isResource, isRemote, pkg, func.pos);
             } else {
                 BIROperand objectTypeOperand = generateGlobalConstantOperand(pkg, symbolTable.nilType, null);
-                injectStartCallableObservationCall(startBB, null, false, isMainEntryPoint, isWorker,
+                injectStartCallableObservationCall(func, startBB, null, false, isMainEntryPoint, isWorker,
                         objectTypeOperand, functionName, pkg, func.pos);
             }
 
@@ -464,9 +462,9 @@ class JvmObservabilityGen {
                     BIRBasicBlock newCurrentBB = insertBasicBlock(func, i + 3);
                     swapBasicBlockTerminator(currentBB, newCurrentBB);
 
-                    injectCheckErrorCalls(currentBB, errorReportBB, observeEndBB, func.localVars, null,
+                    injectCheckErrorCalls(func, currentBB, errorReportBB, observeEndBB, null,
                             returnValOperand, FUNC_BODY_INSTRUMENTATION_TYPE);
-                    injectReportErrorCall(errorReportBB, func.localVars, null, returnValOperand,
+                    injectReportErrorCall(func, errorReportBB, null, returnValOperand,
                             FUNC_BODY_INSTRUMENTATION_TYPE);
                     injectStopObservationCall(observeEndBB, null);
 
@@ -486,66 +484,38 @@ class JvmObservabilityGen {
                 }
             } else if (currentBB.terminator.kind == InstructionKind.PANIC) {
                 Panic panicCall = (Panic) currentBB.terminator;
-                BIRBasicBlock observeEndBB = insertBasicBlock(func, i + 1);
-                BIRBasicBlock newCurrentBB = insertBasicBlock(func, i + 2);
+                BIRBasicBlock newCurrentBB = insertBasicBlock(func, i + 1);
                 swapBasicBlockTerminator(currentBB, newCurrentBB);
 
-                injectReportErrorCall(currentBB, func.localVars, newCurrentBB.terminator.pos, panicCall.errorOp,
-                        FUNC_BODY_INSTRUMENTATION_TYPE);
-                injectStopObservationCall(observeEndBB, newCurrentBB.terminator.pos);
+                injectStopObservationWithErrorCall(func, currentBB, newCurrentBB.terminator.pos,
+                        panicCall.errorOp, FUNC_BODY_INSTRUMENTATION_TYPE);
 
                 // Fix the Basic Blocks links
-                currentBB.terminator.thenBB = observeEndBB;
-                observeEndBB.terminator.thenBB = newCurrentBB;
-                i += 2; // Number of inserted BBs
-            } else if (currentBB.terminator.kind == InstructionKind.CALL
-                    || (currentBB.terminator.kind == InstructionKind.FP_CALL
-                    && !((FPCall) currentBB.terminator).isAsync)) {
-                /*
-                 * Traps for errors needs to be injected for each call and fp call separately to avoid messing up the
-                 * line numbers in the stack trace shown when a panic is thrown.
-                 *
-                 * These panic traps are different from the traps added in rewriteObservableFunctionInvocations method,
-                 * in the sense that these report the error to the Observation covering the current function this body
-                 * belongs to. Also these do not cover the observable calls and fp calls (they are handled using the
-                 * panic terminator handling logic)
-                 */
-
-                // If a panic is captured, it does not need to be reported
-                Optional<BIRErrorEntry> existingEE = func.errorTable.stream()
-                        .filter(errorEntry -> isBBCoveredInErrorEntry(errorEntry, func.basicBlocks, currentBB))
-                        .findAny();
-                if (existingEE.isEmpty()) {
-                    BIRBasicBlock errorCheckBB = insertBasicBlock(func, i + 1);
-                    BIRBasicBlock errorReportBB = insertBasicBlock(func, i + 2);
-                    BIRBasicBlock observeEndBB = insertBasicBlock(func, i + 3);
-                    BIRBasicBlock rePanicBB = insertBasicBlock(func, i + 4);
-
-                    BIRVariableDcl trappedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorOrNilType,
-                            new Name(String.format("$%s$trappedError", currentBB.id.value)), VarScope.FUNCTION,
-                            VarKind.TEMP);
-                    func.localVars.add(trappedErrorVariableDcl);
-                    BIROperand trappedErrorOperand = new BIROperand(trappedErrorVariableDcl);
-
-                    injectCheckErrorCalls(errorCheckBB, errorReportBB, currentBB.terminator.thenBB, func.localVars,
-                            currentBB.terminator.pos, trappedErrorOperand, FUNC_BODY_INSTRUMENTATION_TYPE);
-                    injectReportErrorCall(errorReportBB, func.localVars, currentBB.terminator.pos, trappedErrorOperand,
-                            FUNC_BODY_INSTRUMENTATION_TYPE);
-                    injectStopObservationCall(observeEndBB, currentBB.terminator.pos);
-                    rePanicBB.terminator = new Panic(currentBB.terminator.pos, trappedErrorOperand);
-
-                    BIRErrorEntry errorEntry = new BIRErrorEntry(currentBB, currentBB, trappedErrorOperand,
-                            errorCheckBB);
-                    func.errorTable.add(errorEntry);
-
-                    // Fix the Basic Blocks links
-                    currentBB.terminator.thenBB = errorCheckBB;
-                    errorReportBB.terminator.thenBB = observeEndBB;
-                    observeEndBB.terminator.thenBB = rePanicBB;
-                    i += 4; // Number of inserted BBs
-                }
+                currentBB.terminator.thenBB = newCurrentBB;
+                i += 1; // Number of inserted BBs
             }
             i++;
+        }
+        // Add error entry for the entire function
+        {
+            int initialBBCount = func.basicBlocks.size();
+            BIRBasicBlock startBB = func.basicBlocks.get(0);
+            BIRBasicBlock endBB = func.basicBlocks.get(initialBBCount - 1);
+            BIRBasicBlock observeEndBB = insertBasicBlock(func, initialBBCount);
+            BIRBasicBlock rePanicBB = insertBasicBlock(func, initialBBCount + 1);
+
+            BIROperand trappedErrorOperand = generateTempLocalVariable(func, "functionTrappedError",
+                    symbolTable.errorOrNilType);
+
+            injectStopObservationWithErrorCall(func, observeEndBB, null, trappedErrorOperand,
+                    FUNC_BODY_INSTRUMENTATION_TYPE);
+            rePanicBB.terminator = new Panic(null, trappedErrorOperand);
+
+            BIRErrorEntry errorEntry = new BIRErrorEntry(startBB, endBB, trappedErrorOperand, observeEndBB);
+            func.errorTable.add(errorEntry);
+
+            // Fix the Basic Blocks links
+            observeEndBB.terminator.thenBB = rePanicBB;
         }
     }
 
@@ -592,12 +562,12 @@ class JvmObservabilityGen {
                         BIRBasicBlock errorReportBB = insertBasicBlock(func, i + 4);
                         observeEndBB = insertBasicBlock(func, i + 5);
 
-                        injectStartCallableObservationCall(observeStartBB, desugaredInsPosition,
+                        injectStartCallableObservationCall(func, observeStartBB, desugaredInsPosition,
                                 isRemote, false, false, objectTypeOperand, action, pkg,
                                 originalInsPos);
-                        injectCheckErrorCalls(errorCheckBB, errorReportBB, observeEndBB, func.localVars,
+                        injectCheckErrorCalls(func, errorCheckBB, errorReportBB, observeEndBB,
                                 desugaredInsPosition, callIns.lhsOp, INVOCATION_INSTRUMENTATION_TYPE);
-                        injectReportErrorCall(errorReportBB, func.localVars, desugaredInsPosition, callIns.lhsOp,
+                        injectReportErrorCall(func, errorReportBB, desugaredInsPosition, callIns.lhsOp,
                                 INVOCATION_INSTRUMENTATION_TYPE);
                         injectStopObservationCall(observeEndBB, desugaredInsPosition);
 
@@ -610,7 +580,7 @@ class JvmObservabilityGen {
                     } else {
                         observeEndBB = insertBasicBlock(func, i + 3);
 
-                        injectStartCallableObservationCall(observeStartBB, desugaredInsPosition,
+                        injectStartCallableObservationCall(func, observeStartBB, desugaredInsPosition,
                                 isRemote, false, false, objectTypeOperand, action, pkg,
                                 originalInsPos);
                         injectStopObservationCall(observeEndBB, desugaredInsPosition);
@@ -626,7 +596,8 @@ class JvmObservabilityGen {
                 {
                     /*
                      * Adding panic traps for the invocations. These report the error to the Observation covering
-                     * the invocation.
+                     * the invocation. In the above instrumentation, only errors returned by functions are
+                     * considered.
                      */
                     Optional<BIRErrorEntry> existingEE = func.errorTable.stream()
                             .filter(errorEntry -> isBBCoveredInErrorEntry(errorEntry, func.basicBlocks, newCurrentBB))
@@ -640,41 +611,33 @@ class JvmObservabilityGen {
                                     "target Basic Block " + errorEntry.targetBB.id);
                         }
 
-                        BIRBasicBlock errorReportBB = insertBasicBlock(func, eeTargetIndex + 1);
-                        BIRBasicBlock observeEndBB = insertBasicBlock(func, eeTargetIndex + 2);
-                        BIRBasicBlock newTargetBB = insertBasicBlock(func, eeTargetIndex + 3);
+                        BIRBasicBlock observeEndBB = insertBasicBlock(func, eeTargetIndex + 1);
+                        BIRBasicBlock newTargetBB = insertBasicBlock(func, eeTargetIndex + 2);
                         swapBasicBlockContent(errorEntry.targetBB, newTargetBB);
 
                         String uniqueId = String.format("%s$%s", INVOCATION_INSTRUMENTATION_TYPE,
                                 newCurrentBB.id.value); // Unique ID to work with EEs covering multiple BBs
-                        injectCheckErrorCalls(errorEntry.targetBB, errorReportBB, newTargetBB, func.localVars,
+                        injectCheckErrorCalls(func, errorEntry.targetBB, observeEndBB, newTargetBB,
                                 desugaredInsPos, errorEntry.errorOp, uniqueId);
-                        injectReportErrorCall(errorReportBB, func.localVars, desugaredInsPos, errorEntry.errorOp,
-                                INVOCATION_INSTRUMENTATION_TYPE);
-                        injectStopObservationCall(observeEndBB, desugaredInsPos);
+                        injectStopObservationWithErrorCall(func, observeEndBB, desugaredInsPos,
+                                errorEntry.errorOp, INVOCATION_INSTRUMENTATION_TYPE);
 
                         // Fix the Basic Blocks links
-                        errorReportBB.terminator.thenBB = observeEndBB;
                         observeEndBB.terminator.thenBB = newTargetBB;
                         fixErrorTable(func, errorEntry.targetBB, newTargetBB);
                     } else {
                         BIRBasicBlock errorCheckBB = insertBasicBlock(func, newCurrentIndex + 1);
-                        BIRBasicBlock errorReportBB = insertBasicBlock(func, newCurrentIndex + 2);
-                        BIRBasicBlock observeEndBB = insertBasicBlock(func, newCurrentIndex + 3);
-                        BIRBasicBlock rePanicBB = insertBasicBlock(func, newCurrentIndex + 4);
+                        BIRBasicBlock observeEndBB = insertBasicBlock(func, newCurrentIndex + 2);
+                        BIRBasicBlock rePanicBB = insertBasicBlock(func, newCurrentIndex + 3);
 
-                        BIRVariableDcl trappedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorOrNilType,
-                                new Name(String.format("$%s$trappedError", newCurrentBB.id.value)), VarScope.FUNCTION,
-                                VarKind.TEMP);
-                        func.localVars.add(trappedErrorVariableDcl);
-                        BIROperand trappedErrorOperand = new BIROperand(trappedErrorVariableDcl);
+                        BIROperand trappedErrorOperand = generateTempLocalVariable(func, "trappedError",
+                                symbolTable.errorOrNilType);
 
-                        injectCheckErrorCalls(errorCheckBB, errorReportBB, newCurrentBB.terminator.thenBB,
-                                func.localVars, newCurrentBB.terminator.pos, trappedErrorOperand,
+                        injectCheckErrorCalls(func, errorCheckBB, observeEndBB, newCurrentBB.terminator.thenBB,
+                                newCurrentBB.terminator.pos, trappedErrorOperand,
                                 INVOCATION_INSTRUMENTATION_TYPE);
-                        injectReportErrorCall(errorReportBB, func.localVars, newCurrentBB.terminator.pos,
+                        injectStopObservationWithErrorCall(func, observeEndBB, newCurrentBB.terminator.pos,
                                 trappedErrorOperand, INVOCATION_INSTRUMENTATION_TYPE);
-                        injectStopObservationCall(observeEndBB, newCurrentBB.terminator.pos);
                         rePanicBB.terminator = new Panic(newCurrentBB.terminator.pos, trappedErrorOperand);
 
                         BIRErrorEntry errorEntry = new BIRErrorEntry(newCurrentBB, newCurrentBB,
@@ -683,9 +646,8 @@ class JvmObservabilityGen {
 
                         // Fix the Basic Blocks links
                         newCurrentBB.terminator.thenBB = errorCheckBB;
-                        errorReportBB.terminator.thenBB = observeEndBB;
                         observeEndBB.terminator.thenBB = rePanicBB;
-                        i += 4; // Number of inserted BBs
+                        i += 3; // Number of inserted BBs
                     }
                 }
             }
@@ -695,6 +657,7 @@ class JvmObservabilityGen {
 
     /**
      * Inject start observation call to a basic block.
+     * @param func Bir Function
      * @param observeStartBB The basic block to which the start observation call should be injected
      * @param serviceName The service to which the instruction was attached to
      * @param resourcePathOrFunction The resource path or function name
@@ -704,18 +667,13 @@ class JvmObservabilityGen {
      * @param pkg The package the invocation belongs to
      * @param originalInsPosition The source code position of the invocation
      */
-    private void injectStartResourceObservationCall(BIRBasicBlock observeStartBB, String serviceName,
+    private void injectStartResourceObservationCall(BIRFunction func, BIRBasicBlock observeStartBB, String serviceName,
                                                     String resourcePathOrFunction, String resourceAccessor,
                                                     boolean isResource, boolean isRemote, BIRPackage pkg,
                                                     Location originalInsPosition) {
-        String pkgId = generatePackageId(pkg.packageID);
-        String position = generatePositionId(originalInsPosition);
-
-        BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, pkgId);
-        BIROperand originalInsPosOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, position);
         BIROperand serviceNameOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, serviceName);
         BIROperand resourcePathOrFunctionOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType,
-                resourcePathOrFunction);
+                                                                                 resourcePathOrFunction);
         BIROperand resourceAccessorOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType,
                 resourceAccessor);
         BIROperand isResourceOperand = generateGlobalConstantOperand(pkg, symbolTable.booleanType, isResource);
@@ -724,17 +682,21 @@ class JvmObservabilityGen {
         JIMethodCall observeStartCallTerminator = new JIMethodCall(null);
         observeStartCallTerminator.invocationType = INVOKESTATIC;
         observeStartCallTerminator.jClassName = OBSERVE_UTILS;
-        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;L%s;L%s;L%s;ZZ)V",
+        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;JJL%s;L%s;L%s;ZZ)V",
                 BAL_ENV, B_STRING_VALUE, B_STRING_VALUE, B_STRING_VALUE, B_STRING_VALUE, B_STRING_VALUE);
         observeStartCallTerminator.name = START_RESOURCE_OBSERVATION_METHOD;
-        observeStartCallTerminator.args = Arrays.asList(pkgOperand, originalInsPosOperand, serviceNameOperand,
-                resourcePathOrFunctionOperand, resourceAccessorOperand, isResourceOperand, isRemoteOperand);
+        List<BIROperand> positionOperands = generatePositionArgs(pkg, func, observeStartBB, originalInsPosition);
+        List<BIROperand> otherOperands = Arrays.asList(serviceNameOperand, resourcePathOrFunctionOperand,
+                resourceAccessorOperand, isResourceOperand, isRemoteOperand);
+        positionOperands.addAll(otherOperands);
+        observeStartCallTerminator.args = positionOperands;
         observeStartBB.terminator = observeStartCallTerminator;
     }
 
     /**
      * Inject start observation call to a basic block.
      *
+     * @param func Bir Function
      * @param observeStartBB The basic block to which the start observation call should be injected
      * @param desugaredInsLocation The position of all instructions, variables declarations, terminators to be generated
      * @param isRemote True if a remote function will be observed by the observation
@@ -745,15 +707,11 @@ class JvmObservabilityGen {
      * @param pkg The package the invocation belongs to
      * @param originalInsPosition The source code position of the invocation
      */
-    private void injectStartCallableObservationCall(BIRBasicBlock observeStartBB, Location desugaredInsLocation,
-                                                    boolean isRemote, boolean isMainEntryPoint, boolean isWorker,
+    private void injectStartCallableObservationCall(BIRFunction func, BIRBasicBlock observeStartBB,
+                                                    Location desugaredInsLocation, boolean isRemote,
+                                                    boolean isMainEntryPoint, boolean isWorker,
                                                     BIROperand objectOperand, String action, BIRPackage pkg,
                                                     Location originalInsPosition) {
-        String pkgId = generatePackageId(pkg.packageID);
-        String position = generatePositionId(originalInsPosition);
-
-        BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, pkgId);
-        BIROperand originalInsPosOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, position);
         BIROperand actionOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, action);
         BIROperand isMainEntryPointOperand = generateGlobalConstantOperand(pkg, symbolTable.booleanType,
                 isMainEntryPoint);
@@ -763,33 +721,33 @@ class JvmObservabilityGen {
         JIMethodCall observeStartCallTerminator = new JIMethodCall(desugaredInsLocation);
         observeStartCallTerminator.invocationType = INVOKESTATIC;
         observeStartCallTerminator.jClassName = OBSERVE_UTILS;
-        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;L%s;L%s;ZZZ)V", BAL_ENV, B_STRING_VALUE,
+        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;JJL%s;L%s;ZZZ)V", BAL_ENV, B_STRING_VALUE,
                 B_STRING_VALUE, B_OBJECT, B_STRING_VALUE);
         observeStartCallTerminator.name = START_CALLABLE_OBSERVATION_METHOD;
-        observeStartCallTerminator.args = Arrays.asList(pkgOperand, originalInsPosOperand, objectOperand, actionOperand,
-                isMainEntryPointOperand, isRemoteOperand, isWorkerOperand);
+        List<BIROperand> positionOperands = generatePositionArgs(pkg, func, observeStartBB, originalInsPosition);
+        List<BIROperand> otherOperands = Arrays.asList(objectOperand, actionOperand, isMainEntryPointOperand,
+                                                       isRemoteOperand, isWorkerOperand);
+        positionOperands.addAll(otherOperands);
+        observeStartCallTerminator.args = positionOperands;
         observeStartBB.terminator = observeStartCallTerminator;
     }
 
     /**
      * Inject branch condition for checking if a value is an error.
      *
+     * @param func The BIR function in which the call is injected
      * @param errorCheckBB The basic block to which the error check should be injected
      * @param isErrorBB The basic block to which errors should go to
      * @param noErrorBB The basic block to which no errors should go to
-     * @param scopeVarList The variables list in the scope
      * @param pos The position of all instructions, variables declarations, terminators, etc.
      * @param valueOperand Operand for passing the value which should be checked if it is an error
      * @param uniqueId A unique ID to identify the check error call
      */
-    private void injectCheckErrorCalls(BIRBasicBlock errorCheckBB, BIRBasicBlock isErrorBB, BIRBasicBlock noErrorBB,
-                                       Collection<BIRVariableDcl> scopeVarList, Location pos,
-                                       BIROperand valueOperand, String uniqueId) {
-        BIRVariableDcl isErrorVariableDcl = new BIRVariableDcl(symbolTable.booleanType,
-                new Name(String.format("$%s$%s$isError", uniqueId, errorCheckBB.id.value)), VarScope.FUNCTION,
-                VarKind.TEMP);
-        scopeVarList.add(isErrorVariableDcl);
-        BIROperand isErrorOperand = new BIROperand(isErrorVariableDcl);
+    private void injectCheckErrorCalls(BIRFunction func, BIRBasicBlock errorCheckBB, BIRBasicBlock isErrorBB,
+                                       BIRBasicBlock noErrorBB, Location pos, BIROperand valueOperand,
+                                       String uniqueId) {
+        BIROperand isErrorOperand = generateTempLocalVariable(func, String.format("%s$isError", uniqueId),
+                symbolTable.booleanType);
         TypeTest errorTypeTestInstruction = new TypeTest(pos, symbolTable.errorType, isErrorOperand, valueOperand);
         errorCheckBB.instructions.add(errorTypeTestInstruction);
         errorCheckBB.terminator = new Branch(pos, isErrorOperand, isErrorBB, noErrorBB);
@@ -798,19 +756,16 @@ class JvmObservabilityGen {
     /**
      * Inject report error call.
      *
+     * @param func The BIR function in which the call is injected
      * @param errorReportBB The basic block to which the report error call should be injected
-     * @param scopeVarList The variables list in the scope
      * @param pos The position of all instructions, variables declarations, terminators, etc.
      * @param errorOperand Operand for passing the error
      * @param uniqueId A unique ID to identify the check error call
      */
-    private void injectReportErrorCall(BIRBasicBlock errorReportBB, Collection<BIRVariableDcl> scopeVarList,
-                                       Location pos, BIROperand errorOperand, String uniqueId) {
-        BIRVariableDcl castedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorType,
-                new Name(String.format("$%s$%s$castedError", uniqueId, errorReportBB.id.value)), VarScope.FUNCTION,
-                VarKind.TEMP);
-        scopeVarList.add(castedErrorVariableDcl);
-        BIROperand castedErrorOperand = new BIROperand(castedErrorVariableDcl);
+    private void injectReportErrorCall(BIRFunction func, BIRBasicBlock errorReportBB, Location pos,
+                                       BIROperand errorOperand, String uniqueId) {
+        BIROperand castedErrorOperand = generateTempLocalVariable(func, String.format("%s$castedError", uniqueId),
+                symbolTable.errorType);
         TypeCast errorCastInstruction = new TypeCast(pos, castedErrorOperand, errorOperand, symbolTable.errorType,
                 false);
         errorReportBB.instructions.add(errorCastInstruction);
@@ -838,6 +793,32 @@ class JvmObservabilityGen {
         observeEndCallTerminator.name = STOP_OBSERVATION_METHOD;
         observeEndCallTerminator.args = Collections.emptyList();
         observeEndBB.terminator = observeEndCallTerminator;
+    }
+
+    /**
+     * Inject stop observation with an error call.
+     *
+     * @param func The BIR function in which the call is injected
+     * @param observeEndBB The basic block to which the stop observation call should be injected
+     * @param pos The position of all instructions, variables declarations, terminators, etc.
+     * @param errorOperand Operand for passing the error
+     * @param uniqueId A unique ID to identify the check error call
+     */
+    private void injectStopObservationWithErrorCall(BIRFunction func, BIRBasicBlock observeEndBB, Location pos,
+                                                    BIROperand errorOperand, String uniqueId) {
+        BIROperand castedErrorOperand = generateTempLocalVariable(func, String.format("%s$castedError", uniqueId),
+                symbolTable.errorType);
+        TypeCast errorCastInstruction = new TypeCast(pos, castedErrorOperand, errorOperand, symbolTable.errorType,
+                false);
+        observeEndBB.instructions.add(errorCastInstruction);
+
+        JIMethodCall observeEndBBCallTerminator = new JIMethodCall(pos);
+        observeEndBBCallTerminator.invocationType = INVOKESTATIC;
+        observeEndBBCallTerminator.jClassName = OBSERVE_UTILS;
+        observeEndBBCallTerminator.jMethodVMSig = String.format("(L%s;L%s;)V", BAL_ENV, ERROR_VALUE);
+        observeEndBBCallTerminator.name = STOP_OBSERVATION_WITH_ERROR_METHOD;
+        observeEndBBCallTerminator.args = Collections.singletonList(castedErrorOperand);
+        observeEndBB.terminator = observeEndBBCallTerminator;
     }
 
     /**
@@ -996,23 +977,68 @@ class JvmObservabilityGen {
     }
 
     /**
-     * Generate a ID for a source code position.
-     *
-     * @param pos The position for which the ID should be generated
-     * @return The generated ID
-     */
-    private String generatePositionId(Location pos) {
-        return String.format("%s:%d:%d", pos.lineRange().filePath(), pos.lineRange().startLine().line() + 1,
-                pos.lineRange().startLine().offset() + 1);
-    }
-
-    /**
      * Generate a ID for a ballerina module.
      *
      * @param pkg The module for which the ID should be generated
      * @return The generated ID
      */
     private String generatePackageId(PackageID pkg) {
-        return String.format("%s/%s:%s", pkg.orgName.value, pkg.name.value, getMajorVersion(pkg.version.value));
+        return String.format("%s/%s:%s", pkg.orgName.value, pkg.name.value, pkg.version.value);
+    }
+
+    /**
+     * Generate operands for location.
+     *
+     * @param pkg       Bir package
+     * @param func      Bir Function
+     * @param currentBB Current basic block
+     * @param location  Location
+     * @return List of operands for source file name, position start line and start column
+     */
+    private List<BIROperand> generatePositionArgs(BIRPackage pkg, BIRFunction func, BIRBasicBlock currentBB,
+                                                  Location location) {
+        String pkgId = generatePackageId(pkg.packageID);
+        BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, pkgId);
+
+        BIROperand fileNameOperand = generateTempLocalVariable(func, "fileName",
+                symbolTable.stringType, location, currentBB, location.lineRange().filePath());
+        BIROperand startLineOperand = generateTempLocalVariable(func, "startLine",
+                symbolTable.intType, location, currentBB, location.lineRange().startLine().line() + 1);
+        BIROperand startColOperand = generateTempLocalVariable(func, "startCol",
+                symbolTable.intType, location, currentBB, location.lineRange().startLine().offset() + 1);
+
+        return new ArrayList<>(Arrays.asList(pkgOperand, fileNameOperand, startLineOperand, startColOperand));
+    }
+
+    /**
+     * Generate a temporary function scope variable with an initialized value.
+     *
+     * @param func The BIR function to which the variable should be added
+     * @param name The name of the variable
+     * @param variableType The type of the variable
+     * @return The generated operand for the variable declaration
+     */
+    private BIROperand generateTempLocalVariable(BIRFunction func, String name, BType variableType,
+                                                 Location initInsLocation, BIRBasicBlock initInsBB,
+                                                 Object initValue) {
+        BIROperand variableOperand = generateTempLocalVariable(func, name, variableType);
+        ConstantLoad constantLoadIns = new ConstantLoad(initInsLocation, initValue, variableType, variableOperand);
+        initInsBB.instructions.add(constantLoadIns);
+        return variableOperand;
+    }
+
+    /**
+     * Generate a temporary function scope variable.
+     *
+     * @param func The BIR function to which the variable should be added
+     * @param name The name of the variable
+     * @param variableType The type of the variable
+     * @return The generated operand for the variable declaration
+     */
+    private BIROperand generateTempLocalVariable(BIRFunction func, String name, BType variableType) {
+        Name variableName = new Name(String.format("$observability$%s$%d", name, localVarIndex++));
+        BIRVariableDcl variableDcl = new BIRVariableDcl(variableType, variableName, VarScope.FUNCTION, VarKind.TEMP);
+        func.localVars.add(variableDcl);
+        return new BIROperand(variableDcl);
     }
 }

@@ -1,0 +1,25 @@
+[package]
+name = "thisIsVeryLongPackageJustUsingItForTestingthisIsVeryLongPackageJustUsingItForTestingthisIsVeryLongPackageJustUsingItForTestingthisIsVeryLongPackageJustUsingItForTestingthisIsVeryLongPackageJustUsingItForTestingthisIsVeryLongPackageJustUsingItForTestingthisIsVeryLongPackageJustUsingItForTesting"
+org = "thisIsVeryLongOrganozayionJustUsingItForTestingthisIsVeryLongOrganozayionJustUsingItForTestingthisIsVeryLongOrganozayionJustUsingItForTestingthisIsVeryLongOrganozayionJustUsingItForTestingthisIsVeryLongOrganozayionJustUsingItForTestingthisIsVeryLongOrganozayionJustUsingItForTestingthisIsVeryLongOrganozayionJustUsingItForTesting"
+version = "100"
+license= ["Apache 2.0"]
+authors= ["jo", "pramodya"]
+keywords= ["toml", "ballerina"]
+repository= "https://github.com/ballerina-platform/ballerina-lang"
+
+[[platform.java11.dependency]]
+path = "../dummy-jars/toml4j.txt"
+artifactId = "toml4j"
+version = "0.7.2"
+groupId = "com.moandjiezana.toml"
+
+[[platform.java11.dependency]]
+path = "../dummy-jars/swagger.txt"
+artifactId = "swagger"
+version = "0.7.2"
+groupId = "swagger.io"
+
+[build-options]
+observabilityIncluded = true
+offline = true
+skipTests = false

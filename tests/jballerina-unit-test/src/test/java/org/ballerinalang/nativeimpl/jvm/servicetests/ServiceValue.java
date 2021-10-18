@@ -58,8 +58,8 @@ public class ServiceValue {
 
     public static BFuture callMethod(Environment env, BObject l, BString name) {
 
-        return env.getRuntime().invokeMethodAsync(l, name.getValue(), null, null, null, new HashMap<>(),
-                                                  PredefinedTypes.TYPE_ANY);
+        return env.getRuntime().invokeMethodAsyncConcurrently(l, name.getValue(), null, null, null, new HashMap<>(),
+                                                              PredefinedTypes.TYPE_ANY);
     }
 
     public static BFuture callMethodWithParams(Environment env, BObject l, BString name, ArrayValue arrayValue) {
@@ -67,8 +67,9 @@ public class ServiceValue {
         for (int i = 0; i < arrayValue.size(); i += 1) {
             args[i] = arrayValue.get(i);
         }
-        BFuture k = env.getRuntime().invokeMethodAsync(l, name.getValue(), null, null, null, new HashMap<>(),
-                PredefinedTypes.TYPE_ANY, args);
+        BFuture k = env.getRuntime().invokeMethodAsyncConcurrently(l, name.getValue(), null, null, null,
+                                                                   new HashMap<>(),
+                                                                   PredefinedTypes.TYPE_ANY, args);
 
         return k;
     }

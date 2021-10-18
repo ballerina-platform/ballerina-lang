@@ -319,19 +319,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
+        this.arrowFunctionTempSymbolMap.clear();
+        this.isolationInferenceInfoMap.clear();
         this.dlog.setCurrentPackageId(pkgNode.packageID);
-        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
-
-        Set<BSymbol> moduleLevelVarSymbols = getModuleLevelVarSymbols(pkgNode.globalVars);
-        populateNonPublicMutableOrNonIsolatedVars(moduleLevelVarSymbols);
-        List<BLangClassDefinition> classDefinitions = pkgNode.classDefinitions;
-        populateNonPublicIsolatedInferableClasses(classDefinitions);
-
-        analyzeNode(pkgNode, pkgEnv);
-
-        inferIsolation(moduleLevelVarSymbols, getPubliclyExposedObjectTypes(pkgNode), classDefinitions);
-        logServiceIsolationWarnings(classDefinitions);
-
+        pkgNode.accept(this);
         return pkgNode;
     }
 
@@ -341,8 +332,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+
+        Set<BSymbol> moduleLevelVarSymbols = getModuleLevelVarSymbols(pkgNode.globalVars);
+        populateNonPublicMutableOrNonIsolatedVars(moduleLevelVarSymbols);
+        List<BLangClassDefinition> classDefinitions = pkgNode.classDefinitions;
+        populateNonPublicIsolatedInferableClasses(classDefinitions);
+
         for (BLangTypeDefinition typeDefinition : pkgNode.typeDefinitions) {
-            analyzeNode(typeDefinition.typeNode, env);
+            analyzeNode(typeDefinition.typeNode, pkgEnv);
         }
 
         for (BLangClassDefinition classDefinition : pkgNode.classDefinitions) {
@@ -354,19 +352,24 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 classDefinition.symbol.flags |= Flags.ISOLATED;
             }
 
-            analyzeNode(classDefinition, env);
+            analyzeNode(classDefinition, pkgEnv);
         }
 
         for (BLangFunction function : pkgNode.functions) {
-            analyzeNode(function, env);
+            analyzeNode(function, pkgEnv);
         }
 
         for (BLangVariable globalVar : pkgNode.globalVars) {
-            analyzeNode(globalVar, env);
+            analyzeNode(globalVar, pkgEnv);
         }
 
+        inferIsolation(moduleLevelVarSymbols, getPubliclyExposedObjectTypes(pkgNode), classDefinitions);
+        logServiceIsolationWarnings(classDefinitions);
+        this.arrowFunctionTempSymbolMap.clear();
+        this.isolationInferenceInfoMap.clear();
+
         for (BLangTestablePackage testablePkg : pkgNode.testablePkgs) {
-            analyze(testablePkg);
+            visit((BLangPackage) testablePkg);
         }
 
         pkgNode.completedPhases.add(CompilerPhase.ISOLATION_ANALYZE);
@@ -1327,6 +1330,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        analyzeFieldBasedAccess(fieldAccessExpr);
+    }
+
+    @Override
+    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
+        analyzeFieldBasedAccess(nsPrefixedFieldBasedAccess);
+    }
+
+    private void analyzeFieldBasedAccess(BLangFieldBasedAccess fieldAccessExpr) {
         BLangExpression expr = fieldAccessExpr.expr;
         analyzeNode(expr, env);
 

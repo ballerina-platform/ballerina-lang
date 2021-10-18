@@ -1625,6 +1625,8 @@ public class BIRPackageSymbolEnter {
                 BAttachedFunction attachedFunction = new BAttachedFunction(names.fromString(attachedFuncName),
                         attachedFuncSymbol, attachedFuncType, symTable.builtinPos);
 
+                setInvokableTypeSymbol(attachedFuncType);
+
                 objectSymbol.referencedFunctions.add(attachedFunction);
                 objectSymbol.attachedFuncs.add(attachedFunction);
                 objectSymbol.scope.define(funcName, attachedFuncSymbol);

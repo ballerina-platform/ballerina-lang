@@ -293,9 +293,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 populateInitialValue(entry.getKey(), entry.getValue());
             }
         }
-        if (this.type.isReadOnly()) {
-            this.typedesc = createSingletonTypedesc(this);
-        }
     }
 
     public void populateInitialValue(K key, V value) {
@@ -307,6 +304,9 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         }
 
         putValue(key, value);
+        if (this.type.isReadOnly()) {
+            this.typedesc = createSingletonTypedesc(this);
+        }
     }
 
     /**

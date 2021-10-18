@@ -848,6 +848,15 @@ class SymbolFinder extends BaseVisitor {
     }
 
     @Override
+    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
+        if (setEnclosingNode(nsPrefixedFieldBasedAccess.nsSymbol, nsPrefixedFieldBasedAccess.nsPrefix.pos)) {
+            return;
+        }
+
+        lookupNode(nsPrefixedFieldBasedAccess.expr);
+    }
+
+    @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         lookupNode(indexAccessExpr.expr);
 
@@ -1107,7 +1116,10 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangAnnotAccessExpr annotAccessExpr) {
-
+        lookupNode(annotAccessExpr.expr);
+        if (annotAccessExpr.annotationName != null) {
+            setEnclosingNode(annotAccessExpr.annotationSymbol, annotAccessExpr.annotationName.pos);
+        }
     }
 
     @Override
@@ -1556,7 +1568,7 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangXMLElementFilter xmlElementFilter) {
-        setEnclosingNode(xmlElementFilter.namespaceSymbol, xmlElementFilter.elemNamePos);
+        setEnclosingNode(xmlElementFilter.namespaceSymbol, xmlElementFilter.nsPos);
     }
 
     @Override

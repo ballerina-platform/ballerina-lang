@@ -560,6 +560,42 @@
       "sortText": "AB",
       "insertText": "url",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "filterText": "null",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "path = ...",
+      "kind": "Snippet",
+      "detail": "path = \"\"",
+      "sortText": "AR",
+      "filterText": "path",
+      "insertText": "path = ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "message = ...",
+      "kind": "Snippet",
+      "detail": "message = \"\"",
+      "sortText": "AR",
+      "filterText": "message",
+      "insertText": "message = ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "targetType = ...",
+      "kind": "Snippet",
+      "detail": "targetType = \"\"",
+      "sortText": "AR",
+      "filterText": "targetType",
+      "insertText": "targetType = ${1:\"\"}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

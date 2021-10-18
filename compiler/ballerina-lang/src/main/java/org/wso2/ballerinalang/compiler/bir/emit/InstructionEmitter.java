@@ -87,6 +87,9 @@ class InstructionEmitter {
             case XML_ATTRIBUTE_LOAD:
             case XML_ATTRIBUTE_STORE:
             case XML_SEQ_LOAD:
+            case STRING_LOAD:
+            case TABLE_LOAD:
+            case TABLE_STORE:
                 return emitInsFieldAccess((BIRNonTerminator.FieldAccess) ins, tabs);
             case TYPE_CAST:
                 return emitInsTypeCast((BIRNonTerminator.TypeCast) ins, tabs);
@@ -114,6 +117,8 @@ class InstructionEmitter {
                 return emitInsNewXMLPI((BIRNonTerminator.NewXMLProcIns) ins, tabs);
             case NEW_TYPEDESC:
                 return emitInsNewTypeDesc((BIRNonTerminator.NewTypeDesc) ins, tabs);
+            case NEW_TABLE:
+                return emitInsNewTable((BIRNonTerminator.NewTable) ins, tabs);
             default:
                 throw new IllegalStateException("Not an instruction");
 
@@ -147,6 +152,25 @@ class InstructionEmitter {
         nMapStr += emitSpaces(1);
         nMapStr += emitVarRef(ins.rhsOp);
         nMapStr += ";";
+        return nMapStr;
+    }
+
+    private static String emitInsNewTable(BIRNonTerminator.NewTable ins, int tabs) {
+        String nMapStr = "";
+        nMapStr += emitTabs(tabs);
+        nMapStr += emitVarRef(ins.lhsOp);
+        nMapStr += emitSpaces(1);
+        nMapStr += "=";
+        nMapStr += emitSpaces(1);
+        nMapStr += "NewTable";
+        nMapStr += emitSpaces(1);
+        nMapStr += "<";
+        nMapStr += emitVarRef(ins.dataOp);
+        nMapStr += ">";
+        nMapStr += emitSpaces(1);
+        nMapStr += "key(";
+        nMapStr += emitVarRef(ins.dataOp);
+        nMapStr += ");";
         return nMapStr;
     }
 

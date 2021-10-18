@@ -860,6 +860,18 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // Nested from clauses
         debugTestRunner.assertExpression(context, "from var i in from var j in [1, 2, 3] select j select i",
                 "int[3]", "array");
+
+        // Queries with library import usages
+        debugTestRunner.assertExpression(context, "from var student in studentList" +
+                        "    where student.score.toBalString() != int:MAX_VALUE.toBalString()" +
+                        "    select student.firstName + \" \" + student.lastName",
+                "string[3]", "array");
+
+        // Queries with other module imports
+        debugTestRunner.assertExpression(context, "from var student in studentList" +
+                        "    where student is other:Kid" +
+                        "    select student.firstName + \" \" + student.lastName",
+                "string[0]", "array");
     }
 
     @Override

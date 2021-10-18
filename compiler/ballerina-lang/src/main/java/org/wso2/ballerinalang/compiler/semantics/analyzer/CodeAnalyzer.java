@@ -303,6 +303,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean failVisited;
     private boolean hasLastPatternInStatement;
     private boolean withinLockBlock;
+    private boolean inMatchGuard;
     private SymbolTable symTable;
     private Types types;
     private BLangDiagnosticLog dlog;
@@ -373,6 +374,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
+        this.workerReferences.clear();
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         pkgNode.accept(this);
         return pkgNode;
@@ -930,6 +932,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.continueAsLastStatement = allClausesContinue && this.hasLastPatternInStatement;
         this.errorThrown = currentErrorThrown;
         analyzeOnFailClause(matchStatement.onFailClause);
+        this.errorTypes.pop();
         this.hasLastPatternInStatement = hasLastPatternInStatement;
     }
 
@@ -940,9 +943,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         boolean hasLastPatternInClause = false;
 
         List<BLangMatchPattern> matchPatterns = matchClause.matchPatterns;
+        BLangMatchGuard matchGuard = matchClause.matchGuard;
         for (int i = 0; i < matchPatterns.size(); i++) {
             BLangMatchPattern matchPattern = matchPatterns.get(i);
-            if (this.hasLastPatternInStatement || (hasLastPatternInClause && matchClause.matchGuard == null)) {
+            if (this.hasLastPatternInStatement || (hasLastPatternInClause && matchGuard == null)) {
                 dlog.warning(matchPattern.pos, DiagnosticWarningCode.MATCH_STMT_PATTERN_UNREACHABLE);
             }
             if (matchPattern.getBType() == symTable.noType) {
@@ -960,13 +964,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             hasLastPatternInClause = hasLastPatternInClause || matchPattern.isLastPattern;
         }
 
+        if (matchGuard != null) {
+            analyzeNode(matchGuard, env);
+        }
+
         if (!patternListContainsSameVars) {
             dlog.error(matchClause.pos, DiagnosticErrorCode.MATCH_PATTERNS_SHOULD_CONTAIN_SAME_SET_OF_VARIABLES);
         }
 
         analyzeNode(matchClause.blockStmt, env);
         this.hasLastPatternInStatement =
-                    this.hasLastPatternInStatement || (matchClause.matchGuard == null && hasLastPatternInClause);
+                    this.hasLastPatternInStatement || (matchGuard == null && hasLastPatternInClause);
     }
 
     @Override
@@ -976,6 +984,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFieldMatchPattern fieldMatchPattern) {
 
+    }
+
+    @Override
+    public void visit(BLangMatchGuard matchGuard) {
+        boolean prevInMatchGuard = this.inMatchGuard;
+        this.inMatchGuard = true;
+        analyzeExpr(matchGuard.expr, env);
+        this.inMatchGuard = prevInMatchGuard;
     }
 
     private void checkSimilarMatchPatternsBetweenClauses(BLangMatchClause firstClause, BLangMatchClause secondClause) {
@@ -2720,7 +2736,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BLangValueExpression varRef = compoundAssignment.varRef;
         analyzeExpr(varRef);
         analyzeExpr(compoundAssignment.expr);
-        validateAssignmentToNarrowedVariable(varRef, compoundAssignment.pos);
+        validateAssignmentToNarrowedVariable(varRef, compoundAssignment.pos, env);
     }
 
     public void visit(BLangAssignment assignNode) {
@@ -2728,7 +2744,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BLangExpression varRef = assignNode.varRef;
         analyzeExpr(varRef);
         analyzeExpr(assignNode.expr);
-        validateAssignmentToNarrowedVariable(varRef, assignNode.pos);
+        validateAssignmentToNarrowedVariable(varRef, assignNode.pos, env);
     }
 
     public void visit(BLangRecordDestructure stmt) {
@@ -2737,7 +2753,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(stmt);
         analyzeExpr(stmt.varRef);
         analyzeExpr(stmt.expr);
-        validateAssignmentToNarrowedVariables(varRefs, stmt.pos);
+        validateAssignmentToNarrowedVariables(varRefs, stmt.pos, env);
     }
 
     public void visit(BLangErrorDestructure stmt) {
@@ -2746,7 +2762,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(stmt);
         analyzeExpr(stmt.varRef);
         analyzeExpr(stmt.expr);
-        validateAssignmentToNarrowedVariables(varRefs, stmt.pos);
+        validateAssignmentToNarrowedVariables(varRefs, stmt.pos, env);
     }
 
     @Override
@@ -2756,7 +2772,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(stmt);
         analyzeExpr(stmt.varRef);
         analyzeExpr(stmt.expr);
-        validateAssignmentToNarrowedVariables(varRefs, stmt.pos);
+        validateAssignmentToNarrowedVariables(varRefs, stmt.pos, env);
     }
 
     private void checkDuplicateVarRefs(List<BLangExpression> varRefs) {
@@ -3331,11 +3347,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        analyzeFieldBasedAccessExpr(fieldAccessExpr);
+    }
+
+    @Override
+    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
+        analyzeFieldBasedAccessExpr(nsPrefixedFieldBasedAccess);
+    }
+
+    private void analyzeFieldBasedAccessExpr(BLangFieldBasedAccess fieldAccessExpr) {
         analyzeExpr(fieldAccessExpr.expr);
         BSymbol symbol = fieldAccessExpr.symbol;
         if (symbol != null && Symbols.isFlagOn(fieldAccessExpr.symbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(fieldAccessExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT,
-                         fieldAccessExpr);
+            dlog.warning(fieldAccessExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, fieldAccessExpr);
         }
     }
 
@@ -3352,6 +3376,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(invocationExpr.expr);
         analyzeExprs(invocationExpr.requiredArgs);
         analyzeExprs(invocationExpr.restArgs);
+
+        validateInvocationInMatchGuard(invocationExpr);
 
         if ((invocationExpr.symbol != null) && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
             BSymbol funcSymbol = invocationExpr.symbol;
@@ -3374,6 +3400,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
+        validateInvocationInMatchGuard(actionInvocation);
+
         if (!actionInvocation.async && !this.withinTransactionScope &&
                 Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL)) {
             dlog.error(actionInvocation.pos, DiagnosticErrorCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED,
@@ -3427,9 +3455,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (iExpr.expr != null) {
             final NodeKind clientNodeKind = iExpr.expr.getKind();
             // Validation against node kind.
-            if (clientNodeKind != NodeKind.SIMPLE_VARIABLE_REF && clientNodeKind != NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                dlog.error(pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION_AS_EXPR);
-            } else if (clientNodeKind == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            if (clientNodeKind == NodeKind.FIELD_BASED_ACCESS_EXPR) {
                 final BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) iExpr.expr;
                 if (fieldBasedAccess.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
                     dlog.error(pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION_AS_EXPR);
@@ -3439,6 +3465,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         dlog.error(pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION_AS_EXPR);
                     }
                 }
+            } else if (clientNodeKind != NodeKind.SIMPLE_VARIABLE_REF &&
+                    clientNodeKind != NodeKind.GROUP_EXPR) {
+                dlog.error(pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION_AS_EXPR);
             }
         }
         validateActionParentNode(pos, iExpr);
@@ -4782,7 +4811,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         return node;
     }
 
-    private void validateAssignmentToNarrowedVariables(List<BLangExpression> exprs, Location location) {
+    private void validateAssignmentToNarrowedVariables(List<BLangExpression> exprs, Location location, SymbolEnv env) {
         for (BLangExpression expr : exprs) {
             if (expr == null) {
                 continue;
@@ -4790,22 +4819,22 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             switch (expr.getKind()) {
                 case SIMPLE_VARIABLE_REF:
-                    validateAssignmentToNarrowedVariable(expr, location);
+                    validateAssignmentToNarrowedVariable(expr, location, env);
                     continue;
                 case RECORD_VARIABLE_REF:
-                    validateAssignmentToNarrowedVariables(getVarRefs((BLangRecordVarRef) expr), location);
+                    validateAssignmentToNarrowedVariables(getVarRefs((BLangRecordVarRef) expr), location, env);
                     continue;
                 case TUPLE_VARIABLE_REF:
-                    validateAssignmentToNarrowedVariables(getVarRefs((BLangTupleVarRef) expr), location);
+                    validateAssignmentToNarrowedVariables(getVarRefs((BLangTupleVarRef) expr), location, env);
                     continue;
                 case ERROR_VARIABLE_REF:
-                    validateAssignmentToNarrowedVariables(getVarRefs((BLangErrorVarRef) expr), location);
+                    validateAssignmentToNarrowedVariables(getVarRefs((BLangErrorVarRef) expr), location, env);
                     continue;
             }
         }
     }
 
-    private void validateAssignmentToNarrowedVariable(BLangExpression expr, Location location) {
+    private void validateAssignmentToNarrowedVariable(BLangExpression expr, Location location, SymbolEnv env) {
         if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
             return;
         }
@@ -4820,16 +4849,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        validateAssignmentToNarrowedVariable(names.fromIdNode(varRef.variableName), location);
+        validateAssignmentToNarrowedVariable(names.fromIdNode(varRef.variableName), location, env);
     }
 
-    private void validateAssignmentToNarrowedVariable(Name name, Location location) {
+    private void validateAssignmentToNarrowedVariable(Name name, Location location, SymbolEnv env) {
         SymbolEnv loopEnv = this.loopEnvs.peek();
 
-        BSymbol foundSym = symResolver.lookupSymbolInMainSpace(loopEnv, name);
-        if (foundSym != symTable.notFoundSymbol && foundSym.tag == SymTag.VARIABLE &&
-                ((BVarSymbol) foundSym).originalSymbol == null) {
-            return;
+        SymbolEnv currentEnv = env;
+
+        while (currentEnv != null) {
+            BSymbol foundSym = symResolver.lookupSymbolInMainSpace(currentEnv, name);
+
+            if (foundSym != symTable.notFoundSymbol && foundSym.tag == SymTag.VARIABLE &&
+                    ((BVarSymbol) foundSym).originalSymbol == null) {
+                return;
+            }
+
+            if (currentEnv == loopEnv) {
+                break;
+            }
+
+            currentEnv = currentEnv.enclEnv;
         }
 
         this.potentiallyInvalidAssignmentInLoopsInfo.peek().locations.add(location);
@@ -4870,6 +4910,109 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         prevInfo.locations.addAll(currentBranchLocations);
+    }
+
+    private void validateInvocationInMatchGuard(BLangInvocation invocation) {
+        BLangExpression matchedExpr = getMatchedExprIfCalledInMatchGuard(invocation);
+
+        if (matchedExpr == null) {
+            return;
+        }
+
+        BType matchedExprType = matchedExpr.getBType();
+
+        if (types.isInherentlyImmutableType(matchedExprType) ||
+                Symbols.isFlagOn(matchedExprType.flags, Flags.READONLY)) {
+            return;
+        }
+
+        BSymbol invocationSymbol = invocation.symbol;
+
+        if (invocationSymbol == null) {
+            BLangNode parent = invocation.parent;
+            if (parent == null || parent.getKind() != NodeKind.TYPE_INIT_EXPR) {
+                return;
+            }
+
+            BLangTypeInit newExpr = (BLangTypeInit) parent;
+            if (newExpr.getBType().tag != TypeTags.STREAM) {
+                return;
+            }
+
+            List<BLangExpression> argsExpr = newExpr.argsExpr;
+            if (argsExpr.isEmpty()) {
+                return;
+            }
+
+            BLangExpression streamImplementorExpr = argsExpr.get(0);
+            BType type = streamImplementorExpr.getBType();
+            if (!types.isInherentlyImmutableType(type) && !Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+                dlog.error(streamImplementorExpr.pos,
+                           DiagnosticErrorCode.INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD);
+            }
+            return;
+        }
+
+        long flags = invocationSymbol.flags;
+        boolean methodCall = Symbols.isFlagOn(flags, Flags.ATTACHED);
+
+        boolean callsNonIsolatedFunction = !Symbols.isFlagOn(flags, Flags.ISOLATED) ||
+                (methodCall && !Symbols.isFlagOn(invocationSymbol.owner.flags, Flags.ISOLATED));
+
+        if (callsNonIsolatedFunction) {
+            dlog.error(invocation.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_CALL_IN_MATCH_GUARD);
+        }
+
+        List<BLangExpression> args = new ArrayList<>(invocation.requiredArgs);
+        args.addAll(invocation.restArgs);
+
+        for (BLangExpression arg : args) {
+            BType type = arg.getBType();
+
+            if (type != symTable.semanticError &&
+                    !types.isInherentlyImmutableType(type) &&
+                    !Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+                dlog.error(arg.pos, DiagnosticErrorCode.INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD);
+            }
+        }
+    }
+
+    private BLangExpression getMatchedExprIfCalledInMatchGuard(BLangInvocation invocation) {
+        BLangNode prevParent = invocation;
+        BLangNode parent = invocation.parent;
+        boolean encounteredMatchGuard = false;
+        while (parent != null) {
+            NodeKind parentKind = parent.getKind();
+            switch (parentKind) {
+                // If the parent is a function before we reach a match clause, this isn't directly called in the
+                // match guard.
+                case LAMBDA:
+                case FUNCTION:
+                case RESOURCE_FUNC:
+                    return null;
+                case MATCH_CLAUSE:
+                    if (encounteredMatchGuard) {
+                        return ((BLangMatchStatement) parent.parent).expr;
+                    }
+                    // If the parent is a match clause before we reach a match guard this isn't directly called in the
+                    // match guard.
+                    return null;
+                case MATCH_GUARD:
+                    encounteredMatchGuard = true;
+                    break;
+                case INVOCATION:
+                    BLangInvocation parentInvocation = (BLangInvocation) parent;
+
+                    if (parentInvocation.langLibInvocation || prevParent != parentInvocation.expr) {
+                        // Argument to a call. Return early and let it be handled for the parent invocation.
+                        return null;
+                    }
+            }
+
+            prevParent = parent;
+            parent = parent.parent;
+        }
+        return null;
     }
 
     /**
