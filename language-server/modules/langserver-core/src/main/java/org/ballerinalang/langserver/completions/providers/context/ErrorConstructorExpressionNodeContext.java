@@ -22,12 +22,14 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
+import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
@@ -101,20 +103,20 @@ public class ErrorConstructorExpressionNodeContext extends
                                                            ErrorConstructorExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
-        if (this.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             return this.getCompletionItemList(QNameReferenceUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
         }
 
         completionItems.addAll(this.expressionCompletions(ctx));
         completionItems.addAll(this.getNamedArgExpressionCompletionItems(ctx, node));
-
+        completionItems.addAll(this.actionKWCompletions(ctx));
         return completionItems;
     }
 
     private List<LSCompletionItem> getErrorTypeRefCompletions(BallerinaCompletionContext ctx) {
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
-        if (this.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(ctx, qNameRef,
                     SymbolUtil.isOfType(TypeDescKind.ERROR));
@@ -135,16 +137,41 @@ public class ErrorConstructorExpressionNodeContext extends
     @Override
     public void sort(BallerinaCompletionContext context, ErrorConstructorExpressionNode node,
                      List<LSCompletionItem> completionItems) {
+
+        if (!withinArgs(context, node)) {
+            super.sort(context, node, completionItems);
+            return;
+        }
+        if (isInErrorMessageArgContext(context, node)) {
+            /*
+              Covers the following.
+              error(<cursor>,)
+            */
+            sortInErrorMessageArgContext(context, completionItems, node);
+            return;
+        }
+        /*
+          Covers the following.
+          error(arg1, <cursor>)
+        */
         for (LSCompletionItem completionItem : completionItems) {
             String sortText;
             if (completionItem.getType() == LSCompletionItem.CompletionItemType.NAMED_ARG) {
                 sortText = SortingUtil.genSortText(1) +
                         SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
             } else {
-                sortText = SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
+                sortText = SortingUtil.genSortText(2) +
+                        SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
             }
             completionItem.getCompletionItem().setSortText(sortText);
         }
+    }
+
+    private void sortInErrorMessageArgContext(BallerinaCompletionContext context,
+                                              List<LSCompletionItem> completionItems,
+                                              ErrorConstructorExpressionNode node) {
+        //Todo:#33027
+        super.sort(context, node, completionItems);
     }
 
     private boolean withinArgs(BallerinaCompletionContext context, ErrorConstructorExpressionNode node) {
@@ -155,6 +182,21 @@ public class ErrorConstructorExpressionNodeContext extends
         return !openParenToken.isMissing() && !closeParenToken.isMissing()
                 && cursor >= openParenToken.textRange().endOffset()
                 && cursor <= closeParenToken.textRange().startOffset();
+    }
+
+    private boolean isInErrorMessageArgContext(BallerinaCompletionContext context,
+                                               ErrorConstructorExpressionNode node) {
+        if (!withinArgs(context, node)) {
+            return false;
+        }
+        if (node.arguments().isEmpty()) {
+            return true;
+        }
+        FunctionArgumentNode firstNode = node.arguments().get(0);
+        TextRange textRange = firstNode.textRange();
+        int cursor = context.getCursorPositionInTree();
+        return cursor < textRange.startOffset() || (firstNode.kind() == SyntaxKind.POSITIONAL_ARG
+                && textRange.startOffset() <= cursor && cursor <= textRange.endOffset());
     }
 
     private List<LSCompletionItem> getNamedArgExpressionCompletionItems(BallerinaCompletionContext context,

@@ -30,8 +30,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 
-import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
-
 /**
  * Test cases to verify name clashes between generated identifiers.
  *
@@ -63,7 +61,7 @@ public class IdentifierLiteralTest  extends BaseTest {
         String importProjectPath = testFileLocation + File.separator + "testProject";
         LogLeecher buildLeecher = new LogLeecher("target/bala/a_b-foo-any-0.1.0.bala");
         LogLeecher pushLeecher =
-                new LogLeecher("Successfully pushed target/bala/a_b-foo-any-0.1.0.bala to 'local' repository.", ERROR);
+                new LogLeecher("Successfully pushed target/bala/a_b-foo-any-0.1.0.bala to 'local' repository.");
         LogLeecher runLeecher = new LogLeecher("Tests passed");
         bMainInstance.runMain("build", new String[]{"-c"}, null, null, new LogLeecher[]{buildLeecher},
                 importProjectPath);
