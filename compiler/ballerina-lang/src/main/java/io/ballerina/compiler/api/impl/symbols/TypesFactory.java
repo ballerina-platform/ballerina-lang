@@ -264,7 +264,7 @@ public class TypesFactory {
             case INTERSECTION:
                 return new BallerinaIntersectionTypeSymbol(this.context, moduleID, (BIntersectionType) bType);
             default:
-                if (bType.tag == SEMANTIC_ERROR || bType.tag == NONE) {
+                if (bType.tag == SEMANTIC_ERROR) {
                     return new BallerinaCompilationErrorTypeSymbol(this.context, moduleID, bType);
                 }
 
