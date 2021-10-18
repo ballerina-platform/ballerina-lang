@@ -373,6 +373,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
+        this.workerReferences.clear();
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         pkgNode.accept(this);
         return pkgNode;
@@ -930,6 +931,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.continueAsLastStatement = allClausesContinue && this.hasLastPatternInStatement;
         this.errorThrown = currentErrorThrown;
         analyzeOnFailClause(matchStatement.onFailClause);
+        this.errorTypes.pop();
         this.hasLastPatternInStatement = hasLastPatternInStatement;
     }
 
@@ -2720,7 +2722,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BLangValueExpression varRef = compoundAssignment.varRef;
         analyzeExpr(varRef);
         analyzeExpr(compoundAssignment.expr);
-        validateAssignmentToNarrowedVariable(varRef, compoundAssignment.pos);
+        validateAssignmentToNarrowedVariable(varRef, compoundAssignment.pos, env);
     }
 
     public void visit(BLangAssignment assignNode) {
@@ -2728,7 +2730,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BLangExpression varRef = assignNode.varRef;
         analyzeExpr(varRef);
         analyzeExpr(assignNode.expr);
-        validateAssignmentToNarrowedVariable(varRef, assignNode.pos);
+        validateAssignmentToNarrowedVariable(varRef, assignNode.pos, env);
     }
 
     public void visit(BLangRecordDestructure stmt) {
@@ -2737,7 +2739,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(stmt);
         analyzeExpr(stmt.varRef);
         analyzeExpr(stmt.expr);
-        validateAssignmentToNarrowedVariables(varRefs, stmt.pos);
+        validateAssignmentToNarrowedVariables(varRefs, stmt.pos, env);
     }
 
     public void visit(BLangErrorDestructure stmt) {
@@ -2746,7 +2748,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(stmt);
         analyzeExpr(stmt.varRef);
         analyzeExpr(stmt.expr);
-        validateAssignmentToNarrowedVariables(varRefs, stmt.pos);
+        validateAssignmentToNarrowedVariables(varRefs, stmt.pos, env);
     }
 
     @Override
@@ -2756,7 +2758,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(stmt);
         analyzeExpr(stmt.varRef);
         analyzeExpr(stmt.expr);
-        validateAssignmentToNarrowedVariables(varRefs, stmt.pos);
+        validateAssignmentToNarrowedVariables(varRefs, stmt.pos, env);
     }
 
     private void checkDuplicateVarRefs(List<BLangExpression> varRefs) {
@@ -4791,7 +4793,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         return node;
     }
 
-    private void validateAssignmentToNarrowedVariables(List<BLangExpression> exprs, Location location) {
+    private void validateAssignmentToNarrowedVariables(List<BLangExpression> exprs, Location location, SymbolEnv env) {
         for (BLangExpression expr : exprs) {
             if (expr == null) {
                 continue;
@@ -4799,22 +4801,22 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             switch (expr.getKind()) {
                 case SIMPLE_VARIABLE_REF:
-                    validateAssignmentToNarrowedVariable(expr, location);
+                    validateAssignmentToNarrowedVariable(expr, location, env);
                     continue;
                 case RECORD_VARIABLE_REF:
-                    validateAssignmentToNarrowedVariables(getVarRefs((BLangRecordVarRef) expr), location);
+                    validateAssignmentToNarrowedVariables(getVarRefs((BLangRecordVarRef) expr), location, env);
                     continue;
                 case TUPLE_VARIABLE_REF:
-                    validateAssignmentToNarrowedVariables(getVarRefs((BLangTupleVarRef) expr), location);
+                    validateAssignmentToNarrowedVariables(getVarRefs((BLangTupleVarRef) expr), location, env);
                     continue;
                 case ERROR_VARIABLE_REF:
-                    validateAssignmentToNarrowedVariables(getVarRefs((BLangErrorVarRef) expr), location);
+                    validateAssignmentToNarrowedVariables(getVarRefs((BLangErrorVarRef) expr), location, env);
                     continue;
             }
         }
     }
 
-    private void validateAssignmentToNarrowedVariable(BLangExpression expr, Location location) {
+    private void validateAssignmentToNarrowedVariable(BLangExpression expr, Location location, SymbolEnv env) {
         if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
             return;
         }
@@ -4829,16 +4831,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        validateAssignmentToNarrowedVariable(names.fromIdNode(varRef.variableName), location);
+        validateAssignmentToNarrowedVariable(names.fromIdNode(varRef.variableName), location, env);
     }
 
-    private void validateAssignmentToNarrowedVariable(Name name, Location location) {
+    private void validateAssignmentToNarrowedVariable(Name name, Location location, SymbolEnv env) {
         SymbolEnv loopEnv = this.loopEnvs.peek();
 
-        BSymbol foundSym = symResolver.lookupSymbolInMainSpace(loopEnv, name);
-        if (foundSym != symTable.notFoundSymbol && foundSym.tag == SymTag.VARIABLE &&
-                ((BVarSymbol) foundSym).originalSymbol == null) {
-            return;
+        SymbolEnv currentEnv = env;
+
+        while (currentEnv != null) {
+            BSymbol foundSym = symResolver.lookupSymbolInMainSpace(currentEnv, name);
+
+            if (foundSym != symTable.notFoundSymbol && foundSym.tag == SymTag.VARIABLE &&
+                    ((BVarSymbol) foundSym).originalSymbol == null) {
+                return;
+            }
+
+            if (currentEnv == loopEnv) {
+                break;
+            }
+
+            currentEnv = currentEnv.enclEnv;
         }
 
         this.potentiallyInvalidAssignmentInLoopsInfo.peek().locations.add(location);

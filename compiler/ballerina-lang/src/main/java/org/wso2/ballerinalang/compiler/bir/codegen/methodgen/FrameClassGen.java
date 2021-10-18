@@ -82,6 +82,10 @@ public class FrameClassGen {
         List<BIRNode.BIRVariableDcl> localVars = func.localVars;
         while (k < localVars.size()) {
             BIRNode.BIRVariableDcl localVar = localVars.get(k);
+            if (localVar.onlyUsedInSingleBB) {
+                k = k + 1;
+                continue;
+            }
             BType bType = localVar.type;
             String fieldName = localVar.name.value.replace("%", "_");
             String typeSig = JvmCodeGenUtil.getFieldTypeSignature(bType);

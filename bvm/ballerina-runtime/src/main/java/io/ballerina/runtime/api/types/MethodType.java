@@ -27,4 +27,11 @@ public interface MethodType extends FunctionType {
     ObjectType getParentObjectType();
 
     FunctionType getType();
+
+    /**
+     * Provides given @{@link MethodType} method is isolated.
+     *
+     * @return true if @{@link MethodType} method is isolated otherwise false.
+     */
+    boolean isIsolated();
 }
