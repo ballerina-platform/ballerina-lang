@@ -22,6 +22,7 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.environment.PackageRepository;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
@@ -82,9 +83,10 @@ public class LSPackageLoader {
                 PackageName packageName = PackageName.from(nameComponent);
                 PackageVersion pkgVersion = PackageVersion.from(version);
                 PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, pkgVersion);
-                ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT, true);
+                ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT);
 
-                Optional<Package> repoPackage = packageRepository.getPackage(request);
+                Optional<Package> repoPackage = packageRepository.getPackage(request,
+                        ResolutionOptions.builder().setOffline(true).build());
                 repoPackage.ifPresent(packages::add);
             });
         });

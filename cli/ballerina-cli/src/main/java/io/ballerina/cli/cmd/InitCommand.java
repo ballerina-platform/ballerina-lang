@@ -111,18 +111,27 @@ public class InitCommand implements BLauncherCmd {
         }
 
         String packageName = Optional.of(this.userDir.getFileName()).get().toString();
-        if (argList != null && argList.size() > 0) {
+        if (argList != null && !argList.isEmpty()) {
             packageName = argList.get(0);
             if (!ProjectUtils.validatePackageName(packageName)) {
                 CommandUtil.printError(errStream,
                         "invalid package name : '" + packageName + "' :\n" +
-                                "Package name can only contain alphanumerics and underscores" +
-                                "and the maximum length is 256 characters.",
+                                "Package name can only contain alphanumerics and underscores.",
                         null,
                         false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
+        }
+
+        if (!ProjectUtils.validateNameLength(packageName)) {
+            CommandUtil.printError(errStream,
+                                   "invalid package name : '" + packageName + "' :\n" +
+                                           "Maximum length of package name is 256 characters.",
+                                   null,
+                                   false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
         }
 
         if (!ProjectUtils.validatePackageName(packageName)) {

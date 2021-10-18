@@ -160,7 +160,9 @@ public class AddOperationTest {
     public Object[] dataToTestAdditionWithTypes() {
         return new Object[]{
                 "testAdditionWithTypes",
-                "testAddSingleton"
+                "testAddSingleton",
+                "testStringCharAddition",
+                "testStringXmlSubtypesAddition"
         };
     }
 

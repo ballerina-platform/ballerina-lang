@@ -9,7 +9,7 @@ dependencies-toml-version = "2"
 [[package]]
 org = "ballerina"
 name = "jballerina.java"
-version = "0.9.0"
+version = "0.0.0"
 transitive = false
 modules = [
 	{org = "ballerina", packageName = "jballerina.java", moduleName = "jballerina.java"}
@@ -18,7 +18,7 @@ modules = [
 [[package]]
 org = "ballerina"
 name = "test"
-version = "0.8.0"
+version = "0.0.0"
 transitive = false
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}

@@ -95,6 +95,11 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
         public BLangIdentifier nsPrefix;
         public BXMLNSSymbol nsSymbol;
 
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+
         public String toString() {
             return String.valueOf(expr) + "." + String.valueOf(nsPrefix) + ":" + String.valueOf(field);
         }
