@@ -143,6 +143,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
     private Boolean skipTests;
 
+    @CommandLine.Option(names = {"--with-tests"}, description = "Run test compilation and execution.")
+    private Boolean withTests;
+
     @CommandLine.Parameters (arity = "0..1")
     private final Path projectPath;
 
@@ -222,6 +225,16 @@ public class BuildCommand implements BLauncherCmd {
 
         if (sticky == null) {
             sticky = false;
+        }
+
+        // If --skip-tests is not explicitly given or used for tests, it is null
+        if (skipTests == null) {
+            // If withTests flag is provided the skipTests flag is set to false
+            if (withTests == null || withTests == false) {
+                this.skipTests = true;
+            } else {
+                this.skipTests = false;
+            }
         }
 
         BuildOptions buildOptions = constructBuildOptions();

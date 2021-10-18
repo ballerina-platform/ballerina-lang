@@ -347,7 +347,8 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testArtifactCreationWhenTestsFail() {
         Path projectPath = this.testResources.resolve("validProjectWithFailingTests");
         System.setProperty("user.dir", projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true,
+                false, false, false, null);
         // non existing bal file
         new CommandLine(buildCommand).parse();
         try {
