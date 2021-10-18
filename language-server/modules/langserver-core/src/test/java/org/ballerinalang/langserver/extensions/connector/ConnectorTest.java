@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.extensions.connector;
 
 import org.ballerinalang.langserver.extensions.LSExtensionTestUtil;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorResponse;
-import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorServiceImpl;
+import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorService;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
@@ -44,7 +44,7 @@ public class ConnectorTest {
 
     @BeforeClass
     public void startLangServer() {
-        System.setProperty(BallerinaConnectorServiceImpl.DEFAULT_CONNECTOR_FILE_KEY, connectorToml.toString());
+        System.setProperty(BallerinaConnectorService.DEFAULT_CONNECTOR_FILE_KEY, connectorToml.toString());
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 //

@@ -15,22 +15,25 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.packages;
 
+import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.commons.registration.BallerinaClientCapabilitySetter;
+
 /**
- * Ballerina package service constants.
+ * Client Capability setter for the {@link BallerinaPackageService}.
  *
  * @since 2.0.0
  */
-public class PackageServiceConstants {
+@JavaSPIService("org.ballerinalang.langserver.commons.registration.BallerinaClientCapabilitySetter")
+public class BallerinaPackageServiceClientCapabilitySetter extends
+        BallerinaClientCapabilitySetter<BallerinaPackageClientCapabilities> {
 
-    protected static final String CAPABILITY_NAME = "ballerinaPackage";
-    protected static final String NAME = "name";
-    protected static final String FILE_PATH = "filePath";
-    protected static final String START_LINE = "startLine";
-    protected static final String START_COLUMN = "startColumn";
-    protected static final String END_LINE = "endLine";
-    protected static final String END_COLUMN = "endColumn";
-    protected static final String FUNCTIONS = "functions";
-    protected static final String SERVICES = "services";
-    protected static final String MODULES = "modules";
-    protected static final String RESOURCES = "resources";
+    @Override
+    public String getCapabilityName() {
+        return PackageServiceConstants.CAPABILITY_NAME;
+    }
+
+    @Override
+    public Class<BallerinaPackageClientCapabilities> getCapability() {
+        return BallerinaPackageClientCapabilities.class;
+    }
 }

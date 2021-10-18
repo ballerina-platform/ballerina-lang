@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ *JsonToRecordConverterService.java
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -13,13 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.ballerina.converters;
+package org.ballerinalang.langserver.extensions.ballerina.example;
+
+import org.ballerinalang.langserver.commons.registration.BallerinaServerCapability;
 
 /**
- * Represents the Service constants.
+ * Server capabilities for the ballerinaExample service.
  *
  * @since 2.0.0
  */
-public class Constants {
-    public static final String CAPABILITY_NAME = "jsonToRecord";
+public class BallerinaExampleServerCapabilities extends BallerinaServerCapability {
+
+    private boolean list;
+
+    public boolean isList() {
+        return list;
+    }
+
+    public void setList(boolean list) {
+        this.list = list;
+    }
+
+    public BallerinaExampleServerCapabilities() {
+        super(Constants.CAPABILITY_NAME);
+    }
 }
