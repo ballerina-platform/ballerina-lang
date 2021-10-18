@@ -131,7 +131,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setCompletionProvider(completionOptions);
         res.getCapabilities().setSignatureHelpProvider(signatureHelpOptions);
         res.getCapabilities().setHoverProvider(true);
-        res.getCapabilities().setDocumentSymbolProvider(false);
+        res.getCapabilities().setDocumentSymbolProvider(true);
         res.getCapabilities().setDefinitionProvider(true);
         res.getCapabilities().setReferencesProvider(true);
         res.getCapabilities().setCodeActionProvider(true);

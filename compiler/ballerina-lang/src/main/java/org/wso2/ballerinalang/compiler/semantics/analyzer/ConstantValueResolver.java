@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -40,6 +41,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.math.BigDecimal;
@@ -57,11 +59,17 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private static final CompilerContext.Key<ConstantValueResolver> CONSTANT_VALUE_RESOLVER_KEY =
             new CompilerContext.Key<>();
     private BConstantSymbol currentConstSymbol;
+
+    public BLangConstantValue getResult() {
+        return result;
+    }
+
     private BLangConstantValue result;
     private BLangDiagnosticLog dlog;
     private Location currentPos;
     private Map<BConstantSymbol, BLangConstant> unresolvedConstants = new HashMap<>();
     private Map<String, String> constantMap = new HashMap<String, String>();
+    private boolean semtypeEnabled;
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -73,6 +81,9 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         if (constantValueResolver == null) {
             constantValueResolver = new ConstantValueResolver(context);
         }
+
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        constantValueResolver.semtypeEnabled = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE));
         return constantValueResolver;
     }
 
@@ -418,7 +429,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BLangConstantValue visitExpr(BLangExpression node) {
-        if (!node.typeChecked) {
+
+        if (!node.typeChecked && !this.semtypeEnabled) {
             return null;
         }
         switch (node.getKind()) {

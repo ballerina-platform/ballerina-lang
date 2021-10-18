@@ -1,16 +1,16 @@
 {
-  "source": {
-    "file": "hover.bal"
-  },
   "position": {
     "line": 19,
     "character": 35
+  },
+  "source": {
+    "file": "hover.bal"
   },
   "expected": {
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "Test Listener"
+        "value": "Test Listener  \n  \n---  \n  \n`ballerina/module1:0.1.0:Listener` lst"
       }
     },
     "id": {

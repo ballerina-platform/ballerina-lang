@@ -48,6 +48,7 @@ import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
@@ -210,6 +211,15 @@ public class Generator {
                     metaDataNode, semanticModel);
             bObj.isDistinct = true;
             module.objectTypes.add(bObj);
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
+                ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
+                        == SyntaxKind.PARENTHESISED_TYPE_DESC) {
+            ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode = (ParenthesisedTypeDescriptorNode)
+                    ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor();
+            Type detailType = Type.fromNode(parenthesisedTypeDescriptorNode, semanticModel);
+            Error err = new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), detailType);
+            err.isDistinct = true;
+            module.errors.add(err);
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
                         == SyntaxKind.SIMPLE_NAME_REFERENCE) {

@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -44,12 +45,23 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     private List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics;
     private final CodeActionParams params;
 
+    @Deprecated(forRemoval = true)
     public CodeActionContextImpl(LSOperation operation,
                                  String fileUri,
                                  WorkspaceManager wsManager,
                                  CodeActionParams params,
                                  LanguageServerContext serverContext) {
         super(operation, fileUri, wsManager, serverContext);
+        this.params = params;
+    }
+
+    public CodeActionContextImpl(LSOperation operation,
+                                 String fileUri,
+                                 WorkspaceManager wsManager,
+                                 CodeActionParams params,
+                                 LanguageServerContext serverContext,
+                                 CancelChecker cancelChecker) {
+        super(operation, fileUri, wsManager, serverContext, cancelChecker);
         this.params = params;
     }
 
@@ -66,10 +78,17 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
 
     @Override
     public List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics(Path filePath) {
+        this.checkCancelled();
         if (this.diagnostics != null) {
             return this.diagnostics;
         }
-        PackageCompilation compilation = workspace().waitAndGetPackageCompilation(filePath).orElseThrow();
+        PackageCompilation compilation;
+        if (this.getCancelChecker().isPresent()) {
+            compilation = workspace().waitAndGetPackageCompilation(filePath,
+                    this.getCancelChecker().get()).orElseThrow();
+        } else {
+            compilation = workspace().waitAndGetPackageCompilation(filePath).orElseThrow();
+        }
         Project project = this.workspace().project(this.filePath()).orElseThrow();
         Path projectRoot = (project.kind() == ProjectKind.SINGLE_FILE_PROJECT)
                 ? project.sourceRoot().getParent() :
@@ -101,11 +120,13 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
         }
 
         public CodeActionContext build() {
-            return new CodeActionContextImpl(this.operation,
-                                             this.fileUri,
-                                             this.wsManager,
-                                             this.params,
-                                             this.serverContext);
+            return new CodeActionContextImpl(
+                    this.operation,
+                    this.fileUri,
+                    this.wsManager,
+                    this.params,
+                    this.serverContext,
+                    this.cancelChecker);
         }
 
         @Override

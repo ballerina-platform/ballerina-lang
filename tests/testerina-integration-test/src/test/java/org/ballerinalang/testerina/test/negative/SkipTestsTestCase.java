@@ -133,16 +133,4 @@ public class SkipTestsTestCase extends BaseTestCase {
         }
     }
 
-    @Test
-    public void testSkipWhenAfterGroupsFails() throws BallerinaTestException {
-        String msg1 = "4 passing";
-        String msg2 = "0 failing";
-        String msg3 = "1 skipped";
-        String[] args = mergeCoverageArgs(new String[]{"skip-when-afterGroups-fails.bal"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
-            Assert.fail("Test failed due to error while skipping test when after groups fails.");
-        }
-    }
 }

@@ -22,7 +22,41 @@ function testFnTypedesc() {
     function () returns @a1 {desc: "In a typedesc"} string fn;
 }
 
+# Function Bar
+# + x - Inut x 
+# + y - Input y
+# + return - Return Value Description 
+@a1 {
+    desc: "Bar"
+}
+function bar(@p1 int x, float y) returns int {
+    return 4;
+}
+
+# Function isolated bar
+# + a - Input a
+@a2
+public transactional isolated function barIsolated(string a, int b) {
+
+}
+
+service class Class1 {
+
+    # Get name
+    # + a - Input a
+    # + b - Input b
+    # + return - Return (a + 2)
+    @a2
+    remote isolated function getName(int a, string b) returns string {
+        return a.toString() + b;
+    }
+}
+
+public annotation p1 on parameter;
+
 public annotation Annot a1 on function;
+
+public annotation a2 on function;
 
 type Annot record {
     string desc;

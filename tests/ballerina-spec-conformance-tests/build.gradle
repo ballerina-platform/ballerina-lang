@@ -19,6 +19,8 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 dependencies {
+    implementation project(':ballerina-io-internal')
+
     testImplementation project(':ballerina-core')
     testImplementation project(':ballerina-lang')
     testImplementation project(':ballerina-lang:annotations')
@@ -28,6 +30,9 @@ dependencies {
     testCompile 'com.h2database:h2'
     testCompile 'org.slf4j:slf4j-api'
     testCompile 'org.slf4j:slf4j-jdk14'
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+
+    distributionBala project(path: ':ballerina-io-internal', configuration: 'distributionBala')
 }
 
 description = 'Ballerina - Spec Conformance Tests'
