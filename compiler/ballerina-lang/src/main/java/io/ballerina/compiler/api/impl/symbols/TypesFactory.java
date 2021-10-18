@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.Optional;
@@ -156,7 +157,7 @@ public class TypesFactory {
 
     TypeSymbol getTypeDescriptor(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly, boolean getOriginalType,
                                  boolean typeRefFromIntersectType) {
-        if (bType == null || bType.tag == NONE) {
+        if (bType == null) {
             return null;
         }
 
@@ -263,7 +264,7 @@ public class TypesFactory {
             case INTERSECTION:
                 return new BallerinaIntersectionTypeSymbol(this.context, moduleID, (BIntersectionType) bType);
             default:
-                if (bType.tag == SEMANTIC_ERROR) {
+                if (bType.tag == SEMANTIC_ERROR || bType.tag == NONE) {
                     return new BallerinaCompilationErrorTypeSymbol(this.context, moduleID, bType);
                 }
 
