@@ -27,6 +27,13 @@ target = "java8"
     modules = ["mime"]
 
     [[platform.libraries]]
+    artifactId = "jakarta.activation-api"
+    version = "1.2.2"
+    path = "./lib/jakarta.activation-api-1.2.2.jar"
+    groupId = "jakarta.activation"
+    modules = ["mime"]
+
+    [[platform.libraries]]
     artifactId = "netty-common"
     version = "4.1.63.Final"
     path = "./lib/netty-common-4.1.63.Final.jar"

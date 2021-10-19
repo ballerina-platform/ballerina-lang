@@ -33,6 +33,7 @@ dependencies {
     dist 'javax.transaction:javax.transaction-api:1.2'
     dist 'org.apache.thrift:libthrift:0.14.1'
     dist 'org.jvnet.mimepull:mimepull:1.9.7'
+    dist 'jakarta.activation:jakarta.activation-api:1.2.2'
     dist 'org.quartz-scheduler:quartz-jobs:2.3.0'
     dist 'org.quartz-scheduler:quartz:2.3.2'
     dist 'org.wso2.carbon:org.wso2.carbon.core:5.1.0'

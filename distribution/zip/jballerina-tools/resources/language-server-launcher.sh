@@ -29,7 +29,7 @@
 
 # ---------------------- Override JAVA_HOME for Installers -------------------
 DIR="$(cd "$(dirname "$0")" && pwd)"
-JAVA_PATH="$DIR/../../../../../../dependencies/jdk8u265-b01-jre"
+JAVA_PATH=$(/usr/libexec/java_home -v "11.0.12")
 if test -d "$JAVA_PATH"; then
   JAVA_HOME=$JAVA_PATH
 fi
@@ -71,10 +71,10 @@ OS400*) os400=true;;
 Darwin*) darwin=true
         if [ -z "$JAVA_HOME" ] ; then
 		   if [ -z "$JAVA_VERSION" ] ; then
-			 JAVA_HOME=$(/usr/libexec/java_home)
+			 JAVA_HOME=$(/usr/libexec/java_home -v "11.0.12")
            else
              >&2 echo "Using Java version: $JAVA_VERSION"
-			 JAVA_HOME=$(/usr/libexec/java_home -v $JAVA_VERSION)
+			 JAVA_HOME=$(/usr/libexec/java_home -v "11.0.12")
 		   fi
 	    fi
         ;;
@@ -140,12 +140,6 @@ if [ $DEBUG_MODE = true ]; then
   JAVA_DEBUG="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$DEBUG_PORT,quiet=y"
 else
   JAVA_DEBUG=""
-fi
-
-JDK_18=`$JAVA_HOME/bin/java -version 2>&1 | grep -e "1.8."`
-if [ "$JDK_18" = "" ]; then
-    >&2 echo "Error: Ballerina is supported only on JDK 1.8"
-    exit 1
 fi
 
 CLASSPATHS="$CLASSPATHS":"$CUSTOM_CLASSPATH"
