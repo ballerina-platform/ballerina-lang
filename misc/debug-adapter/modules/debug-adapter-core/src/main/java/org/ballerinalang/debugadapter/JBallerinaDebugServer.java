@@ -566,6 +566,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      * Converts a JDI thread reference to a DAP thread instance.
      *
      * @param threadReference JDI thread reference
+     * @return the corresponding DAP thread instance
      */
     Thread toDapThread(ThreadReferenceProxyImpl threadReference) {
         Thread thread = new Thread();
@@ -772,7 +773,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         context.setLastInstruction(instruction);
     }
 
-    private Variable[] computeGlobalScopeVariables(VariablesArguments requestArgs) throws Exception {
+    private Variable[] computeGlobalScopeVariables(VariablesArguments requestArgs) {
         int stackFrameReference = requestArgs.getVariablesReference();
         String classQName = PackageUtils.getQualifiedClassName(suspendedContext, INIT_CLASS_NAME);
         List<ReferenceType> cls = suspendedContext.getAttachedVm().classesByName(classQName);
