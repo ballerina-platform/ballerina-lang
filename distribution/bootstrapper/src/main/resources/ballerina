@@ -44,10 +44,10 @@ OS400*) os400=true;;
 Darwin*) darwin=true
         if [ -z "$JAVA_HOME" ] ; then
 		   if [ -z "$JAVA_VERSION" ] ; then
-			 JAVA_HOME=$(/usr/libexec/java_home)
+			 JAVA_HOME=$(/usr/libexec/java_home -v "11.0.12")
            else
              echo "Using Java version: $JAVA_VERSION"
-			 JAVA_HOME=$(/usr/libexec/java_home -v $JAVA_VERSION)
+			 JAVA_HOME=$(/usr/libexec/java_home -v "11.0.12")
 		   fi
 	    fi
         ;;
@@ -148,12 +148,6 @@ if [ -n "${BOOTSTRAP_JAVA_DEBUG+set}" ]; then
 	JAVA_OPTS="$JAVA_OPTS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$BOOTSTRAP_JAVA_DEBUG"
 	echo "Please start the remote debugging client to continue..."
     fi
-fi
-
-JDK_18=`$JAVA_HOME/bin/java -version 2>&1 | grep -e "1.8."`
-if [ "$JDK_18" = "" ]; then
-    echo "Error: Ballerina is supported only on JDK 1.8"
-    exit 1
 fi
 
 BALLERINA_XBOOTCLASSPATH=""

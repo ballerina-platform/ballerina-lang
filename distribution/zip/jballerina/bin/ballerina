@@ -32,7 +32,7 @@
 # OS specific support.  $var _must_ be set to either true or false.
 
 # Set JAVA_HOME for installers
-JAVA_PATH=$BALLERINA_HOME/../../dependencies/jdk8u265-b01-jre
+JAVA_PATH=$(/usr/libexec/java_home -v "11.0.12")
 if test -d "$JAVA_PATH"; then
   JAVA_HOME=$JAVA_PATH
 fi
@@ -50,10 +50,10 @@ OS400*) os400=true;;
 Darwin*) darwin=true
         if [ -z "$JAVA_HOME" ] ; then
 		   if [ -z "$JAVA_VERSION" ] ; then
-			 JAVA_HOME=$(/usr/libexec/java_home)
+			 JAVA_HOME=$(/usr/libexec/java_home -v "11.0.12")
            else
              echo "Using Java version: $JAVA_VERSION"
-			 JAVA_HOME=$(/usr/libexec/java_home -v $JAVA_VERSION)
+			 JAVA_HOME=$(/usr/libexec/java_home -v "11.0.12")
 		   fi
 	    fi
         ;;
@@ -157,12 +157,6 @@ if [ -n "${BAL_JAVA_DEBUG+set}" ]; then
         JAVA_OPTS="$JAVA_OPTS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$BAL_JAVA_DEBUG"
       fi
     fi
-fi
-
-JDK_18=`$JAVA_HOME/bin/java -version 2>&1 | grep "1.8."`
-if [ "$JDK_18" = "" ]; then
-    echo "Error: Ballerina is supported only on JDK 1.8"
-    exit 1
 fi
 
 BALLERINA_XBOOTCLASSPATH=""
