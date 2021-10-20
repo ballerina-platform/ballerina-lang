@@ -6878,24 +6878,24 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(binaryExpr.pos);
 
         BUnionType exprBType = (BUnionType) binaryExpr.getBType();
-        BType nilLiftType = exprBType.getMemberTypes().iterator().next();
+        BType nonNilType = exprBType.getMemberTypes().iterator().next();
 
         boolean isArithmeticOperator = symResolver.isArithmeticOperator(binaryExpr.opKind);
         boolean isShiftOperator = symResolver.isBinaryShiftOperator(binaryExpr.opKind);
 
-        BType rhsType = nilLiftType;
+        BType rhsType = nonNilType;
         if (!isArithmeticOperator && !isShiftOperator) {
             if (binaryExpr.rhsExpr.getBType().isNullable()) {
-                rhsType = getNilLiftType((BUnionType) binaryExpr.rhsExpr.getBType());
+                rhsType = types.getSafeType(binaryExpr.rhsExpr.getBType(), true, false);
             } else {
                 rhsType = binaryExpr.rhsExpr.getBType();
             }
         }
 
-        BType lhsType = nilLiftType;
+        BType lhsType = nonNilType;
         if (!isArithmeticOperator && !isShiftOperator) {
             if (binaryExpr.lhsExpr.getBType().isNullable()) {
-                lhsType = getNilLiftType((BUnionType) binaryExpr.lhsExpr.getBType());
+                lhsType = types.getSafeType(binaryExpr.lhsExpr.getBType(), true, false);
             } else {
                 lhsType = binaryExpr.lhsExpr.getBType();
             }
@@ -6931,7 +6931,7 @@ public class Desugar extends BLangNodeVisitor {
         bLangAssignmentElse.varRef = tempVarRef;
 
         BLangBinaryExpr newBinaryExpr = ASTBuilderUtil.createBinaryExpr(binaryExpr.pos, binaryExpr.lhsExpr,
-                binaryExpr.rhsExpr, nilLiftType, binaryExpr.opKind, binaryExpr.opSymbol);
+                binaryExpr.rhsExpr, nonNilType, binaryExpr.opKind, binaryExpr.opSymbol);
         newBinaryExpr.lhsExpr = createTypeCastExpr(newBinaryExpr.lhsExpr, lhsType);
         newBinaryExpr.rhsExpr = createTypeCastExpr(newBinaryExpr.rhsExpr, rhsType);
         bLangAssignmentElse.expr = newBinaryExpr;
@@ -7017,30 +7017,6 @@ public class Desugar extends BLangNodeVisitor {
 
         binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
         binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
-    }
-
-    private BType getNilLiftType(BUnionType type) {
-        if (type.getMemberTypes().size() > 2) {
-            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
-            Iterator<BType> memberTypesIterator = type.getMemberTypes().iterator();
-            while (memberTypesIterator.hasNext()) {
-                BType memberType = memberTypesIterator.next();
-                if (memberType.tag != TypeTags.NIL) {
-                    memberTypes.add(memberType);
-                }
-            }
-            return BUnionType.create(null, memberTypes);
-        } else {
-            Iterator<BType> memberTypesIterator = type.getMemberTypes().iterator();
-            BType memberType = null;
-            while (memberTypesIterator.hasNext()) {
-                memberType = memberTypesIterator.next();
-                if (memberType.tag != TypeTags.NIL) {
-                    break;
-                }
-            }
-            return memberType;
-        }
     }
 
     private void createTypeCastExprForRelationalExpr(BLangBinaryExpr binaryExpr, int lhsExprTypeTag,
@@ -7202,9 +7178,9 @@ public class Desugar extends BLangNodeVisitor {
         /*
          * int? x = 3;
          * int? y = +x;
-         * Above is desugar to
+         * Above is desugared to
          * int? $result$;
-         * if (x is null) {
+         * if (x is ()) {
          *    $result$ = null;
          * } else {
          *    $result$ = +x;

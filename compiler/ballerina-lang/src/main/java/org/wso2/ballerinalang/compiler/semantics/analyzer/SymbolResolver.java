@@ -1856,13 +1856,13 @@ public class SymbolResolver extends BLangNodeVisitor {
             BType compatibleType1;
             BType compatibleType2;
             if (lhsType.isNullable()) {
-                compatibleType1 = types.findCompatibleType(types.getNilLiftType((BUnionType) lhsType));
+                compatibleType1 = types.findCompatibleType(types.getSafeType(lhsType, true, false));
             } else {
                 compatibleType1 = types.findCompatibleType(lhsType);
             }
 
             if (rhsType.isNullable()) {
-                compatibleType2 = types.findCompatibleType(types.getNilLiftType((BUnionType) rhsType));
+                compatibleType2 = types.findCompatibleType(types.getSafeType(rhsType, true, false));
             } else {
                 compatibleType2 = types.findCompatibleType(rhsType);
             }
