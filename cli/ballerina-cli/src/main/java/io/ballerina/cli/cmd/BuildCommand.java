@@ -169,7 +169,7 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
     private String debugPort;
 
-    private static final String buildCmd = "bal build [-o <output>] [--offline] [--skip-tests] [--taint-check]\n" +
+    private static final String buildCmd = "bal build [-o <output>] [--offline] [--with-tests] [--taint-check]\n" +
             "                    [<ballerina-file | package-path>]";
 
     @CommandLine.Option(names = "--test-report", description = "enable test report generation")
@@ -461,7 +461,7 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal build [-o <output>] [--offline] [--skip-tests]\\n\" +\n" +
+        out.append("  bal build [-o <output>] [--offline] [--with-tests]\\n\" +\n" +
                 "            \"                    [<ballerina-file | package-path>]");
     }
 

@@ -71,7 +71,7 @@ public class BallerinaBuildRemoteDebugTest extends BaseTestCase {
      * @throws BallerinaTestException if the tests runs in remote debug mode, even when the  "--skip-tests" flag is
      *                                present.
      */
-    @Test
+    @Test (enabled = false)
     public void negativeTestSuspendOnBallerinaModuleBuildWithSkipFlag() throws BallerinaTestException {
         int port = findFreePort();
         String msg = "Listening for transport dt_socket at address: " + port;
