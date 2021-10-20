@@ -67,6 +67,7 @@ public class BuildCommand implements BLauncherCmd {
     private final PrintStream errStream;
     private boolean exitWhenFinish;
     private boolean skipCopyLibsFromDist;
+    private Boolean skipTests;
 
     public BuildCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -74,6 +75,7 @@ public class BuildCommand implements BLauncherCmd {
         this.errStream = System.err;
         this.exitWhenFinish = true;
         this.skipCopyLibsFromDist = false;
+        this.skipTests = true;
     }
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean dumpBuildTime) {
@@ -139,9 +141,6 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--offline"}, description = "Build/Compile offline without downloading " +
                                                               "dependencies.")
     private Boolean offline;
-
-    @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
-    private Boolean skipTests;
 
     @CommandLine.Option(names = {"--with-tests"}, description = "Run test compilation and execution.")
     private Boolean withTests;
@@ -227,7 +226,6 @@ public class BuildCommand implements BLauncherCmd {
             sticky = false;
         }
 
-        // If --skip-tests is not explicitly given or used for tests, it is null
         if (skipTests == null) {
             // If withTests flag is provided the skipTests flag is set to false
             if (withTests == null || withTests == false) {
