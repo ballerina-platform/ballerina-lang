@@ -5336,7 +5336,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
             if (type != SyntaxKind.TEMPLATE_STRING && type != SyntaxKind.XML_TEXT_CONTENT) {
                 try {
-                    text = IdentifierUtils.unescapeJava(IdentifierUtils.unescapeUnicodeCodepoints(text));
+                    text = IdentifierUtils.unescapeJava(IdentifierUtils.unescapeUnicodeCodepoints(text, true));
                 } catch (Exception e) {
                     // We may reach here when the string literal has syntax diagnostics.
                     // Therefore mock the compiler with an empty string.
@@ -5882,13 +5882,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             value = value + "p0";
         }
         return value;
-    }
-
-    private String fillWithZeros(String str) {
-        while (str.length() < 4) {
-            str = "0".concat(str);
-        }
-        return str;
     }
 
     private void markVariableWithFlag(BLangVariable variable, Flag flag) {
