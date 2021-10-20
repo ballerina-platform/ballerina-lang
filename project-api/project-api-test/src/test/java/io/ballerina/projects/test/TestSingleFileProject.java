@@ -124,7 +124,7 @@ public class TestSingleFileProject {
         }
 
         // Verify expected default buildOptions
-        Assert.assertFalse(project.buildOptions().skipTests());
+        Assert.assertTrue(project.buildOptions().skipTests());
         Assert.assertFalse(project.buildOptions().observabilityIncluded());
         Assert.assertFalse(project.buildOptions().codeCoverage());
         Assert.assertFalse(project.buildOptions().offlineBuild());
