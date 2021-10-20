@@ -33,62 +33,29 @@ import static io.ballerina.cli.cmd.Constants.PACK_COMMAND;
 import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.projects.internal.ManifestBuilder.getStringValueFromTomlTableNode;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.JACOCO_XML_FORMAT;
 
-/**
- * This class represents the "bal pack" command.
- *
- * @since 2.0.0
- */
-@CommandLine.Command(name = PACK_COMMAND, description = "bal pack - Packages the current package into a .bala file " +
-        "after verifying that it can build with all its dependencies")
 public class PackCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
     private final PrintStream errStream;
-    @CommandLine.Parameters(arity = "0..1")
-    private final Path projectPath;
     private boolean exitWhenFinish;
+    private boolean skipCopyLibsFromDist;
 
-    @CommandLine.Option(names = {"--offline"}, description = "packs offline without accessing the network")
+    @CommandLine.Option(names = {"--output", "-o"}, description = "Write the output to the given file. The provided " +
+            "output file name may or may not contain the " +
+            "'.jar' extension.")
+    private String output;
+
+    @CommandLine.Option(names = {"--offline"}, description = "Build/Compile offline without downloading " +
+            "dependencies.")
     private Boolean offline;
-
-    @CommandLine.Option(names = {"--with-tests"}, description = "perform test compilation and execution")
-    private Boolean withTests;
 
     @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
     private Boolean skipTests;
 
-    @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
-    private Boolean sticky;
-
-    @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
-    private boolean helpFlag;
-
-    @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
-    private String debugPort;
-
-    @CommandLine.Option(names = "--list-conflicted-classes",
-            description = "list conflicted classes when generating executable")
-    private Boolean listConflictedClasses;
-
-
-    //TODO: REVIEW : Not sure if we need to include these
-    @CommandLine.Option(names = "--includes", hidden = true,
-            description = "hidden option for code coverage to include all classes")
-    private String includes;
-
-    @CommandLine.Option(names = "--coverage-format", description = "list of supported coverage report formats")
-    private String coverageFormat;
-
-    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
-    private Boolean experimentalFlag;
-
-    @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
-    private String cloud;
-
-    @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
-            "JAR file(s).")
-    private Boolean observabilityIncluded;
+    @CommandLine.Parameters (arity = "0..1")
+    private final Path projectPath;
 
     @CommandLine.Option(names = "--dump-bir", hidden = true)
     private boolean dumpBIR;
@@ -102,10 +69,47 @@ public class PackCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-raw-graphs", hidden = true)
     private boolean dumpRawGraphs;
 
+    @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
+    private boolean helpFlag;
+
+    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
+    private Boolean experimentalFlag;
+
+    @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
+    private String debugPort;
+
+    private static final String buildCmd = "bal build [-o <output>] [--offline] [--skip-tests] [--taint-check]\n" +
+            "                    [<ballerina-file | package-path>]";
+
+    @CommandLine.Option(names = "--test-report", description = "enable test report generation")
+    private Boolean testReport;
+
+    @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
+    private Boolean coverage;
+
+    @CommandLine.Option(names = "--coverage-format", description = "list of supported coverage report formats")
+    private String coverageFormat;
+
+    @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
+            "JAR file(s).")
+    private Boolean observabilityIncluded;
+
+    @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
+    private String cloud;
+
+    @CommandLine.Option(names = "--includes", hidden = true,
+            description = "hidden option for code coverage to include all classes")
+    private String includes;
+
+    @CommandLine.Option(names = "--list-conflicted-classes",
+            description = "list conflicted classes when generating executable")
+    private Boolean listConflictedClasses;
+
     @CommandLine.Option(names = "--dump-build-time", description = "calculate and dump build time")
     private Boolean dumpBuildTime;
 
-
+    @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
+    private Boolean sticky;
 
     public PackCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -141,18 +145,26 @@ public class PackCommand implements BLauncherCmd {
             return;
         }
 
+        // Check if the output flag is set when building all the modules.
+        if (null != this.output) {
+            CommandUtil.printError(this.errStream,
+                    "'-o' and '--output' are only supported when building a single Ballerina " +
+                            "file.",
+                    "bal build -o <output-file> <ballerina-file> ",
+                    true);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
         try {
             if (buildOptions.dumpBuildTime()) {
                 start = System.currentTimeMillis();
                 BuildTime.getInstance().timestamp = start;
             }
-
             project = BuildProject.load(this.projectPath, buildOptions);
-
             if (buildOptions.dumpBuildTime()) {
                 BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
             }
-
         } catch (ProjectException e) {
             CommandUtil.printError(this.errStream, e.getMessage(), null, false);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -235,7 +247,27 @@ public class PackCommand implements BLauncherCmd {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
 
-        // TODO : REVIEW : INCLUDE CODE COVERAGE IF REQUIRED
+        if (project.buildOptions().codeCoverage()) {
+            if (coverageFormat != null) {
+                if (!coverageFormat.equals(JACOCO_XML_FORMAT)) {
+                    String errMsg = "unsupported coverage report format '" + coverageFormat + "' found. Only '" +
+                            JACOCO_XML_FORMAT + "' format is supported.";
+                    CommandUtil.printError(this.errStream, errMsg, null, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
+            }
+        } else {
+            // Skip --includes flag if it is set without code coverage
+            if (includes != null) {
+                this.outStream.println("warning: ignoring --includes flag since code coverage is not enabled");
+            }
+            // Skip --coverage-format flag if it is set without code coverage
+            if (coverageFormat != null) {
+                this.outStream.println("warning: ignoring --coverage-format flag since code coverage is not " +
+                        "enabled");
+            }
+        }
 
         // Validate Settings.toml file
 
@@ -263,9 +295,11 @@ public class PackCommand implements BLauncherCmd {
 
     private BuildOptions constructBuildOptions() {
         return new BuildOptionsBuilder()
+                .codeCoverage(coverage)
                 .experimental(experimentalFlag)
                 .offline(offline)
                 .skipTests(skipTests)
+                .testReport(testReport)
                 .observabilityIncluded(observabilityIncluded)
                 .cloud(cloud)
                 .dumpBir(dumpBIR)
