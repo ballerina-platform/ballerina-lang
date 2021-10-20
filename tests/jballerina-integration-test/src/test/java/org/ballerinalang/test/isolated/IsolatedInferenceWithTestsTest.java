@@ -64,7 +64,7 @@ public class IsolatedInferenceWithTestsTest extends BaseTest {
         LogLeecher passedLeecher = new LogLeecher(testCount + " passing");
         LogLeecher failedLeecher = new LogLeecher("0 failing");
         LogLeecher jarGenerationLeecher = new LogLeecher("target/bin/" + pkg + ".jar");
-        bMainInstance.runMain("build", new String[]{}, null, null,
+        bMainInstance.runMain("build", new String[]{"--with-tests"}, null, null,
                               new LogLeecher[]{passedLeecher, failedLeecher, jarGenerationLeecher},
                               Paths.get(testFileLocation, pkg).toString());
         passedLeecher.waitForText(5000);
