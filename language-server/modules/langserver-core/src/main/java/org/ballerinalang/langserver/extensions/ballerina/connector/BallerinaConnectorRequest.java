@@ -31,10 +31,16 @@ public class BallerinaConnectorRequest {
     private String moduleName;
     private String version = "";
     private String name;
+    private String targetFile;
 
-    public BallerinaConnectorRequest(String id, String orgName, String moduleName, String version, String name) {
+    public BallerinaConnectorRequest(String id) {
         this.id = id;
+    }
+
+    public BallerinaConnectorRequest(String orgName, String packageName, String moduleName,
+                                     String version, String name) {
         this.orgName = orgName;
+        this.packageName = packageName;
         this.moduleName = moduleName;
         this.version = version;
         this.name = name;
@@ -86,6 +92,24 @@ public class BallerinaConnectorRequest {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getTargetFile() {
+        return targetFile;
+    }
+
+    public void setTargetFile(String targetFile) {
+        this.targetFile = targetFile;
+    }
+
+    /**
+     * Check connector information attributes are filled.
+     *
+     * @return boolean
+     */
+    public boolean isFullConnector() {
+        return !(this.orgName.isEmpty() || this.packageName.isEmpty() || this.version.isEmpty() ||
+                this.moduleName.isEmpty() || this.name.isEmpty());
     }
 
     @Override

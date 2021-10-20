@@ -34,10 +34,8 @@ import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
@@ -79,65 +77,82 @@ public class Type {
 
     public static Type fromSyntaxNode(Node node, SemanticModel semanticModel) {
         Type type = null;
-        if (node instanceof SimpleNameReferenceNode || node instanceof QualifiedNameReferenceNode) {
-            Optional<Symbol> optSymbol = null;
-            try {
-                optSymbol = semanticModel.symbol(node);
-            } catch (NullPointerException ignored) {
-            }
-            if (optSymbol != null && optSymbol.isPresent()) {
-                Symbol symbol = optSymbol.get();
-                type = fromSemanticSymbol(symbol);
-                parentSymbols.clear();
-            }
-        } else if (node instanceof BuiltinSimpleNameReferenceNode) {
-            BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode = (BuiltinSimpleNameReferenceNode) node;
-            type = new PrimitiveType(builtinSimpleNameReferenceNode.name().text());
-        } else if (node instanceof OptionalTypeDescriptorNode) {
-            OptionalTypeDescriptorNode optionalTypeDescriptorNode = (OptionalTypeDescriptorNode) node;
-            type = fromSyntaxNode(optionalTypeDescriptorNode.typeDescriptor(), semanticModel);
-            type.optional = true;
-            // todo: check syntax tree compatible version for ErrorTypeDescriptorNode
-//        } else if (node instanceof ErrorTypeDescriptorNode) {
-//            ErrorTypeDescriptorNode errorType = (ErrorTypeDescriptorNode) node;
-//            type = new PrimitiveType(errorType.errorKeywordToken().text());
-        } else if (node instanceof UnionTypeDescriptorNode) {
-            UnionType unionType = new UnionType();
-            flattenUnionNode(node, semanticModel, unionType.members);
-            type = unionType;
-        } else if (node instanceof IntersectionTypeDescriptorNode) {
-            IntersectionType intersectionType = new IntersectionType();
-            flattenIntersectionNode(node, semanticModel, intersectionType.members);
-            type = intersectionType;
-        } else if (node instanceof ArrayTypeDescriptorNode) {
-            ArrayTypeDescriptorNode arrayTypeDescriptorNode = (ArrayTypeDescriptorNode) node;
-            type = new ArrayType(fromSyntaxNode(arrayTypeDescriptorNode.memberTypeDesc(), semanticModel));
-        } else if (node instanceof StreamTypeDescriptorNode) {
-            StreamTypeDescriptorNode streamNode = (StreamTypeDescriptorNode) node;
-            StreamTypeParamsNode streamParams = streamNode.streamTypeParamsNode().isPresent() ?
-                    (StreamTypeParamsNode) streamNode.streamTypeParamsNode().get() : null;
-            Type leftParam = null, rightParam = null;
-            if (streamParams != null) {
-                leftParam = fromSyntaxNode(streamParams.leftTypeDescNode(), semanticModel);
-                if (streamParams.rightTypeDescNode().isPresent()) {
-                    rightParam = fromSyntaxNode(streamParams.rightTypeDescNode().get(), semanticModel);
+
+        switch (node.kind()) {
+            case SIMPLE_NAME_REFERENCE:
+            case QUALIFIED_NAME_REFERENCE:
+                Optional<Symbol> optSymbol = null;
+                try {
+                    optSymbol = semanticModel.symbol(node);
+                } catch (NullPointerException ignored) {
                 }
-            }
-            type = new StreamType(leftParam, rightParam);
-        } else if (node instanceof RecordTypeDescriptorNode) {
-            RecordTypeDescriptorNode recordNode = (RecordTypeDescriptorNode) node;
-            List<Type> fields = new ArrayList<>();
-            recordNode.fields().forEach(node1 -> fields.add(fromSyntaxNode(node1, semanticModel)));
-            Type restType = recordNode.recordRestDescriptor().isPresent() ?
-                    fromSyntaxNode(recordNode.recordRestDescriptor().get().typeName(), semanticModel) : null;
-            type = new RecordType(fields, restType);
-        } else if (node instanceof RecordFieldNode) {
-            RecordFieldNode recordField = (RecordFieldNode) node;
-            type = fromSyntaxNode(recordField.typeName(), semanticModel);
-            type.name = recordField.fieldName().text();
-        } else {
-            type = new PrimitiveType(node.toSourceCode());
+                if (optSymbol != null && optSymbol.isPresent()) {
+                    Symbol symbol = optSymbol.get();
+                    type = fromSemanticSymbol(symbol);
+                    parentSymbols.clear();
+                }
+                break;
+            case OPTIONAL_TYPE_DESC:
+                OptionalTypeDescriptorNode optionalTypeDescriptorNode = (OptionalTypeDescriptorNode) node;
+                type = fromSyntaxNode(optionalTypeDescriptorNode.typeDescriptor(), semanticModel);
+                type.optional = true;
+                break;
+            case UNION_TYPE_DESC:
+                UnionType unionType = new UnionType();
+                flattenUnionNode(node, semanticModel, unionType.members);
+                type = unionType;
+                break;
+            case INTERSECTION_TYPE_DESC:
+                IntersectionType intersectionType = new IntersectionType();
+                flattenIntersectionNode(node, semanticModel, intersectionType.members);
+                type = intersectionType;
+                break;
+            case ARRAY_TYPE_DESC:
+                ArrayTypeDescriptorNode arrayTypeDescriptorNode = (ArrayTypeDescriptorNode) node;
+                type = new ArrayType(fromSyntaxNode(arrayTypeDescriptorNode.memberTypeDesc(), semanticModel));
+                break;
+            case STREAM_TYPE_DESC:
+                StreamTypeDescriptorNode streamNode = (StreamTypeDescriptorNode) node;
+                StreamTypeParamsNode streamParams = streamNode.streamTypeParamsNode().isPresent() ?
+                        (StreamTypeParamsNode) streamNode.streamTypeParamsNode().get() : null;
+                Type leftParam = null, rightParam = null;
+                if (streamParams != null) {
+                    leftParam = fromSyntaxNode(streamParams.leftTypeDescNode(), semanticModel);
+                    if (streamParams.rightTypeDescNode().isPresent()) {
+                        rightParam = fromSyntaxNode(streamParams.rightTypeDescNode().get(), semanticModel);
+                    }
+                }
+                type = new StreamType(leftParam, rightParam);
+                break;
+            case RECORD_TYPE_DESC:
+                RecordTypeDescriptorNode recordNode = (RecordTypeDescriptorNode) node;
+                List<Type> fields = new ArrayList<>();
+                recordNode.fields().forEach(node1 -> fields.add(fromSyntaxNode(node1, semanticModel)));
+                Type restType = recordNode.recordRestDescriptor().isPresent() ?
+                        fromSyntaxNode(recordNode.recordRestDescriptor().get().typeName(), semanticModel) : null;
+                type = new RecordType(fields, restType);
+                break;
+            case RECORD_FIELD:
+                RecordFieldNode recordField = (RecordFieldNode) node;
+                type = fromSyntaxNode(recordField.typeName(), semanticModel);
+                type.name = recordField.fieldName().text();
+                break;
+            // TODO: Check syntax tree compatible version for ErrorTypeDescriptorNode.
+//            case ERROR_TYPE_DESC:
+//                ErrorTypeDescriptorNode errorType = (ErrorTypeDescriptorNode) node;
+//                type = new PrimitiveType(errorType.errorKeywordToken().text());
+//                break;
+            default:
+                if (node instanceof BuiltinSimpleNameReferenceNode) {
+                    BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode =
+                            (BuiltinSimpleNameReferenceNode) node;
+                    type = new PrimitiveType(builtinSimpleNameReferenceNode.name().text());
+                } else {
+                    type = new PrimitiveType(node.toSourceCode());
+                }
+                break;
         }
+
         return type;
     }
 

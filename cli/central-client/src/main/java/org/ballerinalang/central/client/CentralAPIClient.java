@@ -20,6 +20,7 @@ package org.ballerinalang.central.client;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
@@ -33,6 +34,7 @@ import okhttp3.ResponseBody;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
+import org.ballerinalang.central.client.model.ConnectorInfo;
 import org.ballerinalang.central.client.model.Error;
 import org.ballerinalang.central.client.model.Package;
 import org.ballerinalang.central.client.model.PackageNameResolutionRequest;
@@ -737,7 +739,7 @@ public class CentralAPIClient {
      * @return Connector.
      * @throws CentralClientException Central Client exception.
      */
-    public JsonElement getConnector(String id, String supportedPlatform, String ballerinaVersion)
+    public JsonObject getConnector(String id, String supportedPlatform, String ballerinaVersion)
             throws CentralClientException {
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
@@ -752,16 +754,65 @@ public class CentralAPIClient {
 
             body = Optional.ofNullable(searchResponse.body());
             if (body.isPresent()) {
+                String responseStr = body.get().string();
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString()) &&
                         searchResponse.code() == HttpsURLConnection.HTTP_OK) {
-                    return new Gson().toJsonTree(body.get().string());
+                    return new Gson().fromJson(responseStr, JsonObject.class);
                 }
             }
             handleResponseErrors(searchResponse, ERR_CANNOT_GET_CONNECTOR + " id:" + id);
             return null;
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_GET_CONNECTOR + "'" + id + "'. reason: " + e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+    /**
+     * Get connector by connector FQN.
+     *
+     * @param connector         Connector information.
+     * @param supportedPlatform The supported platform.
+     * @param ballerinaVersion  String supportedPlatform.
+     * @return Connector.
+     * @throws CentralClientException Central Client exception.
+     */
+    public JsonObject getConnector(ConnectorInfo connector, String supportedPlatform, String ballerinaVersion)
+            throws CentralClientException {
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
+        try {
+            Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .get()
+                    .url(this.baseUrl + "/" + CONNECTORS + "/" + connector.getOrgName() +
+                            "/" + connector.getPackageName() + "/" + connector.getVersion() +
+                            "/" + connector.getModuleName() + "/" + connector.getName())
+                    .build();
+
+            Call httpRequestCall = client.newCall(searchReq);
+            Response searchResponse = httpRequestCall.execute();
+
+            body = Optional.ofNullable(searchResponse.body());
+            if (body.isPresent()) {
+                String responseStr = body.get().string();
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString()) &&
+                        searchResponse.code() == HttpsURLConnection.HTTP_OK) {
+                    return new Gson().fromJson(responseStr, JsonObject.class);
+                }
+            }
+            handleResponseErrors(searchResponse, ERR_CANNOT_GET_CONNECTOR + " " + connector.getPackageName());
+            return null;
+        } catch (IOException e) {
+            throw new CentralClientException(ERR_CANNOT_GET_CONNECTOR + "'" + connector.getPackageName() +
+                    "'. reason: " + e.getMessage());
         } finally {
             body.ifPresent(ResponseBody::close);
             try {

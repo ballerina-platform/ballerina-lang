@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.extensions;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.ballerinalang.diagramutil.connector.models.connector.Connector;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorListRequest;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorListResponse;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorRequest;
@@ -149,12 +148,20 @@ public class LSExtensionTestUtil {
         return GSON.fromJson(getResult(result), BallerinaConnectorListResponse.class);
     }
 
-    public static Connector getConnector(String id, String org, String module, String version,
-                                            String name, Endpoint serviceEndpoint) {
-        BallerinaConnectorRequest connectorRequest = new BallerinaConnectorRequest(id, org, module, version, name);
+    public static JsonObject getConnectorById(String id, Endpoint serviceEndpoint) {
+        BallerinaConnectorRequest connectorRequest = new BallerinaConnectorRequest(id);
         CompletableFuture result = serviceEndpoint.request(GET_CONNECTOR, connectorRequest);
-        return GSON.fromJson(getResult(result), Connector.class);
+        return getResult(result);
     }
+
+    public static JsonObject getConnectorByFqn(String org, String packageName, String module, String version,
+                                          String name, Endpoint serviceEndpoint) {
+        BallerinaConnectorRequest connectorRequest = new BallerinaConnectorRequest(org, packageName, module,
+                version, name);
+        CompletableFuture result = serviceEndpoint.request(GET_CONNECTOR, connectorRequest);
+        return getResult(result);
+    }
+
 
     public static Path createTempFile(Path filePath) throws IOException {
         Path tempFilePath = FileUtils.BUILD_DIR.resolve("tmp")

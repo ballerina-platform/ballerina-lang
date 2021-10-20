@@ -18,6 +18,9 @@
 
 package org.ballerinalang.langserver.extensions.connector;
 
+//import com.google.gson.JsonObject;
+//import com.sun.jdi.connect.Connector;
+
 import org.ballerinalang.langserver.extensions.LSExtensionTestUtil;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorListResponse;
 import org.ballerinalang.langserver.util.FileUtils;
@@ -62,13 +65,22 @@ public class ConnectorTest {
 //         Assert.assertNotEquals(connectorsResponse.getLocalConnectors().size(), 0);
 //     }
 
-//     @Test(description = "Test fetch twilio connector metadata.")
-//     public void getTwilioConnector() {
-//         Connector connector = LSExtensionTestUtil
-//                 .getConnector("200", "ballerinax", "twilio", "2.0.0", "Client", this.serviceEndpoint);
+//     @Test(description = "Test fetch central connector by Id.")
+//     public void getConnectorById() {
+//         JsonObject connector = LSExtensionTestUtil.getConnectorById("152", this.serviceEndpoint);
 //
-//         Assert.assertEquals(connector.id, "200");
-//         Assert.assertEquals(connector.moduleName, "twilio");
+//         Assert.assertEquals(connector.isJsonObject(), true);
+//         Assert.assertEquals(connector.get("id").toString(), "152");
+//     }
+//
+//     @Test(description = "Test fetch central connector by FQN.")
+//     public void getConnectorByFQN() {
+//         JsonObject connector = LSExtensionTestUtil
+//                 .getConnectorByFqn("ballerinax", "sfdc", "sfdc", "3.0.0", "Client", this.serviceEndpoint);
+//
+//         Assert.assertEquals(connector.isJsonObject(), true);
+//         Assert.assertEquals(connector.get("moduleName").getAsString(), "sfdc");
+//         Assert.assertEquals(connector.get("name").getAsString(), "Client");
 //     }
 
     @AfterClass
