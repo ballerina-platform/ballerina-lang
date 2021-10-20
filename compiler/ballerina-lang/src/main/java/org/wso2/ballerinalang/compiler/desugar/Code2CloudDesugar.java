@@ -46,7 +46,7 @@ public class Code2CloudDesugar {
     private Code2CloudDesugar(CompilerContext context) {
         context.put(CODE2CLOUD_DESUGAR_KEY, this);
         String cloudOption = CompilerOptions.getInstance(context).get(CompilerOptionName.CLOUD);
-        c2cEnabled = "k8s".equals(cloudOption) || "docker".equals(cloudOption);
+        c2cEnabled = "k8s".equals(cloudOption) || "docker".equals(cloudOption) || "choreo".equals(cloudOption);
         packageCache = PackageCache.getInstance(context);
         final BPackageSymbol symbol = PackageCache.getInstance(context).getSymbol(Names.BALLERINA_ORG.value
                 + Names.ORG_NAME_SEPARATOR.value + Names.CLOUD.value);
