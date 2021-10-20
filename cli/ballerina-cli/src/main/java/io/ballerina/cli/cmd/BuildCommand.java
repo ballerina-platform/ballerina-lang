@@ -226,13 +226,9 @@ public class BuildCommand implements BLauncherCmd {
             sticky = false;
         }
 
-        if (skipTests == null) {
-            // If withTests flag is provided the skipTests flag is set to false
-            if (withTests == null || withTests == false) {
-                this.skipTests = true;
-            } else {
-                this.skipTests = false;
-            }
+        // If withTests flag is not provided, we change the skipTests flag accordingly
+        if (withTests != null) {
+            this.skipTests = !withTests;
         }
 
         BuildOptions buildOptions = constructBuildOptions();
