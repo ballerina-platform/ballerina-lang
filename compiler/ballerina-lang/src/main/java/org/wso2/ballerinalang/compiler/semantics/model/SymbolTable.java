@@ -618,7 +618,7 @@ public class SymbolTable {
         }
     }
 
-    private BUnionType getNilableBtype(BType type) {
+    private BUnionType getNilableBType(BType type) {
         return BUnionType.create(null, type, nilType);
     }
 
