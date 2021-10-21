@@ -35,6 +35,11 @@ import static io.ballerina.projects.internal.ManifestBuilder.getStringValueFromT
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.JACOCO_XML_FORMAT;
 
+/**
+ * This class represents the "bal pack" command.
+ *
+ * @since 2.0.0
+ */
 public class PackCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
