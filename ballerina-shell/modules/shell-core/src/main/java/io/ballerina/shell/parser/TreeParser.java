@@ -40,8 +40,8 @@ public abstract class TreeParser extends DiagnosticReporter {
     /**
      * Parses a string into Nodes.
      *
-     * @param source Input source code statements.
-     * @return Syntax tree for the source code.
+     * @param source Input source code as a string.
+     * @return parsed nodes for the source code.
      */
     public Collection<Node> parseString(String source) throws TreeParserException {
         List<Node> nodes = new ArrayList<>();
@@ -53,7 +53,7 @@ public abstract class TreeParser extends DiagnosticReporter {
      * Parses a source code string into a Node.
      *
      * @param statement Input source code statement.
-     * @return Syntax tree for the source code.
+     * @return parsed nodes for the source code.
      */
     public abstract Collection<Node> parse(String statement) throws TreeParserException;
 
