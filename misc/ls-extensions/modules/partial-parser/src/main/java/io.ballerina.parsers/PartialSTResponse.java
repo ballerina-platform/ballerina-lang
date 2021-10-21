@@ -19,6 +19,8 @@ package io.ballerina.parsers;
 
 import com.google.gson.JsonElement;
 
+import java.util.ArrayList;
+
 /**
  * Represents a Ballerina Syntax Tree response.
  *
@@ -26,13 +28,13 @@ import com.google.gson.JsonElement;
  */
 public class PartialSTResponse {
 
-    private JsonElement syntaxTree;
+    private ArrayList<JsonElement> syntaxTree;
 
-    public JsonElement getSyntaxTree() {
+    public ArrayList<JsonElement> getSyntaxTree() {
         return syntaxTree;
     }
 
-    public void setSyntaxTree(JsonElement syntaxTree) {
+    public void setSyntaxTree(ArrayList<JsonElement> syntaxTree) {
         this.syntaxTree = syntaxTree;
     }
 }
