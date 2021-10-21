@@ -35,18 +35,23 @@ service /MyService on lstnr {
 
 readonly class Listener {
     public isolated function attach(service object {} s, string[]|string? name = ()) returns error? {
+        return;
     }
 
     public isolated function detach(service object {} s) returns error? {
+        return;
     }
 
     public isolated function 'start() returns error? {
+        return;
     }
 
     public isolated function gracefulStop() returns error? {
+        return;
     }
 
     public isolated function immediateStop() returns error? {
+        return;
     }
 }
 
