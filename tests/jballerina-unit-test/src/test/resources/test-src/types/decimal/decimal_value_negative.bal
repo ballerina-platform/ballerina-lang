@@ -30,4 +30,12 @@ function testInvlaidDecimalValue() {
 
     // This is to test hexadecimal literal assignment with invalid extra space.
     decimal f = -0 X1231.12P2;
+
+    // This is to test invalid syntax for missing digit after the dot.
+    decimal _ = 2.;
+    decimal _ = 2.e12;
+
+    // This is to test invalid syntax for missing hex number after the hex indicator
+    decimal _ = 0x;
+    decimal _ = 0X;
 }

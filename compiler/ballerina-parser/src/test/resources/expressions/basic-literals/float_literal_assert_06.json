@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -45,6 +46,7 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN",
@@ -57,9 +59,11 @@
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -105,63 +109,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
                       ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99"
+                      "value": "25."
                     }
                   ]
                 },
@@ -178,6 +134,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -227,10 +184,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "243.32e1742"
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
+                      ],
+                      "value": "25.e1742"
                     }
                   ]
                 },
@@ -247,6 +209,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -280,63 +243,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32E1742"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
                       ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99e1742"
+                      "value": "25.E1742"
                     }
                   ]
                 },
@@ -353,59 +268,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99E1742"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -455,10 +318,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "243.32e+1742"
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
+                      ],
+                      "value": "25.e+1742"
                     }
                   ]
                 },
@@ -475,6 +343,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -508,63 +377,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32E-1742"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
                       ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99e+1742"
+                      "value": "25.E-1742"
                     }
                   ]
                 },
@@ -581,59 +402,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99E-1742"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -683,10 +452,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32f"
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
+                      ],
+                      "value": "25.f"
                     }
                   ]
                 },
@@ -703,6 +477,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -736,10 +511,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32F"
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
+                      ],
+                      "value": "25.F"
                     }
                   ]
                 },
@@ -756,6 +536,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -789,10 +570,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32d"
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
+                      ],
+                      "value": "25.d"
                     }
                   ]
                 },
@@ -809,6 +595,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -842,63 +629,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32D"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
                       ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99f"
+                      "value": "25.D"
                     }
                   ]
                 },
@@ -915,165 +654,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99F"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99d"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99D"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -1123,10 +704,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32e1742f"
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
+                      ],
+                      "value": "25.e1742f"
                     }
                   ]
                 },
@@ -1143,6 +729,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -1176,10 +763,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32e1742F"
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
+                      ],
+                      "value": "25.e1742F"
                     }
                   ]
                 },
@@ -1196,6 +788,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -1229,10 +822,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32e1742d"
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
+                      ],
+                      "value": "25.e1742d"
                     }
                   ]
                 },
@@ -1249,6 +847,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -1282,10 +881,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32e1742D"
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
+                      ],
+                      "value": "25.e1742D"
                     }
                   ]
                 },
@@ -1302,6 +906,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -1335,10 +940,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32E1742f"
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
+                      ],
+                      "value": "25.E1742f"
                     }
                   ]
                 },
@@ -1355,6 +965,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -1388,10 +999,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32E1742F"
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
+                      ],
+                      "value": "25.E1742F"
                     }
                   ]
                 },
@@ -1408,6 +1024,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -1441,10 +1058,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32E1742d"
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
+                      ],
+                      "value": "25.E1742d"
                     }
                   ]
                 },
@@ -1461,6 +1083,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -1494,63 +1117,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32E1742D"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
                       ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99e1742f"
+                      "value": "25.E1742D"
                     }
                   ]
                 },
@@ -1567,377 +1142,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99e1742F"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99e1742d"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99e1742D"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99E1742f"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99E1742F"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99E1742d"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99E1742D"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -1987,10 +1192,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32e+1742f"
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
+                      ],
+                      "value": "25.e+1742f"
                     }
                   ]
                 },
@@ -2007,6 +1217,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -2040,10 +1251,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32e-1742F"
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
+                      ],
+                      "value": "25.e-1742F"
                     }
                   ]
                 },
@@ -2060,6 +1276,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -2093,10 +1310,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32e+1742d"
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
+                      ],
+                      "value": "25.e+1742d"
                     }
                   ]
                 },
@@ -2113,6 +1335,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -2146,10 +1369,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32e-1742D"
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
+                      ],
+                      "value": "25.e-1742D"
                     }
                   ]
                 },
@@ -2166,6 +1394,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -2199,10 +1428,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32E+1742f"
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
+                      ],
+                      "value": "25.E+1742f"
                     }
                   ]
                 },
@@ -2219,6 +1453,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -2252,10 +1487,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32E-1742F"
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
+                      ],
+                      "value": "25.E-1742F"
                     }
                   ]
                 },
@@ -2272,6 +1512,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -2305,10 +1546,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32E+1742d"
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
+                      ],
+                      "value": "25.E+1742d"
                     }
                   ]
                 },
@@ -2325,6 +1571,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -2358,434 +1605,15 @@
                 },
                 {
                   "kind": "NUMERIC_LITERAL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": "245.32E-1742D"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DIGIT_AFTER_DOT"
                       ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99e+1742f"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99e-1742F"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99e+1742d"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99e-1742D"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99E+1742f"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99E-1742F"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99E+1742d"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
-                      "value": ".99E-1742D"
+                      "value": "25.E-1742D"
                     }
                   ]
                 },
