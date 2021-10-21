@@ -1021,6 +1021,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // get a copy of the package symbol, add compilation unit info to it,
         // and define it in the current package scope
         BPackageSymbol symbol = dupPackageSymbolAndSetCompUnit(pkgSymbol, names.fromIdNode(importPkgNode.compUnit));
+        if (!Names.IGNORE.equals(pkgAlias)) {
+            symbol.importPrefix = pkgAlias;
+        }
         symbol.scope = pkgSymbol.scope;
         importPkgNode.symbol = symbol;
         this.env.scope.define(pkgAlias, symbol);
@@ -4815,6 +4818,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         copy.scope = originalSymbol.scope;
         copy.owner = originalSymbol.owner;
         copy.compUnit = compUnit;
+        copy.importPrefix = originalSymbol.importPrefix;
         return copy;
     }
 
