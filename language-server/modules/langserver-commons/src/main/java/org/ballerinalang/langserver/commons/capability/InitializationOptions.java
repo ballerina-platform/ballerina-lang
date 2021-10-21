@@ -23,7 +23,7 @@ package org.ballerinalang.langserver.commons.capability;
 public interface InitializationOptions {
 
     /**
-     * Whether the client support bala URI scheme
+     * Whether the client support bala URI scheme.
      */
     String KEY_BALA_SCHEME_SUPPORT = "supportBalaScheme";
 
