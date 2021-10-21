@@ -141,7 +141,6 @@ function testConstWithTypeInCondition() returns boolean {
     if (conditionWithType) {
         return true;
     }
-    return false;
 }
 
 // -----------------------------------------------------------
@@ -152,7 +151,6 @@ function testConstWithoutTypeInCondition() returns boolean {
     if (conditionWithoutType) {
         return true;
     }
-    return false;
 }
 
 // -----------------------------------------------------------

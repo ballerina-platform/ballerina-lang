@@ -262,7 +262,7 @@ function testComplexTernary_2() returns string {
     int|string|float|boolean|xml x = "string";
     if(x is boolean) {return "boolean";}
     if (x is int|string|float|boolean) {
-        return x is int ? "int" : (x is float ? "float" : (x is boolean ? "boolean" : x));
+        return x is int ? "int" : (x is float ? "float" : x);
     } else {
         xml y = x;
         return "xml";
@@ -1148,16 +1148,12 @@ function testNarrowedTypeResetWithNestedTypeGuards() {
                     int j = i;
                     jo = j;
                     i = "hello";
-                } else {
-                    int k = i;
                 }
             } else {
                 string s = i;
             }
             int|string? q = i;
             qo = q;
-        } else {
-            int|string x = i;
         }
         int|string? r = i;
         ro = r;

@@ -59,7 +59,7 @@ public class TestUtils {
     }
 
     static BuildProject loadBuildProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
-        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).skipTests(false).build();
         return BuildProject.load(environmentBuilder, projectPath, buildOptions);
     }
 

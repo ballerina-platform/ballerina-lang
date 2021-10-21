@@ -144,11 +144,9 @@ function foo3(int|error a = getIntOrError(GLB)) returns error {
     if (a is error) {
         return a;
     }
-    if (a is int) {
+    if (a is int) { // always true
         return error("Not Error " + a.toString());
     }
-
-    return error("Invalid");
 }
 
 // Test 6

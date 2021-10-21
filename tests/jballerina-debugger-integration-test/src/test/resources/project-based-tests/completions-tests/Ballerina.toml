@@ -1,0 +1,4 @@
+[package]
+org = "debug_test_resources"
+name = "completions"
+version = "0.0.1"

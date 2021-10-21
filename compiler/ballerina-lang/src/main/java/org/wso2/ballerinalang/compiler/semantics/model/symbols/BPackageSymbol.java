@@ -50,6 +50,7 @@ public class BPackageSymbol extends BTypeSymbol {
     public boolean isUsed = false;
     public boolean exported = false;
     public ModuleDescriptor descriptor;
+    public Name importPrefix;
 
     // TODO Temporary mechanism to hold a reference to the generated bir model
     public BIRNode.BIRPackage bir;   // TODO try to remove this
@@ -108,6 +109,7 @@ public class BPackageSymbol extends BTypeSymbol {
         copy.compiledPackage = compiledPackage;
         copy.entryPointExists = entryPointExists;
         copy.isLabel = true;
+        copy.importPrefix = importPrefix;
         return copy;
     }
 

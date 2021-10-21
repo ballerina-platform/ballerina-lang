@@ -307,7 +307,7 @@ public class JBallerinaBackend extends CompilerBackend {
             throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
         }
 
-        // skip generation of the test jar if --skip-tests option is set to true
+        // skip generation of the test jar if --with-tests option is not provided
         if (moduleContext.project().buildOptions().skipTests()) {
             return;
         }
