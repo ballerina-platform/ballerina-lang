@@ -24,6 +24,9 @@ import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BalServer;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.eclipse.lsp4j.debug.CompletionItem;
+import org.eclipse.lsp4j.debug.CompletionsArguments;
+import org.eclipse.lsp4j.debug.CompletionsResponse;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
 import org.eclipse.lsp4j.debug.ContinueArguments;
 import org.eclipse.lsp4j.debug.EvaluateArguments;
@@ -757,6 +760,59 @@ public class DebugTestRunner {
         } catch (Exception e) {
             LOGGER.warn("Error occurred when fetching debug hit variables", e);
             throw new BallerinaTestException("Error occurred when fetching debug hit variables", e);
+        }
+    }
+
+    /**
+     * Can be used to fetch completion items for expressions typed in debug console, when a debug hit is occurred.
+     *
+     * @param args       debug stopped event arguments.
+     * @param expression expression typed in debug console.
+     * @return the completion items.
+     */
+    public Map<String, CompletionItem> fetchCompletions(StoppedEventArguments args, String expression)
+            throws BallerinaTestException {
+        Map<String, CompletionItem> completions = new HashMap<>();
+        if (!hitListener.getConnector().isConnected()) {
+            throw new BallerinaTestException("DAP Client connector is not connected");
+        }
+
+        CompletionsResponse completionsResponse;
+        CompletionsArguments completionsArguments = new CompletionsArguments();
+        StackFrame[] stackFrames = fetchStackFrames(args);
+        completionsArguments.setText(expression);
+        completionsArguments.setColumn(expression.length() + 1);
+        completionsArguments.setLine(1);
+        completionsArguments.setFrameId(stackFrames[0].getId());
+
+        try {
+            completionsResponse = hitListener.getConnector().getRequestManager().completions(completionsArguments);
+            Arrays.stream(completionsResponse.getTargets()).forEach(completion -> completions.put(completion.getLabel(),
+                    completion));
+        } catch (Exception e) {
+            LOGGER.warn("Error occurred when fetching completions", e);
+            throw new BallerinaTestException("Error occurred when fetching completions", e);
+        }
+        return completions;
+    }
+
+    /**
+     * Can be used to assert completion item label, text and type.
+     *
+     * @param completionItem debug expression completion item.
+     * @param label          completion item label.
+     */
+    public void assertCompletions(Map<String, CompletionItem> completionItem, String label) {
+        switch (assertionMode) {
+            case HARD_ASSERT:
+                Assert.assertTrue(completionItem.containsKey(label));
+                Assert.assertEquals(completionItem.get(label).getLabel(), label);
+                Assert.assertEquals(completionItem.get(label).getText(), label);
+                return;
+            case SOFT_ASSERT:
+                softAsserter.assertTrue(completionItem.containsKey(label));
+                softAsserter.assertEquals(completionItem.get(label).getLabel(), label);
+                softAsserter.assertEquals(completionItem.get(label).getText(), label);
         }
     }
 
