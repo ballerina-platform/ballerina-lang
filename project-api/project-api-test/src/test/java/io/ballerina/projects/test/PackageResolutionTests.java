@@ -193,7 +193,8 @@ public class PackageResolutionTests extends BaseTest {
         Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
     }
 
-    @Test(dependsOnMethods = "testProjectSaveWithNewlineBuildFile", description = "tests project with corrupt build file")
+    @Test(dependsOnMethods = "testProjectSaveWithNewlineBuildFile",
+            description = "tests project with corrupt build file")
     public void testProjectSaveWithCorruptBuildFile() throws IOException {
         // Skip test in windows due to file permission setting issue
         if (isWindows()) {
