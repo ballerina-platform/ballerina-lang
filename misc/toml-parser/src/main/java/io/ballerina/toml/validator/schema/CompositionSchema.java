@@ -39,7 +39,7 @@ public class CompositionSchema extends AbstractSchema {
     List<AbstractSchema> schemas;
 
     public CompositionSchema(Type type, List<AbstractSchema> schemas) {
-        super(type, new LinkedHashMap<>());
+        super(type, new LinkedHashMap<>(), null);
         this.schemas = schemas;
     }
 

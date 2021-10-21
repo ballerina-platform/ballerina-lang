@@ -827,10 +827,10 @@ public class JvmTypeGen {
         PackageID pkgID = typeSymbol.pkgID;
         String typeOwner = JvmCodeGenUtil.getPackageName(pkgID) + MODULE_INIT_CLASS_NAME;
         String fieldName = getTypeFieldName(toNameString(typeToLoad));
+        boolean samePackage = JvmCodeGenUtil.isSameModule(this.packageID, packageID);
 
         // if name contains $anon and doesn't belong to the same package, load type using getAnonType() method.
-        if (!this.packageID.equals(pkgID) &&
-                (fieldName.contains(BLangAnonymousModelHelper.ANON_PREFIX)
+        if (!samePackage && (fieldName.contains(BLangAnonymousModelHelper.ANON_PREFIX)
                         || Symbols.isFlagOn(typeToLoad.flags, Flags.ANONYMOUS))) {
             Integer hash = typeHashVisitor.visit(typeToLoad);
             String shape = typeToLoad.toString();

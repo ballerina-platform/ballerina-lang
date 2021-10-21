@@ -44,8 +44,9 @@ public class NumericSchema extends PrimitiveValueSchema<Double> {
     private final Double minimum;
     private final Double maximum;
 
-    public NumericSchema(Type type, Map<String, String> message, Double minimum, Double maximum, Double defaultValue) {
-        super(type, message, defaultValue);
+    public NumericSchema(Type type, Map<String, String> message, Double minimum, Double maximum, Double defaultValue,
+                         CompositionSchema compositionSchemas) {
+        super(type, message, defaultValue, compositionSchemas);
         this.minimum = minimum;
         this.maximum = maximum;
     }
@@ -100,6 +101,8 @@ public class NumericSchema extends PrimitiveValueSchema<Double> {
                 diagnostics.add(diagnostic);
             }
         }
+
+        diagnostics.addAll(super.validate(givenValueNode, key));
         return diagnostics;
     }
 

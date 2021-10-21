@@ -21,8 +21,10 @@ package io.ballerina.toml.validator.schema;
 import io.ballerina.toml.semantic.ast.TomlNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents the base class for all the sub schemas in json schema.
@@ -33,10 +35,12 @@ public abstract class AbstractSchema {
 
     private final Type type;
     private final Map<String, String> message;
+    private final CompositionSchema compositionSchemas;
 
-    public AbstractSchema(Type type, Map<String, String> message) {
+    public AbstractSchema(Type type, Map<String, String> message, CompositionSchema compositionSchemas) {
         this.type = type;
         this.message = message;
+        this.compositionSchemas = compositionSchemas;
     }
 
     public Type type() {
@@ -47,7 +51,17 @@ public abstract class AbstractSchema {
         return message;
     }
 
+    public Optional<CompositionSchema> compositionSchemas() {
+        return Optional.ofNullable(compositionSchemas);
+    }
+
     public abstract void accept(SchemaVisitor visitor);
 
-    public abstract <T extends TomlNode> List<Diagnostic> validate(T givenValueNode, String key);
+    public <T extends TomlNode> List<Diagnostic> validate(T givenValueNode, String key) {
+        if (this.compositionSchemas().isPresent()) {
+            CompositionSchema compositionSchema = this.compositionSchemas().get();
+            return compositionSchema.validate(givenValueNode, key);
+        }
+        return Collections.emptyList();
+    }
 }

@@ -217,6 +217,21 @@ public class TomlValidateTest {
         Assert.assertEquals(multipleIt.next().message(),
                 "incompatible type for key 'testOneOfNegativeMultipleMatch': expected 'NUMBER', found 'STRING'");
         Assert.assertEquals(multipleIt.next().message(), "must match exactly one schema in oneOf");
+
+        Set<Diagnostic> mixedCompPositive = toml.get("package.testMixedCompositePositive").get().diagnostics();
+        Assert.assertEquals(mixedCompPositive.size(), 0);
+
+        Set<Diagnostic> mixedCompNegative1 = toml.get("package.testMixedCompositeNegative1").get().diagnostics();
+        Assert.assertEquals(mixedCompNegative1.size(), 1);
+        Iterator<Diagnostic> mixedCompNegative1It = mixedCompNegative1.iterator();
+        Assert.assertEquals(mixedCompNegative1It.next().message(),
+                "can only contain alphanumerics, underscores and periods");
+
+        Set<Diagnostic> mixedCompNegative2 = toml.get("package.testMixedCompositeNegative2").get().diagnostics();
+        Assert.assertEquals(mixedCompNegative2.size(), 1);
+        Iterator<Diagnostic> mixedCompNegative2It = mixedCompNegative2.iterator();
+        Assert.assertEquals(mixedCompNegative2It.next().message(),
+                "cannot end with a");
     }
 
     @Test

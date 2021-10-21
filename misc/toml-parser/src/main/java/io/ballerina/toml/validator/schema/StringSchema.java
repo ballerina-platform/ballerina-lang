@@ -41,13 +41,14 @@ import static io.ballerina.toml.validator.ValidationUtil.getTypeErrorMessage;
  * @since 2.0.0
  */
 public class StringSchema extends PrimitiveValueSchema<String> {
+
     private final String pattern;
     private final Integer minLength;
     private final Integer maxLength;
 
-    public StringSchema(Type type, Map<String, String> message, String pattern, String defaultValue, Integer minLength
-            , Integer maxLength) {
-        super(type, message, defaultValue);
+    public StringSchema(Type type, Map<String, String> message, String pattern, String defaultValue,
+                        Integer minLength, Integer maxLength, CompositionSchema compositionSchemas) {
+        super(type, message, defaultValue, compositionSchemas);
         this.pattern = pattern;
         this.minLength = minLength;
         this.maxLength = maxLength;
@@ -110,6 +111,7 @@ public class StringSchema extends PrimitiveValueSchema<String> {
                 diagnostics.add(diagnostic);
             }
         }
+        diagnostics.addAll(super.validate(givenValueNode, key));
         return diagnostics;
     }
 

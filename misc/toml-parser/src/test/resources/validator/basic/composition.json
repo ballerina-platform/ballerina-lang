@@ -231,6 +231,75 @@
                             "pattern": "test should only have chars"
                         }
                     }
+                },
+                "testMixedCompositePositive": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9_.]*$",
+                    "message": {
+                        "pattern": "can only contain alphanumerics, underscores and periods"
+                    },
+                    "allOf": [
+                        {
+                            "type": "string",
+                            "pattern": "^(?!_).+",
+                            "message": {
+                                "pattern": "cannot have initial underscore characters"
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "pattern": ".*(?<!a)$",
+                            "message": {
+                                "pattern": "cannot end with a"
+                            }
+                        }
+                    ]
+                },
+                "testMixedCompositeNegative1": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9_.]*$",
+                    "message": {
+                        "pattern": "can only contain alphanumerics, underscores and periods"
+                    },
+                    "allOf": [
+                        {
+                            "type": "string",
+                            "pattern": "^(?!_).+",
+                            "message": {
+                                "pattern": "cannot have initial underscore characters"
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "pattern": ".*(?<!a)$",
+                            "message": {
+                                "pattern": "cannot end with a"
+                            }
+                        }
+                    ]
+                },
+                "testMixedCompositeNegative2": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9_.]*$",
+                    "message": {
+                        "pattern": "can only contain alphanumerics, underscores and periods"
+                    },
+                    "allOf": [
+                        {
+                            "type": "string",
+                            "pattern": "^(?!_).+",
+                            "message": {
+                                "pattern": "cannot have initial underscore characters"
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "pattern": ".*(?<!a)$",
+                            "message": {
+                                "pattern": "cannot end with a"
+                            }
+                        }
+                    ]
                 }
             }
         }

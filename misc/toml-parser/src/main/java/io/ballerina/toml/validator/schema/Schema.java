@@ -60,9 +60,9 @@ public class Schema extends AbstractSchema {
     private static final String PROPERTY_HOLDER = "${property}";
 
     public Schema(String schema, String title, Type type, Map<String, String> message, String description,
-                  boolean hasAdditionalProperties,
-                  Map<String, AbstractSchema> properties, List<String> required) {
-        super(type, message);
+                  boolean hasAdditionalProperties, Map<String, AbstractSchema> properties, List<String> required,
+                  CompositionSchema compositionSchemas) {
+        super(type, message, compositionSchemas);
         this.schema = schema;
         this.title = title;
         this.description = description;
@@ -194,6 +194,7 @@ public class Schema extends AbstractSchema {
             return Collections.emptyList();
         }
 
+        diagnostics.addAll(super.validate(givenValueNode, key));
         return diagnostics;
     }
 

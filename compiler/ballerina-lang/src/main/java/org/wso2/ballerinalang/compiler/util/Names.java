@@ -175,7 +175,7 @@ public class Names {
         return fromString(identifier.originalValue);
     }
 
-    public Name fromString(String value) {
+    public static Name fromString(String value) {
         // value cannot be null
         if (value.equals("")) {
             return EMPTY;

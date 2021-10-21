@@ -37,10 +37,11 @@ import static io.ballerina.toml.validator.ValidationUtil.getTypeErrorMessage;
  * @since 2.0.0
  */
 public class ArraySchema extends AbstractSchema {
+
     private final AbstractSchema items;
 
-    public ArraySchema(Type type, Map<String, String> message, AbstractSchema items) {
-        super(type, message);
+    public ArraySchema(Type type, Map<String, String> message, AbstractSchema items, CompositionSchema comps) {
+        super(type, message, comps);
         this.items = items;
     }
 
@@ -64,6 +65,6 @@ public class ArraySchema extends AbstractSchema {
                             key));
             return Collections.singletonList(diagnostic);
         }
-        return Collections.emptyList();
+        return super.validate(givenValueNode, key);
     }
 }

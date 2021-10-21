@@ -38,8 +38,8 @@ import static io.ballerina.toml.validator.ValidationUtil.getTypeErrorMessage;
  */
 public class BooleanSchema extends PrimitiveValueSchema<Boolean> {
 
-    public BooleanSchema(Type type, Map<String, String> message, Boolean defaultValue) {
-        super(type, message, defaultValue);
+    public BooleanSchema(Type type, Map<String, String> message, Boolean defaultValue, CompositionSchema comps) {
+        super(type, message, defaultValue, comps);
     }
 
     @Override
@@ -57,6 +57,6 @@ public class BooleanSchema extends PrimitiveValueSchema<Boolean> {
                 return Collections.singletonList(diagnostic);
             }
         }
-        return Collections.emptyList();
+        return super.validate(givenValueNode, key);
     }
 }
