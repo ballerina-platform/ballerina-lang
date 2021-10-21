@@ -26,6 +26,18 @@ public client class TestClient {
     remote isolated function sendMessage(User user, @display {label: "Message"} string message) returns string|error? {
         return "success";
     }
+
+    # Test get message.
+    #
+    # + uid - User id
+    # + return - Test message or an error
+    remote isolated function viewMessage(string uid)  returns string|error? {
+        return "Test Message";
+    }
+
+    remote isolated function DraftFunc(string uid)  returns string{
+        return "Draft function without doc comment";
+    }
 }
 
 # User account.

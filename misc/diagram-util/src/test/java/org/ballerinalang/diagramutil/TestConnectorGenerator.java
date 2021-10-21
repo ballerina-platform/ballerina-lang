@@ -47,11 +47,11 @@ public class TestConnectorGenerator {
     private final String orgName = "test";
     private final String packageName = "test";
     private final String moduleName = "TestConnector";
-    private final String version = "0.2.0";
+    private final String version = "0.3.0";
     private final String initFunc = "init";
     private final Path testConnectorBalaFile = TestUtil.RES_DIR
             .resolve("connector")
-            .resolve("test-TestConnector-any-0.2.0.bala");
+            .resolve("test-TestConnector-any-0.3.0.bala");
     private Project balaProject;
 
     @BeforeClass
@@ -75,7 +75,7 @@ public class TestConnectorGenerator {
         Assert.assertEquals(connector.displayAnnotation.get("label"), "Test Client");
         Assert.assertEquals(connector.displayAnnotation.get("iconPath"), "logo.svg");
 
-        Assert.assertEquals(connector.functions.size(), 3);
+        Assert.assertEquals(connector.functions.size(), 5);
         List<Function> functionList = connector.functions;
 
         Assert.assertEquals(functionList.get(0).name, initFunc);
@@ -109,7 +109,7 @@ public class TestConnectorGenerator {
         Assert.assertEquals(modelFromSyntaxTree.get(0).moduleName, moduleName);
         Assert.assertEquals(modelFromSyntaxTree.get(0).packageInfo.getVersion(), version);
 
-        Assert.assertEquals(modelFromSyntaxTree.get(0).functions.size(), 3);
+        Assert.assertEquals(modelFromSyntaxTree.get(0).functions.size(), 5);
         Assert.assertEquals(modelFromSyntaxTree.get(0).functions.get(0).name, initFunc);
     }
 }

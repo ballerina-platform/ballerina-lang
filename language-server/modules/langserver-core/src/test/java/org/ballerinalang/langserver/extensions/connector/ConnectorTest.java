@@ -18,18 +18,11 @@
 
 package org.ballerinalang.langserver.extensions.connector;
 
-//import com.google.gson.JsonObject;
-//import com.sun.jdi.connect.Connector;
-
-import org.ballerinalang.langserver.extensions.LSExtensionTestUtil;
-import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorListResponse;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 
@@ -46,16 +39,16 @@ public class ConnectorTest {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    @Test(description = "Test getting all connectors.")
-    public void getConnectors() {
-        BallerinaConnectorListResponse connectorsResponse = LSExtensionTestUtil
-                .getConnectors(testConnectorFilePath.toString(), "", this.serviceEndpoint);
-
-        Assert.assertNotEquals(connectorsResponse.getCentralConnectors().size(), 0);
-        Assert.assertNotEquals(connectorsResponse.getLocalConnectors().size(), 0);
-    }
-
     // TODO: Need to add mock server.
+//    @Test(description = "Test getting all connectors.")
+//    public void getConnectors() {
+//        BallerinaConnectorListResponse connectorsResponse = LSExtensionTestUtil
+//                .getConnectors(testConnectorFilePath.toString(), "", this.serviceEndpoint);
+//
+//        Assert.assertNotEquals(connectorsResponse.getCentralConnectors().size(), 0);
+//        Assert.assertNotEquals(connectorsResponse.getLocalConnectors().size(), 0);
+//    }
+
 //     @Test(description = "Test search twilio connectors.")
 //     public void searchConnectors() {
 //         BallerinaConnectorListResponse connectorsResponse = LSExtensionTestUtil
