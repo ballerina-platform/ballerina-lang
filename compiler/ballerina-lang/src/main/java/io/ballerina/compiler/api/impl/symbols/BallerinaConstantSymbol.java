@@ -84,7 +84,7 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
 
     @Override
     public boolean assignableTo(TypeSymbol targetType) {
-        return this.typeDescriptor().assignableTo(targetType);
+        return this.typeDescriptor().subtypeOf(targetType);
     }
 
     /**
