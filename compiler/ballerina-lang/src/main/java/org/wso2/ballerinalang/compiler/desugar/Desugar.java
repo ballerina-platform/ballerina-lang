@@ -7181,6 +7181,7 @@ public class Desugar extends BLangNodeVisitor {
          * int? x = 3;
          * int? y = +x;
          *
+         *
          * Above is desugared to
          * int? $result$;
          * if (x is ()) {
