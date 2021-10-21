@@ -473,6 +473,8 @@ public abstract class BIRNode {
 
         public List<BType> referencedTypes;
 
+        public BType referenceType;
+
         public SymbolOrigin origin;
 
         public List<BIRAnnotationAttachment> annotAttachments;

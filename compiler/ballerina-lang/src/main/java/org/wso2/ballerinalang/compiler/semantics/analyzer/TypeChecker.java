@@ -5608,10 +5608,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 return origTargetType;
             }
 
-            return ImmutableTypeCloner.getImmutableIntersectionType(pos, types,
-                    (SelectivelyImmutableReferenceType) types.getReferredType(expType),
-                    env, symTable, anonymousModelHelper, names,
-                    new HashSet<>());
+            return ImmutableTypeCloner.getImmutableIntersectionType(pos, types, expType, env, symTable,
+                    anonymousModelHelper, names, new HashSet<>());
         }
 
         if (origTargetType.tag != TypeTags.UNION) {
@@ -5641,9 +5639,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BUnionType nonReadOnlyUnion = BUnionType.create(null, nonReadOnlyTypes);
 
-        nonReadOnlyUnion.add(ImmutableTypeCloner.getImmutableIntersectionType(pos, types,
-                (SelectivelyImmutableReferenceType) types.getReferredType(expType),
-                env, symTable, anonymousModelHelper, names, new HashSet<>()));
+        nonReadOnlyUnion.add(ImmutableTypeCloner.getImmutableIntersectionType(pos, types, expType, env, symTable,
+                anonymousModelHelper, names, new HashSet<>()));
         return nonReadOnlyUnion;
     }
 
@@ -6601,10 +6598,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (readOnlyConstructorField) {
             if (types.isSelectivelyImmutableType(fieldType)) {
                 fieldType =
-                        ImmutableTypeCloner.getImmutableIntersectionType(pos, types,
-                                (SelectivelyImmutableReferenceType) types.getReferredType(fieldType),
-                                                                         env, symTable, anonymousModelHelper, names,
-                                                                         new HashSet<>());
+                        ImmutableTypeCloner.getImmutableIntersectionType(pos, types, fieldType, env, symTable,
+                                anonymousModelHelper, names, new HashSet<>());
             } else if (!types.isInherentlyImmutableType(fieldType)) {
                 dlog.error(pos, DiagnosticErrorCode.INVALID_READONLY_MAPPING_FIELD, fieldName, fieldType);
                 fieldType = symTable.semanticError;
@@ -8336,8 +8331,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (Symbols.isFlagOn(childType.flags, Flags.READONLY) || !types.isSelectivelyImmutableType(childType)) {
                 continue;
             }
-            modifiedChild.setBType(ImmutableTypeCloner.getEffectiveImmutableType(modifiedChild.pos, types,
-                                                                         (SelectivelyImmutableReferenceType) childType,
+            modifiedChild.setBType(ImmutableTypeCloner.getEffectiveImmutableType(modifiedChild.pos, types, childType,
                                                                          env, symTable, anonymousModelHelper, names));
 
             if (modifiedChild.getKind() == NodeKind.XML_ELEMENT_LITERAL) {

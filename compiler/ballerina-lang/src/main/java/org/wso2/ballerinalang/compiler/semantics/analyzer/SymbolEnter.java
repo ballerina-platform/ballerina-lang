@@ -1522,6 +1522,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(typeDefinition.name), env.enclPkg.packageID, definedType, env.scope.owner,
                 typeDefinition.name.pos, getOrigin(typeDefinition.name.value));
         typeDefSymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
+        BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_REF, typeDefSymbol.flags, typeDefSymbol.name,
+                typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner, typeDefSymbol.pos, typeDefSymbol.origin);
+        typeSymbol.markdownDocumentation = typeDefSymbol.markdownDocumentation;
+        ((BTypeDefinitionSymbol) typeDefSymbol).referenceType = new BTypeReferenceType(definedType, typeSymbol,
+                typeDefSymbol.type.flags);
 
         boolean isLabel = true;
         if (definedType.tsymbol.name == Names.EMPTY) {
@@ -1617,12 +1622,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void handleDistinctDefinition(BLangTypeDefinition typeDefinition, BSymbol typeDefSymbol,
                                           BType definedType, BType referenceConstraintType) {
+        BType distinctType = definedType;
         if (isDistinctFlagPresent(typeDefinition)) {
             if (referenceConstraintType.getKind() == TypeKind.ERROR) {
-                BErrorType distinctType = getDistinctErrorType(typeDefinition, (BErrorType) referenceConstraintType,
+                distinctType = getDistinctErrorType(typeDefinition, (BErrorType) referenceConstraintType,
                         typeDefSymbol);
                 typeDefinition.typeNode.setBType(distinctType);
-                definedType = distinctType;
             } else if (referenceConstraintType.tag == TypeTags.INTERSECTION &&
                     ((BIntersectionType) referenceConstraintType).effectiveType.getKind() == TypeKind.ERROR) {
                 boolean distinctFlagPresentInTypeDef = typeDefinition.typeNode.flagSet.contains(Flag.DISTINCT);
@@ -1670,10 +1675,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
 
             } else if (referenceConstraintType.getKind() == TypeKind.OBJECT) {
-                BObjectType distinctType = getDistinctObjectType(typeDefinition, (BObjectType) referenceConstraintType,
+                distinctType = getDistinctObjectType(typeDefinition, (BObjectType) referenceConstraintType,
                         referenceConstraintType.tsymbol);
                 typeDefinition.typeNode.setBType(distinctType);
-                definedType = distinctType;
+            }
+
+            //setting the newly created distinct type as the referred type of the definition
+            if (((BTypeDefinitionSymbol) typeDefSymbol).referenceType != null) {
+                ((BTypeDefinitionSymbol) typeDefSymbol).referenceType.referredType = distinctType;
             }
             definedType.flags |= Flags.DISTINCT;
         }
@@ -1696,7 +1705,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BType resolvedTypeNode = symResolver.resolveTypeNode(constituentType, env);
             BType type = types.getReferredType(resolvedTypeNode);
 
-            if (types.getReferredType(type).getKind() == TypeKind.ERROR) {
+            if (type.getKind() == TypeKind.ERROR) {
                 if (constituentType.flagSet.contains(Flag.DISTINCT)) {
                     numberOfDistinctConstituentTypes++;
                     typeIdSet.addSecondarySet(((BErrorType) type).typeIdSet.getAll());
@@ -1939,7 +1948,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             } else if (attachment.annotationName.value.equals(Names.ANNOTATION_BUILTIN_SUBTYPE.value)) {
                 // Type is pre-defined in symbol Table.
                 BType type = symTable.getLangLibSubType(typeDefinition.name.value);
-                typeDefinition.symbol = type.tsymbol;
+                typeDefinition.symbol.type = type;
+                typeDefinition.symbol.flags |= type.tsymbol.flags;
+                ((BTypeDefinitionSymbol) typeDefinition.symbol).referenceType.tsymbol.flags |= type.tsymbol.flags;
+                ((BTypeDefinitionSymbol) typeDefinition.symbol).referenceType.referredType = type;
                 typeDefinition.setBType(type);
                 typeDefinition.typeNode.setBType(type);
                 typeDefinition.isBuiltinTypeDef = true;
@@ -3650,7 +3662,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (typeNode.getKind() == NodeKind.ERROR_TYPE) {
                 SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeNode, typeDef.symbol.scope, pkgEnv);
                 BLangErrorType errorTypeNode = (BLangErrorType) typeNode;
-                BType typeDefType = types.getReferredType(typeDef.symbol.type);
+                BType typeDefType = typeDef.symbol.type;
                 ((BErrorType) typeDefType).detailType = getDetailType(typeDefEnv, errorTypeNode);
             } else if (typeNode.getBType() != null && typeNode.getBType().tag == TypeTags.ERROR) {
                 SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeNode, typeDef.symbol.scope, pkgEnv);
@@ -4058,7 +4070,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                     if (!types.isInherentlyImmutableType(type)) {
                         field.type = field.symbol.type = ImmutableTypeCloner.getImmutableIntersectionType(
-                                pos, types, (SelectivelyImmutableReferenceType) type, typeDefEnv, symTable,
+                                pos, types, type, typeDefEnv, symTable,
                                 anonymousModelHelper, names, flagSet);
 
                     }

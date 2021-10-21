@@ -927,8 +927,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (!types.isInherentlyImmutableType(lhsType)) {
                     // Configurable variables are implicitly readonly
                     lhsType = ImmutableTypeCloner.getImmutableIntersectionType(varNode.pos, types,
-                            (SelectivelyImmutableReferenceType) types.getReferredType(lhsType), env,
-                            symTable, anonModelHelper, names, new HashSet<>());
+                            lhsType, env, symTable, anonModelHelper, names, new HashSet<>());
                     varNode.setBType(lhsType);
                     varNode.symbol.type = lhsType;
                 }
@@ -4539,8 +4538,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return symTable.semanticError;
         }
 
-        return ImmutableTypeCloner.getImmutableIntersectionType(pos, types,
-                (SelectivelyImmutableReferenceType) types.getReferredType(fieldType), env,
+        return ImmutableTypeCloner.getImmutableIntersectionType(pos, types, fieldType, env,
                 symTable, anonModelHelper, names, new HashSet<>());
     }
 

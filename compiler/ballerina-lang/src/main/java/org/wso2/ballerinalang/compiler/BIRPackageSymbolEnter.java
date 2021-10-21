@@ -469,6 +469,13 @@ public class BIRPackageSymbolEnter {
         dataInStream.skip(dataInStream.readLong());
 
         BType type = readBType(dataInStream);
+
+        BType referenceType = null;
+        boolean hasReferenceType = dataInStream.readBoolean();
+        if (hasReferenceType) {
+            referenceType = readBType(dataInStream);
+        }
+
         if (type.tag == TypeTags.INVOKABLE) {
             setInvokableTypeSymbol((BInvokableType) type);
         }
@@ -487,6 +494,7 @@ public class BIRPackageSymbolEnter {
         } else {
             symbol = Symbols.createTypeDefinitionSymbol(flags, names.fromString(typeDefName),
                     this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol, pos, COMPILED_SOURCE);
+            ((BTypeDefinitionSymbol)symbol).referenceType = (BTypeReferenceType) referenceType;
         }
         symbol.originalName = names.fromString(typeDefOrigName);
         symbol.origin = toOrigin(origin);
@@ -1709,13 +1717,13 @@ public class BIRPackageSymbolEnter {
     }
 
     private BType getEffectiveImmutableType(BType type) {
-        return ImmutableTypeCloner.getEffectiveImmutableType(null, types, (SelectivelyImmutableReferenceType) type,
+        return ImmutableTypeCloner.getEffectiveImmutableType(null, types, type,
                 type.tsymbol.pkgID, type.tsymbol.owner,
                 symTable, null, names);
     }
 
     private BType getEffectiveImmutableType(BType type, PackageID pkgID, BSymbol owner) {
-        return ImmutableTypeCloner.getEffectiveImmutableType(null, types, (SelectivelyImmutableReferenceType) type,
-                pkgID, owner, symTable, null, names);
+        return ImmutableTypeCloner.getEffectiveImmutableType(null, types, type, pkgID, owner, symTable,
+                null, names);
     }
 }

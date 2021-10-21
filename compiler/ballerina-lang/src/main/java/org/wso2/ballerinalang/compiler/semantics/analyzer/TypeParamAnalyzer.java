@@ -823,8 +823,7 @@ public class TypeParamAnalyzer {
 
         BIntersectionType boundIntersectionType =
                 ImmutableTypeCloner.getImmutableIntersectionType(intersectionType.tsymbol.pos, types,
-                        (SelectivelyImmutableReferenceType) types.getReferredType(matchingBoundNonReadOnlyType),
-                        env, symTable, anonymousModelHelper, names, new HashSet<>());
+                        matchingBoundNonReadOnlyType, env, symTable, anonymousModelHelper, names, new HashSet<>());
 
         return boundIntersectionType.effectiveType;
     }

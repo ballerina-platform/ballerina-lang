@@ -426,8 +426,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 continue;
             }
 
-            if (this.function != null && types.getReferredType(member).tag == TypeTags.PARAMETERIZED_TYPE) {
-                BParameterizedType parameterizedType = (BParameterizedType) types.getReferredType(member);
+            if (this.function != null && member.tag == TypeTags.PARAMETERIZED_TYPE) {
+                BParameterizedType parameterizedType = (BParameterizedType) member;
                 BType paramConstraint = getParamConstraintTypeIfInferred(this.function, parameterizedType);
                 if (paramConstraint != symbolTable.noType && !isDisjointMemberType(parameterizedType, originalType)) {
                     dlog.error(this.function.returnTypeNode.pos,
@@ -606,12 +606,16 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         return type;
     }
 
+    public BType visit(BTypeReferenceType t, BType s) {
+        return visit(getConstraintFromReferenceType(t), s);
+    }
+
     private BType getConstraintFromReferenceType(BType type) {
         BType constraint = type;
         if (type.tag == TypeTags.TYPEREFDESC) {
-            constraint = ((BTypeReferenceType) type).referredType;
+            constraint = getConstraintFromReferenceType(((BTypeReferenceType) type).referredType);
         }
-        return constraint.tag == TypeTags.TYPEREFDESC ? getConstraintFromReferenceType(constraint) : constraint;
+        return constraint;
     }
 
     private BType getTypeAddingArgIfNotProvided(BParameterizedType originalType, BType expType) {

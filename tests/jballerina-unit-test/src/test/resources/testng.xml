@@ -152,6 +152,7 @@
             <package name="org.ballerinalang.test.variable.shadowing.*"/>
             <package name="org.ballerinalang.test.vm.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
+            <package name="org.ballerinalang.test.sandbox.*"/>
         </packages>
 
         <classes>

@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
@@ -433,6 +434,7 @@ public class BIRGen extends BLangNodeVisitor {
                                                           astTypeDefinition.symbol.originalName);
         if (astTypeDefinition.symbol.tag == SymTag.TYPE_DEF) {
             typeDefs.put(astTypeDefinition.symbol.type.tsymbol, typeDef);
+            typeDef.referenceType = ((BTypeDefinitionSymbol) astTypeDefinition.symbol).referenceType;
         } else {
             typeDefs.put(astTypeDefinition.symbol, typeDef);
         }

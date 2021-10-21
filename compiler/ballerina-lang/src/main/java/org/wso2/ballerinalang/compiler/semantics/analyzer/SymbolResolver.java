@@ -1483,8 +1483,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BTypeSymbol typeSymbol = type.tsymbol;
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                                                           typeSymbol.originalName, typeSymbol.pkgID, constrainedType,
-                                                           typeSymbol.owner, constrainedTypeNode.pos, SOURCE);
+                typeSymbol.originalName, typeSymbol.pkgID, constrainedType, typeSymbol.owner,
+                constrainedTypeNode.pos, SOURCE);
         markParameterizedType(constrainedType, constraintType);
         resultType = constrainedType;
     }
@@ -1606,16 +1606,9 @@ public class SymbolResolver extends BLangNodeVisitor {
         userDefinedTypeNode.symbol = symbol;
 
         if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
-            if (((BTypeDefinitionSymbol) symbol).referenceType == null) {
-                BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_DEF, symbol.flags, symbol.name, symbol.pkgID,
-                        symbol.type, symbol.owner, symbol.pos, symbol.origin);
-                typeSymbol.markdownDocumentation = symbol.markdownDocumentation;
-                BTypeReferenceType refType = new BTypeReferenceType(symbol.type, typeSymbol, symbol.type.flags);
-                ((BTypeDefinitionSymbol) symbol).referenceType = refType;
-                resultType = refType;
-            } else {
-                resultType = ((BTypeDefinitionSymbol) symbol).referenceType;
-            }
+            ((BTypeDefinitionSymbol) symbol).referenceType.flags |= symbol.type.flags;
+            ((BTypeDefinitionSymbol) symbol).referenceType.tsymbol.flags |= symbol.type.flags;
+            resultType = ((BTypeDefinitionSymbol) symbol).referenceType;
         } else {
             resultType = symbol.type;
         }
@@ -2240,9 +2233,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             flagSet = new HashSet<>();
         }
         return ImmutableTypeCloner.getImmutableIntersectionType(intersectionTypeNode.pos, types,
-                                                                (SelectivelyImmutableReferenceType)
-                                                                        potentialIntersectionType,
-                                                                env, symTable, anonymousModelHelper, names, flagSet);
+                potentialIntersectionType, env, symTable, anonymousModelHelper, names, flagSet);
     }
 
     private BIntersectionType createIntersectionErrorType(BErrorType intersectionErrorType,

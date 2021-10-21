@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -63,9 +62,6 @@ public abstract class BStructureType extends BType {
 
     public boolean shouldPrintShape() {
         Name name = tsymbol.name;
-        if (tsymbol instanceof BStructureTypeSymbol && ((BStructureTypeSymbol) tsymbol).typeDefinitionSymbol != null) {
-            name = ((BStructureTypeSymbol) tsymbol).typeDefinitionSymbol.name;
-        }
 
         if (name == null) {
             return false;
