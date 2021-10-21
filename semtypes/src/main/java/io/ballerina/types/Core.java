@@ -475,7 +475,7 @@ public class Core {
             return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value.get()));
         } else if (isSubtypeSimple(t, PredefinedType.STRING)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_STRING);
-            Optional<String> value = StringSubtype.stringSubtypeSingleValues(sd);
+            Optional<String> value = StringSubtype.stringSubtypeSingleValue(sd);
             return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value));
         } else if (isSubtypeSimple(t, PredefinedType.BOOLEAN)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_BOOLEAN);

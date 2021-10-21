@@ -17,97 +17,103 @@
  */
 package io.ballerina.types.subtypedata;
 
+import io.ballerina.types.EnumerableCharString;
 import io.ballerina.types.EnumerableString;
-import io.ballerina.types.EnumerableSubtype;
-import io.ballerina.types.EnumerableType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
 import io.ballerina.types.UniformTypeCode;
 
+import java.util.Arrays;
 import java.util.Optional;
-import java.util.StringJoiner;
 
 /**
  * Represent StringSubtype.
  *
  * @since 3.0.0
  */
-public class StringSubtype extends EnumerableSubtype implements ProperSubtypeData {
+public class StringSubtype implements ProperSubtypeData {
 
-    public boolean allowed;
-    public EnumerableString[] values;
+    CharStringSubtype charData;
+    NonCharStringSubtype nonCharData;
 
-    private StringSubtype(boolean allowed, EnumerableString[] values) {
-        this.allowed = allowed;
-        this.values = values;
+    public CharStringSubtype getChar() {
+        return charData;
     }
 
-    private StringSubtype(boolean allowed, EnumerableString value) {
-        this(allowed, new EnumerableString[]{value});
+    public NonCharStringSubtype getNonChar() {
+        return nonCharData;
+    }
+
+    private StringSubtype(CharStringSubtype charData, NonCharStringSubtype nonCharData) {
+        this.charData = charData;
+        this.nonCharData = nonCharData;
+    }
+
+    public static StringSubtype from(CharStringSubtype chara, NonCharStringSubtype nonChar) {
+        return new StringSubtype(chara, nonChar);
     }
 
     public static boolean stringSubtypeContains(SubtypeData d, String s) {
         if (d instanceof AllOrNothingSubtype) {
             return ((AllOrNothingSubtype) d).isAllSubtype();
         }
-        StringSubtype v = (StringSubtype) d;
+        StringSubtype st = (StringSubtype) d;
+        CharStringSubtype chara = st.charData;
+        NonCharStringSubtype nonChar = st.nonCharData;
+        if (s.length() == 1) {
+            return Arrays.asList(chara.values).contains(EnumerableCharString.from(s)) ?
+                    chara.allowed : !chara.allowed;
+        }
+        return Arrays.asList(nonChar.values).contains(EnumerableString.from(s)) ? nonChar.allowed : !nonChar.allowed;
+    }
 
-        boolean found = false;
-        for (EnumerableString value : v.values) {
-            if (value.value.equals(s)) {
-                found = true;
-                break;
+    public static SubtypeData createStringSubtype(CharStringSubtype chara, NonCharStringSubtype nonChar) {
+        if (chara.values.length == 0 && nonChar.values.length == 0) {
+            if (!chara.allowed && !nonChar.allowed) {
+                return AllOrNothingSubtype.createAll();
+            } else if (chara.allowed && nonChar.allowed) {
+                return AllOrNothingSubtype.createNothing();
             }
         }
-
-        return found ? v.allowed : !v.allowed;
+        return StringSubtype.from(chara, nonChar);
     }
 
-    public static SubtypeData createStringSubtype(boolean allowed, EnumerableString[] values) {
-        if (values.length == 0) {
-            return new AllOrNothingSubtype(!allowed);
-        }
-        return new StringSubtype(allowed, values);
-    }
-
-    public static Optional<String> stringSubtypeSingleValues(SubtypeData d) {
+    public static Optional<String> stringSubtypeSingleValue(SubtypeData d) {
         if (d instanceof AllOrNothingSubtype) {
             return Optional.empty();
         }
-        StringSubtype s = (StringSubtype) d;
-        if (!s.allowed) {
-            return Optional.empty();
+        StringSubtype st = (StringSubtype) d;
+        CharStringSubtype chara = st.charData;
+        NonCharStringSubtype nonChar = st.nonCharData;
+        int charCount = chara.allowed ? chara.values.length : 2;
+        int nonCharCount = nonChar.allowed ? nonChar.values.length : 2;
+        if (charCount + nonCharCount == 1) {
+            return charCount != 0 ?
+                    Optional.of(chara.values[0].value) : Optional.of(nonChar.values[0].value);
         }
-        EnumerableString[] values = s.values;
-        if (values.length != 1) {
-            return Optional.empty();
-        }
-        return Optional.of(values[0].value);
+        return Optional.empty();
     }
 
     public static SemType stringConst(String value) {
-        return PredefinedType.uniformSubtype(UniformTypeCode.UT_STRING, new StringSubtype(true,
-                EnumerableString.from(value)));
-    }
-
-    @Override
-    public boolean allowed() {
-        return allowed;
-    }
-
-    @Override
-    public EnumerableType[] values() {
-        return values;
-    }
-
-    @Override
-    public String toString() {
-        StringJoiner j = new StringJoiner(", ", "StringSubtype:" + (allowed ? "allowed[" : "disallowed["), "]");
-        for (EnumerableString value : values) {
-            j.add(value.value);
+        CharStringSubtype chara;
+        NonCharStringSubtype nonChar;
+        if (value.length() == 1) {
+            chara = CharStringSubtype.from(true,
+                    new EnumerableCharString[]{EnumerableCharString.from(value)});
+            nonChar = NonCharStringSubtype.from(true, new EnumerableString[]{});
+        } else {
+            chara = CharStringSubtype.from(true, new EnumerableCharString[]{});
+            nonChar = NonCharStringSubtype.from(true, new EnumerableString[]{EnumerableString.from(value)});
         }
-        return j.toString();
+        return PredefinedType.uniformSubtype(UniformTypeCode.UT_STRING, new StringSubtype(chara, nonChar));
+    }
+
+    public static SemType stringChar() {
+        StringSubtype st = new StringSubtype(
+                CharStringSubtype.from(false, new EnumerableCharString[]{}),
+                NonCharStringSubtype.from(true, new EnumerableString[]{}));
+        return PredefinedType.uniformSubtype(UniformTypeCode.UT_STRING, st);
     }
 }

@@ -18,6 +18,7 @@
 package io.ballerina.types;
 
 import io.ballerina.types.subtypedata.IntSubtype;
+import io.ballerina.types.subtypedata.StringSubtype;
 
 import java.util.StringJoiner;
 
@@ -70,6 +71,7 @@ public class PredefinedType {
                     | (1 << UniformTypeCode.UT_FLOAT.code)
                     | (1 << UniformTypeCode.UT_DECIMAL.code));
     public static final SemType BYTE = IntSubtype.intWidthUnsigned(8);
+    public static final SemType STRING_CHAR = StringSubtype.stringChar();
 
     private PredefinedType() {
     }
