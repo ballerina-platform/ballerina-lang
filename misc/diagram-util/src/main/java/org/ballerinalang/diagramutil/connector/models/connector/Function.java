@@ -21,6 +21,7 @@ import com.google.gson.annotations.Expose;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Function model.
@@ -39,13 +40,15 @@ public class Function {
     @Expose
     public Map<String, String> displayAnnotation;
 
-    public Function(String name, List<Type> parameters, Type returnType,
-                       Map<String, String> displayAnnotation, boolean isRemote, String documentation) {
+    public Function(String name, List<Type> parameters, Optional<Type> returnType,
+                    Map<String, String> displayAnnotation, boolean isRemote, String documentation) {
         this.name = name;
         this.parameters = parameters;
-        this.returnType = returnType;
         this.displayAnnotation = displayAnnotation;
         this.isRemote = isRemote;
         this.documentation = documentation;
+        if (returnType.isPresent()) {
+            this.returnType = returnType.get();
+        }
     }
 }

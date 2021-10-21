@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.extensions.ballerina.connector;
 
 import org.ballerinalang.diagramutil.connector.models.connector.Connector;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,6 +34,8 @@ public class BallerinaConnectorListResponse {
     private List<Connector> local;
 
     public BallerinaConnectorListResponse() {
+        central = new ArrayList<Connector>();
+        local = new ArrayList<Connector>();
     }
 
     public BallerinaConnectorListResponse(List<Connector> central, List<Connector> local) {
@@ -45,7 +48,9 @@ public class BallerinaConnectorListResponse {
     }
 
     public void setCentralConnectors(List<Connector> central) {
-        this.central = central;
+        if (central != null && central.size() > 0) {
+            this.central = central;
+        }
     }
 
     public List<Connector> getLocalConnectors() {
@@ -53,6 +58,8 @@ public class BallerinaConnectorListResponse {
     }
 
     public void setLocalConnectors(List<Connector> local) {
-        this.local = local;
+        if (local != null && local.size() > 0) {
+            this.local = local;
+        }
     }
 }

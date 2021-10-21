@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Connector models test case.
@@ -44,7 +45,7 @@ public class TestConnectorModels {
         type.typeInfo = this.typeInfo;
 
         List<Type> parameters = Arrays.asList(type);
-        function = new Function(initFunc, parameters, type, null, false, documentation);
+        function = new Function(initFunc, parameters, Optional.empty(), null, false, documentation);
 
         List<Function> functions = Arrays.asList(function);
         connector = new Connector(orgName, moduleName, packageName, version, connectorName,

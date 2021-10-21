@@ -21,6 +21,7 @@ import com.google.gson.annotations.Expose;
 import org.ballerinalang.diagramutil.connector.models.connector.Type;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Record type model.
@@ -32,6 +33,15 @@ public class RecordType extends Type {
     public boolean hasRestType;
     @Expose
     public Type restType;
+
+    public RecordType(List<Type> fields, Optional<Type> restType) {
+        this.typeName = "record";
+        this.fields = fields;
+        if (restType.isPresent()) {
+            this.hasRestType = true;
+            this.restType = restType.get();
+        }
+    }
 
     public RecordType(List<Type> fields, Type restType) {
         this.typeName = "record";

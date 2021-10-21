@@ -20,6 +20,8 @@ package org.ballerinalang.diagramutil.connector.models.connector.types;
 import com.google.gson.annotations.Expose;
 import org.ballerinalang.diagramutil.connector.models.connector.Type;
 
+import java.util.Optional;
+
 /**
  * Stream type model.
  */
@@ -28,6 +30,16 @@ public class StreamType extends Type {
     public Type leftTypeParam;
     @Expose
     public Type rightTypeParam;
+
+    public StreamType(Optional<Type> leftTypeParam, Optional<Type> rightTypeParam) {
+        this.typeName = "stream";
+        if (leftTypeParam.isPresent()) {
+            this.leftTypeParam = leftTypeParam.get();
+        }
+        if (rightTypeParam.isPresent()) {
+            this.rightTypeParam = rightTypeParam.get();
+        }
+    }
 
     public StreamType(Type leftTypeParam, Type rightTypeParam) {
         this.typeName = "stream";

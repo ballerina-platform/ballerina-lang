@@ -63,6 +63,9 @@ import java.util.Optional;
  */
 public class ConnectorGenerator {
 
+    private ConnectorGenerator() {
+    }
+
     /**
      * Find connector implementations inside the project and generate metadata.
      *
@@ -153,7 +156,7 @@ public class ConnectorGenerator {
      * @param packageName   Package name
      * @param version       Version
      * @param moduleName    Module name
-     * @return
+     * @return List of connectors
      */
     public static List<Connector> getConnectorModelFromSyntaxTree(SyntaxTree syntaxTree, SemanticModel semanticModel,
                                                                   String orgName, String packageName, String version,
@@ -162,24 +165,30 @@ public class ConnectorGenerator {
         if (!syntaxTree.containsModulePart()) {
             return connectorsList;
         }
+
         ModulePartNode modulePartNode = syntaxTree.rootNode();
         for (Node node : modulePartNode.members()) {
             if (node.kind() == SyntaxKind.CLASS_DEFINITION) {
                 ClassDefinitionNode classDefinition = (ClassDefinitionNode) node;
-                if (classDefinition.visibilityQualifier().isPresent() && classDefinition.visibilityQualifier().get()
-                        .kind().equals(SyntaxKind.PUBLIC_KEYWORD) && Generator
-                        .containsToken(classDefinition.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD)) {
-                    String connectorName = classDefinition.className().text();
-                    String description = getDocFromMetadata(classDefinition.metadata());
-                    Map<String, String> connectorAnnotation =
-                            getDisplayAnnotationFromMetadataNode(classDefinition.metadata());
-                    if (connectorAnnotation != null && !connectorAnnotation.get("label").isEmpty()) {
-                        connectorName = connectorAnnotation.get("label");
-                    }
-                    List<Function> functions = getConnectorFunctions(semanticModel, classDefinition);
-                    connectorsList.add(new Connector(orgName, moduleName, packageName, version,
-                            connectorName, description, connectorAnnotation, functions));
+                if (!(classDefinition.visibilityQualifier().isPresent() &&
+                        classDefinition.visibilityQualifier().get().kind().equals(SyntaxKind.PUBLIC_KEYWORD) &&
+                        Generator.containsToken(classDefinition.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD))) {
+                    continue;
                 }
+
+                String connectorName = classDefinition.className().text();
+                String description = getDocFromMetadata(classDefinition.metadata());
+                Map<String, String> connectorAnnotation =
+                        getDisplayAnnotationFromMetadataNode(classDefinition.metadata());
+                if (!connectorAnnotation.isEmpty() && connectorAnnotation.containsKey("label") &&
+                        !connectorAnnotation.get("label").isEmpty()) {
+                    connectorName = connectorAnnotation.get("label");
+                }
+
+                List<Function> functions = getConnectorFunctions(semanticModel, classDefinition);
+                connectorsList.add(new Connector(orgName, moduleName, packageName, version,
+                        connectorName, description, connectorAnnotation, functions));
+
             }
         }
         return connectorsList;
@@ -197,27 +206,28 @@ public class ConnectorGenerator {
                     (Generator.containsToken(((FunctionDefinitionNode) member).qualifierList(),
                             SyntaxKind.PUBLIC_KEYWORD));
 
-            if (isRemoteFunction || isPublicFunction) {
-                FunctionDefinitionNode functionDefinition = (FunctionDefinitionNode) member;
-                List<Type> parameters =
-                        new ArrayList<>();
-
-                String functionName = functionDefinition.functionName().text();
-                Map<String, String> funcAnnotation =
-                        getDisplayAnnotationFromMetadataNode(functionDefinition.metadata());
-
-                FunctionSignatureNode functionSignature = functionDefinition.functionSignature();
-                parameters.addAll(getFunctionParameters(functionSignature.parameters(),
-                        functionDefinition.metadata(), semanticModel));
-
-                Type returnParam = null;
-                if (functionSignature.returnTypeDesc().isPresent()) {
-                    returnParam = getReturnParameter(functionSignature.returnTypeDesc().get(),
-                            functionDefinition.metadata(), semanticModel);
-                }
-                functions.add(new Function(functionName, parameters, returnParam, funcAnnotation,
-                        isRemoteFunction, getDocFromMetadata(functionDefinition.metadata())));
+            if (!(isRemoteFunction || isPublicFunction)) {
+                continue;
             }
+
+            FunctionDefinitionNode functionDefinition = (FunctionDefinitionNode) member;
+            List<Type> parameters = new ArrayList<>();
+
+            String functionName = functionDefinition.functionName().text();
+            Map<String, String> funcAnnotation =
+                    getDisplayAnnotationFromMetadataNode(functionDefinition.metadata());
+
+            FunctionSignatureNode functionSignature = functionDefinition.functionSignature();
+            parameters.addAll(getFunctionParameters(functionSignature.parameters(),
+                    functionDefinition.metadata(), semanticModel));
+
+            Optional<Type> returnParam = Optional.empty();
+            if (functionSignature.returnTypeDesc().isPresent()) {
+                returnParam = getReturnParameter(functionSignature.returnTypeDesc().get(),
+                        functionDefinition.metadata(), semanticModel);
+            }
+            functions.add(new Function(functionName, parameters, returnParam, funcAnnotation,
+                    isRemoteFunction, getDocFromMetadata(functionDefinition.metadata())));
         }
         return functions;
     }
@@ -228,19 +238,24 @@ public class ConnectorGenerator {
      * @param parameterNodes       Parameter node
      * @param optionalMetadataNode Metadata mode
      * @param semanticModel
-     * @return
+     * @return List of types
      */
     public static List<Type> getFunctionParameters(SeparatedNodeList<ParameterNode> parameterNodes,
                                                    Optional<MetadataNode> optionalMetadataNode,
                                                    SemanticModel semanticModel) {
         List<Type> parameters = new ArrayList<>();
+        Optional<Type> optionalParam;
         Type param;
 
         for (ParameterNode parameterNode : parameterNodes) {
             switch (parameterNode.kind()) {
                 case REQUIRED_PARAM:
                     RequiredParameterNode requiredParameterNode = (RequiredParameterNode) parameterNode;
-                    param = Type.fromSyntaxNode(requiredParameterNode.typeName(), semanticModel);
+                    optionalParam = Type.fromSyntaxNode(requiredParameterNode.typeName(), semanticModel);
+                    if (optionalParam.isEmpty()) {
+                        continue;
+                    }
+                    param = optionalParam.get();
                     param.name = requiredParameterNode.paramName().isPresent() ?
                             requiredParameterNode.paramName().get().text() : null;
                     param.displayAnnotation = getDisplayAnnotationFromAnnotationsList(
@@ -250,20 +265,28 @@ public class ConnectorGenerator {
                     break;
                 case DEFAULTABLE_PARAM:
                     DefaultableParameterNode defaultableParameter = (DefaultableParameterNode) parameterNode;
-                    param = Type.fromSyntaxNode(defaultableParameter.typeName(), semanticModel);
-                    if (param != null) {
-                        param.name = defaultableParameter.paramName().isPresent() ?
-                                defaultableParameter.paramName().get().text() : "";
-                        param.displayAnnotation = getDisplayAnnotationFromAnnotationsList(
-                                defaultableParameter.annotations());
-                        param.defaultValue = defaultableParameter.expression().toString();
-                        param.documentation = getParameterDocFromMetadataList(param.name, optionalMetadataNode);
-                        parameters.add(param);
+                    optionalParam = Type.fromSyntaxNode(defaultableParameter.typeName(), semanticModel);
+                    if (optionalParam.isEmpty()) {
+                        continue;
                     }
+                    param = optionalParam.get();
+
+                    param.name = defaultableParameter.paramName().isPresent() ?
+                            defaultableParameter.paramName().get().text() : "";
+                    param.displayAnnotation = getDisplayAnnotationFromAnnotationsList(
+                            defaultableParameter.annotations());
+                    param.defaultValue = defaultableParameter.expression().toString();
+                    param.documentation = getParameterDocFromMetadataList(param.name, optionalMetadataNode);
+                    parameters.add(param);
+
                     break;
                 case INCLUDED_RECORD_PARAM:
                     IncludedRecordParameterNode includedRecord = (IncludedRecordParameterNode) parameterNode;
-                    param = new InclusionType(Type.fromSyntaxNode(includedRecord.typeName(), semanticModel));
+                    optionalParam = Type.fromSyntaxNode(includedRecord.typeName(), semanticModel);
+                    if (optionalParam.isEmpty()) {
+                        continue;
+                    }
+                    param = new InclusionType(optionalParam.get());
                     param.name = includedRecord.paramName().isPresent() ?
                             includedRecord.paramName().get().text() : "";
                     param.displayAnnotation = getDisplayAnnotationFromAnnotationsList(includedRecord.annotations());
@@ -284,15 +307,20 @@ public class ConnectorGenerator {
      * @param returnTypeDescriptorNode Type descriptor node
      * @param optionalMetadataNode     Metadata node
      * @param semanticModel            Project semantic model
-     * @return
+     * @return Type
      */
-    public static Type getReturnParameter(ReturnTypeDescriptorNode returnTypeDescriptorNode,
-                                          Optional<MetadataNode> optionalMetadataNode,
-                                          SemanticModel semanticModel) {
-        Type parameter = Type.fromSyntaxNode(returnTypeDescriptorNode.type(), semanticModel);
-        parameter.displayAnnotation = getDisplayAnnotationFromAnnotationsList(returnTypeDescriptorNode.annotations());
-        parameter.documentation = getParameterDocFromMetadataList("return", optionalMetadataNode);
-        return parameter;
+    public static Optional<Type> getReturnParameter(ReturnTypeDescriptorNode returnTypeDescriptorNode,
+                                                    Optional<MetadataNode> optionalMetadataNode,
+                                                    SemanticModel semanticModel) {
+        Optional<Type> optionalParam = Type.fromSyntaxNode(returnTypeDescriptorNode.type(), semanticModel);
+        if (optionalParam.isPresent()) {
+            Type parameter = optionalParam.get();
+            parameter.displayAnnotation = getDisplayAnnotationFromAnnotationsList(
+                    returnTypeDescriptorNode.annotations());
+            parameter.documentation = getParameterDocFromMetadataList("return", optionalMetadataNode);
+            return Optional.of(parameter);
+        }
+        return Optional.empty();
     }
 
     /**
@@ -305,25 +333,26 @@ public class ConnectorGenerator {
         Map<String, String> displayAnnotation = new HashMap<>();
         Optional<AnnotationNode> optDisplayAnnotation = annotations.stream()
                 .filter(annotationNode -> annotationNode.annotReference().toString().equals("display ")).findAny();
-        if (optDisplayAnnotation.isPresent() && optDisplayAnnotation.get().annotValue().isPresent()) {
-            Map<String, String> finalDisplayAnnotation = displayAnnotation;
-            optDisplayAnnotation.get().annotValue().get().fields().forEach(mappingFieldNode -> {
-                if (mappingFieldNode.kind() == SyntaxKind.SPECIFIC_FIELD) {
-                    SpecificFieldNode fieldNode = (SpecificFieldNode) mappingFieldNode;
-                    if (fieldNode.fieldName().toString().equals("label") ||
-                            fieldNode.fieldName().toString().equals("iconPath")) {
-                        finalDisplayAnnotation.put(fieldNode.fieldName().toString(),
-                                fieldNode.valueExpr().isPresent() ?
-                                        fieldNode.valueExpr().get().toSourceCode().replace("\"", "") : "");
-                    } else {
-                        finalDisplayAnnotation.put(fieldNode.fieldName().toString(),
-                                fieldNode.valueExpr().isPresent() ?
-                                        fieldNode.valueExpr().get().toSourceCode() : "");
-                    }
-                }
-            });
-            displayAnnotation = finalDisplayAnnotation;
+        if (!(optDisplayAnnotation.isPresent() && optDisplayAnnotation.get().annotValue().isPresent())) {
+            return displayAnnotation;
         }
+
+        optDisplayAnnotation.get().annotValue().get().fields().forEach(mappingFieldNode -> {
+            if (mappingFieldNode.kind() == SyntaxKind.SPECIFIC_FIELD) {
+                SpecificFieldNode fieldNode = (SpecificFieldNode) mappingFieldNode;
+                if (fieldNode.fieldName().toString().equals("label") ||
+                        fieldNode.fieldName().toString().equals("iconPath")) {
+                    displayAnnotation.put(fieldNode.fieldName().toString(),
+                            fieldNode.valueExpr().isPresent() ?
+                                    fieldNode.valueExpr().get().toSourceCode().replace("\"", "") : "");
+                } else {
+                    displayAnnotation.put(fieldNode.fieldName().toString(),
+                            fieldNode.valueExpr().isPresent() ?
+                                    fieldNode.valueExpr().get().toSourceCode() : "");
+                }
+            }
+        });
+
         return displayAnnotation;
     }
 
@@ -331,22 +360,21 @@ public class ConnectorGenerator {
      * Get display annotation form metadata node.
      *
      * @param optionalMetadataNode Metadata node
-     * @return
+     * @return Display annotation map
      */
     public static Map<String, String> getDisplayAnnotationFromMetadataNode(
             Optional<MetadataNode> optionalMetadataNode) {
-        Map<String, String> displayAnnotation = Collections.emptyMap();
         if (optionalMetadataNode.isPresent()) {
-            displayAnnotation = getDisplayAnnotationFromAnnotationsList(optionalMetadataNode.get().annotations());
+            return getDisplayAnnotationFromAnnotationsList(optionalMetadataNode.get().annotations());
         }
-        return displayAnnotation;
+        return Collections.emptyMap();
     }
 
     /**
      * Get doc info from metadata node.
      *
      * @param optionalMetadataNode Metadata node
-     * @return
+     * @return Document text
      */
     private static String getDocFromMetadata(Optional<MetadataNode> optionalMetadataNode) {
         if (optionalMetadataNode.isEmpty()) {

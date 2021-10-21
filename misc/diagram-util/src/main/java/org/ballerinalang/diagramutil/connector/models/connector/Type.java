@@ -38,6 +38,7 @@ import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeParamsNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import org.ballerinalang.diagramutil.connector.models.connector.types.ArrayType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.EnumType;
@@ -58,6 +59,7 @@ import java.util.Optional;
  */
 public class Type {
 
+    static ArrayList<Integer> parentSymbols = new ArrayList<Integer>();
     @Expose
     public String name;
     @Expose
@@ -73,10 +75,8 @@ public class Type {
     @Expose
     public String documentation;
 
-    static ArrayList<Integer> parentSymbols = new ArrayList<Integer>();
-
-    public static Type fromSyntaxNode(Node node, SemanticModel semanticModel) {
-        Type type = null;
+    public static Optional<Type> fromSyntaxNode(Node node, SemanticModel semanticModel) {
+        Optional<Type> type = Optional.empty();
 
         switch (node.kind()) {
             case SIMPLE_NAME_REFERENCE:
@@ -88,54 +88,73 @@ public class Type {
                 }
                 if (optSymbol != null && optSymbol.isPresent()) {
                     Symbol symbol = optSymbol.get();
-                    type = fromSemanticSymbol(symbol);
+                    type = Optional.of(fromSemanticSymbol(symbol));
                     parentSymbols.clear();
                 }
                 break;
             case OPTIONAL_TYPE_DESC:
                 OptionalTypeDescriptorNode optionalTypeDescriptorNode = (OptionalTypeDescriptorNode) node;
                 type = fromSyntaxNode(optionalTypeDescriptorNode.typeDescriptor(), semanticModel);
-                type.optional = true;
+                if (type.isPresent()) {
+                    Type optionalType = type.get();
+                    optionalType.optional = true;
+                    type = Optional.of(optionalType);
+                }
                 break;
             case UNION_TYPE_DESC:
                 UnionType unionType = new UnionType();
                 flattenUnionNode(node, semanticModel, unionType.members);
-                type = unionType;
+                type = Optional.of(unionType);
                 break;
             case INTERSECTION_TYPE_DESC:
                 IntersectionType intersectionType = new IntersectionType();
                 flattenIntersectionNode(node, semanticModel, intersectionType.members);
-                type = intersectionType;
+                type = Optional.of(intersectionType);
                 break;
             case ARRAY_TYPE_DESC:
                 ArrayTypeDescriptorNode arrayTypeDescriptorNode = (ArrayTypeDescriptorNode) node;
-                type = new ArrayType(fromSyntaxNode(arrayTypeDescriptorNode.memberTypeDesc(), semanticModel));
+                Optional<Type> syntaxNode = fromSyntaxNode(arrayTypeDescriptorNode.memberTypeDesc(), semanticModel);
+                if (syntaxNode.isPresent()) {
+                    type = Optional.of(new ArrayType(syntaxNode.get()));
+                }
                 break;
             case STREAM_TYPE_DESC:
                 StreamTypeDescriptorNode streamNode = (StreamTypeDescriptorNode) node;
                 StreamTypeParamsNode streamParams = streamNode.streamTypeParamsNode().isPresent() ?
                         (StreamTypeParamsNode) streamNode.streamTypeParamsNode().get() : null;
-                Type leftParam = null, rightParam = null;
+                Optional<Type> leftParam = Optional.empty();
+                Optional<Type> rightParam = Optional.empty();
                 if (streamParams != null) {
                     leftParam = fromSyntaxNode(streamParams.leftTypeDescNode(), semanticModel);
                     if (streamParams.rightTypeDescNode().isPresent()) {
                         rightParam = fromSyntaxNode(streamParams.rightTypeDescNode().get(), semanticModel);
                     }
                 }
-                type = new StreamType(leftParam, rightParam);
+                type = Optional.of(new StreamType(leftParam, rightParam));
                 break;
             case RECORD_TYPE_DESC:
                 RecordTypeDescriptorNode recordNode = (RecordTypeDescriptorNode) node;
                 List<Type> fields = new ArrayList<>();
-                recordNode.fields().forEach(node1 -> fields.add(fromSyntaxNode(node1, semanticModel)));
-                Type restType = recordNode.recordRestDescriptor().isPresent() ?
-                        fromSyntaxNode(recordNode.recordRestDescriptor().get().typeName(), semanticModel) : null;
-                type = new RecordType(fields, restType);
+                recordNode.fields().forEach(node1 -> {
+                    Optional<Type> optionalType = fromSyntaxNode(node1, semanticModel);
+                    if (optionalType.isPresent()) {
+                        fields.add(optionalType.get());
+                    }
+                });
+
+                Optional<Type> restType = recordNode.recordRestDescriptor().isPresent() ?
+                        fromSyntaxNode(recordNode.recordRestDescriptor().get().typeName(), semanticModel) :
+                        Optional.empty();
+                type = Optional.of(new RecordType(fields, restType));
                 break;
             case RECORD_FIELD:
                 RecordFieldNode recordField = (RecordFieldNode) node;
                 type = fromSyntaxNode(recordField.typeName(), semanticModel);
-                type.name = recordField.fieldName().text();
+                if (type.isPresent()) {
+                    Type recordType = type.get();
+                    recordType.name = recordField.fieldName().text();
+                    type = Optional.of(recordType);
+                }
                 break;
             // TODO: Check syntax tree compatible version for ErrorTypeDescriptorNode.
 //            case ERROR_TYPE_DESC:
@@ -146,9 +165,9 @@ public class Type {
                 if (node instanceof BuiltinSimpleNameReferenceNode) {
                     BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode =
                             (BuiltinSimpleNameReferenceNode) node;
-                    type = new PrimitiveType(builtinSimpleNameReferenceNode.name().text());
+                    type = Optional.of(new PrimitiveType(builtinSimpleNameReferenceNode.name().text()));
                 } else {
-                    type = new PrimitiveType(node.toSourceCode());
+                    type = Optional.of(new PrimitiveType(node.toSourceCode()));
                 }
                 break;
         }
@@ -157,23 +176,29 @@ public class Type {
     }
 
     public static void flattenUnionNode(Node node, SemanticModel semanticModel, List<Type> fields) {
-        if (node instanceof UnionTypeDescriptorNode) {
+        if (node.kind() == SyntaxKind.UNION_TYPE_DESC) {
             UnionTypeDescriptorNode unionTypeNode = (UnionTypeDescriptorNode) node;
             flattenUnionNode(unionTypeNode.leftTypeDesc(), semanticModel, fields);
             flattenUnionNode(unionTypeNode.rightTypeDesc(), semanticModel, fields);
             return;
         }
-        fields.add(fromSyntaxNode(node, semanticModel));
+        Optional<Type> optionalType = fromSyntaxNode(node, semanticModel);
+        if (optionalType.isPresent()) {
+            fields.add(optionalType.get());
+        }
     }
 
     public static void flattenIntersectionNode(Node node, SemanticModel semanticModel, List<Type> fields) {
-        if (node instanceof IntersectionTypeDescriptorNode) {
+        if (node.kind() == SyntaxKind.INTERSECTION_TYPE_DESC) {
             IntersectionTypeDescriptorNode intersectionTypeNode = (IntersectionTypeDescriptorNode) node;
             flattenUnionNode(intersectionTypeNode.leftTypeDesc(), semanticModel, fields);
             flattenUnionNode(intersectionTypeNode.rightTypeDesc(), semanticModel, fields);
             return;
         }
-        fields.add(fromSyntaxNode(node, semanticModel));
+        Optional<Type> optionalType = fromSyntaxNode(node, semanticModel);
+        if (optionalType.isPresent()) {
+            fields.add(optionalType.get());
+        }
     }
 
     public static Type fromSemanticSymbol(Symbol symbol) {
