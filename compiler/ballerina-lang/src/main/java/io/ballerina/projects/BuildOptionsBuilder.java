@@ -66,7 +66,7 @@ public class BuildOptionsBuilder {
     }
 
     public BuildOptionsBuilder offline(Boolean value) {
-        compilationOptionsBuilder.buildOffline(value);
+        compilationOptionsBuilder.offline(value);
         return this;
     }
 
@@ -90,8 +90,18 @@ public class BuildOptionsBuilder {
         return this;
     }
 
-    public BuildOptionsBuilder dumpBirFile(String value) {
+    public BuildOptionsBuilder dumpBirFile(Boolean value) {
         compilationOptionsBuilder.dumpBirFile(value);
+        return this;
+    }
+
+    public BuildOptionsBuilder dumpGraph(Boolean value) {
+        compilationOptionsBuilder.dumpGraph(value);
+        return this;
+    }
+
+    public BuildOptionsBuilder dumpRawGraphs(Boolean value) {
+        compilationOptionsBuilder.dumpRawGraphs(value);
         return this;
     }
 

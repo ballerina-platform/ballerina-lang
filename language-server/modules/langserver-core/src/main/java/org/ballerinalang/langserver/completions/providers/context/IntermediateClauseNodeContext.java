@@ -59,5 +59,7 @@ public abstract class IntermediateClauseNodeContext<T extends IntermediateClause
      * @param node Node related to the context
      * @return Optional node which is the last node in the clause
      */
-    protected abstract Optional<Node> getLastNodeOfClause(T node);
+    protected Optional<Node> getLastNodeOfClause(T node) {
+        return Optional.empty();
+    }
 }
