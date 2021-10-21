@@ -27,6 +27,7 @@ import org.ballerinalang.diagramutil.DiagramUtil;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
+import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -50,8 +51,10 @@ public class PartialParserService implements ExtendedLanguageServerService {
             PartialSTResponse response = new PartialSTResponse();
             NodeList<StatementNode> s = NodeParser.parseStatements(request.getCodeSnippet());
 
-            JsonElement subSyntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(s.get(0));
-            response.setSyntaxTree(subSyntaxTreeJSON);
+            ArrayList<JsonElement> elements = new ArrayList<>();
+            s.forEach(e -> elements.add(DiagramUtil.getSyntaxTreeJSON(e)));
+
+            response.setSyntaxTree(elements);
             return response;
         });
     }
