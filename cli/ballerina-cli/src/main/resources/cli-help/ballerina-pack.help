@@ -7,7 +7,7 @@ SYNOPSIS
        bal pack [--test-report] [--offline] [--experimental] [--dump-build-time]
                   <ballerina-file-path>
        bal pack [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
-                 [--skip-tests] [--list-conflicted-classes] <ballerina-package-path>
+                 [--with-tests] [--list-conflicted-classes] <ballerina-package-path>
        bal pack [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
                  [--list-conflicted-classes] [--debug]  [--test-report] [--code-coverage]
                  <ballerina-package-path>
@@ -25,8 +25,8 @@ OPTIONS
             Pack offline using the local artifacts without downloading the latest artifacts of
             the dependencies from the remote repository (Ballerina Central).
 
-       --skip-tests
-           Skip test compilation and execution.
+       --with-tests
+            Compile and execute tests.
 
        --experimental
            Enable experimental language features.
@@ -42,7 +42,7 @@ OPTIONS
            if code coverage is enabled.
 
        --debug
-           Run tests in remote debugging mode only when the '--skip-tests' flag is not used.
+           Run tests in remote debugging mode.
 
        --dump-build-time
             Calculate and dump build time.
@@ -60,9 +60,9 @@ EXAMPLES
 
        Pack the current package and generate the test report. This will generate an
        HTML test report in addition to the executable JAR files.
-          $ bal pack --test-report
+          $ bal pack --with-tests --test-report
 
        Pack the current package and generate the test report with
        the code coverage information. This will add an additional section
        to the test report for code coverage information.
-          $ bal pack --code-coverage
+          $ bal pack --with-tests --code-coverage

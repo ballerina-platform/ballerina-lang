@@ -8,7 +8,7 @@ SYNOPSIS
        bal build [--test-report] [--offline] [--experimental] [-o | --output] <output-path> [--dump-build-time]
                   <ballerina-file-path>
        bal build [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
-                 [--skip-tests] [--list-conflicted-classes] <ballerina-package-path>
+                 [--with-tests] [--list-conflicted-classes] <ballerina-package-path>
        bal build [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
                  [--list-conflicted-classes] [--debug]  [--test-report] [--code-coverage]
                  <ballerina-package-path>
@@ -84,9 +84,9 @@ EXAMPLES
 
        Build the current package and generate the test report. This will generate an
        HTML test report in addition to the executable JAR files.
-          $ bal build --test-report
+          $ bal build --with-tests --test-report
 
        Build the current package and generate the test report with
        the code coverage information. This will add an additional section
        to the test report for code coverage information.
-          $ bal build --code-coverage
+          $ bal build --with-tests --code-coverage

@@ -46,13 +46,14 @@ public class PackCommand implements BLauncherCmd {
     private final PrintStream errStream;
     private boolean exitWhenFinish;
     private boolean skipCopyLibsFromDist;
+    private Boolean skipTests;
 
     @CommandLine.Option(names = {"--offline"}, description = "Build/Compile offline without downloading " +
             "dependencies.")
     private Boolean offline;
 
-    @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
-    private Boolean skipTests;
+    @CommandLine.Option(names = {"--with-tests"}, description = "Run test compilation and execution.")
+    private Boolean withTests;
 
     @CommandLine.Parameters (arity = "0..1")
     private final Path projectPath;
@@ -129,6 +130,11 @@ public class PackCommand implements BLauncherCmd {
 
         if (sticky == null) {
             sticky = false;
+        }
+
+        // If withTests flag is not provided, we change the skipTests flag accordingly
+        if (withTests != null) {
+            this.skipTests = !withTests;
         }
 
         BuildOptions buildOptions = constructBuildOptions();
@@ -317,7 +323,7 @@ public class PackCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal pack [--offline] [--skip-tests]\\n\" +\n" + "            \"       [<package-path>]");
+        out.append("  bal pack [--offline] [--with-tests]\\n\" +\n" + "            \"       [<package-path>]");
     }
 
     @Override
