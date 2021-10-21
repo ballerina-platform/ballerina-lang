@@ -55,7 +55,11 @@
             }
           },
           "scope": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^testOnly$",
+            "message": {
+              "pattern": "invalid 'scope' under [[package]]: 'scope' can only contain value 'testOnly'"
+            }
           },
           "transitive": {
             "type": "boolean"

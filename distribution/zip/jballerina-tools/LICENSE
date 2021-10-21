@@ -26,7 +26,6 @@ ballerina-lang.decimal-1.0.0-java.jar                                           
 ballerina-email-0.6.0-java.jar                                                                      jar            apache2
 ballerina-crypto-1.0.0-java.jar                                                                     jar            apache2
 metrics-core-3.1.0.jar                                                                              bundle         apache2
-bcpkix-jdk15on-1.61.jar                                                                             bundle         bouncy
 ballerina-io-0.5.0-java.jar                                                                         jar            apache2
 ballerina-stringutils-0.5.0-java.jar                                                                jar            apache2
 org.wso2.carbon.metrics.core-2.3.7.jar                                                              bundle         apache2
@@ -46,7 +45,6 @@ ballerina-lang.string-1.1.0.jar                                                 
 ballerina-lang.transaction-0.0.1.jar                                                                jar            apache2
 proto-google-common-protos-1.17.0.jar                                                               jar            apache2
 woodstox-core-asl-4.2.0.jar                                                                         bundle         apache2
-bcprov-jdk15on-1.61.jar                                                                             bundle         bouncy
 ballerina-openapi-0.5.0-java.jar                                                                    jar            apache2
 broker-rest-runner-0.970.0.jar                                                                      bundle         apache2
 ballerina-metrics-extension-2.0.0-Preview1.jar                                                      jar            apache2
@@ -163,7 +161,7 @@ progressbar-0.7.4.jar                                                           
 okhttp-3.9.1.jar                                                                                    jar            apache2
 geronimo-json_1.0_spec-1.0-alpha-1.jar                                                              bundle         apache2
 ballerina-ldap-1.0.0-java.jar                                                                       jar            apache2
-ballerina-observe-0.8.0-java.jar                                                                    jar            apache2
+ballerina-observe-1.0.0-java.jar                                                                    jar            apache2
 ballerina-http-1.0.0-java.jar                                                                       jar            apache2
 socket-test-utils-0.6.2.jar                                                                         jar            apache2
 ballerina-sql-0.5.0-java.jar                                                                        jar            apache2
@@ -203,7 +201,6 @@ ballerina-math-1.0.0.jar                                                        
 org.wso2.carbon.core-5.1.0.jar                                                                      bundle         apache2
 language-server-compiler-2.0.0-Preview1.jar                                                         jar            apache2
 netty-codec-4.1.39.Final.jar                                                                        bundle         apache2
-netty-tcnative-boringssl-static-2.0.25.Final.jar                                                    bundle         apache2
 ballerina-io-0.5.0.jar                                                                              jar            apache2
 ballerina-nats-1.0.0.jar                                                                            jar            apache2
 jline-3.11.0.jar                                                                                    bundle         bsd3
@@ -230,7 +227,7 @@ ballerina-lang.stream-0.4.0-java.jar                                            
 ballerina-task-1.1.0-java.jar                                                                       jar            apache2
 ballerina-jwt-1.0.0-java.jar                                                                        jar            apache2
 ballerina-lang.boolean-1.0.0-java.jar                                                               jar            apache2
-ballerina-observe-0.8.0.jar                                                                         jar            apache2
+ballerina-observe-1.0.0.jar                                                                         jar            apache2
 ballerina-core-2.0.0-Preview1.jar                                                                   jar            apache2
 protobuf-ballerina-2.0.0-Preview1.jar                                                               jar            apache2
 netty-codec-http2-4.1.59.Final.jar                                                                  bundle         apache2

@@ -238,6 +238,15 @@ type Address record {
     string city;
 };
 
+type AddressWithProvince record {
+    string street;
+    int houseNo;
+    string city;
+    string province;
+};
+
+type E 100|200;
+
 function testMatchClauseWithTypeGuard7() {
     Person person = {name: "John", age: 12, address: {street: "Main Street", houseNo:10, city: "Colombo",
                     "country": "Sri Lanka"}};
@@ -247,7 +256,7 @@ function testMatchClauseWithTypeGuard7() {
     Person newPerson = person;
 
     match person {
-        {name: var a, ...var b} if a is string && b is record {|int age; string address;|} => {
+        {name: var a, ...var b} if a is string && b is record {|int age; AddressWithProvince address;|} => {
             matched = "Pattern1";
             age = b.age;
             street = b.address.street;
@@ -257,7 +266,7 @@ function testMatchClauseWithTypeGuard7() {
             age = b.age;
             street = b.address.street;
             match b {
-                {age: var c, address: var d} if age is 10 && d.houseNo is D => {
+                {age: var c, address: var d} if age is 10 && d.houseNo is E => {
                     matched += " Pattern3";
                     newPerson = {name: a, age: c, address: d};
                 }

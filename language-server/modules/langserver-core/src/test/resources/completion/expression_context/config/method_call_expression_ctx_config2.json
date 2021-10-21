@@ -638,6 +638,15 @@
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function (..) {..}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AS",
+      "filterText": "function",
+      "insertText": "function (int i) returns int {\n    return 0;\n}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
