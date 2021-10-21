@@ -67,7 +67,7 @@ public class CompletionUtil {
         TextDocument textDocument = suspendedContext.getDocument().textDocument();
         List<String> lines = Arrays.asList(textDocument.toString().split(System.lineSeparator()));
 
-        if (node != null && node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK) {
+        if (node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK) {
             int nodeStartLine = node.lineRange().startLine().line();
             int nodeEndLine = node.lineRange().endLine().line();
 
@@ -83,7 +83,7 @@ public class CompletionUtil {
                         + lineContent.substring(startLineOffSet);
                 lines.set(nodeEndLine, lineContent);
             }
-        } else if (args != null && node != null && lineNumber > 0) {
+        } else {
             int nodeStartLine = node.lineRange().startLine().line();
             String lineContent = lines.get(nodeStartLine);
             int startLineOffSet = node.lineRange().startLine().offset();
