@@ -6866,10 +6866,10 @@ public class Desugar extends BLangNodeVisitor {
          * int? x = 3;
          * int? y = 5;
          * int? z = x + y;
-         * Above is desugar to
+         * Above is desugared to
          * int? $result$;
-         * if (x is null or y is null) {
-         *    $result$ = null;
+         * if (x is () or y is ()) {
+         *    $result$ = ();
          * } else {
          *    $result$ = x + y;
          * }
@@ -7176,19 +7176,19 @@ public class Desugar extends BLangNodeVisitor {
         result = rewriteExpr(binaryExpr);
     }
 
-    private BLangStatementExpression createStmtExprForNullableUnaryExpr(BLangUnaryExpr unaryExpr) {
+    private BLangStatementExpression createStmtExprForNilableUnaryExpr(BLangUnaryExpr unaryExpr) {
         /*
          * int? x = 3;
          * int? y = +x;
+         *
          * Above is desugared to
          * int? $result$;
          * if (x is ()) {
-         *    $result$ = null;
+         *    $result$ = ();
          * } else {
          *    $result$ = +x;
          * }
-         * y = $result$
-         *
+         * int y = $result$
          */
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(unaryExpr.pos);
 
@@ -7216,10 +7216,9 @@ public class Desugar extends BLangNodeVisitor {
         BLangAssignment bLangAssignmentElse = ASTBuilderUtil.createAssignmentStmt(unaryExpr.pos, elseBody);
         bLangAssignmentElse.varRef = tempVarRef;
 
-        BLangUnaryExpr newUnaryExpr = ASTBuilderUtil.createUnaryExpr(unaryExpr.pos, unaryExpr.expr,
-                nilLiftType, unaryExpr.operator, unaryExpr.opSymbol);
-        newUnaryExpr.expr = createTypeCastExpr(newUnaryExpr.expr, nilLiftType);
-        bLangAssignmentElse.expr = newUnaryExpr;
+        BLangExpression expr = createTypeCastExpr(unaryExpr.expr, nilLiftType);
+        bLangAssignmentElse.expr = ASTBuilderUtil.createUnaryExpr(unaryExpr.pos, expr,
+                                                                  nilLiftType, unaryExpr.operator, unaryExpr.opSymbol);
 
         BLangIf ifStatement = ASTBuilderUtil.createIfStmt(unaryExpr.pos, blockStmt);
         ifStatement.expr = typeTestExpr;

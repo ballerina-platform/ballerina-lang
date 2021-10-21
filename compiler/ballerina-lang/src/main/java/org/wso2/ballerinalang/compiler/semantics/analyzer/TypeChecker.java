@@ -4097,8 +4097,7 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(binaryExpr, actualType, expType);
     }
 
-    private boolean checkExpectedTypeNillableFloatOrDecimal(BLangBinaryExpr binaryExpr) {
-        BType expectedType = binaryExpr.expectedType;
+    private boolean isOptionalFloatOrDecimal(BType type) {
         if (expectedType.tag == TypeTags.UNION && expectedType.isNullable() && expectedType.tag != TypeTags.ANY) {
             Iterator<BType> memberTypeIterator = ((BUnionType) expectedType).getMemberTypes().iterator();
             while (memberTypeIterator.hasNext()) {

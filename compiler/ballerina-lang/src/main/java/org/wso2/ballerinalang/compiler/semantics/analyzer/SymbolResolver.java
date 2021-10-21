@@ -2024,7 +2024,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 for (int i = 0; i < typeList.size(); i++) {
                     if ((typeList.get(i).getKind() == TypeKind.UNION) &&
                             (opType.paramTypes.get(i).getKind() == TypeKind.UNION)) {
-                        if (!types.isSameType(typeList.get(i), opType.paramTypes.get(i))) {
+                        if (!this.types.isSameType(typeList.get(i), opType.paramTypes.get(i))) {
                             match = false;
                         }
                     } else if (typeList.get(i).tag != opType.paramTypes.get(i).tag) {
