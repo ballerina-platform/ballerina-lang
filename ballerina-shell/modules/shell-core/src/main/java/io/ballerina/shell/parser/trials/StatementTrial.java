@@ -18,11 +18,11 @@
 
 package io.ballerina.shell.parser.trials;
 
-import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.StatementNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.shell.parser.TrialTreeParser;
 
 import java.util.ArrayList;
@@ -59,7 +59,7 @@ public class StatementTrial extends DualTreeParserTrial {
             }
         }
         for (Node node: statementNodes) {
-            if (node instanceof ExpressionStatementNode) {
+            if (node.kind() == SyntaxKind.CALL_STATEMENT) {
                 String sourceCode = node.toSourceCode();
                 node = NodeParser.parseExpression(sourceCode);
                 if (node.hasDiagnostics()) {
