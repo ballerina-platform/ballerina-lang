@@ -67,6 +67,7 @@ public class BuildCommand implements BLauncherCmd {
     private final PrintStream errStream;
     private boolean exitWhenFinish;
     private boolean skipCopyLibsFromDist;
+    private Boolean skipTests;
 
     public BuildCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -74,6 +75,7 @@ public class BuildCommand implements BLauncherCmd {
         this.errStream = System.err;
         this.exitWhenFinish = true;
         this.skipCopyLibsFromDist = false;
+        this.skipTests = true;
     }
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean dumpBuildTime) {
@@ -140,8 +142,8 @@ public class BuildCommand implements BLauncherCmd {
                                                               "dependencies.")
     private Boolean offline;
 
-    @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
-    private Boolean skipTests;
+    @CommandLine.Option(names = {"--with-tests"}, description = "Run test compilation and execution.")
+    private Boolean withTests;
 
     @CommandLine.Parameters (arity = "0..1")
     private final Path projectPath;
@@ -167,7 +169,7 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
     private String debugPort;
 
-    private static final String buildCmd = "bal build [-o <output>] [--offline] [--skip-tests] [--taint-check]\n" +
+    private static final String buildCmd = "bal build [-o <output>] [--offline] [--with-tests] [--taint-check]\n" +
             "                    [<ballerina-file | package-path>]";
 
     @CommandLine.Option(names = "--test-report", description = "enable test report generation")
@@ -222,6 +224,11 @@ public class BuildCommand implements BLauncherCmd {
 
         if (sticky == null) {
             sticky = false;
+        }
+
+        // If withTests flag is not provided, we change the skipTests flag accordingly
+        if (withTests != null) {
+            this.skipTests = !withTests;
         }
 
         BuildOptions buildOptions = constructBuildOptions();
@@ -454,7 +461,7 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal build [-o <output>] [--offline] [--skip-tests]\\n\" +\n" +
+        out.append("  bal build [-o <output>] [--offline] [--with-tests]\\n\" +\n" +
                 "            \"                    [<ballerina-file | package-path>]");
     }
 
