@@ -771,8 +771,7 @@ public class BallerinaLexer extends AbstractLexer {
                     lookahead++;
                 }
 
-                lookaheadChar = reader.peek(lookahead);
-                return isIdentifierInitialChar(lookaheadChar);
+                break;
             case 'd':
             case 'D':
             case 'f':
@@ -784,7 +783,7 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         lookaheadChar = reader.peek(lookahead);
-        return isIdentifierInitialChar(lookaheadChar);
+        return isIdentifierFollowingChar(lookaheadChar);
     }
 
     /**
@@ -820,11 +819,9 @@ public class BallerinaLexer extends AbstractLexer {
                     lookahead++;
                     lookaheadChar = reader.peek(lookahead);
                 }
-
-                return isIdentifierInitialChar(lookaheadChar);
         }
 
-        return isIdentifierInitialChar(lookaheadChar);
+        return isIdentifierFollowingChar(lookaheadChar);
     }
 
     /**
