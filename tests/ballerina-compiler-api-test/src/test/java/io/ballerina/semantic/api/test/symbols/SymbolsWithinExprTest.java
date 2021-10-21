@@ -37,6 +37,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
@@ -221,7 +222,7 @@ public class SymbolsWithinExprTest {
         return new Object[][]{
                 {73, 8, FUNCTION, "rand"},
                 {73, 13, VARIABLE, "hundred"},
-//                {73, 22, PARAMETER, "y"}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32807
+                {73, 22, PARAMETER, "y"},
                 {74, 8, FUNCTION, "rand"},
                 {74, 13, VARIABLE, "hundred"},
                 {74, 22, CONSTANT, "PI"},
@@ -245,7 +246,7 @@ public class SymbolsWithinExprTest {
                 {83, 24, TYPE, "Error1"},
                 {83, 31, VARIABLE, "msg"},
                 {83, 36, VARIABLE, "c"},
-//                {83, 39, RECORD_FIELD, "code"}, TODO: github.com/ballerina-platform/ballerina-lang/issues/32808
+                {83, 39, RECORD_FIELD, "code"},
                 {83, 46, VARIABLE, "hundred"},
                 {84, 24, TYPE, "Error2"},
                 {84, 39, null, null},
