@@ -19,6 +19,7 @@ import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -60,6 +61,7 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATO
  * @since 2.0.0
  */
 public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActionProvider {
+
     protected static final int DIAG_PROPERTY_NAME_INDEX = 0;
     protected static final int DIAG_PROPERTY_SYMBOL_INDEX = 1;
 
@@ -68,7 +70,7 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
             DiagnosticErrorCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_SERVICE_DECL.diagnosticId(),
             DiagnosticErrorCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_OBJECT_CTOR.diagnosticId()
     );
-    
+
     /**
      * Create a diagnostic based code action provider.
      */
@@ -88,9 +90,9 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
     /**
      * Returns a list of text edits based on diagnostics.
      *
-     * @param diagnostic diagnostic to evaluate
-     * @param positionDetails   {@link DiagBasedPositionDetails}
-     * @param context    language server context
+     * @param diagnostic      diagnostic to evaluate
+     * @param positionDetails {@link DiagBasedPositionDetails}
+     * @param context         language server context
      * @return list of Text Edits
      */
     public static List<TextEdit> getDiagBasedTextEdits(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
@@ -147,7 +149,7 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
         String offsetStr;
         int enclosingNodeOffset;
         int closeBraceOffset = editPosition.offset();
-        Optional<Token> closeBraceToken = findCloseBraceTokenOfIntermediateNode(matchedNode.get());
+        Optional<Token> closeBraceToken = findCloseBraceTokenOfEnclosingNode(matchedNode.get());
         enclosingNodeOffset = closeBraceToken.map(token -> token.lineRange().startLine().offset()).orElse(0);
         if (!concreteMethods.isEmpty()) {
             // If other methods exists, inherit offset
@@ -183,7 +185,7 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
                 }
             }
         }
-        
+
         int padding = 4;
         String paddingStr = StringUtils.repeat(" ", padding);
         StringBuilder editText = new StringBuilder();
@@ -207,19 +209,19 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
     }
 
     /**
-     * Given a Node finds the immediate enclosing block node.
+     * Given a node, finds the close brace token of the immediate enclosing block node.
      *
-     * @param node current node.
-     * @return {@link NonTerminalNode} enclosing block node.
+     * @param node node.
+     * @return {@link Optional<Token>} close brace token.
      */
-    protected static Optional<Token> findCloseBraceTokenOfIntermediateNode(Node node) {
+    protected static Optional<Token> findCloseBraceTokenOfEnclosingNode(Node node) {
         NonTerminalNode referenceNode = node.parent();
         while (referenceNode != null) {
             if (referenceNode.kind() == SyntaxKind.FUNCTION_BODY_BLOCK) {
                 return Optional.of(((FunctionBodyBlockNode) referenceNode).closeBraceToken());
             }
             if (referenceNode.kind() == SyntaxKind.BLOCK_STATEMENT) {
-                return Optional.of(((FunctionBodyBlockNode) referenceNode).closeBraceToken());
+                return Optional.of(((BlockStatementNode) referenceNode).closeBraceToken());
             }
             referenceNode = referenceNode.parent();
         }
