@@ -75,6 +75,7 @@ public class DiagBasedPositionDetailsImpl implements DiagBasedPositionDetails {
         }
 
         DiagnosticProperty<?> diagnosticProperty = props.get(propertyIndex);
-        return Optional.of((T) diagnosticProperty.value());
+        // Nullable static API used for safety
+        return Optional.ofNullable((T) diagnosticProperty.value());
     }
 }
