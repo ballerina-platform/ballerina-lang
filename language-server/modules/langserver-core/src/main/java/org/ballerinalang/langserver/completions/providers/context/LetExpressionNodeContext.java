@@ -23,7 +23,10 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.eclipse.lsp4j.CompletionItem;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -42,7 +45,21 @@ public class LetExpressionNodeContext extends AbstractCompletionProvider<LetExpr
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, LetExpressionNode node) 
             throws LSCompletionException {
-        return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_IN.get()));
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        if (node.letVarDeclarations().isEmpty()) {
+            /*
+            Covers the following context
+            eg: let <cursor>
+             */
+            completionItems.addAll(this.getTypeDescContextItems(context));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IN.get()));
+        }
+        if (!node.letVarDeclarations().isEmpty() && node.inKeyword().isMissing()) {
+            return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_IN.get()));
+        }
+
+        this.sort(context, node, completionItems);
+        return completionItems;
     }
     
     @Override
@@ -50,6 +67,14 @@ public class LetExpressionNodeContext extends AbstractCompletionProvider<LetExpr
         int cursor = context.getCursorPositionInTree();
         return !node.letVarDeclarations().isEmpty() && node.inKeyword().isMissing()
                 && node.letVarDeclarations().get(node.letVarDeclarations().size() - 1)
-                .expression().textRange().endOffset() < cursor;
+                .expression().textRange().endOffset() < cursor || node.letVarDeclarations().isEmpty();
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, LetExpressionNode node, List<LSCompletionItem> lsCItems) {
+        for (LSCompletionItem lsCItem : lsCItems) {
+            CompletionItem completionItem = lsCItem.getCompletionItem();
+            completionItem.setSortText(SortingUtil.genSortTextForTypeDescContext(context, lsCItem));
+        }
     }
 }
