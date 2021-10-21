@@ -44,7 +44,7 @@ public class XMLParser extends AbstractParser {
 
     @Override
     public STNode parse() {
-        return parseXMLContent();
+        return parseXMLContent(false);
     }
 
     /**
@@ -53,13 +53,14 @@ public class XMLParser extends AbstractParser {
      * <code>
      * content :=  CharData? ((element | Reference | CDSect | PI | Comment | Interpolation ) CharData?)*
      * </code>
-     * 
+     *
+     * @param isInXMLElement Whether inside the XML Element parsing
      * @return XML content node
      */
-    private STNode parseXMLContent() {
+    private STNode parseXMLContent(boolean isInXMLElement) {
         List<STNode> items = new ArrayList<>();
         STToken nextToken = peek();
-        while (!isEndOfXMLContent(nextToken.kind)) {
+        while (!isEndOfXMLContent(nextToken.kind, isInXMLElement)) {
             STNode contentItem = parseXMLContentItem();
             items.add(contentItem);
             nextToken = peek();
@@ -69,21 +70,20 @@ public class XMLParser extends AbstractParser {
 
     /**
      * Check whether the parser has reached the end of the back-tick literal.
-     * 
-     * @param kind Next token kind
+     *
+     * @param kind           Next token kind
+     * @param isInXMLElement Whether inside the XML Element parsing
      * @return <code>true</code> if this is the end of the back-tick literal. <code>false</code> otherwise
      */
-    private boolean isEndOfXMLContent(SyntaxKind kind) {
+    private boolean isEndOfXMLContent(SyntaxKind kind, boolean isInXMLElement) {
         switch (kind) {
             case EOF_TOKEN:
             case BACKTICK_TOKEN:
                 return true;
             case LT_TOKEN:
                 STToken nextNextToken = getNextNextToken();
-                if (nextNextToken.kind == SyntaxKind.SLASH_TOKEN || nextNextToken.kind == SyntaxKind.LT_TOKEN) {
-                    return true;
-                }
-                return false;
+                return isInXMLElement &&
+                        (nextNextToken.kind == SyntaxKind.SLASH_TOKEN || nextNextToken.kind == SyntaxKind.LT_TOKEN);
             default:
                 return false;
         }
@@ -151,7 +151,7 @@ public class XMLParser extends AbstractParser {
             return startTag;
         }
 
-        STNode content = parseXMLContent();
+        STNode content = parseXMLContent(true);
         STNode endTag = parseXMLElementEndTag();
         return STNodeFactory.createXMLElementNode(startTag, content, endTag);
     }
