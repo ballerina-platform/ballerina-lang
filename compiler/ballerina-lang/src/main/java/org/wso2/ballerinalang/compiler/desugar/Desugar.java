@@ -6873,7 +6873,7 @@ public class Desugar extends BLangNodeVisitor {
          * } else {
          *    $result$ = x + y;
          * }
-         *
+         * int z = $result$;
          */
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(binaryExpr.pos);
 
@@ -6883,8 +6883,10 @@ public class Desugar extends BLangNodeVisitor {
         boolean isArithmeticOperator = symResolver.isArithmeticOperator(binaryExpr.opKind);
         boolean isShiftOperator = symResolver.isBinaryShiftOperator(binaryExpr.opKind);
 
+        boolean isBitWiseOperator = !isArithmeticOperator && !isShiftOperator;
+
         BType rhsType = nonNilType;
-        if (!isArithmeticOperator && !isShiftOperator) {
+        if (isBitWiseOperator) {
             if (binaryExpr.rhsExpr.getBType().isNullable()) {
                 rhsType = types.getSafeType(binaryExpr.rhsExpr.getBType(), true, false);
             } else {
@@ -6893,7 +6895,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BType lhsType = nonNilType;
-        if (!isArithmeticOperator && !isShiftOperator) {
+        if (isBitWiseOperator) {
             if (binaryExpr.lhsExpr.getBType().isNullable()) {
                 lhsType = types.getSafeType(binaryExpr.lhsExpr.getBType(), true, false);
             } else {
@@ -7185,6 +7187,7 @@ public class Desugar extends BLangNodeVisitor {
          * } else {
          *    $result$ = +x;
          * }
+         * y = $result$
          *
          */
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(unaryExpr.pos);
