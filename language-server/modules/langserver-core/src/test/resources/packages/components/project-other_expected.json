@@ -1,0 +1,197 @@
+{
+  "result": [
+    {
+      "filePath": "file:///",
+      "name": "project_other",
+      "modules": [
+        {
+          "functions": [
+            {
+              "name": "multiply",
+              "filePath": "main.bal",
+              "startLine": 0,
+              "startColumn": 0,
+              "endLine": 2,
+              "endColumn": 1
+            }
+          ],
+          "services": [],
+          "records": [],
+          "objects": [],
+          "classes": [],
+          "types": [],
+          "constants": [],
+          "enums": [],
+          "listeners": [],
+          "moduleVariables": []
+        },
+        {
+          "functions": [],
+          "services": [],
+          "records": [
+            {
+              "name": "ParseErrorDetail",
+              "filePath": "model.bal",
+              "startLine": 29,
+              "startColumn": 0,
+              "endLine": 31,
+              "endColumn": 2
+            }
+          ],
+          "objects": [
+            {
+              "name": "StringIterator",
+              "filePath": "model.bal",
+              "startLine": 8,
+              "startColumn": 0,
+              "endLine": 12,
+              "endColumn": 2
+            }
+          ],
+          "classes": [
+            {
+              "name": "Tokenizer",
+              "functions": [
+                {
+                  "name": "init",
+                  "filePath": "model.bal",
+                  "startLine": 51,
+                  "startColumn": 4,
+                  "endLine": 54,
+                  "endColumn": 5
+                },
+                {
+                  "name": "advance",
+                  "filePath": "model.bal",
+                  "startLine": 58,
+                  "startColumn": 4,
+                  "endLine": 60,
+                  "endColumn": 5
+                },
+                {
+                  "name": "current",
+                  "filePath": "model.bal",
+                  "startLine": 62,
+                  "startColumn": 4,
+                  "endLine": 64,
+                  "endColumn": 5
+                },
+                {
+                  "name": "currentPos",
+                  "filePath": "model.bal",
+                  "startLine": 66,
+                  "startColumn": 4,
+                  "endLine": 71,
+                  "endColumn": 5
+                }
+              ],
+              "filePath": "model.bal",
+              "startLine": 35,
+              "startColumn": 0,
+              "endLine": 72,
+              "endColumn": 1
+            }
+          ],
+          "types": [
+            {
+              "name": "Char",
+              "filePath": "model.bal",
+              "startLine": 6,
+              "startColumn": 0,
+              "endLine": 6,
+              "endColumn": 17
+            },
+            {
+              "name": "Position",
+              "filePath": "model.bal",
+              "startLine": 22,
+              "startColumn": 0,
+              "endLine": 27,
+              "endColumn": 3
+            },
+            {
+              "name": "ParseError",
+              "filePath": "model.bal",
+              "startLine": 33,
+              "startColumn": 0,
+              "endLine": 33,
+              "endColumn": 56
+            }
+          ],
+          "constants": [
+            {
+              "name": "LOWER",
+              "filePath": "model.bal",
+              "startLine": 0,
+              "startColumn": 0,
+              "endLine": 0,
+              "endColumn": 43
+            },
+            {
+              "name": "UPPER",
+              "filePath": "model.bal",
+              "startLine": 1,
+              "startColumn": 0,
+              "endLine": 1,
+              "endColumn": 43
+            },
+            {
+              "name": "DIGIT",
+              "filePath": "model.bal",
+              "startLine": 2,
+              "startColumn": 0,
+              "endLine": 2,
+              "endColumn": 27
+            },
+            {
+              "name": "ALPHA",
+              "filePath": "model.bal",
+              "startLine": 3,
+              "startColumn": 0,
+              "endLine": 3,
+              "endColumn": 35
+            },
+            {
+              "name": "IDENT",
+              "filePath": "model.bal",
+              "startLine": 4,
+              "startColumn": 0,
+              "endLine": 4,
+              "endColumn": 41
+            }
+          ],
+          "enums": [
+            {
+              "name": "Language",
+              "filePath": "model.bal",
+              "startLine": 74,
+              "startColumn": 0,
+              "endLine": 77,
+              "endColumn": 1
+            }
+          ],
+          "listeners": [],
+          "moduleVariables": [
+            {
+              "name": "ESCAPES ",
+              "filePath": "model.bal",
+              "startLine": 14,
+              "startColumn": 0,
+              "endLine": 20,
+              "endColumn": 2
+            },
+            {
+              "name": "expected ",
+              "filePath": "model.bal",
+              "startLine": 79,
+              "startColumn": 0,
+              "endLine": 83,
+              "endColumn": 2
+            }
+          ],
+          "name": "models"
+        }
+      ]
+    }
+  ]
+}

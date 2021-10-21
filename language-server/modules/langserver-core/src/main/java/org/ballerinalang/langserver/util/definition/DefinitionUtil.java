@@ -114,7 +114,7 @@ public class DefinitionUtil {
         // Check if file resides in a protected dir 
         if (CommonUtil.isWriteProtectedPath(filepath.get())) {
             try {
-                fileUri = CommonUtil.getBalaUriForPath(filepath.get());
+                fileUri = CommonUtil.getBalaUriForPath(context.languageServercontext(), filepath.get());
             } catch (URISyntaxException e) {
                 throw new UserErrorException("Unable create definition file URI");
             }

@@ -64,7 +64,7 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++, "unknown type 'td'", 65, 73);
         validateError(errors, indx++, "unknown type 'td'", 73, 54);
         validateError(errors, indx++, "invalid error detail type 'detail', expected a subtype of " +
-                "'map<ballerina/lang.value:1.0.0:Cloneable>'", 82, 83);
+                "'map<ballerina/lang.value:0.0.0:Cloneable>'", 82, 83);
         validateError(errors, indx++, "unknown type 'detail'", 82, 83);
         validateError(errors, indx++,
                       "a function with a non-'external' function body cannot be a dependently-typed function", 89, 45);

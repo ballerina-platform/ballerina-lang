@@ -16,13 +16,14 @@
 package org.ballerinalang.langserver.codeaction.providers.imports;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
+import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
@@ -45,25 +46,19 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "Pull Module";
 
-    /** Command used at the LS client side to trigger pull module code command. */
-    private static final String PULL_MODULE_COMMAND = "ballerina.packages.pull";
     private static final int MISSING_MODULE_NAME_INDEX = 0;
 
     @Override
     public boolean isEnabled(LanguageServerContext serverContext) {
-        LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
-        return clientCapabilities != null && clientCapabilities.getInitializationOptions().isPullModuleSupported();
+        // TODO: Disabled temporarily due to #33073
+        return false;
     }
 
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!DiagnosticErrorCode.MODULE_NOT_FOUND.diagnosticId().equals(diagnostic.diagnosticInfo().code())) {
-            return Collections.emptyList();
-        }
-
-        Optional<String> moduleName = positionDetails.diagnosticProperty(MISSING_MODULE_NAME_INDEX);
+        Optional<String> moduleName = getMissingModuleNameFromDiagnostic(diagnostic);
         if (moduleName.isEmpty()) {
             return Collections.emptyList();
         }
@@ -78,7 +73,7 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
         String commandTitle = CommandConstants.PULL_MOD_TITLE;
         CodeAction action = new CodeAction(commandTitle);
         action.setKind(CodeActionKind.QuickFix);
-        action.setCommand(new Command(commandTitle, PULL_MODULE_COMMAND, args));
+        action.setCommand(new Command(commandTitle, PullModuleExecutor.COMMAND, args));
         action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
         return Collections.singletonList(action);
     }
@@ -86,5 +81,25 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
     @Override
     public String getName() {
         return NAME;
+    }
+
+    /**
+     * Returns the missing module's name taken from diagnostic properties.
+     *
+     * @param diagnostic Diagnostic
+     * @return Optional module name
+     */
+    public static Optional<String> getMissingModuleNameFromDiagnostic(Diagnostic diagnostic) {
+        if (!DiagnosticErrorCode.MODULE_NOT_FOUND.diagnosticId().equals(diagnostic.diagnosticInfo().code())) {
+            return Optional.empty();
+        }
+
+        List<DiagnosticProperty<?>> properties = diagnostic.properties();
+        if (properties.size() <= MISSING_MODULE_NAME_INDEX) {
+            return Optional.empty();
+        }
+
+        DiagnosticProperty<?> diagnosticProperty = properties.get(MISSING_MODULE_NAME_INDEX);
+        return Optional.of((String) diagnosticProperty.value());
     }
 }
