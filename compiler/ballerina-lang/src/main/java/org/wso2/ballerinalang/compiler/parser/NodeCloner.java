@@ -2293,8 +2293,11 @@ public class NodeCloner extends BLangNodeVisitor {
             return source.cloneRef;
         }
         OCEDynamicEnvironmentData clone = new OCEDynamicEnvironmentData();
-        clone.classDefinition = clone(source.classDefinition);
+        source.cloneAttempt = this.currentCloneAttempt;
+        clone.originalClass = source.originalClass; // dont copy me
         clone.typeInit = clone(source.typeInit);
+        clone.lambdaFunctionsList = cloneList(source.lambdaFunctionsList);
+        source.cloneRef = clone;
         return clone;
     }
 
@@ -2322,12 +2325,15 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectConstructorExpression source) {
+        if (source.cloneRef != null) {
+            return;
+        }
         BLangObjectConstructorExpression clone = new BLangObjectConstructorExpression();
 
         clone.pos = source.pos;
-        clone.classNode = clone(source.classNode);
-        clone.typeInit = clone(source.typeInit);
         clone.referenceType = clone(source.referenceType);
+        clone.typeInit = clone(source.typeInit);
+        clone.classNode = clone(source.classNode);
         clone.isClient = source.isClient;
         clone.isService = source.isService;
 

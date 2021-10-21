@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
+import java.util.List;
 
 /**
  * Represents the object-constructor-expr.
@@ -37,9 +38,11 @@ public class BLangObjectConstructorExpression extends BLangExpression {
     public BLangType referenceType;
     public boolean isClient;
     public boolean isService;
+    public List<BLangLambdaFunction> langLambdaFunctionList;
 
     public BLangObjectConstructorExpression() {
         this.isClient = false;
+        this.isService = false;
     }
 
     @Override

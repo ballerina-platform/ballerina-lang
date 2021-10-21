@@ -1183,7 +1183,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLangFunction.objInitFunction = true;
                 classDefinition.initFunction = bLangFunction;
             } else if (nodeKind == NodeKind.VARIABLE) {
-                ((BLangSimpleVariable) bLangNode).flagSet.add(Flag.OBJECT_CTOR);
+                BLangSimpleVariable simpleVariable = (BLangSimpleVariable) bLangNode;
+                simpleVariable.flagSet.add(Flag.OBJECT_CTOR);
+                BLangExpression expression = simpleVariable.expr;
+                if (expression != null && expression.getKind() == NodeKind.LAMBDA) {
+                    classDefinition.oceEnvData.lambdaFunctionsList.add((BLangLambdaFunction) expression);
+                }
                 classDefinition.addField((BLangSimpleVariable) bLangNode);
             } else if (nodeKind == NodeKind.USER_DEFINED_TYPE) {
                 dlog.error(bLangNode.pos, DiagnosticErrorCode.OBJECT_CTOR_DOES_NOT_SUPPORT_TYPE_REFERENCE_MEMBERS);
@@ -1210,9 +1215,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ObjectConstructorExpressionNode objectConstructorExpressionNode) {
         Location pos = getPositionWithoutMetadata(objectConstructorExpressionNode);
+        BLangObjectConstructorExpression objectCtorExpression = TreeBuilder.createObjectCtorExpression();
         BLangClassDefinition anonClass = transformObjectCtorExpressionBody(objectConstructorExpressionNode.members());
         anonClass.pos = pos;
-        BLangObjectConstructorExpression objectCtorExpression = TreeBuilder.createObjectCtorExpression();
         objectCtorExpression.pos = pos;
         objectCtorExpression.classNode = anonClass;
 
@@ -1222,7 +1227,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         anonClass.setName(anonTypeGenName);
         anonClass.flagSet.add(Flag.PUBLIC);
         anonClass.flagSet.add(Flag.OBJECT_CTOR);
-        anonClass.isObjectContructorDecl = true;
+        anonClass.isObjectContructorDecl = true; // not available for service
 
         Optional<TypeDescriptorNode> typeReference = objectConstructorExpressionNode.typeReference();
         typeReference.ifPresent(typeReferenceNode -> {
@@ -1249,6 +1254,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         addToTop(anonClass);
+        anonClass.oceEnvData.originalClass = anonClass;
         BLangIdentifier identifier = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         BLangUserDefinedType userDefinedType = createUserDefinedType(pos, identifier, anonClass.name);
         userDefinedType.flagSet.add(Flag.OBJECT_CTOR);

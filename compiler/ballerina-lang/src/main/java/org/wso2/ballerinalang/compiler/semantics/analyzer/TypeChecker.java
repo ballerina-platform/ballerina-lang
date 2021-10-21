@@ -3326,13 +3326,23 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangObjectConstructorExpression objectCtorExpression) {
         BLangClassDefinition classNode = objectCtorExpression.classNode;
-        if (classNode.cloneRef != null) {
-           classNode = (BLangClassDefinition) classNode.cloneRef;
-           objectCtorExpression.classNode = classNode;
+//        if (classNode.cloneRef != null) {
+//            classNode = (BLangClassDefinition) classNode.cloneRef;
+//            objectCtorExpression.classNode = classNode;
+//        }
+//        symbolEnter.defineClassDefinition(classNode, env);
+        BLangClassDefinition originalClass = classNode.oceEnvData.originalClass;
+        if (originalClass.cloneRef != null) {
+            classNode = (BLangClassDefinition) originalClass.cloneRef;
+            symbolEnter.defineClassDefinition(classNode, env);
         }
+//        if (classNode.cloneRef != null) {
+//           classNode = (BLangClassDefinition) classNode.cloneRef;
+//           symbolEnter.defineClassDefinition(classNode, env);
+//           objectCtorExpression.classNode = classNode;
+//        }
         // TODO: check referenced type
         BObjectType objectType;
-//        symbolEnter.defineClassDefinition(classNode, env);
         if (objectCtorExpression.referenceType == null && objectCtorExpression.expectedType != null) {
             BObjectType objectType = (BObjectType) objectCtorExpression.classNode.getBType();
             if (types.getReferredType(objectCtorExpression.expectedType).tag == TypeTags.OBJECT) {

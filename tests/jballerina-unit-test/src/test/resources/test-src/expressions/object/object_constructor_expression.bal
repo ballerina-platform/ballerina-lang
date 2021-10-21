@@ -139,7 +139,7 @@ distinct class DistinctFooB {
     int i = 0;
 }
 
-function testObjectConstructorWithDistintExpectedType() {
+function testObjectConstructorWithDistinctExpectedType() {
     DistinctFoo distinctObject = object {
                                         int i;
                                         function init() {
@@ -149,7 +149,7 @@ function testObjectConstructorWithDistintExpectedType() {
     assertValueEquality(20, distinctObject.i);
 }
 
-function testObjectConstructorWithDistintTypeReference() {
+function testObjectConstructorWithDistinctTypeReference() {
     DistinctFooA distinctObject = object DistinctFooA {
                                             int i;
                                             function init() {
@@ -159,7 +159,7 @@ function testObjectConstructorWithDistintTypeReference() {
     assertValueEquality(30, distinctObject.i);
 }
 
-function testObjectConstructorWithDistintTypeReferenceVar() {
+function testObjectConstructorWithDistinctTypeReferenceVar() {
     var distinctObject = object DistinctFooB {
                                             int i;
                                             function init() {

@@ -51,9 +51,9 @@ public class ObjectConstructorTest {
                 {"testObjectConstructorAnnotationAttachment"},
                 {"testObjectConstructorObjectFunctionInvocation"},
                 {"testObjectConstructorIncludedMethod"},
-                {"testObjectConstructorWithDistintExpectedType"},
-                {"testObjectConstructorWithDistintTypeReference"},
-                {"testObjectConstructorWithDistintTypeReferenceVar"},
+                {"testObjectConstructorWithDistinctExpectedType"},
+                {"testObjectConstructorWithDistinctTypeReference"},
+                {"testObjectConstructorWithDistinctTypeReferenceVar"},
                 {"testObjectConstructorWithDefiniteTypeAndWithoutReference"},
                 {"testObjectConstructorExprWithReadOnlyCET"},
         };

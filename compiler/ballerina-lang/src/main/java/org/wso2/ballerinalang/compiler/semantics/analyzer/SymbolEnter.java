@@ -109,7 +109,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
@@ -285,12 +284,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (classNode.symbol != null) {
             return;
         }
-//        defineNode(classNode, env);
-//        populateDistinctTypeIdsFromIncludedTypeReferences(classNode);
-//        defineFieldsOfClassDef(classNode, env);
-//        defineFunctionsOfClassDef(env, classNode);
-//        setReadOnlynessOfClassDef(classNode, env);
-//        defineReadOnlyIncludedFieldsAndMethods(classNode, env);
+        defineNode(classNode, env);
+        populateDistinctTypeIdsFromIncludedTypeReferences(classNode);
+        defineFieldsOfClassDef(classNode, env);
+        defineFunctionsOfClassDef(env, classNode);
+        setReadOnlynessOfClassDef(classNode, env);
+        defineReadOnlyIncludedFieldsAndMethods(classNode, env);
     }
 
     public void defineNode(BLangNode node, SymbolEnv env) {
@@ -491,12 +490,35 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.env = prevEnv;
     }
 
+    private boolean isObjectCtor(BLangNode node) {
+        if (node.getKind() == NodeKind.CLASS_DEFN) {
+            BLangClassDefinition classDefinition = (BLangClassDefinition) node;
+            return isObjectCtor(classDefinition);
+        }
+        return false;
+    }
+
+    private boolean isObjectCtor(BLangClassDefinition classDefinition) {
+//        if (classDefinition.isObjectContructorDecl) {
+//            return true;
+//        }
+        if (classDefinition.flagSet.contains(Flag.OBJECT_CTOR)) {
+            return true;
+        }
+//        if (classDefinition.flagSet.contains(Flag.OBJECT_CTOR) &&
+//                !classDefinition.flagSet.contains(Flag.SERVICE)) {
+//            return true;
+//        }
+        return false;
+    }
+
     private void defineDistinctClassAndObjectDefinitions(List<BLangNode> typDefs) {
         for (BLangNode node : typDefs) {
             if (node.getKind() == NodeKind.CLASS_DEFN) {
-//                if (((BLangClassDefinition) node).isObjectContructorDecl) {
-//                    continue;
-//                }
+                BLangClassDefinition classDefinition = (BLangClassDefinition) node;
+                if (classDefinition.flagSet.contains(Flag.OBJECT_CTOR)) {
+                    continue;
+                }
                 populateDistinctTypeIdsFromIncludedTypeReferences((BLangClassDefinition) node);
             } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
                 populateDistinctTypeIdsFromIncludedTypeReferences((BLangTypeDefinition) node);
@@ -712,7 +734,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     objectType = (BObjectType) referredType;
                 }
 
-                if (classDefinition.getBType().tsymbol.owner != referredType.tsymbol.owner) {
+                if (!classDefinition.symbol.pkgID.equals(referredType.tsymbol.pkgID)) {
                     boolean errored = false;
                     for (BField field : objectType.fields.values()) {
                         if (!Symbols.isPublic(field.symbol)) {
@@ -835,10 +857,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BObjectType objectType = new BObjectType(tSymbol, typeFlags);
         if (classDefinition.isObjectContructorDecl || flags.contains(Flag.OBJECT_CTOR)) {
-            classDefinition.oceEnvData = new OCEDynamicEnvironmentData();
             classDefinition.oceEnvData.objectType = objectType;
             objectType.classDef = classDefinition;
-            classDefinition.objectType = objectType;
         }
 
         if (flags.contains(Flag.DISTINCT)) {
@@ -874,7 +894,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             env.scope.define(tSymbol.name, tSymbol);
         }
         // TODO : check
-//        env.scope.define(tSymbol.name, tSymbol);
+        // env.scope.define(tSymbol.name, tSymbol);
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -1175,7 +1195,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangNode typeDef : typeDefs) {
             if (isErrorIntersectionTypeCreatingNewType(typeDef, env)) {
                 populateUndefinedErrorIntersection((BLangTypeDefinition) typeDef, env);
-                continue;
+            }
+            if (typeDef.getKind() == CLASS_DEFN) {
+                BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;
+                if (classDefinition.flagSet.contains(Flag.OBJECT_CTOR)) {
+                    continue;
+                }
             }
 
 //            if (typeDef.getKind() == CLASS_DEFN && ((BLangClassDefinition) typeDef).isObjectContructorDecl) {
@@ -3753,7 +3778,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineFields(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
         for (BLangNode typeDef : typeDefNodes) {
             if (typeDef.getKind() == NodeKind.CLASS_DEFN) {
-                defineFieldsOfClassDef((BLangClassDefinition) typeDef, pkgEnv);
+                BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;
+                if (classDefinition.flagSet.contains(Flag.OBJECT_CTOR)) {
+                    continue;
+                }
+                defineFieldsOfClassDef(classDefinition, pkgEnv);
             } else if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
                 defineFieldsOfObjectOrRecordTypeDef((BLangTypeDefinition) typeDef, pkgEnv);
             }
@@ -3898,6 +3927,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangNode node : typeDefNodes) {
             if (node.getKind() == NodeKind.CLASS_DEFN) {
                 BLangClassDefinition classDef = (BLangClassDefinition) node;
+                if (classDef.flagSet.contains(Flag.OBJECT_CTOR)) {
+                    continue;
+                }
                 defineFunctionsOfClassDef(pkgEnv, classDef);
             } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
                 defineFunctionsOfObjectTypeDef(pkgEnv, (BLangTypeDefinition) node);
@@ -4219,6 +4251,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
             BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;
+            if (isObjectCtor(classDefinition)) {
+                continue;
+            }
             defineReadOnlyIncludedFieldsAndMethods(classDefinition, pkgEnv);
         }
     }
@@ -4234,7 +4269,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineIncludedMethods(classDefinition, objMethodsEnv, true);
     }
 
-    public void setReadOnlynessOfClassDef(BLangClassDefinition classDef, SymbolEnv pkgEnv) {
+    private void setReadOnlynessOfClassDef(BLangClassDefinition classDef, SymbolEnv pkgEnv) {
         BObjectType objectType = (BObjectType) classDef.getBType();
         Location pos = classDef.pos;
 
@@ -4763,7 +4798,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
 
                 BObjectType objectType = (BObjectType) referredType;
-                if (structureTypeNode.getBType().tsymbol.owner != referredType.tsymbol.owner) {
+                if (structureTypeNode.symbol.pkgID.equals(referredType.tsymbol.pkgID)) {
                     for (BField field : objectType.fields.values()) {
                         if (!Symbols.isPublic(field.symbol)) {
                             dlog.error(typeRef.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_REFERENCE_NON_PUBLIC_MEMBERS,
