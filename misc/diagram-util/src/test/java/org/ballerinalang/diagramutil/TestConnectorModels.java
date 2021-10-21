@@ -45,7 +45,7 @@ public class TestConnectorModels {
         type.typeInfo = this.typeInfo;
 
         List<Type> parameters = Arrays.asList(type);
-        function = new Function(initFunc, parameters, Optional.empty(), null, false, documentation);
+        function = new Function(initFunc, parameters, Optional.of(type), null, false, documentation);
 
         List<Function> functions = Arrays.asList(function);
         connector = new Connector(orgName, moduleName, packageName, version, connectorName,
