@@ -230,7 +230,8 @@ public class PackageResolution {
         }
 
         // TODO Can we make this a builtin compiler plugin
-        if ("k8s".equals(compilationOptions.getCloud()) || "docker".equals(compilationOptions.getCloud())) {
+        if ("k8s".equals(compilationOptions.getCloud()) || "docker".equals(compilationOptions.getCloud()) ||
+                "choreo".equals(compilationOptions.getCloud())) {
             String moduleName = Names.CLOUD.getValue();
             ModuleLoadRequest c2cModuleLoadReq = new ModuleLoadRequest(
                     PackageOrg.from(Names.BALLERINA_ORG.value), moduleName,

@@ -5744,7 +5744,7 @@ public class TypeChecker extends BLangNodeVisitor {
                                                                      BType expectedType) {
         List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
         for (BLangNamedArgsExpression namedArgsExpression : errorConstructorExpr.namedArgs) {
-            BType target = getErrorCtorNamedArgTargetType(namedArgsExpression, expectedType);
+            BType target = checkErrCtrTargetTypeAndSetSymbol(namedArgsExpression, expectedType);
 
             BLangNamedArgsExpression clone = nodeCloner.cloneNode(namedArgsExpression);
             BType type = checkExpr(clone, env, target);
@@ -5753,12 +5753,13 @@ public class TypeChecker extends BLangNodeVisitor {
             } else {
                 checkExpr(namedArgsExpression, env, target);
             }
+
             namedArgs.add(namedArgsExpression);
         }
         return namedArgs;
     }
 
-    private BType getErrorCtorNamedArgTargetType(BLangNamedArgsExpression namedArgsExpression, BType expectedType) {
+    private BType checkErrCtrTargetTypeAndSetSymbol(BLangNamedArgsExpression namedArgsExpression, BType expectedType) {
         if (expectedType == symTable.semanticError) {
             return symTable.semanticError;
         }
@@ -5774,6 +5775,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BRecordType recordType = (BRecordType) expectedType;
         BField targetField = recordType.fields.get(namedArgsExpression.name.value);
         if (targetField != null) {
+            // Set the symbol of the namedArgsExpression, with the matching record field symbol.
+            namedArgsExpression.varSymbol = targetField.symbol;
             return targetField.type;
         }
 
@@ -6119,6 +6122,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     continue;
                 }
                 checkTypeParamExpr(arg, this.env, varSym.type, iExpr.langLibInvocation);
+                ((BLangNamedArgsExpression) arg).varSymbol = varSym;
                 valueProvidedParams.add(varSym);
             }
         }
