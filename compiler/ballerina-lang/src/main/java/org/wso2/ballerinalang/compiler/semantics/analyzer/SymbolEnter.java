@@ -503,10 +503,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         SemType semtype;
         if (constant.associatedTypeDefinition != null) {
             semtype = resolveTypeDefn(semtypeEnv, modTable, constant.associatedTypeDefinition, 0);
+            addSemtypeBType(constant.getTypeNode(), semtype);
         } else {
             semtype = evaluateConst(constant);
         }
-        addSemtypeBType(constant.getTypeNode(), semtype);
         semtypeEnv.addTypeDef(constant.name.value, semtype);
     }
 
