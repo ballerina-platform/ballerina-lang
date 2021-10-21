@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.util;
 
+import io.ballerina.projects.CompilationOptionsBuilder;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ResolvedPackageDependency;
@@ -51,8 +52,11 @@ public class DependencyUtils {
      * @param project project
      */
     public static void pullMissingDependencies(Project project) {
+        // Disable offline flag
+        CompilationOptionsBuilder compilationOptionsBuilder = new CompilationOptionsBuilder();
+        compilationOptionsBuilder.offline(false);
 
-        PackageResolution resolution = project.currentPackage().getResolution();
+        PackageResolution resolution = project.currentPackage().getResolution(compilationOptionsBuilder.build());
         ProjectEnvironment projectEnvContext = project.projectEnvironmentContext();
         PackageCache packageCache = projectEnvContext.getService(PackageCache.class);
 
