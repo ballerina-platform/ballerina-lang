@@ -428,7 +428,16 @@ public class BJSONValueTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToJsonArrayInvalidCasting");
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'json[]' value cannot be converted to 'json[][][]'");
+        Assert.assertEquals(errorMsg, "'json[]' value cannot be converted to 'json[][][]': " +
+                "\n\t\tarray element '[0][0]' should be of type 'json[]', found '1'" +
+                "\n\t\tarray element '[0][1]' should be of type 'json[]', found '2'" +
+                "\n\t\tarray element '[0][2]' should be of type 'json[]', found '3'" +
+                "\n\t\tarray element '[1][0]' should be of type 'json[]', found '3'" +
+                "\n\t\tarray element '[1][1]' should be of type 'json[]', found '4'" +
+                "\n\t\tarray element '[1][2]' should be of type 'json[]', found '5'" +
+                "\n\t\tarray element '[2][0]' should be of type 'json[]', found '7'" +
+                "\n\t\tarray element '[2][1]' should be of type 'json[]', found '8'" +
+                "\n\t\tarray element '[2][2]' should be of type 'json[]', found '9'");
     }
 
     @Test
