@@ -3,9 +3,8 @@ NAME
 
 SYNOPSIS
        bal pack
-       bal pack <ballerina-file-path>
        bal pack <ballerina-package-path>
-       bal pack [--test-report] [--offline] [--experimental] [-o | --output] <output-path> [--dump-build-time]
+       bal pack [--test-report] [--offline] [--experimental] [--dump-build-time]
                   <ballerina-file-path>
        bal pack [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
                  [--skip-tests] [--list-conflicted-classes] <ballerina-package-path>
@@ -21,10 +20,6 @@ DESCRIPTION
 
 
 OPTIONS
-       -o <output>, --output <output>
-           Write the output to the given file. The provided output
-           file name may or may not contain the ‘.jar’ extension. The -o flag will only work
-           for single files.
 
        --offline
             Pack offline using the local artifacts without downloading the latest artifacts of
@@ -48,17 +43,6 @@ OPTIONS
 
        --debug
            Run tests in remote debugging mode only when the '--skip-tests' flag is not used.
-
-       --observability-included
-           Include the dependencies and artifacts in the  executable JAR file(s) of a Ballerina
-           program that are required to enable the observability functionalities on it.
-
-       --cloud
-           Enable cloud artifact generation for cloud providers: (`--cloud=k8s`)for Kubernetes
-           and (`--cloud=docker`) for Docker.
-
-       --list-conflicted-classes
-       		List the conflicting classes of conflicting JARs in the project.
 
        --dump-build-time
             Calculate and dump build time.

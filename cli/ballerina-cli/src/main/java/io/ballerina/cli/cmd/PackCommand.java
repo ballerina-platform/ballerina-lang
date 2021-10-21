@@ -47,11 +47,6 @@ public class PackCommand implements BLauncherCmd {
     private boolean exitWhenFinish;
     private boolean skipCopyLibsFromDist;
 
-    @CommandLine.Option(names = {"--output", "-o"}, description = "Write the output to the given file. The provided " +
-            "output file name may or may not contain the " +
-            "'.jar' extension.")
-    private String output;
-
     @CommandLine.Option(names = {"--offline"}, description = "Build/Compile offline without downloading " +
             "dependencies.")
     private Boolean offline;
@@ -83,9 +78,6 @@ public class PackCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
     private String debugPort;
 
-    private static final String buildCmd = "bal build [-o <output>] [--offline] [--skip-tests] [--taint-check]\n" +
-            "                    [<ballerina-file | package-path>]";
-
     @CommandLine.Option(names = "--test-report", description = "enable test report generation")
     private Boolean testReport;
 
@@ -95,20 +87,9 @@ public class PackCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--coverage-format", description = "list of supported coverage report formats")
     private String coverageFormat;
 
-    @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
-            "JAR file(s).")
-    private Boolean observabilityIncluded;
-
-    @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
-    private String cloud;
-
     @CommandLine.Option(names = "--includes", hidden = true,
             description = "hidden option for code coverage to include all classes")
     private String includes;
-
-    @CommandLine.Option(names = "--list-conflicted-classes",
-            description = "list conflicted classes when generating executable")
-    private Boolean listConflictedClasses;
 
     @CommandLine.Option(names = "--dump-build-time", description = "calculate and dump build time")
     private Boolean dumpBuildTime;
@@ -155,17 +136,6 @@ public class PackCommand implements BLauncherCmd {
         // Throw an error if its a single file
         if (FileUtils.hasExtension(this.projectPath)) {
             CommandUtil.printError(this.errStream, "bal pack can only be used with a Ballerina package.", null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
-        // Check if the output flag is set when building all the modules.
-        if (null != this.output) {
-            CommandUtil.printError(this.errStream,
-                    "'-o' and '--output' are only supported when building a single Ballerina " +
-                            "file.",
-                    "bal build -o <output-file> <ballerina-file> ",
-                    true);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -314,13 +284,10 @@ public class PackCommand implements BLauncherCmd {
                 .offline(offline)
                 .skipTests(skipTests)
                 .testReport(testReport)
-                .observabilityIncluded(observabilityIncluded)
-                .cloud(cloud)
                 .dumpBir(dumpBIR)
                 .dumpBirFile(dumpBIRFile)
                 .dumpGraph(dumpGraph)
                 .dumpRawGraphs(dumpRawGraphs)
-                .listConflictedClasses(listConflictedClasses)
                 .dumpBuildTime(dumpBuildTime)
                 .sticky(sticky)
                 .build();
