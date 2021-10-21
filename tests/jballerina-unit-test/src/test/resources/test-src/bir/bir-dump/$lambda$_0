@@ -1,4 +1,4 @@
-$lambda$_0 function(map<any|error{map<ballerina/lang.value:1.0.0:Cloneable>}>, int) -> int {
+$lambda$_0 function(map<any|error{map<ballerina/lang.value:0.0.0:Cloneable>}>, int) -> int {
     %0(RETURN) int;
     %1(ARG) map<any|error>;
     %2(ARG) int;
