@@ -472,7 +472,9 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void addSemtypeBType(BLangType typeNode, SemType semType) {
-        typeNode.getBType().setSemtype(semType);
+        if (typeNode != null) {
+            typeNode.getBType().setSemtype(semType);
+        }
     }
 
     private void defineSemTypes(List<BLangNode> moduleDefs, SymbolEnv pkgEnv) {
@@ -503,10 +505,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         SemType semtype;
         if (constant.associatedTypeDefinition != null) {
             semtype = resolveTypeDefn(semtypeEnv, modTable, constant.associatedTypeDefinition, 0);
-            addSemtypeBType(constant.getTypeNode(), semtype);
         } else {
             semtype = evaluateConst(constant);
         }
+        addSemtypeBType(constant.getTypeNode(), semtype);
         semtypeEnv.addTypeDef(constant.name.value, semtype);
     }
 
