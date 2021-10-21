@@ -153,7 +153,6 @@ public class NewCommand implements BLauncherCmd {
             return;
         }
 
-
         if (!ProjectUtils.validatePackageName(packageName)) {
             errStream.println("unallowed characters in the project name were replaced by " +
                     "underscores when deriving the package name. Edit the Ballerina.toml to change it.");
