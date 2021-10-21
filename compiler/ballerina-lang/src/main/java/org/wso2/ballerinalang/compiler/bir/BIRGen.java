@@ -1390,19 +1390,19 @@ public class BIRGen extends BLangNodeVisitor {
         for (BLangExpression requiredArg : requiredArgs) {
             if (requiredArg.getKind() != NodeKind.IGNORE_EXPR) {
                 requiredArg.accept(this);
-                args.add(new BIROperand(this.env.targetOperand.variableDcl));
+                args.add(this.env.targetOperand);
             } else {
                 BIRVariableDcl birVariableDcl =
                         new BIRVariableDcl(requiredArg.getBType(), new Name("_"), VarScope.FUNCTION, VarKind.ARG);
                 birVariableDcl.ignoreVariable = true;
-                args.add(new BIROperand(this.env.targetOperand.variableDcl));
+                args.add(new BIROperand(birVariableDcl));
             }
         }
 
         // seems like restArgs.size() is always 1 or 0, but lets iterate just in case
         for (BLangExpression arg : restArgs) {
             arg.accept(this);
-            args.add(new BIROperand(this.env.targetOperand.variableDcl));
+            args.add(this.env.targetOperand);
         }
 
         BIROperand fp = null;

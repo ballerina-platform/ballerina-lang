@@ -1023,7 +1023,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                     arguments.put(paramName, arg);
                     continue;
                 }
-                variableDef = createVarDef(paramName + "$" + funcParamCount++, arg.getBType(), arg, arg.pos);
+                variableDef = createVarDef("$" + paramName + "$" + funcParamCount++, arg.getBType(), arg, arg.pos);
                 simpleVarRef = ASTBuilderUtil.createVariableRef(invocation.pos, variableDef.var.symbol);
                 simpleVarRef = desugar.rewrite(simpleVarRef, env);
                 blockStmt.addStatement(variableDef);
