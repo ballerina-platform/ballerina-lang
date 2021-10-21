@@ -17,7 +17,12 @@
  */
 package org.wso2.ballerinalang.util;
 
+import io.ballerina.projects.Settings;
+import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.internal.SettingsBuilder;
+import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
@@ -323,5 +328,22 @@ public class RepoUtils {
         throw new BLangCompilerException("unable to find '/metadata/Ballerina.toml' file in bala file: " +
                                          balaPath + "");
     }
-    
+
+    /**
+     * Read Settings.toml to populate the configurations.
+     *
+     * @return {@link Settings} settings object
+     */
+    public static Settings readSettings() throws SettingsTomlException {
+        Path settingsFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectConstants.SETTINGS_FILE_NAME);
+        try {
+            TomlDocument settingsTomlDocument = TomlDocument
+                    .from(String.valueOf(settingsFilePath.getFileName()), Files.readString(settingsFilePath));
+            SettingsBuilder settingsBuilder = SettingsBuilder.from(settingsTomlDocument);
+            return settingsBuilder.settings();
+        } catch (IOException e) {
+            // If Settings.toml not exists return empty Settings object
+            return Settings.from();
+        }
+    }
 }

@@ -140,7 +140,8 @@ public class NeverTypeTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "table key specifier '[name]' does not match with key constraint type '[never]'", 125, 34);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "table key specifier mismatch with key constraint. expected: '1' fields but found '0'", 134, 37);
+                "table key specifier mismatch with key constraint. " +
+                        "expected: '[(never|string)]' fields but key specifier is empty", 134, 37);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'xml<never>', found 'xml:Text'", 143, 21);
         BAssertUtil.validateError(negativeCompileResult, i++,
@@ -341,15 +342,15 @@ public class NeverTypeTest {
         BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
                 "type 'never' not allowed here", 31, 25);
         BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 35, 17);
+                "type 'never' not allowed here", 36, 17);
         BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 35, 30);
+                "type 'never' not allowed here", 36, 30);
         BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 43, 12);
+                "type 'never' not allowed here", 44, 12);
         BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 47, 16);
+                "type 'never' not allowed here", 48, 16);
         BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 47, 23);
+                "type 'never' not allowed here", 48, 23);
         Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 

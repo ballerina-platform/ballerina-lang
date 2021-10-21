@@ -514,6 +514,20 @@ public class TomlProviderNegativeTest {
                 new VariableKey[]{recordVar})), 1, 1);
     }
 
+    @Test
+    public void testUnionMapInvalidType() {
+        UnionType unionType =
+                TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING),
+                        true);
+        ArrayType arrayType = TypeCreator.createArrayType(unionType, true);
+        VariableKey arrayVar = new VariableKey(ROOT_MODULE, "arrayVar", new BIntersectionType(ROOT_MODULE,
+                new Type[]{arrayType, PredefinedTypes.TYPE_READONLY}, unionType, 1, true), true);
+        String error = "[UnionMapInvalidType.toml:(1:1,3:14)] configurable variable 'arrayVar' is expected to be of " +
+                "type '(int|string)', but found 'table'";
+        validateTomlProviderErrors("UnionMapInvalidType", error, Map.ofEntries(Map.entry(ROOT_MODULE,
+                new VariableKey[]{arrayVar})), 1, 0);
+    }
+
     @Test(dataProvider = "union-ambiguity-provider")
     public void testTomlValueAmbiguityForUnionType(String errorMsg, VariableKey variableKey) {
         validateTomlProviderErrors("UnionAmbiguousType", errorMsg, Map.ofEntries(Map.entry(ROOT_MODULE,

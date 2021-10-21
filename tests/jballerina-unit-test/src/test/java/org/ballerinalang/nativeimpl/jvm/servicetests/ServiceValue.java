@@ -47,7 +47,7 @@ import java.util.Optional;
 /**
  * Helper methods to test properties of service values.
  *
- * @since 2.0
+ * @since 2.0.0
  */
 public class ServiceValue {
     private static BObject service;
