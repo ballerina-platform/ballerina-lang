@@ -209,6 +209,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_ENTITY_REFERENCE_NAME("BCE0412", "error.missing.entity.reference.name"),
     ERROR_MISSING_SEMICOLON_IN_XML_REFERENCE("BCE0413", "error.missing.semicolon.in.xml.reference"),
     ERROR_MISSING_ATTACH_POINT_NAME("BCE0414", "error.missing.attach.point.name"),
+    ERROR_MISSING_HEX_NUMBER_AFTER_HEX_INDICATOR("BCE0415", "error.missing.hex.number.after.hex.indicator"),
+    ERROR_MISSING_DIGIT_AFTER_DOT("BCE0416", "error.missing.digit.after.dot"),
 
     // Missing non-terminal nodes
     ERROR_MISSING_FUNCTION_NAME("BCE0500", "error.missing.function.name"),
@@ -244,6 +246,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_MATCH_PATTERN("BCE0526", "error.missing.match.pattern"),
     ERROR_MISSING_TYPE_REFERENCE("BCE0527", "error.missing.type.reference"),
     ERROR_MISSING_BACKTICK_STRING("BCE0528", "error.missing.backtick.string"),
+    ERROR_MISSING_NAMED_ARG("BCE0529", "error.missing.named.arg"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),

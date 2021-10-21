@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 6,
+    "character": 13
+  },
+  "source": "field_access_expression_context/source/field_access_ctx_source15.bal",
+  "items": [
+    {
+      "label": "field1",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "BA",
+      "insertText": "field1",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

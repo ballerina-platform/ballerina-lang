@@ -54,14 +54,14 @@ public class BallerinaTomlCompletionContext implements TomlCompletionContext {
     private List<Symbol> visibleSymbols;
     private List<ImportDeclarationNode> currentDocImports;
     private Map<ImportDeclarationNode, ModuleSymbol> currentDocImportsMap;
-    private LanguageServerContext languageServerContext;
-    private CompletionCapabilities capabilities;
-    private Position cursorPosition;
+    private final LanguageServerContext languageServerContext;
+    private final CompletionCapabilities capabilities;
+    private final Position cursorPosition;
     private int cursorPosInTree = -1;
-    private LSOperation operation;
-    private Path filePath;
-    private String fileUri;
-    private WorkspaceManager workspaceManager;
+    private final LSOperation operation;
+    private final Path filePath;
+    private final String fileUri;
+    private final WorkspaceManager workspaceManager;
     private NonTerminalNode nodeAtCursor;
 
     BallerinaTomlCompletionContext(CompletionContext context, LanguageServerContext serverContext) {

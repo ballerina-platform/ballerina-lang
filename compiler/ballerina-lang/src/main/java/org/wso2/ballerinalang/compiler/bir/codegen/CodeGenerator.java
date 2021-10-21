@@ -24,7 +24,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -85,15 +84,13 @@ public class CodeGenerator {
         populateExternalMap(jvmPackageGen);
 
         //Rewrite identifier names with encoding special characters
-        HashMap<String, String> originalIdentifierMap = JvmDesugarPhase
-                .encodeModuleIdentifiers(packageSymbol.bir, Names.getInstance(this.compilerContext));
+        HashMap<String, String> originalIdentifierMap = JvmDesugarPhase.encodeModuleIdentifiers(packageSymbol.bir);
 
         // TODO Get-rid of the following assignment
         packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true);
 
         //Revert encoding identifier names
-        JvmDesugarPhase.replaceEncodedModuleIdentifiers(packageSymbol.bir, Names.getInstance(this.compilerContext),
-                                                        originalIdentifierMap);
+        JvmDesugarPhase.replaceEncodedModuleIdentifiers(packageSymbol.bir, originalIdentifierMap);
         return packageSymbol.compiledJarFile;
     }
 

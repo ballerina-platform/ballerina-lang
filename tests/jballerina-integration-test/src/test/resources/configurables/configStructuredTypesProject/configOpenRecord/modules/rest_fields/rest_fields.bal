@@ -49,6 +49,14 @@ public function testRestFields() {
     test:assertEquals(playerMapTable.toString(), "{\"entry1\":[{\"id\":120},{\"id\":121," + 
     "\"teamMate\":{\"id\":122,\"teamMate\":{\"id\":123}}}]}");
 
+    util:testRecordIterator(intRest, 2);
+    util:testRecordIterator(floatRest, 2);
+    util:testRecordIterator(stringRest, 2);
+    util:testRecordIterator(booleanRest, 2);
+    util:testRecordIterator(anyRest, 5);
+    util:testRecordIterator(player, 2);
+
+    util:testArrayIterator(playerArr, 2);
     util:testTableIterator(playerTable);
     util:testMapIterator(playerMap, 2);
     util:testMapIterator(playerMapTable, 1);

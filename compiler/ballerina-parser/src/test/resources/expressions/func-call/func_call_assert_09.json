@@ -106,20 +106,31 @@
           "kind": "COMMA_TOKEN"
         },
         {
-          "kind": "POSITIONAL_ARG",
+          "kind": "NAMED_ARG",
           "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_NAMED_ARG"
+          ],
           "children": [
             {
               "kind": "SIMPLE_NAME_REFERENCE",
-              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "isMissing": true,
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_IDENTIFIER"
-                  ]
+                  "isMissing": true
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "isMissing": true
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "isMissing": true
                 }
               ]
             }

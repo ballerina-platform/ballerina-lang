@@ -30,8 +30,8 @@ import java.util.Optional;
 public abstract class PrimitiveValueSchema<T> extends AbstractSchema {
     private final T defaultValue;
     
-    public PrimitiveValueSchema(Type type, Map<String, String> message, T defaultValue) {
-        super(type, message);
+    public PrimitiveValueSchema(Type type, Map<String, String> message, T defaultValue, CompositionSchema comps) {
+        super(type, message, comps);
         this.defaultValue = defaultValue;
     }
 

@@ -23,20 +23,23 @@ package io.ballerina.projects;
  * @since 2.0.0
  */
 public class CompilationOptions {
-    private Boolean offlineBuild;
-    private Boolean experimental;
-    private Boolean observabilityIncluded;
-    private Boolean dumpBir;
-    private String dumpBirFile;
-    private String cloud;
-    private Boolean listConflictedClasses;
-    private Boolean sticky;
+    Boolean offlineBuild;
+    Boolean experimental;
+    Boolean observabilityIncluded;
+    Boolean dumpBir;
+    Boolean dumpBirFile;
+    String cloud;
+    Boolean listConflictedClasses;
+    Boolean sticky;
+    Boolean dumpGraph;
+    Boolean dumpRawGraphs;
     private Boolean semtype;
 
-    public CompilationOptions(Boolean offlineBuild, Boolean experimental,
-                              Boolean observabilityIncluded, Boolean dumpBir, String dumpBirFile,
-                              String cloud, Boolean listConflictedClasses, Boolean sticky,
-                              Boolean semtype) {
+    CompilationOptions(Boolean offlineBuild, Boolean experimental,
+                       Boolean observabilityIncluded, Boolean dumpBir, Boolean dumpBirFile,
+                       String cloud, Boolean listConflictedClasses, Boolean sticky,
+                       Boolean dumpGraph, Boolean dumpRawGraphs,
+                       Boolean semtype) {
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
@@ -45,6 +48,8 @@ public class CompilationOptions {
         this.cloud = cloud;
         this.listConflictedClasses = listConflictedClasses;
         this.sticky = sticky;
+        this.dumpGraph = dumpGraph;
+        this.dumpRawGraphs = dumpRawGraphs;
         this.semtype = semtype;
     }
 
@@ -53,7 +58,7 @@ public class CompilationOptions {
     }
 
     boolean sticky() {
-        return toBooleanDefaultIfNull(this.sticky);
+        return toBooleanTrueIfNull(this.sticky);
     }
 
     boolean experimental() {
@@ -68,8 +73,16 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(this.dumpBir);
     }
 
-    public String getBirDumpFile() {
-        return this.dumpBirFile;
+    public Boolean dumpBirFile() {
+        return toBooleanDefaultIfNull(this.dumpBirFile);
+    }
+
+    public Boolean dumpGraph() {
+        return toBooleanDefaultIfNull(this.dumpGraph);
+    }
+
+    public Boolean dumpRawGraphs() {
+        return toBooleanDefaultIfNull(this.dumpRawGraphs);
     }
 
     public String getCloud() {
@@ -87,37 +100,73 @@ public class CompilationOptions {
      * @return a new {@code CompilationOptions} instance that contains our options and their options
      */
     CompilationOptions acceptTheirs(CompilationOptions theirOptions) {
+        CompilationOptionsBuilder compilationOptionsBuilder = new CompilationOptionsBuilder();
         if (theirOptions.offlineBuild != null) {
-            this.offlineBuild = theirOptions.offlineBuild;
+            compilationOptionsBuilder.offline(theirOptions.offlineBuild);
+        } else {
+            compilationOptionsBuilder.offline(this.offlineBuild);
         }
         if (theirOptions.experimental != null) {
-            this.experimental = theirOptions.experimental;
+            compilationOptionsBuilder.experimental(theirOptions.experimental);
+        } else {
+            compilationOptionsBuilder.experimental(this.experimental);
         }
         if (theirOptions.observabilityIncluded != null) {
-            this.observabilityIncluded = theirOptions.observabilityIncluded;
+            compilationOptionsBuilder.observabilityIncluded(theirOptions.observabilityIncluded);
+        } else {
+            compilationOptionsBuilder.observabilityIncluded(this.observabilityIncluded);
         }
         if (theirOptions.dumpBir != null) {
-            this.dumpBir = theirOptions.dumpBir;
+            compilationOptionsBuilder.dumpBir(theirOptions.dumpBir);
+        } else {
+            compilationOptionsBuilder.dumpBir(this.dumpBir);
+        }
+        if (theirOptions.dumpBirFile != null) {
+            compilationOptionsBuilder.dumpBirFile(theirOptions.dumpBirFile);
+        } else {
+            compilationOptionsBuilder.dumpBirFile(this.dumpBirFile);
+        }
+        if (theirOptions.dumpGraph != null) {
+            compilationOptionsBuilder.dumpGraph(theirOptions.dumpGraph);
+        } else {
+            compilationOptionsBuilder.dumpGraph(this.dumpGraph);
+        }
+        if (theirOptions.dumpRawGraphs != null) {
+            compilationOptionsBuilder.dumpRawGraphs(theirOptions.dumpRawGraphs);
+        } else {
+            compilationOptionsBuilder.dumpRawGraphs(this.dumpRawGraphs);
         }
         if (theirOptions.cloud != null) {
-            this.cloud = theirOptions.cloud;
+            compilationOptionsBuilder.cloud(theirOptions.cloud);
+        } else {
+            compilationOptionsBuilder.cloud(this.cloud);
         }
-        this.dumpBirFile = theirOptions.dumpBirFile;
         if (theirOptions.listConflictedClasses != null) {
-            this.listConflictedClasses = theirOptions.listConflictedClasses;
+            compilationOptionsBuilder.listConflictedClasses(theirOptions.listConflictedClasses);
+        } else {
+            compilationOptionsBuilder.listConflictedClasses(this.listConflictedClasses);
         }
         if (theirOptions.sticky != null) {
-            this.sticky = theirOptions.sticky;
+            compilationOptionsBuilder.sticky(theirOptions.sticky);
+        } else {
+            compilationOptionsBuilder.sticky(this.sticky);
         }
         if (theirOptions.semtype != null) {
             this.semtype = theirOptions.semtype;
         }
-        return this;
+        return compilationOptionsBuilder.build();
     }
 
     private boolean toBooleanDefaultIfNull(Boolean bool) {
         if (bool == null) {
             return false;
+        }
+        return bool;
+    }
+
+    private boolean toBooleanTrueIfNull(Boolean bool) {
+        if (bool == null) {
+            return true;
         }
         return bool;
     }

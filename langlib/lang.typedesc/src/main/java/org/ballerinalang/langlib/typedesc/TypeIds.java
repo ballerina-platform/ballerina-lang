@@ -46,7 +46,7 @@ import java.util.HashMap;
 public class TypeIds {
     private static final String PACKAGE_NAME = "lang.typedesc";
     private static final String BALLERINA_BUILTIN_PKG_PREFIX = "ballerina";
-    private static final String PACKAGE_VERSION = "1";
+    private static final String PACKAGE_VERSION = "0";
     private static final Module BALLERINA_TYPEDESC_PKG_ID =
             new Module(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME, PACKAGE_VERSION);
 

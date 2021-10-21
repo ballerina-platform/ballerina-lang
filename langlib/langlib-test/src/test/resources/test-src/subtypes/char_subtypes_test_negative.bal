@@ -62,3 +62,21 @@ function testFiniteTypeAsStringSubType() {
     string:Char[] f = e;
     (int:Unsigned8|string:Char)[] g = e;
 }
+
+type StringFiniteType "ABC" | "D" | 3.0f;
+type StringType s:Char|string|int;
+
+function testStringSubtypesWithLangLibFunctions() {
+    StringFiniteType str1 = "D";
+    StringType str2 = "D";
+    s:Char|string str3 = "d";
+
+    _ = string:toLowerAscii(str1);
+    _ = string:toLowerAscii(str2);
+
+    _ = str1.toLowerAscii();
+    _ = str2.toLowerAscii();
+
+    _ = string:toLowerAscii(str3);
+    _ = str3.toLowerAscii();
+}

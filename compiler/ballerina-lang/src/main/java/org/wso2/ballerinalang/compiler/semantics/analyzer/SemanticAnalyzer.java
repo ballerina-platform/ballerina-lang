@@ -269,7 +269,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     // after visiting the current env.
     private Stack<SymbolEnv> prevEnvs = new Stack<>();
 
-    private int recordCount = 0;
+    private boolean notCompletedNormally;
+    private boolean breakFound;
 
     public static SemanticAnalyzer getInstance(CompilerContext context) {
         SemanticAnalyzer semAnalyzer = context.get(SYMBOL_ANALYZER_KEY);
@@ -479,6 +480,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (BLangStatement stmt : body.stmts) {
             analyzeStmt(stmt, env);
         }
+        resetNotCompletedNormally();
     }
 
     @Override
@@ -2332,11 +2334,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Creates a new environment here.
         SymbolEnv stmtEnv = new SymbolEnv(exprStmtNode, this.env.scope);
         this.env.copyTo(stmtEnv);
-        BType bType = typeChecker.checkExpr(exprStmtNode.expr, stmtEnv, symTable.noType);
+        BLangExpression expr = exprStmtNode.expr;
+        BType bType = typeChecker.checkExpr(expr, stmtEnv, symTable.noType);
         if (bType != symTable.nilType && bType != symTable.semanticError &&
-                exprStmtNode.expr.getKind() != NodeKind.FAIL &&
+                expr.getKind() != NodeKind.FAIL &&
                 !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(bType)) {
             dlog.error(exprStmtNode.pos, DiagnosticErrorCode.ASSIGNMENT_REQUIRED, bType);
+        } else if (expr.getKind() == NodeKind.INVOCATION &&
+                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(expr.getBType())) {
+            this.notCompletedNormally = true;
         }
         validateWorkerAnnAttachments(exprStmtNode.expr);
     }
@@ -2351,6 +2357,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         Map<BVarSymbol, BType.NarrowedTypes> prevNarrowedTypeInfo = this.narrowedTypeInfo;
 
+        // This map keeps the narrowed types of inner if statements and propagate the false types to the outer
+        // block when the flow goes from out of the else block in compile time.
+        Map<BVarSymbol, BType.NarrowedTypes> falseTypesOfNarrowedTypes = new HashMap<>();
+
         SymbolEnv ifEnv = typeNarrower.evaluateTruth(ifNode.expr, ifNode.body, env);
 
         this.narrowedTypeInfo = new HashMap<>();
@@ -2359,6 +2369,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (ifNode.expr.narrowedTypeInfo == null || ifNode.expr.narrowedTypeInfo.isEmpty()) {
             ifNode.expr.narrowedTypeInfo = this.narrowedTypeInfo;
+        } else {
+            Map<BVarSymbol, BType.NarrowedTypes> existingNarrowedTypeInfo = ifNode.expr.narrowedTypeInfo;
+            for (Map.Entry<BVarSymbol, BType.NarrowedTypes> entry : this.narrowedTypeInfo.entrySet()) {
+                BVarSymbol key = entry.getKey();
+                if (!existingNarrowedTypeInfo.containsKey(key)) {
+                    existingNarrowedTypeInfo.put(key, entry.getValue());
+                } else {
+                    BType.NarrowedTypes existingNarrowTypes = existingNarrowedTypeInfo.get(key);
+                    BUnionType unionType =
+                            BUnionType.create(null, existingNarrowTypes.trueType, existingNarrowTypes.falseType);
+                    BType.NarrowedTypes newPair = new BType.NarrowedTypes(existingNarrowTypes.trueType, unionType);
+                    falseTypesOfNarrowedTypes.put(key, newPair);
+                }
+            }
         }
 
         if (prevNarrowedTypeInfo != null) {
@@ -2366,10 +2390,23 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (ifNode.elseStmt != null) {
+            boolean ifCompletionStatus = this.notCompletedNormally;
+            resetNotCompletedNormally();
             SymbolEnv elseEnv = typeNarrower.evaluateFalsity(ifNode.expr, ifNode.elseStmt, env);
-            analyzeStmt(ifNode.elseStmt, elseEnv);
+            BLangStatement elseStmt = ifNode.elseStmt;
+            analyzeStmt(elseStmt, elseEnv);
+            if (elseStmt.getKind() == NodeKind.IF) {
+                this.notCompletedNormally = ifCompletionStatus && this.notCompletedNormally;
+            }
         }
         this.narrowedTypeInfo = prevNarrowedTypeInfo;
+        if (narrowedTypeInfo != null) {
+            narrowedTypeInfo.putAll(falseTypesOfNarrowedTypes);
+        }
+    }
+
+    private void resetNotCompletedNormally() {
+        this.notCompletedNormally = false;
     }
 
     @Override
@@ -2454,18 +2491,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             matchClause.patternsType = types.mergeTypes(matchClause.patternsType, matchPattern.getBType());
         }
 
-        if (matchClause.matchGuard != null) {
-            typeChecker.checkExpr(matchClause.matchGuard.expr, blockEnv);
-            blockEnv = typeNarrower.evaluateTruth(matchClause.matchGuard.expr, matchClause.blockStmt, blockEnv);
+        BLangMatchGuard matchGuard = matchClause.matchGuard;
+        if (matchGuard != null) {
+            analyzeNode(matchGuard, blockEnv);
+            blockEnv = typeNarrower.evaluateTruth(matchGuard.expr, matchClause.blockStmt, blockEnv);
 
             for (Map.Entry<BVarSymbol, BType.NarrowedTypes> entry :
-                    matchClause.matchGuard.expr.narrowedTypeInfo.entrySet()) {
+                    matchGuard.expr.narrowedTypeInfo.entrySet()) {
                 if (entry.getValue().trueType == symTable.semanticError) {
                     dlog.warning(matchClause.pos, DiagnosticWarningCode.MATCH_STMT_UNMATCHED_PATTERN);
                 }
             }
 
-            evaluatePatternsTypeAccordingToMatchGuard(matchClause, matchClause.matchGuard.expr, blockEnv);
+            evaluatePatternsTypeAccordingToMatchGuard(matchClause, matchGuard.expr, blockEnv);
         }
         analyzeStmt(matchClause.blockStmt, blockEnv);
     }
@@ -2577,7 +2615,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchGuard matchGuard) {
-        matchGuard.expr.accept(this);
+        typeChecker.checkExpr(matchGuard.expr, env, symTable.booleanType);
     }
 
     @Override
@@ -3471,12 +3509,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Check foreach node's variables and set types.
         handleForeachDefinitionVariables(foreach.variableDefinitionNode, foreach.varType, foreach.isDeclaredWithVar,
                 false, blockEnv);
+        boolean prevBreakFound = this.breakFound;
         // Analyze foreach node's statements.
         analyzeStmt(foreach.body, blockEnv);
 
         if (foreach.onFailClause != null) {
             this.analyzeNode(foreach.onFailClause, env);
         }
+        this.notCompletedNormally = false;
+        this.breakFound = prevBreakFound;
     }
 
     @Override
@@ -3511,8 +3552,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(whileNode.expr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, symTable.booleanType, actualType);
         }
 
+        boolean prevBreakFound = this.breakFound;
         SymbolEnv whileEnv = typeNarrower.evaluateTruth(whileNode.expr, whileNode.body, env);
         analyzeStmt(whileNode.body, whileEnv);
+        if (ConditionResolver.checkConstCondition(types, symTable, whileNode.expr) != symTable.trueType
+                || this.breakFound) {
+            this.notCompletedNormally = false;
+        }
+        this.breakFound = prevBreakFound;
     }
 
     @Override
@@ -3533,6 +3580,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 !types.isSubTypeOfBaseType(errorExpressionType, symTable.errorType.tag)) {
             dlog.error(errorExpression.pos, DiagnosticErrorCode.ERROR_TYPE_EXPECTED, errorExpression.toString());
         }
+        this.notCompletedNormally = true;
     }
 
     @Override
@@ -3794,6 +3842,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangReturn returnNode) {
         this.typeChecker.checkExpr(returnNode.expr, this.env, this.env.enclInvokable.returnTypeNode.getBType());
         validateWorkerAnnAttachments(returnNode.expr);
+        this.notCompletedNormally = true;
     }
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {
@@ -3810,12 +3859,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangContinue continueNode) {
-        /* ignore */
+        this.notCompletedNormally = true;
     }
 
     @Override
     public void visit(BLangBreak breakNode) {
-        /* ignore */
+        this.notCompletedNormally = true;
+        this.breakFound = true;
     }
 
     @Override
@@ -3826,6 +3876,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangPanic panicNode) {
         this.typeChecker.checkExpr(panicNode.expr, env, symTable.errorType);
+        this.notCompletedNormally = true;
     }
 
     BType analyzeNode(BLangNode node, SymbolEnv env, BType expType, DiagnosticCode diagCode) {
@@ -3838,11 +3889,43 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.expType = expType;
         this.diagCode = diagCode;
         node.accept(this);
+        updateAndCleanPrevEnvsForNarrowedEnvFollowingIfWithoutElse(node);
         this.env = this.prevEnvs.pop();
         this.expType = preExpType;
         this.diagCode = preDiagCode;
 
         return resType;
+    }
+
+    private void updateAndCleanPrevEnvsForNarrowedEnvFollowingIfWithoutElse(BLangNode node) {
+        if (node.getKind() != NodeKind.IF && node.getKind() != NodeKind.BLOCK &&
+                node.getKind() != NodeKind.BLOCK_FUNCTION_BODY) {
+            return;
+        }
+        if (node.getKind() == NodeKind.BLOCK || node.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
+            // If types have been narrowed following `if` statement without an `else`, prevEnvs would still
+            // have the block's env as its immediate prevEnv. It should be removed once analysis of the block
+            // is completed.
+            if (this.prevEnvs.peek() != null && this.prevEnvs.peek().node == node) {
+                this.prevEnvs.pop();
+            }
+            return;
+        }
+        BLangIf ifNode = (BLangIf) node;
+        if (ifNode.elseStmt == null && this.notCompletedNormally) {
+            BLangExpression expr = ifNode.expr;
+            boolean constTrueCondition =
+                    ConditionResolver.checkConstCondition(types, symTable, expr) == symTable.trueType;
+            if (!constTrueCondition) {
+                SymbolEnv narrowedEnv = typeNarrower.evaluateFalsityFollowingIfWithoutElse(expr, env);
+                // Push narrowed env to prevEnvs if the `if` statement without `else` clause is not completed normally,
+                // so that the narrowed types are considered in the statements following the `if` statement.
+                // The immediate prevEnv would still have the block's env to handle resetting type narrowing
+                // when required.
+                this.prevEnvs.push(narrowedEnv);
+            }
+            this.notCompletedNormally = constTrueCondition;
+        }
     }
 
     @Override

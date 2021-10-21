@@ -49,7 +49,8 @@ public class BuildOptions {
     }
 
     public boolean skipTests() {
-        return toBooleanDefaultIfNull(this.skipTests);
+        // By default, the tests will be skipped
+        return toBooleanTrueIfNull(this.skipTests);
     }
 
     public boolean offlineBuild() {
@@ -91,25 +92,53 @@ public class BuildOptions {
      * @return a new {@code BuildOptions} instance that contains our options and their options
      */
     public BuildOptions acceptTheirs(BuildOptions theirOptions) {
+        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
         if (theirOptions.skipTests != null) {
-            this.skipTests = theirOptions.skipTests;
+            buildOptionsBuilder.skipTests(theirOptions.skipTests);
+        } else {
+            buildOptionsBuilder.skipTests(this.skipTests);
         }
         if (theirOptions.codeCoverage != null) {
-            this.codeCoverage = theirOptions.codeCoverage;
+            buildOptionsBuilder.codeCoverage(theirOptions.codeCoverage);
+        } else {
+            buildOptionsBuilder.codeCoverage(this.codeCoverage);
         }
         if (theirOptions.testReport != null) {
-            this.testReport = theirOptions.testReport;
+            buildOptionsBuilder.testReport(theirOptions.testReport);
+        } else {
+            buildOptionsBuilder.testReport(this.testReport);
         }
         if (theirOptions.dumpBuildTime != null) {
-            this.dumpBuildTime = theirOptions.dumpBuildTime;
+            buildOptionsBuilder.dumpBuildTime(theirOptions.dumpBuildTime);
+        } else {
+            buildOptionsBuilder.dumpBuildTime(this.dumpBuildTime);
         }
-        this.compilationOptions = compilationOptions.acceptTheirs(theirOptions.compilationOptions());
-        return this;
+
+        CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
+        buildOptionsBuilder.offline(compilationOptions.offlineBuild);
+        buildOptionsBuilder.experimental(compilationOptions.experimental);
+        buildOptionsBuilder.observabilityIncluded(compilationOptions.observabilityIncluded);
+        buildOptionsBuilder.dumpBir(compilationOptions.dumpBir);
+        buildOptionsBuilder.dumpBirFile(compilationOptions.dumpBirFile);
+        buildOptionsBuilder.dumpGraph(compilationOptions.dumpGraph);
+        buildOptionsBuilder.dumpRawGraphs(compilationOptions.dumpRawGraphs);
+        buildOptionsBuilder.cloud(compilationOptions.cloud);
+        buildOptionsBuilder.listConflictedClasses(compilationOptions.listConflictedClasses);
+        buildOptionsBuilder.sticky(compilationOptions.sticky);
+
+        return buildOptionsBuilder.build();
     }
 
     private boolean toBooleanDefaultIfNull(Boolean bool) {
         if (bool == null) {
             return false;
+        }
+        return bool;
+    }
+
+    private boolean toBooleanTrueIfNull(Boolean bool) {
+        if (bool == null) {
+            return true;
         }
         return bool;
     }
@@ -124,7 +153,7 @@ public class BuildOptions {
         DUMP_BUILD_TIME("dumpBuildTime")
         ;
 
-        private String name;
+        private final String name;
 
         OptionName(String name) {
             this.name = name;

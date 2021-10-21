@@ -38,6 +38,12 @@
         <Package name="org.wso2.ballerinalang.compiler.bir.codegen.split" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.bir.codegen.split.constants" />
+    </Match>
+    <Match>
+        <Package name="org.wso2.ballerinalang.compiler.bir.codegen.split.types" />
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler.bir.emit" />
     </Match>
     <Match>
@@ -340,6 +346,11 @@
     <Match>
         <Class name="io.ballerina.projects.CodeActionManager"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.directory.BuildProject"/>
+        <Method name="createBuildFile"/>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
     </Match>
     <Match>
         <Class name="io.ballerina.projects.internal.ManifestBuilder"/>
