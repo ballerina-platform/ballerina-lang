@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
@@ -61,14 +60,11 @@ class EvaluatorImpl extends Evaluator {
     @Override
     public String evaluate(String source) throws BallerinaShellException {
         try {
-            Collection<String> inputString = new ArrayList<>();
-            inputString.add(source);
-            Collection<Node> nodes = treeParser.parse(inputString);
+            Collection<Node> nodes = treeParser.parseString(source);
             Collection<Snippet> snippets = snippetFactory.createSnippets(nodes);
             Optional<Object> invokerOut = invoker.execute(snippets);
             return invokerOut.map(StringUtils::getExpressionStringValue).orElse(null);
         } finally {
-            addAllDiagnostics(preprocessor.diagnostics());
             addAllDiagnostics(treeParser.diagnostics());
             addAllDiagnostics(snippetFactory.diagnostics());
             addAllDiagnostics(invoker.diagnostics());
