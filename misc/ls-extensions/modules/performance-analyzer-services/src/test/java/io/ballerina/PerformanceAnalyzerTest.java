@@ -20,8 +20,6 @@ package io.ballerina;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -44,12 +42,11 @@ import java.util.concurrent.ExecutionException;
 public class PerformanceAnalyzerTest {
 
     private static final String PERFORMANCE_ANALYZE = "performanceAnalyzer/getEndpoints";
-    private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
+    private static final Path RES_DIR = Paths.get("src", "test", "resources").toAbsolutePath();
     private static final Path project = RES_DIR.resolve("ballerina")
             .resolve("main.bal");
     private static final Path resultJson = RES_DIR.resolve("result")
             .resolve("result.json");
-    private static final LanguageServerContext serverContext = new LanguageServerContextImpl();
 
     @Test(description = "Test performance analyzer")
     public void testPerformanceAnalyzer() throws IOException, ExecutionException, InterruptedException {

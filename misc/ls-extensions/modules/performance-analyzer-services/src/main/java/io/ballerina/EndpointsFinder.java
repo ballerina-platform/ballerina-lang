@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Range;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Optional;
@@ -44,22 +45,22 @@ import static io.ballerina.ProgramAnalyzerNodeVisitor.ENDPOINTS_KEY;
  * Implements functionality to find endpoints and action invocations.
  *
  * @since 2.0.0
- *
  */
 public class EndpointsFinder {
 
     /**
      * Get endpoints and action invocations in a given range of a file.
-     * @param fileUri .bal file url
+     *
+     * @param fileUri          .bal file url
      * @param workspaceManager ballerina workspaceManager
-     * @param range range of file to find invocations
+     * @param range            range of file to find invocations
      * @return json of endpoints and invocations
      */
     public static JsonObject getEndpoints(String fileUri, WorkspaceManager workspaceManager,
                                           Range range) {
 
         Path path = Path.of(fileUri);
-        String file = StringUtils.substringAfterLast(fileUri, "/");
+        String file = StringUtils.substringAfterLast(fileUri, File.separator);
         try {
             Optional<SemanticModel> semanticModel = workspaceManager.semanticModel(path);
             Optional<Module> module = workspaceManager.module(path);
