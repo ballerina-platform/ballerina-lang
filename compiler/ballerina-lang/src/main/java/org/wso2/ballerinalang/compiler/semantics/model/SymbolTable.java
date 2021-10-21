@@ -775,7 +775,7 @@ public class SymbolTable {
         }
     }
 
-    private void defineNillableIntegerBitwiseAndOperations() {
+    private void defineNilableIntegerBitwiseAndOperations() {
         BType[] unsignedIntTypes = {byteType, unsigned8IntType, unsigned16IntType, unsigned32IntType};
         BType[] signedIntTypes = {intType, signed8IntType, signed16IntType, signed32IntType};
 
