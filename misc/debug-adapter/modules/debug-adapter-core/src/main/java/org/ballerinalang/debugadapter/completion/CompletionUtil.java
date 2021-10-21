@@ -20,7 +20,6 @@ package org.ballerinalang.debugadapter.completion;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -41,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Common utility methods for debug completions operation.
@@ -55,9 +55,10 @@ public class CompletionUtil {
     /**
      * Get the updated bal file content which includes debug console expression.
      *
-     * @param args       debug completions arguments
-     * @param node       non terminal node
-     * @param lineNumber debug breakpoint line number
+     * @param completionContext debug completion context
+     * @param args              debug completions arguments
+     * @param node              non terminal node
+     * @param lineNumber        debug breakpoint line number
      * @return updated file content
      */
     public static String getUpdatedBalFileContent(CompletionContext completionContext, CompletionsArguments args,
@@ -66,7 +67,7 @@ public class CompletionUtil {
         TextDocument textDocument = suspendedContext.getDocument().textDocument();
         List<String> lines = Arrays.asList(textDocument.toString().split(System.lineSeparator()));
 
-        if (node instanceof FunctionBodyBlockNode) {
+        if (node != null && node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK) {
             int nodeStartLine = node.lineRange().startLine().line();
             int nodeEndLine = node.lineRange().endLine().line();
 
@@ -105,9 +106,11 @@ public class CompletionUtil {
      * @param node node to evaluate
      * @return nearest matching resolver node
      */
-    public static Node getResolverNode(NonTerminalNode node) {
-        if (node.kind() == SyntaxKind.FIELD_ACCESS) {
-            return node;
+    public static Optional<Node> getResolverNode(NonTerminalNode node) {
+        if (node == null || node.kind() == SyntaxKind.MODULE_PART) {
+            return Optional.empty();
+        } else if (node.kind() == SyntaxKind.FIELD_ACCESS) {
+            return Optional.of(node);
         }
         return getResolverNode(node.parent());
     }
@@ -147,12 +150,44 @@ public class CompletionUtil {
                 completionItem.setLabel(symbol.getName().get());
                 completionItem.setText(symbol.getName().get());
             }
-            if (Arrays.stream(CompletionItemType.values()).anyMatch(s -> s.name().equals(symbol.kind().name()))) {
-                completionItem.setType(CompletionItemType.valueOf(symbol.kind().name()));
-            }
+            completionItem.setType(getCompletionItemType(symbol));
             completionItems.add(completionItem);
         }
         return completionItems.toArray(new CompletionItem[0]);
+    }
+
+    private static CompletionItemType getCompletionItemType(Symbol symbol) {
+        switch (symbol.kind()) {
+            case MODULE:
+                return CompletionItemType.MODULE;
+            case FUNCTION:
+                return CompletionItemType.FUNCTION;
+            case METHOD:
+            case RESOURCE_METHOD:
+                return CompletionItemType.METHOD;
+            case VARIABLE:
+                return CompletionItemType.VARIABLE;
+            case CLASS:
+                return CompletionItemType.CLASS;
+            case RECORD_FIELD:
+            case OBJECT_FIELD:
+            case CLASS_FIELD:
+                return CompletionItemType.FIELD;
+            case ENUM:
+                return CompletionItemType.ENUM;
+            case XMLNS:
+            case CONSTANT:
+            case TYPE_DEFINITION:
+            case TYPE:
+            case SERVICE_DECLARATION:
+            case WORKER:
+            case ANNOTATION:
+            case ENUM_MEMBER:
+            case PARAMETER:
+            case PATH_PARAMETER:
+            default:
+                return null;
+        }
     }
 
     /**
@@ -193,7 +228,7 @@ public class CompletionUtil {
 
         if (nonTerminalNode == null) {
             return textDocument.textPositionFrom(LinePosition.from(lineNumber, offset));
-        } else if (nonTerminalNode instanceof FunctionBodyBlockNode) {
+        } else if (nonTerminalNode.kind() == SyntaxKind.FUNCTION_BODY_BLOCK) {
             if (nonTerminalNode.lineRange().startLine().line() == lineNumber - 1) {
                 textPosition = textDocument.textPositionFrom(LinePosition.from(
                         nonTerminalNode.lineRange().startLine().line() + 1, offset));
@@ -237,7 +272,7 @@ public class CompletionUtil {
         // If the non terminal node is not an instance of StatementNode,
         // traverse/visit to its parent until get the instance of StatementNode.
         while (!(nonTerminalNode instanceof StatementNode)) {
-            if (nonTerminalNode instanceof FunctionBodyBlockNode) {
+            if (nonTerminalNode.kind() == SyntaxKind.FUNCTION_BODY_BLOCK) {
                 break;
             }
             nonTerminalNode = nonTerminalNode.parent();

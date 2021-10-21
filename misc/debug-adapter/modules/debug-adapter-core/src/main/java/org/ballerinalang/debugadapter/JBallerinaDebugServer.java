@@ -113,6 +113,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -504,13 +505,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             try {
                 NonTerminalNode injectedExpressionNode = getInjectedExpressionNode(completionContext, args,
                         clientConfigHolder.getSourcePath(), suspendedContext.getLineNumber());
-                Node resolverNode = getResolverNode(injectedExpressionNode);
+                Optional<Node> resolverNode = getResolverNode(injectedExpressionNode);
 
-                if (Objects.requireNonNull(resolverNode).kind() == SyntaxKind.FIELD_ACCESS) {
+                if (resolverNode.isPresent() && resolverNode.get().kind() == SyntaxKind.FIELD_ACCESS) {
                     FieldAccessCompletionResolver fieldAccessCompletionResolver =
                             new FieldAccessCompletionResolver(completionContext);
                     List<Symbol> visibleEntries = fieldAccessCompletionResolver
-                            .getVisibleEntries(((FieldAccessExpressionNode) resolverNode).expression());
+                            .getVisibleEntries(((FieldAccessExpressionNode) resolverNode.get()).expression());
                     CompletionItem[] completions = getCompletions(visibleEntries);
                     completionsResponse.setTargets(completions);
                 }
