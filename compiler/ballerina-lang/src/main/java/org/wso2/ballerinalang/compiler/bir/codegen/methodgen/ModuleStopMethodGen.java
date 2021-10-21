@@ -162,12 +162,12 @@ public class ModuleStopMethodGen {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_1);
         mv.visitInsn(AALOAD);
-        mv.visitTypeInsn(CHECKCAST , LISTENER_REGISTRY_CLASS);
+        mv.visitTypeInsn(CHECKCAST, LISTENER_REGISTRY_CLASS);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
-        mv.visitMethodInsn(INVOKEVIRTUAL , LISTENER_REGISTRY_CLASS, "stopListeners",
+        mv.visitMethodInsn(INVOKEVIRTUAL, LISTENER_REGISTRY_CLASS, "stopListeners",
                            SET_STRAND, false);
         mv.visitInsn(ACONST_NULL);
         MethodGenUtils.visitReturn(mv);
