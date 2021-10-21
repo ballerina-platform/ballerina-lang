@@ -42,7 +42,7 @@ public class BTupleType extends BType implements TupleType {
     private List<Type> tupleTypes;
     private Type restType;
     private int typeFlags;
-    private boolean readonly;
+    private final boolean readonly;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
     public boolean isCyclic = false;
@@ -115,6 +115,10 @@ public class BTupleType extends BType implements TupleType {
         for (Type memberType : tupleTypes) {
             isAllMembersPure &= memberType.isPureType();
             isAllMembersAnydata &= memberType.isAnydata();
+        }
+        if (restType != null) {
+            isAllMembersPure &= restType.isPureType();
+            isAllMembersAnydata &= restType.isAnydata();
         }
         this.resolvingReadonly = false;
         this.resolving = false;
@@ -202,10 +206,14 @@ public class BTupleType extends BType implements TupleType {
         if (cachedToString != null) {
             return;
         }
-        String stringRep = "[" + tupleTypes.stream().map(Type::toString).collect(Collectors.joining(","))
-                + ((restType != null) ? (tupleTypes.size() > 0 ? "," : "") + restType.toString() + "...]" : "]");
-
-        cachedToString = readonly ? stringRep + " & readonly" : stringRep;
+        StringBuilder stringRep =
+                new StringBuilder("[").append(tupleTypes.stream().map(Type::toString).collect(Collectors.joining(",")));
+        if (restType != null) {
+            stringRep.append(tupleTypes.isEmpty() ? "" : ",").append(restType).append("...]");
+        } else {
+            stringRep.append("]");
+        }
+        cachedToString = readonly ? stringRep + " & readonly" : stringRep.toString();
     }
 
     @Override

@@ -454,6 +454,19 @@ public class BalaFiles {
         return packageJson;
     }
 
+    public static PackageJson readPkgJson(Path packageJsonPath) {
+        PackageJson packageJson;
+        try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath)) {
+            packageJson = gson.fromJson(bufferedReader, PackageJson.class);
+        } catch (JsonSyntaxException e) {
+            throw new ProjectException("Invalid package.json format");
+        } catch (IOException e) {
+            throw new ProjectException("Failed to read the package.json");
+        }
+
+        return packageJson;
+    }
+
     private static DependencyGraphJson readDependencyGraphJson(Path balaPath, Path depsGraphJsonPath) {
         DependencyGraphJson dependencyGraphJson;
         try (BufferedReader bufferedReader = Files.newBufferedReader(depsGraphJsonPath)) {

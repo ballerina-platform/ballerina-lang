@@ -123,7 +123,6 @@ function testConstWithTypeInCondition() returns boolean {
     if (foo:conditionWithType) {
         return true;
     }
-    return false;
 }
 
 // -----------------------------------------------------------
@@ -132,7 +131,6 @@ function testConstWithoutTypeInCondition() returns boolean {
     if (foo:conditionWithoutType) {
         return true;
     }
-    return false;
 }
 
 // -----------------------------------------------------------

@@ -84,6 +84,7 @@ public class CommandUtil {
     public static final String PKG_NAME = "PKG_NAME";
     public static final String DIST_VERSION = "DIST_VERSION";
     public static final String GITIGNORE = "gitignore";
+    public static final String DEVCONTAINER = "devcontainer";
     public static final String NEW_CMD_DEFAULTS = "new_cmd_defaults";
     public static final String CREATE_CMD_TEMPLATES = "create_cmd_templates";
     private static FileSystem jarFs;
@@ -157,6 +158,7 @@ public class CommandUtil {
         // - Ballerina.toml
         // - main.bal
         // - .gitignore       <- git ignore file
+        // - .devcontainer.json
 
         applyTemplate(path, template);
         if (template.equalsIgnoreCase("lib")) {
@@ -179,6 +181,15 @@ public class CommandUtil {
         }
         String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + GITIGNORE);
         Files.write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
+        // Create dev container
+        Path devcontainer = path.resolve(ProjectConstants.DEVCONTAINER);
+        if (Files.notExists(devcontainer)) {
+            Files.createFile(devcontainer);
+        }
+
+        String defaultDevcontainer = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + DEVCONTAINER);
+        defaultDevcontainer = defaultDevcontainer.replace("latest", RepoUtils.getBallerinaVersion());
+        Files.write(devcontainer, defaultDevcontainer.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -538,6 +549,21 @@ public class CommandUtil {
         Files.createFile(ballerinaToml);
 
         String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-app.toml");
+        // replace manifest distribution with a guessed value
+        defaultManifest = defaultManifest.replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
+        Files.write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static Path getJarPathFromHomeCache(Package pkg) {
+        try {
+            Path packageJarCacheDir = Files.createDirectories(getJarCacheFromHome()
+                    .resolve(pkg.packageOrg().toString())
+                    .resolve(pkg.packageName().toString())
+                    .resolve(pkg.packageVersion().toString()));
+            return packageJarCacheDir.resolve(ProjectUtils.getJarFileName(pkg) + BLANG_COMPILED_JAR_EXT);
+        } catch (IOException e) {
+            throw new BLangCompilerException("error resolving bir_cache dir for package: " + pkg.packageName());
+        }
         write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
     }
 

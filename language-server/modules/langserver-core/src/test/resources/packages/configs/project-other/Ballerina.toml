@@ -1,0 +1,4 @@
+[package]
+org = "bob"
+name = "project-other"
+version = "0.1.0"

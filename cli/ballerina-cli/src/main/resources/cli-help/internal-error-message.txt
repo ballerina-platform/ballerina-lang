@@ -1,7 +1,0 @@
-ballerina: Oh no, something really went wrong. Bad. Sad.
-
-We appreciate it if you can report the code that broke Ballerina in 
-https://github.com/ballerina-platform/ballerina-lang/issues with the 
-log you get below and your sample code.
-
-We thank you for helping make us better.

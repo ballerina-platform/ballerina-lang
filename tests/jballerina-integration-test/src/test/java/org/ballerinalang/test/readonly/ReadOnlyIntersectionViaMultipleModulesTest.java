@@ -27,8 +27,6 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Paths;
 
-import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
-
 /**
  * Tests intersection of the same construct via multiple modules.
  *
@@ -55,7 +53,7 @@ public class ReadOnlyIntersectionViaMultipleModulesTest extends BaseTest {
     private void compilePackageAndPushToLocal(String packagePath, String balaFileName) throws BallerinaTestException {
         LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
         LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
-                                                        "'local' repository.", ERROR);
+                                                        "'local' repository.");
         bMainInstance.runMain("build", new String[]{"-c"}, null, null, new LogLeecher[]{buildLeecher},
                               packagePath);
         buildLeecher.waitForText(5000);
