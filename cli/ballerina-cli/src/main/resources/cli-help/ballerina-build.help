@@ -7,9 +7,9 @@ SYNOPSIS
        bal build <ballerina-package-path>
        bal build [--test-report] [--offline] [--experimental] [-o | --output] <output-path> [--dump-build-time]
                   <ballerina-file-path>
-       bal build [-c | --compile] [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
-                 [--with-tests] [--list-conflicted-classes] <ballerina-package-path>
-       bal build [-c | --compile] [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
+       bal build [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
+                 [--skip-tests] [--list-conflicted-classes] <ballerina-package-path>
+       bal build [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
                  [--list-conflicted-classes] [--debug]  [--test-report] [--code-coverage]
                  <ballerina-package-path>
 
@@ -32,10 +32,6 @@ OPTIONS
            Write the output to the given file. The provided output
            file name may or may not contain the ‘.jar’ extension. The -o flag will only work
            for single files.
-
-       -c, --compile
-           Compile the source and generate the Ballerina archive (.bala)
-           without generating the executable.
 
        --offline
             Build offline using the local artifacts without downloading the latest artifacts of
@@ -82,11 +78,6 @@ EXAMPLES
 
        Compile a Ballerina source file and create an executable JAR.
           $ bal build hello.bal
-
-       Build the 'hello' library package with '--compile'/'-c' flag. This will
-       generate the `<org-name>-<package-name>-<version>-<platform>.bala` file in
-       the '<package-root>/target/bala' directory.
-          $ bal build -c
 
        Build the 'hello' package from a different directory location.
           $ bal build `<hello-package-path>`
