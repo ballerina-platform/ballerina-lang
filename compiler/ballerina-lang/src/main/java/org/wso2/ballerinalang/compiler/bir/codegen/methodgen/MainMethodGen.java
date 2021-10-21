@@ -140,7 +140,7 @@ public class MainMethodGen {
         Label tryCatchStart = new Label();
         Label tryCatchEnd = new Label();
         Label tryCatchHandle = new Label();
-        mv.visitTryCatchBlock(tryCatchStart, tryCatchEnd, tryCatchHandle , THROWABLE);
+        mv.visitTryCatchBlock(tryCatchStart, tryCatchEnd, tryCatchHandle, THROWABLE);
         mv.visitLabel(tryCatchStart);
 
         // check for java compatibility
@@ -157,7 +157,7 @@ public class MainMethodGen {
 
         boolean hasInitFunction = MethodGenUtils.hasInitFunction(pkg);
         if (hasInitFunction) {
-            generateMethodCall(initClass, mv , MODULE_INIT_METHOD,
+            generateMethodCall(initClass, mv, MODULE_INIT_METHOD,
                                MethodGenUtils.INIT_FUNCTION_SUFFIX, INIT_FUTURE_VAR);
         }
 
@@ -167,7 +167,7 @@ public class MainMethodGen {
 
 
         if (hasInitFunction) {
-            generateMethodCall(initClass, mv , JvmConstants.MODULE_START_METHOD, "start", START_FUTURE_VAR);
+            generateMethodCall(initClass, mv, JvmConstants.MODULE_START_METHOD, "start", START_FUTURE_VAR);
             setListenerFound(mv, serviceEPAvailable);
         }
         stopListeners(mv, serviceEPAvailable);
@@ -178,7 +178,7 @@ public class MainMethodGen {
         mv.visitLabel(tryCatchEnd);
         mv.visitInsn(RETURN);
         mv.visitLabel(tryCatchHandle);
-        mv.visitMethodInsn(INVOKESTATIC , RUNTIME_UTILS , HANDLE_ALL_THROWABLE_METHOD,
+        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_ALL_THROWABLE_METHOD,
                            HANDLE_THROWABLE, false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
@@ -196,7 +196,7 @@ public class MainMethodGen {
 
     private void startScheduler(int schedulerVarIndex, MethodVisitor mv) {
         mv.visitVarInsn(ALOAD, schedulerVarIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL , SCHEDULER , SCHEDULER_START_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
     }
 
     private void invokeConfigInit(MethodVisitor mv, PackageID packageID) {
@@ -216,7 +216,7 @@ public class MainMethodGen {
 
     private void generateJavaCompatibilityCheck(MethodVisitor mv) {
         mv.visitLdcInsn(getJavaVersion());
-        mv.visitMethodInsn(INVOKESTATIC , COMPATIBILITY_CHECKER, "verifyJavaCompatibility",
+        mv.visitMethodInsn(INVOKESTATIC, COMPATIBILITY_CHECKER, "verifyJavaCompatibility",
                            METHOD_STRING_PARAM, false);
     }
 
@@ -228,21 +228,21 @@ public class MainMethodGen {
 
     private void startListeners(MethodVisitor mv, boolean isServiceEPAvailable) {
         mv.visitLdcInsn(isServiceEPAvailable);
-        mv.visitMethodInsn(INVOKESTATIC , LAUNCH_UTILS, "startListeners", "(Z)V", false);
+        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "startListeners", "(Z)V", false);
     }
 
     private void genShutdownHook(MethodVisitor mv, String initClass) {
         String shutdownClassName = initClass + "$SignalListener";
-        mv.visitMethodInsn(INVOKESTATIC , JAVA_RUNTIME, "getRuntime",
+        mv.visitMethodInsn(INVOKESTATIC, JAVA_RUNTIME, "getRuntime",
                            GET_RUNTIME, false);
         mv.visitTypeInsn(NEW, shutdownClassName);
         mv.visitInsn(DUP);
         mv.visitVarInsn(ALOAD, indexMap.get(SCHEDULER_VAR));
-        mv.visitMethodInsn(INVOKEVIRTUAL , SCHEDULER, "getListenerRegistry",
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "getListenerRegistry",
                 GET_LISTENER_REGISTRY_CLASS, false);
-        mv.visitMethodInsn(INVOKESPECIAL, shutdownClassName , JVM_INIT_METHOD,
+        mv.visitMethodInsn(INVOKESPECIAL, shutdownClassName, JVM_INIT_METHOD,
                            INIT_LISTENER_REGISTRY, false);
-        mv.visitMethodInsn(INVOKEVIRTUAL , JAVA_RUNTIME, "addShutdownHook", ADD_SHUTDOWN_HOOK, false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_RUNTIME, "addShutdownHook", ADD_SHUTDOWN_HOOK, false);
     }
 
     private void genInitScheduler(MethodVisitor mv) {

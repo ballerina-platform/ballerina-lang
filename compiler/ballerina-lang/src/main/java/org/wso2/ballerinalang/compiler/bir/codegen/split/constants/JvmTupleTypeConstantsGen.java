@@ -77,7 +77,7 @@ public class JvmTupleTypeConstantsGen {
 
     public JvmTupleTypeConstantsGen(PackageID packageID) {
         tupleVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(
-                packageID , BTUPLE_TYPE_CONSTANT_CLASS_NAME);
+                packageID, BTUPLE_TYPE_CONSTANT_CLASS_NAME);
         generateTupleTypeConstantsClassInit();
         visitTupleTypeInitMethod();
         funcNames = new ArrayList<>();
@@ -95,17 +95,17 @@ public class JvmTupleTypeConstantsGen {
 
     private void generateTupleTypeConstantsClassInit() {
         cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC | ACC_SUPER, tupleVarConstantsClass, null , OBJECT, null);
+        cw.visit(V1_8, ACC_PUBLIC | ACC_SUPER, tupleVarConstantsClass, null, OBJECT, null);
 
-        MethodVisitor methodVisitor = cw.visitMethod(ACC_PRIVATE , JVM_INIT_METHOD, "()V", null, null);
+        MethodVisitor methodVisitor = cw.visitMethod(ACC_PRIVATE, JVM_INIT_METHOD, "()V", null, null);
         methodVisitor.visitCode();
         methodVisitor.visitVarInsn(ALOAD, 0);
-        methodVisitor.visitMethodInsn(INVOKESPECIAL , OBJECT , JVM_INIT_METHOD, "()V", false);
+        methodVisitor.visitMethodInsn(INVOKESPECIAL, OBJECT, JVM_INIT_METHOD, "()V", false);
         genMethodReturn(methodVisitor);
     }
 
     private void visitTupleTypeInitMethod() {
-        mv = cw.visitMethod(ACC_STATIC , B_TUPLE_TYPE_INIT_METHOD_PREFIX + methodCount++,
+        mv = cw.visitMethod(ACC_STATIC, B_TUPLE_TYPE_INIT_METHOD_PREFIX + methodCount++,
                 "()V", null, null);
     }
 

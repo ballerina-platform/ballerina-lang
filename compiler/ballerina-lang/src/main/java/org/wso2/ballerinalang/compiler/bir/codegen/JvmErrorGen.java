@@ -74,7 +74,7 @@ public class JvmErrorGen {
         BIRNode.BIRVariableDcl varDcl = panicTerm.errorOp.variableDcl;
         int errorIndex = this.getJVMIndexOfVarRef(varDcl);
         jvmInstructionGen.generateVarLoad(this.mv, varDcl, errorIndex);
-        this.mv.visitTypeInsn(CHECKCAST , BERROR);
+        this.mv.visitTypeInsn(CHECKCAST, BERROR);
         this.mv.visitInsn(ATHROW);
     }
 
