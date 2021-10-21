@@ -38,7 +38,7 @@ import java.util.List;
  */
 public abstract class TreeParser extends DiagnosticReporter {
     /**
-     * Parses a collection of strings string into Nodes.
+     * Parses a string into Nodes.
      *
      * @param source Input source code statements.
      * @return Syntax tree for the source code.
@@ -51,7 +51,6 @@ public abstract class TreeParser extends DiagnosticReporter {
 
     /**
      * Parses a source code string into a Node.
-     * Input source code is expected to be a single statement/expression.
      *
      * @param statement Input source code statement.
      * @return Syntax tree for the source code.
