@@ -64,7 +64,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
-import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
@@ -73,6 +72,7 @@ import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.write;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.ANY_PLATFORM;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
+import static org.wso2.ballerinalang.util.RepoUtils.readSettings;
 
 /**
  * Packerina command util.
@@ -552,19 +552,6 @@ public class CommandUtil {
         // replace manifest distribution with a guessed value
         defaultManifest = defaultManifest.replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
         Files.write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
-    }
-
-    public static Path getJarPathFromHomeCache(Package pkg) {
-        try {
-            Path packageJarCacheDir = Files.createDirectories(getJarCacheFromHome()
-                    .resolve(pkg.packageOrg().toString())
-                    .resolve(pkg.packageName().toString())
-                    .resolve(pkg.packageVersion().toString()));
-            return packageJarCacheDir.resolve(ProjectUtils.getJarFileName(pkg) + BLANG_COMPILED_JAR_EXT);
-        } catch (IOException e) {
-            throw new BLangCompilerException("error resolving bir_cache dir for package: " + pkg.packageName());
-        }
-        write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
     }
 
     private static void initLibPackage(Path path, String packageName) throws IOException {
