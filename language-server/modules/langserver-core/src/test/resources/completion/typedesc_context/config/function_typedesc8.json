@@ -461,6 +461,14 @@
       "filterText": "transactional",
       "insertText": "transactional",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "FuncType1",
+      "kind": "TypeParameter",
+      "detail": "Function",
+      "sortText": "AN",
+      "insertText": "FuncType1",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
