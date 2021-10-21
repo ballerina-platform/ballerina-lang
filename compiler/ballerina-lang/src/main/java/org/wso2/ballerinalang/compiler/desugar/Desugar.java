@@ -7133,7 +7133,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangUnaryExpr unaryExpr) {
 
         if (isNullableUnaryExpr(unaryExpr)) {
-            BLangStatementExpression statementExpression = createStmtExprForNullableUnaryExpr(unaryExpr);
+            BLangStatementExpression statementExpression = createStmtExprForNilableUnaryExpr(unaryExpr);
             result = rewrite(statementExpression, env);
             return;
         }
