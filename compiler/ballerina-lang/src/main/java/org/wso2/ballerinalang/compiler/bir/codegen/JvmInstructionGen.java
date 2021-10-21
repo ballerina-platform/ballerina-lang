@@ -1004,7 +1004,7 @@ public class JvmInstructionGen {
         } else if (bType.tag == TypeTags.BYTE) {
             this.mv.visitInsn(IADD);
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
-                this.mv.visitMethodInsn(INVOKEINTERFACE , B_STRING_VALUE, "concat",
+                this.mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "concat",
                                         BSTRING_CONCAT, true);
         } else if (bType.tag == TypeTags.DECIMAL) {
             this.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "add",
@@ -1351,7 +1351,7 @@ public class JvmInstructionGen {
         if (varRefType.tag == TypeTags.JSON) {
 
             if (mapLoadIns.optionalFieldAccess) {
-                this.mv.visitTypeInsn(CHECKCAST , B_STRING_VALUE);
+                this.mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
                 this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElementOrNil",
                                         JSON_GET_ELEMENT,
                                         false);
