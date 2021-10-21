@@ -211,7 +211,13 @@ function testBinaryBitwiseOperationsForNullable() {
     int:Unsigned16? g = 54522;
     int:Unsigned8? h = 255;
 
+    int i = 43;
+    byte j = 5;
+    int:Signed32 k = -21474836;
+
     assertEqual(a & b, 1);
+    assertEqual(a & j, 1);
+    assertEqual(j & a, 1);
     assertEqual(a & c, 40);
     assertEqual(a & d, 42);
     assertEqual(a & e, 32);
@@ -220,6 +226,8 @@ function testBinaryBitwiseOperationsForNullable() {
     assertEqual(a & h, 43);
     assertEqual(b & b, 5);
     assertEqual(b & c, 4);
+    assertEqual(b & k, 4);
+    assertEqual(k & b, 4);
     assertEqual(b & d, 0);
     assertEqual(b & e, 4);
     assertEqual(b & f, 4);
