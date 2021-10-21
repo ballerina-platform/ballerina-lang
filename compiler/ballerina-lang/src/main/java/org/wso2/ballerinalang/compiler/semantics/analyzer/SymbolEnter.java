@@ -194,7 +194,6 @@ import static org.ballerinalang.model.elements.PackageID.XML;
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
-import static org.ballerinalang.model.tree.NodeKind.CLASS_DEFN;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.DEFAULTABLE_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER;
@@ -282,15 +281,15 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void defineClassDefinition(BLangClassDefinition classNode, SymbolEnv env) {
-        if (classNode.getBType() != null && classNode.getBType().tsymbol != null) {
+        if (classNode.symbol != null) {
             return;
         }
-//        defineNode(classNode, env);
-//        populateDistinctTypeIdsFromIncludedTypeReferences(classNode);
-//        defineFieldsOfClassDef(classNode, env);
-//        defineFunctionsOfClassDef(env, classNode);
-//        setReadOnlynessOfClassDef(classNode, env);
-//        defineReadOnlyIncludedFieldsAndMethods(classNode, env);
+        defineNode(classNode, env);
+        populateDistinctTypeIdsFromIncludedTypeReferences(classNode);
+        defineFieldsOfClassDef(classNode, env);
+        defineFunctionsOfClassDef(env, classNode);
+        setReadOnlynessOfClassDef(classNode, env);
+        defineReadOnlyIncludedFieldsAndMethods(classNode, env);
     }
 
     public void defineNode(BLangNode node, SymbolEnv env) {
@@ -566,6 +565,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineFunctionsOfClassDef(SymbolEnv pkgEnv, BLangClassDefinition classDefinition) {
+        validateInclusionsForNonPrivateMembers(classDefinition.typeRefs);
         BObjectType objectType = (BObjectType) classDefinition.symbol.type;
 
         if (objectType.mutableType != null) {
