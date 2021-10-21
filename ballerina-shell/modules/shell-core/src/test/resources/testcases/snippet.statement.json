@@ -93,10 +93,5 @@
     "name": "Do Statement",
     "input": "do { };",
     "accepted": true
-  },
-  {
-    "name": "Named worker",
-    "input": " @strand { thread:\"any\" } worker w1 { }",
-    "accepted": false
   }
 ]

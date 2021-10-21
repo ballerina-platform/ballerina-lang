@@ -5,7 +5,11 @@
   },
   {
     "description": "Creates an `int` array of length 0.",
-    "code": "int[] a = []; a",
+    "code": "int[] a = [];"
+  },
+  {
+    "description": "Creates an `int` array of length 0 - get value.",
+    "code": "a",
     "expr": "[]"
   },
   {

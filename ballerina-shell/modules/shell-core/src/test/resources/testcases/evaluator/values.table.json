@@ -22,7 +22,7 @@
   },
   {
     "description": "Add a new table entry.",
-    "code": "Employee emp = {id: 4, name: \"Max\", salary: 900.0}; employeeTab.add(emp)"
+    "code": "Employee emp = {id: 4, name: \"Max\", salary: 900.0}; employeeTab.add(emp);"
   },
   {
     "description": "Add a new table entry - get value.",

@@ -13,7 +13,7 @@
   },
   {
     "description": "Declare and initialize a `map` with a mapping constructor - get value.",
-    "code": "addrMap; ",
+    "code": "addrMap;",
     "expr": "{\"line1\":\"No. 20\",\"line2\":\"Palm Grove\",\"city\":\"Colombo 03\",\"country\":\"Sri Lanka\",\"code\":\"00300\"}"
   },
   {

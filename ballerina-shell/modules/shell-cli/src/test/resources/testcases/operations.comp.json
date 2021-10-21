@@ -1,11 +1,11 @@
 [
   {
-    "description": "Compound logical shift.",
-    "code": "int x = 0; x = x + 1"
+    "description": "Define variable.",
+    "code": "int value = 0; value = value + 1"
   },
   {
-    "description": "Compound logical shift - get value.",
-    "code": "x",
+    "description": "Define variable - get value.",
+    "code": "value",
     "expr": "1"
   },
   {
