@@ -18,7 +18,7 @@
 package io.ballerina.parsers;
 
 /**
- * Request format for JsonToBalRecord endpoint.
+ * Request format for PartialParser endpoint.
  *
  * @since 2.0.0
  */

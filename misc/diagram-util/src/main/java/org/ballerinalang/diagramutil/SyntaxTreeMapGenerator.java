@@ -77,6 +77,11 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         this.visibleEpsForModule = new ArrayList<>();
     }
 
+    public SyntaxTreeMapGenerator() {
+        this.visibleEpsForEachBlock = new ArrayList<>();
+        this.visibleEpsForModule = new ArrayList<>();
+    }
+
     @Override
     protected JsonElement transformSyntaxNode(Node node) {
         JsonObject nodeJson = new JsonObject();
@@ -116,37 +121,39 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             // TODO: Check and remove the Type() API usage and replace with symbol() API;
             JsonObject symbolJson = new JsonObject();
             try {
-                Optional<TypeSymbol> typeSymbol = this.semanticModel.type(lineRange);
-                if (typeSymbol.isPresent()) {
-                    TypeSymbol rawType = getRawType(typeSymbol.get());
-                    if (rawType.typeKind() == TypeDescKind.OBJECT) {
-                        ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
-                        boolean isEndpoint = objectTypeSymbol.qualifiers()
-                                .contains(Qualifier.CLIENT);
-                        if (isEndpoint) {
-                            symbolJson.addProperty("isEndpoint", true);
-                            JsonObject ep = visibleEP(node, typeSymbol.get(), false);
-                            if (ep.size() > 0) {
-                                this.visibleEpsForEachBlock.add(ep);
+                if (semanticModel != null) {
+                    Optional<TypeSymbol> typeSymbol = this.semanticModel.type(lineRange);
+                    if (typeSymbol.isPresent()) {
+                        TypeSymbol rawType = getRawType(typeSymbol.get());
+                        if (rawType.typeKind() == TypeDescKind.OBJECT) {
+                            ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
+                            boolean isEndpoint = objectTypeSymbol.qualifiers()
+                                    .contains(Qualifier.CLIENT);
+                            if (isEndpoint) {
+                                symbolJson.addProperty("isEndpoint", true);
+                                JsonObject ep = visibleEP(node, typeSymbol.get(), false);
+                                if (ep.size() > 0) {
+                                    this.visibleEpsForEachBlock.add(ep);
+                                }
                             }
                         }
-                    }
-                    symbolJson.add("typeSymbol", generateTypeJson(typeSymbol.get()));
+                        symbolJson.add("typeSymbol", generateTypeJson(typeSymbol.get()));
 
-                    if (typeSymbol.get().getModule().isPresent()) { // todo: check if this is the correct way to access
-                        JsonObject typeDataJson = (JsonObject) generateTypeJson(typeSymbol.get().getModule().get());
-                        ((JsonObject) symbolJson.get("typeSymbol")).add("moduleID", typeDataJson.get("id"));
-                    } else if (typeSymbol.get() instanceof UnionTypeSymbol) {
-                        JsonArray memberArray = new JsonArray();
-                        ((UnionTypeSymbol) typeSymbol.get()).memberTypeDescriptors().forEach(member -> {
-                            try {
-                                JsonObject memberJson = (JsonObject) generateTypeJson(member);
-                                memberArray.add(memberJson);
-                            } catch (JSONGenerationException e) {
-                                // Ignore
-                            }
-                        });
-                        ((JsonObject) symbolJson.get("typeSymbol")).add("members", memberArray);
+                        if (typeSymbol.get().getModule().isPresent()) { // todo: check if this is the correct way to access
+                            JsonObject typeDataJson = (JsonObject) generateTypeJson(typeSymbol.get().getModule().get());
+                            ((JsonObject) symbolJson.get("typeSymbol")).add("moduleID", typeDataJson.get("id"));
+                        } else if (typeSymbol.get() instanceof UnionTypeSymbol) {
+                            JsonArray memberArray = new JsonArray();
+                            ((UnionTypeSymbol) typeSymbol.get()).memberTypeDescriptors().forEach(member -> {
+                                try {
+                                    JsonObject memberJson = (JsonObject) generateTypeJson(member);
+                                    memberArray.add(memberJson);
+                                } catch (JSONGenerationException e) {
+                                    // Ignore
+                                }
+                            });
+                            ((JsonObject) symbolJson.get("typeSymbol")).add("members", memberArray);
+                        }
                     }
                 }
             } catch (Exception | AssertionError e) {
@@ -155,20 +162,22 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             }
 
             try {
-                Optional<Symbol> symbol = this.semanticModel.symbol(node);
+                if (semanticModel != null) {
+                    Optional<Symbol> symbol = this.semanticModel.symbol(node);
 
-                if (symbol.isPresent() && (symbol.get() instanceof VariableSymbol)) {
-                    VariableSymbol variableSymbol = (VariableSymbol) symbol.get();
-                    markVisibleEp(variableSymbol, symbolJson, node);
-                }
+                    if (symbol.isPresent() && (symbol.get() instanceof VariableSymbol)) {
+                        VariableSymbol variableSymbol = (VariableSymbol) symbol.get();
+                        markVisibleEp(variableSymbol, symbolJson, node);
+                    }
 
-                if (symbol.isPresent()) {
-                    symbolJson.add("symbol", generateTypeJson(symbol.get()));
-                }
+                    if (symbol.isPresent()) {
+                        symbolJson.add("symbol", generateTypeJson(symbol.get()));
+                    }
 
-                List<Diagnostic> diagnostics = this.semanticModel.diagnostics(lineRange);
-                if (diagnostics != null) {
-                    symbolJson.add("diagnostics", SyntaxTreeDiagnosticsUtil.getDiagnostics(diagnostics));
+                    List<Diagnostic> diagnostics = this.semanticModel.diagnostics(lineRange);
+                    if (diagnostics != null) {
+                        symbolJson.add("diagnostics", SyntaxTreeDiagnosticsUtil.getDiagnostics(diagnostics));
+                    }
                 }
 
                 nodeJson.add("typeData", symbolJson);
@@ -179,10 +188,12 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 
             if (node.kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION) {
                 RemoteMethodCallActionNode remoteMethodCallActionNode = (RemoteMethodCallActionNode) node;
-                Optional<Symbol> expressionSymbol = this.semanticModel.symbol(remoteMethodCallActionNode.expression());
-                if (expressionSymbol.isPresent() && expressionSymbol.get() instanceof VariableSymbol) {
-                    VariableSymbol variableSymbol = (VariableSymbol) expressionSymbol.get();
-                    markVisibleEp(variableSymbol, symbolJson, remoteMethodCallActionNode.expression(), true);
+                if (semanticModel != null) {
+                    Optional<Symbol> expressionSymbol = this.semanticModel.symbol(remoteMethodCallActionNode.expression());
+                    if (expressionSymbol.isPresent() && expressionSymbol.get() instanceof VariableSymbol) {
+                        VariableSymbol variableSymbol = (VariableSymbol) expressionSymbol.get();
+                        markVisibleEp(variableSymbol, symbolJson, remoteMethodCallActionNode.expression(), true);
+                    }
                 }
             }
 
