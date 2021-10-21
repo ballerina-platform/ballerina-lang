@@ -935,10 +935,6 @@ types:
         type: local_variable
         repeat: expr
         repeat-expr: local_variables_count
-      - id: default_parameter_basic_blocks_info
-        type: basic_blocks_info
-        repeat: expr
-        repeat-expr: default_parameter_count
       - id: function_basic_blocks_info
         type: basic_blocks_info
       - id: error_table
