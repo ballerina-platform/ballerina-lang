@@ -149,6 +149,12 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     }
 
     @Override
+    public boolean subtypeOf(TypeSymbol targetType) {
+        Types types = Types.getInstance(this.context);
+        return types.isAssignable(this.internalSymbol.type, getTargetBType(targetType));
+    }
+
+    @Override
     public boolean deprecated() {
         return this.deprecated;
     }

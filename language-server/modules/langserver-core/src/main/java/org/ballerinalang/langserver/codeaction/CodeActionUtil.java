@@ -209,7 +209,7 @@ public class CodeActionUtil {
             for (Symbol symbol : context.visibleSymbols(context.cursorPosition())) {
                 if (symbol instanceof TypeDefinitionSymbol &&
                         ((TypeDefinitionSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.RECORD &&
-                        typeDescriptor.assignableTo(((TypeDefinitionSymbol) symbol).typeDescriptor())) {
+                        typeDescriptor.subtypeOf(((TypeDefinitionSymbol) symbol).typeDescriptor())) {
                     Optional<ModuleSymbol> module = symbol.getModule();
                     String fqPrefix = "";
                     if (module.isPresent() && !(ProjectConstants.ANON_ORG.equals(module.get().id().orgName()))) {

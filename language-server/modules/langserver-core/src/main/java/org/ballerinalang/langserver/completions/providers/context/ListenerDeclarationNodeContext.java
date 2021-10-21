@@ -132,7 +132,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                      */
                     Symbol symbol = symbolCItem.getSymbol().get();
                     if (symbol.kind() == VARIABLE && ctxType.isPresent() &&
-                            SymbolUtil.getTypeDescriptor(symbol).get().assignableTo(ctxType.get())) {
+                            SymbolUtil.getTypeDescriptor(symbol).get().subtypeOf(ctxType.get())) {
                         /*
                         When there is an explicitly defined type descriptor
                         Eg: public listener mod:Listener l = ...
@@ -151,7 +151,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                     } else if (symbol.kind() == FUNCTION && ctxType.isPresent()) {
                         FunctionTypeSymbol functionTypeSymbol = ((FunctionSymbol) symbol).typeDescriptor();
                         Optional<TypeSymbol> typeSymbol = functionTypeSymbol.returnTypeDescriptor();
-                        if (typeSymbol.isPresent() && typeSymbol.get().assignableTo(ctxType.get())) {
+                        if (typeSymbol.isPresent() && typeSymbol.get().subtypeOf(ctxType.get())) {
                             rank = 4;
                         }
                     }
