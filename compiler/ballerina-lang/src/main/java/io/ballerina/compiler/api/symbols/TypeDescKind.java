@@ -45,6 +45,7 @@ public enum TypeDescKind {
     ERROR("error"),
     FUNCTION("function"),
     TUPLE("tuple"),
+    SERVICE("service"),
     STREAM("stream"),
     FUTURE("future"),
     TYPEDESC("typedesc"),
