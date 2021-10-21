@@ -29,6 +29,7 @@ dependencies {
     compileOnly project(':ballerina-tools-api')
     compileOnly project(':formatter:formatter-core')
     compileOnly project(':language-server:language-server-commons')
+    compileOnly project(':diagram-util')
     compileOnly "com.fasterxml.jackson.core:jackson-databind"
     implementation "io.swagger.core.v3:swagger-models"
     implementation ("io.swagger.parser.v3:swagger-parser-v2-converter") {

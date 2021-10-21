@@ -17,23 +17,22 @@
  */
 package io.ballerina.parsers;
 
-import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.compiler.syntax.tree.StatementNode;
+import com.google.gson.JsonElement;
 
 /**
- * Response format for JsonToBalRecord endpoint.
+ * Represents a Ballerina Syntax Tree response.
  *
- * @since 2.0.0
+ * @since 1.3.0
  */
 public class PartialSTResponse {
 
-    private NodeList<StatementNode> syntaxTree;
+    private JsonElement syntaxTree;
 
-    public NodeList<StatementNode> getSyntaxTree() {
+    public JsonElement getSyntaxTree() {
         return syntaxTree;
     }
 
-    public void setSyntaxTree(NodeList<StatementNode> syntaxTree) {
+    public void setSyntaxTree(JsonElement syntaxTree) {
         this.syntaxTree = syntaxTree;
     }
 }

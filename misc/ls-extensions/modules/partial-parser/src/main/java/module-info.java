@@ -11,6 +11,8 @@ module io.ballerina.LSExtensions.PartialParserService {
     requires swagger.parser.core;
     requires swagger.parser.v3;
     requires io.ballerina.language.server.commons;
+    requires com.google.gson;
+    requires io.ballerina.diagram.util;
 
     exports io.ballerina.parsers;
 }

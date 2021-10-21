@@ -17,11 +17,13 @@
  */
 package io.ballerina.parsers;
 
+import com.google.gson.JsonElement;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
+import org.ballerinalang.diagramutil.DiagramUtil;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
@@ -47,8 +49,9 @@ public class PartialParserService implements ExtendedLanguageServerService {
         return CompletableFuture.supplyAsync(() -> {
             PartialSTResponse response = new PartialSTResponse();
             NodeList<StatementNode> s = NodeParser.parseStatements(request.getCodeSnippet());
-            response.setSyntaxTree(s.get(0).internalNode().kind.name());
-            response.setSyntaxTree(s);
+
+            JsonElement subSyntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(s.get(0));
+            response.setSyntaxTree(subSyntaxTreeJSON);
             return response;
         });
     }
