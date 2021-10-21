@@ -1808,11 +1808,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (validIntTypesExists) {
             switch (opKind) {
                 case BITWISE_LEFT_SHIFT:
-                    if (lhsType.isNullable() || rhsType.isNullable()) {
-                        BType intOptional = BUnionType.create(null, symTable.intType, symTable.nilType);
-                        return createBinaryOperator(opKind, lhsType, rhsType, intOptional);
-                    }
-                    return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
+                    return createShiftOperator(opKind, lhsType, rhsType);
                 case BITWISE_RIGHT_SHIFT:
                 case BITWISE_UNSIGNED_RIGHT_SHIFT:
                     switch (lhsType.tag) {
@@ -1822,15 +1818,19 @@ public class SymbolResolver extends BLangNodeVisitor {
                         case TypeTags.BYTE:
                             return createBinaryOperator(opKind, lhsType, rhsType, lhsType);
                         default:
-                            if (lhsType.isNullable() || rhsType.isNullable()) {
-                                BType intOptional = BUnionType.create(null, symTable.intType, symTable.nilType);
-                                return createBinaryOperator(opKind, lhsType, rhsType, intOptional);
-                            }
-                            return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
+                            return createShiftOperator(opKind, lhsType, rhsType);
                     }
             }
         }
         return symTable.notFoundSymbol;
+    }
+
+    private BSymbol createShiftOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
+        if (lhsType.isNullable() || rhsType.isNullable()) {
+            BType intOptional = BUnionType.create(null, symTable.intType, symTable.nilType);
+            return createBinaryOperator(opKind, lhsType, rhsType, intOptional);
+        }
+        return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
     }
 
     public BSymbol getArithmeticOpsForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType) {
@@ -2015,40 +2015,20 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     // private methods
 
-    private BSymbol resolveOperator(ScopeEntry entry, List<BType> types) {
+    private BSymbol resolveOperator(ScopeEntry entry, List<BType> typeList) {
         BSymbol foundSymbol = symTable.notFoundSymbol;
         while (entry != NOT_FOUND_ENTRY) {
             BInvokableType opType = (BInvokableType) entry.symbol.type;
-            if (types.size() == opType.paramTypes.size()) {
+            if (typeList.size() == opType.paramTypes.size()) {
                 boolean match = true;
-                for (int i = 0; i < types.size(); i++) {
-                    if ((types.get(i).getKind() == TypeKind.UNION) &&
+                for (int i = 0; i < typeList.size(); i++) {
+                    if ((typeList.get(i).getKind() == TypeKind.UNION) &&
                             (opType.paramTypes.get(i).getKind() == TypeKind.UNION)) {
-                        if (types.get(i).isNullable() && opType.paramTypes.get(i).isNullable()) {
-                            if (((BUnionType) types.get(i)).getMemberTypes().size() > 2) {
-                                match = false;
-                                continue;
-                            }
-                            Iterator<BType> nilLiftTypes = ((BUnionType) types.get(i)).getMemberTypes().iterator();
-                            BType nilLiftTypeOne = null;
-                            while (nilLiftTypes.hasNext()) {
-                                BType nilLiftType = nilLiftTypes.next();
-                                if (nilLiftType.tag != TypeTags.NIL) {
-                                    nilLiftTypeOne = nilLiftType;
-                                }
-                            }
-                            BType nilLiftTypeTwo = ((BUnionType) opType.paramTypes.get(i)).
-                                    getMemberTypes().iterator().next();
-                            if (nilLiftTypeOne.tag == nilLiftTypeTwo.tag) {
-                                continue;
-                            } else {
-                                match = false;
-                            }
-                        } else {
+                        if (!types.isSameType(typeList.get(i), opType.paramTypes.get(i))) {
                             match = false;
                         }
                     }
-                    if (types.get(i).tag != opType.paramTypes.get(i).tag) {
+                    else if (typeList.get(i).tag != opType.paramTypes.get(i).tag) {
                         match = false;
                     }
                 }
