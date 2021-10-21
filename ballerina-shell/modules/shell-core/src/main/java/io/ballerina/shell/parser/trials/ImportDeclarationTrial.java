@@ -29,7 +29,6 @@ import io.ballerina.tools.text.TextDocuments;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -61,10 +60,8 @@ public class ImportDeclarationTrial extends TreeParserTrial {
             ModulePartNode modulePartNode = tree.rootNode();
             NodeList<ImportDeclarationNode> imports = modulePartNode.imports();
             assertIf(!imports.isEmpty(), "expected import member");
-            Iterator iterator = imports.iterator();
-            while (iterator.hasNext()) {
-                Node element = (Node) iterator.next();
-                nodes.add(element);
+            for (ImportDeclarationNode anImport : imports) {
+                nodes.add(anImport);
             }
             return nodes;
         } catch (ParserTrialFailedException e) {

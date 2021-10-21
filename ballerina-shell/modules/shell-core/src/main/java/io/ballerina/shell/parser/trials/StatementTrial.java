@@ -18,19 +18,18 @@
 
 package io.ballerina.shell.parser.trials;
 
-import io.ballerina.compiler.syntax.tree.*;
+import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.NodeParser;
+import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.shell.parser.TrialTreeParser;
-import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextDocuments;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Attempts to parse source as a statement.
- * Puts in the main function statement level and checks for the the entry.
  * TODO: Improve performance.
  *
  * @since 2.0.0
@@ -42,23 +41,36 @@ public class StatementTrial extends DualTreeParserTrial {
 
     @Override
     public Collection<Node> parseSource(String source) throws ParserTrialFailedException {
-        TextDocument document = TextDocuments.from(source);
-        SyntaxTree tree;
+        NodeList<StatementNode> statementNodes;
+        Collection<Node> finalNodes = new ArrayList<>();
         try {
-            tree = getSyntaxTreeAsStatements(document);
-        } catch (Exception e) {
-            document = TextDocuments.from(source + ";");
-            tree = getSyntaxTreeAsStatements(document);
+            statementNodes = NodeParser.parseStatements(source);
+            for (StatementNode nodeInst:statementNodes) {
+                if (nodeInst.hasDiagnostics()) {
+                    throw new ParserTrialFailedException("Error occurred during parsing as a statement");
+                }
+            }
+        } catch (ParserTrialFailedException e) {
+            statementNodes = NodeParser.parseStatements(source + ';');
+            for (StatementNode nodeInst:statementNodes) {
+                if (nodeInst.hasDiagnostics()) {
+                    throw new ParserTrialFailedException("Error occurred during parsing as a statement");
+                }
+            }
         }
-        List<Node> nodes = new ArrayList<>();
-        NonTerminalNode rootNode = tree.rootNode();
-        ChildNodeList children = rootNode.children();
-        Iterator iterator = children.iterator();
-        while (iterator.hasNext()) {
-            Node element = (Node) iterator.next();
-            nodes.add(element);
+        for (Node node: statementNodes) {
+            if (node instanceof ExpressionStatementNode) {
+                String sourceCode = node.toSourceCode();
+                node = NodeParser.parseExpression(sourceCode);
+                if (node.hasDiagnostics()) {
+                    node = NodeParser.parseExpression(sourceCode.substring(0, sourceCode.length() - 1));
+                    if (node.hasDiagnostics()) {
+                        throw new ParserTrialFailedException("Error occurred during parsing as an expression");
+                    }
+                }
+            }
+            finalNodes.add(node);
         }
-//        assertIf(!nodes.isEmpty(),"error");
-        return nodes;
+        return finalNodes;
     }
 }

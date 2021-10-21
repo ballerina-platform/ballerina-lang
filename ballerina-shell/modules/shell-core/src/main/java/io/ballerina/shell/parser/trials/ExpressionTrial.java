@@ -18,10 +18,11 @@
 
 package io.ballerina.shell.parser.trials;
 
-import io.ballerina.compiler.syntax.tree.*;
+import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.shell.parser.TrialTreeParser;
-import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextDocuments;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +32,10 @@ import java.util.Collection;
  *
  * @since 2.0.0
  */
-public class ExpressionTrial extends DualTreeParserTrial{
+public class ExpressionTrial extends TreeParserTrial {
+
+    private static final String SEMICOLON = ";";
+
     public ExpressionTrial(TrialTreeParser parentParser) {
         super(parentParser);
     }
@@ -39,30 +43,23 @@ public class ExpressionTrial extends DualTreeParserTrial{
     @Override
     public Collection<Node> parse(String source) throws ParserTrialFailedException {
         Collection<Node> nodes = new ArrayList<>();
-        TextDocument document = TextDocuments.from(source);
-        SyntaxTree tree;
-        try {
-            tree = getSyntaxTreeAsExpression(document);
-        } catch (Exception e) {
-            document = TextDocuments.from(source + ";");
-            tree = getSyntaxTreeAsExpression(document);
+        ExpressionNode expressionNode;
+        Node parsedNode;
+        if (source.endsWith(SEMICOLON)) {
+            parsedNode = NodeParser.parseStatements("a = " + source).get(0);
+        } else {
+            parsedNode = ((AssignmentStatementNode) NodeParser.parseStatements("a = " + source + ";")
+                    .get(0)).expression();
         }
-        nodes.add(tree.rootNode());
-        return nodes;
-    }
-
-    @Override
-    public Collection<Node> parseSource(String source) throws ParserTrialFailedException {
-        Collection<Node> nodes = new ArrayList<>();
-        TextDocument document = TextDocuments.from(source);
-        SyntaxTree tree;
-        try {
-            tree = getSyntaxTreeAsExpression(document);
-        } catch (Exception e) {
-            document = TextDocuments.from(source + ";");
-            tree = getSyntaxTreeAsExpression(document);
+        if (!parsedNode.hasDiagnostics()) {
+            expressionNode = ((AssignmentStatementNode) parsedNode).expression();
+            if (expressionNode.hasDiagnostics()) {
+                throw new ParserTrialFailedException("Error occurred during extracting expression from the statement");
+            }
+        } else {
+            throw new ParserTrialFailedException("Error occurred during parsing node as statement node");
         }
-        nodes.add(tree.rootNode());
+        nodes.add(expressionNode);
         return nodes;
     }
 }

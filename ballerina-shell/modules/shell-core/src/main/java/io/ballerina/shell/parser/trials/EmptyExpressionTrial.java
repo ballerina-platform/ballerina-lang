@@ -18,27 +18,22 @@
 
 package io.ballerina.shell.parser.trials;
 
-import io.ballerina.compiler.syntax.tree.*;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.shell.parser.TrialTreeParser;
-import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextDocuments;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 /**
- * Attempts to capture a empty expression.
+ * Attempts to capture an empty expression.
  * This could be a comment, white space, etc...
- * Puts in the module level and checks for empty module level entry.
- * Empty entries are converted to ().
  *
  * @since 2.0.0
  */
 public class EmptyExpressionTrial extends TreeParserTrial {
-    private static final Node EMPTY_NODE = NodeFactory.createNilLiteralNode(
-            NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN),
-            NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN));
 
     public EmptyExpressionTrial(TrialTreeParser parentParser) {
         super(parentParser);
@@ -46,26 +41,14 @@ public class EmptyExpressionTrial extends TreeParserTrial {
 
     @Override
     public Collection<Node> parse(String source) throws ParserTrialFailedException {
-        TextDocument document = TextDocuments.from(source);
         List<Node> nodes = new ArrayList<>();
-        SyntaxTree tree;
+        ExpressionNode node;
         try {
-            tree = getSyntaxTreeAsExpression(document);
+            node = NodeParser.parseExpression(source);
         } catch (Exception e) {
-            document = TextDocuments.from(source + ";");
-            tree = getSyntaxTreeAsExpression(document);
+            node = NodeParser.parseExpression(source.substring(0, source.length() - 1));
         }
-        Node node = tree.rootNode();
         nodes.add(node);
-
-        if (nodes.isEmpty()) {
-            tree = getSyntaxTree(document);
-            ModulePartNode node1 = tree.rootNode();
-            if (node1.members().isEmpty() && node1.imports().isEmpty()){
-                nodes.add(EMPTY_NODE);
-                return nodes;
-            }
-        }
         return nodes;
     }
 }
