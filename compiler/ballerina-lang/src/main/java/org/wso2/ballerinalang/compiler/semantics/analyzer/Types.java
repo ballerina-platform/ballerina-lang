@@ -2774,7 +2774,6 @@ public class Types {
             return isSameType(sType.paramValueType, t.paramValueType) && sType.paramSymbol.equals(t.paramSymbol);
         }
 
-//        @Override
         public Boolean visit(BTypeReferenceType t, BType s) {
             return isSameType(getReferredType(t), s);
         }

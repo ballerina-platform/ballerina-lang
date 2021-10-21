@@ -1603,7 +1603,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             effectiveDefinedType.flags |= definedType.flags;
         }
 
+        if (typeDefSymbol.kind == SymbolKind.TYPE_DEF) {
+            ((BTypeDefinitionSymbol) typeDefSymbol).referenceType.flags |= typeDefSymbol.type.flags;
+            ((BTypeDefinitionSymbol) typeDefSymbol).referenceType.tsymbol.flags |= typeDefSymbol.type.flags;
+        }
         typeDefinition.symbol = typeDefSymbol;
+
         if (typeDefinition.hasCyclicReference) {
             // Workaround for https://github.com/ballerina-platform/ballerina-lang/issues/29742
             typeDefinition.getBType().tsymbol = definedType.tsymbol;

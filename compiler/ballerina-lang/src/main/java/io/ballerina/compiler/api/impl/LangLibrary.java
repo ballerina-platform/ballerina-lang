@@ -35,12 +35,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -48,6 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getReferredType;
 
 /**
  * A class to hold the lang library function info required for types.
@@ -62,13 +61,15 @@ public class LangLibrary {
     private final Map<String, Map<String, BInvokableSymbol>> langLibMethods;
     private final SymbolFactory symbolFactory;
     private final LangLibFunctionBinder methodBinder;
+    private final Types types;
 
     private LangLibrary(CompilerContext context) {
         context.put(LANG_LIB_KEY, this);
 
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.langLibMethods = new HashMap<>();
-        this.methodBinder = new LangLibFunctionBinder(Types.getInstance(context));
+        this.types = Types.getInstance(context);
+        this.methodBinder = new LangLibFunctionBinder(this.types);
 
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         for (Map.Entry<BPackageSymbol, SymbolEnv> entry : symbolTable.pkgEnvMap.entrySet()) {
@@ -184,14 +185,6 @@ public class LangLibrary {
         }
 
         langLibMethods.put(basicType, methods);
-    }
-
-    private static BType getReferredType(BType type) {
-        BType constraint = type;
-        if (type.tag == TypeTags.TYPEREFDESC) {
-            constraint = ((BTypeReferenceType) type).referredType;
-        }
-        return constraint.tag == TypeTags.TYPEREFDESC ? getReferredType(constraint) : constraint;
     }
 
     private static void populateLangValueLibrary(BPackageSymbol langValue,

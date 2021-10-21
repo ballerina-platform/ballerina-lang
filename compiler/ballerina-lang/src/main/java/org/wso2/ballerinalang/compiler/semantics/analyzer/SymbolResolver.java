@@ -68,7 +68,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -1606,8 +1605,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         userDefinedTypeNode.symbol = symbol;
 
         if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
-            ((BTypeDefinitionSymbol) symbol).referenceType.flags |= symbol.type.flags;
-            ((BTypeDefinitionSymbol) symbol).referenceType.tsymbol.flags |= symbol.type.flags;
             resultType = ((BTypeDefinitionSymbol) symbol).referenceType;
         } else {
             resultType = symbol.type;
