@@ -105,7 +105,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -794,8 +794,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return scheduledVariables.stream()
                 .map(varFuture -> {
                     try {
-                        return varFuture.get(1000, TimeUnit.MILLISECONDS);
+                        return varFuture.get();
                     } catch (Exception ignored) {
+                        // Todo - Refactor after implementing debug/trace logger
+                        LOGGER.error("Failed to load some debug variables due to runtime exceptions.");
                         return null;
                     }
                 })
@@ -816,29 +818,33 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             if (VariableUtils.isLambdaParamMap(var)) {
                 scheduledLambdaMapVariables.add(fetchLocalVariablesFromMap(args, stackFrame, var));
             } else {
-                CompletableFuture<Variable> dapVariable = computeVariableAsync(name, value, args.getVariablesReference());
-                scheduledVariables.add(dapVariable);
+                CompletableFuture<Variable> dapVar = computeVariableAsync(name, value, args.getVariablesReference());
+                scheduledVariables.add(dapVar);
             }
         }
 
         List<Variable> resolvedVariables = new ArrayList<>();
         scheduledVariables.forEach(varFuture -> {
             try {
-                Variable variable = varFuture.get(1000, TimeUnit.MILLISECONDS);
+                Variable variable = varFuture.get();
                 if (variable != null) {
                     resolvedVariables.add(variable);
                 }
-            } catch (Exception ignored) {
+            } catch (InterruptedException | ExecutionException e) {
+                // Todo - Refactor after implementing debug/trace logger
+                LOGGER.error("Failed to load some debug variables due to runtime exceptions.");
             }
         });
 
         scheduledLambdaMapVariables.forEach(varFuture -> {
             try {
-                Variable[] variables = varFuture.get(1000, TimeUnit.MILLISECONDS);
+                Variable[] variables = varFuture.get();
                 if (variables != null) {
                     resolvedVariables.addAll(Arrays.asList(variables));
                 }
-            } catch (Exception ignored) {
+            } catch (InterruptedException | ExecutionException e) {
+                // Todo - Refactor after implementing debug/trace logger
+                LOGGER.error("Failed to load some debug variables due to runtime exceptions.");
             }
         });
         return resolvedVariables.toArray(new Variable[0]);
