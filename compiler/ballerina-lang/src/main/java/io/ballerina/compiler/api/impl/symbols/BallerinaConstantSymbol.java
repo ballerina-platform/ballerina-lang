@@ -87,6 +87,11 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
         return this.typeDescriptor().subtypeOf(targetType);
     }
 
+    @Override
+    public boolean subtypeOf(TypeSymbol targetType) {
+        return this.typeDescriptor().subtypeOf(targetType);
+    }
+
     /**
      * Represents Ballerina Constant Symbol Builder.
      */
