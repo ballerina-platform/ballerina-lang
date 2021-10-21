@@ -411,12 +411,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "in",
+      "label": "var",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "Z",
-      "filterText": "in",
-      "insertText": "in ",
+      "filterText": "var",
+      "insertText": "var ",
       "insertTextFormat": "Snippet"
     }
   ]
