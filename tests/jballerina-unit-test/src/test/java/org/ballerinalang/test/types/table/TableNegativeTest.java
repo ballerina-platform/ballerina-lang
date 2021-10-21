@@ -43,7 +43,7 @@ public class TableNegativeTest {
         validateError(compileResult, index++, "table key specifier mismatch. expected: '[id]' " +
                 "but found '[id, firstName]'", 20, 28);
         validateError(compileResult, index++, "table key specifier mismatch with key constraint. " +
-                "expected: '[string]' fields but found 'none'", 25, 20);
+                "expected: '[string]' fields but key specifier is empty", 25, 20);
         validateError(compileResult, index++, "table key specifier '[age]' does not match with " +
                 "key constraint type '[string]'", 30, 26);
         validateError(compileResult, index++, "table key specifier mismatch. expected: '[id]' but " +

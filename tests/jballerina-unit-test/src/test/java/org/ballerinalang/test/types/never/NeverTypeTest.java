@@ -141,7 +141,7 @@ public class NeverTypeTest {
                 "table key specifier '[name]' does not match with key constraint type '[never]'", 125, 34);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "table key specifier mismatch with key constraint. " +
-                        "expected: '[(never|string)]' fields but found 'none'", 134, 37);
+                        "expected: '[(never|string)]' fields but key specifier is empty", 134, 37);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'xml<never>', found 'xml:Text'", 143, 21);
         BAssertUtil.validateError(negativeCompileResult, i++,
