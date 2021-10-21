@@ -3360,6 +3360,7 @@ public class TypeChecker extends BLangNodeVisitor {
         SymbolEnv typeDefEnv = SymbolEnv.createObjectConstructorObjectEnv(classNode, env);
         classNode.oceEnvData.typeInit = objectCtorExpression.typeInit;
         classNode.oceEnvData.capturedClosureEnv = typeDefEnv;
+        dlog.unmute();
         if (Symbols.isFlagOn(expType.flags, Flags.READONLY)) {
             handleObjectConstrExprForReadOnly(objectCtorExpression, actualObjectType, typeDefEnv, false);
         } else if (!typeRefs.isEmpty() && Symbols.isFlagOn(typeRefs.get(0).getBType().flags,
@@ -3368,6 +3369,7 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             semanticAnalyzer.analyzeNode(classNode, typeDefEnv);
         }
+        dlog.restoreMute();
         markConstructedObjectIsolatedness(actualObjectType);
 
         if (((BObjectTypeSymbol) actualType.tsymbol).initializerFunc != null) {

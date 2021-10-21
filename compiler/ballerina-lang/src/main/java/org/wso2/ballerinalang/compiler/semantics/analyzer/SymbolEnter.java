@@ -1177,9 +1177,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-//            if (typeDef.getKind() == CLASS_DEFN && ((BLangClassDefinition) typeDef).isObjectContructorDecl) {
-//                continue;
-//            }
             defineNode(typeDef, env);
         }
 
@@ -3753,9 +3750,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangNode typeDef : typeDefNodes) {
             if (typeDef.getKind() == NodeKind.CLASS_DEFN) {
                 BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;
-//                if (classDefinition.isObjectContructorDecl) {
-//                    continue;
-//                }
                 defineFieldsOfClassDef(classDefinition, pkgEnv);
             } else if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
                 defineFieldsOfObjectOrRecordTypeDef((BLangTypeDefinition) typeDef, pkgEnv);
@@ -3901,9 +3895,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangNode node : typeDefNodes) {
             if (node.getKind() == NodeKind.CLASS_DEFN) {
                 BLangClassDefinition classDef = (BLangClassDefinition) node;
-//                if (classDef.isObjectContructorDecl) {
-//                    continue;
-//                }
                 defineFunctionsOfClassDef(pkgEnv, classDef);
             } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
                 defineFunctionsOfObjectTypeDef(pkgEnv, (BLangTypeDefinition) node);
@@ -3967,7 +3958,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             BLangObjectTypeNode objTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
             SymbolEnv objMethodsEnv =
                     SymbolEnv.createObjectMethodsEnv(objTypeNode, (BObjectTypeSymbol) objTypeNode.symbol, pkgEnv);
-
 
             // Define the functions defined within the object
             defineObjectInitFunction(objTypeNode, objMethodsEnv);
@@ -4126,10 +4116,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (int i = 0; i < origSize; i++) {
             BLangNode typeDefOrClass = typeDefNodes.get(i);
             if (typeDefOrClass.getKind() == NodeKind.CLASS_DEFN) {
-                BLangClassDefinition classDef = (BLangClassDefinition) typeDefOrClass;
-//                if (classDef.isObjectContructorDecl) {
-//                    continue;
-//                }
                 setReadOnlynessOfClassDef((BLangClassDefinition) typeDefOrClass, pkgEnv);
                 continue;
             } else if (typeDefOrClass.getKind() != NodeKind.TYPE_DEFINITION) {
@@ -4225,9 +4211,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
             BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;
-//            if (classDefinition.isObjectContructorDecl) {
-//                continue;
-//            }
             defineReadOnlyIncludedFieldsAndMethods(classDefinition, pkgEnv);
         }
     }
