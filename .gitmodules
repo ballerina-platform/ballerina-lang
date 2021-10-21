@@ -1,3 +1,0 @@
-[submodule "misc/grammar/ballerina-grammar"]
-	path = misc/grammar/ballerina-grammar
-	url = https://github.com/ballerina-platform/ballerina-grammar.git
