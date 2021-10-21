@@ -2027,8 +2027,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                         if (!types.isSameType(typeList.get(i), opType.paramTypes.get(i))) {
                             match = false;
                         }
-                    }
-                    else if (typeList.get(i).tag != opType.paramTypes.get(i).tag) {
+                    } else if (typeList.get(i).tag != opType.paramTypes.get(i).tag) {
                         match = false;
                     }
                 }
