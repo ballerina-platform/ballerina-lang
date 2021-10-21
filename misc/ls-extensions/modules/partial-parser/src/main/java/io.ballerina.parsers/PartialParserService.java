@@ -18,6 +18,7 @@
 package io.ballerina.parsers;
 
 import com.google.gson.JsonElement;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.StatementNode;
@@ -46,15 +47,41 @@ public class PartialParserService implements ExtendedLanguageServerService {
     }
 
     @JsonRequest
-    public CompletableFuture<PartialSTResponse> getSTForStatement(PartialSTRequest request) {
+    public CompletableFuture<STResponse> getSTForSingleStatement(PartialSTRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            PartialSTResponse response = new PartialSTResponse();
+            STResponse response = new STResponse();
+            NodeList<StatementNode> s = NodeParser.parseStatements(request.getCodeSnippet());
+
+            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(s.get(0));
+
+            response.setSyntaxTree(syntaxTreeJSON);
+            return response;
+        });
+    }
+
+    @JsonRequest
+    public CompletableFuture<STListResponse> getSTForStatements(PartialSTRequest request) {
+        return CompletableFuture.supplyAsync(() -> {
+            STListResponse response = new STListResponse();
             NodeList<StatementNode> s = NodeParser.parseStatements(request.getCodeSnippet());
 
             ArrayList<JsonElement> elements = new ArrayList<>();
             s.forEach(e -> elements.add(DiagramUtil.getSyntaxTreeJSON(e)));
 
             response.setSyntaxTree(elements);
+            return response;
+        });
+    }
+
+    @JsonRequest
+    public CompletableFuture<STResponse> getSTForExpression(PartialSTRequest request) {
+        return CompletableFuture.supplyAsync(() -> {
+            STResponse response = new STResponse();
+            ExpressionNode s = NodeParser.parseExpression(request.getCodeSnippet());
+
+            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(s);
+
+            response.setSyntaxTree(syntaxTreeJSON);
             return response;
         });
     }

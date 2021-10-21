@@ -22,11 +22,11 @@ import com.google.gson.JsonElement;
 import java.util.ArrayList;
 
 /**
- * Represents a Ballerina Syntax Tree response.
+ * Represents a List of Ballerina Syntax Trees response.
  *
  * @since 1.3.0
  */
-public class PartialSTResponse {
+public class STListResponse {
 
     private ArrayList<JsonElement> syntaxTree;
 
