@@ -457,8 +457,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
-        pkgNode.typeDefinitions.forEach(this::addSemtypeBType);
-
         // Update globalVar for endpoints.
         for (BLangVariable var : pkgNode.globalVars) {
             if (var.getKind() == NodeKind.VARIABLE) {
@@ -473,8 +471,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void addSemtypeBType(BLangTypeDefinition typeDefinition) {
-        typeDefinition.typeNode.getBType().setSemtype(typeDefinition.semType);
+    private void addSemtypeBType(BLangType typeNode, SemType semType) {
+        typeNode.getBType().setSemtype(semType);
     }
 
     private void defineSemTypes(List<BLangNode> moduleDefs, SymbolEnv pkgEnv) {
@@ -508,6 +506,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             semtype = evaluateConst(constant);
         }
+        addSemtypeBType(constant.getTypeNode(), semtype);
         semtypeEnv.addTypeDef(constant.name.value, semtype);
     }
 
@@ -528,6 +527,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private SemType resolveTypeDefn(Env semtypeEnv, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth) {
         if (defn.semType != null) {
+            addSemtypeBType(defn.getTypeNode(), defn.semType);
             return defn.semType;
         }
 
@@ -537,6 +537,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         defn.cycleDepth = depth;
         SemType s = resolveTypeDesc(semtypeEnv, mod, defn, depth, defn.typeNode);
+        addSemtypeBType(defn.getTypeNode(), s);
         if (defn.semType == null) {
             defn.semType = s;
             defn.cycleDepth = -1;
