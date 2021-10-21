@@ -704,21 +704,18 @@ public class TestUtil {
             }
 
             if (inputStream == null) {
-                inputStream = System.in;
+                inputStream = new ByteArrayInputStream(new byte[1024]);
             }
 
             if (outputStream == null) {
                 outputStream = OutputStream.nullOutputStream();
             }
 
-            BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
             Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(this.languageServer,
                     ExtendedLanguageClient.class, inputStream, outputStream);
             ExtendedLanguageClient client = launcher.getRemoteProxy();
             languageServer.connect(client);
-
-            Endpoint endpoint = ServiceEndpoints.toEndpoint(languageServer);
-
+            
             if (initializeParams == null) {
                 initializeParams = new InitializeParams();
                 ClientCapabilities capabilities = new ClientCapabilities();
@@ -763,7 +760,8 @@ public class TestUtil {
                 initializationOptions.putAll(initOptions);
             }
             initializeParams.setInitializationOptions(GSON.toJsonTree(initializationOptions));
-
+            
+            Endpoint endpoint = ServiceEndpoints.toEndpoint(languageServer);
             endpoint.request("initialize", initializeParams);
             endpoint.request("initialized", new InitializedParams());
 
