@@ -623,15 +623,16 @@ public class SymbolTable {
     }
 
     private void defineNilableIntegerUnaryOperations() {
-        BType[] intTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
-                unsigned16IntType,
-                unsigned8IntType};
-
-        BUnionType[] nilableIntTypes = new BUnionType[8];
-
-        for (int i = 0; i < intTypes.length; i++) {
-            nilableIntTypes[i] = getNilableBtype(intTypes[i]);
-        }
+        BUnionType[] nilableIntTypes = {
+                getNilableBType(intType),
+                getNilableBType(byteType),
+                getNilableBType(signed32IntType),
+                getNilableBType(signed16IntType),
+                getNilableBType(signed8IntType),
+                getNilableBType(unsigned32IntType),
+                getNilableBType(unsigned16IntType),
+                getNilableBType(unsigned8IntType)
+        };
 
         BType intOptional = nilableIntTypes[0];
 
