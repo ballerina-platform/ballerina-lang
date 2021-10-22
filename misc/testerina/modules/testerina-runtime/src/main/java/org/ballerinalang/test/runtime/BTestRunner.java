@@ -102,6 +102,7 @@ public class BTestRunner {
     private PrintStream errStream;
     private PrintStream outStream;
     private TesterinaReport tReport;
+    private Path targetPath;
 
     private List<String> specialCharacters = new ArrayList<>(Arrays.asList(",", "\\n", "\\r", "\\t", "\n", "\r", "\t",
             "\"", "\\", "!", "`"));
@@ -125,7 +126,8 @@ public class BTestRunner {
      *
      * @param suite test meta data for module
      */
-    public void runTest(TestSuite suite, ClassLoader classLoader)  {
+    public void runTest(TestSuite suite, Path targetPath, ClassLoader classLoader)  {
+        this.targetPath = targetPath;
         int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
         List<Test> sortedTests = orderTests(suite.getTests(), testExecutionOrder);
         suite.setTests(sortedTests);
@@ -613,8 +615,7 @@ public class BTestRunner {
         }
 
         if (!packageName.equals(TesterinaConstants.DOT)) {
-            Path sourceRootPath = Paths.get(suite.getSourceRootPath()).resolve(TesterinaConstants.TARGET_DIR_NAME);
-            Path jsonPath = Paths.get(sourceRootPath.toString(), TesterinaConstants.RERUN_TEST_JSON_FILE);
+            Path jsonPath = Paths.get(this.targetPath.toString(), TesterinaConstants.RERUN_TEST_JSON_FILE);
             File jsonFile = new File(jsonPath.toString());
             writeFailedTestsToJson(failedOrSkippedTests, jsonFile);
         }

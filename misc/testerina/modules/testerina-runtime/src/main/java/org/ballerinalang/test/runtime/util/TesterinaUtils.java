@@ -82,12 +82,12 @@ public class TesterinaUtils {
      * @param sourceRootPath source root path
      * @param testSuite test meta data
      */
-    public static void executeTests(Path sourceRootPath, TestSuite testSuite, ClassLoader classLoader)
+    public static void executeTests(Path sourceRootPath, Path targetPath, TestSuite testSuite, ClassLoader classLoader)
             throws RuntimeException {
         try {
             BTestRunner testRunner = new BTestRunner(outStream, errStream);
             // Run the tests
-            testRunner.runTest(testSuite, classLoader);
+            testRunner.runTest(testSuite, targetPath, classLoader);
             cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
             if (testRunner.getTesterinaReport().isFailure()) {
                 throw new RuntimeException("there are test failures");
