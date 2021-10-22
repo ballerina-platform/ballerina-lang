@@ -170,11 +170,12 @@ public class RunTestsTask implements Task {
         try {
             if (project.kind() == ProjectKind.BUILD_PROJECT) {
                 cachesRoot = project.sourceRoot();
+                target = project.getTarget();
             } else {
                 cachesRoot = Files.createTempDirectory("ballerina-test-cache" + System.nanoTime());
+                target = new Target(cachesRoot);
             }
 
-            target = project.getTarget();
             testsCachePath = target.getTestsCachePath();
         } catch (IOException e) {
             throw createLauncherException("error while creating target directory: ", e);
