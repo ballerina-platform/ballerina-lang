@@ -1679,7 +1679,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             // define dependent types. These types are referred as fields or inclusions in other
             // records and classes
             typeDefinitionDFSResolver.defineFieldsIfAvailable(symbol.pkgID.name, symbol.name);
-//            System.out.println("Symbol is found and tried to define fields : " + symbol);
         }
 
         // try to define if not found

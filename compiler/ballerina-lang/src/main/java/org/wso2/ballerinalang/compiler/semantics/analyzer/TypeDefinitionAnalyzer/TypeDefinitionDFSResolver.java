@@ -64,12 +64,8 @@ public class TypeDefinitionDFSResolver {
     private final SymbolEnter symEnter;
     private final Names names;
 
-    private PrintStream outStream = System.out;
-    private boolean debugTypeResolution;
-
     private SymbolEnv pkgEnv;
     private Map<TypeDefinitionNode.TypeDefinitionNodeKey, TypeDefinitionNode> typeDefinitionNodes;
-    private List<BLangNode> originalTypeDefinitionList;
     private List<BLangNode> finalTypeDefinitions;
 
     private Stack<TypeDefinitionNode> typeDefinitionNodeStack;
@@ -86,7 +82,6 @@ public class TypeDefinitionDFSResolver {
 
     public void cleanup() {
         initialize();
-        debugTypeResolution = false;
     }
 
     private TypeDefinitionDFSResolver(CompilerContext context) {
@@ -95,7 +90,6 @@ public class TypeDefinitionDFSResolver {
         this.symResolver = SymbolResolver.getInstance(context);
         this.symEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
-        debugTypeResolution = true;
         initialize();
     }
 
@@ -109,12 +103,8 @@ public class TypeDefinitionDFSResolver {
         processDone = false;
         setPackageEnv(pkgEnv);
         finalTypeDefinitions = new ArrayList<>(typeDefinitions.size());
-        originalTypeDefinitionList = new ArrayList<>(typeDefinitions);
-
-//        printTypes(typeDefinitions);
 
         for (BLangNode node : typeDefinitions) {
-            System.out.println("");
             if (node.getKind() == TYPE_DEFINITION) {
                 BLangTypeDefinition typeDefinition = (BLangTypeDefinition) node;
                 Name pkgAlias = pkgEnv.enclPkg.symbol.pkgID.name;
@@ -257,68 +247,8 @@ public class TypeDefinitionDFSResolver {
         return finalTypeDefinitions;
     }
 
-    private void dumpInformation() {
-
-        while (!typeDefinitionNodeStack.isEmpty()) {
-            BLangTypeDefinition typeDefinition = typeDefinitionNodeStack.pop().typeDefinition;
-        }
-        if (!debugTypeResolution) {
-            return;
-        }
-        System.out.println("\n######### dumpInformation start #############");
-
-        Iterator it = finalTypeDefinitions.iterator();
-
-        while (it.hasNext()) {
-            outStream.println(it.next());
-        }
-
-        System.out.println("######### dumpInformation end #############\n");
-    }
-
     public void setPackageEnv(SymbolEnv pkgEnv) {
 
         this.pkgEnv = pkgEnv;
     }
-
-    private void printTypes(List<BLangNode> typeDefinitions) {
-        System.out.println("######### PRINTING LIST #############");
-        int i = 0;
-        for (BLangNode node : typeDefinitions) {
-            i++;
-            if (node.getKind() == TYPE_DEFINITION) {
-                BLangTypeDefinition typeDefinition = (BLangTypeDefinition) node;
-                System.out.printf("Printing type [" + i + "]\t:\t");
-                try {
-                    System.out.printf(typeDefinition.toString());
-                    System.out.printf(" ");
-                    if (typeDefinition.typeNode == null) {
-                        System.out.printf("EMPTY typeNode");
-                        System.out.println("");
-                        continue;
-                    }
-                    if (typeDefinition.typeNode.getKind() == ERROR_TYPE) {
-                        BLangErrorType errorType = (BLangErrorType) typeDefinition.typeNode;
-                        if (errorType.getBType() == null) {
-                            System.out.printf("\t\tEMPTY type of errorType");
-                            System.out.println("");
-                            continue;
-                        }
-                    }
-                    System.out.printf("\t\t");
-                    System.out.printf(typeDefinition.typeNode.toString());
-                    System.out.printf("\t\t");
-                    System.out.printf(typeDefinition.typeNode.getKind().toString());
-                    System.out.println();
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
-                }
-            } else if (node.getKind() == CLASS_DEFN) {
-                BLangClassDefinition classDefinition = (BLangClassDefinition) node;
-                System.out.printf(classDefinition.toString());
-            }
-        }
-        System.out.println("######### PRINTING LIST END #############");
-    }
-
 }
