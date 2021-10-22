@@ -38,11 +38,12 @@ import java.util.concurrent.ExecutionException;
  */
 public class PartialParserTests {
     private static final String SINGLE_STATEMENT = "partialParser/getSTForSingleStatement";
+    private static final String EXPRESSION = "partialParser/getSTForExpression";
 
     private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
 
-    private final Path singleStatementST = RES_DIR.resolve("syntax-tree")
-            .resolve("single_statement.json");
+    private final Path singleStatementST = RES_DIR.resolve("syntax-tree").resolve("single_statement.json");
+    private final Path expressionST = RES_DIR.resolve("syntax-tree").resolve("expression.json");
 
     private Endpoint serviceEndpoint;
 
@@ -58,6 +59,17 @@ public class PartialParserTests {
         CompletableFuture<?> result = serviceEndpoint.request(SINGLE_STATEMENT, request);
         STResponse json = (STResponse) result.get();
         BufferedReader br = new BufferedReader(new FileReader(singleStatementST.toAbsolutePath().toString()));
+        JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
+        Assert.assertEquals(json.getSyntaxTree(), expected);
+    }
+
+    @Test(description = "Test getting ST for an expression")
+    public void testSTForExpression() throws ExecutionException, InterruptedException, FileNotFoundException {
+        String expression = "(population - infantCount) * 20;";
+        PartialSTRequest request = new PartialSTRequest(expression);
+        CompletableFuture<?> result = serviceEndpoint.request(EXPRESSION, request);
+        STResponse json = (STResponse) result.get();
+        BufferedReader br = new BufferedReader(new FileReader(expressionST.toAbsolutePath().toString()));
         JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
         Assert.assertEquals(json.getSyntaxTree(), expected);
     }
