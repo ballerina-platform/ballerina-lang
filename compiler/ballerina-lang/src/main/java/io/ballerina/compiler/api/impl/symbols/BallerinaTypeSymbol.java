@@ -32,8 +32,8 @@ public class BallerinaTypeSymbol extends AbstractTypeSymbol {
 
     public BallerinaTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType) {
         super(context, TypesFactory.getTypeDescKind(bType.getKind()), bType);
-        // If the type is set to `noType`, a special message would be used as the typeName. This is used to avoid
-        // exposing the `other` term, which is used only internally.
+        // In an unlikely event if the `BNoType` get exposed, this would ensure that the user would know that this is
+        // not a typical condition.
         this.typeName = bType.tag == TypeTags.NONE ? "$UndefinedType$" : bType.getKind().typeName();
     }
 

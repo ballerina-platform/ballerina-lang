@@ -174,8 +174,7 @@ public class TypesFactory {
                     typeRefFromIntersectType);
         }
 
-        TypeSymbol typeSymbol = createTypeDescriptor(bType, tSymbol, moduleID);
-        return typeSymbol;
+        return createTypeDescriptor(bType, tSymbol, moduleID);
     }
 
     private TypeSymbol createTypeDescriptor(BType bType, BTypeSymbol tSymbol, ModuleID moduleID) {
