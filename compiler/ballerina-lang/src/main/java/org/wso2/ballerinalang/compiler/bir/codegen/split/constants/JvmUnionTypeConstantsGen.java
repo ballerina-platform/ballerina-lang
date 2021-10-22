@@ -36,7 +36,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.TreeMap;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
@@ -82,7 +82,7 @@ public class JvmUnionTypeConstantsGen {
         visitUnionTypeInitMethod();
         funcNames = new ArrayList<>();
         queue = new LinkedList<>();
-        unionTypeVarMap = new ConcurrentSkipListMap<>(JvmConstantsGen.TYPE_HASH_COMPARATOR);
+        unionTypeVarMap = new TreeMap<>(JvmConstantsGen.TYPE_HASH_COMPARATOR);
     }
 
     public void setJvmUnionTypeGen(JvmUnionTypeGen jvmUnionTypeGen) {
