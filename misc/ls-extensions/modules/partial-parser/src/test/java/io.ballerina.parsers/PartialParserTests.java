@@ -54,7 +54,7 @@ public class PartialParserTests {
 
     @Test(description = "Test getting ST for a single statement")
     public void testSTForSingleStatement() throws ExecutionException, InterruptedException, FileNotFoundException {
-        String statement = "string x = aa;";
+        String statement = "string fullName = firstName + \"Cooper\";";
         PartialSTRequest request = new PartialSTRequest(statement);
         CompletableFuture<?> result = serviceEndpoint.request(SINGLE_STATEMENT, request);
         STResponse json = (STResponse) result.get();
