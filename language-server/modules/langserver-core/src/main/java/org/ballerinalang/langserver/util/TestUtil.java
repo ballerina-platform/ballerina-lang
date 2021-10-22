@@ -501,7 +501,7 @@ public class TestUtil {
      * @return {@link Endpoint}     Service Endpoint
      */
     public static Endpoint initializeLanguageSever() {
-        return newLanguageServer().build();
+        return initializeLanguageSever(new BallerinaLanguageServer());
     }
 
     /**
@@ -511,15 +511,13 @@ public class TestUtil {
      * @return {@link Endpoint}     Service Endpoint
      */
     public static Endpoint initializeLanguageSever(BallerinaLanguageServer languageServer) {
-        return newLanguageServer()
-                .withLanguageServer(languageServer)
-                .build();
+        return initializeLanguageSever(languageServer, OutputStream.nullOutputStream());
     }
 
     public static Endpoint initializeLanguageSever(BallerinaLanguageServer languageServer, OutputStream out) {
-        InputStream in = new ByteArrayInputStream(new byte[1024]);
         return newLanguageServer()
-                .withInputStream(in)
+                .withLanguageServer(languageServer)
+                .withInputStream(new ByteArrayInputStream(new byte[1024]))
                 .withOutputStream(out)
                 .build();
     }
