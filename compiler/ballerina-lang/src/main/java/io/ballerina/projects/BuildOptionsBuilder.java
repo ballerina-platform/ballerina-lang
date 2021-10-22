@@ -33,7 +33,7 @@ public class BuildOptionsBuilder {
     private Boolean skipTests;
     private final CompilationOptionsBuilder compilationOptionsBuilder;
 
-    private Path targetPath;
+    private String targetPath;
 
     public BuildOptionsBuilder() {
         compilationOptionsBuilder = new CompilationOptionsBuilder();
@@ -59,7 +59,7 @@ public class BuildOptionsBuilder {
         return this;
     }
 
-    public BuildOptionsBuilder targetDir(Path path) {
+    public BuildOptionsBuilder targetDir(String path) {
         targetPath = path;
         return this;
     }
