@@ -1,55 +1,24 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer.TypeDefinitionAnalyzer;
 
-import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.util.Flags;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
-import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
-import static org.ballerinalang.model.tree.NodeKind.CLASS_DEFN;
-import static org.ballerinalang.model.tree.NodeKind.ERROR_TYPE;
-import static org.ballerinalang.model.tree.NodeKind.RECORD_TYPE;
 import static org.ballerinalang.model.tree.NodeKind.TYPE_DEFINITION;
-import static org.ballerinalang.model.tree.NodeKind.UNION_TYPE_NODE;
 
 /**
  * This class will try to use a depth first search approach to resolved type definitions and their dependencies.
@@ -122,18 +91,18 @@ public class TypeDefinitionDFSResolver {
         }
     }
 
-    private TypeDefinitionNode findTypeDefinitionNode(BLangTypeDefinition typeDefinition) {
-        Name typename = names.fromIdNode(typeDefinition.name);
-        TypeDefinitionNode node = new TypeDefinitionNode(typeDefinition, typeDefinition.symbol.pkgID.name, typename);
-        return typeDefinitionNodes.get(node.getKey());
-    }
-
     public void startDefiningTypeDefinition(BLangTypeDefinition typeDefinition) {
         TypeDefinitionNode foundNode = findTypeDefinitionNode(typeDefinition);
         if (foundNode != null) {
             foundNode.resolvedStatus = TypeDefinitionNode.ResolvedStatus.DEFINING_STARTED;
             typeDefinitionNodeStack.push(foundNode);
         }
+    }
+
+    private TypeDefinitionNode findTypeDefinitionNode(BLangTypeDefinition typeDefinition) {
+        Name typename = names.fromIdNode(typeDefinition.name);
+        TypeDefinitionNode node = new TypeDefinitionNode(typeDefinition, typeDefinition.symbol.pkgID.name, typename);
+        return typeDefinitionNodes.get(node.getKey());
     }
 
     public void finishDefiningFields(BLangTypeDefinition typeDefinition) {
@@ -228,6 +197,7 @@ public class TypeDefinitionDFSResolver {
             typeDefinitionNodeStack.push(foundTypeDefNode);
             foundTypeDefNode.resolvedStatus = TypeDefinitionNode.ResolvedStatus.START_FIELD_DEFINING;
             symEnter.defineFields(foundTypeDefNode.typeDefinition, pkgEnv);
+            symEnter.defineFunctions(foundTypeDefNode.typeDefinition, pkgEnv);
             foundTypeDefNode.resolvedStatus = TypeDefinitionNode.ResolvedStatus.FINISHED_FIELD_DEFINING;
             typeDefinitionNodeStack.pop();
 

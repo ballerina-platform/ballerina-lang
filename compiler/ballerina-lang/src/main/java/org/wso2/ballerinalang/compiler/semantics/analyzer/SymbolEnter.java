@@ -430,7 +430,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineErrorDetails(pkgNode.typeDefinitions, pkgEnv);
 
         // Define type def members (if any)
-        defineMembers(typeAndClassDefs, pkgEnv);
+        defineFunctions(typeAndClassDefs, pkgEnv);
 
         // Intersection type nodes need to look at the member fields of a structure too.
         // Once all the fields and members of other types are set revisit intersection type definitions to validate
@@ -3863,22 +3863,26 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void defineMembers(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
+    private void defineFunctions(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
         for (BLangNode node : typeDefNodes) {
-            if (node.getKind() == NodeKind.CLASS_DEFN) {
-                BLangClassDefinition classDefinition = (BLangClassDefinition) node;
-                validateInclusionsForNonPrivateMembers(classDefinition.typeRefs);
-                defineMembersOfClassDef(pkgEnv, classDefinition);
-            } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
-                BLangTypeDefinition typeDefinition = (BLangTypeDefinition) node;
-                BLangType typeNode = typeDefinition.typeNode;
+            defineFunctions(node, pkgEnv);
+        }
+    }
 
-                if (typeNode.getKind() == NodeKind.OBJECT_TYPE) {
-                    validateInclusionsForNonPrivateMembers(((BLangObjectTypeNode) typeNode).typeRefs);
-                }
+    public void defineFunctions(BLangNode node, SymbolEnv pkgEnv) {
+        if (node.getKind() == NodeKind.CLASS_DEFN) {
+            BLangClassDefinition classDefinition = (BLangClassDefinition) node;
+            validateInclusionsForNonPrivateMembers(classDefinition.typeRefs);
+            defineMembersOfClassDef(pkgEnv, classDefinition);
+        } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
+            BLangTypeDefinition typeDefinition = (BLangTypeDefinition) node;
+            BLangType typeNode = typeDefinition.typeNode;
 
-                defineMemberOfObjectTypeDef(pkgEnv, typeDefinition);
+            if (typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+                validateInclusionsForNonPrivateMembers(((BLangObjectTypeNode) typeNode).typeRefs);
             }
+
+            defineMemberOfObjectTypeDef(pkgEnv, typeDefinition);
         }
     }
 
