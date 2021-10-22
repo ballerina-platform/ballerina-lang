@@ -302,3 +302,7 @@ public const UT_COUNT = UT_OBJECT_RW + 1;
 const int UT_MASK = (1 << UT_COUNT) - 1;
 
 const int CONST1 = CONST1;
+
+// Redeclared constant.
+const abc2 = 1;
+const abc2 = "1";

@@ -49,3 +49,19 @@ public function testMapIterator(map<anydata> testMap, int length) {
     }
     test:assertEquals(count, length);
 }
+
+public function testArrayIterator(anydata[] testArray, int length) {
+    int count = 0;
+    foreach var entry in testArray {
+        count += 1;
+    }
+    test:assertEquals(count, length);
+}
+
+public function testRecordIterator(record {} testRecord, int length) {
+    int count = 0;
+    foreach var entry in testRecord {
+        count += 1;
+    }
+    test:assertEquals(count, length);
+}

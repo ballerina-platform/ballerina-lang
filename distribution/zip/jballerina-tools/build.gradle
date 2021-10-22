@@ -128,6 +128,7 @@ dependencies {
     langserverLib project(':language-server:language-server-cli')
     langserverLib project(':language-server:language-server-core')
     langserverLib project(':ls-extensions:json-to-record-converter')
+    langserverLib project(':ls-extensions:performance-analyzer-services')
     langserverLib project(':ls-extensions:partial-parser')
 
     debugAdapterLib project(path: ':debug-adapter:debug-adapter-core', configuration: 'libs')

@@ -54,6 +54,11 @@ public class BitwiseShiftOperationTest {
         BRunUtil.invoke(result, "testBitwiseUnsignedRightShiftOp");
     }
 
+    @Test(description = "Test bitwise operations for nullable values")
+    public void testBitWiseOperationsForNullable() {
+        BRunUtil.invoke(result, "testBitwiseUnsignedRightShiftOp");
+    }
+
     @Test(description = "Test bitwise shift operation negative scenarios")
     public void testBitwiseShiftNegativeScenarios() {
         Assert.assertEquals(negativeResult.getErrorCount(), 15);

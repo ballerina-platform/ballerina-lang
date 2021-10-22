@@ -104,11 +104,12 @@ public class WorkerFailTest {
     public void invalidReceiveWithErrorUnionReturnTest() {
         CompileResult result =
                 BCompileUtil.compile("test-src/workers/invalid_receive_with_union_error_return_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
-        validateError(result, 0, "incompatible types: expected 'TrxError?', found 'FooError?'", 46, 29);
-        validateError(result, 1, "incompatible types: expected 'TrxError?', " +
-                                          "found '(FooError|TrxError)?'", 47, 19);
-        validateError(result, 2, "incompatible types: expected '()', found '(FooError|TrxError)?'", 48, 16);
+        Assert.assertEquals(result.getErrorCount(), 4);
+        validateError(result, 0, "unreachable code", 37, 13);
+        validateError(result, 1, "incompatible types: expected 'TrxError?', found 'FooError?'", 47, 29);
+        validateError(result, 2, "incompatible types: expected 'TrxError?', " +
+                                          "found '(FooError|TrxError)?'", 48, 19);
+        validateError(result, 3, "incompatible types: expected '()', found '(FooError|TrxError)?'", 49, 16);
     }
 
     @Test
@@ -123,8 +124,8 @@ public class WorkerFailTest {
         CompileResult result = BCompileUtil.compile("test-src/workers/sync_send_receive_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
         validateError(result, 0, "variable assignment is required", 33, 9);
-        validateError(result, 1, "incompatible types: expected 'int', found '(E1|int)'", 37, 18);
-        validateError(result, 2, "incompatible types: expected 'string', found '(E1|E2|string)'", 42, 20);
+        validateError(result, 1, "incompatible types: expected 'int', found '(E1|int)'", 38, 18);
+        validateError(result, 2, "incompatible types: expected 'string', found '(E1|E2|string)'", 43, 20);
     }
 
     @Test
