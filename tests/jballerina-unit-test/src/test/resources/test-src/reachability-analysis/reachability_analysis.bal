@@ -625,6 +625,46 @@ function testReachableCodeWithBinaryCondition9() returns int {
     }
 }
 
+function testReachableCodeWithUnaryCondition9() returns int {
+    Type1 b = 10;
+
+    if !(b == 10) {
+        return b;
+    }
+
+    10 c = b;
+
+    if !(c == 20) {
+        return c;
+    }
+}
+
+function testReachableCodeWithUnaryCondition10() returns int {
+    int|string a = 10;
+
+    if !(a is int) {
+        return 1;
+    }
+
+    int b = a;
+    a = 20;
+    int|string c = a;
+
+    if !(c is int) {
+        return 2;
+    } else {
+        return 3;
+    }
+}
+
+function testReachableCodeWithUnaryConditionsInIf() {
+    int res = testReachableCodeWithUnaryCondition9();
+    assertEqual(res, 10);
+
+    res = testReachableCodeWithUnaryCondition10();
+    assertEqual(res, 3);
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;

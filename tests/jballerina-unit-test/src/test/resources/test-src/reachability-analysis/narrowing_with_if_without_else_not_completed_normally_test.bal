@@ -285,3 +285,33 @@ function testTypeNarrowingWithIfWithoutElseNotCompletedNormally8() {
 
     20 c = b;
 }
+
+function testTypeNarrowingWithIfWithoutElseNotCompletedNormally9() {
+    int? a = 10;
+    if !(a is int) {
+        return;
+    }
+    () b = a;
+    a = 1;
+    int c = a;
+}
+
+function testTypeNarrowingWithIfWithoutElseNotCompletedNormally10() {
+    int? a = 10;
+    if a !is int {
+        return;
+    }
+    () b = a;
+    a = 1;
+    int c = a;
+}
+
+function testTypeNarrowingWithIfWithoutElseNotCompletedNormally11() {
+    Type1 b = 10;
+    if !(b == 10) {
+        return;
+    }
+    20 c = b;
+    b = 10;
+    10 d = b;
+}
