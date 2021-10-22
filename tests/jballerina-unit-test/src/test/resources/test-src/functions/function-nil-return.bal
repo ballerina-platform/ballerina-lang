@@ -275,6 +275,11 @@ client class MyClient {
     }
 }
 
+type MyClientObj client object {
+    function foo() returns int?; // no warning
+    remote function bar() returns int?; // no warning
+};
+
 function print(any|error... values) returns int? = @java:Method { // no warning
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
