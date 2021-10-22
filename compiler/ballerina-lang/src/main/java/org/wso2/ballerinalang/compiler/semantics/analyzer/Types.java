@@ -3684,6 +3684,10 @@ public class Types {
     }
 
     boolean validNumericTypeExists(BType type) {
+
+        if (type.isNullable() && type.tag != TypeTags.NIL) {
+            type = getSafeType(type, true, false);
+        }
         if (isBasicNumericType(type)) {
             return true;
         }
@@ -3743,6 +3747,9 @@ public class Types {
     }
 
     boolean validIntegerTypeExists(BType type) {
+        if (type.isNullable() && type.tag != TypeTags.NIL) {
+            type = getSafeType(type, true, false);
+        }
         if (TypeTags.isIntegerTypeTag(type.tag)) {
             return true;
         }

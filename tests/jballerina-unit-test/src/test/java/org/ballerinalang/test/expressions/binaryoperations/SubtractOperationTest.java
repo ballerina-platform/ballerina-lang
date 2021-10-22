@@ -124,4 +124,9 @@ public class SubtractOperationTest {
         BAssertUtil.validateError(resultNegative, 10, "operator '-' not defined for 'C' and 'float'", 45, 14);
         BAssertUtil.validateError(resultNegative, 11, "operator '-' not defined for 'C' and 'float'", 46, 14);
     }
+
+    @Test(description = "Test subtraction of nullable values")
+    public void testSubNullable() {
+        BRunUtil.invoke(result, "testSubNullable");
+    }
 }
