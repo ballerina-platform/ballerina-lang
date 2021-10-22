@@ -19,6 +19,7 @@
 package org.ballerinalang.central.client;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import okhttp3.Cache;
@@ -52,6 +53,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -692,7 +694,13 @@ public class CentralAPIClient {
     public JsonElement getConnectors(String packageName, String supportedPlatform, String ballerinaVersion)
             throws CentralClientException {
         Optional<ResponseBody> body = Optional.empty();
-        OkHttpClient client = this.getClient();
+        // TODO: update this client initiation with default timeouts after fixing central/connectors API.
+        OkHttpClient client = new OkHttpClient.Builder()
+                .followRedirects(false)
+                .connectTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
+                .proxy(this.proxy)
+                .build();
         try {
             HttpUrl url = HttpUrl.parse(this.baseUrl).newBuilder()
                     .addPathSegment(CONNECTORS)
@@ -716,7 +724,7 @@ public class CentralAPIClient {
                 }
             }
             handleResponseErrors(searchResponse, ERR_CANNOT_GET_CONNECTOR + " request:" + packageName);
-            return null;
+            return new JsonArray();
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_GET_CONNECTOR + "'" + packageName
                     + "'. reason: " + e.getMessage());
@@ -762,7 +770,7 @@ public class CentralAPIClient {
                 }
             }
             handleResponseErrors(searchResponse, ERR_CANNOT_GET_CONNECTOR + " id:" + id);
-            return null;
+            return new JsonObject();
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_GET_CONNECTOR + "'" + id + "'. reason: " + e.getMessage());
         } finally {

@@ -87,7 +87,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 
@@ -124,7 +123,7 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
         return CompletableFuture.supplyAsync(() -> {
             BallerinaConnectorListResponse connectorList = new BallerinaConnectorListResponse();
             try {
-                Settings settings = readSettings();
+                Settings settings = RepoUtils.readSettings();
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                         initializeProxy(settings.getProxy()), getAccessTokenOfCLI(settings));
                 JsonElement connectorSearchResult = client.getConnectors(request.getPackageName(),
@@ -232,7 +231,7 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
     private Optional<JsonObject> getConnectorFromCentral(BallerinaConnectorRequest request) {
         JsonObject connector;
         try {
-            Settings settings = readSettings();
+            Settings settings = RepoUtils.readSettings();
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                     initializeProxy(settings.getProxy()),
                     getAccessTokenOfCLI(settings));

@@ -17,6 +17,7 @@ module io.ballerina.language.server.core {
     exports org.ballerinalang.langserver.config;
     exports org.ballerinalang.langserver.telemetry;
     exports org.ballerinalang.langserver.util to io.ballerina.language.server.simulator;
+    requires io.ballerina.diagram.util;
     requires io.ballerina.formatter.core;
     requires org.eclipse.lsp4j;
     requires io.ballerina.language.server.commons;
@@ -32,8 +33,6 @@ module io.ballerina.language.server.core {
     requires io.ballerina.tools.api;
     requires com.google.common;
     requires com.google.gson;
-    requires io.ballerina.diagram.util;
     requires io.ballerina.syntaxapicallsgen;
     requires io.ballerina.central.client;
-    requires io.ballerina.cli;
 }
