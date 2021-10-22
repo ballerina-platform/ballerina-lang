@@ -3898,11 +3898,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void updateAndCleanPrevEnvsForNarrowedEnvFollowingIfWithoutElse(BLangNode node) {
-        if (node.getKind() != NodeKind.IF && node.getKind() != NodeKind.BLOCK &&
-                node.getKind() != NodeKind.BLOCK_FUNCTION_BODY) {
+        NodeKind nodeKind = node.getKind();
+        if (nodeKind != NodeKind.IF && nodeKind != NodeKind.BLOCK && nodeKind != NodeKind.BLOCK_FUNCTION_BODY) {
             return;
         }
-        if (node.getKind() == NodeKind.BLOCK || node.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
+        if (nodeKind == NodeKind.BLOCK || nodeKind == NodeKind.BLOCK_FUNCTION_BODY) {
             // If types have been narrowed following `if` statement without an `else`, prevEnvs would still
             // have the block's env as its immediate prevEnv. It should be removed once analysis of the block
             // is completed.
