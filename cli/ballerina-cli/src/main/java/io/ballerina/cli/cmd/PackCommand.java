@@ -97,8 +97,8 @@ public class PackCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
     private Boolean sticky;
 
-    @CommandLine.Option(names = "--target-dir", description = "path of custom target directory")
-    private Path customTargetPath;
+    @CommandLine.Option(names = "--target-dir", description = "target directory path")
+    private Path targetDir;
 
     public PackCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -149,8 +149,8 @@ public class PackCommand implements BLauncherCmd {
         }
 
         // If a custom target path is set, we modify the tagetPath in the build options with the new custom one
-        if (this.customTargetPath != null) {
-            buildOptions.setTargetDir(this.customTargetPath);
+        if (this.targetDir != null) {
+            buildOptions.setTargetDir(this.targetDir.toString());
         }
 
         try {

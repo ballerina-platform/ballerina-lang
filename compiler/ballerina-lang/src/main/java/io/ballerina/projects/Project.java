@@ -19,12 +19,9 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.environment.ProjectEnvironment;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import io.ballerina.projects.internal.model.Target;
-import io.ballerina.projects.util.ProjectConstants;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;

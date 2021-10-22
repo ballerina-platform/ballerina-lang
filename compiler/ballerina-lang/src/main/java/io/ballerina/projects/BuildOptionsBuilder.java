@@ -17,8 +17,6 @@
  */
 package io.ballerina.projects;
 
-import java.nio.file.Path;
-
 /**
  * This class can be used to create an instance of {@code BuildOptions}.
  * <p>

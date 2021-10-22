@@ -539,13 +539,9 @@ public class JBallerinaBackend extends CompilerBackend {
      * @return platform lib path
      */
     private String getPlatformLibPath(String groupId, String artifactId, String version) {
-        String targetRepo;
-        try {
-            targetRepo = this.packageContext.project().targetDir().resolve(ProjectConstants.TARGET_DIR_NAME).toString()
-                    + File.separator + "platform" + "-libs";
-        } catch (IOException e) {
-            throw new ProjectException(e.getMessage());
-        }
+        String targetRepo =
+                this.packageContext.project().targetDir().resolve(ProjectConstants.TARGET_DIR_NAME).toString()
+                        + File.separator + "platform" + "-libs";
         MavenResolver resolver = new MavenResolver(targetRepo);
         try {
             Dependency dependency = resolver.resolve(groupId, artifactId, version, false);
