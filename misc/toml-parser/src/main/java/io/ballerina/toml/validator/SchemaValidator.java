@@ -32,22 +32,22 @@ import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
-import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.toml.validator.schema.AbstractSchema;
 import io.ballerina.toml.validator.schema.ArraySchema;
-import io.ballerina.toml.validator.schema.NumericSchema;
+import io.ballerina.toml.validator.schema.BooleanSchema;
+import io.ballerina.toml.validator.schema.CompositionSchema;
 import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.toml.validator.schema.SchemaDeserializer;
 import io.ballerina.toml.validator.schema.StringSchema;
 import io.ballerina.toml.validator.schema.Type;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
+
+import static io.ballerina.toml.validator.ValidationUtil.getTomlDiagnostic;
 
 /**
  * Visitor to validate toml object against rules in json schema.
@@ -56,15 +56,11 @@ import java.util.regex.Pattern;
  */
 public class SchemaValidator extends TomlNodeVisitor {
 
-    private static final String PROPERTY_HOLDER = "${property}";
-
     private AbstractSchema schema;
     private String key;
-    private String schemaTitle;
 
     public SchemaValidator(Schema schema) {
         this.schema = schema;
-        this.schemaTitle = schema.title();
     }
 
     @Override
@@ -72,57 +68,23 @@ public class SchemaValidator extends TomlNodeVisitor {
         if (schema.type() != Type.OBJECT) {
             if (!tomlTableNode.isMissingNode()) {
                 TomlDiagnostic diagnostic = getTomlDiagnostic(tomlTableNode.location(), "TVE0002", "error.invalid.type",
-                        DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.OBJECT));
+                        DiagnosticSeverity.ERROR, getTypeErrorMessage(schema, Type.OBJECT, key));
                 tomlTableNode.addDiagnostic(diagnostic);
             }
             return;
         }
         Schema objectSchema = (Schema) schema;
+        tomlTableNode.addDiagnostics(objectSchema.validate(tomlTableNode, this.key));
         Map<String, AbstractSchema> properties = objectSchema.properties();
-        List<String> requiredFields = getRequiredFields(objectSchema);
         Map<String, TopLevelNode> tableEntries = tomlTableNode.entries();
         for (Map.Entry<String, TopLevelNode> tableEntry : tableEntries.entrySet()) {
             String key = tableEntry.getKey();
-            requiredFields.remove(key);
             TopLevelNode value = tableEntry.getValue();
             AbstractSchema schema = properties.get(key);
             if (schema != null) {
                 visitNode(value, schema, key);
-                continue;
-            }
-            if (!objectSchema.hasAdditionalProperties()) {
-                DiagnosticInfo diagnosticInfo = new DiagnosticInfo("TVE0001", "error.unexpected.property",
-                        DiagnosticSeverity.ERROR);
-                TomlDiagnostic diagnostic = new TomlDiagnostic(value.location(), diagnosticInfo,
-                        getUnexpectedPropertyErrorMessage(key));
-                tomlTableNode.addDiagnostic(diagnostic);
             }
         }
-        for (String field : requiredFields) {
-            DiagnosticInfo diagnosticInfo = new DiagnosticInfo("TVE0006", "error.required.field.missing",
-                    DiagnosticSeverity.ERROR);
-            TomlDiagnostic diagnostic = new TomlDiagnostic(tomlTableNode.location(), diagnosticInfo,
-                    getRequiredErrorMessage(field));
-            tomlTableNode.addDiagnostic(diagnostic);
-        }
-    }
-
-    private String getRequiredErrorMessage(String field) {
-        Map<String, String> message = this.schema.message();
-        String typeCustomMessage = message.get(SchemaDeserializer.REQUIRED);
-        if (typeCustomMessage == null) {
-            return "missing required field '" + field + "'";
-        }
-        return typeCustomMessage.replace(PROPERTY_HOLDER, field);
-    }
-
-    private String getUnexpectedPropertyErrorMessage(String key) {
-        Map<String, String> message = this.schema.message();
-        String typeCustomMessage = message.get(SchemaDeserializer.ADDITIONAL_PROPERTIES);
-        if (typeCustomMessage == null) {
-            return String.format("key '%s' not supported in schema '%s'", key, schemaTitle);
-        }
-        return typeCustomMessage.replace(PROPERTY_HOLDER, key);
     }
 
     @Override
@@ -130,7 +92,7 @@ public class SchemaValidator extends TomlNodeVisitor {
         if (schema.type() != Type.ARRAY) {
             if (!tomlTableArrayNode.isMissingNode()) {
                 TomlDiagnostic diagnostic = getTomlDiagnostic(tomlTableArrayNode.location(), "TVE0002", "error" +
-                        ".invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.ARRAY));
+                        ".invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(schema, Type.ARRAY, key));
                 tomlTableArrayNode.addDiagnostic(diagnostic);
             }
             return;
@@ -146,7 +108,17 @@ public class SchemaValidator extends TomlNodeVisitor {
     @Override
     public void visit(TomlKeyValueNode keyValue) {
         TomlValueNode value = keyValue.value();
+        if (isCompositeType()) {
+            CompositionSchema schema = (CompositionSchema) this.schema;
+            value.addDiagnostics(schema.validate(value, key));
+            return;
+        }
         visitNode(value);
+    }
+
+    private boolean isCompositeType() {
+        return this.schema.type() == Type.ANY_OF || this.schema.type() == Type.ALL_OF ||
+                this.schema.type() == Type.ONE_OF || this.schema.type() == Type.NOT;
     }
 
     @Override
@@ -154,82 +126,33 @@ public class SchemaValidator extends TomlNodeVisitor {
         visitNode(tomlValue);
     }
 
-    private String getTypeErrorMessage(Type found) {
-        Map<String, String> message = this.schema.message();
+    public static String getTypeErrorMessage(AbstractSchema schema, Type found, String key) {
+        Map<String, String> message = schema.message();
         String typeCustomMessage = message.get(SchemaDeserializer.TYPE);
         if (typeCustomMessage == null) {
-            return String.format("incompatible type for key '%s': expected '%s', found '%s'", this.key, schema.type(),
+            return String.format("incompatible type for key '%s': expected '%s', found '%s'", key, schema.type(),
                     found);
-        }
-        return typeCustomMessage;
-    }
-
-    private String getPatternErrorMessage(String pattern) {
-        Map<String, String> message = this.schema.message();
-        String typeCustomMessage = message.get(SchemaDeserializer.PATTERN);
-        if (typeCustomMessage == null) {
-            return String.format("value for key '%s' expected to match the regex: %s", this.key, pattern);
-        }
-        return typeCustomMessage;
-    }
-
-    private String getMaxLengthErrorMessage(int maxLength) {
-        Map<String, String> message = this.schema.message();
-        String typeCustomMessage = message.get(SchemaDeserializer.MAX_LENGTH);
-        if (typeCustomMessage == null) {
-            return String.format("length of the value for key '%s' is greater than defined max length %s", this.key,
-                    maxLength);
-        }
-        return typeCustomMessage;
-    }
-
-    private String getMinLengthErrorMessage(int maxLength) {
-        Map<String, String> message = this.schema.message();
-        String typeCustomMessage = message.get(SchemaDeserializer.MIN_LENGTH);
-        if (typeCustomMessage == null) {
-            return String.format("length of the value for key '%s' is lower than defined min length %s", this.key,
-                    maxLength);
         }
         return typeCustomMessage;
     }
 
     @Override
     public void visit(TomlStringValueNode tomlStringValueNode) {
-        if (schema.type() != Type.STRING) {
+        List<Diagnostic> diagnosticForString = this.getDiagnosticForString(tomlStringValueNode);
+        tomlStringValueNode.addDiagnostics(diagnosticForString);
+    }
+
+    private List<Diagnostic> getDiagnosticForString(TomlStringValueNode tomlStringValueNode) {
+        if (this.schema.type() != Type.STRING) {
             if (!tomlStringValueNode.isMissingNode()) {
                 TomlDiagnostic diagnostic = getTomlDiagnostic(tomlStringValueNode.location(), "TVE0002", "error" +
-                        ".invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.STRING));
-                tomlStringValueNode.addDiagnostic(diagnostic);
+                        ".invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(schema, Type.STRING, key));
+                return Collections.singletonList(diagnostic);
             }
-            return;
+            return Collections.emptyList();
         }
         StringSchema stringSchema = (StringSchema) this.schema;
-        if (stringSchema.pattern().isPresent()) {
-            String pattern = stringSchema.pattern().get();
-            if (!Pattern.compile(pattern).matcher(tomlStringValueNode.getValue()).matches()) {
-                TomlDiagnostic diagnostic = getTomlDiagnostic(tomlStringValueNode.location(), "TVE0003",
-                        "error.regex.mismatch", DiagnosticSeverity.ERROR, getPatternErrorMessage(pattern));
-                tomlStringValueNode.addDiagnostic(diagnostic);
-            }
-        }
-        if (stringSchema.maxLength().isPresent()) {
-            int maxLength = stringSchema.maxLength().get();
-            String value = tomlStringValueNode.getValue();
-            if (value.length() > maxLength) {
-                TomlDiagnostic diagnostic = getTomlDiagnostic(tomlStringValueNode.location(), "TVE0007",
-                        "error.maxlen.exceeded", DiagnosticSeverity.ERROR, getMaxLengthErrorMessage(maxLength));
-                tomlStringValueNode.addDiagnostic(diagnostic);
-            }
-        }
-        if (stringSchema.minLength().isPresent()) {
-            int minLength = stringSchema.minLength().get();
-            String value = tomlStringValueNode.getValue();
-            if (value.length() < minLength) {
-                TomlDiagnostic diagnostic = getTomlDiagnostic(tomlStringValueNode.location(), "TVE0008",
-                        "error.minlen.deceed", DiagnosticSeverity.ERROR, getMinLengthErrorMessage(minLength));
-                tomlStringValueNode.addDiagnostic(diagnostic);
-            }
-        }
+        return stringSchema.validate(tomlStringValueNode, key);
     }
 
     @Override
@@ -237,14 +160,12 @@ public class SchemaValidator extends TomlNodeVisitor {
         if (schema.type() != Type.NUMBER) {
             if (!tomlDoubleValueNodeNode.isMissingNode()) {
                 TomlDiagnostic diagnostic = getTomlDiagnostic(tomlDoubleValueNodeNode.location(), "TVE0002",
-                        "error.invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.NUMBER));
+                        "error.invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(schema, Type.NUMBER, key));
                 tomlDoubleValueNodeNode.addDiagnostic(diagnostic);
             }
             return;
         }
-        List<Diagnostic> diagnostics = validateMinMaxValues((NumericSchema) schema, tomlDoubleValueNodeNode.getValue(),
-                tomlDoubleValueNodeNode.location());
-        tomlDoubleValueNodeNode.addDiagnostics(diagnostics);
+        tomlDoubleValueNodeNode.addDiagnostics(schema.validate(tomlDoubleValueNodeNode, key));
     }
 
     @Override
@@ -252,17 +173,12 @@ public class SchemaValidator extends TomlNodeVisitor {
         if (schema.type() != Type.INTEGER) {
             if (!tomlLongValueNode.isMissingNode()) {
                 TomlDiagnostic diagnostic = getTomlDiagnostic(tomlLongValueNode.location(), "TVE0002",
-                        "error.invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.INTEGER));
+                        "error.invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(schema, Type.INTEGER, key));
                 tomlLongValueNode.addDiagnostic(diagnostic);
             }
             return;
         }
-        List<Diagnostic> diagnostics =
-                validateMinMaxValues((NumericSchema) schema, Double.valueOf(tomlLongValueNode.getValue()),
-                        tomlLongValueNode.location());
-        for (Diagnostic diagnostic : diagnostics) {
-            tomlLongValueNode.addDiagnostic(diagnostic);
-        }
+        tomlLongValueNode.addDiagnostics(schema.validate(tomlLongValueNode, key));
     }
 
     @Override
@@ -271,58 +187,18 @@ public class SchemaValidator extends TomlNodeVisitor {
             if (!tomlArrayValueNode.isMissingNode()) {
                 TomlDiagnostic diagnostic =
                         getTomlDiagnostic(tomlArrayValueNode.location(), "TVE0002", "error.invalid.type",
-                                DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.ARRAY));
+                                DiagnosticSeverity.ERROR, getTypeErrorMessage(schema, Type.ARRAY, key));
                 tomlArrayValueNode.addDiagnostic(diagnostic);
             }
             return;
         }
         ArraySchema arraySchema = (ArraySchema) schema;
+        tomlArrayValueNode.addDiagnostics(arraySchema.validate(tomlArrayValueNode, key));
+
         AbstractSchema items = arraySchema.items();
         for (TomlValueNode valueNode : tomlArrayValueNode.elements()) {
             visitNode(valueNode, items);
         }
-    }
-
-    private String getMaxValueExceedErrorMessage(Double max) {
-        Map<String, String> message = this.schema.message();
-        String maxCustomMessage = message.get(SchemaDeserializer.MAXIMUM);
-        if (maxCustomMessage == null) {
-            return String.format("value for key '%s' can't be higher than %f", this.key,
-                    max);
-        }
-        return maxCustomMessage;
-    }
-
-    private String getMinValueDeceedErrorMessage(Double min) {
-        Map<String, String> message = this.schema.message();
-        String minCustomMessage = message.get(SchemaDeserializer.MINIMUM);
-        if (minCustomMessage == null) {
-            return String.format("value for key '%s' can't be lower than %f", this.key,
-                    min);
-        }
-        return minCustomMessage;
-    }
-
-    private List<Diagnostic> validateMinMaxValues(NumericSchema numericSchema, Double value,
-                                                  TomlNodeLocation location) {
-        List<Diagnostic> diagnostics = new ArrayList<>();
-        if (numericSchema.maximum().isPresent()) {
-            Double max = numericSchema.maximum().get();
-            if (value > max) {
-                TomlDiagnostic diagnostic = getTomlDiagnostic(location, "TVE0005", "error" +
-                        ".maximum.value.exceed", DiagnosticSeverity.ERROR, getMaxValueExceedErrorMessage(max));
-                diagnostics.add(diagnostic);
-            }
-        }
-        if (numericSchema.minimum().isPresent()) {
-            Double min = numericSchema.minimum().get();
-            if (value < min) {
-                TomlDiagnostic diagnostic = getTomlDiagnostic(location, "TVE0004", "error.minimum.value.deceed",
-                        DiagnosticSeverity.ERROR, getMinValueDeceedErrorMessage(min));
-                diagnostics.add(diagnostic);
-            }
-        }
-        return diagnostics;
     }
 
     @Override
@@ -330,10 +206,13 @@ public class SchemaValidator extends TomlNodeVisitor {
         if (schema.type() != Type.BOOLEAN) {
             if (!tomlBooleanValueNode.isMissingNode()) {
                 TomlDiagnostic diagnostic = getTomlDiagnostic(tomlBooleanValueNode.location(), "TVE0002",
-                        "error.invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.BOOLEAN));
+                        "error.invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(schema, Type.BOOLEAN, key));
                 tomlBooleanValueNode.addDiagnostic(diagnostic);
             }
+            return;
         }
+        BooleanSchema schema = (BooleanSchema) this.schema;
+        tomlBooleanValueNode.addDiagnostics(schema.validate(tomlBooleanValueNode, key));
     }
 
     @Override
@@ -341,38 +220,20 @@ public class SchemaValidator extends TomlNodeVisitor {
         if (schema.type() != Type.OBJECT) {
             if (!tomlInlineTableValueNode.isMissingNode()) {
                 TomlDiagnostic diagnostic = getTomlDiagnostic(tomlInlineTableValueNode.location(), "TVE0002",
-                        "error.invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.OBJECT));
+                        "error.invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(schema, Type.OBJECT, key));
                 tomlInlineTableValueNode.addDiagnostic(diagnostic);
             }
             return;
         }
         Schema schema = (Schema) this.schema;
+        tomlInlineTableValueNode.addDiagnostics(schema.validate(tomlInlineTableValueNode, this.key));
         Map<String, AbstractSchema> properties = schema.properties();
-        List<String> requiredFields = getRequiredFields(schema);
-        
         for (TopLevelNode topLevelNode : tomlInlineTableValueNode.elements()) {
             String key = topLevelNode.key().name();
             AbstractSchema abstractSchema = properties.get(key);
-            requiredFields.remove(key);
             if (abstractSchema != null) {
                 visitNode(topLevelNode, abstractSchema, key);
-                continue;
             }
-            if (!schema.hasAdditionalProperties()) {
-                DiagnosticInfo diagnosticInfo = new DiagnosticInfo("TVE0001", "error.unexpected.property",
-                        DiagnosticSeverity.ERROR);
-                TomlDiagnostic diagnostic = new TomlDiagnostic(topLevelNode.location(), diagnosticInfo,
-                        getUnexpectedPropertyErrorMessage(key));
-                tomlInlineTableValueNode.addDiagnostic(diagnostic);
-            }
-        }
-
-        for (String field : requiredFields) {
-            DiagnosticInfo diagnosticInfo = new DiagnosticInfo("TVE0006", "error.required.field.missing",
-                    DiagnosticSeverity.ERROR);
-            TomlDiagnostic diagnostic = new TomlDiagnostic(tomlInlineTableValueNode.location(), diagnosticInfo,
-                    getRequiredErrorMessage(field));
-            tomlInlineTableValueNode.addDiagnostic(diagnostic);
         }
     }
 
@@ -399,18 +260,5 @@ public class SchemaValidator extends TomlNodeVisitor {
         node.accept(this);
         this.schema = previousSchema;
         this.key = previousKey;
-    }
-
-    private TomlDiagnostic getTomlDiagnostic(TomlNodeLocation location, String code, String template,
-                                             DiagnosticSeverity severity, String message) {
-        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(code, template, severity);
-        return new TomlDiagnostic(location, diagnosticInfo, message);
-    }
-
-    private List<String> getRequiredFields(Schema objectSchema) {
-        if (objectSchema.required() == null) {
-            return new ArrayList<>();
-        }
-        return new ArrayList<>(objectSchema.required());
     }
 }

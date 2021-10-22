@@ -131,6 +131,11 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
     private InitializationOptions parseInitializationOptions(Map<String, Object> initOptions) {
         InitializationOptionsImpl initializationOptions = new InitializationOptionsImpl();
 
+        Object supportBalaScheme = initOptions.get(InitializationOptions.KEY_BALA_SCHEME_SUPPORT);
+        boolean balaSchemeSupported = supportBalaScheme == null ||
+                Boolean.parseBoolean(String.valueOf(supportBalaScheme));
+        initializationOptions.setSupportBalaScheme(balaSchemeSupported);
+
         Object semanticTokensSupport = initOptions.get(InitializationOptions.KEY_ENABLE_SEMANTIC_TOKENS);
         boolean enableSemanticTokens = semanticTokensSupport == null ||
                 Boolean.parseBoolean(String.valueOf(semanticTokensSupport));
@@ -179,8 +184,18 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
      * Represents the initialization options the LS client will be sending.
      */
     public static class InitializationOptionsImpl implements InitializationOptions {
+        private boolean supportBalaScheme = false;
         private boolean enableSemanticTokens = false;
         
+        @Override
+        public boolean isBalaSchemeSupported() {
+            return supportBalaScheme;
+        }
+
+        public void setSupportBalaScheme(boolean supportBalaScheme) {
+            this.supportBalaScheme = supportBalaScheme;
+        }
+
         public boolean isEnableSemanticTokens() {
             return enableSemanticTokens;
         }

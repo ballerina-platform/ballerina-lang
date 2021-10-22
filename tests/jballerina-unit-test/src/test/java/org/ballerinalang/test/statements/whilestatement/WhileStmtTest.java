@@ -29,6 +29,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
+
 /**
  * This contains methods to test different behaviours of the while loop statement.
  *
@@ -254,6 +256,7 @@ public class WhileStmtTest {
     @Test(description = "Check not incompatible types and reachable statements.")
     public void testNegative1() {
         Assert.assertEquals(onfailNegativeCompileResult.getErrorCount(), 7);
+        Assert.assertEquals(onfailNegativeCompileResult.getWarnCount(), 1);
         BAssertUtil.validateError(onfailNegativeCompileResult, 0, "unreachable code", 17, 6);
         BAssertUtil.validateError(onfailNegativeCompileResult, 1, "incompatible error definition type: " +
                 "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 34, 4);
@@ -261,7 +264,9 @@ public class WhileStmtTest {
         BAssertUtil.validateError(onfailNegativeCompileResult, 3, "this function must return a result", 83, 1);
         BAssertUtil.validateError(onfailNegativeCompileResult, 4, "incompatible error definition type: " +
                 "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 102, 4);
-        BAssertUtil.validateError(onfailNegativeCompileResult, 5, "unreachable code", 116, 9);
-        BAssertUtil.validateError(onfailNegativeCompileResult, 6, "unreachable code", 118, 5);
+        validateWarning(onfailNegativeCompileResult, 5, "this function should explicitly return a value",
+                110, 41);
+        BAssertUtil.validateError(onfailNegativeCompileResult, 6, "unreachable code", 116, 9);
+        BAssertUtil.validateError(onfailNegativeCompileResult, 7, "unreachable code", 118, 5);
     }
 }

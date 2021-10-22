@@ -78,7 +78,9 @@ import org.ballerinalang.langserver.common.constants.PatternConstants;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
@@ -1149,13 +1151,30 @@ public class CommonUtil {
     }
 
     /**
-     * Get the URI with bala scheme for provided path.
+     * Get the URI with bala scheme for provided path. This method checks if the LS client supports bala scheme first.
      *
-     * @param filePath File path
+     * @param serverContext Language server context
+     * @param filePath      File path
      * @return URI with bala scheme
      * @throws URISyntaxException URI creation errors
      */
-    public static String getBalaUriForPath(Path filePath) throws URISyntaxException {
+    public static String getBalaUriForPath(LanguageServerContext serverContext,
+                                           Path filePath) throws URISyntaxException {
+        LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
+        if (clientCapabilities.getInitializationOptions().isBalaSchemeSupported()) {
+            return getBalaUriForPath(filePath);
+        }
+        return filePath.toUri().toString();
+    }
+
+    /**
+     * Returns the URI with bala scheme for the provided file path.
+     *
+     * @param filePath File path
+     * @return URI with bala scheme
+     * @throws URISyntaxException URI parsing errors
+     */
+    private static String getBalaUriForPath(Path filePath) throws URISyntaxException {
         URI uri = filePath.toUri();
         uri = new URI(URI_SCHEME_BALA, uri.getUserInfo(), uri.getHost(), uri.getPort(),
                 uri.getPath(), uri.getQuery(), uri.getFragment());
