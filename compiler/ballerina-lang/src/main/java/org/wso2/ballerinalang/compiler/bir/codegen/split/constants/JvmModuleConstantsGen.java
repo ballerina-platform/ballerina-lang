@@ -28,8 +28,8 @@ import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
@@ -64,14 +64,14 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion
  */
 public class JvmModuleConstantsGen {
 
-    private final ConcurrentHashMap<PackageID, String> moduleVarMap;
+    private final Map<PackageID, String> moduleVarMap;
 
     private final String moduleConstantClass;
 
     private final AtomicInteger constantIndex = new AtomicInteger();
 
     public JvmModuleConstantsGen(BIRNode.BIRPackage module) {
-        this.moduleVarMap = new ConcurrentHashMap<>();
+        this.moduleVarMap = new HashMap<>();
         this.moduleConstantClass = getModuleLevelClassName(module.packageID, MODULE_CONSTANT_CLASS_NAME);
     }
 

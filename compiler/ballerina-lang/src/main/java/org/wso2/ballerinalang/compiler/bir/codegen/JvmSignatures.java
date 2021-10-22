@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANYDATA_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
@@ -192,6 +193,7 @@ public class JvmSignatures {
     public static final String GET_ANNOTATION_VALUE =
             "(L" + TYPEDESC_VALUE + ";L" + B_STRING_VALUE + ";)L" + OBJECT + ";";
     public static final String GET_ANON_TYPE = "(IL" + STRING_VALUE + ";)L" + TYPE + ";";
+    public static final String GET_ARRAY_TYPE_IMPL = "L" + ARRAY_TYPE_IMPL + ";";
     public static final String GET_ARRAY_VALUE = "L" + ARRAY_VALUE + ";";
     public static final String GET_ATTRAIBUTE_MAP = "()L" + MAP_VALUE + ";";
     public static final String GET_BDECIMAL = "L" + DECIMAL_VALUE + ";";
