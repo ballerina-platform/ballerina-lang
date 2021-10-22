@@ -172,7 +172,7 @@ public class PackageResolution {
                         return true;
                     } else {
                         this.autoUpdate = true;
-                        return true;
+                        return false;
                     }
                 } catch (IOException | JsonSyntaxException e) {
                     this.autoUpdate = true;
