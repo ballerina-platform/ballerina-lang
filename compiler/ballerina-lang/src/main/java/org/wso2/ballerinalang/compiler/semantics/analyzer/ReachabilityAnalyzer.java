@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -88,6 +89,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -488,6 +490,9 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         }
 
         if (funcNode.returnTypeNode.getBType().tag == TypeTags.UNION) {
+            if (Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.ATTACHED) && funcNode.body == null) {
+                return;
+            }
             LinkedHashSet<BType> memberTypes = ((BUnionType) funcNode.returnTypeNode.getBType()).getMemberTypes();
             if (memberTypes.contains(symTable.nilType) && !this.statementReturnsPanicsOrFails) {
                 this.dlog.warning(funcNode.returnTypeNode.pos,
