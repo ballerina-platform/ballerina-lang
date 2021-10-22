@@ -497,9 +497,9 @@ public class CodeActionUtil {
         if (node.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
             return ((AssignmentStatementNode) node).expression();
         } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
-            return ((ModuleVariableDeclarationNode) node).typedBindingPattern().typeDescriptor();
+            return ((ModuleVariableDeclarationNode) node).typedBindingPattern().bindingPattern();
         } else if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
-            return ((VariableDeclarationNode) node).typedBindingPattern().typeDescriptor();
+            return ((VariableDeclarationNode) node).typedBindingPattern().bindingPattern();
         }
         return node;
     }
