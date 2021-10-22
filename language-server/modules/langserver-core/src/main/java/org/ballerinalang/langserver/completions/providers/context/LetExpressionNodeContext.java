@@ -16,6 +16,8 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.LetExpressionNode;
+import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -46,10 +48,14 @@ public class LetExpressionNodeContext extends AbstractCompletionProvider<LetExpr
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, LetExpressionNode node) 
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (node.letVarDeclarations().isEmpty()) {
+        SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations =  node.letVarDeclarations();
+        if (letVarDeclarations.isEmpty() || !letVarDeclarations.isEmpty() 
+                && letVarDeclarations.get(letVarDeclarations.size() - 1).textRange().length() == 0) {
             /*
             Covers the following context
             eg: let <cursor>
+                let int a = b, <cursor>
+                let int a = b, int c = d, <cursor>
              */
             completionItems.addAll(this.getTypeDescContextItems(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
@@ -65,9 +71,15 @@ public class LetExpressionNodeContext extends AbstractCompletionProvider<LetExpr
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, LetExpressionNode node) {
         int cursor = context.getCursorPositionInTree();
-        return !node.letVarDeclarations().isEmpty() && node.inKeyword().isMissing()
-                && node.letVarDeclarations().get(node.letVarDeclarations().size() - 1)
-                .expression().textRange().endOffset() < cursor || node.letVarDeclarations().isEmpty();
+        SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations =  node.letVarDeclarations();
+
+        if (letVarDeclarations.isEmpty() || !letVarDeclarations.isEmpty()
+                && letVarDeclarations.get(letVarDeclarations.size() - 1).textRange().length() == 0) {
+            return true;
+        }
+        
+        return !letVarDeclarations.isEmpty() && node.inKeyword().isMissing()
+                && letVarDeclarations.get(letVarDeclarations.size() - 1).expression().textRange().endOffset() < cursor;
     }
 
     @Override
