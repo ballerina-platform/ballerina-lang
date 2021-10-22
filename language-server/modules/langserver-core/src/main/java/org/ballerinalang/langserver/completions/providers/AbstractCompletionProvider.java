@@ -191,7 +191,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 Null check added for safety.
                 Eg: public listener test = <cursor>
                  */
-                String typeName = typeDesc == null ? "" : CommonUtil.getModifiedTypeName(ctx, typeDesc);
+                String typeName = (typeDesc == null || typeDesc.typeKind() == null) ? "" :
+                        CommonUtil.getModifiedTypeName(ctx, typeDesc);
                 CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, varSymbol.getName().get(),
                         typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
