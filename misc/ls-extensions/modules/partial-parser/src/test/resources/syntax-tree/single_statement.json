@@ -47,13 +47,13 @@
       "variableName": {
         "kind": "IdentifierToken",
         "isToken": true,
-        "value": "x",
+        "value": "fullName",
         "isMissing": false,
         "position": {
           "startLine": 0,
           "startColumn": 7,
           "endLine": 0,
-          "endColumn": 8
+          "endColumn": 15
         },
         "leadingMinutiae": [],
         "trailingMinutiae": [
@@ -64,7 +64,7 @@
           }
         ]
       },
-      "source": "x ",
+      "source": "fullName ",
       "syntaxDiagnostics": [],
       "leadingMinutiae": [],
       "trailingMinutiae": [
@@ -78,11 +78,11 @@
         "startLine": 0,
         "startColumn": 7,
         "endLine": 0,
-        "endColumn": 8
+        "endColumn": 15
       },
       "typeData": {}
     },
-    "source": "string x ",
+    "source": "string fullName ",
     "syntaxDiagnostics": [],
     "leadingMinutiae": [],
     "trailingMinutiae": [
@@ -96,7 +96,7 @@
       "startLine": 0,
       "startColumn": 0,
       "endLine": 0,
-      "endColumn": 8
+      "endColumn": 15
     },
     "typeData": {}
   },
@@ -107,9 +107,9 @@
     "isMissing": false,
     "position": {
       "startLine": 0,
-      "startColumn": 9,
+      "startColumn": 16,
       "endLine": 0,
-      "endColumn": 10
+      "endColumn": 17
     },
     "leadingMinutiae": [],
     "trailingMinutiae": [
@@ -121,30 +121,104 @@
     ]
   },
   "initializer": {
-    "kind": "SimpleNameReference",
-    "name": {
-      "kind": "IdentifierToken",
+    "kind": "BinaryExpression",
+    "lhsExpr": {
+      "kind": "SimpleNameReference",
+      "name": {
+        "kind": "IdentifierToken",
+        "isToken": true,
+        "value": "firstName",
+        "isMissing": false,
+        "position": {
+          "startLine": 0,
+          "startColumn": 18,
+          "endLine": 0,
+          "endColumn": 27
+        },
+        "leadingMinutiae": [],
+        "trailingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": " ",
+            "isInvalid": false
+          }
+        ]
+      },
+      "source": "firstName ",
+      "syntaxDiagnostics": [],
+      "leadingMinutiae": [],
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "minutiae": " ",
+          "isInvalid": false
+        }
+      ],
+      "position": {
+        "startLine": 0,
+        "startColumn": 18,
+        "endLine": 0,
+        "endColumn": 27
+      },
+      "typeData": {}
+    },
+    "operator": {
+      "kind": "PlusToken",
       "isToken": true,
-      "value": "aa",
+      "value": "+",
       "isMissing": false,
       "position": {
         "startLine": 0,
-        "startColumn": 11,
+        "startColumn": 28,
         "endLine": 0,
-        "endColumn": 13
+        "endColumn": 29
       },
       "leadingMinutiae": [],
-      "trailingMinutiae": []
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "minutiae": " ",
+          "isInvalid": false
+        }
+      ]
     },
-    "source": "aa",
+    "rhsExpr": {
+      "kind": "StringLiteral",
+      "literalToken": {
+        "kind": "StringLiteralToken",
+        "isToken": true,
+        "value": "\"Cooper\"",
+        "isMissing": false,
+        "position": {
+          "startLine": 0,
+          "startColumn": 30,
+          "endLine": 0,
+          "endColumn": 38
+        },
+        "leadingMinutiae": [],
+        "trailingMinutiae": []
+      },
+      "source": "\"Cooper\"",
+      "syntaxDiagnostics": [],
+      "leadingMinutiae": [],
+      "trailingMinutiae": [],
+      "position": {
+        "startLine": 0,
+        "startColumn": 30,
+        "endLine": 0,
+        "endColumn": 38
+      },
+      "typeData": {}
+    },
+    "source": "firstName + \"Cooper\"",
     "syntaxDiagnostics": [],
     "leadingMinutiae": [],
     "trailingMinutiae": [],
     "position": {
       "startLine": 0,
-      "startColumn": 11,
+      "startColumn": 18,
       "endLine": 0,
-      "endColumn": 13
+      "endColumn": 38
     },
     "typeData": {}
   },
@@ -155,14 +229,14 @@
     "isMissing": false,
     "position": {
       "startLine": 0,
-      "startColumn": 13,
+      "startColumn": 38,
       "endLine": 0,
-      "endColumn": 14
+      "endColumn": 39
     },
     "leadingMinutiae": [],
     "trailingMinutiae": []
   },
-  "source": "string x = aa;",
+  "source": "string fullName = firstName + \"Cooper\";",
   "kind": "LocalVarDecl",
   "syntaxDiagnostics": [],
   "leadingMinutiae": [],
@@ -171,7 +245,7 @@
     "startLine": 0,
     "startColumn": 0,
     "endLine": 0,
-    "endColumn": 14
+    "endColumn": 39
   },
   "typeData": {}
 }

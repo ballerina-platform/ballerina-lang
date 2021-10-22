@@ -32,7 +32,6 @@ dependencies {
 
     testCompile 'org.testng:testng'
     testCompile project(':ballerina-parser')
-    testCompile project(':ballerina-lang')
     testCompile project(':language-server:language-server-commons')
     testCompile project(':language-server:language-server-core')
     testCompile 'com.google.code.gson:gson:2.8.8'
