@@ -200,6 +200,8 @@ public class TypeNarrower extends BLangNodeVisitor {
                 BLangBinaryExpr binaryExpr = (BLangBinaryExpr) expr;
                 return checkValidExpressionToEvaluateFalsity(binaryExpr.lhsExpr) &&
                         checkValidExpressionToEvaluateFalsity(binaryExpr.rhsExpr);
+            case UNARY_EXPR:
+                return checkValidExpressionToEvaluateFalsity(((BLangUnaryExpr) expr).expr);
             case SIMPLE_VARIABLE_REF:
                 return expr.getBType().tag == TypeTags.FINITE;
             default:
