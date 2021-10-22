@@ -741,7 +741,8 @@ public class TestUtil {
 
                 DocumentSymbolCapabilities documentSymbolCapabilities = new DocumentSymbolCapabilities();
                 documentSymbolCapabilities.setHierarchicalDocumentSymbolSupport(true);
-                documentSymbolCapabilities.setTagSupport(new SymbolTagSupportCapabilities(Arrays.asList(SymbolTag.Deprecated)));
+                documentSymbolCapabilities.setTagSupport(
+                        new SymbolTagSupportCapabilities(Arrays.asList(SymbolTag.Deprecated)));
                 textDocumentClientCapabilities.setDocumentSymbol(documentSymbolCapabilities);
                 capabilities.setTextDocument(textDocumentClientCapabilities);
 

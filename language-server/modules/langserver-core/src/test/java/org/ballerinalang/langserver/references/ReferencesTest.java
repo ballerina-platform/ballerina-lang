@@ -158,19 +158,28 @@ public class ReferencesTest {
             item.addProperty("uri", canonicalPath);
         }
     }
-    
+
     protected void alterActualStdLibUri(JsonArray actual) throws IOException, URISyntaxException {
         for (JsonElement jsonElement : actual) {
             JsonObject item = jsonElement.getAsJsonObject();
             String fileUri = item.get("uri").toString().replace("\"", "");
 
             // Check bala URI scheme
-            URI  uri = new URI(fileUri);
-            Assert.assertEquals(uri.getScheme(), "file", "Expected file: URI scheme");
-            
+            URI uri = new URI(fileUri);
+            Assert.assertEquals(uri.getScheme(), getExpectedUriScheme(), 
+                    String.format("Expected %s: URI scheme", getExpectedUriScheme()));
+            fileUri = CommonUtil.convertUriSchemeFromBala(fileUri);
+            uri = new URI(fileUri);
+            Assert.assertEquals(uri.getScheme(), CommonUtil.URI_SCHEME_FILE,
+                    "Expected file URI scheme after conversion");
+
             String canonicalPath = new File(URI.create(fileUri)).getCanonicalPath();
             item.remove("uri");
             item.addProperty("uri", canonicalPath);
         }
+    }
+    
+    protected String getExpectedUriScheme() {
+        return CommonUtil.URI_SCHEME_FILE;
     }
 }
