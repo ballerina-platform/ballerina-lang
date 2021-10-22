@@ -26,7 +26,6 @@ import io.ballerina.shell.exceptions.TreeParserException;
 import io.ballerina.shell.parser.trials.EmptyExpressionTrial;
 import io.ballerina.shell.parser.trials.ExpressionTrial;
 import io.ballerina.shell.parser.trials.GetErrorMessageTrial;
-import io.ballerina.shell.parser.trials.ImportDeclarationTrial;
 import io.ballerina.shell.parser.trials.InvalidMethodException;
 import io.ballerina.shell.parser.trials.ModuleMemberTrial;
 import io.ballerina.shell.parser.trials.ModulePartTrial;
@@ -56,7 +55,6 @@ public class SerialTreeParser extends TrialTreeParser {
     public SerialTreeParser(long timeOutDurationMs) {
         super(timeOutDurationMs);
         this.nodeParserTrials = List.of(
-                new ImportDeclarationTrial(this),
                 new ModuleMemberTrial(this),
                 new ExpressionTrial(this),
                 new StatementTrial(this),
@@ -85,7 +83,7 @@ public class SerialTreeParser extends TrialTreeParser {
             }
         }
         if (source.startsWith(COMMAND_PREFIX)) {
-            errorMessage = "Can not find the command: " + source.substring(0, source.length() - 1).trim();
+            errorMessage = "Can not find the command: " + source.trim();
             addErrorDiagnostic(errorMessage);
             addErrorDiagnostic("Please use \"/help\" command to view available commands.");
         } else {

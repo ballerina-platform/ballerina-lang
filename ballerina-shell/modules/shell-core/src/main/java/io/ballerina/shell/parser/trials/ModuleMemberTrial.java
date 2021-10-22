@@ -19,6 +19,7 @@
 package io.ballerina.shell.parser.trials;
 
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -43,7 +44,7 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class ModuleMemberTrial extends DualTreeParserTrial {
+public class ModuleMemberTrial extends TreeParserTrial {
 
     private static final Set<String> RESTRICTED_FUNCTION_NAMES = ParserConstants.RESTRICTED_FUNCTION_NAMES;
 
@@ -52,22 +53,27 @@ public class ModuleMemberTrial extends DualTreeParserTrial {
     }
 
     @Override
-    public Collection<Node> parseSource(String source) throws ParserTrialFailedException {
+    public Collection<Node> parse(String source) throws ParserTrialFailedException {
         TextDocument document = TextDocuments.from(source);
         SyntaxTree tree;
         try {
             tree = getSyntaxTree(document);
-        } catch (Exception e) {
+        } catch (ParserTrialFailedException e) {
             document = TextDocuments.from(source + ";");
             tree = getSyntaxTree(document);
         }
         List<Node> nodes = new ArrayList<>();
         ModulePartNode node = tree.rootNode();
-        assertIf(!node.members().isEmpty(), "expected at least one member");
+        NodeList<ImportDeclarationNode> imports = node.imports();
         NodeList<ModuleMemberDeclarationNode> members = node.members();
-        Iterator iterator = members.iterator();
-        while (iterator.hasNext()) {
-            ModuleMemberDeclarationNode dclnNode = (ModuleMemberDeclarationNode) iterator.next();
+        Iterator importIterator = imports.iterator();
+        Iterator memberIterator = members.iterator();
+        while (importIterator.hasNext()) {
+            ImportDeclarationNode importNode = (ImportDeclarationNode) importIterator.next();
+            nodes.add(importNode);
+        }
+        while (memberIterator.hasNext()) {
+            ModuleMemberDeclarationNode dclnNode = (ModuleMemberDeclarationNode) memberIterator.next();
             validateModuleDeclaration(dclnNode);
             if (dclnNode instanceof ModuleVariableDeclarationNode) {
                 // If there are no qualifiers or metadata then this can be also a statement/expression.

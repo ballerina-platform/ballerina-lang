@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Attempts to parse source as a expression.
+ * Attempts to parse source as an expression.
  *
  * @since 2.0.0
  */
@@ -46,10 +46,9 @@ public class ExpressionTrial extends TreeParserTrial {
         ExpressionNode expressionNode;
         Node parsedNode;
         if (source.endsWith(SEMICOLON)) {
-            parsedNode = NodeParser.parseStatements("a = " + source).get(0);
+            parsedNode = NodeParser.parseStatements("assignment = " + source).get(0);
         } else {
-            parsedNode = ((AssignmentStatementNode) NodeParser.parseStatements("a = " + source + ";")
-                    .get(0)).expression();
+            parsedNode = NodeParser.parseStatements("assignment = " + source + ";").get(0);
         }
         if (!parsedNode.hasDiagnostics()) {
             expressionNode = ((AssignmentStatementNode) parsedNode).expression();

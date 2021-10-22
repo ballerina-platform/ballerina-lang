@@ -18,22 +18,30 @@
 
 package io.ballerina.shell.parser.trials;
 
-import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NodeParser;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.shell.parser.TrialTreeParser;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Attempts to capture an empty expression.
  * This could be a comment, white space, etc...
+ * Puts in the module level and checks for empty module level entry.
+ * Empty entries are converted to ().
  *
  * @since 2.0.0
  */
 public class EmptyExpressionTrial extends TreeParserTrial {
+    private static final Node EMPTY_NODE = NodeFactory.createNilLiteralNode(
+            NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN),
+            NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN));
 
     public EmptyExpressionTrial(TrialTreeParser parentParser) {
         super(parentParser);
@@ -41,14 +49,13 @@ public class EmptyExpressionTrial extends TreeParserTrial {
 
     @Override
     public Collection<Node> parse(String source) throws ParserTrialFailedException {
-        List<Node> nodes = new ArrayList<>();
-        ExpressionNode node;
-        try {
-            node = NodeParser.parseExpression(source);
-        } catch (Exception e) {
-            node = NodeParser.parseExpression(source.substring(0, source.length() - 1));
-        }
-        nodes.add(node);
+        TextDocument document = TextDocuments.from(source);
+        SyntaxTree tree = getSyntaxTree(document);
+        ModulePartNode node = tree.rootNode();
+        Collection<Node> nodes = new ArrayList<>();
+        assertIf(node.members().isEmpty(), "expected no members");
+        assertIf(node.imports().isEmpty(), "expected no imports");
+        nodes.add(EMPTY_NODE);
         return nodes;
     }
 }

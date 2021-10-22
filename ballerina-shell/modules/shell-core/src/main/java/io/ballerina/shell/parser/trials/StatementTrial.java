@@ -34,13 +34,13 @@ import java.util.Collection;
  *
  * @since 2.0.0
  */
-public class StatementTrial extends DualTreeParserTrial {
+public class StatementTrial extends TreeParserTrial {
     public StatementTrial(TrialTreeParser parentParser) {
         super(parentParser);
     }
 
     @Override
-    public Collection<Node> parseSource(String source) throws ParserTrialFailedException {
+    public Collection<Node> parse(String source) throws ParserTrialFailedException {
         NodeList<StatementNode> statementNodes;
         Collection<Node> finalNodes = new ArrayList<>();
         try {
