@@ -759,10 +759,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        BType detailType = errorType.detailType.getBType();
-        if (detailType != null && !types.isValidErrorDetailType(detailType)) {
-            dlog.error(errorType.detailType.pos, DiagnosticErrorCode.INVALID_ERROR_DETAIL_TYPE, errorType.detailType,
-                    symTable.detailType);
+        // TODO : remove this after proper fix
+        if (!PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
+            BType detailType = errorType.detailType.getBType();
+            if (detailType != null && !types.isValidErrorDetailType(detailType)) {
+                dlog.error(errorType.detailType.pos, DiagnosticErrorCode.INVALID_ERROR_DETAIL_TYPE,
+                        errorType.detailType,
+                        symTable.detailType);
+            }
         }
         analyzeDef(errorType.detailType, env);
     }
