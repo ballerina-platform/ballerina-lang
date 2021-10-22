@@ -69,7 +69,7 @@ public class CreateExecutableTask implements Task {
 
         try {
             if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
-                target = new Target(project.sourceRoot());
+                target = project.getTarget();
             } else {
                 target = new Target(Files.createTempDirectory("ballerina-cache" + System.nanoTime()));
                 target.setOutputPath(getExecutablePath(project));

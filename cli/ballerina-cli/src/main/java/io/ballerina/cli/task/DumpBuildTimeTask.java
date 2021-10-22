@@ -77,7 +77,13 @@ public class DumpBuildTimeTask implements Task {
 
     private Path getBuildTimeFilePath(Project project) {
         if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
-            return project.sourceRoot().resolve("target").resolve(BUILD_TIME_JSON).toAbsolutePath();
+            Path buildTimeFilePath;
+            try {
+                buildTimeFilePath = project.getTarget().path().resolve(BUILD_TIME_JSON).toAbsolutePath();
+            } catch (IOException e) {
+                throw createLauncherException("couldn't write build time to file : " + e.getMessage());
+            }
+            return buildTimeFilePath;
         }
         return currentDir.resolve("build-time.json").toAbsolutePath();
     }
