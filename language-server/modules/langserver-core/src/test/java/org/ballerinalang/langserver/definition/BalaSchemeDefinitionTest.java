@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.definition;
 
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
@@ -50,5 +51,9 @@ public class BalaSchemeDefinitionTest extends DefinitionTest {
         return TestUtil.newLanguageServer()
                 .withInitOption(InitializationOptions.KEY_BALA_SCHEME_SUPPORT, true)
                 .build();
+    }
+
+    protected String getExpectedUriScheme() {
+        return CommonUtil.URI_SCHEME_BALA;
     }
 }
