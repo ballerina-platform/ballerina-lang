@@ -97,6 +97,9 @@ public class PackCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
     private Boolean sticky;
 
+    @CommandLine.Option(names = "--target-dir", description = "path of custom target directory")
+    private Path customTargetPath;
+
     public PackCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
@@ -143,6 +146,11 @@ public class PackCommand implements BLauncherCmd {
             CommandUtil.printError(this.errStream, "bal pack can only be used with a Ballerina package.", null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
+        }
+
+        // If a custom target path is set, we modify the tagetPath in the build options with the new custom one
+        if (this.customTargetPath != null) {
+            buildOptions.setTargetPath(this.customTargetPath);
         }
 
         try {
