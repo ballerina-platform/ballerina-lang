@@ -57,7 +57,7 @@ function multipleSyncSend() returns string {
         foreach var i in 1 ... 5 {
             append2 = append2 + "w2";
         }
-        if (false) {
+        if (0 > 1) {
             error err = error("err", message = "err msg");
             return err;
         }
@@ -90,7 +90,7 @@ function returnNil() returns any|error {
 
     @strand{thread:"any"}
     worker w2 returns error? {
-        if (false) {
+        if (0 > 1) {
             error err = error("err", message = "err msg");
             return err;
         }
@@ -128,12 +128,12 @@ function multiWorkerSend() returns string {
 
     @strand{thread:"any"}
     worker w2 returns error? {
-        if (false) {
+        if (0 > 1) {
             error err = error("err", message = "err msg");
             return err;
         }
 
-        if (false) {
+        if (0 > 1) {
             error err = error("err", message = "err msg");
             return err;
         }
@@ -195,7 +195,7 @@ function errorResult() returns error? {
 
         @strand{thread:"any"}
         worker w2 returns error? {
-            if (false) {
+            if (0 > 1) {
                 error err = error("err", message = "err msg");
                 return err;
             }
@@ -217,7 +217,7 @@ function errorResult() returns error? {
 
         @strand{thread:"any"}
         worker w3 returns error|string {
-            if (false) {
+            if (0 > 1) {
                 error err = error("err", message = "err msg");
                 return err;
             }
@@ -281,7 +281,7 @@ function panicTest() returns error? {
 
     @strand{thread:"any"}
     worker w3 returns string|error {
-        if (false) {
+        if (0 > 1) {
             error err = error("err", message = "err msg");
             return err;
         }
@@ -334,7 +334,7 @@ function multipleSyncSendWithPanic() returns int {
         int a = 10;
         () r1 = a ->> w2;
         () r2 = a + 10 ->> w2;
-        if (true) {
+        if (0 < 1) {
             error err = error("err from panic from w1");
             panic err;
         }
@@ -344,7 +344,7 @@ function multipleSyncSendWithPanic() returns int {
     @strand{thread:"any"}
     worker w2 returns error? {
         int b = 0;
-        if (true) {
+        if (0 < 1) {
             error err = error("err from panic from w2");
             panic err;
         }
@@ -360,12 +360,12 @@ function multipleSyncSendWithPanicInSend() returns int {
     worker w1 returns int {
         int a = 10;
         () r1 = a ->> w2;
-        if (true) {
+        if (0 < 1) {
             error err = error("err from panic from w1 w1");
             panic err;
         }
         () r2 = a + 10 ->> w2;
-        if (true) {
+        if (0 < 1) {
             error err = error("err from panic from w1 w1");
             panic err;
         }
@@ -392,7 +392,7 @@ function syncSendWithPanicInReceive() {
     @strand{thread:"any"}
     worker w2 {
         int b1 = <- w1;
-        if (true) {
+        if (0 < 1) {
             error err = error("err from panic from w2");
             panic err;
         }
@@ -424,7 +424,7 @@ function panicWithMultipleSendStmtsTest() returns error? {
     @strand{thread:"any"}
     worker w3 returns string {
         int b = <- w1;
-        if (2 != 2) {
+        if (b == 2) {
             error err = error("err returned from w3");
             panic err;
         }
@@ -459,7 +459,7 @@ function errorResultWithMultipleWorkers() {
         worker w2 returns int|error {
             int x = 0;
             x = <- w1;
-            if (true) {
+            if (0 < 1) {
                 error err = error("err returned from w2");            // Already errored
                 return err;
             }
@@ -548,7 +548,7 @@ public function testSyncSendAfterSend() returns error? {
 
         @strand{thread:"any"}
         worker w2 returns error? {
-            if (true) {
+            if (0 < 1) {
                 error e = error("w2 error");
                 return e;
             }

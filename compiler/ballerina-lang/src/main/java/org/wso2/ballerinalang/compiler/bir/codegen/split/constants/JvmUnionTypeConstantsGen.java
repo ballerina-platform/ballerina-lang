@@ -50,7 +50,6 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUNION_TYPE_CONSTANT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_UNION_TYPE_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
@@ -77,8 +76,8 @@ public class JvmUnionTypeConstantsGen {
      * Stack keeps track of recursion in union types. The method creation is performed only if recursion is completed.
      */
     public JvmUnionTypeConstantsGen(PackageID packageID) {
-        unionVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(
-                packageID, BUNION_TYPE_CONSTANT_CLASS_NAME);
+        unionVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(packageID,
+                JvmConstants.UNION_TYPE_CONSTANT_CLASS_NAME);
         generateUnionTypeConstantsClassInit();
         visitUnionTypeInitMethod();
         funcNames = new ArrayList<>();
@@ -86,11 +85,11 @@ public class JvmUnionTypeConstantsGen {
         unionTypeVarMap = new ConcurrentSkipListMap<>(JvmConstantsGen.TYPE_HASH_COMPARATOR);
     }
 
-    public synchronized void setJvmUnionTypeGen(JvmUnionTypeGen jvmUnionTypeGen) {
+    public void setJvmUnionTypeGen(JvmUnionTypeGen jvmUnionTypeGen) {
         this.jvmUnionTypeGen = jvmUnionTypeGen;
     }
 
-    public synchronized String add(BUnionType type) {
+    public String add(BUnionType type) {
         return unionTypeVarMap.computeIfAbsent(type, str -> generateBUnionInits(type));
     }
 
@@ -155,7 +154,7 @@ public class JvmUnionTypeConstantsGen {
                           GET_UNION_TYPE_IMPL);
     }
 
-    public synchronized void generateClass(Map<String, byte[]> jarEntries) {
+    public void generateClass(Map<String, byte[]> jarEntries) {
         genMethodReturn(mv);
         visitUnionTypeInitMethod();
         for (String funcName : funcNames) {

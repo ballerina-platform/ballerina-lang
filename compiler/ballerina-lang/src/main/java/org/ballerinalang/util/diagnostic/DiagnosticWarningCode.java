@@ -57,6 +57,8 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
 
     COMPILER_PLUGIN_ERROR("BCE20300", "compiler.plugin.crashed"),
 
+    FUNCTION_SHOULD_EXPLICITLY_RETURN_A_VALUE("BCE20350", "function.should.explicitly.return.a.value"),
+
     CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD_IN_NON_ISOLATED_SERVICE("BCE20400",
             "concurrent.calls.will.not.be.made.to.non.isolated.method.in.non.isolated.service"),
     CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_SERVICE("BCE20401",

@@ -85,6 +85,9 @@ public class EnumTest {
         validateError(negativeTest, i++, "undefined symbol 'x'", 65, 18);
         validateError(negativeTest, i++, "symbol 'A' is already initialized", 69, 5);
         validateError(negativeTest, i++, "symbol 'B' is already initialized with '1'", 70, 5);
+        validateError(negativeTest, i++, "symbol 'A' is already initialized", 74, 5);
+        validateError(negativeTest, i++, "expression is not a constant expression", 75, 1);
+        validateError(negativeTest, i++, "missing expression", 75, 1);
         assertEquals(negativeTest.getErrorCount(), i);
     }
 

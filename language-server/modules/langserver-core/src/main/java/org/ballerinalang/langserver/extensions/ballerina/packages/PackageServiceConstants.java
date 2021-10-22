@@ -17,9 +17,12 @@ package org.ballerinalang.langserver.extensions.ballerina.packages;
 
 /**
  * Ballerina package service constants.
+ *
+ * @since 2.0.0
  */
 public class PackageServiceConstants {
 
+    protected static final String CAPABILITY_NAME = "ballerinaPackage";
     protected static final String NAME = "name";
     protected static final String FILE_PATH = "filePath";
     protected static final String START_LINE = "startLine";
@@ -30,4 +33,12 @@ public class PackageServiceConstants {
     protected static final String SERVICES = "services";
     protected static final String MODULES = "modules";
     protected static final String RESOURCES = "resources";
+    protected static final String RECORDS = "records";
+    protected static final String OBJECTS = "objects";
+    protected static final String TYPES = "types";
+    protected static final String CONSTANTS = "constants";
+    protected static final String ENUMS = "enums";
+    protected static final String CLASSES = "classes";
+    protected static final String LISTENERS = "listeners";
+    protected static final String MODULE_LEVEL_VARIABLE = "moduleVariables";
 }

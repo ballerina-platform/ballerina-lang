@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -83,7 +82,6 @@ import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_OBJECT_VALUE;
@@ -140,7 +138,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_XML;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FINITE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUCNTION_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUNCTION_TYPE_IMPL;
@@ -412,7 +409,7 @@ public class JvmTypeGen {
                     typeFieldName = "TYPE_HANDLE";
                     break;
                 case TypeTags.ARRAY:
-                    loadArrayType(mv, (BArrayType) bType);
+                    jvmConstantsGen.generateGetBArrayType(mv, jvmConstantsGen.getTypeConstantsVar(bType));
                     return;
                 case TypeTags.MAP:
                     loadMapType(mv, (BMapType) bType);
@@ -431,8 +428,7 @@ public class JvmTypeGen {
                     if (unionType.isCyclic) {
                         loadUserDefinedType(mv, bType);
                     } else {
-                        String varName = jvmConstantsGen.getUnionConstantVar((BUnionType) bType);
-                        jvmConstantsGen.generateGetBUnionType(mv, varName);
+                        jvmConstantsGen.generateGetBUnionType(mv, jvmConstantsGen.getTypeConstantsVar(bType));
                     }
                     return;
                 case TypeTags.INTERSECTION:
@@ -449,7 +445,7 @@ public class JvmTypeGen {
                     if (tupleType.isCyclic) {
                         loadUserDefinedType(mv, bType);
                     } else {
-                        jvmConstantsGen.generateGetBTupleType(mv, jvmConstantsGen.getTupleConstantVar(tupleType));
+                        jvmConstantsGen.generateGetBTupleType(mv, jvmConstantsGen.getTypeConstantsVar(tupleType));
                     }
                     return;
                 case TypeTags.FINITE:
@@ -523,31 +519,6 @@ public class JvmTypeGen {
                     return LOAD_TYPE;
             }
         }
-    }
-
-    /**
-     * Generate code to load an instance of the given array type
-     * to the top of the stack.
-     *
-     * @param mv    method visitor
-     * @param bType array type to load
-     */
-    private void loadArrayType(MethodVisitor mv, BArrayType bType) {
-        // Create an new array type
-        mv.visitTypeInsn(NEW, ARRAY_TYPE_IMPL);
-        mv.visitInsn(DUP);
-
-        // Load the element type
-        loadType(mv, bType.eType);
-
-        int arraySize = bType.size;
-        mv.visitLdcInsn((long) arraySize);
-        mv.visitInsn(L2I);
-
-        loadReadonlyFlag(mv, bType);
-
-        // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE_IMPL, JVM_INIT_METHOD, INIT_ARRAY_TYPE_IMPL, false);
     }
 
     /**
@@ -840,10 +811,10 @@ public class JvmTypeGen {
         PackageID pkgID = typeSymbol.pkgID;
         String typeOwner = JvmCodeGenUtil.getPackageName(pkgID) + MODULE_INIT_CLASS_NAME;
         String fieldName = getTypeFieldName(toNameString(typeToLoad));
+        boolean samePackage = JvmCodeGenUtil.isSameModule(this.packageID, packageID);
 
         // if name contains $anon and doesn't belong to the same package, load type using getAnonType() method.
-        if (!this.packageID.equals(pkgID) &&
-                (fieldName.contains(BLangAnonymousModelHelper.ANON_PREFIX)
+        if (!samePackage && (fieldName.contains(BLangAnonymousModelHelper.ANON_PREFIX)
                         || Symbols.isFlagOn(typeToLoad.flags, Flags.ANONYMOUS))) {
             Integer hash = typeHashVisitor.visit(typeToLoad);
             String shape = typeToLoad.toString();

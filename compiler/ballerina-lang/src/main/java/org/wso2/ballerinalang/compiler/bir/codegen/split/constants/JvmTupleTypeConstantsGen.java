@@ -50,7 +50,6 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTUPLE_TYPE_CONSTANT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TUPLE_TYPE_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
@@ -74,8 +73,8 @@ public class JvmTupleTypeConstantsGen {
     private final Map<BTupleType, String> tupleTypeVarMap;
 
     public JvmTupleTypeConstantsGen(PackageID packageID) {
-        tupleVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(
-                packageID, BTUPLE_TYPE_CONSTANT_CLASS_NAME);
+        tupleVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(packageID,
+                JvmConstants.TUPLE_TYPE_CONSTANT_CLASS_NAME);
         generateTupleTypeConstantsClassInit();
         visitTupleTypeInitMethod();
         funcNames = new ArrayList<>();
@@ -83,11 +82,11 @@ public class JvmTupleTypeConstantsGen {
         tupleTypeVarMap = new ConcurrentSkipListMap<>(JvmConstantsGen.TYPE_HASH_COMPARATOR);
     }
 
-    public synchronized void setJvmTupleTypeGen(JvmTupleTypeGen jvmTupleTypeGen) {
+    public void setJvmTupleTypeGen(JvmTupleTypeGen jvmTupleTypeGen) {
         this.jvmTupleTypeGen = jvmTupleTypeGen;
     }
 
-    public synchronized String add(BTupleType type) {
+    public String add(BTupleType type) {
         return tupleTypeVarMap.computeIfAbsent(type, str -> generateBTupleInits(type));
     }
 
@@ -154,7 +153,7 @@ public class JvmTupleTypeConstantsGen {
         mv.visitFieldInsn(GETSTATIC, tupleVarConstantsClass, varName, GET_TUPLE_TYPE_IMPL);
     }
 
-    public synchronized void generateClass(Map<String, byte[]> jarEntries) {
+    public void generateClass(Map<String, byte[]> jarEntries) {
         genMethodReturn(mv);
         visitTupleTypeInitMethod();
         for (String funcName : funcNames) {

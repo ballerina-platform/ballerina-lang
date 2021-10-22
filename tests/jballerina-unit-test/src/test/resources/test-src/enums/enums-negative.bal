@@ -69,3 +69,7 @@ enum E1 {
     A = "1",
     B = "1"
 }
+
+public enum NodeType {
+    A =
+}

@@ -119,7 +119,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.injectDefaultParamInitsToAttachedFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.createExternalFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.injectDefaultParamInits;
-import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
  * BIR module to JVM byte code generation class.
@@ -141,6 +140,7 @@ public class JvmPackageGen {
     private final Map<String, String> globalVarClassMap;
     private final Set<PackageID> dependentModules;
     private final BLangDiagnosticLog dlog;
+    private final CompilerContext compilerContext;
 
     JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLog dlog,
                   CompilerContext compilerContext) {
@@ -151,6 +151,7 @@ public class JvmPackageGen {
         this.symbolTable = symbolTable;
         this.packageCache = packageCache;
         this.dlog = dlog;
+        this.compilerContext = compilerContext;
         methodGen = new MethodGen(this, compilerContext);
         initMethodGen = new InitMethodGen(symbolTable);
         configMethodGen = new ConfigMethodGen();
@@ -170,13 +171,13 @@ public class JvmPackageGen {
 
     private static void addBuiltinImports(PackageID currentModule, Set<PackageID> dependentModuleArray) {
         // Add the builtin and utils modules to the imported list of modules
-        if (isSameModule(currentModule, PackageID.ANNOTATIONS)) {
+        if (JvmCodeGenUtil.isSameModule(currentModule, PackageID.ANNOTATIONS)) {
             return;
         }
 
         dependentModuleArray.add(PackageID.ANNOTATIONS);
 
-        if (isSameModule(currentModule, PackageID.JAVA)) {
+        if (JvmCodeGenUtil.isSameModule(currentModule, PackageID.JAVA)) {
             return;
         }
 
@@ -186,7 +187,7 @@ public class JvmPackageGen {
             return;
         }
 
-        if (isSameModule(currentModule, PackageID.INTERNAL)) {
+        if (JvmCodeGenUtil.isSameModule(currentModule, PackageID.INTERNAL)) {
             return;
         }
         dependentModuleArray.add(PackageID.INTERNAL);
@@ -207,17 +208,6 @@ public class JvmPackageGen {
         dependentModuleArray.add(PackageID.BOOLEAN);
         dependentModuleArray.add(PackageID.QUERY);
         dependentModuleArray.add(PackageID.TRANSACTION);
-    }
-
-    private static boolean isSameModule(PackageID moduleId, PackageID importModule) {
-        PackageID cleanedPkg = JvmCodeGenUtil.cleanupPackageID(importModule);
-        if (!moduleId.orgName.value.equals(cleanedPkg.orgName.value)) {
-            return false;
-        } else if (!moduleId.name.value.equals(cleanedPkg.name.value)) {
-            return false;
-        } else {
-            return getMajorVersion(moduleId.version.value).equals(getMajorVersion(cleanedPkg.version.value));
-        }
     }
 
     private static boolean isLangModule(PackageID moduleId) {
@@ -786,7 +776,7 @@ public class JvmPackageGen {
 
         // enrich current package with package initializers
         initMethodGen.enrichPkgWithInitializers(jvmClassMapping, moduleInitClass, module, flattenedModuleImports);
-        JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(module, moduleInitClass);
+        JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(module, moduleInitClass, compilerContext);
         JvmMethodsSplitter jvmMethodsSplitter = new JvmMethodsSplitter(this, jvmConstantsGen, module, moduleInitClass);
         configMethodGen.generateConfigMapper(flattenedModuleImports, module, moduleInitClass, jvmConstantsGen,
                                              jarEntries);
