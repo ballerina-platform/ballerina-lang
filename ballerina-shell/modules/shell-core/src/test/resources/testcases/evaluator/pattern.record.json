@@ -5,7 +5,7 @@
   },
   {
     "description": "View functions.",
-    "code": "function getAddress() returns Address { Address address = {street: \"380 Lakewood Dr.\", city: \"Desoto\", state: \"TX\", zipcode: \"75115\"}; return address;\n};"
+    "code": "function getAddress() returns Address { Address address = {street: \"380 Lakewood Dr.\", city: \"Desoto\", state: \"TX\", zipcode: \"75115\"}; return address;\n}"
   },
   {
     "description": "View functions.",

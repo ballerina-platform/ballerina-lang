@@ -21,7 +21,7 @@
   },
   {
     "name": "Block Statement",
-    "input": "{ int var1 =4; };",
+    "input": "{ int var1 =4; }",
     "accepted": true
   },
   {
@@ -41,12 +41,12 @@
   },
   {
     "name": "If Else Statement",
-    "input": "if (cond) { };",
+    "input": "if (cond) { }",
     "accepted": true
   },
   {
     "name": "While Statement",
-    "input": "while (cond) { };",
+    "input": "while (cond) { }",
     "accepted": true
   },
   {
@@ -56,22 +56,22 @@
   },
   {
     "name": "Lock Statement",
-    "input": "lock { amount += n; };",
+    "input": "lock { amount += n; }",
     "accepted": true
   },
   {
     "name": "Fork Statement",
-    "input": "fork { worker abc returns int { } };",
+    "input": "fork { worker abc returns int { } }",
     "accepted": true
   },
   {
     "name": "For Each Statement",
-    "input": "foreach var color in colors { };",
+    "input": "foreach var color in colors { }",
     "accepted": true
   },
   {
     "name": "Transaction Statement",
-    "input": "transaction { };",
+    "input": "transaction { }",
     "accepted": true
   },
   {
@@ -81,17 +81,17 @@
   },
   {
     "name": "Retry Statement",
-    "input": "retry<Type> (args) { };",
+    "input": "retry<Type> (args) { }",
     "accepted": true
   },
   {
     "name": "Match Statement",
-    "input": "match var1 { 0 => {} 1 => { } };",
+    "input": "match var1 { 0 => {} 1 => { } }",
     "accepted": true
   },
   {
     "name": "Do Statement",
-    "input": "do { };",
+    "input": "do { }",
     "accepted": true
   }
 ]
