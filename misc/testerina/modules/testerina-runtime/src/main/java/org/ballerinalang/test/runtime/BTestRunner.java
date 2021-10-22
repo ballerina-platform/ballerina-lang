@@ -115,10 +115,11 @@ public class BTestRunner {
      * @param outStream The info log stream.
      * @param errStream The error log strem.
      */
-    public BTestRunner(PrintStream outStream, PrintStream errStream) {
+    public BTestRunner(PrintStream outStream, PrintStream errStream, Path targetPath) {
         this.outStream = outStream;
         this.errStream = errStream;
         tReport = new TesterinaReport(this.outStream);
+        this.targetPath = targetPath;
     }
 
     /**
@@ -126,8 +127,7 @@ public class BTestRunner {
      *
      * @param suite test meta data for module
      */
-    public void runTest(TestSuite suite, Path targetPath, ClassLoader classLoader)  {
-        this.targetPath = targetPath;
+    public void runTest(TestSuite suite, ClassLoader classLoader)  {
         int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
         List<Test> sortedTests = orderTests(suite.getTests(), testExecutionOrder);
         suite.setTests(sortedTests);

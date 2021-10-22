@@ -85,9 +85,9 @@ public class TesterinaUtils {
     public static void executeTests(Path sourceRootPath, Path targetPath, TestSuite testSuite, ClassLoader classLoader)
             throws RuntimeException {
         try {
-            BTestRunner testRunner = new BTestRunner(outStream, errStream);
+            BTestRunner testRunner = new BTestRunner(outStream, errStream, targetPath);
             // Run the tests
-            testRunner.runTest(testSuite, targetPath, classLoader);
+            testRunner.runTest(testSuite, classLoader);
             cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
             if (testRunner.getTesterinaReport().isFailure()) {
                 throw new RuntimeException("there are test failures");
