@@ -73,7 +73,8 @@ public class ReachabilityAnalysisTest {
                 "testWhileCompletingNormally",
                 "testCallStmtFuncReturningNever",
                 "testForeachCompletingNormally",
-                "testReachableCodeWithForeach"
+                "testReachableCodeWithForeach",
+                "testReachableCodeWithUnaryConditionsInIf"
         };
     }
 
