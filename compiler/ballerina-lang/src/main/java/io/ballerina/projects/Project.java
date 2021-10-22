@@ -20,11 +20,13 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.util.ProjectConstants;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
@@ -81,14 +83,12 @@ public abstract class Project {
         return this.sourceRoot;
     }
 
-    public Target getTarget() throws IOException {
-        Target target;
+    public Path targetDir() {
         if (this.buildOptions == null || this.buildOptions.getTargetPath() == null) {
-            target = new Target(this.sourceRoot);
+            return this.sourceRoot;
         } else {
-            target = new Target(this.buildOptions.getTargetPath());
+            return Paths.get(this.buildOptions().getTargetPath());
         }
-        return target;
     }
 
     protected void setCurrentPackage(Package currentPackage) {
