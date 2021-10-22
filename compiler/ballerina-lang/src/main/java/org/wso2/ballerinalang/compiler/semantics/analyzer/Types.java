@@ -128,6 +128,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.SIGNED
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED16_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED32_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED8_MAX_VALUE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.isSimpleBasicType;
 
 /**
  * This class consists of utility methods which operate on types.
@@ -3684,6 +3685,10 @@ public class Types {
     }
 
     boolean validNumericTypeExists(BType type) {
+
+        if (type.isNullable() && type.tag != TypeTags.NIL) {
+            type = getSafeType(type, true, false);
+        }
         if (isBasicNumericType(type)) {
             return true;
         }
@@ -3743,6 +3748,9 @@ public class Types {
     }
 
     boolean validIntegerTypeExists(BType type) {
+        if (type.isNullable() && type.tag != TypeTags.NIL) {
+            type = getSafeType(type, true, false);
+        }
         if (TypeTags.isIntegerTypeTag(type.tag)) {
             return true;
         }
@@ -5408,19 +5416,6 @@ public class Types {
                 }
             default:
                 return type;
-        }
-    }
-
-    private boolean isSimpleBasicType(int tag) {
-        switch (tag) {
-            case TypeTags.BYTE:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.BOOLEAN:
-            case TypeTags.NIL:
-                return true;
-            default:
-                return (TypeTags.isIntegerTypeTag(tag)) || (TypeTags.isStringTypeTag(tag));
         }
     }
 

@@ -5,7 +5,7 @@ SYNOPSIS
        bal pack
        bal pack <ballerina-package-path>
        bal pack [--test-report] [--offline] [--experimental] [--dump-build-time]
-                  <ballerina-file-path>
+                  <ballerina-package-path>
        bal pack [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
                  [--with-tests] [--list-conflicted-classes] <ballerina-package-path>
        bal pack [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
