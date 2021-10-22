@@ -22,6 +22,10 @@
     "code": "json j2 = null;"
   },
   {
+    "description": "Field access of null.",
+    "code": "j2?.name;"
+  },
+  {
     "description": "Exit terminal.",
     "code": "/exit"
   }
