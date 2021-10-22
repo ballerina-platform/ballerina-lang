@@ -59,8 +59,7 @@ public class LetExpressionNodeContext extends AbstractCompletionProvider<LetExpr
              */
             completionItems.addAll(this.getTypeDescContextItems(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
-        }
-        else if (node.inKeyword().isMissing()) {
+        } else if (node.inKeyword().isMissing()) {
             return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_IN.get()));
         }
 
