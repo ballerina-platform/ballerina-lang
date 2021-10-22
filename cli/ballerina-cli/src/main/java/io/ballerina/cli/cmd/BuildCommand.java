@@ -189,7 +189,7 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
     private Boolean skipTestsTemp;
 
-    @CommandLine.Option(names = "--target-dir", description = "path of custom target directory")
+    @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
 
     public void execute() {
@@ -267,7 +267,7 @@ public class BuildCommand implements BLauncherCmd {
 
             // If a custom target path is set, we modify the tagetDir in the build options with the new custom one
             if (this.targetDir != null) {
-                buildOptions.setTargetDir(this.targetDir);
+                buildOptions.setTargetDir(this.targetDir.toString());
             }
 
             try {
