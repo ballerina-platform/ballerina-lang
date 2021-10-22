@@ -152,6 +152,20 @@ function testFromJsonString() returns map<json|error> {
     return result;
 }
 
+function testFromJsonStringNegative() {
+    string s1 = "{\"fruits\":[\"apple', 'orange\", 'grapes']}";
+    json|error j1 = s1.fromJsonString();
+    error err = <error> j1;
+    assert(<string> checkpanic err.detail()["message"], "unrecognized token ''grapes'' at line: 1 column: 40");
+    assert(err.message(), "{ballerina/lang.value}FromJsonStringError");
+
+    string s2 = "{'fruits':['apple', 'orange', \"grapes\"]}";
+    json|error j2 = s2.fromJsonString();
+    err = <error> j2;
+    assert(<string> checkpanic err.detail()["message"], "expected '\"' or '}' at line: 1 column: 2");
+    assert(err.message(), "{ballerina/lang.value}FromJsonStringError");
+}
+
 function testFromJsonFloatString() returns map<json|error> {
     string aNil = "()";
     string aNull = "null";
@@ -565,7 +579,7 @@ function testCloneWithTypeTupleToJSON() {
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(<string> checkpanic err.detail()["message"], "'[string,anydata...]' value cannot be converted to 'json'");
 
-    [string, xml|int] tupleValue8 = ["text1", xml `</elem>`];
+    [string, xml|int] tupleValue8 = ["text1", xml `<elem></elem>`];
     jsonValue = tupleValue8.cloneWithType();
     assert(jsonValue is error, true);
     err = <error> jsonValue;
@@ -578,7 +592,7 @@ function testCloneWithTypeTupleToJSON() {
     assert(jsonValue is error, false);
     assert(jsonValue is json[], true);
 
-    A tupleValue10 = [1,  xml `</elem>`];
+    A tupleValue10 = [1,  xml `<elem></elem>`];
     jsonValue = tupleValue10.cloneWithType();
     assert(jsonValue is error, true);
     err = <error> jsonValue;

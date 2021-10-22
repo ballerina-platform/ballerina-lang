@@ -587,6 +587,17 @@ public class JvmCodeGenUtil {
         return BALLERINA.equals(packageID.orgName.value) && BUILT_IN_PACKAGE_NAME.equals(packageID.name.value);
     }
 
+    public static boolean isSameModule(PackageID moduleId, PackageID importModule) {
+        PackageID cleanedPkg = cleanupPackageID(importModule);
+        if (!moduleId.orgName.value.equals(cleanedPkg.orgName.value)) {
+            return false;
+        } else if (!moduleId.name.value.equals(cleanedPkg.name.value)) {
+            return false;
+        } else {
+            return getMajorVersion(moduleId.version.value).equals(getMajorVersion(cleanedPkg.version.value));
+        }
+    }
+
     public static String cleanupFunctionName(String functionName) {
         return StringUtils.containsAny(functionName, "\\.:/<>") ?
                 "$" + JVM_RESERVED_CHAR_SET.matcher(functionName).replaceAll("_") : functionName;

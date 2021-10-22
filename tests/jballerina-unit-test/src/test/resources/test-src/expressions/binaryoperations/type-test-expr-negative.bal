@@ -16,11 +16,11 @@
 
 function valueTypeWichAlwaysTrue() returns string {
     int x = 10;
-    if (x is int) {
+    if (x is int) { // always true
         return "int";
     }
 
-    return "n/a";
+    return "n/a"; // unreachable code
 }
 
 function valueTypeWichAlwaysFalse() returns string {
@@ -34,11 +34,11 @@ function valueTypeWichAlwaysFalse() returns string {
 
 function valueTypeAgainstUnionTypeWhichAlwaysTrue() returns string {
     int x = 10;
-    if (x is float|int) {
+    if (x is float|int) { // always true
         return "float|int";
     }
 
-    return "n/a";
+    return "n/a"; // unreachable code
 }
 
 function valueTypeAgainstUnionTypeWhichAlwaysFalse() returns string {
@@ -52,20 +52,20 @@ function valueTypeAgainstUnionTypeWhichAlwaysFalse() returns string {
 
 function unionTypeAgainstUnionTypeWhichAlwaysTrue_1() returns string {
     int|string x = "hello";
-    if (x is int|string) {
+    if (x is int|string) { // always true
         return "int|string";
     }
 
-    return "n/a";
+    return "n/a"; // unreachable code
 }
 
 function unionTypeAgainstUnionTypeWhichAlwaysTrue_2() returns string {
     int|string x = "hello";
-    if (x is int|string|float) {
+    if (x is int|string|float) { // always true
         return "int|string|float";
     }
 
-    return "n/a";
+    return "n/a"; // unreachable code
 }
 
 function unionTypeAgainstUnionTypeWhichAlwaysFalse() returns string {
@@ -88,17 +88,17 @@ type B record {
 
 function testSimpleRecordTypes() returns string {
     A a = {};
-    if (a is B) {
+    if (a is B) { // always true
         return "a is B";
     } else if (a is A) {
-        return "a is A";
+        return "a is A"; // unreachable code
     }
 
     // checking against undefined type (this moved to type-test-expr-semantics-negative.bal)
     // if (a is C) {
     //
     // }
-    return "n/a";
+    return "n/a"; // unreachable code
 }
 
 type X record {
@@ -115,13 +115,13 @@ type Y record {
 
 function testNestedRecordTypes() returns string {
     X x = {};
-    if (x is Y) {
+    if (x is Y) { // always true
         return "x is B";
     } else if (x is X) {
-        return "x is A";
+        return "x is A"; // unreachable code
     }
 
-    return "n/a";
+    return "n/a"; // unreachable code
 }
 
 function testArrays() {
@@ -178,7 +178,7 @@ function testSealedRecordTypes() returns string {
         return "a is A3";
     }
 
-    return "n/a";
+    return "n/a"; // unreachable code
 }
 
 function testRecordArrays() returns [boolean, boolean] {

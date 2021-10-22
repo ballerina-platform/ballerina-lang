@@ -668,7 +668,8 @@ public class TestUtil {
 
         Map<String, Object> initializationOptions = new HashMap<>();
         initializationOptions.put(InitializationOptions.KEY_ENABLE_SEMANTIC_TOKENS, true);
-
+        initializationOptions.put(InitializationOptions.KEY_BALA_SCHEME_SUPPORT, true);
+        
         params.setCapabilities(capabilities);
         params.setInitializationOptions(GSON.toJsonTree(initializationOptions));
         return params;

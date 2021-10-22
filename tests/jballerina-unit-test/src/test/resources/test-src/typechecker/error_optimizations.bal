@@ -26,9 +26,7 @@ function testWithValue() {
         test:assertFail();
     }
 
-    if (someValue is readonly) {
-    } else {
-        test:assertFail();
+    if (someValue is readonly) { // always true
     }
 
     if (someValue is string|int) {
@@ -94,9 +92,7 @@ function testWithError() {
         test:assertFail();
     }
 
-    if (someValue is readonly) {
-    } else {
-        test:assertFail();
+    if (someValue is readonly) { // always true
     }
 
     if (someValue is string|int) {
@@ -134,14 +130,10 @@ function testWithOnlyError() {
         test:assertFail();
     }
 
-    if (err is MyError|error) {
-    } else {
-        test:assertFail();
+    if (err is MyError|error) { // always true
     }
 
-    if (err is error) {
-    } else {
-        test:assertFail();
+    if (err is error) { // always true
     }
 }
 
