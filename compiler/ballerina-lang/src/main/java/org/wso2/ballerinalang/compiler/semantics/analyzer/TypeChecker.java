@@ -4020,7 +4020,7 @@ public class TypeChecker extends BLangNodeVisitor {
         SymbolEnv rhsExprEnv;
         BType lhsType;
         if (binaryExpr.expectedType.tag == TypeTags.FLOAT || binaryExpr.expectedType.tag == TypeTags.DECIMAL ||
-                checkExpectedTypeNillableFloatOrDecimal(binaryExpr)) {
+                isOptionalFloatOrDecimal(binaryExpr.expectedType)) {
             lhsType = checkAndGetType(binaryExpr.lhsExpr, env, binaryExpr);
         } else {
             lhsType = checkExpr(binaryExpr.lhsExpr, env);
@@ -4037,7 +4037,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType rhsType;
 
         if (binaryExpr.expectedType.tag == TypeTags.FLOAT || binaryExpr.expectedType.tag == TypeTags.DECIMAL ||
-                checkExpectedTypeNillableFloatOrDecimal(binaryExpr)) {
+                isOptionalFloatOrDecimal(binaryExpr.expectedType)) {
             rhsType = checkAndGetType(binaryExpr.rhsExpr, rhsExprEnv, binaryExpr);
         } else {
             rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
@@ -4098,8 +4098,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isOptionalFloatOrDecimal(BType type) {
-        if (expectedType.tag == TypeTags.UNION && expectedType.isNullable() && expectedType.tag != TypeTags.ANY) {
-            Iterator<BType> memberTypeIterator = ((BUnionType) expectedType).getMemberTypes().iterator();
+        if (type.tag == TypeTags.UNION && type.isNullable() && type.tag != TypeTags.ANY) {
+            Iterator<BType> memberTypeIterator = ((BUnionType) type).getMemberTypes().iterator();
             while (memberTypeIterator.hasNext()) {
                 BType memberType = memberTypeIterator.next();
                 if (memberType.tag == TypeTags.FLOAT || memberType.tag == TypeTags.DECIMAL) {

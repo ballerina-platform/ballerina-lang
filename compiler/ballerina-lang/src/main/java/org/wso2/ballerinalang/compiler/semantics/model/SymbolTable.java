@@ -448,7 +448,7 @@ public class SymbolTable {
         defineNilableIntegerArithmeticOperations();
 
         // Binary bitwise operators for nullable integer types
-        defineNillableIntegerBitwiseAndOperations();
+        defineNilableIntegerBitwiseAndOperations();
         defineNilableIntegerBitwiseOperations(OperatorKind.BITWISE_OR);
         defineNilableIntegerBitwiseOperations(OperatorKind.BITWISE_XOR);
 
@@ -681,7 +681,7 @@ public class SymbolTable {
         BUnionType[] nilableIntTypes = new BUnionType[8];
 
         for (int i = 0; i < intTypes.length; i++) {
-            nilableIntTypes[i] = getNilableBtype(intTypes[i]);
+            nilableIntTypes[i] = getNilableBType(intTypes[i]);
         }
 
         BType intOptional = nilableIntTypes[0];
@@ -784,8 +784,8 @@ public class SymbolTable {
         BUnionType[] signedNilableIntTypes = new BUnionType[4];
 
         for (int i = 0; i < unsignedIntTypes.length; i++) {
-            unsignedNilableIntTypes[i] = getNilableBtype(unsignedIntTypes[i]);
-            signedNilableIntTypes[i] = getNilableBtype(signedIntTypes[i]);
+            unsignedNilableIntTypes[i] = getNilableBType(unsignedIntTypes[i]);
+            signedNilableIntTypes[i] = getNilableBType(signedIntTypes[i]);
         }
 
         BType intOptional = signedNilableIntTypes[0];
@@ -835,8 +835,8 @@ public class SymbolTable {
         BUnionType[] signedNilableIntTypes = new BUnionType[4];
 
         for (int i = 0; i < unsignedIntTypes.length; i++) {
-            unsignedNilableIntTypes[i] = getNilableBtype(unsignedIntTypes[i]);
-            signedNilableIntTypes[i] = getNilableBtype(signedIntTypes[i]);
+            unsignedNilableIntTypes[i] = getNilableBType(unsignedIntTypes[i]);
+            signedNilableIntTypes[i] = getNilableBType(signedIntTypes[i]);
         }
 
         BType intOptionalType = signedNilableIntTypes[0];
@@ -897,7 +897,7 @@ public class SymbolTable {
         BUnionType[] nilableIntTypes = new BUnionType[8];
 
         for (int i = 0; i < intTypes.length; i++) {
-            nilableIntTypes[i] = getNilableBtype(intTypes[i]);
+            nilableIntTypes[i] = getNilableBType(intTypes[i]);
         }
 
         BType intOptionalType = nilableIntTypes[0];
@@ -942,8 +942,8 @@ public class SymbolTable {
         BUnionType[] signedNilableIntTypes = new BUnionType[4];
 
         for (int i = 0; i < unsignedIntTypes.length; i++) {
-            unsignedNilableIntTypes[i] = getNilableBtype(unsignedIntTypes[i]);
-            signedNilableIntTypes[i] = getNilableBtype(signedIntTypes[i]);
+            unsignedNilableIntTypes[i] = getNilableBType(unsignedIntTypes[i]);
+            signedNilableIntTypes[i] = getNilableBType(signedIntTypes[i]);
         }
 
         BType intOptional = signedNilableIntTypes[0];
@@ -955,7 +955,7 @@ public class SymbolTable {
         BUnionType[] nilableAllIntTypes = new BUnionType[8];
 
         for (int i = 0; i < allIntTypes.length; i++) {
-            nilableAllIntTypes[i] = getNilableBtype(allIntTypes[i]);
+            nilableAllIntTypes[i] = getNilableBType(allIntTypes[i]);
         }
 
         for (int i = 0; i < unsignedNilableIntTypes.length; i++) {
@@ -982,9 +982,9 @@ public class SymbolTable {
     }
 
     private void defineNilableFloatingPointOperations() {
-        BType floatOptional = getNilableBtype(floatType);
+        BType floatOptional = getNilableBType(floatType);
         ((BUnionType) floatOptional).setNullable(true);
-        BType decimalOptional = getNilableBtype(decimalType);
+        BType decimalOptional = getNilableBType(decimalType);
         ((BUnionType) decimalOptional).setNullable(true);
 
         OperatorKind[] binaryOperators = {OperatorKind.ADD, OperatorKind.SUB, OperatorKind.MUL,
