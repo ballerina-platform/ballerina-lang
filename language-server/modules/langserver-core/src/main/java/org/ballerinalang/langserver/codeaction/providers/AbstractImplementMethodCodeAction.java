@@ -157,8 +157,7 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
             offsetStr = StringUtils.repeat(' ', funcDefNode.location().lineRange().endLine().offset());
         } else {
             if (matchedNode.get().kind() == SyntaxKind.OBJECT_CONSTRUCTOR) {
-                offsetStr = StringUtils.repeat(' ',
-                        enclosingNodeOffset + 8);
+                offsetStr = StringUtils.repeat(' ', enclosingNodeOffset + 8);
                 closeBraceOffset = enclosingNodeOffset + 4;
             } else {
                 // Or else, adjust offset according to the parent class
