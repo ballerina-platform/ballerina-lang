@@ -195,6 +195,7 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import javax.xml.XMLConstants;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -212,8 +213,6 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
-import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -1238,9 +1237,10 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean validateTableConstructorExpr(BLangTableConstructorExpr tableConstructorExpr,
                                                  BTableType tableType) {
         BType constraintType = tableType.constraint;
-
-        if (tableConstructorExpr.tableKeySpecifier != null) {
-            List<String> fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
+        List<String> fieldNameList = new ArrayList<>();
+        boolean isKeySpecifierEmpty = tableConstructorExpr.tableKeySpecifier == null;
+        if (!isKeySpecifierEmpty) {
+            fieldNameList.addAll(getTableKeyNameList(tableConstructorExpr.tableKeySpecifier));
 
             if (tableType.fieldNameList == null &&
                     !validateKeySpecifier(fieldNameList,
@@ -1262,25 +1262,39 @@ public class TypeChecker extends BLangNodeVisitor {
         if (keyTypeConstraint != null) {
             List<BType> memberTypes = new ArrayList<>();
 
-            if (keyTypeConstraint.tag == TypeTags.TUPLE) {
-                for (Type type : ((TupleType) keyTypeConstraint).getTupleTypes()) {
-                    memberTypes.add((BType) type);
-                }
-            } else {
-                memberTypes.add(keyTypeConstraint);
+            switch (keyTypeConstraint.tag) {
+                case TypeTags.TUPLE:
+                    for (Type type : ((TupleType) keyTypeConstraint).getTupleTypes()) {
+                        memberTypes.add((BType) type);
+                    }
+                    break;
+                case TypeTags.RECORD:
+                    Map<String, BField> fieldList = ((BRecordType) keyTypeConstraint).getFields();
+                    memberTypes = fieldList.entrySet().stream()
+                            .filter(e -> fieldNameList.contains(e.getKey())).map(entry -> entry.getValue().type)
+                            .collect(Collectors.toList());
+                    if (memberTypes.isEmpty()) {
+                        memberTypes.add(keyTypeConstraint);
+                    }
+                    break;
+                default:
+                    memberTypes.add(keyTypeConstraint);
             }
 
-            if (tableConstructorExpr.tableKeySpecifier == null && keyTypeConstraint.tag == TypeTags.NEVER) {
+            if (isKeySpecifierEmpty && keyTypeConstraint.tag == TypeTags.NEVER) {
                 return true;
             }
 
-            if (tableConstructorExpr.tableKeySpecifier == null ||
+            if (isKeySpecifierEmpty ||
                     tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList.size() != memberTypes.size()) {
-                dlog.error(tableConstructorExpr.pos,
-                        DiagnosticErrorCode.KEY_SPECIFIER_SIZE_MISMATCH_WITH_KEY_CONSTRAINT,
-                        memberTypes.size(),
-                        tableConstructorExpr.tableKeySpecifier == null ?
-                                0 : tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList.size());
+                if (isKeySpecifierEmpty) {
+                    dlog.error(tableConstructorExpr.pos,
+                            DiagnosticErrorCode.KEY_SPECIFIER_EMPTY_FOR_PROVIDED_KEY_CONSTRAINT, memberTypes);
+                } else {
+                    dlog.error(tableConstructorExpr.pos,
+                            DiagnosticErrorCode.KEY_SPECIFIER_SIZE_MISMATCH_WITH_KEY_CONSTRAINT,
+                            memberTypes, tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList);
+                }
                 resultType = symTable.semanticError;
                 return false;
             }
@@ -4097,9 +4111,9 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(binaryExpr, actualType, expType);
     }
 
-    private boolean isOptionalFloatOrDecimal(BType type) {
-        if (type.tag == TypeTags.UNION && type.isNullable() && type.tag != TypeTags.ANY) {
-            Iterator<BType> memberTypeIterator = ((BUnionType) type).getMemberTypes().iterator();
+    private boolean isOptionalFloatOrDecimal(BType expectedType) {
+        if (expectedType.tag == TypeTags.UNION && expectedType.isNullable() && expectedType.tag != TypeTags.ANY) {
+            Iterator<BType> memberTypeIterator = ((BUnionType) expectedType).getMemberTypes().iterator();
             while (memberTypeIterator.hasNext()) {
                 BType memberType = memberTypeIterator.next();
                 if (memberType.tag == TypeTags.FLOAT || memberType.tag == TypeTags.DECIMAL) {

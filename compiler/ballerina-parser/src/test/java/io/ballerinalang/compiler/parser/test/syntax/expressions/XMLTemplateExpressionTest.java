@@ -189,4 +189,9 @@ public class XMLTemplateExpressionTest extends AbstractExpressionsTest {
     public void testXMLCDATASectionRecovery() {
         testFile("xml-template/xml_template_source_32.bal", "xml-template/xml_template_assert_32.json");
     }
+
+    @Test
+    public void testMissingXMLStartTag() {
+        testFile("xml-template/xml_template_source_33.bal", "xml-template/xml_template_assert_33.json");
+    }
 }
