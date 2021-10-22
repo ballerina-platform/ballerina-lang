@@ -19,11 +19,11 @@ package io.ballerina.parsers;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.ballerinalang.langserver.util.TestUtil;
+import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.eclipse.lsp4j.jsonrpc.Endpoint;
-import org.ballerinalang.langserver.util.TestUtil;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

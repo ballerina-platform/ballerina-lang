@@ -139,7 +139,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                         }
                         symbolJson.add("typeSymbol", generateTypeJson(typeSymbol.get()));
 
-                        if (typeSymbol.get().getModule().isPresent()) { // todo: check if this is the correct way to access
+                        if (typeSymbol.get().getModule().isPresent()) {
+                            // todo: check if this is the correct way to access
                             JsonObject typeDataJson = (JsonObject) generateTypeJson(typeSymbol.get().getModule().get());
                             ((JsonObject) symbolJson.get("typeSymbol")).add("moduleID", typeDataJson.get("id"));
                         } else if (typeSymbol.get() instanceof UnionTypeSymbol) {
@@ -189,7 +190,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             if (node.kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION) {
                 RemoteMethodCallActionNode remoteMethodCallActionNode = (RemoteMethodCallActionNode) node;
                 if (semanticModel != null) {
-                    Optional<Symbol> expressionSymbol = this.semanticModel.symbol(remoteMethodCallActionNode.expression());
+                    Optional<Symbol> expressionSymbol = this.semanticModel.symbol(
+                            remoteMethodCallActionNode.expression());
                     if (expressionSymbol.isPresent() && expressionSymbol.get() instanceof VariableSymbol) {
                         VariableSymbol variableSymbol = (VariableSymbol) expressionSymbol.get();
                         markVisibleEp(variableSymbol, symbolJson, remoteMethodCallActionNode.expression(), true);
