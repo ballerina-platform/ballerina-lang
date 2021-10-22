@@ -270,6 +270,11 @@ service object {} obj2 = service object {
     }
 };
 
+client class MyClient {
+    remote function foo() returns int? {
+    }
+}
+
 function print(any|error... values) returns int? = @java:Method { // no warning
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
