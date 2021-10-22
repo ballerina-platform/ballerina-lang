@@ -28,7 +28,7 @@ public class BuildOptions {
     private Boolean dumpBuildTime;
     private Boolean skipTests;
     private CompilationOptions compilationOptions;
-    private Path targetPath;
+    private Path targetDir;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
                  CompilationOptions compilationOptions, Path targetPath) {
@@ -37,7 +37,7 @@ public class BuildOptions {
         this.dumpBuildTime = dumpBuildTime;
         this.skipTests = skipTests;
         this.compilationOptions = compilationOptions;
-        this.targetPath = targetPath;
+        this.targetDir = targetPath;
     }
 
     public boolean testReport() {
@@ -113,10 +113,10 @@ public class BuildOptions {
         } else {
             buildOptionsBuilder.setDumpBuildTime(this.dumpBuildTime);
         }
-        if (theirOptions.targetPath != null) {
-            buildOptionsBuilder.targetPath(theirOptions.targetPath);
+        if (theirOptions.targetDir != null) {
+            buildOptionsBuilder.targetDir(theirOptions.targetDir);
         } else {
-            buildOptionsBuilder.targetPath(this.targetPath);
+            buildOptionsBuilder.targetDir(this.targetDir);
         }
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
@@ -153,11 +153,11 @@ public class BuildOptions {
     }
 
     public Path getTargetPath() {
-        return targetPath;
+        return targetDir;
     }
 
-    public void setTargetPath(Path targetPath) {
-        this.targetPath = targetPath;
+    public void setTargetDir(Path targetDir) {
+        this.targetDir = targetDir;
     }
 
     /**

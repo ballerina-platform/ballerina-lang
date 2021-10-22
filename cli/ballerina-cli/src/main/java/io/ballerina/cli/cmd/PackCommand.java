@@ -150,7 +150,7 @@ public class PackCommand implements BLauncherCmd {
 
         // If a custom target path is set, we modify the tagetPath in the build options with the new custom one
         if (this.customTargetPath != null) {
-            buildOptions.setTargetPath(this.customTargetPath);
+            buildOptions.setTargetDir(this.customTargetPath);
         }
 
         try {

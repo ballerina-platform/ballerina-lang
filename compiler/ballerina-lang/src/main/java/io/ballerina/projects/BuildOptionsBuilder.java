@@ -59,7 +59,7 @@ public class BuildOptionsBuilder {
         return this;
     }
 
-    public BuildOptionsBuilder targetPath(Path path) {
+    public BuildOptionsBuilder targetDir(Path path) {
         targetPath = path;
         return this;
     }
