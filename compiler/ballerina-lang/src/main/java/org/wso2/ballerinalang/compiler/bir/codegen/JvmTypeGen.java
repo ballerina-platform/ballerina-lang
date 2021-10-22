@@ -174,8 +174,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LONG_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_TYPE_ARRAY;
 
-;
-
 /**
  * BIR types to JVM byte code generation class.
  *

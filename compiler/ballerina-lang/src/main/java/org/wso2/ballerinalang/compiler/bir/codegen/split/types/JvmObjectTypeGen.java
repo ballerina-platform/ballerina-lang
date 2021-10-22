@@ -91,8 +91,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_METH
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_RESOURCE_METHOD_TYPE_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_TYPE_ID_SET;
 
-;
-
 /**
  * BIR object type to JVM byte code generation class.
  *

@@ -177,8 +177,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VALUE_OF
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.WAIT_RESULT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.genVarArg;
 
-;
-
 /**
  * BIR terminator instruction generator class to keep track of method visitor and index map.
  *

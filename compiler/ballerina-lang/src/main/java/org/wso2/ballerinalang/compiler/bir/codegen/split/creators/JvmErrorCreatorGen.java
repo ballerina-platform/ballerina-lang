@@ -58,8 +58,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ERROR_IN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeFieldName;
 
-;
-
 /**
  * Ballerina error value creation related JVM byte code generation class.
  *

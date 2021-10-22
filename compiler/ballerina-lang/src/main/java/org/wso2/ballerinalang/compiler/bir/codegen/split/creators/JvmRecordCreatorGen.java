@@ -68,8 +68,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_I
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeFieldName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 
-;
-
 /**
  * Ballerina record value creation related JVM byte code generation class.
  *

@@ -111,8 +111,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_LINK
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeFieldName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.TYPE_HASH_COMPARATOR;
 
-;
-
 /**
  * BIR types to JVM byte code generation class.
  *

@@ -78,8 +78,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_T
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeFieldName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 
-;
-
 /**
  * Ballerina object value creation related JVM byte code generation class.
  *

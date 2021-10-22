@@ -54,8 +54,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ERR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_TYPE_ID_SET;
 
-;
-
 /**
  * BIR error type to JVM byte code generation class.
  *

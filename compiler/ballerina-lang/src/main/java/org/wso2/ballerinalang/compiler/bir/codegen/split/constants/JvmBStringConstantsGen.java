@@ -62,8 +62,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BSTR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_NON_BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WITH_STRING;
 
-;
-
 /**
  * Generates Jvm class for the ballerina string constants for given module.
  *
