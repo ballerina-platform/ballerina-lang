@@ -21,6 +21,7 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.util.ProjectConstants;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 /**
@@ -37,7 +38,14 @@ public class BuildProjectCompilationCache extends FileSystemCache {
     }
 
     public static BuildProjectCompilationCache from(Project project) {
-        Path targetPath = project.sourceRoot().resolve(TARGET_DIR_NAME);
+        Path targetPath;
+
+        try {
+            targetPath = project.getTarget().path();
+        } catch (IOException e) {
+            targetPath = project.sourceRoot().resolve(TARGET_DIR_NAME);
+        }
+
         return new BuildProjectCompilationCache(project, targetPath);
     }
 
