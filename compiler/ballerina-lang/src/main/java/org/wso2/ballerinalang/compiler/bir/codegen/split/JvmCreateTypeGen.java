@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmArrayTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmErrorTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmObjectTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmRecordTypeGen;
@@ -120,6 +121,7 @@ public class JvmCreateTypeGen {
     private final JvmErrorTypeGen jvmErrorTypeGen;
     private final JvmUnionTypeGen jvmUnionTypeGen;
     private final JvmTupleTypeGen jvmTupleTypeGen;
+    private final JvmArrayTypeGen jvmArrayTypeGen;
     private final TypeHashVisitor typeHashVisitor = new TypeHashVisitor();
     private final String typesClass;
     private final String anonTypesClass;
@@ -135,6 +137,7 @@ public class JvmCreateTypeGen {
         this.jvmErrorTypeGen = new JvmErrorTypeGen(this, jvmTypeGen, jvmConstantsGen, packageID);
         this.jvmUnionTypeGen = new JvmUnionTypeGen(this, jvmTypeGen, jvmConstantsGen, packageID);
         this.jvmTupleTypeGen = new JvmTupleTypeGen(this, jvmTypeGen, jvmConstantsGen, packageID);
+        this.jvmArrayTypeGen = new JvmArrayTypeGen(jvmTypeGen);
         this.typesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
         typesCw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, typesClass, null, OBJECT, null);
     }
@@ -638,4 +641,9 @@ public class JvmCreateTypeGen {
     public JvmTupleTypeGen getJvmTupleTypeGen() {
         return jvmTupleTypeGen;
     }
+
+    public JvmArrayTypeGen getJvmArrayTypeGen() {
+        return jvmArrayTypeGen;
+    }
+
 }

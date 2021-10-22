@@ -70,7 +70,7 @@ public class JvmTupleTypeConstantsGen {
 
     public JvmTupleTypeConstantsGen(PackageID packageID) {
         tupleVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(
-                packageID, JvmConstants.BTUPLE_TYPE_CONSTANT_CLASS_NAME);
+                packageID, JvmConstants.TUPLE_TYPE_CONSTANT_CLASS_NAME);
         generateTupleTypeConstantsClassInit();
         visitTupleTypeInitMethod();
         funcNames = new ArrayList<>();
@@ -78,11 +78,11 @@ public class JvmTupleTypeConstantsGen {
         tupleTypeVarMap = new ConcurrentSkipListMap<>(JvmConstantsGen.TYPE_HASH_COMPARATOR);
     }
 
-    public synchronized void setJvmTupleTypeGen(JvmTupleTypeGen jvmTupleTypeGen) {
+    public void setJvmTupleTypeGen(JvmTupleTypeGen jvmTupleTypeGen) {
         this.jvmTupleTypeGen = jvmTupleTypeGen;
     }
 
-    public synchronized String add(BTupleType type) {
+    public String add(BTupleType type) {
         return tupleTypeVarMap.computeIfAbsent(type, str -> generateBTupleInits(type));
     }
 
@@ -150,7 +150,7 @@ public class JvmTupleTypeConstantsGen {
                 JvmConstants.TUPLE_TYPE_IMPL));
     }
 
-    public synchronized void generateClass(Map<String, byte[]> jarEntries) {
+    public void generateClass(Map<String, byte[]> jarEntries) {
         genMethodReturn(mv);
         visitTupleTypeInitMethod();
         for (String funcName : funcNames) {
