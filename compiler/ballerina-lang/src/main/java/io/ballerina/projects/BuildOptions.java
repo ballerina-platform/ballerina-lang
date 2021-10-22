@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import java.nio.file.Path;
+
 /**
  * Build options of a project.
  */
@@ -26,14 +28,16 @@ public class BuildOptions {
     private Boolean dumpBuildTime;
     private Boolean skipTests;
     private CompilationOptions compilationOptions;
+    private Path targetPath;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
-                 CompilationOptions compilationOptions) {
+                 CompilationOptions compilationOptions, Path targetPath) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
         this.skipTests = skipTests;
         this.compilationOptions = compilationOptions;
+        this.targetPath = targetPath;
     }
 
     public boolean testReport() {
@@ -109,6 +113,11 @@ public class BuildOptions {
         } else {
             buildOptionsBuilder.setDumpBuildTime(this.dumpBuildTime);
         }
+        if (theirOptions.targetPath != null) {
+            buildOptionsBuilder.targetPath(theirOptions.targetPath);
+        } else {
+            buildOptionsBuilder.targetPath(this.targetPath);
+        }
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
         buildOptionsBuilder.setOffline(compilationOptions.offlineBuild);
@@ -141,6 +150,14 @@ public class BuildOptions {
             return true;
         }
         return bool;
+    }
+
+    public Path getTargetPath() {
+        return targetPath;
+    }
+
+    public void setTargetPath(Path targetPath) {
+        this.targetPath = targetPath;
     }
 
     /**
