@@ -76,7 +76,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
@@ -392,7 +391,7 @@ public class JvmPackageGen {
                                        JvmConstantsGen jvmConstantsGen,
                                        Map<String, JavaClass> jvmClassMapping, List<PackageID> moduleImports,
                                        boolean serviceEPAvailable) {
-        jvmClassMapping.entrySet().parallelStream().forEach(entry -> {
+        jvmClassMapping.entrySet().forEach(entry -> {
             String moduleClass = entry.getKey();
             JavaClass javaClass = entry.getValue();
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
@@ -765,7 +764,7 @@ public class JvmPackageGen {
         }
 
         // using a concurrent hash map to store class byte values, which are generated in parallel
-        final Map<String, byte[]> jarEntries = new ConcurrentHashMap<>();
+        final Map<String, byte[]> jarEntries = new HashMap<>();
 
         // desugar parameter initialization
         injectDefaultParamInits(module, initMethodGen, this);

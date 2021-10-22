@@ -35,7 +35,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.TreeMap;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
@@ -73,7 +73,7 @@ public class JvmArrayTypeConstantsGen {
                 JvmCodeGenUtil.getModuleLevelClassName(packageID, JvmConstants.ARRAY_TYPE_CONSTANT_CLASS_NAME);
         generateArrayTypeConstantsClassInit();
         visitArrayTypeInitMethod();
-        this.arrayTypeVarMap = new ConcurrentSkipListMap<>(JvmConstantsGen.TYPE_HASH_COMPARATOR);
+        this.arrayTypeVarMap = new TreeMap<>(JvmConstantsGen.TYPE_HASH_COMPARATOR);
         this.funcNames = new ArrayList<>();
         this.types = types;
     }
