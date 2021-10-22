@@ -128,6 +128,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.SIGNED
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED16_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED32_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED8_MAX_VALUE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.isSimpleBasicType;
 
 /**
  * This class consists of utility methods which operate on types.
@@ -597,12 +598,12 @@ public class Types {
     public boolean isSubTypeOfBaseType(BType type, int baseTypeTag) {
         if (type.tag != TypeTags.UNION) {
 
-            if (TypeTags.isIntegerTypeTag(type.tag) && TypeTags.isIntegerTypeTag(baseTypeTag)) {
-                return isIntegerSubtypeOfBaseType(type, baseTypeTag);
+            if ((TypeTags.isIntegerTypeTag(type.tag) || type.tag == TypeTags.BYTE) && TypeTags.INT == baseTypeTag) {
+                return true;
             }
 
-            if (TypeTags.isStringTypeTag(type.tag) && TypeTags.isStringTypeTag(baseTypeTag)) {
-                return isStringSubtypeOfBaseType(type, baseTypeTag);
+            if (TypeTags.isStringTypeTag(type.tag) && TypeTags.STRING == baseTypeTag) {
+                return true;
             }
 
             return type.tag == baseTypeTag || (baseTypeTag == TypeTags.TUPLE && type.tag == TypeTags.ARRAY)
@@ -613,86 +614,6 @@ public class Types {
             return true;
         }
         return isUnionMemberTypesSubTypeOfBaseType(((BUnionType) type).getMemberTypes(), baseTypeTag);
-    }
-
-    private boolean isStringSubtypeOfBaseType(BType type, int baseTypeTag) {
-        switch (baseTypeTag) {
-            case TypeTags.STRING:
-                return true;
-            case TypeTags.CHAR_STRING:
-                if (type.tag == TypeTags.CHAR_STRING) {
-                    return true;
-                }
-            default:
-                return false;
-        }
-    }
-
-    private boolean isIntegerSubtypeOfBaseType(BType type, int baseTypeTag) {
-        switch (baseTypeTag) {
-            case TypeTags.INT:
-                return true;
-            case TypeTags.SIGNED32_INT:
-                switch (type.tag) {
-                    case TypeTags.SIGNED32_INT:
-                    case TypeTags.SIGNED16_INT:
-                    case  TypeTags.SIGNED8_INT:
-                    case TypeTags.UNSIGNED16_INT:
-                    case TypeTags.UNSIGNED8_INT:
-                    case TypeTags.BYTE:
-                        return true;
-                    default:
-                        return false;
-                }
-
-            case TypeTags.SIGNED16_INT:
-                switch (type.tag) {
-                    case TypeTags.SIGNED16_INT:
-                    case  TypeTags.SIGNED8_INT:
-                    case TypeTags.UNSIGNED8_INT:
-                    case TypeTags.BYTE:
-                        return true;
-                    default:
-                        return false;
-                }
-
-            case TypeTags.SIGNED8_INT:
-                return type.tag == TypeTags.SIGNED8_INT;
-
-            case TypeTags.UNSIGNED32_INT:
-                switch (type.tag) {
-                    case TypeTags.SIGNED16_INT:
-                    case  TypeTags.SIGNED8_INT:
-                    case TypeTags.UNSIGNED16_INT:
-                    case TypeTags.UNSIGNED8_INT:
-                    case TypeTags.BYTE:
-                        return true;
-                    default:
-                        return false;
-                }
-
-            case TypeTags.UNSIGNED16_INT:
-                switch (type.tag) {
-                    case  TypeTags.SIGNED8_INT:
-                    case TypeTags.UNSIGNED8_INT:
-                    case TypeTags.BYTE:
-                        return true;
-                    default:
-                        return false;
-                }
-
-            case TypeTags.BYTE:
-            case TypeTags.UNSIGNED8_INT:
-                switch (type.tag) {
-                    case  TypeTags.SIGNED8_INT:
-                    case TypeTags.BYTE:
-                        return true;
-                    default:
-                        return false;
-                }
-            default:
-                return false;
-        }
     }
 
     private boolean isUnionMemberTypesSubTypeOfBaseType(LinkedHashSet<BType> memberTypes, int baseTypeTag) {
@@ -2273,7 +2194,7 @@ public class Types {
                     TypeTags.isStringTypeTag(targetTypeTag) ||
                     targetTypeTag == TypeTags.BOOLEAN;
 
-        } else if(isValueType(targetType) && actualType.tag == TypeTags.UNION &&
+        } else if (isValueType(targetType) && actualType.tag == TypeTags.UNION &&
                 ((BUnionType) actualType).getMemberTypes().stream().allMatch(type -> isAssignable(type, targetType))) {
             return true;
 
@@ -3765,8 +3686,8 @@ public class Types {
 
     boolean validNumericTypeExists(BType type) {
 
-        if (type.isNullable() && type.tag != TypeTags.ANY && type.tag != TypeTags.NIL) {
-            type = ((BUnionType) type).getMemberTypes().iterator().next();
+        if (type.isNullable() && type.tag != TypeTags.NIL) {
+            type = getSafeType(type, true, false);
         }
         if (isBasicNumericType(type)) {
             return true;
@@ -3827,6 +3748,9 @@ public class Types {
     }
 
     boolean validIntegerTypeExists(BType type) {
+        if (type.isNullable() && type.tag != TypeTags.NIL) {
+            type = getSafeType(type, true, false);
+        }
         if (TypeTags.isIntegerTypeTag(type.tag)) {
             return true;
         }
@@ -5495,19 +5419,6 @@ public class Types {
         }
     }
 
-    private boolean isSimpleBasicType(int tag) {
-        switch (tag) {
-            case TypeTags.BYTE:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.BOOLEAN:
-            case TypeTags.NIL:
-                return true;
-            default:
-                return (TypeTags.isIntegerTypeTag(tag)) || (TypeTags.isStringTypeTag(tag));
-        }
-    }
-
     /**
      * Check whether a type is an ordered type.
      *
@@ -5735,6 +5646,16 @@ public class Types {
             default:
                 return false;
         }
+    }
+
+    boolean isSingletonType(BType type) {
+        return type.tag == TypeTags.FINITE && ((BFiniteType) type).getValueSpace().size() == 1;
+    }
+
+    boolean isSameSingletonType(BFiniteType type1, BFiniteType type2) {
+        BLangLiteral expr1 = (BLangLiteral) type1.getValueSpace().iterator().next();
+        BLangLiteral expr2 = (BLangLiteral) type2.getValueSpace().iterator().next();
+        return expr1.value.equals(expr2.value);
     }
 
     private static class ListenerValidationModel {

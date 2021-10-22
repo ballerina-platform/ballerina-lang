@@ -129,10 +129,12 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
      * @return Initialization options.
      */
     private InitializationOptions parseInitializationOptions(Map<String, Object> initOptions) {
-        Object pullModuleSupport = initOptions.get(InitializationOptions.KEY_PULL_MODULE_SUPPORT);
-        boolean pullModuleSupported = Boolean.parseBoolean(String.valueOf(pullModuleSupport));
         InitializationOptionsImpl initializationOptions = new InitializationOptionsImpl();
-        initializationOptions.setPullModuleSupported(pullModuleSupported);
+
+        Object supportBalaScheme = initOptions.get(InitializationOptions.KEY_BALA_SCHEME_SUPPORT);
+        boolean balaSchemeSupported = supportBalaScheme == null ||
+                Boolean.parseBoolean(String.valueOf(supportBalaScheme));
+        initializationOptions.setSupportBalaScheme(balaSchemeSupported);
 
         Object semanticTokensSupport = initOptions.get(InitializationOptions.KEY_ENABLE_SEMANTIC_TOKENS);
         boolean enableSemanticTokens = semanticTokensSupport == null ||
@@ -182,16 +184,16 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
      * Represents the initialization options the LS client will be sending.
      */
     public static class InitializationOptionsImpl implements InitializationOptions {
-        private boolean isPullModuleSupported = false;
+        private boolean supportBalaScheme = false;
         private boolean enableSemanticTokens = false;
         
         @Override
-        public boolean isPullModuleSupported() {
-            return isPullModuleSupported;
+        public boolean isBalaSchemeSupported() {
+            return supportBalaScheme;
         }
 
-        public void setPullModuleSupported(boolean pullModuleSupported) {
-            isPullModuleSupported = pullModuleSupported;
+        public void setSupportBalaScheme(boolean supportBalaScheme) {
+            this.supportBalaScheme = supportBalaScheme;
         }
 
         public boolean isEnableSemanticTokens() {

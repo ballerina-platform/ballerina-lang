@@ -104,6 +104,7 @@ include(':compiler-plugins:package-semantic-analyzer')
 include(':formatter:formatter-core')
 include(':formatter:formatter-cli')
 include(':ls-extensions:json-to-record-converter')
+include(':ls-extensions:performance-analyzer-services')
 include(':project-api-test-artifact:event-logger-compiler-plugin')
 include(':project-api-test-artifact:compiler-plugin-with-one-dependency')
 include(':project-api-test-artifact:compiler-plugin-with-codeactions')
@@ -220,6 +221,7 @@ project(':compiler-plugins:package-semantic-analyzer').projectDir = file('misc/c
 project(':formatter:formatter-core').projectDir = file('misc/formatter/modules/formatter-core')
 project(':formatter:formatter-cli').projectDir = file('misc/formatter/modules/formatter-cli')
 project(':ls-extensions:json-to-record-converter').projectDir = file('misc/ls-extensions/modules/json-to-record-converter')
+project(':ls-extensions:performance-analyzer-services').projectDir = file('misc/ls-extensions/modules/performance-analyzer-services')
 buildCache {
     remote(HttpBuildCache) {
         url = "http://192.168.58.132:5071/cache/"

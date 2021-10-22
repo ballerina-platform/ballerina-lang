@@ -27,6 +27,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -179,14 +180,18 @@ public class UnaryExprTest {
 
     }
 
-    @Test(description = "Test complement operator")
-    public void testComplementOperator() {
-        BRunUtil.invoke(result, "testComplementOperator");
+    @Test(dataProvider = "dataToTestUnaryOperations", description = "test unary operators with types")
+    public void testUnaryOperations(String functionName) {
+        BRunUtil.invoke(result, functionName);
     }
 
-    @Test(description = "Test unary operators with int sub types")
-    public void testUnaryOperationsWithIntSubtypes() {
-        BRunUtil.invoke(result, "testUnaryOperationsWithIntSubtypes");
+    @DataProvider(name = "dataToTestUnaryOperations")
+    public Object[] dataToTestUnaryOperations() {
+        return new String[] {
+                "testComplementOperator",
+                "testUnaryOperationsWithIntSubtypes",
+                "testUnaryOperationsWithNonBasicTypes"
+        };
     }
 
     @Test(description = "Test unary operators for nullable expressions")
@@ -196,7 +201,7 @@ public class UnaryExprTest {
 
     @Test(description = "Test unary statement with errors")
     public void testUnaryStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 8);
+        Assert.assertEquals(resultNegative.getErrorCount(), 12);
         BAssertUtil.validateError(resultNegative, 0, "operator '+' not defined for 'json'", 5, 10);
         BAssertUtil.validateError(resultNegative, 1, "operator '-' not defined for 'json'", 14, 10);
         BAssertUtil.validateError(resultNegative, 2, "operator '!' not defined for 'json'", 23, 10);
@@ -209,6 +214,10 @@ public class UnaryExprTest {
                 38, 15);
         BAssertUtil.validateError(resultNegative, 7, "incompatible types: expected 'int:Unsigned8', found 'int'",
                 41, 24);
+        BAssertUtil.validateError(resultNegative, 8, "operator '~' not defined for 'decimal'", 45, 18);
+        BAssertUtil.validateError(resultNegative, 9, "operator '~' not defined for 'float'", 46, 17);
+        BAssertUtil.validateError(resultNegative, 10, "operator '~' not defined for 'decimal'", 47, 18);
+        BAssertUtil.validateError(resultNegative, 11, "operator '!' not defined for 'decimal'", 48, 18);
     }
 
     @AfterClass

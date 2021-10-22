@@ -709,7 +709,8 @@ public class SymbolResolver extends BLangNodeVisitor {
                 }
 
                 BType member = itr.next();
-                if (TypeTags.isIntegerTypeTag(member.tag)) {
+
+                if (TypeTags.isIntegerTypeTag(member.tag) || member.tag == TypeTags.BYTE) {
                     member = symTable.intType;
                 }
 
@@ -1807,7 +1808,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (validIntTypesExists) {
             switch (opKind) {
                 case BITWISE_LEFT_SHIFT:
-                    return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
+                    return createShiftOperator(opKind, lhsType, rhsType);
                 case BITWISE_RIGHT_SHIFT:
                 case BITWISE_UNSIGNED_RIGHT_SHIFT:
                     switch (lhsType.tag) {
@@ -1817,11 +1818,19 @@ public class SymbolResolver extends BLangNodeVisitor {
                         case TypeTags.BYTE:
                             return createBinaryOperator(opKind, lhsType, rhsType, lhsType);
                         default:
-                            return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
+                            return createShiftOperator(opKind, lhsType, rhsType);
                     }
             }
         }
         return symTable.notFoundSymbol;
+    }
+
+    private BSymbol createShiftOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
+        if (lhsType.isNullable() || rhsType.isNullable()) {
+            BType intOptional = BUnionType.create(null, symTable.intType, symTable.nilType);
+            return createBinaryOperator(opKind, lhsType, rhsType, intOptional);
+        }
+        return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
     }
 
     public BSymbol getArithmeticOpsForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType) {
@@ -1844,8 +1853,20 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         if (validNumericOrStringTypeExists) {
-            BType compatibleType1 = types.findCompatibleType(lhsType);
-            BType compatibleType2 = types.findCompatibleType(rhsType);
+            BType compatibleType1;
+            BType compatibleType2;
+            if (lhsType.isNullable()) {
+                compatibleType1 = types.findCompatibleType(types.getSafeType(lhsType, true, false));
+            } else {
+                compatibleType1 = types.findCompatibleType(lhsType);
+            }
+
+            if (rhsType.isNullable()) {
+                compatibleType2 = types.findCompatibleType(types.getSafeType(rhsType, true, false));
+            } else {
+                compatibleType2 = types.findCompatibleType(rhsType);
+            }
+
             if (types.isBasicNumericType(compatibleType1) && compatibleType1 != compatibleType2) {
                 return symTable.notFoundSymbol;
             }
@@ -1894,9 +1915,17 @@ public class SymbolResolver extends BLangNodeVisitor {
                         case TypeTags.UNSIGNED32_INT:
                             return createBinaryOperator(opKind, lhsType, rhsType, rhsType);
                     }
+                    if (lhsType.isNullable() || rhsType.isNullable()) {
+                        BType intOptional = BUnionType.create(null, symTable.intType, symTable.nilType);
+                        return createBinaryOperator(opKind, lhsType, rhsType, intOptional);
+                    }
                     return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
                 case BITWISE_OR:
                 case BITWISE_XOR:
+                    if (lhsType.isNullable() || rhsType.isNullable()) {
+                        BType intOptional = BUnionType.create(null, symTable.intType, symTable.nilType);
+                        return createBinaryOperator(opKind, lhsType, rhsType, intOptional);
+                    }
                     return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
             }
         }
@@ -1986,29 +2015,19 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     // private methods
 
-    private BSymbol resolveOperator(ScopeEntry entry, List<BType> types) {
+    private BSymbol resolveOperator(ScopeEntry entry, List<BType> typeList) {
         BSymbol foundSymbol = symTable.notFoundSymbol;
         while (entry != NOT_FOUND_ENTRY) {
             BInvokableType opType = (BInvokableType) entry.symbol.type;
-            if (types.size() == opType.paramTypes.size()) {
+            if (typeList.size() == opType.paramTypes.size()) {
                 boolean match = true;
-                for (int i = 0; i < types.size(); i++) {
-                    if ((types.get(i).getKind() == TypeKind.UNION) &&
+                for (int i = 0; i < typeList.size(); i++) {
+                    if ((typeList.get(i).getKind() == TypeKind.UNION) &&
                             (opType.paramTypes.get(i).getKind() == TypeKind.UNION)) {
-                        if (types.get(i).isNullable() && opType.paramTypes.get(i).isNullable()) {
-                            BType nilLiftTypeOne = ((BUnionType) types.get(i)).getMemberTypes().iterator().next();
-                            BType nilLiftTypeTwo = ((BUnionType) opType.paramTypes.get(i)).
-                                    getMemberTypes().iterator().next();
-                            if (nilLiftTypeOne.tag == nilLiftTypeTwo.tag) {
-                                continue;
-                            } else {
-                                match = false;
-                            }
-                        } else {
+                        if (!this.types.isSameType(typeList.get(i), opType.paramTypes.get(i))) {
                             match = false;
                         }
-                    }
-                    if (types.get(i).tag != opType.paramTypes.get(i).tag) {
+                    } else if (typeList.get(i).tag != opType.paramTypes.get(i).tag) {
                         match = false;
                     }
                 }

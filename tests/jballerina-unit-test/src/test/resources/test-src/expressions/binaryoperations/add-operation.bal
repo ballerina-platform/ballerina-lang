@@ -1,3 +1,5 @@
+import ballerina/test;
+
 function intAdd(int a, int b) returns (int) {
     return a + b;
 }
@@ -81,21 +83,21 @@ function testAdditionWithTypes() {
     decimal a12 = 30.5;
     byte a13 = 15;
 
-    assertEqual(a1 + a2, 30);
-    assertEqual(a2 + a1, 30);
-    assertEqual(a2 + a3, 50);
-    assertEqual(a3 + a4, 55);
-    assertEqual(a1 + a5, 25);
-    assertEqual(a1 + a6, 22);
-    assertEqual(a4 + a5, 40);
-    assertEqual(a4 + a6, 37);
-    assertEqual(a5 + a6, 27);
-    assertEqual(a7 + a8, 21.0);
-    assertEqual(a7 + a9, 40.9);
-    assertEqual(a8 + a9, 40.9);
-    assertEqual(a10 + a11, 31d);
-    assertEqual(a11 + a12, 51d);
-    assertEqual(a4 + a13, 40);
+    test:assertEquals(a1 + a2, 30);
+    test:assertEquals(a2 + a1, 30);
+    test:assertEquals(a2 + a3, 50);
+    test:assertEquals(a3 + a4, 55);
+    test:assertEquals(a1 + a5, 25);
+    test:assertEquals(a1 + a6, 22);
+    test:assertEquals(a4 + a5, 40);
+    test:assertEquals(a4 + a6, 37);
+    test:assertEquals(a5 + a6, 27);
+    test:assertEquals(a7 + a8, 21.0);
+    test:assertEquals(a7 + a9, 40.9);
+    test:assertEquals(a8 + a9, 40.9);
+    test:assertEquals(a10 + a11, 31d);
+    test:assertEquals(a11 + a12, 51d);
+    test:assertEquals(a4 + a13, 40);
 
     string a14 = "abc";
     O a15 = "M";
@@ -105,18 +107,18 @@ function testAdditionWithTypes() {
     xml a19 = xml `abc`;
     xml:Text|xml a20 = xml `abdef`;
 
-    assertEqual(a14 + a15, "abcM");
-    assertEqual(a15 + a16, "MEFG");
-    assertEqual(a15 + a17, "MN");
-    assertEqual(a15 + a1.toString(), "M10");
-    assertEqual(a15 + a18, "MCat");
-    assertEqual(a15 + a19, xml `Mabc`);
-    assertEqual(a19 + a15, xml `abcM`);
-    assertEqual(a16 + a19, xml `EFGabc`);
-    assertEqual(a17 + a19, xml `Nabc`);
-    assertEqual(a18 + a19, xml `Catabc`);
-    assertEqual(a19 + a20, xml `abcabdef`);
-    assertEqual(a20 + a19, xml `abdefabc`);
+    test:assertEquals(a14 + a15, "abcM");
+    test:assertEquals(a15 + a16, "MEFG");
+    test:assertEquals(a15 + a17, "MN");
+    test:assertEquals(a15 + a1.toString(), "M10");
+    test:assertEquals(a15 + a18, "MCat");
+    test:assertEquals(a15 + a19, xml `Mabc`);
+    test:assertEquals(a19 + a15, xml `abcM`);
+    test:assertEquals(a16 + a19, xml `EFGabc`);
+    test:assertEquals(a17 + a19, xml `Nabc`);
+    test:assertEquals(a18 + a19, xml `Catabc`);
+    test:assertEquals(a19 + a20, xml `abcabdef`);
+    test:assertEquals(a20 + a19, xml `abdefabc`);
 }
 
 function testAddSingleton() {
@@ -128,11 +130,11 @@ function testAddSingleton() {
     int|int:Signed16 a6 = 15;
     E a7 = 12;
 
-    assertEqual(a1 + a2, 3);
-    assertEqual(a3 + a4, 31.0);
-    assertEqual(a1 + a5, 11);
-    assertEqual(a1 + a6, 16);
-    assertEqual(a1 + a7, 13);
+    test:assertEquals(a1 + a2, 3);
+    test:assertEquals(a3 + a4, 31.0);
+    test:assertEquals(a1 + a5, 11);
+    test:assertEquals(a1 + a6, 16);
+    test:assertEquals(a1 + a7, 13);
 }
 
 function testContextuallyExpectedTypeOfNumericLiteralInAdd() {
@@ -143,15 +145,18 @@ function testContextuallyExpectedTypeOfNumericLiteralInAdd() {
     float? a5 = 10 + 5;
     decimal? a6 = 5 + 3;
 
-    assertEqual(a1, 15.0);
-    assertEqual(a2, 18.0);
-    assertEqual(a3, 20.0d);
-    assertEqual(a4, 25.0d);
-    assertEqual(a5, 15.0);
-    assertEqual(a6, 8.0d);
+    test:assertEquals(a1, 15.0);
+    test:assertEquals(a2, 18.0);
+    test:assertEquals(a3, 20.0d);
+    test:assertEquals(a4, 25.0d);
+    test:assertEquals(a5, 15.0);
+    test:assertEquals(a6, 8.0d);
 }
 
 type Ints 1|2;
+type T1 1|2|()|3;
+type T2 1|2|3?;
+type Decimals 1d|2d;
 
 function testAddNullable() {
     int? a1 = 5;
@@ -177,28 +182,106 @@ function testAddNullable() {
 
     int a19 = 25;
     Ints? a20 = 2;
-    int? a21 = a19 + a20;
 
-    assertEqual(a10, 33);
-    assertEqual(a11, 22);
-    assertEqual(a12, ());
-    assertEqual(a13, 15.5);
-    assertEqual(a14, 10.5);
-    assertEqual(a15, ());
-    assertEqual(a18, 3);
-    assertEqual(a21, 27);
+    T1 a21 = 2;
+    T2? a22 = 1;
+    ()|int a23 = ();
+    T2? a24 = 1;
+
+    Decimals? a25 = 1;
+    Decimals? a26 = 2;
+
+    int:Unsigned8 a = 1;
+    int:Unsigned16 b = 2;
+    int:Unsigned32 c = 5;
+    int:Signed8 d = 20;
+    int:Signed16 e = 10;
+    int:Signed32 f = 10;
+    byte g = 30;
+
+    test:assertEquals(a10, 33);
+    test:assertEquals(a11, 22);
+    test:assertEquals(a12, ());
+    test:assertEquals(a13, 15.5);
+    test:assertEquals(a14, 10.5);
+    test:assertEquals(a15, ());
+    test:assertEquals(a18, 3);
+    test:assertEquals(a19 + a20, 27);
+
+    test:assertEquals(a21 + a21, 4);
+    test:assertEquals(a21 + a22, 3);
+    test:assertEquals(a21 + a23, ());
+    test:assertEquals(a22 + a22, 2);
+    test:assertEquals(a22 + a23, ());
+    test:assertEquals(a23 + a23, ());
+    test:assertEquals(a24 + a21, 3);
+    test:assertEquals(a25 + a26, 3d);
+
+    test:assertEquals(a + a, 2);
+    test:assertEquals(a + b, 3);
+    test:assertEquals(a + c, 6);
+    test:assertEquals(a + d, 21);
+    test:assertEquals(a + e, 11);
+    test:assertEquals(a + f, 11);
+    test:assertEquals(a + g, 31);
+
+    test:assertEquals(b + c, 7);
+    test:assertEquals(b + d, 22);
+    test:assertEquals(b + e, 12);
+    test:assertEquals(b + f, 12);
+    test:assertEquals(b + g, 32);
+    test:assertEquals(b + b, 4);
+
+    test:assertEquals(c + c, 10);
+    test:assertEquals(c + d, 25);
+    test:assertEquals(c + e, 15);
+    test:assertEquals(c + f, 15);
+    test:assertEquals(c + g, 35);
+
+    test:assertEquals(d + d, 40);
+    test:assertEquals(d + e, 30);
+    test:assertEquals(d + f, 30);
+    test:assertEquals(d + g, 50);
+
+    test:assertEquals(e + e, 20);
+    test:assertEquals(e + f, 20);
+    test:assertEquals(e + g, 40);
+
+    test:assertEquals(f + f, 20);
+    test:assertEquals(f + g, 40);
 }
 
-function assertEqual(any actual, any expected) {
-    if actual is anydata && expected is anydata && actual == expected {
-        return;
-    }
+type Strings "x"|"yz";
 
-    if actual === expected {
-        return;
-    }
+function testStringCharAddition() {
+    string s = "abc";
+    string:Char c = "d";
+    string|(string|string:Char) a = "efg";
+    Strings b = "x";
+    Strings d = "yz";
 
-    string actualValAsString = actual.toString();
-    string expectedValAsString = expected.toString();
-    panic error(string `Assertion error: expected ${expectedValAsString} found ${actualValAsString}`);
+    test:assertEquals(s + c, "abcd");
+    test:assertEquals(c + s, "dabc");
+    test:assertEquals(s + a, "abcefg");
+    test:assertEquals(a + s, "efgabc");
+    test:assertEquals(c + a, "defg");
+    test:assertEquals(a + c, "efgd");
+    test:assertEquals(s + b, "abcx");
+    test:assertEquals(b + s, "xabc");
+    test:assertEquals(c + d, "dyz");
+    test:assertEquals(d + c, "yzd");
+}
+
+function testStringXmlSubtypesAddition() {
+    string s = "abc";
+    string:Char c = "d";
+    xml x1 = xml `efg`;
+    xml:Text x2 = xml `text`;
+
+    test:assertEquals(s + x2, xml `abctext`);
+    test:assertEquals(x2 + s, xml `textabc`);
+    test:assertEquals(c + x1, xml `defg`);
+    test:assertEquals(x1 + c, xml `efgd`);
+    test:assertEquals(c + x2, xml `dtext`);
+    test:assertEquals(x2 + c, xml `textd`);
 }

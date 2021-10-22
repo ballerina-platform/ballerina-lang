@@ -69,6 +69,10 @@ function testModSingleton() {
     assertEqual(a1 % a7, 8);
 }
 
+type Ints 1|2;
+type T1 1|2|()|3;
+type T2 1|2|3?;
+
 function testModNullable() {
     int? a1 = 10;
     int? a2 = 3;
@@ -87,12 +91,75 @@ function testModNullable() {
     float? a14 = a7 % a9;
     float? a15 = a8 % a9;
 
+    Ints a16 = 2;
+    int? a17 = 1;
+    int? a18 = a16 % a17;
+
+    int a19 = 25;
+    Ints? a20 = 2;
+
+    T1 a21 = 2;
+    T2 a22 = 1;
+    ()|int a23 = ();
+
+    int:Unsigned8 a = 1;
+    int:Unsigned16 b = 2;
+    int:Unsigned32 c = 5;
+    int:Signed8 d = 20;
+    int:Signed16 e = 10;
+    int:Signed32 f = 10;
+    byte g = 30;
+
     assertEqual(a10, 0);
     assertEqual(a11, 2);
     assertEqual(a12, ());
     assertEqual(a13, 0.0);
     assertEqual(a14, 1.0);
     assertEqual(a15, ());
+    assertEqual(a18, 0);
+    assertEqual(a19 % a20, 1);
+
+    assertEqual(a21 % a21, 0);
+    assertEqual(a21 % a22, 0);
+    assertEqual(a21 % a23, ());
+    assertEqual(a22 % a22, 0);
+    assertEqual(a22 % a23, ());
+    assertEqual(a23 % a23, ());
+
+    assertEqual(a % a, 0);
+    assertEqual(a % b, 1);
+    assertEqual(a % c, 1);
+    assertEqual(a % d, 1);
+    assertEqual(a % e, 1);
+    assertEqual(a % f, 1);
+    assertEqual(a % g, 1);
+
+    assertEqual(b % c, 2);
+    assertEqual(b % d, 2);
+    assertEqual(b % e, 2);
+    assertEqual(b % f, 2);
+    assertEqual(b % g, 2);
+    assertEqual(b % b, 0);
+
+    assertEqual(c % c, 0);
+    assertEqual(c % d, 5);
+    assertEqual(c % e, 5);
+    assertEqual(c % f, 5);
+    assertEqual(c % g, 5);
+
+    assertEqual(d % d, 0);
+    assertEqual(d % e, 0);
+    assertEqual(d % f, 0);
+    assertEqual(d % g, 20);
+
+    assertEqual(e % e, 0);
+    assertEqual(e % f, 0);
+    assertEqual(e % g, 10);
+
+    assertEqual(f % f, 0);
+    assertEqual(f % g, 10);
+
+    assertEqual(g % g, 0);
 }
 
 function assertEqual(any actual, any expected) {

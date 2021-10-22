@@ -35,8 +35,8 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
 
-    implementation 'io.kaitai:kaitai-struct-runtime:0.8'
-    implementation 'org.yaml:snakeyaml:1.24'
+    implementation 'io.kaitai:kaitai-struct-runtime:0.9'
+    implementation 'org.yaml:snakeyaml:1.26'
     implementation 'com.github.jknack:handlebars'
 
     testCompile 'org.testng:testng'

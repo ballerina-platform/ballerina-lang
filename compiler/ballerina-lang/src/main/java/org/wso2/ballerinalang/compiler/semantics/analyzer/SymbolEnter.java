@@ -1021,6 +1021,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // get a copy of the package symbol, add compilation unit info to it,
         // and define it in the current package scope
         BPackageSymbol symbol = dupPackageSymbolAndSetCompUnit(pkgSymbol, names.fromIdNode(importPkgNode.compUnit));
+        if (!Names.IGNORE.equals(pkgAlias)) {
+            symbol.importPrefix = pkgAlias;
+        }
         symbol.scope = pkgSymbol.scope;
         importPkgNode.symbol = symbol;
         this.env.scope.define(pkgAlias, symbol);
@@ -1487,7 +1490,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         // check for unresolved fields. This record may be referencing another record
-        if (!this.resolveRecordsUnresolvedDueToFields && typeNodeKind == NodeKind.RECORD_TYPE) {
+        if (hasTypeInclusions && !this.resolveRecordsUnresolvedDueToFields && typeNodeKind == NodeKind.RECORD_TYPE) {
             BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
             for (BLangSimpleVariable variable : structureTypeNode.fields) {
                 Scope scope = new Scope(structureTypeNode.symbol);
@@ -3792,9 +3795,52 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineMembers(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
         for (BLangNode node : typeDefNodes) {
             if (node.getKind() == NodeKind.CLASS_DEFN) {
-                defineMembersOfClassDef(pkgEnv, (BLangClassDefinition) node);
+                BLangClassDefinition classDefinition = (BLangClassDefinition) node;
+                validateInclusionsForNonPrivateMembers(classDefinition.typeRefs);
+                defineMembersOfClassDef(pkgEnv, classDefinition);
             } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
-                defineMemberOfObjectTypeDef(pkgEnv, (BLangTypeDefinition) node);
+                BLangTypeDefinition typeDefinition = (BLangTypeDefinition) node;
+                BLangType typeNode = typeDefinition.typeNode;
+
+                if (typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+                    validateInclusionsForNonPrivateMembers(((BLangObjectTypeNode) typeNode).typeRefs);
+                }
+
+                defineMemberOfObjectTypeDef(pkgEnv, typeDefinition);
+            }
+        }
+    }
+
+    private void validateInclusionsForNonPrivateMembers(List<BLangType> inclusions) {
+        for (BLangType inclusion : inclusions) {
+            BType type = inclusion.getBType();
+
+            if (type.tag != TypeTags.OBJECT) {
+                continue;
+            }
+
+            BObjectType objectType = (BObjectType) type;
+
+            boolean hasPrivateMember = false;
+
+            for (BField field : objectType.fields.values()) {
+                if (Symbols.isFlagOn(field.symbol.flags, Flags.PRIVATE)) {
+                    hasPrivateMember = true;
+                    break;
+                }
+            }
+
+            if (!hasPrivateMember) {
+                for (BAttachedFunction method : ((BObjectTypeSymbol) type.tsymbol).attachedFuncs) {
+                    if (Symbols.isFlagOn(method.symbol.flags, Flags.PRIVATE)) {
+                        hasPrivateMember = true;
+                        break;
+                    }
+                }
+            }
+
+            if (hasPrivateMember) {
+                dlog.error(inclusion.pos, DiagnosticErrorCode.INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS);
             }
         }
     }
@@ -4815,6 +4861,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         copy.scope = originalSymbol.scope;
         copy.owner = originalSymbol.owner;
         copy.compUnit = compUnit;
+        copy.importPrefix = originalSymbol.importPrefix;
         return copy;
     }
 

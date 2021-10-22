@@ -12,16 +12,66 @@
         "name": {
           "type": "string",
           "pattern": "^[a-zA-Z0-9_.]*$",
-          "message" : {
-            "pattern" : "invalid 'name' under [package]: 'name' can only contain alphanumerics, underscores and periods and the maximum length is 256 characters"
-          }
+          "maxLength": 256,
+          "message": {
+            "pattern": "invalid 'name' under [package]: 'name' can only contain alphanumerics, underscores and periods",
+            "maxLength": "invalid 'name' under [package]: maximum length of 'name' is 256 characters"
+          },
+          "allOf": [
+            {
+              "type": "string",
+              "pattern": "^(?!_).+",
+              "message": {
+                "pattern": "invalid 'name' under [package]: 'name' cannot have initial underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": ".*(?<!_)$",
+              "message": {
+                "pattern": "invalid 'name' under [package]: 'name' cannot have trailing underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": "(^(?!.*__).*$|^lang.*)",
+              "message": {
+                "pattern": "invalid 'name' under [package]: 'name' cannot have consecutive underscore characters"
+              }
+            }
+          ]
         },
         "org": {
           "type": "string",
           "pattern": "^[a-zA-Z0-9_]*$",
-          "message" : {
-            "pattern" : "invalid 'org' under [package]: 'org' can only contain alphanumerics, underscores and the maximum length is 256 characters"
-          }
+          "maxLength": 256,
+          "message": {
+            "pattern": "invalid 'org' under [package]: 'org' can only contain alphanumerics and underscores",
+            "maxLength": "invalid 'org' under [package]: maximum length of 'org' is 256 characters"
+          },
+          "allOf": [
+            {
+              "type": "string",
+              "pattern": "^(?!_).+",
+              "message": {
+                "pattern": "invalid 'org' under [package]: 'org' cannot have initial underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": ".*(?<!_)$",
+              "message": {
+                "pattern": "invalid 'org' under [package]: 'org' cannot have trailing underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": "^(?!.*__).*$",
+              "message": {
+                "pattern": "invalid 'org' under [package]: 'org' cannot have consecutive underscore characters"
+              }
+            }
+          ]
         },
         "version": {
           "type": "string",
@@ -60,10 +110,6 @@
         "distribution": {
           "type": "string"
         }
-      },
-      "required": ["name", "org", "version"],
-      "message": {
-        "required": "'${property}' under [package] is missing"
       }
     },
     "platform": {
@@ -99,13 +145,17 @@
               }
             }
           },
-          "required": ["dependency"],
+          "required": [
+            "dependency"
+          ],
           "message": {
             "required": "cannot find '${property}' under 'platform.java11'"
           }
         }
       },
-      "required": ["java11"],
+      "required": [
+        "java11"
+      ],
       "message": {
         "required": "cannot find '${property}' under 'platform'"
       }
@@ -119,15 +169,19 @@
           "org": {
             "type": "string",
             "pattern": "^[a-zA-Z0-9_]*$",
+            "maxLength": 256,
             "message": {
-              "pattern": "invalid 'org' under [[dependency]]: 'org' can only contain alphanumerics, underscores and the maximum length is 256 characters"
+              "pattern": "invalid 'org' under [[dependency]]: 'org' can only contain alphanumerics and underscores",
+              "maxLength": "invalid 'org' under [[dependency]]: maximum length of 'org' is 256 characters"
             }
           },
           "name": {
             "type": "string",
             "pattern": "^[a-zA-Z0-9_.]*$",
+            "maxLength": 256,
             "message": {
-              "pattern": "invalid 'name' under [[dependency]]: 'name' can only contain alphanumerics, underscores and periods and the maximum length is 256 characters"
+              "pattern": "invalid 'name' under [[dependency]]: 'name' can only contain alphanumerics, underscores and periods",
+              "maxLength": "invalid 'name' under [[dependency]]: maximum length of 'name' is 256 characters"
             }
           },
           "version": {

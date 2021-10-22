@@ -101,7 +101,7 @@ public class TestProcessor {
                 && module.testDocumentIds().isEmpty()) {
             return Optional.empty();
         }
-        // skip generation of the testsuite if --skip-tests option is set to true
+        // skip generation of the testsuite if --with-tests option is set to false
         if (module.project().buildOptions().skipTests()) {
             return Optional.empty();
         }

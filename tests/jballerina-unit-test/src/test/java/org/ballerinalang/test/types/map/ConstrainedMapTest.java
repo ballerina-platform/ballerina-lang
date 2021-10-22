@@ -433,7 +433,8 @@ public class ConstrainedMapTest {
                 "testJsonToStructConversionStructWithConstrainedMapNegative");
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'map<json>' value cannot be converted to 'PersonComplexTwo'");
+        Assert.assertEquals(errorMsg, "'map<json>' value cannot be converted to 'PersonComplexTwo': " +
+                "\n\t\tfield 'address' in record 'PersonComplexTwo' should be of type 'map<int>'");
     }
 
     @Test(description = "Test constrained map with union retrieving string value.")

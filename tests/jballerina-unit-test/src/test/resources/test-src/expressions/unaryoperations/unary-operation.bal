@@ -1,3 +1,5 @@
+import ballerina/test;
+
 function negativeIntTest() returns [int, int] {
     int x;
     int y;
@@ -151,6 +153,73 @@ function testUnaryOperationsWithIntSubtypes() {
     assertEquality(7, x17);
 }
 
+function testUnaryOperationsWithNonBasicTypes() {
+    int|float x1 = +5;
+    int|float x2 = ++5;
+    int|float x3 = -5;
+    int|float x4 = --5;
+    int|decimal x5 = ~5;
+    int|float|string x6 = +~5;
+    anydata x7 = ++5;
+    anydata x8 = --5;
+    anydata x9 = +-5;
+    anydata x10 = +~5;
+    anydata x11 = ~-5;
+    anydata x12 = -~5;
+
+    test:assertEquals(x1, 5);
+    test:assertEquals(x2, 5);
+    test:assertEquals(x3, -5);
+    test:assertEquals(x4, 5);
+    test:assertEquals(x5, -6);
+    test:assertEquals(x6, -6);
+    test:assertEquals(x7, 5);
+    test:assertEquals(x8, 5);
+    test:assertEquals(x9, -5);
+    test:assertEquals(x10, -6);
+    test:assertEquals(x11, 4);
+    test:assertEquals(x12, 6);
+
+    int i = 5;
+    int? a1 = +i;
+    int? a2 = ++i;
+    int? a3 = ~i;
+    int? a4 = +~i;
+    anydata a5 = +i;
+    int|float a6 = -i;
+
+    float f = -5.2;
+    float? a7 = +f;
+    anydata a8 = -f;
+
+    decimal d = 7.45;
+    decimal? a9 = +d;
+    anydata a10 = -d;
+    decimal|int a11 = +-d;
+    anydata a12 = ++d;
+
+    int:Signed16 s = 16;
+    anydata a13 = ++s;
+    int? a14 = +-s;
+    int|decimal a15 = +~s;
+
+    test:assertEquals(a1, 5);
+    test:assertEquals(a2, 5);
+    test:assertEquals(a3, -6);
+    test:assertEquals(a4, -6);
+    test:assertEquals(a5, 5);
+    test:assertEquals(a6, -5);
+    test:assertEquals(a7, -5.2);
+    test:assertEquals(a8, 5.2);
+    test:assertEquals(a9, 7.45d);
+    test:assertEquals(a10, -7.45d);
+    test:assertEquals(a11, -7.45d);
+    test:assertEquals(a12, 7.45d);
+    test:assertEquals(a13, 16);
+    test:assertEquals(a14, -16);
+    test:assertEquals(a15, -17);
+}
+
 function testNullableUnaryExpressions() {
     int? a1 = 10;
     int? a2 = 5;
@@ -172,12 +241,5 @@ function assertEquality(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;
     }
-
-    if actual === expected {
-        return;
-    }
-
-    string actualValAsString = actual.toString();
-    string expectedValAsString = expected.toString();
-    panic error(string `Assertion error: expected ${expectedValAsString} found ${actualValAsString}`);
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }

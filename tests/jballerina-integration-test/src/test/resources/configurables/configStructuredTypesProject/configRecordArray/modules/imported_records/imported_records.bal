@@ -15,6 +15,7 @@
 // under the License.
 
 import configRecordArray.type_defs;
+import testOrg/configLib.util;
 import ballerina/test;
 
 configurable type_defs:Person[] & readonly personArray = ?;
@@ -31,4 +32,10 @@ public function testArrays() {
     test:assertEquals(personArray2.toString(), "[{\"name\":\"riyafa\",\"id\":1000,\"address\":{\"city\":\"New York\"," +
     "\"country\":{\"name\":\"USA\"}}},{\"name\":\"waruna\",\"id\":1001,\"address\":{\"city\":\"London\"," +
     "\"country\":{\"name\":\"UK\"}}}]");
+}
+
+public function testArrayIteration() {
+    util:testArrayIterator(personArray, 2);
+    util:testArrayIterator(personArray1, 2);
+    util:testArrayIterator(personArray2, 2);    
 }

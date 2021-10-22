@@ -16,6 +16,7 @@
 
 function testCheckedExprErrors1() returns error? {
     string line = checkpanic readLineError();
+    return;
 }
 
 function readLineError() returns error {
@@ -25,6 +26,7 @@ function readLineError() returns error {
 
 function testCheckedExprErrors2() returns error? {
     string line = checkpanic readLine();
+    return;
 }
 
 public type MyError error<record { int code; string message?; error cause?; }>;

@@ -199,25 +199,66 @@ function testBitwiseXOROperation() {
 }
 
 function testBinaryBitwiseOperationsForNullable() {
-    int? a1 = 5;
-    int? a2 = a1 & 3;
-    assertEqual(a2, 1);
+    int? a = 43;
 
-    int? a3 = 10 + 2;
-    a2 = a1 & a3;
-    assertEqual(a2, 4);
+    byte? b = 5;
 
-    a2 = a1 | 3;
-    assertEqual(a2, 7);
+    int:Signed32? c = -21474836;
+    int:Signed16? d = -454;
+    int:Signed8? e = 100;
 
-    a2 = a1 | a3;
-    assertEqual(a2, 13);
+    int:Unsigned32? f = 21474836;
+    int:Unsigned16? g = 54522;
+    int:Unsigned8? h = 255;
 
-    a2 = a1 ^ 3;
-    assertEqual(a2, 6);
+    int i = 43;
+    byte j = 5;
+    int:Signed32 k = -21474836;
 
-    a2 = a1 ^ a3;
-    assertEqual(a2, 9);
+    assertEqual(a & b, 1);
+    assertEqual(a & j, 1);
+    assertEqual(j & a, 1);
+    assertEqual(a & c, 40);
+    assertEqual(a & d, 42);
+    assertEqual(a & e, 32);
+    assertEqual(a & f, 0);
+    assertEqual(a & g, 42);
+    assertEqual(a & h, 43);
+    assertEqual(b & b, 5);
+    assertEqual(b & c, 4);
+    assertEqual(b & k, 4);
+    assertEqual(k & b, 4);
+    assertEqual(b & d, 0);
+    assertEqual(b & e, 4);
+    assertEqual(b & f, 4);
+    assertEqual(b & g, 0);
+    assertEqual(b & h, 5);
+    assertEqual(c & c, -21474836);
+    assertEqual(c & d, -21475288);
+    assertEqual(c & e, 100);
+    assertEqual(c & f, 4);
+    assertEqual(c & g, 20712);
+    assertEqual(c & h, 236);
+    assertEqual(d & d, -454);
+    assertEqual(d & e, 32);
+    assertEqual(d & f, 21474832);
+    assertEqual(d & g, 54330);
+    assertEqual(d & h, 58);
+    assertEqual(e & e, 100);
+    assertEqual(e & f, 4);
+    assertEqual(e & g, 96);
+    assertEqual(e & h, 100);
+    assertEqual(f & f, 21474836);
+    assertEqual(f & g, 33808);
+    assertEqual(f & h, 20);
+    assertEqual(g & g, 54522);
+    assertEqual(g & h, 250);
+    assertEqual(h & h, 255);
+    assertEqual(a & d, 42);
+    assertEqual(a & e, 32);
+    assertEqual(a & f, 0);
+    assertEqual(a & g, 42);
+    assertEqual(a & h, 43);
 }
 
 function assertEqual(anydata actual, anydata expected) {
