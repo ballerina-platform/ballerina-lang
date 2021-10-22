@@ -34,6 +34,7 @@ public class PullModuleCodeActionTest extends AbstractCodeActionTest {
         return "pull-module";
     }
 
+    // TODO Pull module codeaction is disabled due to #33073
     @Override
     @Test(dataProvider = "codeaction-data-provider", enabled = false)
     public void test(String config, String source) throws IOException, WorkspaceDocumentException {

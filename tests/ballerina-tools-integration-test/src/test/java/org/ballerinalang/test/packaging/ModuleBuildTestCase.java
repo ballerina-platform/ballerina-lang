@@ -230,7 +230,7 @@ public class ModuleBuildTestCase extends BaseTest {
         Files.write(projectPath.resolve("foo").resolve("tests").resolve("main_test.bal"), testContent.getBytes(),
                     StandardOpenOption.TRUNCATE_EXISTING);
 
-        balClient.runMain("build", new String[0], envVariables, new String[0], new LogLeecher[]{},
+        balClient.runMain("build", new String[] {"--with-tests"}, envVariables, new String[0], new LogLeecher[]{},
                           projectPath.toString());
 
         Path genPkgPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
@@ -308,8 +308,9 @@ public class ModuleBuildTestCase extends BaseTest {
                     "\t0 skipped\n";
 
         LogLeecher firstLeecher = new LogLeecher(buildMsg);
-        balClient.runMain("build", new String[] {"foo"}, envVariables, new String[0], new LogLeecher[]{firstLeecher},
-                          projectPath.toString());
+        balClient.runMain("build", new String[] {"foo", "--with-tests"},
+                envVariables, new String[0],
+                new LogLeecher[]{firstLeecher}, projectPath.toString());
         Assert.assertTrue(Files.notExists(projectPath.resolve("target").resolve("foo.balx")));
 
 

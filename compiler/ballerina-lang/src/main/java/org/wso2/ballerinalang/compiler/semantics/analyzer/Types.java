@@ -5660,6 +5660,16 @@ public class Types {
         }
     }
 
+    boolean isSingletonType(BType type) {
+        return type.tag == TypeTags.FINITE && ((BFiniteType) type).getValueSpace().size() == 1;
+    }
+
+    boolean isSameSingletonType(BFiniteType type1, BFiniteType type2) {
+        BLangLiteral expr1 = (BLangLiteral) type1.getValueSpace().iterator().next();
+        BLangLiteral expr2 = (BLangLiteral) type2.getValueSpace().iterator().next();
+        return expr1.value.equals(expr2.value);
+    }
+
     private static class ListenerValidationModel {
         private final Types types;
         private final SymbolTable symtable;

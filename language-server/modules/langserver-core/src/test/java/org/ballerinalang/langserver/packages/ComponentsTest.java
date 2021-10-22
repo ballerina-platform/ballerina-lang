@@ -132,7 +132,8 @@ public class ComponentsTest {
                 {new String[]{"project"}, "single-package_expected.json"},
                 {new String[]{"project", "project-functions", "project-services", "single-file"},
                         "multiple-packages_expected.json"},
-                {new String[]{"single-file"}, "single-file-package_expected.json"}
+                {new String[]{"single-file"}, "single-file-package_expected.json"},
+                {new String[]{"project-other"}, "project-other_expected.json"}
         };
     }
 }
