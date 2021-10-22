@@ -175,7 +175,26 @@ public class PackageResolutionTests extends BaseTest {
         Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
     }
 
-    @Test(dependsOnMethods = "testProjectSaveWithEmptyBuildFile", description = "tests project with corrupt build file")
+    @Test(dependsOnMethods = "testProjectSaveWithEmptyBuildFile", description = "tests project with empty build file")
+    public void testProjectSaveWithNewlineBuildFile() throws IOException {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath);
+        Path buildPath = loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE);
+
+        Files.deleteIfExists(buildPath);
+        Files.createFile(buildPath);
+        Files.write(buildPath, "\n".getBytes());
+
+        loadProject.save();
+
+        Assert.assertTrue(Files.exists(buildPath));
+        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
+        Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
+    }
+
+    @Test(dependsOnMethods = "testProjectSaveWithNewlineBuildFile",
+            description = "tests project with corrupt build file")
     public void testProjectSaveWithCorruptBuildFile() throws IOException {
         // Skip test in windows due to file permission setting issue
         if (isWindows()) {
