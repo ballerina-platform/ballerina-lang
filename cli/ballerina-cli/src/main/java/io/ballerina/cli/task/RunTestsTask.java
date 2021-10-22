@@ -174,7 +174,7 @@ public class RunTestsTask implements Task {
                 cachesRoot = Files.createTempDirectory("ballerina-test-cache" + System.nanoTime());
             }
 
-            target = new Target(cachesRoot);
+            target = project.getTarget();
             testsCachePath = target.getTestsCachePath();
         } catch (IOException e) {
             throw createLauncherException("error while creating target directory: ", e);
@@ -527,7 +527,7 @@ public class RunTestsTask implements Task {
 
         // Adds arguments to be read at the Test Runner
         // Index [0 - 3...]
-        cmdArgs.add(testCachePath.toString());
+        cmdArgs.add(target.path().toString());
         cmdArgs.add(Boolean.toString(report));
         cmdArgs.add(Boolean.toString(coverage));
 
