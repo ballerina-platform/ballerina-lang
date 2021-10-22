@@ -56,7 +56,6 @@ import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
 import static io.ballerina.cli.utils.CentralUtils.authenticate;
 import static io.ballerina.cli.utils.CentralUtils.getBallerinaCentralCliTokenUrl;
 import static io.ballerina.cli.utils.CentralUtils.getCentralPackageURL;
-import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
@@ -149,7 +148,7 @@ public class PushCommand implements BLauncherCmd {
 
                     pushPackage(project);
                 } else {
-                    Settings settings = readSettings();
+                    Settings settings = RepoUtils.readSettings();
                     if (settings.diagnostics().hasErrors()) {
                         CommandUtil.printError(this.errStream, settings.getErrorMessage(), null, false);
                         CommandUtil.exitError(this.exitWhenFinish);
@@ -250,13 +249,13 @@ public class PushCommand implements BLauncherCmd {
 
         if (Files.notExists(balaOutputDir)) {
             throw new ProjectException("cannot find bala file for the package: " + pkgName + ". Run "
-                    + "'bal build -c' to compile and generate the bala.");
+                    + "'bal pack' to compile and generate the bala.");
         }
 
         Path packageBalaFile = findBalaFile(pkgName, orgName, balaOutputDir);
         if (null == packageBalaFile) {
             throw new ProjectException("cannot find bala file for the package: " + pkgName + ". Run "
-                    + "'bal build -c' to compile and generate the bala.");
+                    + "'bal pack' to compile and generate the bala.");
         }
 
         if (!packageBalaFile.toString().endsWith(
@@ -264,7 +263,7 @@ public class PushCommand implements BLauncherCmd {
             throw new ProjectException(
                     "'" + packageBalaFile + "' does not match with the package version '" + packageVersion.toString()
                             + "' in " + ProjectConstants.BALLERINA_TOML
-                            + " file. Run 'bal build -c' to recompile and generate the bala.");
+                            + " file. Run 'bal pack' to recompile and generate the bala.");
         }
 
         try {
