@@ -617,11 +617,6 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(MappingConstructorExpressionNode mappingConstructorExpressionNode) {
-        Optional<TypeSymbol> typeSymbol = context.currentSemanticModel()
-                .flatMap(semanticModel -> semanticModel.typeOf(mappingConstructorExpressionNode));
-        if (typeSymbol.isPresent() && typeSymbol.get().typeKind() != TypeDescKind.COMPILATION_ERROR) {
-            return typeSymbol;
-        }
         return mappingConstructorExpressionNode.parent().apply(this);
     }
 

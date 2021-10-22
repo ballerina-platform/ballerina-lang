@@ -13,6 +13,22 @@
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "pets",
+      "kind": "Variable",
+      "detail": "Pet[]",
+      "sortText": "B",
+      "insertText": "pets",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "petStore",
+      "kind": "Variable",
+      "detail": "PetStore",
+      "sortText": "B",
+      "insertText": "petStore",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
