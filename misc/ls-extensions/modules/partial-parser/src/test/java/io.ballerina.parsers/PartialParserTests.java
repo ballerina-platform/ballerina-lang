@@ -17,15 +17,33 @@
  */
 package io.ballerina.parsers;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
+import org.ballerinalang.langserver.util.TestUtil;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Tests for PartialParser.
  */
 public class PartialParserTests {
+    private static final String SINGLE_STATEMENT = "partialParser/getSTForSingleStatement";
+
+    private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
+
+    private final Path singleStatementST = RES_DIR.resolve("syntax-tree")
+            .resolve("single_statement.json");
+
     private Endpoint serviceEndpoint;
 
     @BeforeClass
@@ -34,8 +52,14 @@ public class PartialParserTests {
     }
 
     @Test(description = "Test getting ST for a single statement")
-    public void testSTForSingleStatement() {
-        STResponse response = TestUtil.getSTForSingleStatement(this.serviceEndpoint, "string x = aa;");
-        Assert.assertNotNull(response.getSyntaxTree());
+    public void testSTForSingleStatement() throws ExecutionException, InterruptedException, FileNotFoundException {
+        String statement = "string x = aa;";
+        PartialSTRequest request = new PartialSTRequest(statement);
+        CompletableFuture<?> result = serviceEndpoint.request(SINGLE_STATEMENT, request);
+        STResponse json = (STResponse) result.get();
+        BufferedReader br = new BufferedReader(new FileReader(singleStatementST.toAbsolutePath().toString()));
+        JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
+        Assert.assertEquals(json.getSyntaxTree(), expected);
     }
+
 }
