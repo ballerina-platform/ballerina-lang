@@ -27,9 +27,9 @@ import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
@@ -76,7 +76,7 @@ public class JvmBStringConstantsGen {
     private final AtomicInteger constantIndex = new AtomicInteger();
 
     public JvmBStringConstantsGen(PackageID module) {
-        this.bStringVarMap = new HashMap<>();
+        this.bStringVarMap = new ConcurrentHashMap<>();
         this.stringConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(module, MODULE_STRING_CONSTANT_CLASS_NAME);
     }
 

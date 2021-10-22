@@ -98,7 +98,7 @@ public class JvmConstantsGen {
         tupleTypeConstantsGen.generateGetBTupleType(mv, varName);
     }
 
-    public String getTypeConstantsVar(BType type) {
+    public synchronized String getTypeConstantsVar(BType type) {
         switch (type.tag) {
             case TypeTags.ARRAY:
                 return arrayTypeConstantsGen.add((BArrayType) type);
