@@ -382,7 +382,7 @@ public class CodeCoverageUtils {
                                        List<IClassCoverage> packageBalClassCovList,
                                        List<ISourceFileCoverage> packageSourceCovList,
                                        List<SessionInfo> packageSessionInfo) throws IOException {
-        Target target = project.getTarget();
+        Target target = new Target(project.targetDir());
         String title = target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR).toFile().getName();
         XMLFormatter xmlFormatter = new XMLFormatter();
         File reportFile = new File(target.getReportPath().resolve(

@@ -170,7 +170,7 @@ public class RunTestsTask implements Task {
         try {
             if (project.kind() == ProjectKind.BUILD_PROJECT) {
                 cachesRoot = project.sourceRoot();
-                target = project.getTarget();
+                target = new Target(project.targetDir());
             } else {
                 cachesRoot = Files.createTempDirectory("ballerina-test-cache" + System.nanoTime());
                 target = new Target(cachesRoot);

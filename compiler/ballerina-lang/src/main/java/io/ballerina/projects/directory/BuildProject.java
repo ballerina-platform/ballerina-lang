@@ -206,14 +206,7 @@ public class BuildProject extends Project {
     }
 
     public void save() {
-        Path buildFilePath;
-
-        try {
-            buildFilePath = this.getTarget().path().resolve(BUILD_FILE);
-        } catch (IOException e) {
-            throw new ProjectException(e.getMessage());
-        }
-
+        Path buildFilePath = this.targetDir().resolve(ProjectConstants.TARGET_DIR_NAME).resolve(BUILD_FILE);
         boolean shouldUpdate = this.currentPackage().getResolution().autoUpdate();
         // if build file does not exists
 

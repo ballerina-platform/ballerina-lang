@@ -54,7 +54,7 @@ public class CreateBalaTask implements Task {
         Target target;
         Path balaPath;
         try {
-            target = project.getTarget();
+            target = new Target(project.targetDir());
             balaPath = target.getBalaPath();
         } catch (IOException | ProjectException e) {
             throw createLauncherException(e.getMessage());
