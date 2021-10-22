@@ -19,9 +19,11 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.environment.ProjectEnvironment;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import io.ballerina.projects.internal.model.Target;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -44,8 +46,8 @@ public abstract class Project {
                       ProjectEnvironmentBuilder projectEnvironmentBuilder, BuildOptions buildOptions) {
         this.projectKind = projectKind;
         this.sourceRoot = projectPath;
-        this.projectEnvironment = projectEnvironmentBuilder.build(this);
         this.buildOptions = buildOptions;
+        this.projectEnvironment = projectEnvironmentBuilder.build(this);
     }
 
     protected Project(ProjectKind projectKind,
@@ -77,6 +79,16 @@ public abstract class Project {
 
     public Path sourceRoot() {
         return this.sourceRoot;
+    }
+
+    public Target getTarget() throws IOException {
+        Target target;
+        if (this.buildOptions == null || this.buildOptions.getTargetPath() == null) {
+            target = new Target(this.sourceRoot);
+        } else {
+            target = new Target(this.buildOptions.getTargetPath());
+        }
+        return target;
     }
 
     protected void setCurrentPackage(Package currentPackage) {
