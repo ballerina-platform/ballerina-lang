@@ -8,7 +8,7 @@
     {
       "label": "test",
       "kind": "Variable",
-      "detail": "$UndefinedType$",
+      "detail": "none",
       "sortText": "B",
       "insertText": "test",
       "insertTextFormat": "Snippet"
