@@ -224,7 +224,7 @@ public class JvmSignatures {
     public static final String GET_STRAND = "L" + STRAND_CLASS + ";";
     public static final String GET_STRAND_METADATA = "L" + STRAND_METADATA + ";";
     public static final String GET_STREAM_VALUE = "L" + STREAM_VALUE + ";";
-    public static final String GET_STRING = "Lƒ" + STRING_VALUE + ";";
+    public static final String GET_STRING = "L" + STRING_VALUE + ";";
     public static final String GET_STRING_AT = "(L" + B_STRING_VALUE + ";J)L" + B_STRING_VALUE + ";";
     public static final String GET_STRING_FROM_ARRAY = "(J)L" + OBJECT + ";";
     public static final String GET_TABLE_VALUE_IMPL = "L" + TABLE_VALUE_IMPL + ";";
