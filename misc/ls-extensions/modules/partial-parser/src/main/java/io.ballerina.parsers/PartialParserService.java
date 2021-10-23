@@ -60,20 +60,6 @@ public class PartialParserService implements ExtendedLanguageServerService {
     }
 
     @JsonRequest
-    public CompletableFuture<STListResponse> getSTForStatements(PartialSTRequest request) {
-        return CompletableFuture.supplyAsync(() -> {
-            STListResponse response = new STListResponse();
-            NodeList<StatementNode> s = NodeParser.parseStatements(request.getCodeSnippet());
-
-            ArrayList<JsonElement> elements = new ArrayList<>();
-            s.forEach(e -> elements.add(DiagramUtil.getSyntaxTreeJSON(e)));
-
-            response.setSyntaxTree(elements);
-            return response;
-        });
-    }
-
-    @JsonRequest
     public CompletableFuture<STResponse> getSTForExpression(PartialSTRequest request) {
         return CompletableFuture.supplyAsync(() -> {
             STResponse response = new STResponse();
