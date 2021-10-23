@@ -32,6 +32,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Remove unnecessary goto basic blocks.
+ *
+ * @since 2.0
+ */
+
 public class BIRBasicBlockOptimizer extends BIRVisitor {
 
     private BIROptimizer.OptimizerEnv env;
