@@ -28,7 +28,6 @@ import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerSe
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
-import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
 
