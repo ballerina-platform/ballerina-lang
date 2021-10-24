@@ -35,6 +35,7 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ARRAY_TYPE_IMPL;
 
 /**
  * BIR array types to JVM byte code generation class.
@@ -74,8 +75,7 @@ public class JvmArrayTypeGen {
             mv.visitInsn(L2I);
 
             jvmTypeGen.loadReadonlyFlag(mv, arrayType);
-            mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE_IMPL, JVM_INIT_METHOD, String.format("(L%s;IZ)V", TYPE),
-                    false);
+            mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE_IMPL, JVM_INIT_METHOD, INIT_ARRAY_TYPE_IMPL, false);
             return;
         }
 

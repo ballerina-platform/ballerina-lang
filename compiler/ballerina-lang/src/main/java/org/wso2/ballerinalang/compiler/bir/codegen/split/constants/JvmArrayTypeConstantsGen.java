@@ -49,7 +49,7 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ARRAY_TYPE_IMPL;
 
 /**
  * Generates Jvm class for the ballerina array types as constants for a given module.
@@ -118,7 +118,7 @@ public class JvmArrayTypeConstantsGen {
     }
 
     private void genPopulateMethod(BArrayType arrayType, String varName) {
-        String methodName = String.format("$populate%s", varName);
+        String methodName = "$populate" + varName;
         funcNames.add(methodName);
         MethodVisitor methodVisitor = cw.visitMethod(ACC_STATIC, methodName, "()V", null, null);
         methodVisitor.visitCode();
@@ -129,15 +129,14 @@ public class JvmArrayTypeConstantsGen {
 
     private void createBArrayType(MethodVisitor mv, BArrayType arrayType, String varName) {
         FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, varName,
-                String.format("L%s;", JvmConstants.ARRAY_TYPE_IMPL), null, null);
+                GET_ARRAY_TYPE_IMPL, null, null);
         fv.visitEnd();
         jvmArrayTypeGen.createArrayType(mv, arrayType, types);
-        mv.visitFieldInsn(Opcodes.PUTSTATIC, arrayConstantsClass, varName, String.format("L%s;",
-                ARRAY_TYPE_IMPL));
+        mv.visitFieldInsn(Opcodes.PUTSTATIC, arrayConstantsClass, varName, GET_ARRAY_TYPE_IMPL);
     }
 
     public void generateGetBArrayType(MethodVisitor mv, String varName) {
-        mv.visitFieldInsn(GETSTATIC, arrayConstantsClass, varName, String.format("L%s;", ARRAY_TYPE_IMPL));
+        mv.visitFieldInsn(GETSTATIC, arrayConstantsClass, varName, GET_ARRAY_TYPE_IMPL);
     }
 
     public void generateClass(Map<String, byte[]> jarEntries) {

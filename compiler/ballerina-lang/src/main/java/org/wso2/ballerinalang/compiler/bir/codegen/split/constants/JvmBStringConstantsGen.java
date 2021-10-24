@@ -25,7 +25,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,14 +51,16 @@ import static org.objectweb.asm.Opcodes.T_INT;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_INIT_METHOD_PREFIX;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_STRINGS_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STRING_CONSTANT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NON_BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BSTRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_NON_BMP_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WITH_STRING;
 
 /**
  * Generates Jvm class for the ballerina string constants for given module.
@@ -68,7 +69,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VA
  */
 public class JvmBStringConstantsGen {
 
-    private final ConcurrentHashMap<String, String> bStringVarMap;
+    private final Map<String, String> bStringVarMap;
 
     private final String stringConstantsClass;
 
@@ -81,7 +82,7 @@ public class JvmBStringConstantsGen {
 
     public String addBString(String val) {
         return bStringVarMap.computeIfAbsent(val, s ->
-                JvmConstants.B_STRING_VAR_PREFIX + constantIndex.getAndIncrement());
+               B_STRING_VAR_PREFIX + constantIndex.getAndIncrement());
     }
 
     public void generateConstantInit(Map<String, byte[]> jarEntries) {
@@ -111,7 +112,7 @@ public class JvmBStringConstantsGen {
     private void visitBStringField(ClassWriter cw, String varName) {
         FieldVisitor fv;
         fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, varName,
-                           String.format("L%s;", B_STRING_VALUE), null,
+                           GET_BSTRING, null,
                            null);
         fv.visitEnd();
     }
@@ -163,8 +164,8 @@ public class JvmBStringConstantsGen {
         mv.visitInsn(DUP);
         mv.visitLdcInsn(val);
         mv.visitMethodInsn(INVOKESPECIAL, BMP_STRING_VALUE, JVM_INIT_METHOD,
-                           String.format("(L%s;)V", STRING_VALUE), false);
-        mv.visitFieldInsn(Opcodes.PUTSTATIC, stringConstantsClass, varName, String.format("L%s;", B_STRING_VALUE));
+                           INIT_WITH_STRING, false);
+        mv.visitFieldInsn(Opcodes.PUTSTATIC, stringConstantsClass, varName, GET_BSTRING);
     }
 
     private void createNonBmpString(MethodVisitor mv, String val, int[] highSurrogates, String varName) {
@@ -183,8 +184,8 @@ public class JvmBStringConstantsGen {
             mv.visitInsn(IASTORE);
         }
         mv.visitMethodInsn(INVOKESPECIAL, NON_BMP_STRING_VALUE, JVM_INIT_METHOD,
-                           String.format("(L%s;[I)V", STRING_VALUE), false);
-        mv.visitFieldInsn(Opcodes.PUTSTATIC, stringConstantsClass, varName, String.format("L%s;", B_STRING_VALUE));
+                           INIT_NON_BMP_STRING_VALUE, false);
+        mv.visitFieldInsn(Opcodes.PUTSTATIC, stringConstantsClass, varName, GET_BSTRING);
     }
 
     public String getStringConstantsClass() {

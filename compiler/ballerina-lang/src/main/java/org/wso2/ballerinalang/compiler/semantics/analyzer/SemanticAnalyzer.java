@@ -233,7 +233,6 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.NUMERIC_LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
-import static org.ballerinalang.model.tree.NodeKind.WILDCARD_MATCH_PATTERN;
 
 /**
  * @since 0.94
@@ -2471,16 +2470,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             SymbolEnv patternEnv = SymbolEnv.createPatternEnv(matchPattern, env);
             analyzeNode(matchPattern, patternEnv);
             resolveMatchClauseVariableTypes(matchPattern, clauseVariables, blockEnv);
-            // Narrow the type only if there is one pattern and pattern is not wildcard
-            if (matchPatterns.size() == 1 && matchPattern.getKind() != WILDCARD_MATCH_PATTERN) {
-                BLangValueExpression varRef = getSimplifiedMatchExpr(matchPattern.matchExpr);
-                if (varRef != null && varRef.symbol != symTable.notFoundSymbol) {
-                    BVarSymbol originalVarSym = typeNarrower.getOriginalVarSymbol((BVarSymbol) varRef.symbol);
-                    symbolEnter.defineTypeNarrowedSymbol(varRef.pos, blockEnv, originalVarSym,
-                            matchPattern.getBType(), originalVarSym.origin == VIRTUAL);
-                }
-            }
-
             if (matchPattern.getKind() == NodeKind.CONST_MATCH_PATTERN) {
                 continue;
             }
@@ -2506,18 +2495,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             evaluatePatternsTypeAccordingToMatchGuard(matchClause, matchGuard.expr, blockEnv);
         }
         analyzeStmt(matchClause.blockStmt, blockEnv);
-    }
-
-    private BLangValueExpression getSimplifiedMatchExpr(BLangExpression expr) {
-        switch (expr.getKind()) {
-            case GROUP_EXPR:
-                BLangGroupExpr groupExpr = (BLangGroupExpr) expr;
-                return getSimplifiedMatchExpr(groupExpr.expression);
-            case SIMPLE_VARIABLE_REF:
-                return (BLangValueExpression) expr;
-            default:
-                return null;
-        }
     }
 
     private void resolveMatchClauseVariableTypes(BLangMatchPattern matchPattern,
