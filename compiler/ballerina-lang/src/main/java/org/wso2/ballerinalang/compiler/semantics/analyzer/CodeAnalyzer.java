@@ -2928,8 +2928,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (type == symTable.semanticError) {
             return false;
         }
-        return types.getReferredType(type).tag == TypeTags.FUTURE
-                && ((BFutureType) types.getReferredType(type)).workerDerivative;
+        BType refType = types.getReferredType(type);
+        return refType.tag == TypeTags.FUTURE && ((BFutureType) refType).workerDerivative;
     }
 
 

@@ -274,18 +274,17 @@ public class QueryDesugar extends BLangNodeVisitor {
             onConflictExpr = null;
         } else {
             BLangVariableReference result;
-            if (TypeTags.isXMLTypeTag(types.getReferredType(queryExpr.getBType()).tag) ||
-                    (types.getReferredType(queryExpr.getBType()).tag == TypeTags.UNION &&
-                            ((BUnionType) types.getReferredType(queryExpr.getBType()))
-                                    .getMemberTypes().stream().allMatch(memType ->
+            BType refType = types.getReferredType(queryExpr.getBType());
+            if (TypeTags.isXMLTypeTag(refType.tag) || (refType.tag == TypeTags.UNION
+                    && ((BUnionType) refType).getMemberTypes().stream().allMatch(memType ->
                                     TypeTags.isXMLTypeTag(types.getReferredType(memType).tag)))) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION, Lists.of(streamRef), pos);
             } else if (TypeTags.isStringTypeTag(types.getReferredType(queryExpr.getBType()).tag)) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);
             } else {
                 BType arrayType = queryExpr.getBType();
-                if (types.getReferredType(arrayType).tag == TypeTags.UNION) {
-                    arrayType = ((BUnionType) types.getReferredType(arrayType)).getMemberTypes()
+                if (refType.tag == TypeTags.UNION) {
+                    arrayType = ((BUnionType) refType).getMemberTypes()
                             .stream().filter(m -> m.tag == TypeTags.ARRAY)
                             .findFirst().orElse(symTable.arrayType);
                 }
@@ -421,11 +420,12 @@ public class QueryDesugar extends BLangNodeVisitor {
         blockStmt.addStatement(dataVarDef);
         BType constraintType = resultType;
         BType completionType = symTable.nilType;
-        if (types.getReferredType(resultType).tag == TypeTags.ARRAY) {
-            constraintType = ((BArrayType) resultType).eType;
-        } else if (types.getReferredType(resultType).tag == TypeTags.STREAM) {
-            constraintType = ((BStreamType) types.getReferredType(resultType)).constraint;
-            completionType = ((BStreamType) types.getReferredType(resultType)).completionType;
+        BType refType = types.getReferredType(resultType);
+        if (refType.tag == TypeTags.ARRAY) {
+            constraintType = ((BArrayType) refType).eType;
+        } else if (refType.tag == TypeTags.STREAM) {
+            constraintType = ((BStreamType) refType).constraint;
+            completionType = ((BStreamType) refType).completionType;
         }
         BType constraintTdType = new BTypedescType(constraintType, symTable.typeDesc.tsymbol);
         BLangTypedescExpr constraintTdExpr = new BLangTypedescExpr();
@@ -748,8 +748,9 @@ public class QueryDesugar extends BLangNodeVisitor {
         final BType type = queryExpr.getBType();
         String name = getNewVarName();
         BType tableType = type;
-        if (types.getReferredType(type).tag == TypeTags.UNION) {
-            tableType = ((BUnionType) types.getReferredType(type)).getMemberTypes()
+        BType refType = types.getReferredType(type);
+        if (refType.tag == TypeTags.UNION) {
+            tableType = ((BUnionType) refType).getMemberTypes()
                     .stream().filter(m -> m.tag == TypeTags.TABLE)
                     .findFirst().orElse(symTable.tableType);
         }
@@ -1116,7 +1117,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             BType structureType = types.getReferredType(type);
             if (structureType.tag == TypeTags.RECORD || structureType.tag == TypeTags.OBJECT) {
                 List<BVarSymbol> nestedSymbols = new ArrayList<>();
-                for (BField field : ((BStructureType) types.getReferredType(type)).fields.values()) {
+                for (BField field : ((BStructureType) structureType).fields.values()) {
                     nestedSymbols.add(field.symbol);
                 }
                 addFrameValueToFrame(frame, key, defineNilFrameForType(nestedSymbols, blockStmt, pos), blockStmt, pos);

@@ -511,14 +511,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.env = prevEnv;
         this.diagCode = preDiagCode;
 
-        if (types.getReferredType(this.resultType) != symTable.noType) {
+        BType refType = types.getReferredType(this.resultType);
+        if (refType != symTable.noType) {
             // If the typeNode.nullable is true then convert the resultType to a union type
             // if it is not already a union type, JSON type, or any type
-            BType referredType = types.getReferredType(this.resultType);
-            if (typeNode.nullable && referredType.tag == TypeTags.UNION) {
-                BUnionType unionType = (BUnionType) referredType;
+            if (typeNode.nullable && refType.tag == TypeTags.UNION) {
+                BUnionType unionType = (BUnionType) refType;
                 unionType.add(symTable.nilType);
-            } else if (typeNode.nullable && referredType.tag != TypeTags.JSON && referredType.tag != TypeTags.ANY) {
+            } else if (typeNode.nullable && refType.tag != TypeTags.JSON && refType.tag != TypeTags.ANY) {
                 this.resultType = BUnionType.create(null, this.resultType, symTable.nilType);
             }
         }
@@ -1605,7 +1605,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         userDefinedTypeNode.symbol = symbol;
 
         if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
-            resultType = ((BTypeDefinitionSymbol) symbol).referenceType;
+            BType referenceType = ((BTypeDefinitionSymbol) symbol).referenceType;
+            referenceType.flags |= symbol.type.flags;
+            referenceType.tsymbol.flags |= symbol.type.flags;
+            resultType = referenceType;
         } else {
             resultType = symbol.type;
         }
@@ -1917,6 +1920,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                         case TypeTags.TYPEREFDESC:
                             return getBinaryBitwiseOpsForTypeSets(opKind,
                                     types.getReferredType(lhsType), rhsType);
+                        case TypeTags.INTERSECTION:
+                            return getBinaryBitwiseOpsForTypeSets(opKind, ((BIntersectionType) lhsType).effectiveType,
+                                    rhsType);
                     }
                     switch (rhsType.tag) {
                         case TypeTags.UNSIGNED8_INT:
@@ -1927,6 +1933,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                         case TypeTags.TYPEREFDESC:
                             return getBinaryBitwiseOpsForTypeSets(opKind, lhsType,
                                     types.getReferredType(rhsType));
+                        case TypeTags.INTERSECTION:
+                            return getBinaryBitwiseOpsForTypeSets(opKind, lhsType,
+                                    ((BIntersectionType) rhsType).effectiveType);
                     }
                     return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
                 case BITWISE_OR:
@@ -2028,6 +2037,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                 boolean match = true;
                 for (int i = 0; i < types.size(); i++) {
                     BType t = this.types.getReferredType(types.get(i));
+                    if (t.tag == TypeTags.INTERSECTION) {
+                        t = ((BIntersectionType) t).effectiveType;
+                    }
                     if (t.tag != opType.paramTypes.get(i).tag) {
                         match = false;
                     }
@@ -2351,7 +2363,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     private void populateConfigurableVars(BPackageSymbol pkgSymbol, Set<BVarSymbol> configVars) {
         for (Scope.ScopeEntry entry : pkgSymbol.scope.entries.values()) {
             BSymbol symbol = entry.symbol.tag == SymTag.TYPE_DEF ? entry.symbol.type.tsymbol : entry.symbol;
-            int symbolTag = symbol.tag == SymTag.TYPE_DEF ? symbol.type.tsymbol.tag : symbol.tag;
+            int symbolTag = symbol.tag;
             if (symbol != null && symbolTag == SymTag.VARIABLE && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
                 configVars.add((BVarSymbol) symbol);
             }

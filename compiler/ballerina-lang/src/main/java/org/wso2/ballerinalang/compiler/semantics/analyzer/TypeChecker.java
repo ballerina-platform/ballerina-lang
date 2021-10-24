@@ -360,13 +360,8 @@ public class TypeChecker extends BLangNodeVisitor {
             return expr.getBType();
         }
 
-        if (types.getReferredType(expType).tag == TypeTags.INTERSECTION) {
-            if (expType.tag == TypeTags.TYPEREFDESC) {
-                BType effectiveType = ((BIntersectionType) types.getReferredType(expType)).effectiveType;
-                expType = new BTypeReferenceType(effectiveType, effectiveType.tsymbol, effectiveType.flags);
-            } else {
-                expType = ((BIntersectionType) types.getReferredType(expType)).effectiveType;
-            }
+        if (expType.tag == TypeTags.INTERSECTION) {
+            expType = ((BIntersectionType) expType).effectiveType;
         }
 
         SymbolEnv prevEnv = this.env;
@@ -380,13 +375,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
         expr.accept(this);
 
-        if (types.getReferredType(resultType).tag == TypeTags.INTERSECTION) {
-            if (resultType.tag == TypeTags.TYPEREFDESC) {
-                BType effectiveType = ((BIntersectionType) types.getReferredType(resultType)).effectiveType;
-                resultType = new BTypeReferenceType(effectiveType, effectiveType.tsymbol, effectiveType.flags);
-            } else {
-                resultType = ((BIntersectionType) types.getReferredType(resultType)).effectiveType;
-            }
+        BType resultRefType = types.getReferredType(resultType);
+        if (resultRefType.tag == TypeTags.INTERSECTION) {
+            resultType = ((BIntersectionType) resultRefType).effectiveType;
         }
 
         expr.setTypeCheckedType(resultType);

@@ -2990,7 +2990,7 @@ public class Types {
 
         @Override
         public Boolean visit(BIntersectionType tIntersectionType, BType s) {
-            return false;
+            return this.visit(getEffectiveTypeForIntersection(tIntersectionType), s);
         }
 
         @Override
@@ -3815,6 +3815,8 @@ public class Types {
                 return true;
             case TypeTags.TYPEREFDESC:
                 return validNumericTypeExists(getReferredType(type));
+            case TypeTags.INTERSECTION:
+                return validNumericTypeExists(((BIntersectionType) type).effectiveType);
             default:
                 return false;
         }
@@ -3857,6 +3859,8 @@ public class Types {
                     }
                 }
                 return true;
+            case TypeTags.INTERSECTION:
+                return validIntegerTypeExists(((BIntersectionType) type).effectiveType);
             default:
                 return false;
         }

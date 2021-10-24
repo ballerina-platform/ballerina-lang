@@ -1558,7 +1558,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BType referenceConstraintType = types.getReferredType(definedType);
-        boolean isIntersectionType = referenceConstraintType.tag == TypeTags.INTERSECTION && !isLabel;
+        boolean isIntersectionType = referenceConstraintType.tag == TypeTags.INTERSECTION;
 
         BType effectiveDefinedType = isIntersectionType ? ((BIntersectionType) referenceConstraintType).effectiveType :
                 referenceConstraintType;
@@ -1603,10 +1603,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             effectiveDefinedType.flags |= definedType.flags;
         }
 
-        if (typeDefSymbol.kind == SymbolKind.TYPE_DEF) {
-            ((BTypeDefinitionSymbol) typeDefSymbol).referenceType.flags |= typeDefSymbol.type.flags;
-            ((BTypeDefinitionSymbol) typeDefSymbol).referenceType.tsymbol.flags |= typeDefSymbol.type.flags;
-        }
         typeDefinition.symbol = typeDefSymbol;
 
         if (typeDefinition.hasCyclicReference) {
@@ -1787,9 +1783,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangType member : members) {
             enumMembers.add((BConstantSymbol) ((BLangUserDefinedType) member).symbol);
         }
+//        definedType.tsymbol.flags |= Flags.asMask(typeDefinition.flagSet);
 
+//        definedType.tsymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);;
+//        return new BEnumSymbol(enumMembers, Flags.asMask(typeDefinition.flagSet), names.fromIdNode(typeDefinition.name),
+//                names.fromIdNode(typeDefinition.name), env.enclPkg.symbol.pkgID, definedType, env.scope.owner,
+//                typeDefinition.pos, SOURCE);
         return new BEnumSymbol(enumMembers, Flags.asMask(typeDefinition.flagSet), Names.EMPTY, Names.EMPTY,
-                               env.enclPkg.symbol.pkgID, definedType, env.scope.owner, typeDefinition.pos, SOURCE);
+                env.enclPkg.symbol.pkgID, definedType, env.scope.owner, typeDefinition.pos, SOURCE);
     }
 
     private BObjectType getDistinctObjectType(BLangTypeDefinition typeDefinition, BObjectType definedType,

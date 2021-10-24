@@ -2225,8 +2225,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BErrorType rhsErrorType = (BErrorType) types.getReferredType(rhsType);
 
         // Wrong error detail type in error type def, error already emitted  to dlog.
-        if (!(types.getReferredType(rhsErrorType.detailType).tag == TypeTags.RECORD
-                || types.getReferredType(rhsErrorType.detailType).tag == TypeTags.MAP)) {
+        BType refType = types.getReferredType(rhsErrorType.detailType);
+        if (!(refType.tag == TypeTags.RECORD || refType.tag == TypeTags.MAP)) {
             return;
         }
         BRecordType rhsDetailType = this.symbolEnter.getDetailAsARecordType(rhsErrorType);
@@ -3631,9 +3631,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     if (types.getReferredType(memberType).tag == TypeTags.ERROR) {
                         continue;
                     }
-                    if (types.getReferredType(memberType).tag == TypeTags.OBJECT) {
+                    BType refType = types.getReferredType(memberType);
+                    if (refType.tag == TypeTags.OBJECT) {
                         validateServiceAttachmentOnListener(serviceNode, attachExpr,
-                                (BObjectType) types.getReferredType(memberType), serviceType);
+                                (BObjectType) refType, serviceType);
                     }
                 }
             }

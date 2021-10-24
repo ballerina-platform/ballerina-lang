@@ -5059,8 +5059,8 @@ public class Desugar extends BLangNodeVisitor {
                 return desugarForeachWithIteratorDef(foreach, dataVarDef, collectionSymbol,
                         iteratorSymbol, false);
             case TypeTags.TYPEREFDESC:
-                return desugarForeachStmt(collectionSymbol,
-                        ((BTypeReferenceType) foreach.collection.getBType()).referredType, foreach, dataVarDef);
+                return desugarForeachStmt(collectionSymbol, types.getReferredType(foreach.collection.getBType()),
+                        foreach, dataVarDef);
             default:
                 BLangBlockStmt blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
                 blockNode.stmts.add(0, dataVarDef);
@@ -5922,8 +5922,8 @@ public class Desugar extends BLangNodeVisitor {
             // TODO: is resolved #issue-21127
             if ((varRefExpr.symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 BConstantSymbol constSymbol = (BConstantSymbol) varRefExpr.symbol;
-                if (types.getReferredType(constSymbol.literalType).tag <= TypeTags.BOOLEAN
-                        || constSymbol.literalType.tag == TypeTags.NIL) {
+                BType referredType = types.getReferredType(constSymbol.literalType);
+                if (referredType.tag <= TypeTags.BOOLEAN || referredType.tag == TypeTags.NIL) {
                     BLangLiteral literal = ASTBuilderUtil.createLiteral(varRefExpr.pos, constSymbol.literalType,
                             constSymbol.value.value);
                     result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.getBType()));
@@ -7892,9 +7892,9 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangConstant constant) {
 
         BConstantSymbol constSymbol = constant.symbol;
-        if (types.getReferredType(constSymbol.literalType).tag <= TypeTags.BOOLEAN
-                || types.getReferredType(constSymbol.literalType).tag == TypeTags.NIL) {
-            if (types.getReferredType(constSymbol.literalType).tag != TypeTags.NIL &&
+        BType refType = types.getReferredType(constSymbol.literalType);
+        if (refType.tag <= TypeTags.BOOLEAN || refType.tag == TypeTags.NIL) {
+            if (refType.tag != TypeTags.NIL &&
                     constSymbol.value.value == null) {
                 throw new IllegalStateException();
             }
@@ -8445,8 +8445,9 @@ public class Desugar extends BLangNodeVisitor {
 
             BLangIndexBasedAccess valueExpr = ASTBuilderUtil.createIndexAccessExpr(varargRef, foreachVarRef);
 
-            if (types.getReferredType(varargVarType).tag == TypeTags.ARRAY) {
-                BArrayType arrayType = (BArrayType) types.getReferredType(varargVarType);
+            BType refType = types.getReferredType(varargVarType);
+            if (refType.tag == TypeTags.ARRAY) {
+                BArrayType arrayType = (BArrayType) refType;
                 if (arrayType.state == BArrayState.CLOSED &&
                         arrayType.size == (iExpr.requiredArgs.size() - originalRequiredArgCount)) {
                     // If the array was a closed array that provided only for the non rest params, set the rest param
@@ -8945,8 +8946,9 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangExpression binaryExpr;
         BType[] memberTypes;
-        if (types.getReferredType(patternType).tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) types.getReferredType(patternType);
+        BType refType = types.getReferredType(patternType);
+        if (refType.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) refType;
             memberTypes = unionType.getMemberTypes().toArray(new BType[0]);
         } else {
             memberTypes = new BType[1];

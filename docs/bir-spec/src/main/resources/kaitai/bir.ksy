@@ -512,6 +512,12 @@ types:
         type: annotation_attachments_content
       - id: type_cp_index
         type: s4
+      - id: has_reference_type
+        type: u1
+      - id: ref_type_cp_index
+        type: s4
+        if: has_reference_type != 0
+
   type_definition_body:
     seq:
       - id: attached_functions_count

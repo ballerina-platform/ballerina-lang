@@ -28,4 +28,10 @@ function testTypeReferenceNegative() {
         return 1;
     };
     var res2 = func4("foo");
+
+    string _ = getImmutable();
+}
+
+function getImmutable() returns ImmutableIntArray {
+    return [1,2, 3];
 }
