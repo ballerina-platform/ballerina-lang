@@ -308,11 +308,58 @@ service class Service {
     function getXmlSequence() returns xml|error {
         return xml `<grand_total>${1d}</grand_total>`;
     }
+
+    function getNestedXmlSequence() returns xml|error {
+        return getResult();
+    }
 }
 
-function testXMLReturnFromService() returns error? {
+function getResult() returns xml {
+    return xml `<grand_total>${2d}</grand_total>`;
+}
+
+function getXmlSequence() returns xml|error {
+    return xml `<grand_total>${3d}</grand_total>`;
+}
+
+function getNestedXmlSequence() returns xml|error {
+    return getResult();
+}
+
+class XmlError {
+    function getXmlSequence() returns xml|error {
+        return xml `<grand_total>${4d}</grand_total>`;
+    }
+
+    function getNestedXmlSequence() returns xml|error {
+        return getResult();
+    }
+}
+
+function testXMLReturnUnion() returns error? {
     Service testService = new();
     xml|error xmlSequence = testService.getXmlSequence();
     test:assertTrue(xmlSequence is xml);
     test:assertEquals((check xmlSequence).toString(), "<grand_total>1</grand_total>");
+
+    xmlSequence = testService.getNestedXmlSequence();
+    test:assertTrue(xmlSequence is xml);
+    test:assertEquals((check xmlSequence).toString(), "<grand_total>2</grand_total>");
+
+    xmlSequence = getXmlSequence();
+    test:assertTrue(xmlSequence is xml);
+    test:assertEquals((check xmlSequence).toString(), "<grand_total>3</grand_total>");
+
+    xmlSequence = getNestedXmlSequence();
+    test:assertTrue(xmlSequence is xml);
+    test:assertEquals((check xmlSequence).toString(), "<grand_total>2</grand_total>");
+
+    XmlError obj = new();
+    xmlSequence = obj.getXmlSequence();
+    test:assertTrue(xmlSequence is xml);
+    test:assertEquals((check xmlSequence).toString(), "<grand_total>4</grand_total>");
+
+    xmlSequence = obj.getNestedXmlSequence();
+    test:assertTrue(xmlSequence is xml);
+    test:assertEquals((check xmlSequence).toString(), "<grand_total>2</grand_total>");
 }

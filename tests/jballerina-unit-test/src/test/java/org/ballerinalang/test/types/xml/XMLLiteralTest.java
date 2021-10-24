@@ -418,6 +418,6 @@ public class XMLLiteralTest {
     @DataProvider(name = "function-name-provider")
     public Object[] provideFunctionNames() {
         return new String[]{"testXMLSequenceValueAssignment", "testXMLTextValueAssignment", "testXMLCDATASection",
-                "testXMLReturnFromService"};
+                "testXMLReturnUnion"};
     }
 }
