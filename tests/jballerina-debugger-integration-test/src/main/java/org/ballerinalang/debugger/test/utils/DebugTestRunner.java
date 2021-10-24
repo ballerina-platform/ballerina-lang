@@ -399,10 +399,10 @@ public class DebugTestRunner {
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(hitListener, 0, SCHEDULER_INTERVAL_MS);
 
-        long retries = timeoutMillis / (2 * SCHEDULER_INTERVAL_MS);
+        long retries = 2 * timeoutMillis / SCHEDULER_INTERVAL_MS;
         for (int i = 0; i < retries; i++) {
             try {
-                Thread.sleep(SCHEDULER_INTERVAL_MS);
+                Thread.sleep(SCHEDULER_INTERVAL_MS / 2);
                 if (hitListener.isDebugHitFound()) {
                     break;
                 }

@@ -253,8 +253,10 @@ public class JDIEventProcessor {
                     bpReq.enable();
                 }
             }
+        } catch (AbsentInformationException ignored) {
+            // classes with no line number information can be ignored.
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.toString());
         }
     }
 
