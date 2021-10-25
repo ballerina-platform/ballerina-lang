@@ -1626,7 +1626,12 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
                             //TODO: We keep the baseUrl as null value currently. In future we should handle
                             // this case.
                         } else {
-                            url = node.parenthesizedArgList().get().arguments().get(0).toString();
+                            String arg = node.parenthesizedArgList().get().arguments().get(0).toString();
+                            if (arg.startsWith("\"") && arg.endsWith("\"")) {
+                                url = arg.substring(1, arg.length() - 1);
+                            } else {
+                                url = arg;
+                            }
                         }
                     } else if (node.parenthesizedArgList().get().arguments().get(0).kind() == SyntaxKind.NAMED_ARG) {
                         if (((NamedArgumentNode) node.parenthesizedArgList().get().arguments().get(0)).expression()
@@ -1636,8 +1641,13 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
                         } else {
                             if (((NamedArgumentNode) node.parenthesizedArgList().get().arguments().get(0)).expression().
                                     kind() == SyntaxKind.STRING_LITERAL) {
-                                url = ((NamedArgumentNode) node.parenthesizedArgList().get().arguments().get(0)).
+                                String arg = ((NamedArgumentNode) node.parenthesizedArgList().get().arguments().get(0)).
                                         expression().toString();
+                                if (arg.startsWith("\"") && arg.endsWith("\"")) {
+                                    url = arg.substring(1, arg.length() - 1);
+                                } else {
+                                    url = arg;
+                                }
                             }
                         }
                     }
@@ -1648,7 +1658,12 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
         } else if (expressionNode.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION) {
             ExplicitNewExpressionNode node = (ExplicitNewExpressionNode) expressionNode;
             if (!node.parenthesizedArgList().arguments().isEmpty()) {
-                url = node.parenthesizedArgList().arguments().get(0).toString();
+                String arg = node.parenthesizedArgList().arguments().get(0).toString();
+                if (arg.startsWith("\"") && arg.endsWith("\"")) {
+                    url = arg.substring(1, arg.length() - 1);
+                } else {
+                    url = arg;
+                }
             }
         } else if (expressionNode.kind() == SyntaxKind.CHECK_EXPRESSION) {
             ExpressionNode expNode = ((CheckExpressionNode) expressionNode).expression();
