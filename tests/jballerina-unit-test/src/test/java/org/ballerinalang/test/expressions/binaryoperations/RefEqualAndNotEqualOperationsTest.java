@@ -385,6 +385,9 @@ public class RefEqualAndNotEqualOperationsTest {
     @DataProvider
     public Object[] functionsWithXmlExactEqualityChecks() {
         return new String[] {
+                "testXmlElementRefEquality",
+                "testXmlCommentRefEquality",
+                "testXmlProcessingInstructionRefEquality",
                 "testXMLSequenceRefEquality",
                 "testXMLSequenceRefEqualityFalse",
                 "testXMLSequenceRefEqualityDifferentLength",
