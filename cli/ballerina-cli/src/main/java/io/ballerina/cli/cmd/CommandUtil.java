@@ -55,6 +55,7 @@ public class CommandUtil {
     public static final String PKG_NAME = "PKG_NAME";
     public static final String DIST_VERSION = "DIST_VERSION";
     public static final String GITIGNORE = "gitignore";
+    public static final String DEVCONTAINER = "devcontainer";
     public static final String NEW_CMD_DEFAULTS = "new_cmd_defaults";
     public static final String CREATE_CMD_TEMPLATES = "create_cmd_templates";
     private static FileSystem jarFs;
@@ -125,6 +126,7 @@ public class CommandUtil {
         // - Ballerina.toml
         // - service.bal
         // - .gitignore       <- git ignore file
+        // - .devcontainer.json
 
         applyTemplate(path, template);
         if (template.equalsIgnoreCase("lib")) {
@@ -138,6 +140,15 @@ public class CommandUtil {
         }
         String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + GITIGNORE);
         Files.write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
+        // Create dev container
+        Path devcontainer = path.resolve(ProjectConstants.DEVCONTAINER);
+        if (Files.notExists(devcontainer)) {
+            Files.createFile(devcontainer);
+        }
+
+        String defaultDevcontainer = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + DEVCONTAINER);
+        defaultDevcontainer = defaultDevcontainer.replace("latest", RepoUtils.getBallerinaVersion());
+        Files.write(devcontainer, defaultDevcontainer.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -218,6 +229,8 @@ public class CommandUtil {
         Files.createFile(ballerinaToml);
 
         String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-app.toml");
+        // replace manifest distribution with a guessed value
+        defaultManifest = defaultManifest.replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
         Files.write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
     }
 

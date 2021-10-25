@@ -26,6 +26,14 @@
         <Bug pattern="UWF_UNWRITTEN_FIELD"/>
     </Match>
     <Match>
+        <Class name="io.ballerina.cli.cmd.PackCommand"/>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.PackCommand"/>
+        <Bug pattern="UWF_UNWRITTEN_FIELD"/>
+    </Match>
+    <Match>
         <Class name="io.ballerina.cli.cmd.RunCommand"/>
         <Bug pattern="UWF_UNWRITTEN_FIELD"/>
     </Match>

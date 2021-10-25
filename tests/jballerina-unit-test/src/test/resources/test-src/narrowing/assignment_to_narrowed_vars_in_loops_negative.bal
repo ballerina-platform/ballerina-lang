@@ -470,3 +470,24 @@ function f12() {
         }
     }
 }
+
+function f13() {
+    record {} logRecord = {
+        "module": 1234
+    };
+
+    foreach [string, anydata] [k, v] in logRecord.entries() {
+        string|int value;
+        match k {
+            "module" => {
+                value = v.toString();
+                if value is string {
+                    while k == "module" {
+                        string str = value;
+                        value = 4;
+                    }
+                }
+            }
+        }
+    }
+}

@@ -13,7 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-// import ballerina/io;
+
+import ballerina/test;
 
 type Person record {|
     string name = "";
@@ -146,16 +147,20 @@ function testConvertRecordToMapWithCyclicValueReferences() returns map<anydata>|
     Manager p = { name: "Waruna", age: 25, parent: () };
     Manager p2 = { name: "Milinda", age: 25, parent:p };
     p.parent = p2;
-    anydata a = p;
-    basicMatch(a);
     map<anydata> m =  check trap p.cloneWithType(AnydataMap); // Cyclic value will be check when stamping the value.
     return m;
 }
 
-function basicMatch(any a) {
-    // match a {
-    //         var {var1, var2, var3} => {io:println("Matched");}
-    // }
+function testConvertFromJsonWithCyclicValueReferences() {
+    json p = { name: "Waruna", age: 25, parent: () };
+    json p2 = { name: "Milinda", age: 25, parent: p };
+    map<json> p3 = <map<json>> p2;
+    p3["parent"] = p2;
+    json p4 = p3;
+    Engineer|error p5 = trap p4.fromJsonWithType(Engineer);
+    error err = <error> p5;
+    test:assertEquals(<string> checkpanic err.detail()["message"], "'map<json>' value has cyclic reference");
+    test:assertEquals(err.message(),"{ballerina/lang.value}ConversionError");
 }
 
 type AnydataMap map<anydata>;

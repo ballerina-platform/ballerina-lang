@@ -34,7 +34,7 @@ public function main() {
 
 public function baz() {
     worker w1 returns error? {
-        if (true) {
+        if (0 < 1) {
             return error("generic error");
         }
 
