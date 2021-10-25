@@ -113,11 +113,11 @@ public class BMainInstance implements BMain {
         }
 
         if (args == null) {
-            args = new String[] {};
+            args = new String[]{};
         }
 
         if (flags == null) {
-            flags = new String[] {};
+            flags = new String[]{};
         }
 
         if (envProperties == null) {
@@ -125,7 +125,7 @@ public class BMainInstance implements BMain {
         }
         addJavaAgents(envProperties);
 
-        runMain("build", new String[] { balFile }, envProperties, null, leechers, balServer.getServerHome());
+        runMain("build", new String[]{balFile}, envProperties, null, leechers, balServer.getServerHome());
         runJar(balFile, ArrayUtils.addAll(flags, args), envProperties, clientArgs, leechers, balServer.getServerHome());
     }
 
@@ -280,8 +280,8 @@ public class BMainInstance implements BMain {
      * @param commandDir    where to execute the command
      * @param timeout       timeout for the process waiting time, in seconds.
      * @param isAttachMode  check debuggee started on attach mode
-     * @throws BallerinaTestException if starting services failed
      * @return parent instance process
+     * @throws BallerinaTestException if starting services failed
      */
     public Process debugMain(String command, String[] args, Map<String, String> envProperties, String[] clientArgs,
                              LogLeecher[] leechers, String commandDir, int timeout, boolean isAttachMode)
@@ -290,8 +290,12 @@ public class BMainInstance implements BMain {
         String[] cmdArray;
         String[] cmdArgs = new String[0];
         Process process = null;
-        try {
 
+        if (envProperties != null) {
+            addJavaAgents(envProperties);
+        }
+
+        try {
             if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
                 cmdArray = new String[]{"cmd.exe", "/c", balServer.getServerHome() +
                         File.separator + "bin" + File.separator + scriptName + ".bat", command};
@@ -553,7 +557,7 @@ public class BMainInstance implements BMain {
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
             ServerLogReader serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
             if (leechers == null) {
-                leechers = new LogLeecher[] {};
+                leechers = new LogLeecher[]{};
             }
             for (LogLeecher leecher : leechers) {
                 switch (leecher.getLeecherType()) {

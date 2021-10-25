@@ -47,9 +47,9 @@ import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
-import org.ballerinalang.debugadapter.runner.BFileRunner;
 import org.ballerinalang.debugadapter.runner.BPackageRunner;
 import org.ballerinalang.debugadapter.runner.BProgramRunner;
+import org.ballerinalang.debugadapter.runner.BSingleFileRunner;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
@@ -240,7 +240,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             context.setSourceProject(loadProject(clientConfigHolder.getSourcePath()));
             String sourceProjectRoot = context.getSourceProjectRoot();
             BProgramRunner programRunner = context.getSourceProject() instanceof SingleFileProject ?
-                    new BFileRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
+                    new BSingleFileRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
                     new BPackageRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot);
 
             context.setLaunchedProcess(programRunner.start());
