@@ -49,6 +49,7 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
@@ -209,6 +210,11 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     public Optional<TypeSymbol> transform(VariableDeclarationNode node) {
         return this.visit(node.typedBindingPattern().bindingPattern());
     }
+    
+    @Override
+    public Optional<TypeSymbol> transform(LetVariableDeclarationNode node) {
+        return this.visit(node.typedBindingPattern().bindingPattern());
+    }
 
     @Override
     public Optional<TypeSymbol> transform(ObjectFieldNode node) {
@@ -228,7 +234,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(IndexedExpressionNode node) {
         Optional<TypeSymbol> containerType =
-                context.currentSemanticModel().flatMap(semanticModel -> semanticModel.type(node));
+                context.currentSemanticModel().flatMap(semanticModel -> semanticModel.typeOf(node));
         if (containerType.isEmpty()) {
             return Optional.empty();
         }
@@ -723,7 +729,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         Optional<List<ParameterSymbol>> parameterSymbols = context.currentSemanticModel()
-                .flatMap(semanticModel -> semanticModel.type(newExpressionNode))
+                .flatMap(semanticModel -> semanticModel.typeOf(newExpressionNode))
                 .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol)))
                 .filter(typeSymbol -> typeSymbol instanceof ClassSymbol)
                 .flatMap(typeSymbol -> (((ClassSymbol) typeSymbol).initMethod()))

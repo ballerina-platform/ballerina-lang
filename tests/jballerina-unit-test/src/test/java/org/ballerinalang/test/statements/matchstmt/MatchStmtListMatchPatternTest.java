@@ -263,6 +263,7 @@ public class MatchStmtListMatchPatternTest {
     public void testListMatchPatternNegative() {
         Assert.assertEquals(resultNegative.getErrorCount(), 6);
         Assert.assertEquals(resultNegative.getWarnCount(), 25);
+        Assert.assertEquals(resultNegative.getHintCount(), 2);
         int i = -1;
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 23, 9);
         BAssertUtil.validateError(resultNegative, ++i, "all match patterns should contain the same set of variables",
@@ -285,7 +286,11 @@ public class MatchStmtListMatchPatternTest {
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 92, 18);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 94, 18);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 98, 9);
+        BAssertUtil.validateHint(resultNegative, ++i, "unnecessary condition: expression will always evaluate to " +
+                "'true'", 100, 24);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 102, 9);
+        BAssertUtil.validateHint(resultNegative, ++i, "unnecessary condition: expression will always evaluate to " +
+                "'true'", 102, 24);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 110, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 117, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 124, 9);

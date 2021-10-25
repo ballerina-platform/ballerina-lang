@@ -128,8 +128,13 @@ public class DivisionOperationTest {
         };
     }
 
-    @Test(description = "Test contextually expected type of numeric literals in addition")
+    @Test(description = "Test contextually expected type of numeric literals in division")
     public void testContextuallyExpectedTypeOfNumericLiteralInDivision() {
         BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInDivision");
+    }
+
+    @Test(description = "Test division of nullable values")
+    public void testDivisionNullable() {
+        BRunUtil.invoke(result, "testDivisionNullable");
     }
 }

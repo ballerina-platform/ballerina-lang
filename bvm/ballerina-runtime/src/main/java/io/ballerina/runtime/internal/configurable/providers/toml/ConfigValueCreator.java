@@ -40,7 +40,9 @@ import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
+import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TableValueImpl;
+import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlBasicValueNode;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
@@ -146,8 +148,12 @@ public class ConfigValueCreator {
                 return getMapValueArray(tomlValue, arrayType, elementType);
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
-                valueNode = ((TomlKeyValueNode) tomlValue).value();
-                return createArrayFromSimpleTomlValue((TomlArrayValueNode) valueNode, arrayType, elementType);
+                if (tomlValue.kind() == TomlType.TABLE_ARRAY) {
+                    return getMapValueArray(tomlValue, arrayType, elementType);
+                } else {
+                    valueNode = ((TomlKeyValueNode) tomlValue).value();
+                    return createArrayFromSimpleTomlValue((TomlArrayValueNode) valueNode, arrayType, elementType);
+                }
             default:
                 return getNonSimpleTypeArray(tomlValue, arrayType, ((IntersectionType) elementType).getEffectiveType());
         }
@@ -198,7 +204,7 @@ public class ConfigValueCreator {
             recordName = type.getName();
             recordType = (RecordType) type;
         } else {
-            recordType = (RecordType) ((BIntersectionType) type).constituentTypes.get(0);
+            recordType = (RecordType) ReadOnlyUtils.getMutableType((BIntersectionType) type);
             recordName = recordType.getName();
         }
         TomlTableNode tomlValue = (TomlTableNode) tomlNode;
@@ -226,7 +232,7 @@ public class ConfigValueCreator {
                 constraintType = ((IntersectionType) constraintType).getEffectiveType();
             }
             if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                tableType = (TableType) ((BIntersectionType) type).constituentTypes.get(0);
+                tableType = (TableType) ReadOnlyUtils.getMutableType((BIntersectionType) type);
             }
         } else {
             tableType = (TableType) type;

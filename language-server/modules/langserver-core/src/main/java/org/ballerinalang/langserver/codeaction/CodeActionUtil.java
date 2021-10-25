@@ -209,7 +209,7 @@ public class CodeActionUtil {
             for (Symbol symbol : context.visibleSymbols(context.cursorPosition())) {
                 if (symbol instanceof TypeDefinitionSymbol &&
                         ((TypeDefinitionSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.RECORD &&
-                        typeDescriptor.assignableTo(((TypeDefinitionSymbol) symbol).typeDescriptor())) {
+                        typeDescriptor.subtypeOf(((TypeDefinitionSymbol) symbol).typeDescriptor())) {
                     Optional<ModuleSymbol> module = symbol.getModule();
                     String fqPrefix = "";
                     if (module.isPresent() && !(ProjectConstants.ANON_ORG.equals(module.get().id().orgName()))) {
@@ -497,9 +497,9 @@ public class CodeActionUtil {
         if (node.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
             return ((AssignmentStatementNode) node).expression();
         } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
-            return ((ModuleVariableDeclarationNode) node).typedBindingPattern().typeDescriptor();
+            return ((ModuleVariableDeclarationNode) node).typedBindingPattern().bindingPattern();
         } else if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
-            return ((VariableDeclarationNode) node).typedBindingPattern().typeDescriptor();
+            return ((VariableDeclarationNode) node).typedBindingPattern().bindingPattern();
         }
         return node;
     }

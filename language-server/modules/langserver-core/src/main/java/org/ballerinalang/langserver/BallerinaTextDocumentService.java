@@ -264,7 +264,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                             // If path is readonly, change the URI scheme
                             if (CommonUtil.isWriteProtectedPath(filePath)) {
                                 try {
-                                    uri = CommonUtil.getBalaUriForPath(filePath);
+                                    uri = CommonUtil.getBalaUriForPath(serverContext, filePath);
                                 } catch (URISyntaxException e) {
                                     this.clientLogger.logError(LSContextOperation.TXT_REFERENCES,
                                             "Failed to convert path to bala URI", e,

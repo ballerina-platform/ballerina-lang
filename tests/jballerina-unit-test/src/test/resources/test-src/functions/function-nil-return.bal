@@ -245,6 +245,45 @@ function testNilableTypedesc() returns typedesc<any>? {
 function testNilableTypedescArray() returns typedesc<any>[]? {
 }
 
+type Object object {
+    function foo() returns int?; // no warning
+};
+
+class MyClass {
+    function foo() returns int? {
+    }
+}
+
+function testFunctionNotExplicitlyReturingValue() returns int? {
+    int? a = 10;
+    if a is int {
+        return 1;
+    }
+}
+
+service object {} obj2 = service object {
+    remote function foo() returns int? {
+        int? a = 10;
+        if a is int {
+            return 1;
+        }
+    }
+};
+
+client class MyClient {
+    remote function foo() returns int? {
+    }
+}
+
+type MyClientObj client object {
+    function foo() returns int?; // no warning
+    remote function bar() returns int?; // no warning
+};
+
+function print(any|error... values) returns int? = @java:Method { // no warning
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;
+
 public function println(any|error... values) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
