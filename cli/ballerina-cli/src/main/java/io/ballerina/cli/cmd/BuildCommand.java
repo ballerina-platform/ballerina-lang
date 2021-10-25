@@ -112,6 +112,16 @@ public class BuildCommand implements BLauncherCmd {
         this.output = output;
     }
 
+    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                        boolean skipCopyLibsFromDist, Path targetDir) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        this.targetDir = targetDir;
+    }
+
     @CommandLine.Option(names = {"--output", "-o"}, description = "Write the output to the given file. The provided " +
                                                                   "output file name may or may not contain the " +
                                                                   "'.jar' extension.")

@@ -698,5 +698,22 @@ public class BuildCommandTest extends BaseCommandTest {
                 this.testResources.resolve("valid-bal-file").resolve("build-time.json").toFile().length() > 0);
     }
 
+    @Test (dependsOnMethods = "testBuildBalProjectFromADifferentDirectory")
+    public void testCustomTargetDir() {
+        Path projectPath = this.testResources.resolve("validApplicationProject");
+        Path customTargetDir = projectPath.resolve("customTargetDir");
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true,
+                customTargetDir);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("target")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("target").resolve("bin")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("target").resolve("cache")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("target").resolve("build")));
+        Assert.assertFalse(Files.exists(customTargetDir.resolve("target").resolve("report")));
+    }
 
 }
