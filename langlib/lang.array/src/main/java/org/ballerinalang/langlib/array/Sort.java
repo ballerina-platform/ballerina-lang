@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.array;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -104,8 +103,7 @@ public class Sort {
 
             } catch (BError error) {
                 throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_TYPE_TO_SORT),
-                        StringUtils.fromString(((BMap) error.getDetails())
-                                .get(StringUtils.fromString("message")).toString()));
+                        (BMap) error.getDetails());
             }
         }
     }
