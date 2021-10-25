@@ -29,13 +29,11 @@ public class PerformanceAnalyzerClientCapabilitySetter extends
 
     @Override
     public String getCapabilityName() {
-
         return Constants.CAPABILITY_NAME;
     }
 
     @Override
     public Class<PerformanceAnalyzerClientCapabilities> getCapability() {
-
         return PerformanceAnalyzerClientCapabilities.class;
     }
 }

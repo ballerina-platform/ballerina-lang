@@ -328,7 +328,7 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
         if (isClientObject(symbol.get()) || isRecordObject(symbol.get())) {
             Optional<ExpressionNode> expressionNode = moduleVariableDeclarationNode.initializer();
 
-            if (expressionNode.get().kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            if (expressionNode.isPresent() && expressionNode.get().kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
                 this.registerVariableRef(getEndpointReference(symbol.get()), moduleVariableDeclarationNode);
             }
         } else if ((symbol.get().kind() == SymbolKind.VARIABLE) &&
@@ -399,7 +399,7 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
         if (isClientObject(symbol.get()) || isRecordObject(symbol.get())) {
             Optional<ExpressionNode> expressionNode = variableDeclarationNode.initializer();
 
-            if (expressionNode.get().kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            if (expressionNode.isPresent() && expressionNode.get().kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
                 this.registerVariableRef(getEndpointReference(symbol.get()), variableDeclarationNode);
             }
         } else if ((symbol.get().kind() == SymbolKind.VARIABLE) &&
@@ -467,10 +467,8 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
             if (node.kind() == SyntaxKind.BINARY_EXPRESSION) {
                 if (((BinaryExpressionNode) node).rhsExpr().kind() == SyntaxKind.NUMERIC_LITERAL &&
                         ((BinaryExpressionNode) node).lhsExpr().kind() == SyntaxKind.NUMERIC_LITERAL) {
-                    long rhsValue = Long.parseLong(((BasicLiteralNode)
-                            ((BinaryExpressionNode) node).rhsExpr()).toString().trim());
-                    long lhsValue = Long.parseLong(((BasicLiteralNode)
-                            ((BinaryExpressionNode) node).lhsExpr()).toString().trim());
+                    long rhsValue = Long.parseLong(((BinaryExpressionNode) node).rhsExpr().toString().trim());
+                    long lhsValue = Long.parseLong(((BinaryExpressionNode) node).lhsExpr().toString().trim());
                     iterationsCount = rhsValue - lhsValue + 1;
                 }
             }
@@ -1559,15 +1557,17 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
                     }
                 } else if (parameterKind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
                     Optional<Symbol> expressionSymbol = model.symbol(remoteMethodCallActionNode.expression());
-                    int hashCode = getEndpointReference(expressionSymbol.get());
-                    VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode)
-                            variableMap.get(hashCode);
-                    if (variableDeclarationNode != null) {
-                        if (variableDeclarationNode.initializer().isPresent()) {
-                            ExpressionNode token = variableDeclarationNode.initializer().get();
-                            if (token.kind() == SyntaxKind.STRING_LITERAL) {
-                                actionPath = ((BasicLiteralNode) token).literalToken().text();
-                                actionPath = actionPath.substring(1, actionPath.length() - 1);
+                    if (expressionSymbol.isPresent()) {
+                        int hashCode = getEndpointReference(expressionSymbol.get());
+                        VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode)
+                                variableMap.get(hashCode);
+                        if (variableDeclarationNode != null) {
+                            if (variableDeclarationNode.initializer().isPresent()) {
+                                ExpressionNode token = variableDeclarationNode.initializer().get();
+                                if (token.kind() == SyntaxKind.STRING_LITERAL) {
+                                    actionPath = ((BasicLiteralNode) token).literalToken().text();
+                                    actionPath = actionPath.substring(1, actionPath.length() - 1);
+                                }
                             }
                         }
                     }
@@ -1627,11 +1627,7 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
                             // this case.
                         } else {
                             String arg = node.parenthesizedArgList().get().arguments().get(0).toString();
-                            if (arg.startsWith("\"") && arg.endsWith("\"")) {
-                                url = arg.substring(1, arg.length() - 1);
-                            } else {
-                                url = arg;
-                            }
+                            url = getUrl(arg);
                         }
                     } else if (node.parenthesizedArgList().get().arguments().get(0).kind() == SyntaxKind.NAMED_ARG) {
                         if (((NamedArgumentNode) node.parenthesizedArgList().get().arguments().get(0)).expression()
@@ -1643,11 +1639,7 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
                                     kind() == SyntaxKind.STRING_LITERAL) {
                                 String arg = ((NamedArgumentNode) node.parenthesizedArgList().get().arguments().get(0)).
                                         expression().toString();
-                                if (arg.startsWith("\"") && arg.endsWith("\"")) {
-                                    url = arg.substring(1, arg.length() - 1);
-                                } else {
-                                    url = arg;
-                                }
+                                url = getUrl(arg);
                             }
                         }
                     }
@@ -1659,11 +1651,7 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
             ExplicitNewExpressionNode node = (ExplicitNewExpressionNode) expressionNode;
             if (!node.parenthesizedArgList().arguments().isEmpty()) {
                 String arg = node.parenthesizedArgList().arguments().get(0).toString();
-                if (arg.startsWith("\"") && arg.endsWith("\"")) {
-                    url = arg.substring(1, arg.length() - 1);
-                } else {
-                    url = arg;
-                }
+                url = getUrl(arg);
             }
         } else if (expressionNode.kind() == SyntaxKind.CHECK_EXPRESSION) {
             ExpressionNode expNode = ((CheckExpressionNode) expressionNode).expression();
@@ -1680,7 +1668,7 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
 
         String signature = typeSymbol.signature();
         Optional<ModuleSymbol> typeSymbolModule = typeSymbol.getModule();
-        if (typeSymbolModule.isEmpty()) {
+        if (typeSymbolModule.isEmpty() || symbol.getLocation().isEmpty()) {
             return;
         }
 
@@ -1690,6 +1678,15 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
                         lastIndexOf(":") + 1), url, symbol.getLocation().get().lineRange());
         this.endPointDeclarationMap.put(getEndpointReference(symbol),
                 endpoint);
+    }
+
+    private String getUrl(String arg) {
+
+        if (arg.startsWith("\"") && arg.endsWith("\"")) {
+            return arg.substring(1, arg.length() - 1);
+        } else {
+            return arg;
+        }
     }
 
     private boolean isClientObject(Symbol symbol) {

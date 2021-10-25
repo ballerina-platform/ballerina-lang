@@ -29,37 +29,30 @@ public class PerformanceAnalyzerServerCapabilities extends BallerinaServerCapabi
     private boolean getRealtimeData;
 
     public boolean isGetEndpoints() {
-
         return getEndpoints;
     }
 
     public void setGetEndpoints(boolean getEndpoints) {
-
         this.getEndpoints = getEndpoints;
     }
 
     public boolean isGetGraphData() {
-
         return getGraphData;
     }
 
     public void setGetGraphData(boolean getGraphData) {
-
         this.getGraphData = getGraphData;
     }
 
     public boolean isGetRealtimeData() {
-
         return getRealtimeData;
     }
 
     public void setGetRealtimeData(boolean getRealtimeData) {
-
         this.getRealtimeData = getRealtimeData;
     }
 
     public PerformanceAnalyzerServerCapabilities() {
-
         super(Constants.CAPABILITY_NAME);
     }
 }
