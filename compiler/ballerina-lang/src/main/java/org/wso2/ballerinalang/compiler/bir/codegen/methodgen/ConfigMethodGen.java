@@ -91,7 +91,8 @@ public class ConfigMethodGen {
     String innerClassName;
 
     public void generateConfigMapper(List<PackageID> imprtMods, BIRNode.BIRPackage pkg, String moduleInitClass,
-                                     JvmConstantsGen jvmConstantsGen, TypeHashVisitor typeHashVisitor, Map<String, byte[]> jarEntries) {
+                                     JvmConstantsGen jvmConstantsGen, TypeHashVisitor typeHashVisitor,
+                                     Map<String, byte[]> jarEntries) {
         innerClassName = JvmCodeGenUtil.getModuleLevelClassName(pkg.packageID, CONFIGURATION_CLASS_NAME);
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V1_8, ACC_PUBLIC | ACC_SUPER, innerClassName, null, OBJECT, null);
