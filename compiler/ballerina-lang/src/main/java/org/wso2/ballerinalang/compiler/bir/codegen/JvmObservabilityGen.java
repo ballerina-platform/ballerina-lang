@@ -317,8 +317,8 @@ class JvmObservabilityGen {
             // Creating the lambda for this async call
             BType returnType = ((BFutureType) asyncCallIns.lhsOp.variableDcl.type).constraint;
             List<BType> argTypes = new ArrayList<>();
-            for (BIRArgument birArgument : asyncCallIns.args) {
-                BType type = birArgument.variableDcl.type;
+            for (BIROperand arg : asyncCallIns.args) {
+                BType type = arg.variableDcl.type;
                 argTypes.add(type);
             }
             Name lambdaName = new Name("$lambda$observability" + lambdaIndex++ + "$" +
@@ -344,10 +344,9 @@ class JvmObservabilityGen {
             invokableSymbol.retType = funcReturnVariableDcl.type;
             invokableSymbol.kind = SymbolKind.FUNCTION;
             List<BVarSymbol> list = new ArrayList<>();
-            for (BIRArgument birArgument : asyncCallIns.args) {
-                BVarSymbol bVarSymbol = new BVarSymbol(0, birArgument.variableDcl.name, currentPkgId,
-                        birArgument.variableDcl.type,
-                        invokableSymbol, birArgument.pos, VIRTUAL);
+            for (BIROperand arg : asyncCallIns.args) {
+                BVarSymbol bVarSymbol = new BVarSymbol(0, arg.variableDcl.name, currentPkgId, arg.variableDcl.type,
+                                                       invokableSymbol, arg.pos, VIRTUAL);
                 list.add(bVarSymbol);
             }
             invokableSymbol.params = list;
