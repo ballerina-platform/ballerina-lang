@@ -53,7 +53,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_CONSTANT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_MODULE;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
@@ -107,7 +108,7 @@ public class JvmModuleConstantsGen {
     private void visitModuleField(ClassWriter cw, String varName) {
 
         FieldVisitor fv;
-        fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, varName, String.format("L%s;", MODULE), null, null);
+        fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, varName, GET_MODULE, null, null);
         fv.visitEnd();
     }
 
@@ -127,8 +128,8 @@ public class JvmModuleConstantsGen {
             mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(packageID.name.value));
             mv.visitLdcInsn(getMajorVersion(packageID.version.value));
             mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
-                    String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
-            mv.visitFieldInsn(Opcodes.PUTSTATIC, moduleConstantClass, varName, String.format("L%s;", MODULE));
+                    INIT_MODULE, false);
+            mv.visitFieldInsn(Opcodes.PUTSTATIC, moduleConstantClass, varName, GET_MODULE);
             moduleCount++;
             if (moduleCount % MAX_MODULES_PER_METHOD == 0) {
                 if (moduleCount != moduleVarMap.size()) {

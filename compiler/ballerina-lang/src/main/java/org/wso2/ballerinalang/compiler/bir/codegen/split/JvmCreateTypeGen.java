@@ -24,6 +24,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmArrayTypeGen;
@@ -89,14 +90,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPE_INSTANCES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FIELD_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ANON_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTION_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ANON_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_FIELDS_PER_SPLIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_TYPES_PER_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ANON_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
@@ -104,6 +102,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_IMMUT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ID_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_TYPE_ID;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FIELD_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_IMMUTABLE_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeFieldName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.TYPE_HASH_COMPARATOR;
 
@@ -232,7 +237,7 @@ public class JvmCreateTypeGen {
                     break;
             }
 
-            mv.visitFieldInsn(PUTSTATIC, typeOwnerClass, getTypeFieldName(name), String.format("L%s;", TYPE));
+            mv.visitFieldInsn(PUTSTATIC, typeOwnerClass, getTypeFieldName(name), GET_TYPE);
             bTypesCount++;
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
                 mv.visitInsn(RETURN);
@@ -262,7 +267,7 @@ public class JvmCreateTypeGen {
             }
 
             fieldName = getTypeFieldName(optionalTypeDef.internalName.value);
-            String methodName = String.format("$populate%s", fieldName);
+            String methodName = "$populate" + fieldName;
             MethodVisitor mv;
             switch (bType.tag) {
                 case TypeTags.RECORD:
@@ -308,7 +313,7 @@ public class JvmCreateTypeGen {
                                                    String fieldName) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, methodName, "()V", null, null);
         mv.visitCode();
-        mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, String.format("L%s;", TYPE));
+        mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, GET_TYPE);
         return mv;
     }
 
@@ -321,8 +326,7 @@ public class JvmCreateTypeGen {
 
         mv.visitInsn(DUP);
         jvmTypeGen.loadType(mv, immutableType);
-        mv.visitMethodInsn(INVOKEINTERFACE, TYPE, SET_IMMUTABLE_TYPE_METHOD, String.format("(L%s;)V",
-                                                                                           INTERSECTION_TYPE), true);
+        mv.visitMethodInsn(INVOKEINTERFACE, TYPE, SET_IMMUTABLE_TYPE_METHOD, SET_IMMUTABLE_TYPE, true);
     }
 
     public void loadTypeIdSet(MethodVisitor mv, BTypeIdSet typeIdSet) {
@@ -344,14 +348,13 @@ public class JvmCreateTypeGen {
         mv.visitInsn(DUP);
         // Load package
         String varName = jvmConstantsGen.getModuleConstantVar(typeId.packageID);
-        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
-                          String.format("L%s;", MODULE));
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName, JvmSignatures.GET_MODULE);
 
         mv.visitLdcInsn(typeId.name);
         mv.visitInsn(isPrimaryTypeId ? ICONST_1 : ICONST_0);
         // Add to BTypeIdSet
         mv.visitMethodInsn(INVOKEVIRTUAL, TYPE_ID_SET, "add",
-                           String.format("(L%s;L%s;Z)V", MODULE, STRING_VALUE), false);
+                           ADD_TYPE_ID, false);
     }
 
     public static List<Label> createLabelsForSwitch(MethodVisitor mv, int nameRegIndex,
@@ -412,7 +415,7 @@ public class JvmCreateTypeGen {
                 mv.visitLdcInsn(node.getName().value);
             }
             mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals",
-                    String.format("(L%s;)Z", OBJECT), false);
+                    ANY_TO_JBOOLEAN, false);
             Label targetLabel = new Label();
             mv.visitJumpInsn(IFNE, targetLabel);
             mv.visitJumpInsn(GOTO, defaultCaseLabel);
@@ -438,9 +441,9 @@ public class JvmCreateTypeGen {
     }
 
     private void generateGetAnonTypeMainMethod(ClassWriter cw, List<BIRTypeDefinition> typeDefinitions,
-                                           String moduleInitClass) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, GET_ANON_TYPE,
-                String.format("(IL%s;)L%s;", STRING_VALUE, TYPE), null, null);
+                                               String moduleInitClass) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, GET_ANON_TYPE_METHOD,
+                JvmSignatures.GET_ANON_TYPE, null, null);
         mv.visitCode();
         // filter anon types and sorts them before generating switch case.
         Set<BIRTypeDefinition> typeDefSet = new TreeSet<>(TYPE_HASH_COMPARATOR);
@@ -457,8 +460,8 @@ public class JvmCreateTypeGen {
         } else {
             mv.visitVarInsn(ILOAD, 0);
             mv.visitVarInsn(ALOAD, 1);
-            mv.visitMethodInsn(INVOKESTATIC, anonTypesClass, GET_ANON_TYPE + 0,
-                               String.format("(IL%s;)L%s;", STRING_VALUE, TYPE), false);
+            mv.visitMethodInsn(INVOKESTATIC, anonTypesClass, GET_ANON_TYPE_METHOD + 0,
+                    JvmSignatures.GET_ANON_TYPE, false);
             mv.visitInsn(ARETURN);
             generateGetAnonTypeSplitMethods(cw, anonTypeHashSwitch, moduleInitClass);
         }
@@ -480,8 +483,8 @@ public class JvmCreateTypeGen {
         int i = 0;
         for (Map.Entry<String, Label> labelEntry : labelFieldMapping.entrySet()) {
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
-                mv = cw.visitMethod(ACC_PRIVATE + ACC_STATIC, GET_ANON_TYPE + methodCount++,
-                        String.format("(IL%s;)L%s;", STRING_VALUE, TYPE), null, null);
+                mv = cw.visitMethod(ACC_PRIVATE + ACC_STATIC, GET_ANON_TYPE_METHOD + methodCount++,
+                        JvmSignatures.GET_ANON_TYPE, null, null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
                 mv.visitVarInsn(ILOAD, hashParamRegIndex);
@@ -498,7 +501,7 @@ public class JvmCreateTypeGen {
             String fieldName = labelEntry.getKey();
             Label targetLabel = labelEntry.getValue();
             mv.visitLabel(targetLabel);
-            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, String.format("L%s;", TYPE));
+            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, JvmSignatures.GET_TYPE);
             mv.visitInsn(ARETURN);
             i++;
             bTypesCount++;
@@ -509,8 +512,8 @@ public class JvmCreateTypeGen {
                     mv.visitLabel(defaultCaseLabel);
                     mv.visitVarInsn(ILOAD, hashParamRegIndex);
                     mv.visitVarInsn(ALOAD, shapeParamRegIndex);
-                    mv.visitMethodInsn(INVOKESTATIC, anonTypesClass, GET_ANON_TYPE + methodCount,
-                                       String.format("(IL%s;)L%s;", STRING_VALUE, TYPE), false);
+                    mv.visitMethodInsn(INVOKESTATIC, anonTypesClass, GET_ANON_TYPE_METHOD + methodCount,
+                            JvmSignatures.GET_ANON_TYPE, false);
                     mv.visitInsn(ARETURN);
                 }
                 mv.visitMaxs(i + 10, i + 10);
@@ -546,7 +549,16 @@ public class JvmCreateTypeGen {
                 typeHashVisitor.reset();
             }
         }
-        int[] hashes = labelHashMapping.keySet().stream().mapToInt(Integer::intValue).toArray();
+        int[] hashes = new int[10];
+        int count = 0;
+        for (Integer integer : labelHashMapping.keySet()) {
+            int intValue = integer.intValue();
+            if (hashes.length == count) {
+                hashes = Arrays.copyOf(hashes, count * 2);
+            }
+            hashes[count++] = intValue;
+        }
+        hashes = Arrays.copyOfRange(hashes, 0, count);
         Label[] labels = labelHashMapping.values().toArray(new Label[0]);
         return new AnonTypeHashInfo(hashes, labels, labelFieldMapping);
     }
@@ -572,8 +584,7 @@ public class JvmCreateTypeGen {
         String addFieldMethod = methodName + "$addField$";
         for (BField optionalField : fields.values()) {
             if (fieldsCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
-                mv = cw.visitMethod(ACC_STATIC + ACC_PRIVATE, addFieldMethod, String.format("(L%s;)V",
-                        LINKED_HASH_MAP), null, null);
+                mv = cw.visitMethod(ACC_STATIC + ACC_PRIVATE, addFieldMethod, SET_LINKED_HASH_MAP, null, null);
                 mv.visitCode();
                 addFieldMethod = methodName + "$addField$" + ++methodCount;
             }
@@ -586,7 +597,7 @@ public class JvmCreateTypeGen {
             createField(mv, optionalField);
 
             // Add the field to the map
-            mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put", String.format("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT),
+            mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put", MAP_PUT,
                     true);
 
             // emit a pop, since we are not using the return value from the map.put()
@@ -595,8 +606,7 @@ public class JvmCreateTypeGen {
             if (fieldsCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
                 if (fieldsCount != fields.size()) {
                     mv.visitVarInsn(ALOAD, fieldMapIndex);
-                    mv.visitMethodInsn(INVOKESTATIC, typeClassName, addFieldMethod,
-                            String.format("(L%s;)V", LINKED_HASH_MAP), false);
+                    mv.visitMethodInsn(INVOKESTATIC, typeClassName, addFieldMethod, SET_LINKED_HASH_MAP, false);
                 }
                 mv.visitInsn(RETURN);
                 mv.visitMaxs(0, 0);
@@ -630,8 +640,7 @@ public class JvmCreateTypeGen {
         // Load flags
         mv.visitLdcInsn(field.symbol.flags);
 
-        mv.visitMethodInsn(INVOKESPECIAL, FIELD_IMPL, JVM_INIT_METHOD, String.format("(L%s;L%s;J)V", TYPE,
-                                                                                     STRING_VALUE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, FIELD_IMPL, JVM_INIT_METHOD, INIT_FIELD_IMPL, false);
     }
 
     public JvmUnionTypeGen getJvmUnionTypeGen() {
