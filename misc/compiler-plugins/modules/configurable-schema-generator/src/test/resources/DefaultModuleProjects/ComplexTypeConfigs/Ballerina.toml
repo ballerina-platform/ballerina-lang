@@ -1,0 +1,8 @@
+[package]
+org = "dilhashanazeer"
+name = "complexconfigs"
+version = "0.1.0"
+distribution = "slbeta3"
+
+[build-options]
+observabilityIncluded = false
