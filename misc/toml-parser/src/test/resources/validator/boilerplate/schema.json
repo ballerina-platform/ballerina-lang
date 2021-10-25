@@ -192,8 +192,7 @@
                             "additionalProperties": false,
                             "properties": {
                                 "enable": {
-                                    "type": "boolean",
-                                    "default": true
+                                    "type": "boolean"
                                 },
                                 "min_replicas": {
                                     "type": "integer",

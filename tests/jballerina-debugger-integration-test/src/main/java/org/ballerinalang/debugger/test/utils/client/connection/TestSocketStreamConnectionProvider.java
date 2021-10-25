@@ -41,9 +41,8 @@ public class TestSocketStreamConnectionProvider extends TestProcessStreamConnect
     private InputStream inputStream;
     private OutputStream outputStream;
 
-    public TestSocketStreamConnectionProvider(List<String> commands, String workingDir, String address, int port,
-                                              String balHome) {
-        super(commands, workingDir, balHome);
+    public TestSocketStreamConnectionProvider(List<String> commands, String workingDir, String address, int port) {
+        super(commands, workingDir);
         this.address = address;
         this.port = port;
     }

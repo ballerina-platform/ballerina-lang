@@ -132,6 +132,8 @@ public class TestBalaWriter {
             Assert.assertEquals(packageJson.getExport().get(0), "winery");
             Assert.assertEquals(packageJson.getExport().get(1), "winery.services");
 
+            Assert.assertEquals(packageJson.getVisibility(), "private");
+
             Assert.assertEquals(packageJson.getPlatform(), "java11");
             Assert.assertEquals(packageJson.getPlatformDependencies().size(), 1);
 
