@@ -22,11 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -37,33 +34,27 @@ import java.util.Objects;
  */
 public class TestProcessStreamConnectionProvider implements TestStreamConnectionProvider {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TestProcessStreamConnectionProvider.class);
     private final List<String> commands;
     private final String workingDir;
-    private final String balHome;
 
-    private static final String ENV_JAVA_OPTS = "JAVA_OPTS";
-    private static final String ENV_DEBUGGER_TEST_MODE = "BAL_DEBUGGER_TEST";
-    private static final String JACOCO_AGENT_ARGS = " -javaagent:%s=destfile=%s ";
-    private static final Logger LOG = LoggerFactory.getLogger(TestProcessStreamConnectionProvider.class);
-
-    public TestProcessStreamConnectionProvider(List<String> commands, String workingDir, String balHome) {
+    public TestProcessStreamConnectionProvider(List<String> commands, String workingDir) {
         this.commands = commands;
         this.workingDir = workingDir;
-        this.balHome = balHome;
     }
 
     private Process process = null;
 
     public void start() throws IOException {
         if (workingDir == null || commands == null || commands.isEmpty() || commands.contains(null)) {
-            throw new IOException("Unable to start debug server: " + this);
+            throw new IOException("Unable to start debug server: " + this.toString());
         }
         ProcessBuilder builder = createProcessBuilder();
         LOG.info("Starting server process with commands " + commands + " and workingDir " + workingDir);
-        configureJacocoAgentArgs(builder.environment());
+        // builder.environment().put("BAL_JAVA_DEBUG", "5006");
         process = builder.start();
         if (!process.isAlive()) {
-            throw new IOException("Unable to start debug server: " + this);
+            throw new IOException("Unable to start debug server: " + this.toString());
         } else {
             LOG.info("Server process started " + process);
         }
@@ -74,29 +65,6 @@ public class TestProcessStreamConnectionProvider implements TestStreamConnection
         builder.directory(new File(workingDir));
         builder.redirectError(ProcessBuilder.Redirect.INHERIT);
         return builder;
-    }
-
-    /**
-     * Injects jacoco agent args into the debug server VM environment.
-     */
-    private void configureJacocoAgentArgs(Map<String, String> envProperties) {
-        Path jacocoAgentPath = Paths.get(balHome).resolve("bre").resolve("lib").resolve("jacocoagent.jar");
-        Path destinationFile = Paths.get(System.getProperty("user.dir")).resolve("build").resolve("jacoco")
-                .resolve("debugger-core-test.exec");
-        String agentArgs = String.format(JACOCO_AGENT_ARGS, jacocoAgentPath, destinationFile);
-
-        String javaOpts = "";
-        if (envProperties.containsKey(ENV_JAVA_OPTS)) {
-            javaOpts = envProperties.get(ENV_JAVA_OPTS);
-        }
-        if (javaOpts.contains("jacoco.agent")) {
-            return;
-        }
-        javaOpts = agentArgs + javaOpts;
-        envProperties.put(ENV_JAVA_OPTS, javaOpts);
-        // env variable to run debug server in test mode. This flag will enable jacoco coverage report generation for
-        // all the sub-processes (JVMs) that will be running during the debug session.
-        envProperties.put(ENV_DEBUGGER_TEST_MODE, String.valueOf(true));
     }
 
     @Override
