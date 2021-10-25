@@ -29,7 +29,7 @@
 
 # ---------------------- Override JAVA_HOME for Installers -------------------
 DIR="$(cd "$(dirname "$0")" && pwd)"
-JAVA_PATH=$(/usr/libexec/java_home -v "11.0.12")
+JAVA_PATH="$DIR/../../../../../../dependencies/jdk8u265-b01-jre"
 if test -d "$JAVA_PATH"; then
   JAVA_HOME=$JAVA_PATH
 fi
@@ -71,10 +71,10 @@ OS400*) os400=true;;
 Darwin*) darwin=true
         if [ -z "$JAVA_HOME" ] ; then
 		   if [ -z "$JAVA_VERSION" ] ; then
-			 JAVA_HOME=$(/usr/libexec/java_home -v "11.0.12")
+			 JAVA_HOME=$(/usr/libexec/java_home)
            else
              >&2 echo "Using Java version: $JAVA_VERSION"
-			 JAVA_HOME=$(/usr/libexec/java_home -v "11.0.12")
+			 JAVA_HOME=$(/usr/libexec/java_home -v $JAVA_VERSION)
 		   fi
 	    fi
         ;;
