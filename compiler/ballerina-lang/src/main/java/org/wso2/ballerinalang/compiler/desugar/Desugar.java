@@ -5764,7 +5764,8 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private String[] getBlobTextValue(String blobLiteralNodeText) {
-        String nodeText = blobLiteralNodeText.replaceAll(" ", "");
+        String nodeText = blobLiteralNodeText.replace("\t", "").replace("\n", "").replace("\r", "")
+                .replace(" ", "");
         String[] result = new String[2];
         result[0] = nodeText.substring(0, nodeText.indexOf('`'));
         result[1] = nodeText.substring(nodeText.indexOf('`') + 1, nodeText.lastIndexOf('`'));
