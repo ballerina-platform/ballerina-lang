@@ -6,14 +6,6 @@
   "source": "function_def/source/source22.bal",
   "items": [
     {
-      "label": "MyError",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "AL",
-      "insertText": "MyError",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "MyType",
       "kind": "TypeParameter",
       "detail": "String",
@@ -430,6 +422,14 @@
       "detail": "type",
       "sortText": "G",
       "insertText": "xml",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MyError",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "AL",
+      "insertText": "MyError",
       "insertTextFormat": "Snippet"
     }
   ]
