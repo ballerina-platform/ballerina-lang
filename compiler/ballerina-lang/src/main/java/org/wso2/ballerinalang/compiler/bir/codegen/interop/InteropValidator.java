@@ -38,9 +38,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.AnnotationProc.getInteropAnnotValue;
@@ -132,7 +132,12 @@ public class InteropValidator {
     }
 
     public Set<Path> getPlatformDependencyPaths(Collection<PlatformLibrary> platformLibraries) {
-        return platformLibraries.stream().map(PlatformLibrary::path).collect(Collectors.toSet());
+        Set<Path> set = new HashSet<>();
+        for (PlatformLibrary platformLibrary : platformLibraries) {
+            Path path = platformLibrary.path();
+            set.add(path);
+        }
+        return set;
     }
 
     private void validateModuleFunctions(BIRNode.BIRPackage module, ClassLoader classLoader) {

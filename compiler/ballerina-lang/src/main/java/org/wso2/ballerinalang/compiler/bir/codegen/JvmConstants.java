@@ -293,9 +293,9 @@ public class JvmConstants {
     public static final String CONSTANT_INIT_METHOD_PREFIX = "$constant_init";
     public static final String ANNOTATIONS_METHOD_PREFIX = "$process_annotations";
     public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
-    public static final String MODULE_INIT = "$moduleInit";
-    public static final String MODULE_START = "$moduleStart";
-    public static final String MODULE_STOP = "$moduleStop";
+    public static final String MODULE_INIT_METHOD = "$moduleInit";
+    public static final String MODULE_START_METHOD = "$moduleStart";
+    public static final String MODULE_STOP_METHOD = "$moduleStop";
     public static final String BAL_EXTENSION = ".bal";
     public static final String WINDOWS_PATH_SEPERATOR = "\\";
     public static final String UNIX_PATH_SEPERATOR = "/";
@@ -347,7 +347,7 @@ public class JvmConstants {
     public static final String CREATE_RECORD_VALUE = "createRecordValue";
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";
     public static final String CREATE_ERROR_VALUE = "createErrorValue";
-    public static final String GET_ANON_TYPE = "getAnonType";
+    public static final String GET_ANON_TYPE_METHOD = "getAnonType";
 
     // strand data related constants
     public static final String STRAND = "strand";

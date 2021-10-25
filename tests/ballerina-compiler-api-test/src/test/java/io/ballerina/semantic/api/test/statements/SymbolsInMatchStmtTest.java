@@ -112,7 +112,7 @@ public class SymbolsInMatchStmtTest {
                 {20, 10, 20, 13, TypeDescKind.ANY},
                 {22, 20, 22, 23, TypeDescKind.ANY},
                 {25, 8, 25, 10, TypeDescKind.FLOAT},
-                {26, 20, 26, 23, TypeDescKind.SINGLETON},
+                {26, 20, 26, 23, TypeDescKind.ANY},
                 {30, 24, 30, 25, TypeDescKind.UNION},
         };
     }
