@@ -1501,7 +1501,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         // check for unresolved fields. This record may be referencing another record
-        if (!this.resolveRecordsUnresolvedDueToFields && typeNodeKind == NodeKind.RECORD_TYPE) {
+        if (hasTypeInclusions && !this.resolveRecordsUnresolvedDueToFields && typeNodeKind == NodeKind.RECORD_TYPE) {
             BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
             for (BLangSimpleVariable variable : structureTypeNode.fields) {
                 if (variable.typeNode.getKind() == NodeKind.FUNCTION_TYPE) {

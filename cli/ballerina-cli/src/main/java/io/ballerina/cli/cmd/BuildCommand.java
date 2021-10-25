@@ -129,6 +129,7 @@ public class BuildCommand implements BLauncherCmd {
         this.output = output;
     }
 
+    // TODO : Remove after Beta4
     @CommandLine.Option(names = {"--compile", "-c"}, description = "Compile the source without generating " +
                                                                    "executable(s).")
     private boolean compile;
@@ -208,6 +209,10 @@ public class BuildCommand implements BLauncherCmd {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
             this.errStream.println(commandUsageInfo);
             return;
+        }
+
+        if (this.compile) {
+            this.outStream.println("warning: '-c compile' flag is deprecated. Please make use of 'bal pack' command");
         }
 
         // load project

@@ -20,14 +20,20 @@ package org.wso2.ballerinalang.compiler.bir.codegen.split;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmArrayTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmBStringConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmBallerinaConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmModuleConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmTupleTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmUnionTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.Map;
 
@@ -48,14 +54,17 @@ public class JvmConstantsGen {
 
     private final JvmTupleTypeConstantsGen tupleTypeConstantsGen;
 
+    private final JvmArrayTypeConstantsGen arrayTypeConstantsGen;
+
     public static final BTypeHashComparator TYPE_HASH_COMPARATOR = new BTypeHashComparator();
 
-    public JvmConstantsGen(BIRNode.BIRPackage module, String moduleInitClass) {
+    public JvmConstantsGen(BIRNode.BIRPackage module, String moduleInitClass, CompilerContext compilerContext) {
         this.stringConstantsGen = new JvmBStringConstantsGen(module.packageID);
         this.moduleConstantsGen = new JvmModuleConstantsGen(module);
         this.jvmBallerinaConstantsGen = new JvmBallerinaConstantsGen(module, moduleInitClass, this);
         this.unionTypeConstantsGen = new JvmUnionTypeConstantsGen(module.packageID);
         this.tupleTypeConstantsGen = new JvmTupleTypeConstantsGen(module.packageID);
+        this.arrayTypeConstantsGen = new JvmArrayTypeConstantsGen(module.packageID, Types.getInstance(compilerContext));
     }
 
     public String getBStringConstantVar(String value) {
@@ -66,17 +75,10 @@ public class JvmConstantsGen {
         return moduleConstantsGen.addModule(packageID);
     }
 
-    public synchronized String getUnionConstantVar(BUnionType unionType) {
-        return unionTypeConstantsGen.add(unionType);
-    }
-
     public void setJvmCreateTypeGen(JvmCreateTypeGen jvmCreateTypeGen) {
         unionTypeConstantsGen.setJvmUnionTypeGen(jvmCreateTypeGen.getJvmUnionTypeGen());
         tupleTypeConstantsGen.setJvmTupleTypeGen(jvmCreateTypeGen.getJvmTupleTypeGen());
-    }
-
-    public synchronized String getTupleConstantVar(BTupleType tupleType) {
-        return tupleTypeConstantsGen.add(tupleType);
+        arrayTypeConstantsGen.setJvmArrayTypeGen(jvmCreateTypeGen.getJvmArrayTypeGen());
     }
 
     public void generateConstants(Map<String, byte[]> jarEntries) {
@@ -85,6 +87,7 @@ public class JvmConstantsGen {
         moduleConstantsGen.generateConstantInit(jarEntries);
         stringConstantsGen.generateConstantInit(jarEntries);
         tupleTypeConstantsGen.generateClass(jarEntries);
+        arrayTypeConstantsGen.generateClass(jarEntries);
     }
 
     public void generateGetBUnionType(MethodVisitor mv, String varName) {
@@ -93,6 +96,17 @@ public class JvmConstantsGen {
 
     public void generateGetBTupleType(MethodVisitor mv, String varName) {
         tupleTypeConstantsGen.generateGetBTupleType(mv, varName);
+    }
+
+    public synchronized String getTypeConstantsVar(BType type) {
+        switch (type.tag) {
+            case TypeTags.ARRAY:
+                return arrayTypeConstantsGen.add((BArrayType) type);
+            case TypeTags.TUPLE:
+                return tupleTypeConstantsGen.add((BTupleType) type);
+            default:
+                return unionTypeConstantsGen.add((BUnionType) type);
+        }
     }
 
     public String getStringConstantsClass() {
@@ -105,5 +119,9 @@ public class JvmConstantsGen {
 
     public String getConstantClass() {
         return jvmBallerinaConstantsGen.getConstantClass();
+    }
+
+    public void generateGetBArrayType(MethodVisitor mv, String varName) {
+        arrayTypeConstantsGen.generateGetBArrayType(mv, varName);
     }
 }

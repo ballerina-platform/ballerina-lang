@@ -37,7 +37,10 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LISTENER_REGISTRY_VARIABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_LISTENER_REGISTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_LISTENER_REGISTRY;
 
 /**
  * Generate the thread for the addShutDownHook.
@@ -49,8 +52,8 @@ public class ShutDownListenerGen {
         String innerClassName = initClass + "$SignalListener";
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V1_8, ACC_SUPER, innerClassName, null, JAVA_THREAD, null);
-        FieldVisitor fv = cw.visitField(ACC_PRIVATE, JvmConstants.LISTENER_REGISTRY_VARIABLE,
-                                        String.format("L%s;", JvmConstants.LISTENER_REGISTRY_CLASS), null, null);
+        FieldVisitor fv = cw.visitField(ACC_PRIVATE , LISTENER_REGISTRY_VARIABLE,
+                                        GET_LISTENER_REGISTRY, null, null);
         fv.visitEnd();
 
         // create constructor
@@ -64,15 +67,14 @@ public class ShutDownListenerGen {
     }
 
     private void genConstructor(String innerClassName, ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, String.format(
-                "(L%s;)V", JvmConstants.LISTENER_REGISTRY_CLASS), null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, INIT_LISTENER_REGISTRY, null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, JAVA_THREAD, JVM_INIT_METHOD, "()V", false);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
-        mv.visitFieldInsn(PUTFIELD, innerClassName, JvmConstants.LISTENER_REGISTRY_VARIABLE,
-                          String.format("L%s;", JvmConstants.LISTENER_REGISTRY_CLASS));
+        mv.visitFieldInsn(PUTFIELD, innerClassName , LISTENER_REGISTRY_VARIABLE,
+                          GET_LISTENER_REGISTRY);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -82,10 +84,10 @@ public class ShutDownListenerGen {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "run", "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, innerClassName, JvmConstants.LISTENER_REGISTRY_VARIABLE,
-                          String.format("L%s;", JvmConstants.LISTENER_REGISTRY_CLASS));
-        mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_STOP,
-                           String.format("(L%s;)V", JvmConstants.LISTENER_REGISTRY_CLASS), false);
+        mv.visitFieldInsn(GETFIELD, innerClassName , LISTENER_REGISTRY_VARIABLE,
+                          GET_LISTENER_REGISTRY);
+        mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_STOP_METHOD,
+                           INIT_LISTENER_REGISTRY, false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
