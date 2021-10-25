@@ -44,10 +44,10 @@ OS400*) os400=true;;
 Darwin*) darwin=true
         if [ -z "$JAVA_HOME" ] ; then
 		   if [ -z "$JAVA_VERSION" ] ; then
-			 JAVA_HOME=$(/usr/libexec/java_home -v "11.0.12")
+			 JAVA_HOME=$(/usr/libexec/java_home)
            else
              echo "Using Java version: $JAVA_VERSION"
-			 JAVA_HOME=$(/usr/libexec/java_home -v "11.0.12")
+			 JAVA_HOME=$(/usr/libexec/java_home -v $JAVA_VERSION)
 		   fi
 	    fi
         ;;
