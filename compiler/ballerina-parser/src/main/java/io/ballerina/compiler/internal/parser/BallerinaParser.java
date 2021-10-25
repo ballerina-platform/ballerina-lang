@@ -4316,8 +4316,6 @@ public class BallerinaParser extends AbstractParser {
                 reportInvalidQualifierList(qualifiers);
                 return parseRollbackStatement();
             case OPEN_BRACKET_TOKEN:
-                // any statement starts with `[` can be either a var-decl with tuple type
-                // or a destructuring assignment with list-binding-pattern.
                 reportInvalidQualifierList(qualifiers);
                 return parseStatementStartsWithOpenBracket(getAnnotations(annots), false);
             case FUNCTION_KEYWORD:
@@ -16994,14 +16992,12 @@ public class BallerinaParser extends AbstractParser {
         }
 
         switch (memberNode.kind) {
-            case NUMERIC_LITERAL:
-            case ASTERISK_LITERAL:
-                return SyntaxKind.ARRAY_TYPE_DESC;
+            case WILDCARD_BINDING_PATTERN:
             case CAPTURE_BINDING_PATTERN:
             case LIST_BINDING_PATTERN:
-            case REST_BINDING_PATTERN:
-            case WILDCARD_BINDING_PATTERN:
+            case MAPPING_BINDING_PATTERN:
             case ERROR_BINDING_PATTERN:
+            case REST_BINDING_PATTERN:
                 return SyntaxKind.LIST_BINDING_PATTERN;
             case QUALIFIED_NAME_REFERENCE: // a qualified-name-ref can only be a type-ref
             case REST_TYPE:
@@ -17943,11 +17939,14 @@ public class BallerinaParser extends AbstractParser {
                 }
                 // fall through
             default:
-                if (isValidExprRhsStart(peek().kind, closeBracket.kind)) {
+                SyntaxKind nextTokenKind = peek().kind;
+                if (isValidExprRhsStart(nextTokenKind, closeBracket.kind) || 
+                        nextTokenKind == SyntaxKind.SEMICOLON_TOKEN && isRoot) { // [a, b, c];
                     members = getExpressionList(members);
                     STNode memberExpressions = STNodeFactory.createNodeList(members);
                     lbpOrListCons = STNodeFactory.createListConstructorExpressionNode(openBracket, memberExpressions,
                             closeBracket);
+                    lbpOrListCons = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, lbpOrListCons, false, true);
                     break;
                 }
 
@@ -17964,8 +17963,12 @@ public class BallerinaParser extends AbstractParser {
         if (!isRoot) {
             return lbpOrListCons;
         }
-
-        return parseStmtStartsWithTypedBPOrExprRhs(null, lbpOrListCons);
+        
+        if (lbpOrListCons.kind == SyntaxKind.LIST_BINDING_PATTERN) {
+            return parseAssignmentStmtRhs(lbpOrListCons);
+        } else {
+            return parseStatementStartWithExprRhs(lbpOrListCons);
+        }
     }
 
     private STNode parseMemberRhsInStmtStartWithBrace(STNode identifier, STNode colon, STNode secondIdentifier,
@@ -18219,7 +18222,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private List<STNode> getBindingPatternsList(List<STNode> ambibuousList) {
-        List<STNode> bindingPatterns = new ArrayList<STNode>();
+        List<STNode> bindingPatterns = new ArrayList<>();
         for (STNode item : ambibuousList) {
             bindingPatterns.add(getBindingPattern(item));
         }
@@ -18232,6 +18235,16 @@ public class BallerinaParser extends AbstractParser {
         }
 
         switch (ambiguousNode.kind) {
+            case WILDCARD_BINDING_PATTERN:
+            case CAPTURE_BINDING_PATTERN:
+            case LIST_BINDING_PATTERN:
+            case MAPPING_BINDING_PATTERN:
+            case ERROR_BINDING_PATTERN:
+            case REST_BINDING_PATTERN:
+            case FIELD_BINDING_PATTERN:
+            case NAMED_ARG_BINDING_PATTERN:
+            case COMMA_TOKEN: // when we are iterating through a comma separated list we can reach here with a comma   
+                return ambiguousNode;
             case SIMPLE_NAME_REFERENCE:
                 STNode varName = ((STSimpleNameReferenceNode) ambiguousNode).name;
                 return createCaptureOrWildcardBP(varName);
@@ -18291,7 +18304,10 @@ public class BallerinaParser extends AbstractParser {
                 STRestArgumentNode restArg = (STRestArgumentNode) ambiguousNode;
                 return STNodeFactory.createRestBindingPatternNode(restArg.ellipsis, restArg.expression);
             default:
-                return ambiguousNode;
+                STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+                identifier = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(identifier, ambiguousNode, 
+                        DiagnosticErrorCode.ERROR_INVALID_BINDING_PATTERN);
+                return STNodeFactory.createCaptureBindingPatternNode(identifier);
         }
     }
 
