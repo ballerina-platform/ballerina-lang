@@ -77,6 +77,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
+
 /**
  * Contains a set of utility methods to manage projects.
  *
@@ -430,56 +432,34 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         if (changes.size() == 1) {
             FileEvent fileEvent = changes.get(0);
             String uri = fileEvent.getUri();
-            Optional<Path> optFilePath = CommonUtil.getPathFromURI(uri);
-            if (optFilePath.isEmpty()) {
+            Optional<Path> pathFromURI = CommonUtil.getPathFromURI(uri);
+            if (pathFromURI.isEmpty()) {
                 return;
             }
-            Path filePath = optFilePath.get();
+            Path filePath = pathFromURI.get();
             boolean isBallerinaSourceChange = filePath.getFileName().toString()
                     .endsWith(ProjectConstants.BLANG_SOURCE_EXT);
-            if (!(isBallerinaSourceChange && this.openedDocuments.contains(filePath))) {
+            if (!this.openedDocuments.contains(filePath)) {
+                // If already opened in the cache, this will be captured via the textDocument/didChange event
                 this.didChangeWatched(filePath, fileEvent);
             }
             return;
         }
 
-        Set<Project> reloadableProjects = new HashSet<>();
+        Set<Path> reloadableProjects = new HashSet<>();
         for (FileEvent fileEvent : changes) {
             String uri = fileEvent.getUri();
-            Optional<Path> optFilePath = CommonUtil.getPathFromURI(uri);
-            if (optFilePath.isEmpty()) {
+            Optional<Path> pathFromURI = CommonUtil.getPathFromURI(uri);
+            
+            if (pathFromURI.isEmpty()) {
                 return;
             }
-            Path filePath = optFilePath.get();
-            String fileName = filePath.getFileName().toString();
-            boolean isBallerinaSourceChange = fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT);
-            boolean isBallerinaTomlChange = filePath.endsWith(ProjectConstants.BALLERINA_TOML);
-            boolean isDependenciesTomlChange = filePath.endsWith(ProjectConstants.DEPENDENCIES_TOML);
-            boolean isCloudTomlChange = filePath.endsWith(ProjectConstants.CLOUD_TOML);
-            boolean isCompilerPluginTomlChange = filePath.endsWith(ProjectConstants.COMPILER_PLUGIN_TOML);
+            Path filePath = pathFromURI.get();
 
-            // NOTE: Need to specifically check Deleted events, since `filePath.toFile().isDirectory()`
-            // fails when physical file is deleted from the disk
-            boolean isModuleChange = isWatchedModuleChange(fileEvent);
-
-            Optional<ProjectPair> optProject = projectOfWatchedFileChange(filePath, fileEvent,
-                    isBallerinaSourceChange, isBallerinaTomlChange,
-                    isDependenciesTomlChange, isCloudTomlChange,
-                    isCompilerPluginTomlChange, isModuleChange);
-
-            if (optProject.isEmpty()) {
-                clientLogger.logTrace(
-                        String.format("Operation '%s' No matching project found, {fileUri: '%s' event: '%s'} ignored",
-                                LSContextOperation.WS_WF_CHANGED.getName(),
-                                fileEvent.getUri(),
-                                fileEvent.getType().name()));
-                return;
-            }
-            ProjectPair projectPair = optProject.get();
-            reloadableProjects.add(projectPair.project());
+            this.findProjectRoot(filePath).ifPresent(reloadableProjects::add);
         }
 
-        reloadableProjects.forEach(project -> createProject(project.sourceRoot(), LSContextOperation.WS_WF_CHANGED.getName()));
+        reloadableProjects.forEach(path -> createProject(path, LSContextOperation.WS_WF_CHANGED.getName()));
     }
 
     /**
@@ -1217,5 +1197,28 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             // Clear dependent cache
             cache.clear();
         }
+    }
+
+    private Optional<Path> findProjectRoot(Path filePath) {
+        if (filePath != null) {
+            filePath = filePath.toAbsolutePath().normalize();
+            if (filePath.toFile().isDirectory()) {
+                if (hasBallerinaToml(filePath) || hasPackageJson(filePath)) {
+                    return Optional.of(filePath);
+                }
+            }
+            return findProjectRoot(filePath.getParent());
+        }
+        return Optional.empty();
+    }
+
+    private boolean hasBallerinaToml(Path filePath) {
+        Path absFilePath = filePath.toAbsolutePath().normalize();
+        return absFilePath.resolve(BALLERINA_TOML).toFile().exists();
+    }
+
+    private boolean hasPackageJson(Path filePath) {
+        Path absFilePath = filePath.toAbsolutePath().normalize();
+        return absFilePath.resolve(ProjectConstants.PACKAGE_JSON).toFile().exists();
     }
 }
