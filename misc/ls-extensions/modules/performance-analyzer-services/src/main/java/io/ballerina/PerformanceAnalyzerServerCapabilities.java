@@ -18,7 +18,7 @@ package io.ballerina;
 import org.ballerinalang.langserver.commons.registration.BallerinaServerCapability;
 
 /**
- * Server capabilities for the jsonToRecord service.
+ * Server capabilities for the performance analyzer service.
  *
  * @since 2.0.0
  */
