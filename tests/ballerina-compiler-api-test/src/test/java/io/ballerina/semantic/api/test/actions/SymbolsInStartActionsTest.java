@@ -91,18 +91,18 @@ public class SymbolsInStartActionsTest {
     public Object[][] getPosOfSymbolsInStartAction() {
         return new Object[][]{
                 {25, 18, "nm", SymbolKind.VARIABLE},
-//                {25, 22, "age", SymbolKind.PARAMETER},    // Named-arg symbol is not present
-//                {26, 29, "ints", SymbolKind.VARIABLE},    // Rest variable ref is not present
+//                {25, 22, "age", SymbolKind.PARAMETER},    // TODO: Fix #33222
+//                {26, 29, "ints", SymbolKind.VARIABLE},    // TODO: Fix #33223
 
                 {29, 26, "ag", SymbolKind.VARIABLE},
-//                {29, 30, "path", SymbolKind.PARAMETER},   // Named-arg symbol is not present
+//                {29, 30, "path", SymbolKind.PARAMETER},   // TODO: Fix #33222
                 {29, 37, "nm", SymbolKind.VARIABLE},
-//                {30, 37, "ints", SymbolKind.VARIABLE},  // Rest variable ref is not present
+//                {30, 37, "ints", SymbolKind.VARIABLE},  // TODO: Fix #33223
 
                 {32, 28, "nm", SymbolKind.VARIABLE},
-//                {32, 32, "b", SymbolKind.PARAMETER},  // Named-arg symbol is not present
+//                {32, 32, "b", SymbolKind.PARAMETER},  // TODO: Fix #33222
                 {32, 36, "ag", SymbolKind.VARIABLE},
-//                {33, 39, "ints", SymbolKind.VARIABLE},  // Rest variable ref is not present
+//                {33, 39, "ints", SymbolKind.VARIABLE},  // TODO: Fix #33223
         };
     }
 }
