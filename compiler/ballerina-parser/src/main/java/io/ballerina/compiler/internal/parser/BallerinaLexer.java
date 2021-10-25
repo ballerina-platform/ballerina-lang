@@ -1420,21 +1420,19 @@ public class BallerinaLexer extends AbstractLexer {
                 // fall through
             default:
                 while (!reader.isEOF()) {
+                    reader.advance();
                     nextChar = this.reader.peek();
                     switch (nextChar) {
                         case LexerTerminals.DOLLAR:
                             if (this.reader.peek(1) == LexerTerminals.OPEN_BRACE) {
                                 break;
                             }
-                            reader.advance();
                             continue;
                         case LexerTerminals.BACKTICK:
                             break;
                         default:
-                            reader.advance();
                             continue;
                     }
-
                     break;
                 }
         }
