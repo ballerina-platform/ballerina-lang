@@ -1,33 +1,10 @@
 {
   "position": {
     "line": 1,
-    "character": 8
+    "character": 40
   },
-  "source": "let_expression_context/source/let_expr_ctx_source1.bal",
+  "source": "let_expression_context/source/let_expr_ctx_source12.bal",
   "items": [
-    {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "CE",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
     {
       "label": "ballerina/lang.array",
       "kind": "Module",
@@ -418,6 +395,29 @@
       "filterText": "var",
       "insertText": "var ",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CE",
+      "insertText": "test1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test as test1 ;\n"
+        }
+      ]
     }
   ]
 }
