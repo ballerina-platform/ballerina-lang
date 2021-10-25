@@ -4320,7 +4320,11 @@ public class Types {
             case TypeTags.READONLY:
                 return getRemainingType((BReadonlyType) originalType, typeToRemove);
             case TypeTags.TYPEREFDESC:
-                return getRemainingType(((BTypeReferenceType) originalType).referredType, typeToRemove);
+                BType refType = getReferredType(originalType);
+                if (refType.tag != TypeTags.UNION && refType.tag != TypeTags.FINITE) {
+                    return originalType;
+                }
+                return getRemainingType(refType, typeToRemove);
             default:
                 return originalType;
         }
