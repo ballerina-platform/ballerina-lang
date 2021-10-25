@@ -225,8 +225,7 @@ public class TestDAPClientConnector {
 
         processArgs.add(DebugUtils.JBAL_DEBUG_CMD_NAME);
         processArgs.add(Integer.toString(debugAdapterPort));
-        return new TestSocketStreamConnectionProvider(processArgs, projectPath.toString(), host, debugAdapterPort,
-                balHome);
+        return new TestSocketStreamConnectionProvider(processArgs, projectPath.toString(), host, debugAdapterPort);
     }
 
     private enum ConnectionState {
