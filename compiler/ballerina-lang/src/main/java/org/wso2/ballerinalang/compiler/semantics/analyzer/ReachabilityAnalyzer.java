@@ -487,7 +487,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if (funcNode.returnTypeNode.getBType().tag == TypeTags.UNION) {
+        if (!funcNode.interfaceFunction && funcNode.returnTypeNode.getBType().tag == TypeTags.UNION) {
             LinkedHashSet<BType> memberTypes = ((BUnionType) funcNode.returnTypeNode.getBType()).getMemberTypes();
             if (memberTypes.contains(symTable.nilType) && !this.statementReturnsPanicsOrFails) {
                 this.dlog.warning(funcNode.returnTypeNode.pos,

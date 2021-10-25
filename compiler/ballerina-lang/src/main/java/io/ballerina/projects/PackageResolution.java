@@ -167,9 +167,12 @@ public class PackageResolution {
             if (Files.exists(buildFilePath) && buildFilePath.toFile().length() > 0) {
                 try {
                     BuildJson buildJson = readBuildJson(buildFilePath);
-                    if (!buildJson.isExpiredLastUpdateTime()) {
+                    if (buildJson != null && !buildJson.isExpiredLastUpdateTime()) {
                         this.autoUpdate = false;
                         return true;
+                    } else {
+                        this.autoUpdate = true;
+                        return false;
                     }
                 } catch (IOException | JsonSyntaxException e) {
                     this.autoUpdate = true;

@@ -73,7 +73,8 @@ public class ReachabilityAnalysisTest {
                 "testWhileCompletingNormally",
                 "testCallStmtFuncReturningNever",
                 "testForeachCompletingNormally",
-                "testReachableCodeWithForeach"
+                "testReachableCodeWithForeach",
+                "testReachableCodeWithUnaryConditionsInIf"
         };
     }
 
@@ -216,6 +217,12 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, "incompatible types: expected '10', found '20'", 266, 12);
         validateError(result, i++, "incompatible types: expected 'string', found '10'", 276, 16);
         validateError(result, i++, "incompatible types: expected '20', found '10'", 286, 12);
+        validateError(result, i++, "incompatible types: expected '()', found 'int'", 294, 12);
+        validateError(result, i++, "incompatible types: expected 'int', found 'int?'", 296, 13);
+        validateError(result, i++, "incompatible types: expected '()', found 'int'", 304, 12);
+        validateError(result, i++, "incompatible types: expected 'int', found 'int?'", 306, 13);
+        validateError(result, i++, "incompatible types: expected '20', found '10'", 314, 12);
+        validateError(result, i++, "incompatible types: expected '10', found '10|20'", 316, 12);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }
