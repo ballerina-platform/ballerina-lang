@@ -2769,7 +2769,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         List<BType> expandedCandidates = getTypeCandidatesForErrorConstructor(errorConstructorExpr);
 
-        List<BType> errorDetailTypes = new ArrayList<>();
+        List<BType> errorDetailTypes = new ArrayList<>(expandedCandidates.size());
         for (BType expandedCandidate : expandedCandidates) {
             BType detailType = ((BErrorType) expandedCandidate).detailType;
             errorDetailTypes.add(detailType);
@@ -2864,7 +2864,15 @@ public class TypeChecker extends BLangNodeVisitor {
             errorConstructorExpr.setBType(errorType);
         }
 
-        resultType = errorConstructorExpr.getBType();
+        BType resolvedType = errorConstructorExpr.getBType();
+        if (resolvedType != symTable.semanticError && expType != symTable.noType &&
+                !types.isAssignable(resolvedType, expType)) {
+            dlog.error(errorConstructorExpr.pos,
+                    DiagnosticErrorCode.ERROR_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND, expType);
+            resultType = symTable.semanticError;
+            return;
+        }
+        resultType = resolvedType;
     }
 
     private void validateErrorConstructorPositionalArgs(BLangErrorConstructorExpr errorConstructorExpr) {
