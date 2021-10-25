@@ -109,6 +109,13 @@
         },
         "distribution": {
           "type": "string"
+        },
+        "visibility": {
+          "type": "string",
+          "pattern": "^private$",
+          "message": {
+            "pattern": "invalid 'visibility' under [package]: 'visibility' can only have value 'private'"
+          }
         }
       }
     },
