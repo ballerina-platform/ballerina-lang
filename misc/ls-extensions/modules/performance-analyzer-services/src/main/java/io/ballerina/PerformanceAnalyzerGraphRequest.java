@@ -27,40 +27,60 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
  * @since 2.0.0
  */
 public class PerformanceAnalyzerGraphRequest {
+
     private TextDocumentIdentifier documentIdentifier;
     private Range range;
+    private String choreoAPI;
     private String choreoToken;
     private String choreoCookie;
 
     public TextDocumentIdentifier getDocumentIdentifier() {
+
         return documentIdentifier;
     }
 
     public void setDocumentIdentifier(TextDocumentIdentifier documentIdentifier) {
+
         this.documentIdentifier = documentIdentifier;
     }
 
     public Range getRange() {
+
         return range;
     }
 
     public void setRange(Range range) {
+
         this.range = range;
     }
 
     public String getChoreoToken() {
+
         return choreoToken;
     }
 
     public void setChoreoToken(String choreoToken) {
+
         this.choreoToken = choreoToken;
     }
 
+    public String getChoreoAPI() {
+
+        return choreoAPI;
+    }
+
+    public void setChoreoAPI(String choreoAPI) {
+
+        this.choreoAPI = choreoAPI;
+    }
+
     public String getChoreoCookie() {
+
         return choreoCookie;
     }
 
     public void setChoreoCookie(String choreoCookie) {
+
         this.choreoCookie = choreoCookie;
     }
 }
