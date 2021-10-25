@@ -26,7 +26,7 @@ import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmArrayTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -68,12 +68,12 @@ public class JvmArrayTypeConstantsGen {
     private final List<String> funcNames;
     private final Types types;
 
-    public JvmArrayTypeConstantsGen(PackageID packageID, Types types) {
+    public JvmArrayTypeConstantsGen(PackageID packageID, BTypeHashComparator bTypeHashComparator, Types types) {
         this.arrayConstantsClass =
                 JvmCodeGenUtil.getModuleLevelClassName(packageID, JvmConstants.ARRAY_TYPE_CONSTANT_CLASS_NAME);
         generateArrayTypeConstantsClassInit();
         visitArrayTypeInitMethod();
-        this.arrayTypeVarMap = new TreeMap<>(JvmConstantsGen.TYPE_HASH_COMPARATOR);
+        this.arrayTypeVarMap = new TreeMap<>(bTypeHashComparator);
         this.funcNames = new ArrayList<>();
         this.types = types;
     }

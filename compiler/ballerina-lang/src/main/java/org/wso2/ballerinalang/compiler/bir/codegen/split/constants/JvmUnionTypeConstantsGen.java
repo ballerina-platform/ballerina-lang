@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.TypeNamePair;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmUnionTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 
@@ -75,14 +75,14 @@ public class JvmUnionTypeConstantsGen {
     /**
      * Stack keeps track of recursion in union types. The method creation is performed only if recursion is completed.
      */
-    public JvmUnionTypeConstantsGen(PackageID packageID) {
+    public JvmUnionTypeConstantsGen(PackageID packageID, BTypeHashComparator bTypeHashComparator) {
         unionVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(packageID,
                 JvmConstants.UNION_TYPE_CONSTANT_CLASS_NAME);
         generateUnionTypeConstantsClassInit();
         visitUnionTypeInitMethod();
         funcNames = new ArrayList<>();
         queue = new LinkedList<>();
-        unionTypeVarMap = new TreeMap<>(JvmConstantsGen.TYPE_HASH_COMPARATOR);
+        unionTypeVarMap = new TreeMap<>(bTypeHashComparator);
     }
 
     public void setJvmUnionTypeGen(JvmUnionTypeGen jvmUnionTypeGen) {
