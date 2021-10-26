@@ -15,6 +15,11 @@
  */
 package io.ballerina.parsers;
 
+/**
+ * Represents a request for partial ST Modify.
+ *
+ * @since 1.3.0
+ */
 public class STModification {
     private int startLine;
     private int startColumn;

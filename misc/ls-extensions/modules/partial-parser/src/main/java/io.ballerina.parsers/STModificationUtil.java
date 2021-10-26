@@ -22,20 +22,19 @@ import io.ballerina.tools.text.TextDocuments;
 import io.ballerina.tools.text.TextEdit;
 import io.ballerina.tools.text.TextRange;
 
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ * Represents utils for partial ST Modify.
+ *
+ * @since 1.3.0
+ */
 public class STModificationUtil {
     private STModificationUtil() {
     }
 
     static String getModifiedStatement(String oldStatement, STModification stModification) {
-        List<TextEdit> edits = new ArrayList<>();
         TextDocument oldTextDocument = TextDocuments.from(oldStatement);
-        TextEdit edit = constructEdit(oldTextDocument, stModification);
-        edits.add(edit);
-        TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
-                new TextEdit[0]));
+        TextEdit[] textEdits = {constructEdit(oldTextDocument, stModification)};
+        TextDocumentChange textDocumentChange = TextDocumentChange.from(textEdits);
         TextDocument newTextDocument = oldTextDocument.apply(textDocumentChange);
         return newTextDocument.toString();
     }

@@ -70,7 +70,7 @@ public class PartialParserTests {
             throws ExecutionException, InterruptedException, FileNotFoundException {
         String statement = "string fullName = firstName + \"Cooper\";";
         String modification = "middleName + \"Hofstadter\"";
-        STModification stModification = new STModification(0,30, 0, 38, modification);
+        STModification stModification = new STModification(0, 30, 0, 38, modification);
         PartialSTRequest request = new PartialSTRequest(statement, stModification);
         CompletableFuture<?> result = serviceEndpoint.request(SINGLE_STATEMENT, request);
         STResponse json = (STResponse) result.get();
