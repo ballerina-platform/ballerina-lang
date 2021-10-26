@@ -129,11 +129,6 @@ public class BuildCommand implements BLauncherCmd {
         this.output = output;
     }
 
-    // TODO : Remove after Beta4
-    @CommandLine.Option(names = {"--compile", "-c"}, description = "Compile the source without generating " +
-                                                                   "executable(s).")
-    private boolean compile;
-
     @CommandLine.Option(names = {"--output", "-o"}, description = "Write the output to the given file. The provided " +
                                                                   "output file name may or may not contain the " +
                                                                   "'.jar' extension.")
@@ -203,6 +198,14 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
     private Boolean sticky;
 
+    // TODO : Remove after Beta4
+    @CommandLine.Option(names = {"--compile", "-c"}, description = "Compile the source without generating " +
+            "executable(s).")
+    private boolean compile;
+
+    @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
+    private Boolean skipTestsTemp;
+
     public void execute() {
         long start = 0;
         if (this.helpFlag) {
@@ -212,7 +215,16 @@ public class BuildCommand implements BLauncherCmd {
         }
 
         if (this.compile) {
-            this.outStream.println("warning: '-c compile' flag is deprecated. Please make use of 'bal pack' command");
+            this.outStream.println("'-c compile' flag is deprecated. Please make use of 'bal pack' command");
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        if (this.skipTestsTemp != null) {
+            this.outStream.println("'--skip-tests' flag is deprecated. The build command skips test execution by " +
+                    "default. Please make use of --with-tests to execute tests");
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
         }
 
         // load project
