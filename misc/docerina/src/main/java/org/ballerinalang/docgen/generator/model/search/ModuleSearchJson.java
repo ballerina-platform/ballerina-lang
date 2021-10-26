@@ -31,12 +31,15 @@ public class ModuleSearchJson {
     private String orgName;
     @Expose
     private String version;
+    @Expose
+    private boolean isSubModule;
 
-    public ModuleSearchJson(String id, String orgName, String version, String description) {
+    public ModuleSearchJson(String id, String orgName, String version, String description, boolean isSubModule) {
         this.setId(id);
         this.setDescription(description);
         this.setOrgName(orgName);
         this.setVersion(version);
+        this.setIsSubModule(isSubModule);
     }
 
     public String getId() {
@@ -71,4 +74,11 @@ public class ModuleSearchJson {
         this.version = version;
     }
 
+    public boolean getIsSubModule() {
+        return isSubModule;
+    }
+
+    public void setIsSubModule(boolean isSubModule) {
+        this.isSubModule = isSubModule;
+    }
 }

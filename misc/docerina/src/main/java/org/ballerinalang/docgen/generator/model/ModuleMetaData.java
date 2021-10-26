@@ -33,4 +33,6 @@ public class ModuleMetaData {
     public String orgName;
     @Expose
     public String version;
+    @Expose
+    public boolean isSubModule = false;
 }
