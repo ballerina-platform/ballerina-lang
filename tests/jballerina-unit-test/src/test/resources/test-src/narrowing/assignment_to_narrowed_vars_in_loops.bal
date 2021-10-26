@@ -829,3 +829,68 @@ isolated function f25(record {} logRecord) {
         }
     }
 }
+
+function f26(int?[] arr) returns boolean {
+    int? value = let int length = arr.length() in length > 0 ? length : ();
+
+    if value is int {
+        foreach int? item in arr {
+            int currentValue = value;
+
+            if item is () {
+                value = ();
+                panic error("invalid value");
+            }
+
+            return item < value;
+        }
+    }
+
+    return false;
+}
+
+function f27(int?[] arr) returns boolean {
+    int? value = let int length = arr.length() in length > 0 ? length : ();
+
+    if value is int {
+        int index = 0;
+        while index < arr.length() {
+            int? item = arr[index];
+            int currentValue = value;
+
+            if item is () {
+                value = ();
+                break;
+            }
+
+            index += 1;
+            return item < value;
+        }
+    }
+
+    return false;
+}
+
+function f28(int?[] arr) returns boolean {
+    int? value = let int length = arr.length() in length > 0 ? length : ();
+
+    if value is int {
+        int index = 0;
+        while index < arr.length() {
+            int? item = arr[index];
+            int currentValue = value;
+
+            match item {
+                () => {
+                    value = ();
+                    return true;
+                }
+            }
+
+            index += 1;
+            return item < value;
+        }
+    }
+
+    return false;
+}
