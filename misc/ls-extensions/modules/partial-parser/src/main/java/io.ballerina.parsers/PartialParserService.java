@@ -22,12 +22,18 @@ import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.StatementNode;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocumentChange;
+import io.ballerina.tools.text.TextDocuments;
+import io.ballerina.tools.text.TextEdit;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -48,11 +54,24 @@ public class PartialParserService implements ExtendedLanguageServerService {
     @JsonRequest
     public CompletableFuture<STResponse> getSTForSingleStatement(PartialSTRequest request) {
         return CompletableFuture.supplyAsync(() -> {
+            NodeList<StatementNode> statementNodes;
+            if (request.getStModification() != null) {
+
+                List<TextEdit> edits = new ArrayList<>();
+                TextDocument oldTextDocument = TextDocuments.from(request.getCodeSnippet());
+                TextEdit edit = STModifyUtil.constructEdit(oldTextDocument, request.getStModification());
+                edits.add(edit);
+                TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
+                        new TextEdit[0]));
+                TextDocument newTextDocument = oldTextDocument.apply(textDocumentChange);
+
+                statementNodes = NodeParser.parseStatements(newTextDocument.toString());
+            } else {
+                statementNodes = NodeParser.parseStatements(request.getCodeSnippet());
+            }
+            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(statementNodes.get(0));
+
             STResponse response = new STResponse();
-            NodeList<StatementNode> s = NodeParser.parseStatements(request.getCodeSnippet());
-
-            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(s.get(0));
-
             response.setSyntaxTree(syntaxTreeJSON);
             return response;
         });
@@ -61,11 +80,9 @@ public class PartialParserService implements ExtendedLanguageServerService {
     @JsonRequest
     public CompletableFuture<STResponse> getSTForExpression(PartialSTRequest request) {
         return CompletableFuture.supplyAsync(() -> {
+            ExpressionNode expressionNode = NodeParser.parseExpression(request.getCodeSnippet());
+            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(expressionNode);
             STResponse response = new STResponse();
-            ExpressionNode s = NodeParser.parseExpression(request.getCodeSnippet());
-
-            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(s);
-
             response.setSyntaxTree(syntaxTreeJSON);
             return response;
         });

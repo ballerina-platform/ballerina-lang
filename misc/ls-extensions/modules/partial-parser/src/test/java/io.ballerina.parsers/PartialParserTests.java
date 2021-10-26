@@ -43,6 +43,8 @@ public class PartialParserTests {
     private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
 
     private final Path singleStatementST = RES_DIR.resolve("syntax-tree").resolve("single_statement.json");
+    private final Path singleStatementModifiedST = RES_DIR.resolve("syntax-tree")
+            .resolve("single_statement_modification.json");
     private final Path expressionST = RES_DIR.resolve("syntax-tree").resolve("expression.json");
 
     private Endpoint serviceEndpoint;
@@ -59,6 +61,20 @@ public class PartialParserTests {
         CompletableFuture<?> result = serviceEndpoint.request(SINGLE_STATEMENT, request);
         STResponse json = (STResponse) result.get();
         BufferedReader br = new BufferedReader(new FileReader(singleStatementST.toAbsolutePath().toString()));
+        JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
+        Assert.assertEquals(json.getSyntaxTree(), expected);
+    }
+
+    @Test(description = "Test getting ST for a single statement with modification")
+    public void testModifiedSTForSingleStatement()
+            throws ExecutionException, InterruptedException, FileNotFoundException {
+        String statement = "string fullName = firstName + \"Cooper\";";
+        String modification = "middleName + \"Hofstadter\"";
+        STModification stModification = new STModification(0,30, 0, 38, modification);
+        PartialSTRequest request = new PartialSTRequest(statement, stModification);
+        CompletableFuture<?> result = serviceEndpoint.request(SINGLE_STATEMENT, request);
+        STResponse json = (STResponse) result.get();
+        BufferedReader br = new BufferedReader(new FileReader(singleStatementModifiedST.toAbsolutePath().toString()));
         JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
         Assert.assertEquals(json.getSyntaxTree(), expected);
     }
