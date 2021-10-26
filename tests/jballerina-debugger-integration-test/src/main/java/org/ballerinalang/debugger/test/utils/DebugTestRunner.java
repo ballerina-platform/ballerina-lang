@@ -75,20 +75,21 @@ public class DebugTestRunner {
     public List<BallerinaTestDebugPoint> testBreakpoints = new ArrayList<>();
     public Path testProjectPath;
     public Path testEntryFilePath;
-
     private static Path testProjectBaseDir;
     private static Path testSingleFileBaseDir;
     private static BalServer balServer;
     private TestDAPClientConnector debugClientConnector;
     private boolean isConnected = false;
     private int port;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DebugTestRunner.class);
-    private static final int MAX_RETRY_COUNT = 3;
     private BMainInstance balClient = null;
     private Process debuggeeProcess;
     private DebugHitListener hitListener;
     private AssertionMode assertionMode;
     private SoftAssert softAsserter;
+
+    private static final int MAX_RETRY_COUNT = 3;
+    private static final int SCHEDULER_INTERVAL_MS = 1000;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DebugTestRunner.class);
 
     public DebugTestRunner(String testProjectName, String testModuleFileName, boolean isProjectBasedTest) {
         if (isProjectBasedTest) {
@@ -396,10 +397,17 @@ public class DebugTestRunner {
 
         hitListener = new DebugHitListener(debugClientConnector);
         Timer timer = new Timer(true);
-        timer.scheduleAtFixedRate(hitListener, 0, 1000);
-        try {
-            Thread.sleep(timeoutMillis);
-        } catch (InterruptedException ignored) {
+        timer.scheduleAtFixedRate(hitListener, 0, SCHEDULER_INTERVAL_MS);
+
+        long retries = timeoutMillis / (2 * SCHEDULER_INTERVAL_MS);
+        for (int i = 0; i < retries; i++) {
+            try {
+                Thread.sleep(SCHEDULER_INTERVAL_MS);
+                if (hitListener.isDebugHitFound()) {
+                    break;
+                }
+            } catch (InterruptedException ignored) {
+            }
         }
         timer.cancel();
 
