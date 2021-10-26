@@ -22,7 +22,7 @@
     "code": "json j2 = null;"
   },
   {
-    "description": "Field access of null.",
+    "description": "Field access of null - get value.",
     "code": "j2?.name;"
   },
   {
