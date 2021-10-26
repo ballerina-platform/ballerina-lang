@@ -44,6 +44,7 @@ public class PackageManifest {
     private final String repository;
     private final List<String> exportedModules;
     private final String ballerinaVersion;
+    private final String visibility;
     private boolean template;
 
     // Other entries hold other key/value pairs available in the Ballerina.toml file.
@@ -68,6 +69,7 @@ public class PackageManifest {
         this.exportedModules = Collections.emptyList();
         this.repository = "";
         this.ballerinaVersion = "";
+        this.visibility = "";
     }
 
     private PackageManifest(PackageDescriptor packageDesc,
@@ -82,6 +84,7 @@ public class PackageManifest {
                             List<String> exportedModules,
                             String repository,
                             String ballerinaVersion,
+                            String visibility,
                             boolean template) {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
@@ -95,6 +98,7 @@ public class PackageManifest {
         this.exportedModules = getExport(packageDesc, exportedModules);
         this.repository = repository;
         this.ballerinaVersion = ballerinaVersion;
+        this.visibility = visibility;
         this.template = template;
     }
 
@@ -123,9 +127,10 @@ public class PackageManifest {
                                        List<String> export,
                                        String repository,
                                        String ballerinaVersion,
+                                       String visibility,
                                        boolean template) {
         return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, otherEntries, diagnostics,
-                license, authors, keywords, export, repository, ballerinaVersion, template);
+                license, authors, keywords, export, repository, ballerinaVersion, visibility, template);
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
@@ -138,10 +143,11 @@ public class PackageManifest {
                                        List<String> export,
                                        String repository,
                                        String ballerinaVersion,
+                                       String visibility,
                                        boolean template) {
         return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, Collections.emptyMap(),
                 new DefaultDiagnosticResult(Collections.emptyList()), license, authors, keywords,
-                export, repository, ballerinaVersion, template);
+                export, repository, ballerinaVersion, visibility, template);
     }
 
     public PackageName name() {
@@ -199,6 +205,10 @@ public class PackageManifest {
 
     public String ballerinaVersion() {
         return ballerinaVersion;
+    }
+
+    public String visibility() {
+        return visibility;
     }
 
     public DiagnosticResult diagnostics() {

@@ -57,7 +57,7 @@ public class AddOperationTest {
     }
 
     @Test(description = "Test two int add overflow expression", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\" int range " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
                     "overflow\"\\}.*")
     public void testIntOverflowByAddition() {
         BRunUtil.invoke(result, "overflowByAddition");
@@ -151,11 +151,18 @@ public class AddOperationTest {
         BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInAdd");
     }
 
+    @Test(description = "Test addition of nullable values")
+    public void testAddNullable() {
+        BRunUtil.invoke(result, "testAddNullable");
+    }
+
     @DataProvider
     public Object[] dataToTestAdditionWithTypes() {
         return new Object[]{
                 "testAdditionWithTypes",
-                "testAddSingleton"
+                "testAddSingleton",
+                "testStringCharAddition",
+                "testStringXmlSubtypesAddition"
         };
     }
 

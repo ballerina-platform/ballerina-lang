@@ -193,7 +193,10 @@ public enum NodeKind {
     ORDER_BY,
     ORDER_KEY,
     ON_FAIL,
+
+    /* Match statement */
     MATCH_CLAUSE,
+    MATCH_GUARD,
 
     /* Match patterns */
     CONST_MATCH_PATTERN,

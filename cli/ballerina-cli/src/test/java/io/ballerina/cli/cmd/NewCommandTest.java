@@ -94,13 +94,19 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String expectedContent = "[build-options]\n" +
+        String expectedContent = "[package]\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
                 "observabilityIncluded = true\n";
         Assert.assertTrue(tomlContent.contains(expectedContent));
 
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
         Assert.assertFalse(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(".devcontainer.json")));
+        String devcontainerContent = Files.readString(packageDir.resolve(".devcontainer.json"));
+        Assert.assertTrue(devcontainerContent.contains(RepoUtils.getBallerinaVersion()));
     }
 
     @Test(description = "Test new command with main template")
@@ -122,7 +128,9 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String expectedContent = "[build-options]\n" +
+        String expectedContent = "[package]\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
                 "observabilityIncluded = true\n";
         Assert.assertTrue(tomlContent.contains(expectedContent));
 
@@ -251,7 +259,6 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String[] templateSplit = templateArg.split("/");
         String expectedTomlContent = "[package]\n" +
                 "org = \"admin\"\n" +
                 "name = \"Sample\"\n" +
@@ -339,7 +346,45 @@ public class NewCommandTest extends BaseCommandTest {
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("Unable to create the package with the provided module"));
+        Assert.assertTrue(readOutput().contains("unable to create the package: specified package is not a template"));
+    }
+
+    @Test(description = "Test new command by pulling a central template with platform libs")
+    public void testNewCommandCentralPullWithPlatformDependencies() throws IOException {
+        // Test if no arguments was passed in
+        String templateArg = "admin/lib_project:0.1.0";
+        String[] args = {"sample_pull_libs", "-t", templateArg};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+
+        Path packageDir = tmpDir.resolve("sample_pull_libs");
+        Assert.assertTrue(Files.exists(packageDir));
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String tomlContent = Files.readString(
+                packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
+
+        String expectedTomlPkgContent = "[package]\n" +
+                "org = \"admin\"\n" +
+                "name = \"lib_project\"\n" +
+                "version = \"0.1.0\"\n" +
+                "export = [\"lib_project\"]\n" +
+                "ballerina_version = \"slbeta4\"\n" +
+                "implementation_vendor = \"WSO2\"\n" +
+                "language_spec_version = \"2021R1\"\n" +
+                "template = true";
+        String expectedTomlLibContent =
+                "artifactId = \"snakeyaml\"\n" +
+                "groupId = \"org.yaml\"\n" +
+                "version = \"1.9\"";
+
+        Assert.assertTrue(tomlContent.contains(expectedTomlPkgContent));
+        Assert.assertTrue(tomlContent.contains(expectedTomlLibContent));
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+
+        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
 
     @Test(description = "Test new command without arguments")
@@ -434,6 +479,32 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.isDirectory(tmpDir.resolve("parent").resolve("sub_dir").resolve("sample")));
     }
 
+    @DataProvider(name = "invalidPackageNames")
+    public Object[][] provideInvalidPackageNames() {
+        String longPkgName = "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting"
+                + "thisIsVeryLongPackageJustUsingItForTesting";
+        return new Object[][] {
+                { "_my_package", "Package name cannot have initial underscore characters." },
+                { "my_package_", "Package name cannot have trailing underscore characters." },
+                { "my__package", "Package name cannot have consecutive underscore characters." },
+                { longPkgName, "Maximum length of package name is 256 characters." }
+        };
+    }
+
+    @Test(description = "Test new command with invalid package names", dataProvider = "invalidPackageNames")
+    public void testNewCommandWithInvalidPackageNames(String packageName, String errMessage) throws IOException {
+        String[] args = { packageName };
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
+        new CommandLine(newCommand).parse(args);
+        newCommand.execute();
+
+        Assert.assertTrue(readOutput().contains("invalid package name : '" + packageName + "' :\n" + errMessage));
+    }
     static class Copy extends SimpleFileVisitor<Path> {
         private Path fromPath;
         private Path toPath;

@@ -1,0 +1,3 @@
+digraph "BallerinaToml" {
+    "samjs/toml:2.0.0" [repo = local]
+}

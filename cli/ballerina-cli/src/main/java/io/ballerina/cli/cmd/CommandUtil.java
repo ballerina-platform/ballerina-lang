@@ -37,7 +37,6 @@ import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,7 +50,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
@@ -64,7 +62,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
-import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
@@ -73,6 +70,7 @@ import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.write;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.ANY_PLATFORM;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
+import static org.wso2.ballerinalang.util.RepoUtils.readSettings;
 
 /**
  * Packerina command util.
@@ -84,6 +82,7 @@ public class CommandUtil {
     public static final String PKG_NAME = "PKG_NAME";
     public static final String DIST_VERSION = "DIST_VERSION";
     public static final String GITIGNORE = "gitignore";
+    public static final String DEVCONTAINER = "devcontainer";
     public static final String NEW_CMD_DEFAULTS = "new_cmd_defaults";
     public static final String CREATE_CMD_TEMPLATES = "create_cmd_templates";
     private static FileSystem jarFs;
@@ -157,6 +156,7 @@ public class CommandUtil {
         // - Ballerina.toml
         // - main.bal
         // - .gitignore       <- git ignore file
+        // - .devcontainer.json
 
         applyTemplate(path, template);
         if (template.equalsIgnoreCase("lib")) {
@@ -179,6 +179,15 @@ public class CommandUtil {
         }
         String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + GITIGNORE);
         Files.write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
+        // Create dev container
+        Path devcontainer = path.resolve(ProjectConstants.DEVCONTAINER);
+        if (Files.notExists(devcontainer)) {
+            Files.createFile(devcontainer);
+        }
+
+        String defaultDevcontainer = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + DEVCONTAINER);
+        defaultDevcontainer = defaultDevcontainer.replace("latest", RepoUtils.getBallerinaVersion());
+        Files.write(devcontainer, defaultDevcontainer.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -311,7 +320,6 @@ public class CommandUtil {
                     Files.copy(moduleMd, toModuleMd);
                 }
                 // Copy modules
-                // Copy modules
                 Path sourceModulesDir = balaPath.resolve("modules").resolve(packageName);
                 if (Files.exists(sourceModulesDir)) {
                     Files.walkFileTree(sourceModulesDir, new FileUtils.Copy(sourceModulesDir, modulePath));
@@ -319,7 +327,7 @@ public class CommandUtil {
                 findNonDefaultModules(balaPath, modulePath, packageName);
             } else {
                 Files.delete(modulePath);
-                throw new CentralClientException("Unable to create the package with the provided module");
+                throw new CentralClientException("unable to create the package: specified package is not a template");
             }
         } catch (IOException e) {
             printError(errStream,
@@ -347,27 +355,16 @@ public class CommandUtil {
             Path balaPath = balaCache.resolve(
                     ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
             String platform = findPlatform(balaPath);
-            String balaGlob = "glob:**" + orgName + File.separator + packageName + File.separator
-                    + version + File.separator + platform;
-            PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(balaGlob);
-
-            if (pathMatcher.matches(Paths.get(balaGlob))) {
-                if (Files.exists(balaPath)) {
-                    return balaPath;
-                } else {
-                    return null;
-                }
+            balaPath = balaCache.resolve(
+                    ProjectUtils.getRelativeBalaPath(orgName, packageName, version, platform));
+            if (Files.exists(balaPath)) {
+                return balaPath;
             } else {
-                printError(errStream,
-                        "Unable to read home cache",
-                        null,
-                        false);
-                getRuntime().exit(1);
+                return null;
             }
         } else {
             return null;
         }
-        return null;
     }
 
     public static void pullPackageFromCentral(Path balaCache, Path projectPath, String template)
@@ -445,14 +442,18 @@ public class CommandUtil {
                 Files.writeString(balTomlPath, "\npath = \"" + projectPlatform + "\"", StandardOpenOption.APPEND);
 
                 String artifactId = dependeciesObj.get("artifactId").getAsString();
-                Files.writeString(balTomlPath, "\nartifactId = \"" + artifactId + "\"", StandardOpenOption.APPEND);
-
+                if (artifactId != null) {
+                    Files.writeString(balTomlPath, "\nartifactId = \"" + artifactId + "\"", StandardOpenOption.APPEND);
+                }
                 String groupId = dependeciesObj.get("groupId").getAsString();
-                Files.writeString(balTomlPath, "\ngroupId = \"" + groupId + "\"", StandardOpenOption.APPEND);
-
+                if (groupId != null) {
+                    Files.writeString(balTomlPath, "\ngroupId = \"" + groupId + "\"", StandardOpenOption.APPEND);
+                }
                 String dependencyVersion = dependeciesObj.get("version").getAsString();
-                Files.writeString(balTomlPath, "\nversion = \"" + dependencyVersion + "\"\n",
-                        StandardOpenOption.APPEND);
+                if (dependencyVersion != null) {
+                    Files.writeString(balTomlPath, "\nversion = \"" + dependencyVersion + "\"\n",
+                            StandardOpenOption.APPEND);
+                }
             }
         }
     }
@@ -530,7 +531,9 @@ public class CommandUtil {
         Files.createFile(ballerinaToml);
 
         String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-app.toml");
-        write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
+        // replace manifest distribution with a guessed value
+        defaultManifest = defaultManifest.replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
+        Files.write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
     }
 
     private static void initLibPackage(Path path, String packageName) throws IOException {

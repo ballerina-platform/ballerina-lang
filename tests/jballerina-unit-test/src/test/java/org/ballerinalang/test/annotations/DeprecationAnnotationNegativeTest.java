@@ -24,18 +24,20 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
+
 /**
  * Negative tests for deprecation annotation.
  *
  * @since 1.2.0
  */
 public class DeprecationAnnotationNegativeTest {
+    private static final String WARN_FUNCTION_SHOULD_RETURN_NIL = "this function should explicitly return a value";
 
     @Test(description = "Negative tests for deprecation annotation", groups = { "disableOnOldParser" })
     public void testDeprecationAnnotation() {
 
         CompileResult compileResult = BCompileUtil.compile("test-src/annotations/deprecation_annotation_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 23);
         int i = 0;
         BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
                 "documentation", 4, 1);
@@ -79,9 +81,16 @@ public class DeprecationAnnotationNegativeTest {
                 191, 1);
         BAssertUtil.validateError(compileResult, i++, "'Deprecated parameters' documentation is not allowed here", 196,
                 1);
+        validateWarning(compileResult, i++, WARN_FUNCTION_SHOULD_RETURN_NIL, 200, 80);
+        validateWarning(compileResult, i++, WARN_FUNCTION_SHOULD_RETURN_NIL, 204, 57);
+        validateWarning(compileResult, i++, WARN_FUNCTION_SHOULD_RETURN_NIL, 208, 38);
+        validateWarning(compileResult, i++, WARN_FUNCTION_SHOULD_RETURN_NIL, 212, 44);
+        validateWarning(compileResult, i++, WARN_FUNCTION_SHOULD_RETURN_NIL, 216, 45);
         BAssertUtil.validateError(compileResult, i++, "invalid documentation: 'Deprecated' documentation is only " +
                 "allowed on constructs annotated as '@deprecated'", 225, 1);
-        BAssertUtil.validateError(compileResult, i, "'Deprecated parameters' documentation is not allowed here", 226,
+        BAssertUtil.validateError(compileResult, i++, "'Deprecated parameters' documentation is not allowed here", 226,
                 1);
+        Assert.assertEquals(compileResult.getErrorCount(), i - 5);
+        Assert.assertEquals(compileResult.getWarnCount(), 5);
     }
 }

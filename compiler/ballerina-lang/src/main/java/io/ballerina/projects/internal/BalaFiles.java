@@ -159,8 +159,11 @@ public class BalaFiles {
         // validate moduleName
         if (!ProjectUtils.validateModuleName(moduleName)) {
             throw new ProjectException("Invalid module name : '" + moduleName + "' :\n" +
-                    "Module name can only contain alphanumerics, underscores and periods " +
-                    "and the maximum length is 256 characters: " + modulePath);
+                    "Module name can only contain alphanumerics, underscores and periods: " + modulePath);
+        }
+        if (!ProjectUtils.validateNameLength(moduleName)) {
+            throw new ProjectException("Invalid module name : '" + moduleName + "' :\n" +
+                    "Maximum length of module name is 256 characters: " + modulePath);
         }
 
         List<DocumentData> srcDocs = loadDocuments(modulePath);
@@ -393,14 +396,16 @@ public class BalaFiles {
         }
 
         return compilerPluginJson.map(pluginJson -> PackageManifest
-                .from(pkgDesc, CompilerPluginDescriptor.from(pluginJson), platforms, dependencies,
-                        packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
-                        packageJson.getExport(), packageJson.getSourceRepository(), packageJson.getBallerinaVersion(),
-                        packageJson.getTemplate()))
+                        .from(pkgDesc, CompilerPluginDescriptor.from(pluginJson), platforms, dependencies,
+                                packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
+                                packageJson.getExport(), packageJson.getSourceRepository(),
+                                packageJson.getBallerinaVersion(), packageJson.getVisibility(),
+                                packageJson.getTemplate()))
                 .orElseGet(() -> PackageManifest
                         .from(pkgDesc, null, platforms, dependencies, packageJson.getLicenses(),
                                 packageJson.getAuthors(), packageJson.getKeywords(), packageJson.getExport(),
                                 packageJson.getSourceRepository(), packageJson.getBallerinaVersion(),
+                                packageJson.getVisibility(),
                                 packageJson.getTemplate()));
     }
 
@@ -448,6 +453,19 @@ public class BalaFiles {
         } catch (IOException e) {
             throw new ProjectException("Failed to read the package.json in '" + balaPath + "'");
         }
+        return packageJson;
+    }
+
+    public static PackageJson readPkgJson(Path packageJsonPath) {
+        PackageJson packageJson;
+        try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath)) {
+            packageJson = gson.fromJson(bufferedReader, PackageJson.class);
+        } catch (JsonSyntaxException e) {
+            throw new ProjectException("Invalid package.json format");
+        } catch (IOException e) {
+            throw new ProjectException("Failed to read the package.json");
+        }
+
         return packageJson;
     }
 

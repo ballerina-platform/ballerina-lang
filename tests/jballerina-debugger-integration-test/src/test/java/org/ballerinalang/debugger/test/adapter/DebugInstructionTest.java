@@ -31,6 +31,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.nio.file.Path;
+
 /**
  * Test implementation for debug instructions related scenarios.
  */
@@ -107,18 +109,6 @@ public class DebugInstructionTest extends BaseTestCase {
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 22));
 
-        // Todo - Enable after https://github.com/ballerina-platform/ballerina-lang/issues/32730 is fixed from the
-        //  runtime
-        // Tests STEP_OVER behaviour on the last line of object init() method.
-        // Expected behaviour would be having a debug hit in object creation line.
-        // debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_OVER);
-        // debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        // Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath,
-        // 33));
-        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_OVER);
-        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 27));
-
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_OVER);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 34));
@@ -139,12 +129,13 @@ public class DebugInstructionTest extends BaseTestCase {
         String testProjectName = "debug-instruction-tests-2";
         String testModuleFileName = "main.bal";
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
+        Path mainFilePath = debugTestRunner.testEntryFilePath;
 
         // Initial debug hit
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 18));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(mainFilePath, 18));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 18));
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(mainFilePath, 18));
         Thread[] activeThreads = debugTestRunner.fetchThreads();
         if (activeThreads.length == 0) {
             throw new BallerinaTestException("Failed to retrieve active threads in the program VM");
@@ -160,10 +151,12 @@ public class DebugInstructionTest extends BaseTestCase {
             }
         }
 
-        // At this point, 'pause' command should suspend the program at the infinite while loop.
+        // At this point, 'pause' command should suspend the program at the infinite while loop. (can be either
+        // condition line or the statement body)
         debugTestRunner.pauseProgram(activeThreads[0].getId());
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 20));
+        Assert.assertTrue(debugHitInfo.getLeft().equals(new BallerinaTestDebugPoint(mainFilePath, 20))
+                || debugHitInfo.getLeft().equals(new BallerinaTestDebugPoint(mainFilePath, 21)));
     }
 
     @AfterMethod(alwaysRun = true)

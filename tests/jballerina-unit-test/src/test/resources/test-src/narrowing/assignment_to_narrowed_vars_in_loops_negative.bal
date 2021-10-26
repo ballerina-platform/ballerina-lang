@@ -470,3 +470,150 @@ function f12() {
         }
     }
 }
+
+function f13() {
+    record {} logRecord = {
+        "module": 1234
+    };
+
+    foreach [string, anydata] [k, v] in logRecord.entries() {
+        string|int value;
+        match k {
+            "module" => {
+                value = v.toString();
+                if value is string {
+                    while k == "module" {
+                        string str = value;
+                        value = 4;
+                    }
+                }
+            }
+        }
+    }
+}
+
+function f14(int?[] arr) returns boolean {
+    int? value = let int length = arr.length() in length > 0 ? length : ();
+
+    if value is int {
+        foreach int? item in arr {
+            int currentValue = value;
+
+            if item is () {
+                value = ();
+                continue;
+            }
+
+            return item < value;
+        }
+    }
+
+    return false;
+}
+
+function f15(int?[] arr) returns boolean {
+    int? value = let int length = arr.length() in length > 0 ? length : ();
+
+    if value is int {
+        int index = 0;
+        while index < arr.length() {
+            int? item = arr[index];
+            int currentValue = value;
+
+            if item is () {
+                value = ();
+                continue;
+            }
+
+            index += 1;
+            return item < value;
+        }
+    }
+
+    return false;
+}
+
+function f16(int?[] arr) returns boolean {
+    int? value = let int length = arr.length() in length > 0 ? length : ();
+
+    if value is int {
+        int index = 0;
+        while index < arr.length() {
+            int? item = arr[index];
+            int currentValue = value;
+
+            match item {
+                () => {
+                    value = ();
+                    continue;
+                }
+            }
+
+            index += 1;
+            return item < value;
+        }
+    }
+
+    return false;
+}
+
+function f17(int?[] arr) returns boolean {
+    int? value = let int length = arr.length() in length > 0 ? length : ();
+
+    if value is int {
+        foreach int? item in arr {
+            int currentValue = value;
+
+            if item is () {
+                value = ();
+                continue;
+            }
+        }
+    }
+
+    return false;
+}
+
+function f18(int?[] arr) returns boolean {
+    int? value = let int length = arr.length() in length > 0 ? length : ();
+
+    if value is int {
+        int index = 0;
+        while index < arr.length() {
+            int? item = arr[index];
+            int currentValue = value;
+
+            if item is () {
+                value = ();
+                continue;
+            }
+
+            index += 1;
+        }
+    }
+
+    return false;
+}
+
+function f19(int?[] arr) returns boolean {
+    int? value = let int length = arr.length() in length > 0 ? length : ();
+
+    if value is int {
+        int index = 0;
+        while index < arr.length() {
+            int? item = arr[index];
+            int currentValue = value;
+
+            match item {
+                () => {
+                    value = ();
+                    continue;
+                }
+            }
+
+            index += 1;
+        }
+    }
+
+    return false;
+}

@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -34,6 +35,7 @@ public class BLangNamedArgsExpression extends BLangExpression implements NamedAr
 
     public BLangIdentifier name;
     public BLangExpression expr;
+    public BVarSymbol varSymbol;
 
     @Override
     public BLangIdentifier getName() {

@@ -24,10 +24,10 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -46,11 +46,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIONS_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_MAP_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ANNOTATIONS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 
 /**
  * Generates Jvm class for the ballerina annotation processing.
@@ -62,7 +60,6 @@ public class JvmAnnotationsGen {
     private final String annotationsClass;
     private final JvmPackageGen jvmPackageGen;
     private final JvmTypeGen jvmTypeGen;
-    private static final int MAX_ANNOTATIONS_PER_METHOD = 100;
     private final BIRNode.BIRPackage module;
 
     public JvmAnnotationsGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen) {
@@ -96,14 +93,13 @@ public class JvmAnnotationsGen {
 
     private int generateAnnotationsLoad(ClassWriter cw, List<BIRNode.BIRTypeDefinition> typeDefs,
                                         PackageID packageID, JvmTypeGen jvmTypeGen) {
-        String typePkgName = ".";
-        int annCount = 0;
         int methodCount = 0;
-        MethodVisitor mv = null;
-        if (!"".equals(packageID)) {
-            typePkgName = JvmCodeGenUtil.getPackageName(packageID);
-        }
+        MethodVisitor mv;
+        String typePkgName = JvmCodeGenUtil.getPackageName(packageID);
 
+        mv = cw.visitMethod(ACC_STATIC, ANNOTATIONS_METHOD_PREFIX + methodCount++,
+                            "()V", null, null);
+        mv.visitCode();
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
             if (optionalTypeDef.isBuiltin) {
                 continue;
@@ -112,43 +108,28 @@ public class JvmAnnotationsGen {
             // Annotations for object constructors are populated at object init site.
             boolean constructorsPopulated = (bType.flags & Flags.OBJECT_CTOR) == Flags.OBJECT_CTOR;
             if (!constructorsPopulated && bType.tag != TypeTags.FINITE) {
-                if (annCount % MAX_ANNOTATIONS_PER_METHOD == 0) {
-                    mv = cw.visitMethod(ACC_STATIC, ANNOTATIONS_METHOD_PREFIX + methodCount++,
-                            "()V", null, null);
-                    mv.visitCode();
-                }
-                annCount = loadAnnotationss(mv, typePkgName, optionalTypeDef, jvmTypeGen, annCount);
-                if (annCount % MAX_ANNOTATIONS_PER_METHOD == 0) {
-                    mv.visitInsn(RETURN);
-                    mv.visitMaxs(0, 0);
-                    mv.visitEnd();
-                }
+                loadAnnotations(mv, typePkgName, optionalTypeDef, jvmTypeGen);
             }
         }
         // Visit the previously started string init method if not ended.
-        if (annCount % MAX_ANNOTATIONS_PER_METHOD != 0) {
-            mv.visitInsn(RETURN);
-            mv.visitMaxs(0, 0);
-            mv.visitEnd();
-        }
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
         return methodCount;
     }
 
-    private int loadAnnotationss(MethodVisitor mv, String pkgName, BIRNode.BIRTypeDefinition typeDef,
-                                 JvmTypeGen jvmTypeGen, int annCount) {
+    private void loadAnnotations(MethodVisitor mv, String pkgName, BIRNode.BIRTypeDefinition typeDef,
+                                 JvmTypeGen jvmTypeGen) {
+        BType type = typeDef.type;
+        if (type.tag == TypeTags.UNION) {
+            return;
+        }
         String pkgClassName = pkgName.equals(".") || pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
                 jvmPackageGen.lookupGlobalVarClassName(pkgName, ANNOTATION_MAP_NAME);
-        mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
+        mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, JvmSignatures.GET_MAP_VALUE);
         loadLocalType(mv, typeDef, jvmTypeGen);
-        mv.visitMethodInsn(INVOKESTATIC, String.format("%s", ANNOTATION_UTILS), "processAnnotations",
-                String.format("(L%s;L%s;)V", MAP_VALUE, TYPE), false);
-        if (typeDef.type.tag == TypeTags.UNION) {
-            annCount = annCount + ((BUnionType) typeDef.type).getMemberTypes().size();
-        }
-        if (annCount >= MAX_ANNOTATIONS_PER_METHOD) {
-            return 0;
-        }
-        return annCount;
+        mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processAnnotations",
+                JvmSignatures.PROCESS_ANNOTATIONS, false);
     }
 
     void loadLocalType(MethodVisitor mv, BIRNode.BIRTypeDefinition typeDefinition, JvmTypeGen jvmTypeGen) {
