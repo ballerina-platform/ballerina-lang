@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.TypeNamePair;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmTupleTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 
@@ -36,7 +36,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.TreeMap;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
@@ -72,14 +72,14 @@ public class JvmTupleTypeConstantsGen {
     private final Queue<TypeNamePair> queue;
     private final Map<BTupleType, String> tupleTypeVarMap;
 
-    public JvmTupleTypeConstantsGen(PackageID packageID) {
+    public JvmTupleTypeConstantsGen(PackageID packageID, BTypeHashComparator bTypeHashComparator) {
         tupleVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(packageID,
                 JvmConstants.TUPLE_TYPE_CONSTANT_CLASS_NAME);
         generateTupleTypeConstantsClassInit();
         visitTupleTypeInitMethod();
         funcNames = new ArrayList<>();
         queue = new LinkedList<>();
-        tupleTypeVarMap = new ConcurrentSkipListMap<>(JvmConstantsGen.TYPE_HASH_COMPARATOR);
+        tupleTypeVarMap = new TreeMap<>(bTypeHashComparator);
     }
 
     public void setJvmTupleTypeGen(JvmTupleTypeGen jvmTupleTypeGen) {
