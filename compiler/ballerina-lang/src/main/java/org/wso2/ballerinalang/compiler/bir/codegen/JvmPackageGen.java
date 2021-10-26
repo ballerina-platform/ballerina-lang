@@ -764,7 +764,7 @@ public class JvmPackageGen {
             return null;
         }
 
-        // using a concurrent hash map to store class byte values, which are generated in parallel
+        // use a map to store class byte values
         final Map<String, byte[]> jarEntries = new HashMap<>();
 
         // desugar parameter initialization
