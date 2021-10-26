@@ -34,5 +34,5 @@ public class ModuleMetaData {
     @Expose
     public String version;
     @Expose
-    public boolean isSubModule = false;
+    public boolean isDefaultModule = true;
 }

@@ -32,14 +32,14 @@ public class ModuleSearchJson {
     @Expose
     private String version;
     @Expose
-    private boolean isSubModule;
+    private boolean isDefaultModule;
 
-    public ModuleSearchJson(String id, String orgName, String version, String description, boolean isSubModule) {
+    public ModuleSearchJson(String id, String orgName, String version, String description, boolean isDefaultModule) {
         this.setId(id);
         this.setDescription(description);
         this.setOrgName(orgName);
         this.setVersion(version);
-        this.setIsSubModule(isSubModule);
+        this.setIsDefaultModule(isDefaultModule);
     }
 
     public String getId() {
@@ -74,11 +74,11 @@ public class ModuleSearchJson {
         this.version = version;
     }
 
-    public boolean getIsSubModule() {
-        return isSubModule;
+    public boolean getIsDefaultModule() {
+        return isDefaultModule;
     }
 
-    public void setIsSubModule(boolean isSubModule) {
-        this.isSubModule = isSubModule;
+    public void setIsDefaultModule(boolean isDefaultModule) {
+        this.isDefaultModule = isDefaultModule;
     }
 }

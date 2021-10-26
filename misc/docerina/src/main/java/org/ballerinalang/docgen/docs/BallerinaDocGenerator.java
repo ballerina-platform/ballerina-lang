@@ -137,7 +137,7 @@ public class BallerinaDocGenerator {
                                     moduleMeta.summary = module.summary;
                                     moduleMeta.orgName = module.orgName;
                                     moduleMeta.version = module.version;
-                                    moduleMeta.isSubModule = module.isSubModule;
+                                    moduleMeta.isDefaultModule = module.isDefaultModule;
                                     if (module.id.startsWith("lang.")) {
                                         centralLib.langLibs.add(moduleMeta);
                                         moduleLib.langLibs.add(module);
@@ -331,7 +331,7 @@ public class BallerinaDocGenerator {
 
         for (Module module: allModules) {
             if (module.summary != null) {
-                searchModules.add(new ModuleSearchJson(module.id, module.orgName, module.version, module.summary, module.isSubModule));
+                searchModules.add(new ModuleSearchJson(module.id, module.orgName, module.version, module.summary, module.isDefaultModule));
             }
 
             module.functions.forEach((function) ->
@@ -472,7 +472,7 @@ public class BallerinaDocGenerator {
                     moduleVersion;
             module.summary = moduleDoc.getValue().summary;
             module.description = moduleDoc.getValue().description;
-            module.isSubModule = !moduleDoc.getValue().isDefault;
+            module.isDefaultModule = moduleDoc.getValue().isDefault;
 
             // collect module's doc resources
             module.resources.addAll(moduleDoc.getValue().resources);
@@ -504,7 +504,7 @@ public class BallerinaDocGenerator {
                 moduleMeta.orgName = module.orgName;
                 moduleMeta.summary = module.summary;
                 moduleMeta.version = module.version;
-                moduleMeta.isSubModule = module.isSubModule;
+                moduleMeta.isDefaultModule = module.isDefaultModule;
                 relatedModules.add(moduleMeta);
             }
 
