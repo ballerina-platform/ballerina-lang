@@ -228,6 +228,8 @@ function testEmptyArrayIteration() returns string {
     return output;
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+
 function testForeachIterationOverReadOnlyArrayMembersOfReadOnlyArrayWithVar() {
     readonly & (int[2])[] x = [[1, 2], [3, 4], [5, 6]];
 
@@ -442,10 +444,8 @@ function testForeachIterationOverReadOnlyRecordOfNonReadOnlyArray() {
 
     (int|string[]|boolean?)[] arr = [];
 
-    foreach var {a, b} in x {
-        int|string[] c = a;
-        int|boolean? d = b;
-        arr.push(c, d);
+    foreach record {| int|string[] a; int|boolean? b; |} {a, b} in x {
+        arr.push(a, b);
     }
 
     assertEquality(4, arr.length());
