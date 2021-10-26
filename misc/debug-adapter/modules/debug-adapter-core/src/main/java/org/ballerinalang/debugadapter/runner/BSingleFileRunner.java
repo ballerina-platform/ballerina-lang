@@ -26,9 +26,9 @@ import java.util.Map;
 /**
  * Ballerina single file runner.
  */
-public class BFileRunner extends BProgramRunner {
+public class BSingleFileRunner extends BProgramRunner {
 
-    public BFileRunner(ClientLaunchConfigHolder configHolder, String fileRoot) {
+    public BSingleFileRunner(ClientLaunchConfigHolder configHolder, String fileRoot) {
         super(configHolder, fileRoot);
     }
 
@@ -50,6 +50,15 @@ public class BFileRunner extends BProgramRunner {
         // Adds environment variables configured by the user.
         if (configHolder.getEnv().isPresent()) {
             configHolder.getEnv().get().forEach(env::put);
+        }
+
+        // If the debugger is running on test mode, modifies jacoco agent args to instrument debugger runtime classes.
+        if (env.containsKey(ENV_DEBUGGER_TEST_MODE) && env.containsKey(ENV_JAVA_OPTS)) {
+            String javaOpts = env.get(ENV_JAVA_OPTS);
+            if (javaOpts.contains(DEBUGGER_CORE_TEST_FILE)) {
+                javaOpts = javaOpts.replace(DEBUGGER_CORE_TEST_FILE, DEBUGGER_RUNTIME_TEST_FILE);
+            }
+            env.put(ENV_JAVA_OPTS, javaOpts);
         }
 
         return processBuilder.start();
