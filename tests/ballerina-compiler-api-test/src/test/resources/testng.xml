@@ -114,11 +114,11 @@
             <class name="io.ballerina.semantic.api.test.statements.SymbolsInPanicStatements" />
 
             <!--Actions-->
-            <class name="io.ballerina.semantic.api.test.actions.SymbolsInStartActionsTest" />
-            <class name="io.ballerina.semantic.api.test.actions.SymbolsInWaitActionsTest" />
-            <class name="io.ballerina.semantic.api.test.actions.SymbolsInSendReceiveFlushActionsTest" />
-            <class name="io.ballerina.semantic.api.test.actions.SymbolsInTypeCastActionsTest" />
             <class name="io.ballerina.semantic.api.test.actions.SymbolsInQueryActionsTest" />
+            <class name="io.ballerina.semantic.api.test.actions.SymbolsInSendReceiveFlushActionsTest" />
+            <class name="io.ballerina.semantic.api.test.actions.SymbolsInStartActionsTest" />
+            <class name="io.ballerina.semantic.api.test.actions.SymbolsInTypeCastActionsTest" />
+            <class name="io.ballerina.semantic.api.test.actions.SymbolsInWaitActionsTest" />
 
             <!--Symbols-->
             <class name="io.ballerina.semantic.api.test.symbols.AnnotationSymbolTest" />
