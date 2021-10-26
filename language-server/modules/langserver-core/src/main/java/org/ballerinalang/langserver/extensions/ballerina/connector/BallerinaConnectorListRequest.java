@@ -205,8 +205,8 @@ public class BallerinaConnectorListRequest {
             params.put("user-packages", isUserPackages() ? "1" : "0");
         }
 
-        if (getDescription() != null) {
-            params.put("description", getDescription());
+        if (getKeyword() != null) {
+            params.put("keyword", getKeyword());
         }
 
         if (getBallerinaVersion() != null) {
