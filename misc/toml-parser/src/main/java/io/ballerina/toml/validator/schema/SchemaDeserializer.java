@@ -129,7 +129,7 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
                 return getStringSchema(jsonObj, compositeSchema.orElse(null));
             case BOOLEAN:
                 Map<String, String> customMessages = parseOptionalMapFromMessageJson(jsonObj);
-                Boolean defaultValue = parseOptionalBooleanFromJson(jsonObj, DEFAULT_VALUE);
+                Boolean defaultValue = parseOptionalBooleanFromJson(jsonObj, DEFAULT_VALUE, null);
                 return new BooleanSchema(Type.BOOLEAN, customMessages, defaultValue, compositeSchema.orElse(null));
             default:
                 throw new JsonSchemaException(type.getAsString() + " is not supported type in json schema");
@@ -143,7 +143,7 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
         String schema = schemaProp != null ? schemaProp.getAsString() : null;
         JsonElement descriptionProperty = jsonObj.get(DESCRIPTION);
         String description = descriptionProperty != null ? descriptionProperty.getAsString() : null;
-        boolean additionalProperties = parseOptionalBooleanFromJson(jsonObj, ADDITIONAL_PROPERTIES);
+        boolean additionalProperties = parseOptionalBooleanFromJson(jsonObj, ADDITIONAL_PROPERTIES, false);
         JsonObject properties = jsonObj.get(PROPERTIES).getAsJsonObject();
         Set<Map.Entry<String, JsonElement>> entries = properties.entrySet();
         Map<String, AbstractSchema> propertiesList = new LinkedHashMap<>();
@@ -195,10 +195,10 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
         throw new JsonSchemaException(key + " should always be a number");
     }
 
-    private boolean parseOptionalBooleanFromJson(JsonObject jsonObject, String key) {
+    private Boolean parseOptionalBooleanFromJson(JsonObject jsonObject, String key, Boolean defaultVal) {
         JsonElement jsonElement = jsonObject.get(key);
         if (jsonElement == null || jsonElement.isJsonNull()) {
-            return false;
+            return defaultVal;
         }
 
         if (jsonElement.isJsonPrimitive() && jsonElement.getAsJsonPrimitive().isBoolean()) {
