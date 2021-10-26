@@ -143,8 +143,7 @@ public class AnnotationProc {
                             .byteValue();
                     jType = getJArrayTypeFromTypeName(elementClass, dimensions);
                 } else {
-                    throw new BLangCompilerException(String.format("unexpected annotation value: %s",
-                            annotArrayElement));
+                    throw new BLangCompilerException("unexpected annotation value: " + annotArrayElement);
                 }
                 constraints.add(jType);
             }
@@ -161,8 +160,8 @@ public class AnnotationProc {
         } else if (annotValue instanceof BIRAnnotationLiteralValue) {
             return ((BIRAnnotationLiteralValue) annotValue).value;
         } else {
-            throw new BLangCompilerException(String.format("unexpected annotation value, " +
-                    "expected a literal value, found %s", annotValue));
+            throw new BLangCompilerException("unexpected annotation value, " +
+                    "expected a literal value, found " + annotValue);
         }
     }
 

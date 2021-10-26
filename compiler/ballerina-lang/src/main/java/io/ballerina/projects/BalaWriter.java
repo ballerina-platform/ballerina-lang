@@ -147,6 +147,7 @@ public abstract class BalaWriter {
         packageJson.setSourceRepository(packageManifest.repository());
         packageJson.setKeywords(packageManifest.keywords());
         packageJson.setExport(packageManifest.exportedModules());
+        packageJson.setVisibility(packageManifest.visibility());
         packageJson.setTemplate(packageManifest.template());
 
         packageJson.setPlatform(target);

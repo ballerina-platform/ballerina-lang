@@ -52,17 +52,20 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.hash;
 
@@ -75,11 +78,13 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
     private Map<BType, Integer> visited;
     private Map<Integer, Integer> generated;
     private Stack<BType> visiting;
+    private Set<BType> unresolvedTypes;
 
     public TypeHashVisitor() {
         visited = new HashMap<>();
         generated = new HashMap<>();
         visiting = new Stack<>();
+        unresolvedTypes = new HashSet<>();
     }
 
     @Override
@@ -92,6 +97,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         visiting.clear();
         visited.clear();
         generated.clear();
+        unresolvedTypes.clear();
     }
 
     @Override
@@ -430,8 +436,17 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-        List<Integer> valueSpaceHashes = type.getValueSpace().stream().map(Object::toString)
-                .sorted().map(String::hashCode).collect(Collectors.toList());
+        List<String> toSort = new ArrayList<>();
+        for (BLangExpression bLangExpression : type.getValueSpace()) {
+            String toString = bLangExpression.toString();
+            toSort.add(toString);
+        }
+        toSort.sort(null);
+        List<Integer> valueSpaceHashes = new ArrayList<>();
+        for (String toString : toSort) {
+            Integer hashCode = toString.hashCode();
+            valueSpaceHashes.add(hashCode);
+        }
         Integer hash = hash(baseHash(type), valueSpaceHashes);
         return addToVisited(type, hash);
     }
@@ -518,10 +533,11 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
     }
 
     private boolean isCyclic(BType type) {
-        if (visiting.contains(type)) {
+        if (unresolvedTypes.contains(type)) {
             return true;
         }
         visiting.push(type);
+        unresolvedTypes.add(type);
         return false;
     }
 
@@ -542,27 +558,42 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
     }
 
     private List<Integer> getTypesHashes(Collection<BType> types) {
-        return types.stream().map(this::visit)
-                .sorted(Comparator.comparingInt(Integer::intValue))
-                .collect(Collectors.toList());
+        List<Integer> list = new ArrayList<>();
+        for (BType type : types) {
+            Integer visit = visit(type);
+            list.add(visit);
+        }
+        list.sort(Comparator.comparingInt(Integer::intValue));
+        return list;
     }
 
     private List<Integer> getOrderedTypesHashes(List<BType> tupleTypes) {
-        return tupleTypes.stream().map(this::visit).collect(Collectors.toList());
+        List<Integer> list = new ArrayList<>();
+        for (BType tupleType : tupleTypes) {
+            Integer visit = visit(tupleType);
+            list.add(visit);
+        }
+        return list;
     }
 
     private List<Integer> getFieldsHashes(Map<String, BField> fields) {
-        return fields.values().stream()
-                .map(f -> hash(f.name.value, f.symbol != null ? f.symbol.flags : null, visit(f.type)))
-                .sorted(Comparator.comparingInt(Integer::intValue))
-                .collect(Collectors.toList());
+        List<Integer> list = new ArrayList<>();
+        for (BField f : fields.values()) {
+            Integer hash = hash(f.name.value, f.symbol != null ? f.symbol.flags : null, visit(f.type));
+            list.add(hash);
+        }
+        list.sort(Comparator.comparingInt(Integer::intValue));
+        return list;
     }
 
     private List<Integer> getFunctionsHashes(List<BAttachedFunction> attachedFunctions) {
-        return attachedFunctions.stream()
-                .map(this::getFunctionHash)
-                .sorted(Comparator.comparingInt(Integer::intValue))
-                .collect(Collectors.toList());
+        List<Integer> list = new ArrayList<>();
+        for (BAttachedFunction attachedFunction : attachedFunctions) {
+            Integer functionHash = getFunctionHash(attachedFunction);
+            list.add(functionHash);
+        }
+        list.sort(Comparator.comparingInt(Integer::intValue));
+        return list;
     }
 
     private int getFunctionHash(BAttachedFunction attachedFunction) {

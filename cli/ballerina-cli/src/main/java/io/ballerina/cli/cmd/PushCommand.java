@@ -249,13 +249,13 @@ public class PushCommand implements BLauncherCmd {
 
         if (Files.notExists(balaOutputDir)) {
             throw new ProjectException("cannot find bala file for the package: " + pkgName + ". Run "
-                    + "'bal build -c' to compile and generate the bala.");
+                    + "'bal pack' to compile and generate the bala.");
         }
 
         Path packageBalaFile = findBalaFile(pkgName, orgName, balaOutputDir);
         if (null == packageBalaFile) {
             throw new ProjectException("cannot find bala file for the package: " + pkgName + ". Run "
-                    + "'bal build -c' to compile and generate the bala.");
+                    + "'bal pack' to compile and generate the bala.");
         }
 
         if (!packageBalaFile.toString().endsWith(
@@ -263,7 +263,7 @@ public class PushCommand implements BLauncherCmd {
             throw new ProjectException(
                     "'" + packageBalaFile + "' does not match with the package version '" + packageVersion.toString()
                             + "' in " + ProjectConstants.BALLERINA_TOML
-                            + " file. Run 'bal build -c' to recompile and generate the bala.");
+                            + " file. Run 'bal pack' to recompile and generate the bala.");
         }
 
         try {

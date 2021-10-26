@@ -268,7 +268,7 @@ public class JSONStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'map<json>' value cannot be converted to 'Student': " +
+                "'map<json>' value cannot be converted to 'Student': " +
                 "\n\t\tfield 'age' cannot be added to the closed record 'Student'");
     }
 
@@ -279,7 +279,8 @@ public class JSONStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'map<json>' value cannot be converted to 'map<string>'");
+                "'map<json>' value cannot be converted to 'map<string>': " +
+                "\n\t\tmap field 'age' should be of type 'string', found '23'");
     }
 
     @Test
@@ -289,7 +290,7 @@ public class JSONStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "cannot convert '()' to type 'StringArray'");
+                "cannot convert '()' to type 'StringArray'");
     }
 
     @AfterClass

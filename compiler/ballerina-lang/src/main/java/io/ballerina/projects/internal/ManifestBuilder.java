@@ -160,6 +160,7 @@ public class ManifestBuilder {
         List<String> exported = Collections.emptyList();
         String repository = "";
         String ballerinaVersion = "";
+        String visibility = "";
         boolean template = false;
 
         if (!tomlAstNode.entries().isEmpty()) {
@@ -171,6 +172,7 @@ public class ManifestBuilder {
                 exported = getStringArrayFromPackageNode(pkgNode, EXPORT);
                 repository = getStringValueFromTomlTableNode(pkgNode, REPOSITORY, "");
                 ballerinaVersion = getStringValueFromTomlTableNode(pkgNode, "distribution", "");
+                visibility = getStringValueFromTomlTableNode(pkgNode, "visibility", "");
                 template = getBooleanFromTemplateNode(pkgNode, TEMPLATE);
             }
         }
@@ -201,7 +203,7 @@ public class ManifestBuilder {
         }
 
         return PackageManifest.from(packageDescriptor, pluginDescriptor, platforms, localRepoDependencies, otherEntries,
-                diagnostics(), license, authors, keywords, exported, repository, ballerinaVersion, template);
+                diagnostics(), license, authors, keywords, exported, repository, ballerinaVersion, visibility, template);
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
