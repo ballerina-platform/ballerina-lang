@@ -157,7 +157,6 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
 
         try {
             HttpClient client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
-            client.followRedirects();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(api))
                     .headers("Content-Type", "application/json",
