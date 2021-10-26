@@ -220,8 +220,6 @@ public class TypeGuardTest {
                 "optional field access for field 't'", 498, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found '(record {| " +
                 "string s; |} & readonly)?'", 499, 21);
-        BAssertUtil.validateError(negativeResult, i++, "field access cannot be used to access an optional field, use " +
-                "optional field access or member access", 500, 50);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'r|g', found 'r|g|b'", 512, 22);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '1', found '1|2'", 518, 16);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '2|3', found '1|2'", 524, 18);

@@ -105,12 +105,11 @@ public class FieldAccessTest {
                 "undeclared in record(s) 'TA'", 253, 17);
 
         validateError(negativeResult, i++, "field access can only be used to access required fields, field 'x' is " +
-                "undeclared in record(s) 'RB', 'TB', and 'UB' and optional in record(s) 'QB', 'SB', and 'VB'", 293, 17);
+                "undeclared in record(s) 'RB', 'TB', and 'UB'", 293, 17);
         validateError(negativeResult, i++, "field access can only be used to access required fields, field 'y' is " +
-                "undeclared in record(s) 'QB', and 'TB' and optional in record(s) 'RB', 'UB', and 'VB'", 294, 17);
+                "undeclared in record(s) 'QB', and 'TB'", 294, 17);
         validateError(negativeResult, i++, "field access can only be used to access required fields, field 'z' is " +
-                "undeclared in record(s) 'RB', 'SB', and 'VB' and optional in record(s) 'QB', and 'TB'", 295, 17);
-
+                "undeclared in record(s) 'RB', 'SB', and 'VB'", 295, 17);
     }
 
     @Test(dataProvider = "recordFieldAccessFunctions")

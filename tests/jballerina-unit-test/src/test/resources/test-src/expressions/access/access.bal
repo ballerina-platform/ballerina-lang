@@ -92,6 +92,15 @@ function testFieldOptionalFieldAndMemberAccess3() {
     string? s1 = a.betas[0]?.s;
 }
 
+function testAccessOptionalFieldWithoutOptionalFieldAccess() returns boolean{
+    Beta b1 = { i: 1, s: "test" };
+    Beta b2 = { i: 1 };
+    string? s1 = b1.s;
+    string? s2 = b2.s;
+
+    return s1 == "test" && s2 is ();
+}
+
 public class Gamma {
     Delta? delta;
 

@@ -50,8 +50,7 @@ public class AccessTest {
     public void testNegativeCases() {
         Assert.assertEquals(negativeResult.getErrorCount(), 3);
         int i = 0;
-        validateError(negativeResult, i++, "field access cannot be used to access an optional field, use optional " +
-                "field access or member access", 40, 18);
+        validateError(negativeResult, i++, "invalid operation: type 'Beta?[]?' does not support member access", 40, 18);
         validateError(negativeResult, i++, "incompatible types: expected 'string', found 'string?'", 53, 17);
         validateError(negativeResult, i, "invalid operation: type 'Delta?' does not support member access", 70, 17);
     }
@@ -111,6 +110,12 @@ public class AccessTest {
     @Test
     public void testAccessOnGroupedExpressions() {
         BValue[] returns = BRunUtil.invoke(result, "testAccessOnGroupedExpressions");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testAccessOptionalFieldWithoutOptionalFieldAccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testAccessOptionalFieldWithoutOptionalFieldAccess");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
