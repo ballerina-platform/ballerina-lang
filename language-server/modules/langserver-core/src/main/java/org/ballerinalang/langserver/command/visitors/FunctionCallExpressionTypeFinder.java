@@ -291,6 +291,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
             }
 
             checkAndSetTypeResult(fieldSymbol.typeDescriptor());
+            return;
         }
         
         Optional<List<ParameterSymbol>> params = getParameterSymbols();
