@@ -361,10 +361,12 @@ public class TypeNarrower extends BLangNodeVisitor {
                                                       Map<BVarSymbol, NarrowedTypes> rhsTypes, BVarSymbol symbol,
                                                       OperatorKind operator) {
         BType lhsTrueType, lhsFalseType, rhsTrueType, rhsFalseType;
+        boolean isLhsOperand = false;
         if (lhsTypes.containsKey(symbol)) {
             NarrowedTypes narrowedTypes = lhsTypes.get(symbol);
             lhsTrueType = narrowedTypes.trueType;
             lhsFalseType = narrowedTypes.falseType;
+            isLhsOperand = true;
         } else {
             lhsTrueType = lhsFalseType = symbol.type;
         }
@@ -395,7 +397,7 @@ public class TypeNarrower extends BLangNodeVisitor {
             falseType = getTypeUnion(lhsFalseType, tmpType);
         } else {
             BType tmpType = types.getTypeIntersection(nonLoggingContext, lhsFalseType, rhsTrueType, this.env);
-            trueType = getTypeUnion(lhsTrueType, tmpType);
+            trueType = isLhsOperand ? getTypeUnion(lhsTrueType, tmpType) : getTypeUnion(tmpType, lhsTrueType);
             falseType = types.getTypeIntersection(nonLoggingContext, lhsFalseType, rhsFalseType, this.env);
         }
         return new NarrowedTypes(trueType, falseType);
