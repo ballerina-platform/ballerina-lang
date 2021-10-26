@@ -874,15 +874,6 @@ function testCloneWithTypeDecimalToIntNegative() {
     assert(messageString, "'decimal' value 'NaN' cannot be converted to 'int'");
 }
 
-function checkDecimalToIntError(any|error result) {
-    assert(result is error, true);
-    error err = <error>result;
-    var message = err.detail()["message"];
-    string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina/lang.value}ConversionError");
-    assert(messageString, "'decimal' value cannot be converted to 'int'");
-}
-
 type IntSubtypeArray1 int:Signed32[];
 type IntSubtypeArray2 int:Unsigned16[];
 function testCloneWithTypeIntSubTypeArray() {
@@ -1589,6 +1580,25 @@ function testCloneWithTypeNestedStructuredTypesNegative() {
     assert(err.message(),"{ballerina/lang.value}ConversionError");
 }
 
+type OpenRec record {
+};
+
+function testCloneWithTypeJsonToRecordRestField() {
+    json jsonVal = {
+        arrVal: [
+            {
+            }
+        ],
+        mapVal: {
+        }
+    };
+    
+    (OpenRec & readonly)|error result = jsonVal.cloneWithType();
+    assert(result is error, false);
+    OpenRec & readonly rec = checkpanic result;
+    assert(rec, {"arrVal":[{}],"mapVal":{}});
+}
+
 /////////////////////////// Tests for `toJson()` ///////////////////////////
 
 type Student2 record {
@@ -2142,6 +2152,17 @@ function testEnsureTypeWithInferredArgument() {
 
     //int[]|error intArr = a.ensureType();
     //assertEquality(a, intArr);
+}
+
+function testEnsureTypeFloatToIntNegative() {
+    float a = 0.0 / 0;
+    int|error nan = a.ensureType(int);
+    assert(nan is error, true);
+    error err = <error>nan;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina}NumberConversionError");
+    assert(messageString, "'float' value 'NaN' cannot be converted to 'int'");
 }
 
 public type Maps record {|int i; int...;|}|record {|int i?;|};
