@@ -51,6 +51,7 @@ public class TypeGuardTest {
                 "incompatible types: 'string' will not be matched to 'int'", 20, 27);
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 29, 13);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 33, 9);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'string' will not be matched to 'int'", 33, 13);
         BAssertUtil.validateError(negativeResult, i++,
@@ -705,11 +706,11 @@ public class TypeGuardTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/type_guard_with_always_true_hint.bal");
 
         Assert.assertEquals(result.getHintCount(), 2);
+        Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateHint(result, 0, "unnecessary condition: expression will always evaluate to 'true'", 23, 8);
-        BAssertUtil.validateHint(result, 1, "unnecessary condition: expression will always evaluate to 'true'", 33, 8);
-
-        BRunUtil.invoke(result, "testTypeGuardRuntimeWithAlwaysTrueHint1");
-        BRunUtil.invoke(result, "testTypeGuardRuntimeWithAlwaysTrueHint2");
+        BAssertUtil.validateError(result, 1, "unreachable code", 26, 9);
+        BAssertUtil.validateHint(result, 2, "unnecessary condition: expression will always evaluate to 'true'", 33, 8);
+        BAssertUtil.validateError(result, 3, "unreachable code", 36, 9);
     }
 
     @Test

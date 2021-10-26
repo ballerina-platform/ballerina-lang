@@ -23,9 +23,21 @@ package org.ballerinalang.langserver.commons.capability;
 public interface InitializationOptions {
 
     /**
+     * Whether the client support bala URI scheme.
+     */
+    String KEY_BALA_SCHEME_SUPPORT = "supportBalaScheme";
+
+    /**
      * Semantic tokens initialization option key.
      */
     String KEY_ENABLE_SEMANTIC_TOKENS = "enableSemanticHighlighting";
+
+    /**
+     * Return if the client support bala URI scheme.
+     *
+     * @return True if bala URi scheme is supported.
+     */
+    boolean isBalaSchemeSupported();
 
     /**
      * Returns if Ballerina semantic tokens is enabled.

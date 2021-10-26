@@ -66,6 +66,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
@@ -111,8 +114,8 @@ public class BallerinaSemanticModel implements SemanticModel {
         EnvironmentResolver envResolver = new EnvironmentResolver(pkgEnv);
 
         SymbolResolver symbolResolver = SymbolResolver.getInstance(this.compilerContext);
-        Map<Name, List<Scope.ScopeEntry>> scopeSymbols =
-                symbolResolver.getAllVisibleInScopeSymbols(envResolver.lookUp(compilationUnit, position));
+        SymbolEnv symbolEnv = envResolver.lookUp(compilationUnit, position);
+        Map<Name, List<Scope.ScopeEntry>> scopeSymbols = symbolResolver.getAllVisibleInScopeSymbols(symbolEnv);
 
         Location cursorPos = new BLangDiagnosticLocation(compilationUnit.name,
                                                          position.line(), position.line(),
@@ -123,9 +126,8 @@ public class BallerinaSemanticModel implements SemanticModel {
         for (Map.Entry<Name, List<Scope.ScopeEntry>> entry : scopeSymbols.entrySet()) {
             Name name = entry.getKey();
             List<Scope.ScopeEntry> scopeEntries = entry.getValue();
-
             for (Scope.ScopeEntry scopeEntry : scopeEntries) {
-                addToCompiledSymbols(compiledSymbols, scopeEntry, cursorPos, name, statesSet);
+                addToCompiledSymbols(compiledSymbols, scopeEntry, cursorPos, name, symbolEnv.scope.owner, statesSet);
             }
         }
 
@@ -459,7 +461,7 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private void addToCompiledSymbols(Set<Symbol> compiledSymbols, Scope.ScopeEntry scopeEntry, Location cursorPos,
-                                      Name name, Set<DiagnosticState> states) {
+                                      Name name, BSymbol symbolEnvScopeOwner, Set<DiagnosticState> states) {
         if (scopeEntry == null || scopeEntry.symbol == null || isFilteredVarSymbol(scopeEntry.symbol, states)) {
             return;
         }
@@ -474,12 +476,29 @@ public class BallerinaSemanticModel implements SemanticModel {
             } else {
                 compiledSymbol = symbolFactory.getBCompiledSymbol(symbol, symbol.getOriginalName().getValue());
             }
+
             if (compiledSymbol == null || compiledSymbols.contains(compiledSymbol)) {
                 return;
             }
+
+            if (isFieldSymbol(compiledSymbol)) {
+                BSymbol scopeEntryOwner = scopeEntry.symbol.owner;
+                // If the current scope entry symbol is a child symbol of the enclosing node, and if the compiled
+                // symbol is a field symbol, it can be determined that the cursor is within the field context.
+                if (symbolEnvScopeOwner.getName().equals(scopeEntryOwner.getName())
+                        && symbolEnvScopeOwner.pkgID.equals(scopeEntryOwner.pkgID)
+                        && symbolEnvScopeOwner.getPosition().equals(scopeEntryOwner.getPosition())) {
+                    return;
+                }
+            }
+
             compiledSymbols.add(compiledSymbol);
         }
-        addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name, states);
+        addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name, symbolEnvScopeOwner, states);
+    }
+
+    private boolean isFieldSymbol(Symbol symbol) {
+        return symbol.kind() == CLASS_FIELD || symbol.kind() == OBJECT_FIELD || symbol.kind() == RECORD_FIELD;
     }
 
     private boolean isServiceDeclSymbol(BSymbol symbol) {

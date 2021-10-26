@@ -58,10 +58,10 @@ public class MatchGuardAnalysisTest {
         BAssertUtil.validateError(result, i++, getInvalidRestFieldKeyError("z"), 29, 29);
         BAssertUtil.validateError(result, i++, getInvalidRestFieldKeyError("y"), 29, 41);
         BAssertUtil.validateWarning(result, i++, "pattern will not be matched", 40, 9);
-        BAssertUtil.validateError(result, i++, "incompatible types: 'record {| int x; anydata...; |}' will not be " +
+        BAssertUtil.validateError(result, i++, "incompatible types: 'Foo' will not be " +
                 "matched to 'record {| string x; int i; anydata...; |}'", 40, 20);
         BAssertUtil.validateWarning(result, i++, "pattern will not be matched", 42, 9);
-        BAssertUtil.validateError(result, i++, "incompatible types: 'record {| int x; anydata...; |}' will not be " +
+        BAssertUtil.validateError(result, i++, "incompatible types: 'Foo' will not be " +
                 "matched to 'record {| string x; int i; anydata...; |}'", 42, 30);
         Assert.assertEquals(result.getWarnCount(), 2);
         Assert.assertEquals(result.getErrorCount(), i - 2);

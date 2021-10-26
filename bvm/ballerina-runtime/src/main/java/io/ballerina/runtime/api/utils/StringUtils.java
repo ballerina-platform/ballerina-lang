@@ -32,7 +32,9 @@ import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.AbstractObjectValue;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
@@ -104,9 +106,8 @@ public class StringUtils {
     public static BString getStringAt(BString s, long index) {
         if (index < 0 || index >= s.length()) {
             throw ErrorCreator.createError(getModulePrefixedReason(STRING_LANG_LIB,
-                                                                   INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                                           fromString("string index out of range: index: " + index + ", size: " +
-                                                               s.length()));
+                    INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.STRING_INDEX_OUT_OF_RANGE, index, s.length()));
         }
 
         return StringUtils.fromString(String.valueOf(Character.toChars(s.getCodePoint((int) index))));
