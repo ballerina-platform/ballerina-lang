@@ -105,21 +105,20 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE_VAR_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_EP_AVAILABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewriteRecordInits;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.injectDefaultParamInitsToAttachedFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.createExternalFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.injectDefaultParamInits;
-import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
  * BIR module to JVM byte code generation class.
@@ -141,6 +140,7 @@ public class JvmPackageGen {
     private final Map<String, String> globalVarClassMap;
     private final Set<PackageID> dependentModules;
     private final BLangDiagnosticLog dlog;
+    private final CompilerContext compilerContext;
 
     JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLog dlog,
                   CompilerContext compilerContext) {
@@ -151,6 +151,7 @@ public class JvmPackageGen {
         this.symbolTable = symbolTable;
         this.packageCache = packageCache;
         this.dlog = dlog;
+        this.compilerContext = compilerContext;
         methodGen = new MethodGen(this, compilerContext);
         initMethodGen = new InitMethodGen(symbolTable);
         configMethodGen = new ConfigMethodGen();
@@ -170,13 +171,13 @@ public class JvmPackageGen {
 
     private static void addBuiltinImports(PackageID currentModule, Set<PackageID> dependentModuleArray) {
         // Add the builtin and utils modules to the imported list of modules
-        if (isSameModule(currentModule, PackageID.ANNOTATIONS)) {
+        if (JvmCodeGenUtil.isSameModule(currentModule, PackageID.ANNOTATIONS)) {
             return;
         }
 
         dependentModuleArray.add(PackageID.ANNOTATIONS);
 
-        if (isSameModule(currentModule, PackageID.JAVA)) {
+        if (JvmCodeGenUtil.isSameModule(currentModule, PackageID.JAVA)) {
             return;
         }
 
@@ -186,7 +187,7 @@ public class JvmPackageGen {
             return;
         }
 
-        if (isSameModule(currentModule, PackageID.INTERNAL)) {
+        if (JvmCodeGenUtil.isSameModule(currentModule, PackageID.INTERNAL)) {
             return;
         }
         dependentModuleArray.add(PackageID.INTERNAL);
@@ -207,17 +208,6 @@ public class JvmPackageGen {
         dependentModuleArray.add(PackageID.BOOLEAN);
         dependentModuleArray.add(PackageID.QUERY);
         dependentModuleArray.add(PackageID.TRANSACTION);
-    }
-
-    private static boolean isSameModule(PackageID moduleId, PackageID importModule) {
-        PackageID cleanedPkg = JvmCodeGenUtil.cleanupPackageID(importModule);
-        if (!moduleId.orgName.value.equals(cleanedPkg.orgName.value)) {
-            return false;
-        } else if (!moduleId.name.value.equals(cleanedPkg.name.value)) {
-            return false;
-        } else {
-            return getMajorVersion(moduleId.version.value).equals(getMajorVersion(cleanedPkg.version.value));
-        }
     }
 
     private static boolean isLangModule(PackageID moduleId) {
@@ -314,12 +304,12 @@ public class JvmPackageGen {
     private static void setCurrentModuleField(ClassWriter cw, MethodVisitor mv, JvmConstantsGen jvmConstantsGen,
                                               PackageID packageID, String moduleInitClass) {
         FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_VAR_NAME,
-                                        String.format("L%s;", MODULE), null, null);
+                                        GET_MODULE, null, null);
         fv.visitEnd();
         String varName = jvmConstantsGen.getModuleConstantVar(packageID);
         mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
-                          String.format("L%s;", MODULE));
-        mv.visitFieldInsn(PUTSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", MODULE));
+                          GET_MODULE);
+        mv.visitFieldInsn(PUTSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
     }
 
     static String computeLockNameFromString(String varName) {
@@ -496,7 +486,7 @@ public class JvmPackageGen {
         linkModuleFunctions(module, initClass, isEntry, jvmClassMap);
 
         // link module stop function that will be generated
-        linkModuleFunction(module.packageID, initClass, MODULE_STOP);
+        linkModuleFunction(module.packageID, initClass, MODULE_STOP_METHOD);
 
         // link typedef - object attached native functions
         linkTypeDefinitions(module, isEntry);
@@ -750,6 +740,9 @@ public class JvmPackageGen {
     }
 
     CompiledJarFile generate(BIRNode.BIRPackage module, boolean isEntry) {
+        if (dependentModules.contains(module.packageID)) {
+            return null;
+        }
         Set<PackageID> moduleImports = new LinkedHashSet<>();
         addBuiltinImports(module.packageID, moduleImports);
         boolean serviceEPAvailable = module.isListenerAvailable;
@@ -759,7 +752,7 @@ public class JvmPackageGen {
                     getBvmAlias(importModule.packageID.orgName.value, importModule.packageID.name.value));
             generateDependencyList(pkgSymbol);
             if (dlog.errorCount() > 0) {
-                return new CompiledJarFile(Collections.emptyMap());
+                return null;
             }
             serviceEPAvailable |= listenerDeclarationFound(pkgSymbol);
         }
@@ -768,7 +761,7 @@ public class JvmPackageGen {
         Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, moduleInitClass, isEntry);
 
         if (!isEntry || dlog.errorCount() > 0) {
-            return new CompiledJarFile(Collections.emptyMap());
+            return null;
         }
 
         // using a concurrent hash map to store class byte values, which are generated in parallel
@@ -783,7 +776,7 @@ public class JvmPackageGen {
 
         // enrich current package with package initializers
         initMethodGen.enrichPkgWithInitializers(jvmClassMapping, moduleInitClass, module, flattenedModuleImports);
-        JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(module, moduleInitClass);
+        JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(module, moduleInitClass, compilerContext);
         JvmMethodsSplitter jvmMethodsSplitter = new JvmMethodsSplitter(this, jvmConstantsGen, module, moduleInitClass);
         configMethodGen.generateConfigMapper(flattenedModuleImports, module, moduleInitClass, jvmConstantsGen,
                                              jarEntries);

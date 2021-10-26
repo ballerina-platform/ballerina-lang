@@ -64,7 +64,7 @@
   {
     "description": "`.mergeJson()` returns an `error` if the values cannot be merged.",
     "code": "j2.mergeJson(j3)",
-    "expr": "error(\"{ballerina/lang.value}MergeJsonError\",message=\"Cannot merge JSON values of types 'float' and 'boolean'\")"
+    "expr": "error(\"{ballerina/lang.value}MergeJsonError\",message=\"cannot merge JSON values of types 'float' and 'boolean'\")"
   },
   {
     "description": "Parsing a json back from a string.",

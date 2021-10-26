@@ -113,6 +113,7 @@ public abstract class BIRNode {
         public Name name;
         public Name originalName;
         public String metaVarName;
+        public String jvmVarName;
         public VarKind kind;
         public VarScope scope;
         public boolean ignoreVariable;
@@ -133,6 +134,7 @@ public abstract class BIRNode {
             this.scope = scope;
             this.kind = kind;
             this.metaVarName = metaVarName;
+            this.jvmVarName = name.value.replace("%", "_");
         }
 
         public BIRVariableDcl(Location pos, BType type, Name name, VarScope scope,

@@ -104,6 +104,12 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     }
 
     @Override
+    public boolean subtypeOf(TypeSymbol targetType) {
+        Types types = Types.getInstance(this.context);
+        return types.isAssignable(this.bType, getTargetBType(targetType));
+    }
+
+    @Override
     public boolean nameEquals(String name) {
         Optional<String> symbolName = this.getName();
         if (symbolName.isEmpty() || name == null) {

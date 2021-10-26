@@ -56,6 +56,12 @@ public class ServiceDeclTest {
     }
 
     @Test
+    public void testServiceDeclAnnot() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/services/service_decl_annot.bal");
+        BRunUtil.invoke(compileResult, "testServiceDeclAnnots");
+    }
+
+    @Test
     public void testServiceDeclAndListenerAttachmentsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/services/service_decl_negative.bal");
         int i = 0;

@@ -405,7 +405,7 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON string to string array",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*'map<json>' value cannot be converted to 'StringArray'.*")
+          expectedExceptionsMessageRegExp = ".*'map<json>' value cannot be converted to 'StringArray': \n\t\t.*")
     public void testNonArrayJsonToArray() {
         BRunUtil.invoke(compileResult, "testNonArrayJsonToArray");
     }

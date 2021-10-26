@@ -219,7 +219,7 @@ function assertKeyNotFoundError(json|error je, string key) returns boolean {
         var detailMessage = je.detail()["message"];
         string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
         return je.message() == "{ballerina/lang.map}KeyNotFound" &&
-                                detailMessageString == "Key '" + key + "' not found in JSON mapping";
+                                detailMessageString == "key '" + key + "' not found in JSON mapping";
     }
     return false;
 }
