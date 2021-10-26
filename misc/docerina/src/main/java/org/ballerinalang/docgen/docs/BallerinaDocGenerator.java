@@ -331,7 +331,8 @@ public class BallerinaDocGenerator {
 
         for (Module module: allModules) {
             if (module.summary != null) {
-                searchModules.add(new ModuleSearchJson(module.id, module.orgName, module.version, module.summary, module.isDefaultModule));
+                searchModules.add(new ModuleSearchJson(module.id, module.orgName, module.version, module.summary,
+                        module.isDefaultModule));
             }
 
             module.functions.forEach((function) ->
