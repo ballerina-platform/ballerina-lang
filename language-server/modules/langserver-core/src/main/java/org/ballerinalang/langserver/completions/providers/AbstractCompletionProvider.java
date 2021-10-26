@@ -52,7 +52,6 @@ import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -91,7 +90,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
 import javax.annotation.Nonnull;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
@@ -324,7 +322,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             }
             String label = prefix;
             String insertText = CommonUtil.escapeReservedKeyword(prefix);
-            CompletionItem item = this.getModuleCompletionItem(label, insertText, new ArrayList<>());
+            CompletionItem item = this.getModuleCompletionItem(label, insertText, new ArrayList<>(), prefix);
             processedList.add(processedModuleHash);
             completionItems.add(new SymbolCompletionItem(ctx, moduleSymbol, item));
         });
@@ -345,7 +343,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 String insertText = CommonUtil.getValidatedSymbolName(ctx, aliasComponent);
                 String alias = !insertText.equals(aliasComponent) ? insertText : "";
                 List<TextEdit> txtEdits = CommonUtil.getAutoImportTextEdits(orgName, name, alias, ctx);
-                CompletionItem item = getModuleCompletionItem(CommonUtil.getPackageLabel(pkg), insertText, txtEdits);
+                CompletionItem item = getModuleCompletionItem(CommonUtil.getPackageLabel(pkg), insertText, txtEdits, 
+                        aliasComponent);
                 completionItems.add(new StaticCompletionItem(ctx, item, StaticCompletionItem.Kind.MODULE));
             }
         });
@@ -377,7 +376,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 return;
             }
             List<TextEdit> textEdits = CommonUtil.getAutoImportTextEdits("", label, alias, ctx);
-            CompletionItem item = this.getModuleCompletionItem(label, insertText, textEdits);
+            CompletionItem item = this.getModuleCompletionItem(label, insertText, textEdits, alias);
             completionItems.add(new StaticCompletionItem(ctx, item, StaticCompletionItem.Kind.MODULE));
         });
 
@@ -577,9 +576,11 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         return completionItems;
     }
 
-    private CompletionItem getModuleCompletionItem(String label, String insertText, @Nonnull List<TextEdit> txtEdits) {
+    private CompletionItem getModuleCompletionItem(String label, String insertText, @Nonnull List<TextEdit> txtEdits, 
+                                                   String prefix) {
         CompletionItem moduleCompletionItem = new CompletionItem();
         moduleCompletionItem.setLabel(label);
+        moduleCompletionItem.setFilterText(prefix);
         moduleCompletionItem.setInsertText(insertText);
         moduleCompletionItem.setDetail(ItemResolverConstants.MODULE_TYPE);
         moduleCompletionItem.setKind(CompletionItemKind.Module);
@@ -629,7 +630,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      *
      * @param node    node of which the qualifiers are checked.
      * @param context completion context.
-     * @return
+     * @return completion items
      */
     protected List<LSCompletionItem> getCompletionItemsOnQualifiers(Node node, BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
