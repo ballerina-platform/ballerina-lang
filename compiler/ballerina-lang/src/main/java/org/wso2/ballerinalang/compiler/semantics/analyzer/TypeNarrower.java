@@ -167,7 +167,8 @@ public class TypeNarrower extends BLangNodeVisitor {
      * @param currentEnv Current environment
      * @return target environment
      */
-    public SymbolEnv evaluateFalsityFollowingIfWithoutElse(BLangExpression expr, SymbolEnv currentEnv) {
+    public SymbolEnv evaluateFalsityFollowingIfWithoutElse(BLangExpression expr, SymbolEnv currentEnv,
+                                                           boolean isConstTrueCondition) {
         if (!checkValidExpressionToEvaluateFalsity(expr)) {
             return currentEnv;
         }
@@ -181,8 +182,9 @@ public class TypeNarrower extends BLangNodeVisitor {
 
         for (Map.Entry<BVarSymbol, NarrowedTypes> narrowedType : narrowedTypes.entrySet()) {
             BVarSymbol originalSym = getOriginalVarSymbol(narrowedType.getKey());
+            BType falseType = narrowedType.getValue().falseType;
             symbolEnter.defineTypeNarrowedSymbol(expr.pos, narrowedEnv, originalSym,
-                    narrowedType.getValue().falseType, originalSym.origin == VIRTUAL);
+                    isConstTrueCondition ? symTable.neverType : falseType, originalSym.origin == VIRTUAL);
         }
 
         return narrowedEnv;
@@ -223,18 +225,31 @@ public class TypeNarrower extends BLangNodeVisitor {
      * @param env Current environment
      * @return target environment
      */
-    public SymbolEnv evaluateFalsity(BLangExpression expr, BLangNode targetNode, SymbolEnv env) {
+    public SymbolEnv evaluateFalsity(BLangExpression expr, BLangNode targetNode, SymbolEnv env, boolean isBinaryExpr) {
         Map<BVarSymbol, NarrowedTypes> narrowedTypes = getNarrowedTypes(expr, env);
         if (narrowedTypes.isEmpty()) {
             return env;
         }
 
         SymbolEnv targetEnv = getTargetEnv(targetNode, env);
-        narrowedTypes.forEach((symbol, typeInfo) -> {
-            BVarSymbol originalSym = getOriginalVarSymbol(symbol);
-            symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, originalSym, typeInfo.falseType,
+        for (Map.Entry<BVarSymbol, NarrowedTypes> narrowedType : narrowedTypes.entrySet()) {
+            BType falseType = narrowedType.getValue().falseType;
+            BType trueType = narrowedType.getValue().trueType;
+
+            BVarSymbol originalSym = getOriginalVarSymbol(narrowedType.getKey());
+
+            if (isBinaryExpr) {
+                falseType = falseType == symTable.semanticError ?
+                        types.getRemainingType(originalSym.type, trueType) : falseType;
+            } else {
+                falseType =  targetNode.getKind() != NodeKind.IF &&
+                        falseType == trueType ? symTable.neverType : falseType;
+            }
+
+            symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, originalSym,
+                    falseType == symTable.semanticError ? symTable.neverType : falseType,
                     originalSym.origin == VIRTUAL);
-        });
+        }
 
         return targetEnv;
     }
