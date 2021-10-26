@@ -203,7 +203,8 @@ public class ManifestBuilder {
         }
 
         return PackageManifest.from(packageDescriptor, pluginDescriptor, platforms, localRepoDependencies, otherEntries,
-                diagnostics(), license, authors, keywords, exported, repository, ballerinaVersion, visibility, template);
+                diagnostics(), license, authors, keywords, exported, repository, ballerinaVersion, visibility,
+                template);
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
