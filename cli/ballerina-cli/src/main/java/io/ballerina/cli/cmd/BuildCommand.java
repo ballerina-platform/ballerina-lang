@@ -199,14 +199,14 @@ public class BuildCommand implements BLauncherCmd {
         }
 
         if (this.compile) {
-            this.outStream.println("'-c compile' flag is deprecated. Please make use of 'bal pack' command");
+            this.outStream.println("error: '-c compile' flag has been removed. Please make use of 'bal pack' command");
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
         if (this.skipTestsTemp != null) {
-            this.outStream.println("'--skip-tests' flag is deprecated. The build command skips test execution by " +
-                    "default. Please make use of --with-tests to execute tests");
+            this.outStream.println("error : '--skip-tests' flag is deprecated. The build command skips test execution" +
+                    " by default. Please make use of --with-tests to execute tests");
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
