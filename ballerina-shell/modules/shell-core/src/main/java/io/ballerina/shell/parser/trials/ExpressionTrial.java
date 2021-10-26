@@ -50,13 +50,12 @@ public class ExpressionTrial extends TreeParserTrial {
         } else {
             parsedNode = NodeParser.parseStatements("assignment = " + source + ";").get(0);
         }
-        if (!parsedNode.hasDiagnostics()) {
-            expressionNode = ((AssignmentStatementNode) parsedNode).expression();
-            if (expressionNode.hasDiagnostics()) {
-                throw new ParserTrialFailedException("Error occurred during extracting expression from the statement");
-            }
-        } else {
+        if (parsedNode.hasDiagnostics()) {
             throw new ParserTrialFailedException("Error occurred during parsing node as statement node");
+        }
+        expressionNode = ((AssignmentStatementNode) parsedNode).expression();
+        if (expressionNode.hasDiagnostics()) {
+            throw new ParserTrialFailedException("Error occurred during extracting expression from the statement");
         }
         nodes.add(expressionNode);
         return nodes;
