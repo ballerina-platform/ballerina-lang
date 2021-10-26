@@ -6659,7 +6659,13 @@ public class TypeChecker extends BLangNodeVisitor {
                                                  BRecordType recordType) {
         BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env, fieldName, recordType.tsymbol);
 
-        if (fieldSymbol == symTable.notFoundSymbol || Symbols.isOptional(fieldSymbol)) {
+        if (Symbols.isOptional(fieldSymbol) && !fieldSymbol.type.isNullable()) {
+            if (varReferExpr.optionalFieldAccess || varReferExpr.isLValue) {
+                return symTable.semanticError;
+            }
+            varReferExpr.symbol = fieldSymbol;
+            return addNilForNillableAccessType(fieldSymbol.type);
+        } else if (Symbols.isOptional(fieldSymbol) || fieldSymbol == symTable.notFoundSymbol) {
             return symTable.semanticError;
         }
 
