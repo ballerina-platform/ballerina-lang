@@ -770,3 +770,115 @@ function testReachableCodeWithBinaryCondition19() {
 
     int c = 10; // unreachable code
 }
+
+function testUnreachabilityWithIfElseStmts1(E e) {
+    if e is X {
+        int a = 10;
+    } else if e is Y {
+        int a = 20;
+    } else if e is Z {
+        int a = 30;
+    } else {
+        never _ = e; // unreachable code
+    }
+}
+
+function testUnreachabilityWithIfElseStmts2(E e) {
+    if e is X {
+        int a = 10;
+    } else if e is Y {
+        int a = 20;
+    } else if e is Z {
+        int a = 30;
+    } else if e is Y {
+        never _ = e; // unreachable code
+    }
+}
+
+function testUnreachabilityWithIfElseStmts3(int|string|float e) {
+    if e is int {
+        int a = 10;
+    } else if e is string {
+        int a = 20;
+    } else if e is float {
+        int a = 30;
+    } else {
+        never _ = e; // unreachable code
+    }
+}
+
+function testUnreachabilityWithIfElseStmts4(int|string|float e) {
+    if e is int {
+        int a = 10;
+    } else if e is string {
+        int a = 20;
+    } else if e is float {
+        int a = 30;
+    } else if e is int {
+        never _ = e; // unreachable code
+    }
+}
+
+function testUnreachabilityWithIfElseStmts5() {
+    10|20 e = 10;
+    if e == 10 {
+        int a = 10;
+    } else if e == 20 {
+        int a = 20;
+    } else {
+        never _ = e; // unreachable code
+    }
+}
+
+function testUnreachabilityWithIfElseStmts6() {
+    10|20 e = 10;
+    if e == 10 {
+        int a = 10;
+    } else if e == 20 {
+        int a = 20;
+    } else if e == 10 {
+        never _ = e; // unreachable code
+    }
+}
+
+function testUnreachableCodeWithTypeNarrowing1() {
+    int|string|boolean i = 1;
+
+    if i is int|string {
+        panic error("Error");
+    }
+    if i is boolean {
+        return;
+    }
+    int x = i; // unreachable code
+}
+
+function testUnreachableCodeWithTypeNarrowing2() {
+    int|string a = 1;
+    if a is int|string {
+        a = 2;
+        return;
+    }
+
+    string b = a; // unreachable code
+}
+
+function testUnreachableCodeWithTypeNarrowing3() {
+    10 b = 10;
+
+    if b == 10 {
+        return;
+    }
+
+    string a = b; // unreachable code
+}
+
+function testUnreachableCodeWithTypeNarrowing4() {
+    Type2 b = 10;
+
+    if b == 10 {
+        return;
+    }
+
+    string a = b; // unreachable code
+}
