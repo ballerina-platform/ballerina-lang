@@ -25,55 +25,101 @@ package org.ballerinalang.langserver.extensions.ballerina.connector;
  */
 public class BallerinaConnectorRequest {
 
-    private String org;
-    private String module;
+    private String id;
+    private String orgName;
+    private String packageName;
+    private String moduleName;
     private String version = "";
     private String name;
-    private String displayName;
-    private Boolean beta;
+    private String targetFile;
 
-    public BallerinaConnectorRequest(String org, String module, String version,
-                                     String name, String displayName, Boolean beta) {
-        this.org = org;
-        this.module = module;
+    public BallerinaConnectorRequest(String id) {
+        this.id = id;
+    }
+
+    public BallerinaConnectorRequest(String orgName, String packageName, String moduleName,
+                                     String version, String name) {
+        this.orgName = orgName;
+        this.packageName = packageName;
+        this.moduleName = moduleName;
         this.version = version;
         this.name = name;
-        this.displayName = displayName;
-        this.beta = beta;
     }
 
-    public String getOrg() {
-        return org;
+    public String getConnectorId() {
+        return id;
     }
 
-    public String getModule() {
-        return module;
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public void setOrgName(String orgName) {
+        this.orgName = orgName;
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
+    }
+
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
     }
 
     public String getVersion() {
         return version;
     }
 
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
     public String getName() {
         return name;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public Boolean getBeta() {
-        return beta;
+    public String getTargetFile() {
+        return targetFile;
+    }
+
+    public void setTargetFile(String targetFile) {
+        this.targetFile = targetFile;
+    }
+
+    /**
+     * Check connector information attributes are filled.
+     *
+     * @return boolean
+     */
+    public boolean isFullConnector() {
+        return !(this.orgName.isEmpty() || this.packageName.isEmpty() || this.version.isEmpty() ||
+                this.moduleName.isEmpty() || this.name.isEmpty());
     }
 
     @Override
     public String toString() {
         return "BallerinaConnectorRequest{" +
-                "org='" + org + '\'' +
-                ", module='" + module + '\'' +
+                "id='" + id + '\'' +
+                ", orgName='" + orgName + '\'' +
+                ", moduleName='" + moduleName + '\'' +
                 ", version='" + version + '\'' +
                 ", name='" + name + '\'' +
-                ", beta=" + beta +
                 '}';
     }
 }

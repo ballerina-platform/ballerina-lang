@@ -296,7 +296,7 @@ public class SortingUtil {
                 }
         }
 
-        return optionalTypeSymbol.isPresent() && optionalTypeSymbol.get().assignableTo(typeSymbol);
+        return optionalTypeSymbol.isPresent() && optionalTypeSymbol.get().subtypeOf(typeSymbol);
     }
 
     /**

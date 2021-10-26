@@ -18,7 +18,7 @@ public function main() {
 
     worker w2 returns boolean|error {
         int j = 25;
-        if (false) {
+        if (0 > 1) {
             return error("trxErr", data = "test");
         }
         j = <- w1;

@@ -178,7 +178,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Person' value cannot be converted to 'map<string>'");
+                "'Person' value cannot be converted to 'map<string>': " +
+                        "\n\t\tmap field 'age' should be of type 'string', found '25'");
     }
 
     @Test

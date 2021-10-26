@@ -718,7 +718,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         if (!TypeChecker.checkIsType(value, elemType)) {
             throw ErrorCreator.createError(
                     getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, elemType,
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.INCOMPATIBLE_TYPE, elemType,
                                                          TypeChecker.getType(value)));
         }
 

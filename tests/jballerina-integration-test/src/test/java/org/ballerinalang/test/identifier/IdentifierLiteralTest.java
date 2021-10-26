@@ -51,7 +51,7 @@ public class IdentifierLiteralTest  extends BaseTest {
         Path projectPath = Paths.get(testFileLocation, "ModuleNameClashProject")
                 .toAbsolutePath();
         LogLeecher runLeecher = new LogLeecher("1 passing");
-        bMainInstance.runMain("build", new String[0], new HashMap<>(), new String[0],
+        bMainInstance.runMain("build", new String[]{"--with-tests"}, new HashMap<>(), new String[0],
                 new LogLeecher[]{runLeecher}, projectPath.toString());
         runLeecher.waitForText(5000);
     }

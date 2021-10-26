@@ -311,8 +311,8 @@ function testFromJsonWithTypeNestedRecordsNegative() {
     error err = <error> radha;
     string errorMsg = "'map<json>' value cannot be converted to '(Student & readonly)': " +
      "\n\t\tmissing required field 'address.country' of type 'string?' in record '(PermanentAddress & readonly)'" +
-     "\n\t\tfield 'address.city' in record '(PermanentAddress & readonly)' should be of type 'string'" +
-     "\n\t\tvalue of field 'employed' adding to the record '(Student & readonly)' should be of type 'string'";
+     "\n\t\tfield 'address.city' in record '(PermanentAddress & readonly)' should be of type 'string', found '7'" +
+     "\n\t\tvalue of field 'employed' adding to the record '(Student & readonly)' should be of type 'string', found 'false'";
     assertEquality(<string> checkpanic err.detail()["message"], errorMsg);
     assertEquality(err.message(),"{ballerina/lang.value}ConversionError");
 }
@@ -431,7 +431,7 @@ function tesFromJsonWithTypeMapWithDecimal() {
         panic error("Invalid Response", detail = "Invalid type `error` recieved from cloneWithType");
     }
 
-    OpenRecordWithUnionTarget castedValue = <OpenRecordWithUnionTarget> checkpanic or;
+    OpenRecordWithUnionTarget castedValue = <OpenRecordWithUnionTarget> or;
     assertEquality(castedValue["factor"], mp["factor"]);
     assertEquality(castedValue["name"], mp["name"]);
 }
@@ -447,7 +447,7 @@ public function testConvertJsonToAmbiguousType() {
 
     if res is error {
         assertEquality("'map<json>' value cannot be converted to 'Value': " +
-        "\n\t\tfield 'value' in record 'Value' should be of type 'Maps'", res.detail()["message"]);
+        "\n\t\tfield 'value' in record 'Value' should be of type 'Maps', found '{\"i\":1}'", res.detail()["message"]);
         return;
     }
 
