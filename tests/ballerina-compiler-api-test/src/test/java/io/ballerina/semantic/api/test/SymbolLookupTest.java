@@ -83,16 +83,18 @@ public class SymbolLookupTest {
 
     @DataProvider(name = "PositionProvider1")
     public Object[][] getPositions() {
-        List<String> moduleLevelSymbols = asList("aString", "anInt", "test", "HELLO");
+        List<String> moduleLevelSymbols = asList("aString", "anInt", "test", "HELLO", "testLetExp1", "testLetExp2");
         return new Object[][]{
-                {2, 13, 4, moduleLevelSymbols},
-                {19, 17, 4, moduleLevelSymbols},
-//                {20, 30, 4, moduleLevelSymbols}, // TODO: Feature not yet supported - issue #25607
-                {20, 38, 5, asList("aString", "anInt", "test", "HELLO", "greet")},
-                {21, 0, 5, asList("aString", "anInt", "test", "HELLO", "greet")},
+                {2, 13, 6, moduleLevelSymbols},
+                {19, 17, 6, moduleLevelSymbols},
+//                {20, 30, 6, moduleLevelSymbols}, // TODO: Feature not yet supported - issue #25607
+                {20, 38, 7, asList("aString", "anInt", "test", "HELLO", "greet")},
+                {21, 0, 7, asList("aString", "anInt", "test", "HELLO", "greet")},
                 // TODO: issue #25607
-//                {22, 59, 6, asList("aString", "anInt", "test", "HELLO", "greet", "name")},
-                {30, 12, 8, getSymbolNames(moduleLevelSymbols, "greet", "a", "x", "greetFn")},
+//                {22, 59, 8, asList("aString", "anInt", "test", "HELLO", "greet", "name")},
+                {30, 12, 10, getSymbolNames(moduleLevelSymbols, "greet", "a", "x", "greetFn")},
+                {42, 51, 9, getSymbolNames(moduleLevelSymbols, "x", "x1", "x2")},
+                {46, 42, 9, getSymbolNames(moduleLevelSymbols, "y", "x3", "x4")},
         };
     }
 

@@ -38,3 +38,10 @@ function test() {
 }
 
 const HELLO = "Hello";
+
+function testLetExp1(float x) returns float {
+    return let float x1 = x*x, float x2 = x + 5 in ;
+}
+
+function testLetExp2(float y) returns float =>
+    let float x3 = y+y, float x4 = y*y in ;
