@@ -87,14 +87,14 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     /**
      * Mapping of source root to project instance.
      */
-    private final Map<Path, ProjectPair> sourceRootToProject;
+    protected final Map<Path, ProjectPair> sourceRootToProject;
     private static final LanguageServerContext.Key<BallerinaWorkspaceManager> WORKSPACE_MANAGER_KEY =
             new LanguageServerContext.Key<>();
-    private final LSClientLogger clientLogger;
+    protected final LSClientLogger clientLogger;
     private final LanguageServerContext serverContext;
 
-    private BallerinaWorkspaceManager(LanguageServerContext serverContext) {
-        serverContext.put(WORKSPACE_MANAGER_KEY, this);
+    public BallerinaWorkspaceManager(LanguageServerContext serverContext) {
+//        serverContext.put(WORKSPACE_MANAGER_KEY, this);
         this.serverContext = serverContext;
         this.clientLogger = LSClientLogger.getInstance(serverContext);
         Cache<Path, Path> cache = CacheBuilder.newBuilder()
@@ -105,14 +105,14 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         this.sourceRootToProject = new SourceRootToProjectMap<>(pathToSourceRootCache);
     }
 
-    public static BallerinaWorkspaceManager getInstance(LanguageServerContext serverContext) {
-        BallerinaWorkspaceManager workspaceManager = serverContext.get(WORKSPACE_MANAGER_KEY);
-        if (workspaceManager == null) {
-            workspaceManager = new BallerinaWorkspaceManager(serverContext);
-        }
-
-        return workspaceManager;
-    }
+//    public static BallerinaWorkspaceManager getInstance(LanguageServerContext serverContext) {
+//        BallerinaWorkspaceManager workspaceManager = serverContext.get(WORKSPACE_MANAGER_KEY);
+//        if (workspaceManager == null) {
+//            workspaceManager = new BallerinaWorkspaceManager(serverContext);
+//        }
+//
+//        return workspaceManager;
+//    }
 
     @Override
     public Optional<String> relativePath(Path path) {

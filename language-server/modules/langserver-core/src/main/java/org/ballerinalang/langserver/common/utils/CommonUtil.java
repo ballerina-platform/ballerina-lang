@@ -100,6 +100,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
@@ -127,8 +128,6 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
@@ -164,6 +163,8 @@ public class CommonUtil {
     public static final String BALLERINA_ORG_NAME = "ballerina";
 
     public static final String SDK_VERSION = System.getProperty("ballerina.version");
+
+    public static final String EXPR_SCHEME = "expr";
 
     public static final List<String> PRE_DECLARED_LANG_LIBS = Arrays.asList("lang.boolean", "lang.decimal",
             "lang.error", "lang.float", "lang.future", "lang.int", "lang.map", "lang.object", "lang.stream",
@@ -397,7 +398,7 @@ public class CommonUtil {
             default:
                 return getDefaultValueForTypeDescKind(typeKind);
         }
-        
+
         return Optional.of(typeString);
     }
 
@@ -1105,18 +1106,23 @@ public class CommonUtil {
     }
 
     /**
-     * Get the path from given string URI.
+     * Get the path from given string URI. Even if the given URI's scheme is expr, we convert it to file scheme and
+     * provide a valid Path
      *
      * @param uri file uri
      * @return {@link Optional} Path from the URI
      */
-    public static Optional<Path> getPathFromURI(String uri) {
-        try {
-            return Optional.of(Paths.get(new URL(uri).toURI()));
-        } catch (URISyntaxException | MalformedURLException e) {
-            // ignore
+    public static Optional<Path> getPathFromURI(String uri){
+        URI fileUri = URI.create(uri);
+        if (fileUri.getScheme().equals(EXPR_SCHEME)) {
+            String newUri = fileUri.toString().replace(EXPR_SCHEME + ":", "file:");
+            try {
+                return Optional.of(Paths.get(new URL(newUri).toURI()));
+            } catch (URISyntaxException | MalformedURLException e) {
+                return Optional.empty();
+            }
         }
-        return Optional.empty();
+        return Optional.of(Paths.get(fileUri));
     }
 
     /**
