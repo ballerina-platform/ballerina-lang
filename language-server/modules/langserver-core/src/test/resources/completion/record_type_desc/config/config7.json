@@ -450,7 +450,7 @@
     {
       "label": "STRING_VAL_TWO",
       "kind": "Variable",
-      "detail": "string value two",
+      "detail": "\"string value two\"",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -560,7 +560,7 @@
     {
       "label": "STRING_VAL",
       "kind": "Variable",
-      "detail": "string value",
+      "detail": "\"string value\"",
       "documentation": {
         "right": {
           "kind": "markdown",
