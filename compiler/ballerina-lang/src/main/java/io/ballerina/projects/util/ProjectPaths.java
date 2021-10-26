@@ -48,6 +48,22 @@ public class ProjectPaths {
             throw new ProjectException("provided path does not exist:" + filepath);
         }
 
+        if (Files.isDirectory(filepath)) {
+            if (hasBallerinaToml(filepath) || hasPackageJson(filepath)) {
+                return filepath;
+            }
+            if (isModulesRoot(filepath)) {
+                return findProjectRoot(filepath).orElseThrow();
+            }
+            if (isAModuleRoot(filepath)) {
+                return findProjectRoot(filepath).orElseThrow();
+            }
+            if (isAModuleTestsRoot(filepath)) {
+                return findProjectRoot(filepath).orElseThrow();
+            }
+            throw new ProjectException("provided directory does not belong to a Ballerina package: " + filepath);
+        }
+
         // check if the file is a regular file
         if (!Files.isRegularFile(filepath)) {
             throw new ProjectException("provided path is not a regular file: " + filepath);
@@ -99,6 +115,54 @@ public class ProjectPaths {
         }
 
         throw new ProjectException("provided file path does not belong to a Ballerina package: " + filepath);
+    }
+
+    private static boolean isModulesRoot(Path filepath) {
+        Path absFilePath = filepath.toAbsolutePath().normalize();
+        Optional<Path> projectRoot = findProjectRoot(absFilePath);
+        if (projectRoot.isPresent()) {
+            Path modulesRoot = projectRoot.get().resolve(ProjectConstants.MODULES_ROOT);
+            return modulesRoot.toAbsolutePath().normalize().toString().equals(absFilePath.toString());
+        }
+        return false;
+    }
+
+    private static boolean isAModuleTestsRoot(Path filepath) {
+        Path absFilePath = filepath.toAbsolutePath().normalize();
+        Optional<Path> projectRoot = findProjectRoot(filepath);
+        if (projectRoot.isPresent()) {
+            Path fileName = absFilePath.getFileName();
+            if (fileName != null) {
+                if (fileName.toString().equals(ProjectConstants.TEST_DIR_NAME)) {
+                    Path parent = filepath.getParent();
+                    if (parent != null) {
+                        // Check if it is the tests root of the default module
+                        if (projectRoot.get().resolve(ProjectConstants.TEST_DIR_NAME).toString()
+                                .equals(absFilePath.toString())) {
+                            return true;
+                        }
+                        // Check if it is the root of the default module
+                        Path moduleRoot = projectRoot.get().resolve(ProjectConstants.MODULES_ROOT).resolve(
+                                Optional.of(parent.getFileName()).get());
+                        return moduleRoot.toAbsolutePath().normalize().toString().equals(parent.toString());
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean isAModuleRoot(Path filepath) {
+        Path absFilePath = filepath.toAbsolutePath().normalize();
+        Optional<Path> projectRoot = findProjectRoot(absFilePath);
+        if (projectRoot.isPresent()) {
+            Path fileName = absFilePath.getFileName();
+            if (fileName != null) {
+                Path moduleRoot = projectRoot.get().resolve(ProjectConstants.MODULES_ROOT).resolve(fileName);
+                return moduleRoot.toAbsolutePath().normalize().toString().equals(absFilePath.toString());
+            }
+        }
+        return false;
     }
 
     /**

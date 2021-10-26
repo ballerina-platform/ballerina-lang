@@ -520,14 +520,6 @@
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "cc",
-      "kind": "Field",
-      "detail": "module1:TestClass1",
-      "sortText": "F",
-      "insertText": "cc",
-      "insertTextFormat": "Snippet"
     }
   ]
 }
