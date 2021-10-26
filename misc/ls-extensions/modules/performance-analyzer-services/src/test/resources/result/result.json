@@ -3,7 +3,7 @@
     "1088999609": {
       "pkgID": "ballerina/project.http",
       "name": "Client",
-      "baseUrl": "\"https://api.chucknorris.io/\"",
+      "baseUrl": "https://api.chucknorris.io/",
       "pos": {
         "filePath": "main.bal",
         "startLine": {
@@ -19,7 +19,7 @@
     "-522835079": {
       "pkgID": "ballerina/project.http",
       "name": "Client",
-      "baseUrl": "\"https://api.chucknorris.io/\"",
+      "baseUrl": "https://api.chucknorris.io/",
       "pos": {
         "filePath": "main.bal",
         "startLine": {

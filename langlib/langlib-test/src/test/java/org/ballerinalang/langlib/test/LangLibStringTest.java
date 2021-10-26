@@ -136,7 +136,7 @@ public class LangLibStringTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-        expectedExceptionsMessageRegExp = ".*IndexOutOfRange \\{\"message\":\"String codepoint index out of range: " +
+        expectedExceptionsMessageRegExp = ".*IndexOutOfRange \\{\"message\":\"string codepoint index out of range: " +
                 "1\"\\}.*")
     public void testGetCodepointNegative() {
         testGetCodepoint("", 1, 0);
