@@ -22,18 +22,12 @@ import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.StatementNode;
-import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextDocumentChange;
-import io.ballerina.tools.text.TextDocuments;
-import io.ballerina.tools.text.TextEdit;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -55,22 +49,16 @@ public class PartialParserService implements ExtendedLanguageServerService {
     public CompletableFuture<STResponse> getSTForSingleStatement(PartialSTRequest request) {
         return CompletableFuture.supplyAsync(() -> {
             NodeList<StatementNode> statementNodes;
+
             if (request.getStModification() != null) {
-
-                List<TextEdit> edits = new ArrayList<>();
-                TextDocument oldTextDocument = TextDocuments.from(request.getCodeSnippet());
-                TextEdit edit = STModifyUtil.constructEdit(oldTextDocument, request.getStModification());
-                edits.add(edit);
-                TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
-                        new TextEdit[0]));
-                TextDocument newTextDocument = oldTextDocument.apply(textDocumentChange);
-
-                statementNodes = NodeParser.parseStatements(newTextDocument.toString());
+                String newStatement = STModificationUtil.getModifiedStatement(
+                        request.getCodeSnippet(), request.getStModification());
+                statementNodes = NodeParser.parseStatements(newStatement);
             } else {
                 statementNodes = NodeParser.parseStatements(request.getCodeSnippet());
             }
-            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(statementNodes.get(0));
 
+            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(statementNodes.get(0));
             STResponse response = new STResponse();
             response.setSyntaxTree(syntaxTreeJSON);
             return response;

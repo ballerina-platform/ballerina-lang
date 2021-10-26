@@ -17,14 +17,30 @@ package io.ballerina.parsers;
 
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocumentChange;
+import io.ballerina.tools.text.TextDocuments;
 import io.ballerina.tools.text.TextEdit;
 import io.ballerina.tools.text.TextRange;
 
-public class STModifyUtil {
-    private STModifyUtil() {
+import java.util.ArrayList;
+import java.util.List;
+
+public class STModificationUtil {
+    private STModificationUtil() {
     }
 
-    static TextEdit constructEdit(TextDocument oldTextDocument, STModification stModification) {
+    static String getModifiedStatement(String oldStatement, STModification stModification) {
+        List<TextEdit> edits = new ArrayList<>();
+        TextDocument oldTextDocument = TextDocuments.from(oldStatement);
+        TextEdit edit = constructEdit(oldTextDocument, stModification);
+        edits.add(edit);
+        TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
+                new TextEdit[0]));
+        TextDocument newTextDocument = oldTextDocument.apply(textDocumentChange);
+        return newTextDocument.toString();
+    }
+
+    private static TextEdit constructEdit(TextDocument oldTextDocument, STModification stModification) {
         LinePosition startLinePos = LinePosition.from(stModification.getStartLine(),
                 stModification.getStartColumn());
         LinePosition endLinePos = LinePosition.from(stModification.getEndLine(),
@@ -32,7 +48,6 @@ public class STModifyUtil {
         int startOffset = oldTextDocument.textPositionFrom(startLinePos);
         int endOffset = oldTextDocument.textPositionFrom(endLinePos);
         return TextEdit.from(
-                TextRange.from(startOffset,
-                        endOffset - startOffset), stModification.getNewCodeSnippet());
+                TextRange.from(startOffset, endOffset - startOffset), stModification.getNewCodeSnippet());
     }
 }
