@@ -43,7 +43,11 @@ public class FindRefsInRecordTypeDefTest extends FindAllReferencesTest {
                                 location(28, 20, 37),
                                 location(31, 4, 21),
                                 location(32, 4, 21))
-                }
+                },
+                {33, 4, location(22, 12, 15),
+                        List.of(location(22, 12, 15),
+                                location(33, 4, 7))
+                },
         };
     }
 

@@ -31,4 +31,5 @@ public type SemType UniformTypeBitSet|ComplexSemType;
 public type ComplexSemType readonly & record {|
     UniformTypeBitSet all;
     UniformTypeBitSet some;
+    Car aCar;
 |};
