@@ -85,6 +85,15 @@ public class RunCommand implements BLauncherCmd {
             "when run is used with a source file or a module.")
     private Boolean observabilityIncluded;
 
+    @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
+    private Boolean sticky;
+
+    @CommandLine.Option(names = "--dump-graph", hidden = true)
+    private boolean dumpGraph;
+
+    @CommandLine.Option(names = "--dump-raw-graphs", hidden = true)
+    private boolean dumpRawGraphs;
+
     private static final String runCmd =
             "bal run [--debug <port>] <executable-jar> \n" +
             "    bal run [--experimental] [--offline]\n" +
@@ -140,6 +149,10 @@ public class RunCommand implements BLauncherCmd {
                     args = argList.subList(1, argList.size()).toArray(new String[0]);
                 }
             }
+        }
+
+        if (sticky == null) {
+            sticky = false;
         }
 
         // load project
@@ -212,6 +225,9 @@ public class RunCommand implements BLauncherCmd {
                 .skipTests(true)
                 .testReport(false)
                 .observabilityIncluded(observabilityIncluded)
+                .sticky(sticky)
+                .dumpGraph(dumpGraph)
+                .dumpRawGraphs(dumpRawGraphs)
                 .build();
     }
 }

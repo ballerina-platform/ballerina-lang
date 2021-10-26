@@ -23,6 +23,8 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
+
 /**
  * This class contains a set of negative test cases related to the checked operator.
  */
@@ -30,6 +32,7 @@ public class CheckedExprNegativeTest {
 
     private static final String ERROR_MISMATCH_ERR_MSG = "invalid usage of the 'check' expression operator: no " +
             "matching error return type(s) in the enclosing invokable";
+    private static final String WARN_FUNCTION_SHOULD_RETURN_NIL = "this function should explicitly return a value";
 
     @Test
     public void testSemanticErrors() {
@@ -68,13 +71,18 @@ public class CheckedExprNegativeTest {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_error_return_type_mismatch_negative.bal");
         int i = 0;
+        validateWarning(compile, i++, WARN_FUNCTION_SHOULD_RETURN_NIL, 23, 24);
         BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 24, 13);
+        validateWarning(compile, i++, WARN_FUNCTION_SHOULD_RETURN_NIL, 36, 23);
+        validateWarning(compile, i++, WARN_FUNCTION_SHOULD_RETURN_NIL, 44, 23);
         BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 45, 17);
+        validateWarning(compile, i++, WARN_FUNCTION_SHOULD_RETURN_NIL, 54, 34);
         BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 55, 23);
         BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 56, 13);
         BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 57, 20);
         BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 58, 23);
-        Assert.assertEquals(compile.getErrorCount(), i);
+        Assert.assertEquals(compile.getErrorCount(), i - 4);
+        Assert.assertEquals(compile.getWarnCount(), 4);
     }
 
     @Test
@@ -84,7 +92,9 @@ public class CheckedExprNegativeTest {
         int index = 0;
         BAssertUtil.validateError(compile, index++, ERROR_MISMATCH_ERR_MSG, 23, 13);
         BAssertUtil.validateError(compile, index++, ERROR_MISMATCH_ERR_MSG, 29, 13);
+        validateWarning(compile, index++, WARN_FUNCTION_SHOULD_RETURN_NIL, 35, 24);
         BAssertUtil.validateError(compile, index++, ERROR_MISMATCH_ERR_MSG, 37, 13);
-        Assert.assertEquals(compile.getErrorCount(), index);
+        Assert.assertEquals(compile.getErrorCount(), index - 1);
+        Assert.assertEquals(compile.getWarnCount(), 1);
     }
 }

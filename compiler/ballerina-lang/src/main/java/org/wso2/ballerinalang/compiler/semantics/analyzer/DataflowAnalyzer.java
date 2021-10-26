@@ -624,7 +624,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         // If the flow was terminated within 'else' block, then after the if-else block,
         // only the results of the 'if' block matters.
-        if (elseResult.flowTerminated) {
+        if (elseResult.flowTerminated ||
+                ConditionResolver.checkConstCondition(types, symTable, ifNode.expr) == symTable.trueType) {
             this.uninitializedVars = ifResult.uninitializedVars;
             return;
         }
@@ -1041,6 +1042,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             checkVarRef(fieldAccessExpr.symbol, fieldAccessExpr.pos);
         }
         analyzeNode(fieldAccessExpr.expr, env);
+    }
+
+    @Override
+    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
+        if (!nsPrefixedFieldBasedAccess.isLValue && isObjectMemberAccessWithSelf(nsPrefixedFieldBasedAccess)) {
+            checkVarRef(nsPrefixedFieldBasedAccess.symbol, nsPrefixedFieldBasedAccess.pos);
+        }
+        analyzeNode(nsPrefixedFieldBasedAccess.expr, env);
     }
 
     @Override

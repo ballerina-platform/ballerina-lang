@@ -18,6 +18,14 @@
 
 package io.ballerina.projects.test;
 
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.directory.SingleFileProject;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -28,6 +36,8 @@ import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static io.ballerina.cli.utils.OsUtils.isWindows;
+
 /**
  * Contains utils to test the bala writer.
  *
@@ -36,6 +46,74 @@ import java.util.zip.ZipInputStream;
 public class TestUtils {
 
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+
+    public static BuildProject loadBuildProject(Path projectPath) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        return BuildProject.load(projectPath, buildOptions);
+    }
+
+    static BuildProject loadBuildProject(Path projectPath, BuildOptions options) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        BuildOptions mergedOptions = options.acceptTheirs(buildOptions);
+        return BuildProject.load(projectPath, mergedOptions);
+    }
+
+    static BuildProject loadBuildProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).skipTests(false).build();
+        return BuildProject.load(environmentBuilder, projectPath, buildOptions);
+    }
+
+    static BuildProject loadBuildProject(
+            ProjectEnvironmentBuilder environmentBuilder, Path projectPath, BuildOptions options) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        BuildOptions mergedOptions = options.acceptTheirs(buildOptions);
+        return BuildProject.load(environmentBuilder, projectPath, mergedOptions);
+    }
+
+    public static SingleFileProject loadSingleFileProject(Path projectPath) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        return SingleFileProject.load(projectPath, buildOptions);
+    }
+
+    static SingleFileProject loadSingleFileProject(Path projectPath, BuildOptions options) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        BuildOptions mergedOptions = options.acceptTheirs(buildOptions);
+        return SingleFileProject.load(projectPath, mergedOptions);
+    }
+
+    static SingleFileProject loadSingleFileProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        return SingleFileProject.load(environmentBuilder, projectPath, buildOptions);
+    }
+
+    static SingleFileProject loadSingleFileProject(
+            ProjectEnvironmentBuilder environmentBuilder, Path projectPath, BuildOptions options) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        BuildOptions mergedOptions = options.acceptTheirs(buildOptions);
+        return SingleFileProject.load(environmentBuilder, projectPath, mergedOptions);
+    }
+
+    static Project loadProject(Path projectPath) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        return ProjectLoader.loadProject(projectPath, buildOptions);
+    }
+
+    static Project loadProject(Path projectPath, BuildOptions options) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        BuildOptions mergedOptions = options.acceptTheirs(buildOptions);
+        return ProjectLoader.loadProject(projectPath, mergedOptions);
+    }
+
+    static Project loadProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        return ProjectLoader.loadProject(projectPath, environmentBuilder, buildOptions);
+    }
+
+    static Project loadProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath, BuildOptions options) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        BuildOptions mergedOptions = options.acceptTheirs(buildOptions);
+        return ProjectLoader.loadProject(projectPath, environmentBuilder, mergedOptions);
+    }
 
     static void unzip(String fileZipPath, String destinationDirectory) throws IOException {
         byte[] buffer = new byte[1024 * 4];
@@ -92,6 +170,14 @@ public class TestUtils {
         projectPath.toFile().setExecutable(true, true);
         projectPath.toFile().setWritable(true, true);
         projectPath.toFile().setReadable(true, true);
+    }
+
+    static String readFileAsString(Path filePath) throws IOException {
+        if (isWindows()) {
+            return Files.readString(filePath).replaceAll("\r", "");
+        } else {
+            return Files.readString(filePath);
+        }
     }
 
     public static boolean isWindows() {

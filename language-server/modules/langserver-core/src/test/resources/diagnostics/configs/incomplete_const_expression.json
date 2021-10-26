@@ -1,0 +1,75 @@
+{
+  "source": "sources/incomplete_const_expression.bal",
+  "items": {
+    "incomplete_const_expression.bal": [
+      {
+        "range": {
+          "start": {
+            "line": 1,
+            "character": 13
+          },
+          "end": {
+            "line": 1,
+            "character": 18
+          }
+        },
+        "severity": "Error",
+        "code": {
+          "left": "BCE2008"
+        },
+        "message": "redeclared symbol 'super'"
+      },
+      {
+        "range": {
+          "start": {
+            "line": 3,
+            "character": 4
+          },
+          "end": {
+            "line": 3,
+            "character": 9
+          }
+        },
+        "severity": "Error",
+        "code": {
+          "left": "BCE2124"
+        },
+        "message": "symbol 'super' is already initialized"
+      },
+      {
+        "range": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 1
+          }
+        },
+        "severity": "Error",
+        "code": {
+          "left": "BCE3504"
+        },
+        "message": "expression is not a constant expression"
+      },
+      {
+        "range": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 1
+          }
+        },
+        "severity": "Error",
+        "code": {
+          "left": "BCE0502"
+        },
+        "message": "missing expression"
+      }
+    ]
+  }
+}

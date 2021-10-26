@@ -282,8 +282,64 @@ function removeIfHasKey() returns boolean {
     return removedPerson1 == () && removedPerson2?.name == "Chiran";
 }
 
-function testHasKey() returns boolean {
-    return tab.hasKey("Mohan");
+type age record {
+    int|string? age;
+};
+
+type NewPerson record {
+  string name;
+  readonly age age;
+};
+
+type NewPersonalTable table<NewPerson> key(age);
+
+function testHasKey() {
+    table<record { readonly int|string|float? k; }> key(k) tbl1 = table[];
+    tbl1.add({k: 0});
+    tbl1.add({k: 5});
+    tbl1.add({k: -31});
+    tbl1.add({k: "10"});
+    tbl1.add({k: 100.05});
+    assertFalse(tbl1.hasKey(()));
+    assertFalse(tbl1.hasKey(30));
+    assertTrue(tbl1.hasKey(0));
+    assertTrue(tbl1.hasKey(-31));
+    assertTrue(tbl1.hasKey(5));
+    assertFalse(tbl1.hasKey(10));
+    assertFalse(tbl1.hasKey("100.05"));
+
+    NewPersonalTable tbl2 = table key(age) [{ name: "Chiran", age: {age: ()}},
+        { name: "Mohan", age: {age: 54} },
+        { name: "Gima", age: {age: "34"} },
+        { name: "Granier", age: {age: "65"} }];
+    assertFalse(tbl2.hasKey({age: 0}));
+    assertFalse(tbl2.hasKey({age: 34}));
+    assertTrue(tbl2.hasKey({age: 54}));
+    assertTrue(tbl2.hasKey({age: "65"}));
+}
+
+function testHashCollisionHandlingScenarios() {
+    table<record { readonly int|string|float? k; }> key(k) tbl1 = table[];
+    tbl1.add({k: 0});
+    tbl1.add({k: 5});
+    tbl1.add({k: -31});
+    tbl1.add({k: "10"});
+    tbl1.add({k: 100.05});
+    tbl1.add({k: ()});
+    tbl1.add({k: 30});
+
+    record { readonly int|string|float? k; } a = tbl1.get(0);
+    record { readonly int|string|float? k; } b = tbl1.get(30);
+
+    assertEquals(a.k, 0);
+    assertEquals(b.k, 30);
+
+    record { readonly int|string|float? k; } c = tbl1.remove(0);
+    record { readonly int|string|float? k; } d = tbl1.remove(30);
+
+    assertEquals(c.k, 0);
+    assertEquals(d.k, 30);
+
 }
 
 function testGetKeyList() returns any[] {

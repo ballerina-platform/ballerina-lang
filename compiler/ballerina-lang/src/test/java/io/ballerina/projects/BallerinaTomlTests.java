@@ -77,6 +77,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(packageManifest.keywords(), Arrays.asList("toml", "ballerina"));
         Assert.assertEquals(packageManifest.repository(), "https://github.com/ballerina-platform/ballerina-lang");
         Assert.assertEquals(packageManifest.ballerinaVersion(), "slbeta2");
+        Assert.assertEquals(packageManifest.visibility(), "private");
 
 //        Assert.assertTrue(ballerinaToml.buildOptions().observabilityIncluded());
 //        Assert.assertTrue(ballerinaToml.buildOptions().offlineBuild());
@@ -94,7 +95,7 @@ public class BallerinaTomlTests {
         PackageDescriptor descriptor = packageManifest.descriptor();
         Assert.assertEquals(descriptor.name().value(), "lang.annotations");
         Assert.assertEquals(descriptor.org().value(), "ballerina");
-        Assert.assertEquals(descriptor.version().value().toString(), "1.0.0");
+        Assert.assertEquals(descriptor.version().value().toString(), "0.0.0");
     }
 
     @Test
@@ -151,7 +152,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(descriptor.version().value().toString(), INTERNAL_VERSION);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testBallerinaTomlWithEmptyPackage() throws IOException {
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("empty-package.toml"));
         Assert.assertTrue(packageManifest.diagnostics().hasErrors());
@@ -163,7 +164,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(iterator.next().message(), "'version' under [package] is missing");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testBallerinaTomlWithoutOrgNameVersion() throws IOException {
         PackageManifest packageManifest = getPackageManifest(
                 BAL_TOML_REPO.resolve("platform-without-org-name-version.toml"));
@@ -185,8 +186,8 @@ public class BallerinaTomlTests {
         Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
 
         Diagnostic firstDiagnostic = iterator.next();
-        Assert.assertEquals(firstDiagnostic.message(), "invalid 'name' under [package]: 'name' can only contain "
-                + "alphanumerics, underscores and periods and the maximum length is 256 characters");
+        Assert.assertEquals(firstDiagnostic.message(), "invalid 'name' under [package]: "
+                + "'name' can only contain alphanumerics, underscores and periods");
         Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(1:7,1:23)");
 
         String os = System.getProperty("os.name").toLowerCase(Locale.getDefault());
@@ -198,10 +199,120 @@ public class BallerinaTomlTests {
             Assert.assertEquals(firstDiagnostic.location().textRange().toString(), "(17,33)");
         }
 
-        Assert.assertEquals(iterator.next().message(), "invalid 'org' under [package]: 'org' can only contain "
-                + "alphanumerics, underscores and the maximum length is 256 characters");
+        Assert.assertEquals(iterator.next().message(), "invalid 'org' under [package]: "
+                + "'org' can only contain alphanumerics and underscores");
         Assert.assertEquals(iterator.next().message(), "invalid 'version' under [package]: "
                 + "'version' should be compatible with semver");
+    }
+
+    @Test
+    public void testBallerinaTomlWithInvalidLengthOrgName() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("invalid-length-org-name.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 3);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(), "invalid 'name' under [package]: "
+                + "maximum length of 'name' is 256 characters");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(1:7,1:303)");
+
+        String os = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+        if (os.contains("win")) {
+            // text range including minutiae, if we get a node that includes newline minutiae,
+            // its text range will be different. i.e windows will have an extra 1 length due to \r\n.
+            Assert.assertEquals(firstDiagnostic.location().textRange().toString(), "(18,314)");
+        } else {
+            Assert.assertEquals(firstDiagnostic.location().textRange().toString(), "(17,313)");
+        }
+
+        Assert.assertEquals(iterator.next().message(), "invalid 'org' under [package]: "
+                + "maximum length of 'org' is 256 characters");
+    }
+
+    @Test
+    public void testPackageHasOrgAndNameStartingWithUnderscore() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("underscores-starting-org-name.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 2);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(),
+                "invalid 'name' under [package]: 'name' cannot have initial underscore characters");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(1:7,1:20)");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'org' under [package]: 'org' cannot have initial underscore characters");
+    }
+
+    @Test
+    public void testPackageHasOrgAndNameTrailingWithUnderscore() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("underscores-trailing-org-name.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 2);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(),
+                "invalid 'name' under [package]: 'name' cannot have trailing underscore characters");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(1:7,1:20)");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'org' under [package]: 'org' cannot have trailing underscore characters");
+    }
+
+    @Test
+    public void testPackageHasOrgAndNameWithConsecutiveUnderscores() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("underscores-consecutive-org-name.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 2);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(),
+                "invalid 'name' under [package]: 'name' cannot have consecutive underscore characters");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(1:7,1:20)");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'org' under [package]: 'org' cannot have consecutive underscore characters");
+    }
+
+    @Test
+    public void testPackageHasOrgAndNameWithAllUnderscoreErrors() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("underscores-all-errors-org-name.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 6);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(),
+                "invalid 'name' under [package]: 'name' cannot have consecutive underscore characters");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(1:7,1:22)");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'name' under [package]: 'name' cannot have initial underscore characters");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'name' under [package]: 'name' cannot have trailing underscore characters");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'org' under [package]: 'org' cannot have consecutive underscore characters");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'org' under [package]: 'org' cannot have initial underscore characters");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'org' under [package]: 'org' cannot have trailing underscore characters");
+    }
+
+    @Test
+    public void testLangPackageHasNameWithConsecutiveUnderscores() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("underscores-lang-package.toml"));
+        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 0);
     }
 
     @Test
@@ -225,13 +336,15 @@ public class BallerinaTomlTests {
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("invalid-entries.toml"));
         DiagnosticResult diagnostics = packageManifest.diagnostics();
         Assert.assertTrue(diagnostics.hasErrors());
-        Assert.assertEquals(diagnostics.errors().size(), 5);
+        Assert.assertEquals(diagnostics.errors().size(), 6);
 
         Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
         Assert.assertEquals(iterator.next().message(),
                 "incompatible type for key 'license': expected 'ARRAY', found 'STRING'");
         Assert.assertEquals(iterator.next().message(),
                 "incompatible type for key 'repository': expected 'STRING', found 'BOOLEAN'");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'visibility' under [package]: 'visibility' can only have value 'private'");
         Assert.assertEquals(iterator.next().message(),
                 "could not locate dependency path 'path/to/swagger.txt'");
         Assert.assertEquals(iterator.next().message(),
@@ -315,7 +428,28 @@ public class BallerinaTomlTests {
         Assert.assertEquals(secLocalDep.repository(), "local");
     }
 
-    private PackageManifest getPackageManifest(Path tomlPath) throws IOException {
+    @Test
+    public void testLocalDependenciesWithInvalidOrgAndName() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("local-dependencies-with-invalid-org-name.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().diagnostics().size(), 6);
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(), "invalid 'org' under [[dependency]]: "
+                + "'org' can only contain alphanumerics and underscores");
+        Assert.assertEquals(iterator.next().message(), "invalid 'name' under [[dependency]]: "
+                + "'name' can only contain alphanumerics, underscores and periods");
+        Assert.assertEquals(iterator.next().message(), "invalid 'org' under [[dependency]]: "
+                + "'org' can only contain alphanumerics and underscores");
+        Assert.assertEquals(iterator.next().message(), "invalid 'name' under [[dependency]]: "
+                + "'name' can only contain alphanumerics, underscores and periods");
+        Assert.assertEquals(iterator.next().message(), "invalid 'org' under [[dependency]]: "
+                + "maximum length of 'org' is 256 characters");
+        Assert.assertEquals(iterator.next().message(), "invalid 'name' under [[dependency]]: "
+                + "maximum length of 'name' is 256 characters");
+    }
+
+    static PackageManifest getPackageManifest(Path tomlPath) throws IOException {
         String tomlContent = Files.readString(tomlPath);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
         return ManifestBuilder.from(ballerinaToml, null, tomlPath.getParent()).packageManifest();

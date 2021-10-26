@@ -3,7 +3,7 @@ import ballerina/jballerina.java;
 public function main() {
     worker w1 returns boolean|error{
       int i = 2;
-      if(false){
+      if (0 > 1) {
            return true;
       }
       i -> w2;
