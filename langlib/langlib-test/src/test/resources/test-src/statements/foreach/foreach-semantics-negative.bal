@@ -230,3 +230,81 @@ function print(any... v) {
 function concatString(int index, string value) {
     output = output + index.toString() + ":" + value + " ";
 }
+
+function testForeachIterationOverReadOnlyArrayMembersOfReadOnlyArrayWithVarNegative() {
+    readonly & (int[2])[] x = [[1, 2], [3, 4], [5, 6]];
+
+    foreach var [a, b] in x {
+        string c = a;
+        int[] d = b;
+    }
+}
+
+function testForeachIterationOverReadOnlyArrayMembersOfNonReadOnlyArrayWithVarNegative() {
+    (readonly & int[2])[] x = [[1, 2], [3, 4], [5, 6]];
+
+    string[] arr = [];
+
+    foreach var [a, b] in x {
+        arr.push(a, b);
+    }
+}
+
+function testForeachIterationOverReadOnlyTupleMembersOfReadOnlyArrayWithVarNegative() {
+    readonly & ([int, string, boolean])[] x = [[1, "a", true], [3, "bc", false], [5, "def", true]];
+
+    foreach var [a, b, c] in x {
+        string d = a;
+        boolean e = b;
+        boolean f = c; // OK
+    }
+}
+
+function testForeachIterationOverReadOnlyTupleMembersOfReadOnlyTupleWithVarNegative() {
+    readonly & [[int, int], [int, int]...] x = [[1, 2], [3, 4], [5, 6]];
+
+    foreach var [a, b] in x {
+        int[] c = a;
+        int d = b; // OK
+    }
+}
+
+function testForeachIterationOverReadOnlyArrayMembersOfReadOnlyTupleWithVarNegative() {
+    readonly & [int[2], string[2], boolean[3]] x = [[1, 2], ["a", "b"], [false, false, true]];
+
+    (int|string|boolean)[] arr = [];
+
+    foreach var [a, b, ...c] in x {
+        int|string d = a;
+        string|boolean e = b;
+        string f = c[0];
+    }
+}
+
+function testForeachIterationOverReadOnlyMapOfReadOnlyTupleWithVarNegative() {
+    readonly & [map<int>, map<string>...] x = [{a: 1, b: 2}, {a: "hello", c: "world", d: "ballerina"}];
+
+    foreach var {...a} in x {
+        map<int> b = a;
+    }
+}
+
+function testForeachIterationOverReadOnlyTupleMembersOfNonReadOnlyRecordWithVarNegative() {
+    record {| readonly & [int, string] a; readonly & [boolean, int] b; |} x = {"a": [1, "foo"], "b": [false, 2]};
+
+    foreach var [a, b] in x {
+        int c = a;
+        int d = b;
+    }
+}
+
+function testForeachIterationOverReadOnlyArrayMembersOfReadOnlyMapWithVarNegative() {
+    readonly & map<int[2]|string[3]|boolean[2]> x = {m: [1, 2], n: ["foo", "bar", "baz"], o: [true, false]};
+
+    (int|boolean)[] arr = [];
+
+    foreach var [a, b, ...c] in x {
+        arr.push(a, b);
+        int|string f = c[0];
+    }
+}
