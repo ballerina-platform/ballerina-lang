@@ -14,16 +14,32 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function myFunc(){
-    MyClass c1 = new(10,))
+public class Foo {
+    string field1 = "abc";
+
 }
 
-class MyClass {
-    function init(int arg1, string arg2) {
+public class Bar {
+    string name1 = "";
+    private int n;
+
+    public function init(int n = 0) {
+        self.n = n;
+    }
+
+    public function inc() {
+        self.n += 1;
+        int x = 5;
+
     }
 }
 
-function mapTypes() {
-    map<string> a = {a: "dul", b: "grg"}.
-    map<string> b = {d: "dul", e: "fg"};
-}
+type Person record {|
+    string name2;
+
+|};
+
+type PersonObj object {
+    string name3;
+
+};
