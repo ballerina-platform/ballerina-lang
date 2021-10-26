@@ -165,6 +165,7 @@ public class TypeNarrower extends BLangNodeVisitor {
      *
      * @param expr Expression to evaluate
      * @param currentEnv Current environment
+     * @param isConstTrueCondition Indicates whether the current expression can be evaluated to constant true
      * @return target environment
      */
     public SymbolEnv evaluateFalsityFollowingIfWithoutElse(BLangExpression expr, SymbolEnv currentEnv,
@@ -223,6 +224,7 @@ public class TypeNarrower extends BLangNodeVisitor {
      * @param expr Expression to evaluate
      * @param targetNode node to which the type narrowing applies
      * @param env Current environment
+     * @param isBinaryExpr Indicates whether the current context is a binary expression
      * @return target environment
      */
     public SymbolEnv evaluateFalsity(BLangExpression expr, BLangNode targetNode, SymbolEnv env, boolean isBinaryExpr) {
@@ -243,7 +245,7 @@ public class TypeNarrower extends BLangNodeVisitor {
                         types.getRemainingType(originalSym.type, trueType) : falseType;
             } else {
                 falseType =  targetNode.getKind() != NodeKind.IF &&
-                        falseType == trueType ? symTable.neverType : falseType;
+                        (falseType == trueType || falseType == symTable.nullSet) ? symTable.neverType : falseType;
             }
 
             symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, originalSym,

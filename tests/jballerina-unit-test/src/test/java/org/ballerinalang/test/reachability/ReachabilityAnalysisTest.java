@@ -210,8 +210,11 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 873, 16);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 883, 5);
         validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 883, 16);
-        Assert.assertEquals(result.getErrorCount(), i - 24);
-        Assert.assertEquals(result.getHintCount(), 23);
+        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 888, 8);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 891, 9);
+        validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 891, 19);
+        Assert.assertEquals(result.getErrorCount(), i - 25);
+        Assert.assertEquals(result.getHintCount(), 24);
         Assert.assertEquals(result.getWarnCount(), 1);
     }
 

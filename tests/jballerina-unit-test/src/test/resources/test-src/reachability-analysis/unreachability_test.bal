@@ -882,3 +882,12 @@ function testUnreachableCodeWithTypeNarrowing4() {
 
     string a = b; // unreachable code
 }
+
+function testUnreachableCodeWithTypeNarrowing5() {
+    int|string x = 5;
+    if x is int|string {
+
+    } else {
+        never _ = x; // unreachable code
+    }
+}
