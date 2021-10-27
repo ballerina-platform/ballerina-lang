@@ -141,6 +141,19 @@ function testTernaryAsArgument() {
     assertEquals(a[1], 255);
 }
 
+type Point record {|
+    int x;
+    int y;
+|};
+
+function testIfAndThenExprBeingFieldAccess() {
+    boolean b = true;
+    Point p = { x: 2, y: 4 };
+    
+    int i = b ? p.x : p.y;
+    assertEquals(i, 2);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquals(anydata expected, anydata actual) {
