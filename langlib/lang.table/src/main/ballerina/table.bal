@@ -50,7 +50,7 @@ public isolated function length(table<map<any|error>> t) returns int = @java:Met
 # The `keys` function can be used to iterator over just the keys.
 #
 # + t - the table
-# + return - a new iterator object that will iterate over the members of `t`
+# + return - a new iterator object that will iterate over the members of parameter `t`
 public isolated function iterator(table<MapType> t) returns object {
     public isolated function next() returns record {|
         MapType value;
@@ -63,11 +63,11 @@ public isolated function iterator(table<MapType> t) returns object {
 # Returns the member of an table with a particular key.
 #
 # This for use in a case where it is known that the table has a specific key,
-# and accordingly panics if parameter `t` does not have a member with key `k`.
+# and accordingly panics if parameter `t` does not have a member with key parameter `k`.
 #
 # + t - the table
 # + k - the key
-# + return - member with key `k`
+# + return - member with key parameter `k`
 public isolated function get(table<MapType> key<KeyType> t, KeyType k) returns MapType = @java:Method {
     'class: "org.ballerinalang.langlib.table.Get",
     name: "get"
