@@ -24,7 +24,7 @@ service / on new http:Listener(8090) {
         if (false) {
             json clientResponse2 = check clientEP->forward("/", req);
         } else {
-            http:Client clientEP1 = check new ("https://postman-echo.com/post1");
+            http:Client clientEP1 = check new (url = "https://postman-echo.com/post2");
             json clientResponse1 = check clientEP1->forward("/", req);
         }
         return clientResponse;
