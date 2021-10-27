@@ -1276,6 +1276,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType keyTypeConstraint = tableType.keyTypeConstraint;
         if (keyTypeConstraint != null) {
+            keyTypeConstraint = types.getReferredType(keyTypeConstraint);
             List<BType> memberTypes = new ArrayList<>();
 
             switch (keyTypeConstraint.tag) {

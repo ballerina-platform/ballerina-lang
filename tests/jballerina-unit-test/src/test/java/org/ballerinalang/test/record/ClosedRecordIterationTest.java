@@ -85,7 +85,7 @@ public class ClosedRecordIterationTest {
                 "incompatible types: expected '[string,any]', found '(string|int|ClosedAddress)'",
                 70, 30);
         BAssertUtil.validateError(closedRecNegatives, index++,
-                "incompatible types: expected 'function (ballerina/lang.map:1.1.0:Type) returns (boolean)', " +
+                "incompatible types: expected 'function (ballerina/lang.map:0.0.0:Type) returns (boolean)', " +
                         "found 'function ([string,any]) returns (string)'", 74, 21);
         BAssertUtil.validateError(closedRecNegatives, index++,
                 "incompatible types: expected 'ClosedPerson', " +

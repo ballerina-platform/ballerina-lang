@@ -203,7 +203,7 @@ public class TypeNarrower extends BLangNodeVisitor {
             case UNARY_EXPR:
                 return checkValidExpressionToEvaluateFalsity(((BLangUnaryExpr) expr).expr);
             case SIMPLE_VARIABLE_REF:
-                return expr.getBType().tag == TypeTags.FINITE;
+                return types.getReferredType(expr.getBType()).tag == TypeTags.FINITE;
             default:
                 return false;
         }

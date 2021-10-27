@@ -5116,7 +5116,8 @@ public class Types {
         return intersectingFiniteType;
     }
 
-    public BType getSafeType(BType type, boolean liftNil, boolean liftError) {
+    public BType getSafeType(BType bType, boolean liftNil, boolean liftError) {
+        BType type = getReferredType(bType);
         // Since JSON, ANY and ANYDATA by default contain null, we need to create a new respective type which
         // is not-nullable.
         if (liftNil) {
@@ -5136,7 +5137,7 @@ public class Types {
         }
 
         if (type.tag != TypeTags.UNION) {
-            return type;
+            return bType;
         }
 
         BUnionType unionType = (BUnionType) type;

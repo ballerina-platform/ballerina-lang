@@ -1481,6 +1481,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         // Check for any circular type references
+        boolean hasTypeInclusions = false;
         NodeKind typeNodeKind = typeDefinition.typeNode.getKind();
         if (typeNodeKind == NodeKind.OBJECT_TYPE || typeNodeKind == NodeKind.RECORD_TYPE) {
             if (definedType.tsymbol.scope == null) {
@@ -1490,6 +1491,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // For each referenced type, check whether the types are already resolved.
             // If not, then that type should get a higher precedence.
             for (BLangType typeRef : structureTypeNode.typeRefs) {
+                hasTypeInclusions = true;
                 BType referencedType = symResolver.resolveTypeNode(typeRef, env);
                 if (referencedType == symTable.noType) {
                     if (!this.unresolvedTypes.contains(typeDefinition)) {

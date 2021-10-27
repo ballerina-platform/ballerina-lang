@@ -233,11 +233,8 @@ public class AnnotationDesugar {
         literalNode.pos = position;
         BSymbol annTypeSymbol = symResolver.lookupSymbolInMainSpace(
                 pkgEnv, names.fromString(SERVICE_INTROSPECTION_INFO_REC));
-        BStructureTypeSymbol bStructSymbol = null;
-        if (annTypeSymbol instanceof BStructureTypeSymbol) {
-            bStructSymbol = (BStructureTypeSymbol) annTypeSymbol;
-            literalNode.setBType(bStructSymbol.type);
-        }
+        BStructureTypeSymbol bStructSymbol = (BStructureTypeSymbol) annTypeSymbol.type.tsymbol;
+        literalNode.setBType(bStructSymbol.type);
 
         //Add Root Descriptor
         BLangRecordLiteral.BLangRecordKeyValueField descriptorKeyValue = (BLangRecordLiteral.BLangRecordKeyValueField)

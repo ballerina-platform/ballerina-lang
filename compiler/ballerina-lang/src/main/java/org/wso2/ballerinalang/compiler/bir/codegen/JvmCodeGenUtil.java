@@ -407,7 +407,7 @@ public class JvmCodeGenUtil {
             case TypeTags.OBJECT:
                 return GET_BOBJECT;
             case TypeTags.HANDLE:
-                return GET_HANDLE_VALUE
+                return GET_HANDLE_VALUE;
             case TypeTags.TYPEREFDESC:
                 return getArgTypeSignature(((BTypeReferenceType) bType).referredType);
             default:
@@ -470,7 +470,7 @@ public class JvmCodeGenUtil {
             case TypeTags.INVOKABLE:
                 return RETURN_FUNCTION_POINTER;
             case TypeTags.HANDLE:
-                return RETURN_HANDLE_VALUE
+                return RETURN_HANDLE_VALUE;
             case TypeTags.TYPEREFDESC:
                 return generateReturnType(((BTypeReferenceType) bType).referredType);
             default:
