@@ -1,3 +1,4 @@
+# Contains configs of the container
 [container.image]
 name = "hello" # Name of the container
 repository = "local"

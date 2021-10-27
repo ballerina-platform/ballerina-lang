@@ -24,6 +24,7 @@
                 "image": {
                     "type": "object",
                     "additionalProperties": false,
+                    "description": "Contains configs of the container",
                     "properties": {
                         "name": {
                             "type": "string",

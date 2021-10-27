@@ -12,6 +12,10 @@
         "second": {
             "type": "string",
             "default": "hello"
+        },
+        "third": {
+            "type": "boolean",
+            "default": true
         }
     }
 }

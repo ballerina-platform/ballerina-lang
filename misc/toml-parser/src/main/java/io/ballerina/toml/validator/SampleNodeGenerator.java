@@ -37,6 +37,7 @@ import io.ballerina.toml.syntax.tree.Token;
  * @since v2.0.0
  */
 public class SampleNodeGenerator {
+    private static final String NEW_LINE = System.lineSeparator();
 
     public static KeyValueNode createStringKV(String key, String value, String description) {
         KeyNode keyNode = getKeyNode(key);
@@ -97,14 +98,14 @@ public class SampleNodeGenerator {
     private static MinutiaeList getLeadingTableMinList(String comment) {
         MinutiaeList minutiaeList = NodeFactory.createMinutiaeList();
         if (comment != null) {
-            minutiaeList = minutiaeList.add(NodeFactory.createCommentMinutiae(" # " + comment));
-            minutiaeList = minutiaeList.add(NodeFactory.createWhitespaceMinutiae("\n"));
+            minutiaeList = minutiaeList.add(NodeFactory.createCommentMinutiae("# " + comment));
+            minutiaeList = minutiaeList.add(NodeFactory.createWhitespaceMinutiae(NEW_LINE));
         }
         return minutiaeList;
     }
 
     private static MinutiaeList getEndingMinList(String comment) {
-        Minutiae newLineMinutiae = NodeFactory.createWhitespaceMinutiae("\n");
+        Minutiae newLineMinutiae = NodeFactory.createWhitespaceMinutiae(NEW_LINE);
         MinutiaeList endingMinList = NodeFactory.createMinutiaeList();
         if (comment != null) {
             endingMinList = endingMinList.add(NodeFactory.createCommentMinutiae(" # " + comment));
