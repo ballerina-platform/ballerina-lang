@@ -494,6 +494,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             BType definingType = types.getTypeWithEffectiveIntersectionTypes(typeDefinition.typeNode.getBType());
+            definingType = types.getReferredType(definingType);
             if (definingType.tag != TypeTags.OBJECT) {
                 return;
             }
@@ -513,6 +514,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             for (BLangType typeRef : objectTypeNode.typeRefs) {
                 BType type = types.getTypeWithEffectiveIntersectionTypes(typeRef.getBType());
+                type = types.getReferredType(type);
                 if (type.tag != TypeTags.OBJECT) {
                     continue;
                 }
@@ -528,6 +530,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         for (BLangType typeRef : classDefinition.typeRefs) {
             BType type = types.getTypeWithEffectiveIntersectionTypes(typeRef.getBType());
+            type = types.getReferredType(type);
             if (type.tag != TypeTags.OBJECT) {
                 continue;
             }
@@ -858,7 +861,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BLangType annotTypeNode = annotationNode.typeNode;
         if (annotTypeNode != null) {
             BType type = this.symResolver.resolveTypeNode(annotTypeNode, annotationEnv);
-            annotationSymbol.attachedType = type.tsymbol;
+            annotationSymbol.attachedType = type;
             if (!isValidAnnotationType(type)) {
                 dlog.error(annotTypeNode.pos, DiagnosticErrorCode.ANNOTATION_INVALID_TYPE, type);
             }
@@ -1528,9 +1531,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         ((BTypeDefinitionSymbol) typeDefSymbol).referenceType = new BTypeReferenceType(definedType, typeSymbol,
                 typeDefSymbol.type.flags);
 
-        boolean isLabel = true;
+        //todo remove after type ref introduced to runtime
         if (definedType.tsymbol.name == Names.EMPTY) {
-            isLabel = false;
             definedType.tsymbol.name = names.fromIdNode(typeDefinition.name);
             definedType.tsymbol.originalName = names.fromIdNode(typeDefinition.name);
             definedType.tsymbol.flags |= typeDefSymbol.flags;
@@ -1783,14 +1785,18 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangType member : members) {
             enumMembers.add((BConstantSymbol) ((BLangUserDefinedType) member).symbol);
         }
-//        definedType.tsymbol.flags |= Flags.asMask(typeDefinition.flagSet);
 
-//        definedType.tsymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);;
-//        return new BEnumSymbol(enumMembers, Flags.asMask(typeDefinition.flagSet), names.fromIdNode(typeDefinition.name),
-//                names.fromIdNode(typeDefinition.name), env.enclPkg.symbol.pkgID, definedType, env.scope.owner,
-//                typeDefinition.pos, SOURCE);
-        return new BEnumSymbol(enumMembers, Flags.asMask(typeDefinition.flagSet), Names.EMPTY, Names.EMPTY,
-                env.enclPkg.symbol.pkgID, definedType, env.scope.owner, typeDefinition.pos, SOURCE);
+        BEnumSymbol enumSymbol = new BEnumSymbol(enumMembers, Flags.asMask(typeDefinition.flagSet), names.fromIdNode(typeDefinition.name),
+                names.fromIdNode(typeDefinition.name), env.enclPkg.symbol.pkgID, definedType, env.scope.owner,
+                typeDefinition.pos, SOURCE);
+
+        enumSymbol.name = names.fromIdNode(typeDefinition.name);
+        enumSymbol.originalName = names.fromIdNode(typeDefinition.name);
+        enumSymbol.flags |= Flags.asMask(typeDefinition.flagSet);
+
+        enumSymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
+        enumSymbol.pkgID = env.enclPkg.packageID;
+        return enumSymbol;
     }
 
     private BObjectType getDistinctObjectType(BLangTypeDefinition typeDefinition, BObjectType definedType,

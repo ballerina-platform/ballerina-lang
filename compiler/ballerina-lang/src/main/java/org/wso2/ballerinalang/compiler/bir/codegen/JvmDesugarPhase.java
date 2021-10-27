@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -266,9 +267,17 @@ public class JvmDesugarPhase {
     private static void encodeTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs, Names names,
                                                  HashMap<String, String> encodedVsInitialIds) {
         for (BIRTypeDefinition typeDefinition : typeDefs) {
-            typeDefinition.type.tsymbol.name =
-                    names.fromString(
-                            encodeNonFunctionIdentifier(typeDefinition.type.tsymbol.name.value, encodedVsInitialIds));
+            //todo @chiran
+            if (typeDefinition.referenceType != null) {
+                typeDefinition.type.tsymbol.name =
+                        names.fromString(
+                                encodeNonFunctionIdentifier(((BTypeReferenceType) typeDefinition.referenceType).definitionName, encodedVsInitialIds));
+            } else {
+                typeDefinition.type.tsymbol.name =
+                        names.fromString(
+                                encodeNonFunctionIdentifier(typeDefinition.type.tsymbol.name.value, encodedVsInitialIds));
+            }
+
             typeDefinition.internalName =
                     names.fromString(encodeNonFunctionIdentifier(typeDefinition.internalName.value,
                                                                  encodedVsInitialIds));

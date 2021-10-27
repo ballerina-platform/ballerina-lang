@@ -196,8 +196,8 @@ public class SymbolFactory {
                 return createEnumSymbol((BEnumSymbol) symbol, name);
             }
 
-            // create the typeDefs
-            return createTypeDefinition((BTypeSymbol) symbol, name);
+            // For a type reference type symbol (SymTag.TYPE_REF)
+            return createTypeDefinition(symbol, name);
         }
 
         if (symbol instanceof BTypeDefinitionSymbol) {
@@ -528,9 +528,8 @@ public class SymbolFactory {
         }
 
         // Skipping the compiler-generated singleton type `true`.
-        if (symbol.attachedType != null && symbol.attachedType.getType() != null
-                && !types.isAssignable(symbol.attachedType.getType(), this.symTable.trueType)) {
-            symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(symbol.attachedType.getType()));
+        if (symbol.attachedType != null && !types.isAssignable(symbol.attachedType, this.symTable.trueType)) {
+            symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(symbol.attachedType));
         }
 
         for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {

@@ -2054,6 +2054,7 @@ public class Types {
         }
 
         if (type.tag != TypeTags.UNION) {
+//            return bType;
             return type;
         }
 
@@ -2062,6 +2063,7 @@ public class Types {
 
         for (BType memberType : ((BUnionType) type).getMemberTypes()) {
             BType effectiveType = getTypeWithEffectiveIntersectionTypes(memberType);
+            effectiveType = getReferredType(effectiveType);
             if (effectiveType != memberType) {
                 hasDifferentMember = true;
             }
@@ -3366,8 +3368,13 @@ public class Types {
             switch (memberType.tag) {
                 case TypeTags.INTERSECTION:
                     BType effectiveType = ((BIntersectionType) memberType).effectiveType;
-                    if (effectiveType.tag == TypeTags.UNION) {
-                        memTypes.addAll(getEffectiveMemberTypes((BUnionType) effectiveType));
+                    BType refType = getReferredType(effectiveType);
+                    if (refType.tag == TypeTags.UNION) {
+                        memTypes.addAll(getEffectiveMemberTypes((BUnionType) refType));
+                        continue;
+                    }
+                    if (refType.tag == TypeTags.INTERSECTION) {
+                        memTypes.addAll(getEffectiveMemberTypes((BUnionType) ((BIntersectionType) refType).effectiveType));
                         continue;
                     }
                     memTypes.add(effectiveType);

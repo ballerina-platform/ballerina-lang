@@ -944,7 +944,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRAnnotation birAnn = new BIRAnnotation(astAnnotation.pos, annSymbol.name, annSymbol.originalName,
                                                  annSymbol.flags, annSymbol.points,
                                                  annSymbol.attachedType == null ? symTable.trueType :
-                                                         annSymbol.attachedType.type, annSymbol.origin.toBIROrigin());
+                                                         annSymbol.attachedType, annSymbol.origin.toBIROrigin());
         birAnn.setMarkdownDocAttachment(annSymbol.markdownDocumentation);
         this.env.enclPkg.annotations.add(birAnn);
     }

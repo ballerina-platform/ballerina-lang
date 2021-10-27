@@ -1669,15 +1669,16 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType getEffectiveMappingType(BLangRecordLiteral recordLiteral, BType applicableMappingType) {
+        BType refType = types.getReferredType(applicableMappingType);
         if (applicableMappingType == symTable.semanticError ||
-                (applicableMappingType.tag == TypeTags.RECORD && Symbols.isFlagOn(applicableMappingType.flags,
+                (refType.tag == TypeTags.RECORD && Symbols.isFlagOn(applicableMappingType.flags,
                                                                                   Flags.READONLY))) {
             return applicableMappingType;
         }
 
         Map<String, RecordLiteralNode.RecordField> readOnlyFields = new LinkedHashMap<>();
         LinkedHashMap<String, BField> applicableTypeFields =
-                applicableMappingType.tag == TypeTags.RECORD ? ((BRecordType) applicableMappingType).fields :
+                refType.tag == TypeTags.RECORD ? ((BRecordType) refType).fields :
                         new LinkedHashMap<>();
 
         for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
@@ -1749,11 +1750,11 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BRecordType recordType = new BRecordType(recordSymbol, recordSymbol.flags);
-        if (applicableMappingType.tag == TypeTags.MAP) {
+        if (refType.tag == TypeTags.MAP) {
             recordType.sealed = false;
-            recordType.restFieldType = ((BMapType) applicableMappingType).constraint;
+            recordType.restFieldType = ((BMapType) refType).constraint;
         } else {
-            BRecordType applicableRecordType = (BRecordType) applicableMappingType;
+            BRecordType applicableRecordType = (BRecordType) refType;
             boolean allReadOnlyFields = true;
 
             for (Map.Entry<String, BField> origEntry : applicableRecordType.fields.entrySet()) {
@@ -1798,7 +1799,7 @@ public class TypeChecker extends BLangNodeVisitor {
                                                                                            names, symTable);
         TypeDefBuilderHelper.addTypeDefinition(recordType, recordSymbol, recordTypeNode, env);
 
-        if (applicableMappingType.tag == TypeTags.MAP) {
+        if (refType.tag == TypeTags.MAP) {
             recordLiteral.expectedType = applicableMappingType;
         }
 
@@ -1860,7 +1861,11 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (tag == TypeTags.TYPEREFDESC) {
-            return checkMappingConstructorCompatibility(types.getReferredType(bType), mappingConstructor);
+            BType refType = types.getReferredType(bType);
+//            return checkMappingConstructorCompatibility(types.getReferredType(bType), mappingConstructor);
+            BType compatibleType = checkMappingConstructorCompatibility(refType,
+                    mappingConstructor);
+            return (refType.tag != TypeTags.UNION && refType.tag != TypeTags.INTERSECTION) ? bType : compatibleType;
         }
 
         if (tag == TypeTags.INTERSECTION) {
@@ -2961,7 +2966,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     dlog.error(errorTypeRef.pos, DiagnosticErrorCode.INVALID_ERROR_TYPE_REFERENCE, errorTypeRef);
                 }
             } else {
-                return List.of(errorType);
+                return List.of(errorTypeRef.getBType());
             }
         }
 
@@ -3290,6 +3295,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         return true;
     }
+
 
     public void visit(BLangTypeInit cIExpr) {
         if ((expType.tag == TypeTags.ANY && cIExpr.userDefinedType == null) || expType.tag == TypeTags.RECORD) {
@@ -4550,6 +4556,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLElementLiteral bLangXMLElementLiteral) {
+
         SymbolEnv xmlElementEnv = SymbolEnv.getXMLElementEnv(bLangXMLElementLiteral, env);
 
         // Keep track of used namespace prefixes in this element and only add namespace attr for those used ones.
@@ -4887,7 +4894,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType getCompatibleRawTemplateType(BType bType, Location pos) {
         BType expType = types.getReferredType(bType);
         if (expType.tag != TypeTags.UNION) {
-            return expType;
+            return bType;
         }
 
         BUnionType unionType = (BUnionType) expType;
@@ -5567,7 +5574,7 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             annotAccessExpr.annotationSymbol = (BAnnotationSymbol) symbol;
             BType annotType = ((BAnnotationSymbol) symbol).attachedType == null ? symTable.trueType :
-                    ((BAnnotationSymbol) symbol).attachedType.type;
+                    ((BAnnotationSymbol) symbol).attachedType;
             actualType = BUnionType.create(null, annotType, symTable.nilType);
         }
 
@@ -6999,7 +7006,8 @@ public class TypeChecker extends BLangNodeVisitor {
         return BUnionType.create(null, fieldTypeMembers);
     }
 
-    private BType checkRecordFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
+    private BType checkRecordFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType type, Name fieldName) {
+        BType varRefType = types.getReferredType(type);
         if (varRefType.tag == TypeTags.RECORD) {
             return checkRecordRequiredFieldAccess(fieldAccessExpr, fieldName, (BRecordType) varRefType);
         }
@@ -7064,13 +7072,14 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkOptionalRecordFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType,
                                                      Name fieldName) {
-        if (varRefType.tag == TypeTags.RECORD) {
-            BType fieldType = checkRecordRequiredFieldAccess(fieldAccessExpr, fieldName, (BRecordType) varRefType);
+        BType refType = types.getReferredType(varRefType);
+        if (refType.tag == TypeTags.RECORD) {
+            BType fieldType = checkRecordRequiredFieldAccess(fieldAccessExpr, fieldName, (BRecordType) refType);
             if (fieldType != symTable.semanticError) {
                 return fieldType;
             }
 
-            fieldType = checkRecordOptionalFieldAccess(fieldAccessExpr, fieldName, (BRecordType) varRefType);
+            fieldType = checkRecordOptionalFieldAccess(fieldAccessExpr, fieldName, (BRecordType) refType);
             if (fieldType == symTable.semanticError) {
                 return fieldType;
             }
@@ -7079,7 +7088,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // If the type is not an record, it needs to be a union of records.
         // Resultant field type is calculated here.
-        Set<BType> memberTypes = ((BUnionType) varRefType).getMemberTypes();
+        Set<BType> memberTypes = ((BUnionType) refType).getMemberTypes();
 
         BType fieldType;
 
@@ -7117,7 +7126,7 @@ public class TypeChecker extends BLangNodeVisitor {
         RecordUnionDiagnostics recordUnionDiagnostics = new RecordUnionDiagnostics();
 
         for (BType memberType : memberTypes) {
-            BRecordType recordMember = (BRecordType) memberType;
+            BRecordType recordMember = (BRecordType) types.getReferredType(memberType);
 
             if (recordMember.getFields().containsKey(fieldName.getValue())) {
                 // If the field being accessed is declared, checks if it is a required field in this record member type
@@ -7381,8 +7390,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkIndexAccessExpr(BLangIndexBasedAccess indexBasedAccessExpr) {
-        BType varRefType = types.getTypeWithEffectiveIntersectionTypes(indexBasedAccessExpr.expr.getBType());
-
+        BType effectiveType = types.getTypeWithEffectiveIntersectionTypes(indexBasedAccessExpr.expr.getBType());
+        BType varRefType = types.getReferredType(effectiveType);
         boolean nillableExprType = false;
 
         if (varRefType.tag == TypeTags.UNION) {
@@ -7760,7 +7769,8 @@ public class TypeChecker extends BLangNodeVisitor {
         return memberTypes;
     }
 
-    private BType checkMappingIndexBasedAccess(BLangIndexBasedAccess accessExpr, BType type) {
+    private BType checkMappingIndexBasedAccess(BLangIndexBasedAccess accessExpr, BType bType) {
+        BType type = types.getReferredType(bType);
         if (type.tag == TypeTags.MAP) {
             BType constraint = types.getReferredType(((BMapType) type).constraint);
             return accessExpr.isLValue ? constraint : addNilForNillableAccessType(constraint);

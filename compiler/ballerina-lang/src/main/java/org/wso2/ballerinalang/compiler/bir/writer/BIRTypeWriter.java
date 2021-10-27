@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
@@ -75,6 +76,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -348,7 +350,14 @@ public class BIRTypeWriter implements TypeVisitor {
         // Write the package details in the form of constant pool entry TODO find a better approach
         writePackageIndex(tsymbol);
 
-        buff.writeInt(addStringCPEntry(tsymbol.name.value));
+        //todo @chiran
+        BTypeDefinitionSymbol typDefSymbol = ((BRecordTypeSymbol) tsymbol).typeDefinitionSymbol;
+        if (typDefSymbol != null) {
+            buff.writeInt(addStringCPEntry(typDefSymbol.name.value));
+        } else {
+            buff.writeInt(addStringCPEntry(tsymbol.name.value));
+        }
+
         buff.writeBoolean(bRecordType.sealed);
         writeTypeCpIndex(bRecordType.restFieldType);
 
@@ -395,7 +404,10 @@ public class BIRTypeWriter implements TypeVisitor {
         // Write the package details in the form of constant pool entry TODO find a better approach
         writePackageIndex(tSymbol);
 
-        buff.writeInt(addStringCPEntry(tSymbol.name.value));
+        //todo @chiran
+        BTypeDefinitionSymbol typDefSymbol = ((BObjectTypeSymbol) tSymbol).typeDefinitionSymbol;
+        buff.writeInt(addStringCPEntry(Objects.requireNonNullElse(typDefSymbol, tSymbol).name.value));
+
         //TODO below two line are a temp solution, introduce a generic concept
         buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLASS)); // Abstract object or not
         buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLIENT));

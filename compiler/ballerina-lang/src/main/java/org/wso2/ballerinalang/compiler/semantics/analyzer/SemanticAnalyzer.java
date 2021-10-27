@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -521,6 +522,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
             ((BEnumSymbol) typeDefinition.symbol).addAnnotations(annotSymbols);
+//            BTypeDefinitionSymbol typeDefinitionSymbol = (BTypeDefinitionSymbol) typeDefinition.symbol;
+//            ((BEnumSymbol) typeDefinitionSymbol.type.tsymbol).addAnnotations(annotSymbols);
             HashSet<String> enumElements = new HashSet<String>();
             BLangUnionTypeNode bLangUnionTypeNode = (BLangUnionTypeNode)  typeDefinition.typeNode;
             for (int j = bLangUnionTypeNode.memberTypeNodes.size() - 1; j >= 0; j--) {
@@ -953,6 +956,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
             return;
         }
+
 
         // Here we create a new symbol environment to catch self references by keep the current
         // variable symbol in the symbol environment
@@ -4205,7 +4209,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void validateAnnotationAttachmentExpr(BLangAnnotationAttachment annAttachmentNode,
                                                   BAnnotationSymbol annotationSymbol) {
         if (annotationSymbol.attachedType == null ||
-                types.isAssignable(annotationSymbol.attachedType.type, symTable.trueType)) {
+                types.isAssignable(annotationSymbol.attachedType, symTable.trueType)) {
             if (annAttachmentNode.expr != null) {
                 this.dlog.error(annAttachmentNode.expr.pos,
                                 DiagnosticErrorCode.ANNOTATION_ATTACHMENT_CANNOT_HAVE_A_VALUE, annotationSymbol);
@@ -4213,7 +4217,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        BType annotType = annotationSymbol.attachedType.type;
+        BType annotType = annotationSymbol.attachedType;
         if (annAttachmentNode.expr == null) {
             BType annotConstrainedType = types.getReferredType(annotType);
             BRecordType recordType = annotConstrainedType.tag == TypeTags.RECORD
@@ -4268,7 +4272,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         attachmentCounts.forEach((symbol, count) -> {
-            if ((symbol.attachedType == null || symbol.attachedType.type.tag != TypeTags.ARRAY) && count > 1) {
+            if ((symbol.attachedType == null || types.getReferredType(symbol.attachedType).tag != TypeTags.ARRAY)
+                    && count > 1) {
                 Optional<BLangAnnotationAttachment> found = Optional.empty();
                 for (BLangAnnotationAttachment attachment : attachments) {
                     if (attachment.annotationSymbol.equals(symbol)) {

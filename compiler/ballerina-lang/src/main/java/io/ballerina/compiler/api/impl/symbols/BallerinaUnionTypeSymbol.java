@@ -73,8 +73,7 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
                 TypesFactory typesFactory = TypesFactory.getInstance(this.context);
 
                 for (BType memberType : getAllTypes(this.getBType())) {
-                    if (typesFactory.isTypeReference(memberType, memberType.tsymbol, false)
-                            || memberType.getKind() != TypeKind.FINITE) {
+                    if (memberType.tag == TypeTags.TYPEREFDESC || memberType.getKind() != TypeKind.FINITE) {
                         members.add(typesFactory.getTypeDescriptor(memberType));
                         continue;
                     }

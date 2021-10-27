@@ -40,7 +40,7 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getPackageIDStr
  */
 public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
 
-    public BTypeSymbol attachedType;
+    public BType attachedType;
     public Set<AttachPoint> points;
     public int maskedPoints;
     private List<BAnnotationSymbol> annots;

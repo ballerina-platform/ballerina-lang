@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -186,7 +187,9 @@ public class ImmutableTypeCloner {
                                                                   Names names,
                                                                   Set<Flag> origObjFlagSet,
                                                                   Set<BType> unresolvedTypes) {
+        //todo @chiran IntersectionTypeTest
         BType origBType = types.getReferredType(bType);
+//        BType origBType = bType;
         SelectivelyImmutableReferenceType type = (SelectivelyImmutableReferenceType) origBType;
         if (origBType.tag == TypeTags.INTERSECTION && Symbols.isFlagOn(origBType.flags, Flags.READONLY)) {
             return (BIntersectionType) origBType;
@@ -391,6 +394,29 @@ public class ImmutableTypeCloner {
                 return immutableJsonIntersectionType;
             case TypeTags.INTERSECTION:
                 return (BIntersectionType) type;
+
+            case TypeTags.TYPEREFDESC:
+
+                BTypeReferenceType originalType = (BTypeReferenceType) type;
+
+                BTypeSymbol immutableReferenceTSymbol = new BTypeSymbol(SymTag.TYPE_REF,
+                        originalType.tsymbol.flags | Flags.READONLY,
+                        getImmutableTypeName(names, getSymbolFQN(originalType.tsymbol)),
+                        pkgId, null, env.scope.owner, pos, SOURCE);
+
+                BType immutableConstraint = getImmutableType(pos, types, types.getReferredType(originalType),
+                                env, pkgId, owner, symTable, anonymousModelHelper, names, unresolvedTypes);
+                BTypeReferenceType immutableReferenceType = new BTypeReferenceType(immutableConstraint,
+                        immutableReferenceTSymbol, originalType.flags | Flags.READONLY);
+
+                immutableReferenceTSymbol.type = immutableReferenceType;
+                BIntersectionType immutableReferenceIntersectionType = createImmutableIntersectionType(env, originalType,
+                        immutableReferenceType, symTable);
+
+                originalType.immutableType = immutableReferenceIntersectionType;
+                immutableReferenceType.tsymbol = immutableReferenceTSymbol;
+
+                return immutableReferenceIntersectionType;
             default:
                 return defineImmutableUnionType(pos, types, env, pkgId, owner, symTable, anonymousModelHelper, names,
                                                 unresolvedTypes, (BUnionType) type);

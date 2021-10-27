@@ -2118,7 +2118,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (typeOne == symTable.noType) {
             return symTable.noType;
         }
-        typeOne = types.getReferredType(typeOne);
 
         typeBLangTypeMap.put(typeOne, bLangTypeOne);
 
@@ -2127,13 +2126,15 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (typeTwo == symTable.noType) {
             return symTable.noType;
         }
-        typeTwo = types.getReferredType(typeTwo);
+
+        BType typeOneReference = types.getReferredType(typeOne);
+        BType typeTwoReference = types.getReferredType(typeTwo);
 
         typeBLangTypeMap.put(typeTwo, bLangTypeTwo);
 
-        boolean hasReadOnlyType = typeOne == symTable.readonlyType || typeTwo == symTable.readonlyType;
+        boolean hasReadOnlyType = typeOneReference == symTable.readonlyType || typeTwoReference == symTable.readonlyType;
 
-        if (typeOne.tag == TypeTags.ERROR || typeTwo.tag == TypeTags.ERROR) {
+        if (typeOneReference.tag == TypeTags.ERROR || typeTwoReference.tag == TypeTags.ERROR) {
             isErrorIntersection = true;
         }
 

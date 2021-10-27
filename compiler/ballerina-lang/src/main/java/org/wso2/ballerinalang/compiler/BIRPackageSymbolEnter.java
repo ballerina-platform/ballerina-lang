@@ -657,7 +657,7 @@ public class BIRPackageSymbolEnter {
 
         this.env.pkgSymbol.scope.define(annotationSymbol.name, annotationSymbol);
         if (annotationType != symTable.noType) { //TODO fix properly
-            annotationSymbol.attachedType = annotationType.tsymbol;
+            annotationSymbol.attachedType = annotationType;
         }
     }
 
@@ -924,8 +924,6 @@ public class BIRPackageSymbolEnter {
                     populateParameterizedType(t, paramsMap, invSymbol);
                 }
                 break;
-            case TypeTags.TYPEREFDESC:
-                populateParameterizedType(types.getReferredType(type), paramsMap, invSymbol);
         }
     }
 

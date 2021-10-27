@@ -634,9 +634,9 @@ public class AnnotationDesugar {
         }
 
         for (BAnnotationSymbol annotationSymbol : attachments.keySet()) {
-            BTypeSymbol attachedTypeSymbol = annotationSymbol.attachedType;
-            if (attachedTypeSymbol == null ||
-                    types.isAssignable(attachedTypeSymbol.type, symTable.trueType)) {
+            BType attachedType = annotationSymbol.attachedType;
+            if (attachedType == null ||
+                    types.isAssignable(attachedType, symTable.trueType)) {
                 // annotation v1 on type; OR annotation TRUE v1 on type;
                 // @v1
                 // type X record {
@@ -645,7 +645,7 @@ public class AnnotationDesugar {
                 // // Adds
                 // { ..., v1: true, ... }
                 addTrueAnnot(attachments.get(annotationSymbol).get(0), mapLiteral);
-            } else if (attachedTypeSymbol.type.tag != TypeTags.ARRAY) {
+            } else if (attachedType.tag != TypeTags.ARRAY) {
                 // annotation FooRecord v1 on type; OR annotation map<anydata> v1 on type;
                 // @v1 {
                 //     value: 1
@@ -669,7 +669,7 @@ public class AnnotationDesugar {
                 // };
                 // // Adds
                 // { ..., v1: [{ value: 1 }, { value: 2 }], ... }
-                addAnnotArray(function.pos, annotationSymbol.bvmAlias(), attachedTypeSymbol.type,
+                addAnnotArray(function.pos, annotationSymbol.bvmAlias(), attachedType,
                               attachments.get(annotationSymbol), mapLiteral);
             }
         }

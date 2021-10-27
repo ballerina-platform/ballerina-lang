@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -64,6 +65,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.Optional;
@@ -173,6 +175,7 @@ public class TypesFactory {
 
         ModuleID moduleID = tSymbol == null ? null : new BallerinaModuleID(tSymbol.pkgID);
 
+        //bType.tsymbol.tag == SymTag.TYPE_REF
         if (isTypeReference(bType, tSymbol, rawTypeOnly)) {
             return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType, tSymbol,
                     typeRefFromIntersectType);
@@ -325,6 +328,10 @@ public class TypesFactory {
         if (Symbols.isFlagOn(tSymbol.flags, Flags.ANONYMOUS)) {
             return false;
         }
+//
+//        if (tSymbol.origin == SymbolOrigin.BUILTIN) {
+//            return false;
+//        }
 
         if (!isBuiltinNamedType(bType.tag) && !tSymbol.name.value.isEmpty()) {
             return true;
