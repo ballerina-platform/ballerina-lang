@@ -21,7 +21,6 @@ import com.google.gson.Gson;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.util.ProjectConstants;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -78,8 +77,7 @@ public class DumpBuildTimeTask implements Task {
 
     private Path getBuildTimeFilePath(Project project) {
         if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
-            return project.targetDir().resolve(ProjectConstants.TARGET_DIR_NAME).resolve(BUILD_TIME_JSON)
-                    .toAbsolutePath();
+            return project.targetDir().resolve(BUILD_TIME_JSON).toAbsolutePath();
         }
         return currentDir.resolve("build-time.json").toAbsolutePath();
     }

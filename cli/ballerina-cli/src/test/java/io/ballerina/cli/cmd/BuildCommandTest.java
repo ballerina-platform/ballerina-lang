@@ -709,11 +709,10 @@ public class BuildCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
 
-        Assert.assertTrue(Files.exists(customTargetDir.resolve("target")));
-        Assert.assertTrue(Files.exists(customTargetDir.resolve("target").resolve("bin")));
-        Assert.assertTrue(Files.exists(customTargetDir.resolve("target").resolve("cache")));
-        Assert.assertTrue(Files.exists(customTargetDir.resolve("target").resolve("build")));
-        Assert.assertFalse(Files.exists(customTargetDir.resolve("target").resolve("report")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("bin")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("build")));
+        Assert.assertFalse(Files.exists(customTargetDir.resolve("report")));
     }
 
 }

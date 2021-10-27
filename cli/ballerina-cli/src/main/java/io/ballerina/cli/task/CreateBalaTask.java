@@ -80,7 +80,7 @@ public class CreateBalaTask implements Task {
         }
 
         // Print the path of the BALA file
-        Path relativePathToExecutable = project.sourceRoot().relativize(emitResult.generatedArtifactPath());
+        Path relativePathToExecutable = project.targetDir().relativize(emitResult.generatedArtifactPath());
         if (relativePathToExecutable.toString().contains("..") ||
                 relativePathToExecutable.toString().contains("." + File.separator)) {
             this.out.println("\t" + emitResult.generatedArtifactPath().toString());

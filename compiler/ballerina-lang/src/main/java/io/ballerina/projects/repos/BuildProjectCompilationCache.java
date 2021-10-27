@@ -29,7 +29,6 @@ import java.nio.file.Path;
  * @since 2.0.0
  */
 public class BuildProjectCompilationCache extends FileSystemCache {
-    private static final String TARGET_DIR_NAME = "target";
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
     private BuildProjectCompilationCache(Project project, Path cacheDirPath) {
@@ -37,7 +36,7 @@ public class BuildProjectCompilationCache extends FileSystemCache {
     }
 
     public static BuildProjectCompilationCache from(Project project) {
-        Path targetPath = project.targetDir().resolve(TARGET_DIR_NAME);
+        Path targetPath = project.targetDir();
         return new BuildProjectCompilationCache(project, targetPath);
     }
 
