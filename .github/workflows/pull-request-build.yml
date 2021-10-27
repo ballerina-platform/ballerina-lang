@@ -16,7 +16,7 @@ jobs:
             - name: Setup JDK
               uses: actions/setup-java@v2
               with:
-                distribution: 'adopt'
+                distribution: 'temurin'
                 java-version: 8
 
             -   name: Initialize Submodules
@@ -45,7 +45,7 @@ jobs:
             - name: Setup JDK
               uses: actions/setup-java@v2
               with:
-                  distribution: 'adopt'
+                  distribution: 'temurin'
                   java-version: 8
 
             -   name: Initialize Submodules
