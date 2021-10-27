@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Remove unnecessary goto basic blocks.
@@ -77,38 +78,54 @@ public class BIRBasicBlockOptimizer extends BIRVisitor {
         BIROptimizer.OptimizerEnv funcEnv = new BIROptimizer.OptimizerEnv();
         Map<BIRBasicBlock, List<BIRBasicBlock>> predecessorMap = getPredecessorMap(birFunction.basicBlocks);
 
+        // Remove unreachable basic blocks
+        for (Map.Entry<BIRBasicBlock, List<BIRBasicBlock>> entry : predecessorMap.entrySet()) {
+            BIRBasicBlock basicBlock = entry.getKey();
+            List<BIRBasicBlock> unreachableBasicBlocks = getUnreachableBasicBlocks(basicBlock, predecessorMap);
+
+            if (predecessorMap.get(basicBlock).isEmpty() && basicBlock != birFunction.basicBlocks.get(0)) {
+                birFunction.basicBlocks.removeAll(unreachableBasicBlocks);
+            }
+        }
+
+        // Remove basic blocks with unnecessary jump statement
         for (Map.Entry<BIRBasicBlock, List<BIRBasicBlock>> entry : predecessorMap.entrySet()) {
             BIRBasicBlock basicBlock = entry.getKey();
 
             if (basicBlock.terminator instanceof BIRTerminator.GOTO) {
-                if (basicBlock.instructions.isEmpty()) {
-                    this.predecessors.addAll(predecessorMap.get(basicBlock));
+                if (basicBlock.instructions.isEmpty() && basicBlock.terminator.pos == null) {
+                    this.predecessors.addAll(predecessorMap.get(basicBlock)
+                            .stream()
+                            .filter(bb -> birFunction.basicBlocks.contains(bb))
+                            .collect(Collectors.toList()));
                     this.optimizeNode(basicBlock, funcEnv);
                 }
             }
         }
 
         for (BIRBasicBlock bb : this.removableBasicBlocks) {
-            birFunction.localVars.forEach(localVar -> {
-                if (localVar.startBB == bb) {
-                    localVar.startBB = ((BIRTerminator.GOTO) bb.terminator).targetBB;
-                }
-                if (localVar.endBB == bb) {
-                    localVar.endBB = ((BIRTerminator.GOTO) bb.terminator).targetBB;
-                }
-            });
+            if (birFunction.basicBlocks.contains(bb)) {
+                birFunction.localVars.forEach(localVar -> {
+                    if (localVar.startBB == bb) {
+                        localVar.startBB = ((BIRTerminator.GOTO) bb.terminator).targetBB;
+                    }
+                    if (localVar.endBB == bb) {
+                        localVar.endBB = ((BIRTerminator.GOTO) bb.terminator).targetBB;
+                    }
+                });
 
-            birFunction.errorTable.forEach(errorEntry -> {
-                if (errorEntry.endBB == bb) {
-                    errorEntry.endBB = predecessorMap.get(bb).get(0);
-                }
-                if (errorEntry.trapBB == bb) {
-                    errorEntry.trapBB = ((BIRTerminator.GOTO) bb.terminator).targetBB;
-                }
-                if (errorEntry.targetBB == bb) {
-                    errorEntry.targetBB = ((BIRTerminator.GOTO) bb.terminator).targetBB;
-                }
-            });
+                birFunction.errorTable.forEach(errorEntry -> {
+                    if (errorEntry.endBB == bb) {
+                        errorEntry.endBB = predecessorMap.get(bb).get(0);
+                    }
+                    if (errorEntry.trapBB == bb) {
+                        errorEntry.trapBB = ((BIRTerminator.GOTO) bb.terminator).targetBB;
+                    }
+                    if (errorEntry.targetBB == bb) {
+                        errorEntry.targetBB = ((BIRTerminator.GOTO) bb.terminator).targetBB;
+                    }
+                });
+            }
         }
 
         // Remove unnecessary goto basic blocks
@@ -127,9 +144,16 @@ public class BIRBasicBlockOptimizer extends BIRVisitor {
         this.removableBasicBlocks.clear();
     }
 
-    private void rearrangeBasicBlocks(BIRNode.BIRBasicBlock bb) {
-        currentBBId++;
-        bb.id = new Name(BIR_BASIC_BLOCK_PREFIX + currentBBId);
+    private List<BIRBasicBlock> getUnreachableBasicBlocks(BIRBasicBlock basicBlock,
+                                                       Map<BIRBasicBlock, List<BIRBasicBlock>> predecessorMap) {
+        List<BIRBasicBlock> unreachableBasicBlocks = new ArrayList<>();
+        unreachableBasicBlocks.add(basicBlock);
+        for (BIRBasicBlock nextBB : basicBlock.terminator.getNextBasicBlocks()) {
+            if (predecessorMap.get(nextBB).size() == 1) {
+                unreachableBasicBlocks.addAll(getUnreachableBasicBlocks(nextBB, predecessorMap));
+            }
+        }
+        return unreachableBasicBlocks;
     }
 
     private Map<BIRBasicBlock, List<BIRBasicBlock>> getPredecessorMap(List<BIRBasicBlock> basicBlocks) {
@@ -143,6 +167,11 @@ public class BIRBasicBlockOptimizer extends BIRVisitor {
             }
         }
         return predecessorMap;
+    }
+
+    private void rearrangeBasicBlocks(BIRNode.BIRBasicBlock bb) {
+        currentBBId++;
+        bb.id = new Name(BIR_BASIC_BLOCK_PREFIX + currentBBId);
     }
 
     @Override
