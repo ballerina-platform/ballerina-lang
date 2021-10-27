@@ -18,6 +18,8 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependencyManifest;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageName;
@@ -89,6 +91,9 @@ public class PushCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "enable experimental language features")
     private boolean experimentalFlag;
 
+    @CommandLine.Option(names = "--target-dir", description = "target directory path")
+    private Path targetDir;
+
     private Path userDir;
     private PrintStream errStream;
     private PrintStream outStream;
@@ -119,8 +124,15 @@ public class PushCommand implements BLauncherCmd {
         }
 
         BuildProject project;
+        BuildOptions buildOptions = constructBuildOptions();
+
+        // If a custom target path is set, we modify the targetDir in the build options with the new custom one
+        if (this.targetDir != null) {
+            buildOptions.setTargetDir(this.targetDir.toString());
+        }
+
         try {
-            project = BuildProject.load(userDir);
+            project = BuildProject.load(userDir, buildOptions);
         } catch (ProjectException e) {
             CommandUtil.printError(errStream, e.getMessage(), null, false);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -182,6 +194,12 @@ public class PushCommand implements BLauncherCmd {
         }
     }
 
+    private BuildOptions constructBuildOptions() {
+        return new BuildOptionsBuilder()
+                .experimental(experimentalFlag)
+                .build();
+    }
+
     @Override
     public String getName() {
         return PUSH_COMMAND;
@@ -204,7 +222,7 @@ public class PushCommand implements BLauncherCmd {
     private void pushPackage(BuildProject project) {
         Path balaFilePath = validateBalaFile(project);
         pushBalaToCustomRepo(balaFilePath);
-        outStream.println("Successfully pushed " + userDir.relativize(balaFilePath)
+        outStream.println("Successfully pushed " + project.targetDir().relativize(balaFilePath)
                 + " to '" + repositoryName + "' repository.");
     }
 
@@ -244,7 +262,7 @@ public class PushCommand implements BLauncherCmd {
         PackageVersion packageVersion = project.currentPackage().packageVersion();
 
         // Get bala output path
-        Path balaOutputDir = project.currentPackage().project().sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+        Path balaOutputDir = project.currentPackage().project().targetDir()
                 .resolve(ProjectConstants.TARGET_BALA_DIR_NAME);
 
         if (Files.notExists(balaOutputDir)) {

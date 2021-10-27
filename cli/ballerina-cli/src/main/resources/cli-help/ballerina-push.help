@@ -5,6 +5,7 @@ NAME
 SYNOPSIS
        bal push
        bal push [--repository=local]
+       bal push [--target-dir] <target-directory-path>
 
 
 DESCRIPTION
@@ -20,6 +21,9 @@ OPTIONS
        --repository
            Push the BALA of the current package to a custom repository. Only the 'local' is allowed.
 
+       --target-dir
+           Push the BALA of the current package packed with a custom target directory.
+
 
 EXAMPLES
        Push the BALA of the current package to Ballerina Central after
@@ -28,3 +32,6 @@ EXAMPLES
 
        Push the BALA of the current package to the local repository for testing.
            $ bal push --repository=local
+
+       Push the BALA of the current package packed with a custom target directory.
+           $ bal push --target-dir <target-directory-path>
