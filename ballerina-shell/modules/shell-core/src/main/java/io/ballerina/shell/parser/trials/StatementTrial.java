@@ -18,6 +18,7 @@
 
 package io.ballerina.shell.parser.trials;
 
+import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeParser;
@@ -45,7 +46,7 @@ public class StatementTrial extends TreeParserTrial {
         Collection<Node> finalNodes = new ArrayList<>();
         try {
             statementNodes = NodeParser.parseStatements(source);
-            for (StatementNode nodeInst:statementNodes) {
+            for (StatementNode nodeInst : statementNodes) {
                 if (nodeInst.hasDiagnostics()) {
                     throw new ParserTrialFailedException("Error occurred during parsing as a statement");
                 }
@@ -58,16 +59,9 @@ public class StatementTrial extends TreeParserTrial {
                 }
             }
         }
-        for (Node node: statementNodes) {
+        for (Node node : statementNodes) {
             if (node.kind() == SyntaxKind.CALL_STATEMENT) {
-                String sourceCode = node.toSourceCode();
-                node = NodeParser.parseExpression(sourceCode);
-                if (node.hasDiagnostics()) {
-                    node = NodeParser.parseExpression(sourceCode.substring(0, sourceCode.length() - 1));
-                    if (node.hasDiagnostics()) {
-                        throw new ParserTrialFailedException("Error occurred during parsing as an expression");
-                    }
-                }
+                node = ((ExpressionStatementNode) node).expression();
             }
             finalNodes.add(node);
         }
