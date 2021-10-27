@@ -19,7 +19,7 @@
     "-1820451085": {
       "pkgID": "ballerina/project.http",
       "name": "Client",
-      "baseUrl": "https://postman-echo.com/post1",
+      "baseUrl": "https://postman-echo.com/post2",
       "pos": {
         "filePath": "ifElse.bal",
         "startLine": {

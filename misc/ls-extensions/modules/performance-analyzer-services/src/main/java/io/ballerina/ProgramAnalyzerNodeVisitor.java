@@ -271,6 +271,7 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
     private String file;
     private boolean withinRange = false;
     private Range range;
+    private String currentToken;
 
     public ProgramAnalyzerNodeVisitor() {
 
@@ -732,11 +733,13 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
     @Override
     public void visit(NamedArgumentNode namedArgumentNode) {
 
+        visitSyntaxNode(namedArgumentNode);
     }
 
     @Override
     public void visit(PositionalArgumentNode positionalArgumentNode) {
 
+        visitSyntaxNode(positionalArgumentNode);
     }
 
     @Override
@@ -868,6 +871,7 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
     @Override
     public void visit(BasicLiteralNode basicLiteralNode) {
 
+        visitSyntaxNode(basicLiteralNode);
     }
 
     @Override
@@ -1063,6 +1067,7 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
     @Override
     public void visit(ParenthesizedArgList parenthesizedArgList) {
 
+        visitSyntaxNode(parenthesizedArgList);
     }
 
     @Override
@@ -1503,6 +1508,8 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
     @Override
     public void visit(Token token) {
 
+        this.currentToken = token.text();
+
     }
 
     private void setChildNode(Node node) {
@@ -1617,51 +1624,22 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
 
         if (expressionNode.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION) {
             ImplicitNewExpressionNode node = (ImplicitNewExpressionNode) expressionNode;
-            //TODO: note that this assumption that the first arg to the new constructor would work for
-            // just the HTTP client or any other client which indeed uses the first arg as the URL
-            if (node.parenthesizedArgList().isPresent()) {
-                if (!node.parenthesizedArgList().get().arguments().isEmpty()) {
-                    if (node.parenthesizedArgList().get().arguments().get(0).kind() == SyntaxKind.POSITIONAL_ARG) {
-                        if (((PositionalArgumentNode) node.parenthesizedArgList().get().arguments().get(0)).expression()
-                                .kind() == SyntaxKind.MAPPING_CONSTRUCTOR) {
-                            //TODO: We keep the baseUrl as null value currently. In future we should handle
-                            // this case.
-                        } else {
-                            String arg = node.parenthesizedArgList().get().arguments().get(0).toString();
-                            url = getUrl(arg);
-                        }
-                    } else if (node.parenthesizedArgList().get().arguments().get(0).kind() == SyntaxKind.NAMED_ARG) {
-                        if (((NamedArgumentNode) node.parenthesizedArgList().get().arguments().get(0)).expression()
-                                .kind() == SyntaxKind.MAPPING_CONSTRUCTOR) {
-                            //TODO: We keep the baseUrl as null value currently. In future we should handle
-                            // this case.
-                        } else {
-                            if (((NamedArgumentNode) node.parenthesizedArgList().get().arguments().get(0)).expression().
-                                    kind() == SyntaxKind.STRING_LITERAL) {
-                                String arg = ((NamedArgumentNode) node.parenthesizedArgList().get().arguments().get(0)).
-                                        expression().toString();
-                                url = getUrl(arg);
-                            }
-                        }
-                    }
-                } else {
-                    //TODO: We keep the baseUrl as null. In future we should handle this case
-                }
+            if (node.parenthesizedArgList().isPresent() && !node.parenthesizedArgList().get().arguments().isEmpty()) {
+                SeparatedNodeList<FunctionArgumentNode> arguments = node.parenthesizedArgList().get().arguments();
+                url = findBaseUrl(arguments);
             }
         } else if (expressionNode.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION) {
             ExplicitNewExpressionNode node = (ExplicitNewExpressionNode) expressionNode;
             if (!node.parenthesizedArgList().arguments().isEmpty()) {
-                String arg = node.parenthesizedArgList().arguments().get(0).toString();
-                url = getUrl(arg);
+                visitSyntaxNode(node);
+                url = extractURL(this.currentToken);
+                this.currentToken = null;
             }
         } else if (expressionNode.kind() == SyntaxKind.CHECK_EXPRESSION) {
             ExpressionNode expNode = ((CheckExpressionNode) expressionNode).expression();
             resolveEndPoint(symbol, expNode);
             return;
         } else {
-            logger.warn(("Returning since we are only interested in new constructor expressions. " +
-                    "Found expression kind : " + expressionNode.kind().name()).
-                    replaceAll("[\r\n]", ""));
             return;
         }
 
@@ -1681,7 +1659,27 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
                 endpoint);
     }
 
-    private String getUrl(String arg) {
+    private String findBaseUrl(SeparatedNodeList<FunctionArgumentNode> arguments) {
+        // Assuming that the first argument is the base URL.
+        FunctionArgumentNode argumentNode = arguments.get(0);
+
+        if (argumentNode.kind() == SyntaxKind.POSITIONAL_ARG &&
+                ((PositionalArgumentNode) argumentNode).expression().kind() == SyntaxKind.STRING_LITERAL) {
+            visitSyntaxNode(argumentNode);
+            String url = extractURL(this.currentToken);
+            this.currentToken = null;
+            return url;
+        } else if (argumentNode.kind() == SyntaxKind.NAMED_ARG &&
+                ((NamedArgumentNode) argumentNode).expression().kind() == SyntaxKind.STRING_LITERAL) {
+            visitSyntaxNode(argumentNode);
+            String url = extractURL(this.currentToken);
+            this.currentToken = null;
+            return url;
+        }
+        return null;
+    }
+
+    private String extractURL(String arg) {
 
         if (arg.startsWith("\"") && arg.endsWith("\"")) {
             return arg.substring(1, arg.length() - 1);

@@ -32,7 +32,7 @@
       }
     },
     "-1820451085": {
-      "baseUrl": "https://postman-echo.com/post1",
+      "baseUrl": "https://postman-echo.com/post2",
       "name": "Client",
       "pkgID": "ballerina/project.http",
       "pos": {
