@@ -39,6 +39,7 @@ import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERT
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.SERVER_CONNECTOR_HTTP;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL_TEMPLATE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_PROTOCOL;
 
 /**
@@ -109,6 +110,10 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             observerContext.addTag(TAG_KEY_HTTP_METHOD, inboundMessage.getHttpMethod());
             observerContext.addTag(TAG_KEY_PROTOCOL, (String) inboundMessage.getProperty(HttpConstants.PROTOCOL));
             observerContext.addTag(TAG_KEY_HTTP_URL, httpResource.getAbsoluteResourcePath());
+
+            observerContext.addTagToSpan(TAG_KEY_HTTP_URL_TEMPLATE, httpResource.getAbsoluteResourcePath());
+            observerContext.addTagToSpan(TAG_KEY_HTTP_URL, inboundMessage.getRequestUrl());
+
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
         }
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);

@@ -36,6 +36,7 @@ public class ObserverContext {
      * {@link Map} of tags, which is required to pass to observers.
      */
     private Map<String, String> tags;
+    private Map<String, String> tracingTags;
 
     private String serviceName;
 
@@ -58,6 +59,7 @@ public class ObserverContext {
     public ObserverContext() {
         this.properties = new HashMap<>();
         this.tags = new HashMap<>();
+        this.tracingTags = new HashMap<>();
     }
 
     public void addProperty(String key, Object value) {
@@ -74,6 +76,14 @@ public class ObserverContext {
 
     public Map<String, String> getTags() {
         return Collections.unmodifiableMap(tags);
+    }
+
+    public void addTagToSpan(String key, String value) {
+        tracingTags.put(key, value != null ? value : "");
+    }
+
+    public Map<String, String> getTracingTags() {
+        return Collections.unmodifiableMap(tracingTags);
     }
 
     public String getServiceName() {

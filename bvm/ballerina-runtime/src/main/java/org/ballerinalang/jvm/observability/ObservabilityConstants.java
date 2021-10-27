@@ -40,6 +40,7 @@ public class ObservabilityConstants {
 
     public static final String TAG_KEY_HTTP_METHOD = "http.method";
     public static final String TAG_KEY_HTTP_URL = "http.url";
+    public static final String TAG_KEY_HTTP_URL_TEMPLATE = "http.url.template";
     public static final String TAG_KEY_HTTP_STATUS_CODE = "http.status_code";
     public static final String TAG_KEY_PROTOCOL = "protocol";
 

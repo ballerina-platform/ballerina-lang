@@ -105,6 +105,7 @@ public class TracingUtils {
                 span.logError(logProps);
             }
             span.addTags(observerContext.getTags());
+            span.addTags(observerContext.getTracingTags());
             span.finishSpan();
         }
     }
