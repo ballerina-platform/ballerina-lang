@@ -55,8 +55,8 @@ public class VisibleSymbolsInExpressionsTest extends BaseVisibleSymbolsTest {
                 );
         return new Object[][]{
                 // TODO: Will fail once closure support is added
-                {22, 22, concat(expModuleSymbols, from("name", CLASS_FIELD))},
-//                {24, 4, expModuleSymbols},
+                {22, 22, expModuleSymbols},
+                {24, 4, expModuleSymbols},
                 {25, 22, concat(expModuleSymbols,
                                 from("self", VARIABLE),
                                 from("name", CLASS_FIELD),
