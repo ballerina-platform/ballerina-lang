@@ -35,12 +35,14 @@ public class ProjectConstants {
     public static final String CONFIGURATION_TOML = "Config.toml";
     public static final String SETTINGS_FILE_NAME = "Settings.toml";
     public static final String GITIGNORE_FILE_NAME = ".gitignore";
+    public static final String DEVCONTAINER = ".devcontainer.json";
     public static final String MODULE_MD_FILE_NAME = "Module.md";
     public static final String PACKAGE_MD_FILE_NAME = "Package.md";
     public static final String PACKAGE_JSON = "package.json";
     public static final String BALA_JSON = "bala.json";
     public static final String COMPILER_PLUGIN_JSON = "compiler-plugin.json";
     public static final String DEPENDENCY_GRAPH_JSON = "dependency-graph.json";
+    public static final String BUILD_FILE = "build";
 
     public static final String SOURCE_DIR_NAME = "src";
     public static final String BIN_DIR_NAME = "bin";
@@ -84,6 +86,7 @@ public class ProjectConstants {
     public static final String DEFAULT_VERSION = "0.0.0";
     public static final String INTERNAL_VERSION = "0.1.0";
     public static final String MODULE_NAME_SEPARATOR = DOT;
+    public static final String BUILTIN_PACKAGE_VERSION_STR = "0.0.0";
 
     // Constants related to file system repo
     public static final String REPO_BALA_DIR_NAME = TARGET_BALA_DIR_NAME;

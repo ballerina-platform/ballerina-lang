@@ -900,7 +900,7 @@ public class TypedescriptorTest {
                 {2, 16, "main.bal", SymbolKind.FUNCTION, "main",
                         "symbolowner/testprojmodules:0.1.0"},
                 {5, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "Int",
-                        "ballerina/lang.annotations:1.0.0"},
+                        "ballerina/lang.annotations:0.0.0"},
                 {9, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "StreamType1",
                         "symbolowner/testprojmodules.module1:0.1.0"},
                 {11, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "StreamType2",
@@ -980,6 +980,30 @@ public class TypedescriptorTest {
                     ", moduleOwner='" + moduleOwner + '\'' +
                     '}';
         }
+    }
+
+    @Test
+    public void testImportSymbolTypeDesc() {
+        Project project = BCompileUtil.loadProject("test-src/imported_typedesc_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        Optional<Symbol> symbol = model.symbol(srcFile, from(19, 33));
+        TypeSymbol type = (TypeSymbol) symbol.get();
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(type.getName().get(), "StackFrame");
+
+        TypeSymbol typeDescriptorSym = ((TypeReferenceTypeSymbol) type).typeDescriptor();
+        assertEquals(typeDescriptorSym.typeKind(), INTERSECTION);
+        IntersectionTypeSymbol intersectionTypeSymbol = (IntersectionTypeSymbol) typeDescriptorSym;
+        assertEquals(intersectionTypeSymbol.effectiveTypeDescriptor().typeKind(), OBJECT);
+
+        ObjectTypeSymbol effectiveType = (ObjectTypeSymbol) intersectionTypeSymbol.effectiveTypeDescriptor();
+        MethodSymbol methodSymbol = effectiveType.methods().get("toString");
+
+        FunctionTypeSymbol functionSymbol = methodSymbol.typeDescriptor();
+        assertTrue(functionSymbol.params().get().isEmpty());
+        assertEquals(functionSymbol.returnTypeDescriptor().get().typeKind(), STRING);
     }
 
     private static void assertList(List<Symbol> actualValues, List<SymbolInfo> expectedValues) {

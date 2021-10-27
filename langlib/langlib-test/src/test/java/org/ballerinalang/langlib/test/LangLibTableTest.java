@@ -105,8 +105,12 @@ public class LangLibTableTest {
 
     @Test
     public void testHasKey() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testHasKey");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        BRunUtil.invoke(compileResult, "testHasKey");
+    }
+
+    @Test
+    public void testHashCollisionHandlingScenarios() {
+        BRunUtil.invoke(compileResult, "testHashCollisionHandlingScenarios");
     }
 
     @Test
@@ -217,7 +221,7 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.table\\}KeyConstraintViolation \\{\"message\":\"A value found for key " +
+                    "error: \\{ballerina/lang.table\\}KeyConstraintViolation \\{\"message\":\"a value found for key " +
                             "'5'\"\\}.*")
     public void testAddExistingMember() {
         BRunUtil.invoke(compileResult, "testAddExistingMember");

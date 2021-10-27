@@ -179,8 +179,8 @@ public class JsonUtils {
                 return null;
             }
 
-            return ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, StringUtils
-                    .fromString("Key '" + elementName + "' not found in JSON mapping"));
+            return ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR,
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_IN_JSON_MAPPING, elementName));
         }
 
         try {
@@ -435,8 +435,7 @@ public class JsonUtils {
 
         if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
             return ErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
-                                            StringUtils.fromString("Cannot merge JSON values of types '" +
-                                                                            j1Type + "' and '" + j2Type + "'"));
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.MERGE_JSON_ERROR, j1Type, j2Type));
         }
 
         ObjectPair currentPair = new ObjectPair(j1, j2);
@@ -489,8 +488,7 @@ public class JsonUtils {
 
             if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
                 return ErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
-                                                StringUtils.fromString("Cannot merge JSON values of types '" +
-                                                                                j1Type + "' and '" + j2Type + "'"));
+                        BLangExceptionHelper.getErrorDetails(RuntimeErrors.MERGE_JSON_ERROR, j1Type, j2Type));
             }
         }
 

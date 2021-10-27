@@ -1,0 +1,4 @@
+[package]
+org = "isolatedorg"
+name = "baz"
+version = "1.0.0"

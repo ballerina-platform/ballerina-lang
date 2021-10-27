@@ -19,22 +19,18 @@ package io.ballerina.runtime.api;
 
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
-import io.ballerina.runtime.api.flags.SymbolFlags;
-import io.ballerina.runtime.api.types.MethodType;
-import io.ballerina.runtime.api.types.ObjectType;
-import io.ballerina.runtime.api.types.ResourceMethodType;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.util.Map;
 import java.util.function.Function;
-
-import static io.ballerina.runtime.api.TypeTags.SERVICE_TAG;
 
 /**
  * External API to be used by the interop users to control Ballerina runtime behavior.
@@ -43,7 +39,7 @@ import static io.ballerina.runtime.api.TypeTags.SERVICE_TAG;
  */
 public class Runtime {
 
-    private Scheduler scheduler;
+    private final Scheduler scheduler;
 
     Runtime(Scheduler scheduler) {
         this.scheduler = scheduler;
@@ -52,8 +48,8 @@ public class Runtime {
     /**
      * Gets the instance of ballerina runtime.
      *
-     * @deprecated use {@link Environment#getRuntime()} instead.
      * @return Ballerina runtime instance.
+     * @deprecated use {@link Environment#getRuntime()} instead.
      */
     @Deprecated
     public static Runtime getCurrentRuntime() {
@@ -61,53 +57,79 @@ public class Runtime {
         return new Runtime(strand.scheduler);
     }
 
+    /**
+     * Invoke Object method asynchronously and sequentially. This method will ensure that the object methods are
+     * invoked in the same thread where other object methods are executed. So, the methods will be executed
+     * sequentially per object level.
+     *
+     * @param object     Object Value.
+     * @param methodName Name of the method.
+     * @param strandName Name for newly created strand which is used to execute the function pointer. This is
+     *                   optional and can be null.
+     * @param metadata   Meta data of new strand.
+     * @param callback   Callback which will get notified once the method execution is done.
+     * @param properties Set of properties for strand.
+     * @param returnType Expected return type of this method.
+     * @param args       Ballerina function arguments.
+     * @return {@link FutureValue} containing return value for executing this method.
+     */
+    public BFuture invokeMethodAsyncSequentially(BObject object, String methodName, String strandName,
+                                                 StrandMetadata metadata,
+                                                 Callback callback, Map<String, Object> properties,
+                                                 Type returnType, Object... args) {
+        try {
+            validateArgs(object, methodName);
+            Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
+            return scheduler.scheduleToObjectGroup(new Object[1], func, null, callback, properties,
+                                                   returnType, strandName, metadata);
+        } catch (BError e) {
+            callback.notifyFailure(e);
+        } catch (Throwable e) {
+            callback.notifyFailure(ErrorCreator.createError(StringUtils.fromString(e.getMessage())));
+        }
+        return null;
+    }
 
-     /**
-      * Invoke Object method asynchronously. This will schedule the function and block the strand.
-      *
-      * @param object     Object Value.
-      * @param methodName Name of the method.
-      * @param strandName Name for newly creating strand which is used to execute the function pointer. This is optional
-      *                   and can be null.
-      * @param metadata   Meta data of new strand.
-      * @param callback   Callback which will get notify once method execution done.
-      * @param args       Ballerina function arguments.
-      * @return the result of the function invocation
-      */
-     public Object invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
-                                     Callback callback, Object... args) {
-         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
-         boolean isIsolate = isIsolated(object.getType(), methodName);
-         if (isIsolate) {
-             return scheduler.schedule(new Object[1], func, null, callback, strandName, metadata).result;
-         } else {
-             return scheduler.scheduleToObjectGroup(object, new Object[1], func, null, callback, null,
-                                                    PredefinedTypes.TYPE_NULL, strandName, metadata).result;
-         }
-     }
-
-    private boolean isIsolated(ObjectType type, String methodName) {
-        if (!SymbolFlags.isFlagOn(type.getFlags(), SymbolFlags.ISOLATED)) {
-            return false;
+    /**
+     * Invoke Object method asynchronously and concurrently. Caller needs to ensure that no data race is possible for
+     * the mutable state with given object method and with arguments. So, the method can be concurrently run with
+     * different os threads.
+     *
+     * @param object     Object Value.
+     * @param methodName Name of the method.
+     * @param strandName Name for newly created strand which is used to execute the function pointer. This is
+     *                   optional and can be null.
+     * @param metadata   Meta data of new strand.
+     * @param callback   Callback which will get notified once the method execution is done.
+     * @param properties Set of properties for strand.
+     * @param returnType Expected return type of this method.
+     * @param args       Ballerina function arguments.
+     * @return {@link FutureValue} containing return value for executing this method.
+     */
+    public BFuture invokeMethodAsyncConcurrently(BObject object, String methodName, String strandName,
+                                                 StrandMetadata metadata,
+                                                 Callback callback, Map<String, Object> properties,
+                                                 Type returnType, Object... args) {
+        try {
+            validateArgs(object, methodName);
+            Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
+            return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
+                                      metadata);
+        } catch (BError e) {
+            callback.notifyFailure(e);
+        } catch (Throwable e) {
+            callback.notifyFailure(ErrorCreator.createError(StringUtils.fromString(e.getMessage())));
         }
-        for (MethodType method : type.getMethods()) {
-            if (method.getName().equals(methodName)) {
-                return SymbolFlags.isFlagOn(method.getFlags(), SymbolFlags.ISOLATED);
-            }
-        }
-        if (type.getTag() == SERVICE_TAG) {
-            for (ResourceMethodType method : ((BServiceType) type).getResourceMethods()) {
-                if (method.getName().equals(methodName)) {
-                    return SymbolFlags.isFlagOn(method.getFlags(), SymbolFlags.ISOLATED);
-                }
-            }
-        }
-        assert false : "object type does not contain method : " + methodName;
-        return false;
-     }
+        return null;
+    }
 
     /**
      * Invoke Object method asynchronously. This will schedule the function and block the strand.
+     * This API checks whether the object or object method is isolated. So, if an object method is isolated, method
+     * will be concurrently executed in different os threads.
+     * <p>
+     * Caller needs to ensure that no data race is possible for the mutable state with given arguments. So, the
+     * method can be concurrently run with different os threads.
      *
      * @param object     Object Value.
      * @param methodName Name of the method.
@@ -118,22 +140,66 @@ public class Runtime {
      * @param properties Set of properties for strand
      * @param returnType Expected return type of this method
      * @param args       Ballerina function arguments.
-     * @return           {@link FutureValue} containing return value of executing this method.
+     * @return {@link FutureValue} containing return value for executing this method.
+     * @deprecated If caller can ensure that given object and object method is isolated and no data race is possible
+     * for the mutable state with given arguments, use @invokeMethodAsyncConcurrently
+     * otherwise @invokeMethodAsyncSequentially .
+     * <p>
+     * We can decide the object method isolation by using object.getType().isIsolated(methodName).
      */
+    @Deprecated
     public BFuture invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
                                      Callback callback, Map<String, Object> properties,
                                      Type returnType, Object... args) {
-        if (object == null) {
-            throw new NullPointerException();
+        try {
+            validateArgs(object, methodName);
+            boolean isIsolated = object.getType().isIsolated(methodName);
+            Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
+            if (isIsolated) {
+                return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
+                                          metadata);
+            } else {
+                return scheduler.scheduleToObjectGroup(new Object[1], func, null, callback, properties,
+                                                       returnType, strandName, metadata);
+            }
+        } catch (BError e) {
+            callback.notifyFailure(e);
+        } catch (Throwable e) {
+            callback.notifyFailure(ErrorCreator.createError(StringUtils.fromString(e.getMessage())));
         }
-        Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
-        boolean isIsolate = isIsolated(object.getType(), methodName);
-        if (isIsolate) {
-            return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
-                                      metadata);
-        } else {
-            return scheduler.scheduleToObjectGroup(object, new Object[1], func, null, callback, properties,
-                                                   returnType, strandName, metadata);
+        return null;
+    }
+
+    /**
+     * Invoke Object method asynchronously. This will schedule the function and block the strand.
+     *
+     * @param object     Object Value.
+     * @param methodName Name of the method.
+     * @param strandName Name for newly created strand which is used to execute the function pointer. This is optional
+     *                   and can be null.
+     * @param metadata   Meta data of new strand.
+     * @param callback   Callback which will get notified once the method execution is done.
+     * @param args       Ballerina function arguments.
+     * @return the result of the function invocation.
+     * @deprecated If caller can ensure that given object and object method is isolated and no data race is possible
+     * for the mutable state with given arguments, use @invokeMethodAsyncConcurrently
+     * otherwise @invokeMethodAsyncSequentially .
+     * <p>
+     * We can decide the object method isolation by using object.getType().isIsolated(methodName).
+     */
+    @Deprecated
+    public Object invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
+                                    Callback callback, Object... args) {
+        return invokeMethodAsync(object, methodName, strandName, metadata, callback, null,
+                                 PredefinedTypes.TYPE_NULL, args);
+    }
+
+    private void validateArgs(BObject object, String methodName) {
+        if (object == null) {
+            throw ErrorCreator.createError(StringUtils.fromString("object cannot be null"));
+        }
+        if (methodName == null) {
+            throw ErrorCreator.createError(StringUtils.fromString("method name cannot be null"));
         }
     }
 

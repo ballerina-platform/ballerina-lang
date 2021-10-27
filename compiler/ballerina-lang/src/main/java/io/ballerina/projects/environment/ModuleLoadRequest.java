@@ -22,10 +22,10 @@ import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.tools.diagnostics.Location;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * This class represents a Ballerina module load request received by the {@code PackageResolver}.
@@ -37,7 +37,7 @@ public class ModuleLoadRequest {
     private final String moduleName;
     private final PackageDependencyScope scope;
     private final DependencyResolutionType dependencyResolvedType;
-    private final List<Location> locations = new ArrayList<>();
+    private final Set<Location> locations = new HashSet<>();
 
     public ModuleLoadRequest(PackageOrg orgName,
                              String moduleName,
@@ -81,11 +81,11 @@ public class ModuleLoadRequest {
         return dependencyResolvedType == DependencyResolutionType.PLATFORM_PROVIDED;
     }
 
-    public List<Location> locations() {
+    public Set<Location> locations() {
         return locations;
     }
 
-    public void addAllLocations(List<Location> locations) {
+    public void addAllLocations(Set<Location> locations) {
         this.locations.addAll(locations);
     }
 

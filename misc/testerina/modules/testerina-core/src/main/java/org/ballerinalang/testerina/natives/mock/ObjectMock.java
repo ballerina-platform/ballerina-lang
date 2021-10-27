@@ -351,7 +351,9 @@ public class ObjectMock {
         List<Type> memberTypes = functionReturnType.getMemberTypes();
         for (Type memberType : memberTypes) {
             if (memberType.getTag() == TypeTags.PARAMETERIZED_TYPE_TAG) {
-                return validateParameterizedValue(returnVal, ((ParameterizedType) memberType));
+                if (validateParameterizedValue(returnVal, ((ParameterizedType) memberType))) {
+                    return true;
+                }
             } else {
                 if (TypeChecker.checkIsType(returnVal, memberType)) {
                     return true;

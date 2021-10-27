@@ -30,7 +30,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test class for debugger engaging in debug launch mode.
@@ -51,7 +51,7 @@ public class DebugEngageTest extends BaseTestCase {
     @Test(description = "Debug engage test for launch mode, with special ballerina project files as input(i.e. " +
             "Ballerina.toml, Dependencies.toml, etc.)")
     public void testNonBallerinaInputSource() throws BallerinaTestException {
-        String breakpointFilePath = Paths.get(debugTestRunner.testProjectPath, "main.bal").toString();
+        Path breakpointFilePath = debugTestRunner.testProjectPath.resolve("main.bal");
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(breakpointFilePath, 22));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 

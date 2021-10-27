@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -76,6 +77,10 @@ public class BackgroundTaskService {
         future.thenAccept(v -> {
             task.onSuccess();
         }).exceptionally(t -> {
+            if (t instanceof CompletionException) {
+                t = t.getCause();
+            }
+            
             if (t instanceof TaskExecutionException) {
                 task.onFail(t.getCause());
             } else {
