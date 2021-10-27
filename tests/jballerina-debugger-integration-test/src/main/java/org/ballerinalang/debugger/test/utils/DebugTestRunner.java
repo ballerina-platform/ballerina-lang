@@ -840,7 +840,7 @@ public class DebugTestRunner {
         debugClientConnector = null;
 
         if (balClient != null) {
-            balClient.terminateProcess(debuggeeProcess, String.valueOf(port));
+            balClient.terminateProcessWithDescendants(debuggeeProcess);
             balClient = null;
         }
     }
