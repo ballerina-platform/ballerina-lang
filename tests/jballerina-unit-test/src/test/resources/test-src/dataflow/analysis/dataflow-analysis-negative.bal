@@ -19,15 +19,17 @@ import ballerina/lang.test;
  
  function testDataflow_1() returns string {
     string msg;
-    if (true) {
-        if (true) {
+    int|string? a = 10;
+    if (a is int) {
+        int|string? b = 10;
+        if (b is int) {
             msg = "1";
-        } else if (true) {
+        } else if (b is string) {
             msg = "2";
         } else {
             msg = "3";
         }
-    } else if (true) {
+    } else if (a is string) {
         msg = "4";
     } else {
         msg = "5";
@@ -38,10 +40,12 @@ import ballerina/lang.test;
 
 function testDataflow_2() returns string {
     string msg;
-    if (true) {
-        if (true) {
+    int|string? a = 10;
+    if (a is int) {
+        int|string? b = 10;
+        if (b is int) {
             msg = "1";
-        } else if (true) {
+        } else if (b is string) {
             // do nothing
         } else {
             msg = "2";
@@ -55,10 +59,12 @@ function testDataflow_2() returns string {
 
 function testDataflow_3() returns string {
     string msg;
-    if (true) {
-        if (true) {
+    int|string? a = 10;
+    if (a is int) {
+        int|string? b = 10;
+        if (b is int) {
             msg = "1";
-        } else if (true) {
+        } else if (b is string) {
             msg = "2";
         } else {
             // do nothing
@@ -72,8 +78,10 @@ function testDataflow_3() returns string {
 
 function testDataflow_4() returns string {
     string msg;
-    if (true) {
-        if (true) {
+    int|string? a = 10;
+    if (a is int) {
+        int|string? b = 10;
+        if (b is int) {
             msg = "1";
         }
     } else {
@@ -85,8 +93,10 @@ function testDataflow_4() returns string {
 
 function testDataflow_5() returns string {
     string msg;
-    if (true) {
-        if (true) {
+    int|string? a = 10;
+    if (a is int) {
+        int|string? b = 10;
+        if (b is int) {
             //do nothing
         } else {
             msg = "1";
@@ -100,8 +110,10 @@ function testDataflow_5() returns string {
 
 function testDataflow_6() returns string {
     string msg;
-    if (true) {
-        if (true) {
+    int|string? a = 10;
+    if (a is int) {
+        int|string? b = 10;
+        if (b is int) {
             msg = "1";
         } else {
             msg = "1";
@@ -115,9 +127,11 @@ function testDataflow_6() returns string {
 
 function testDataflow_7() returns string {
     string msg;
-    if (true) {
+    int|string? a = 10;
+    if (a is int) {
+        int|string? b = 10;
         msg = "1";
-        if (true) {
+        if (b is int) {
         } else {
         }
     } else {
@@ -129,8 +143,10 @@ function testDataflow_7() returns string {
 
 function testDataflow_8() returns string {
     string msg;
-    if (true) {
-        if (true) {
+    int|string? a = 10;
+    if (a is int) {
+        int|string? b = 10;
+        if (b is int) {
             // do nothing
         } else {
             // do nothing
@@ -145,16 +161,19 @@ function testDataflow_8() returns string {
 
 function testDataflow_9() returns string {
     string msg;
-    if (true) {
-        if (true) {
+    int|string? a = 10;
+    if (a is int) {
+        int|string|boolean|float? b = 10;
+        if (b is int) {
             msg = "1";
         } else {
-            if (true) {
-                if (true) {
-                    if (true) {
-                        if (true) {
+            if (b is string|boolean|float) {
+                if (b is string|boolean) {
+                    if (b is string) {
+                        int|string? c = 10;
+                        if (c is string) {
                             msg = "2.1.1.1.1";
-                        } else if (true) {
+                        } else if (c is int) {
                             msg = "2.1.1.1.2";
                         } else {
                             msg = "2.1.1.1.3";
@@ -178,16 +197,19 @@ function testDataflow_9() returns string {
 
 function testDataflow_10() returns string {
     string msg;
-    if (true) {
-        if (true) {
+    int|string? a = 10;
+    if (a is string) {
+        int|string|boolean|float? b = 10;
+        if (b is int) {
             msg = "1";
         } else {
-            if (true) {
-                if (true) {
-                    if (true) {
-                        if (true) {
+            if (b is string|boolean|float) {
+                if (b is string|boolean) {
+                    if (b is string) {
+                        int|string? c = 10;
+                        if (c is int) {
                             msg = "2.1.1.1.1";
-                        } else if (true) {
+                        } else if (c is string) {
                             // do nothing
                         } else {
                             msg = "2.1.1.1.3";
@@ -221,8 +243,9 @@ function testUninitializedVarReferrencing() {
     // increment uninitialized var
     a = a + 1;
 
+    int? x = 10;
     // panic uninitialized var
-    if (false) {
+    if (x is int) {
         panic getError(s);
     }
 
@@ -278,9 +301,11 @@ function getError(string msg) returns error {
 }
 
 function testDataflow_11() returns string {
-    if (true) {
+    int? a = 10;
+    if (a is int) {
+        int? b = 10;
         string msg;
-        if (true) {
+        if (b is int) {
             msg = "1";
         } else {
             return msg;
@@ -328,14 +353,16 @@ class Foo {
 
 function testIfFollowedByIf() returns int {
     int x;
-    if (true) {
-    } else if (true) {
+    int|string? a = 10;
+    if (a is int) {
+    } else if (a is string) {
     } else {
     }
 
-    if (true) {
+    int|string? b = 10;
+    if (b is int) {
         x = 1;
-    } else if (true) {
+    } else if (b is string) {
         x = 2;
     } else {
         x = 3;
@@ -385,10 +412,12 @@ function testCompoundAssignment() {
 function testUninitVsPartiallyInit() returns [string, string] {
     string a;
     string b;
-    if (true) {
-        if (true) {
+    int? c = 10;
+    if (c is int) {
+        int|string? d = 10;
+        if (d is int) {
             // do nothing
-        } else if (true) {
+        } else if (d is string) {
             b = "something";
         } else {
             // do nothing
@@ -450,8 +479,9 @@ service "testService" on testEP {
         a = 5;
         int b = a;
         int c;
+        int? x = 10;
 
-        if (true) {
+        if (x is int) {
             return;
         } else {
             c = 3;
@@ -468,8 +498,9 @@ service "testService" on testEP {
 function testDataflowWithPanic_1() returns string {
     error e = error("some error");
     string msg;
-    if (true) {
-        if (true) {
+    int|string? a = 10;
+    if (a is int|string) {
+        if (a is int) {
             msg = "1";
         } else {
             panic e;
@@ -484,9 +515,10 @@ function testDataflowWithPanic_1() returns string {
 function testDataflowWithNestedPanic_1() returns string {
     error e = error("some error");
     string msg;
-    if (true) {
+    int|string? a = 10;
+    if (a is int|string) {
         panic e;
-        if (true) {
+        if (a is int) {
             msg = "1";
         } else {
             panic e;
@@ -501,9 +533,10 @@ function testDataflowWithNestedPanic_1() returns string {
 function testDataflowWithNestedPanic_2() returns string {
     error e = error("some error");
     string msg;
-    if (true) {
+    int|string? a = 10;
+    if (a is int|string) {
         panic e;
-        if (true) {
+        if (a is int) {
             // do nothing
         } else {
             panic e;

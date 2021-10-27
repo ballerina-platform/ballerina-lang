@@ -450,13 +450,17 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             BLangConstantValue value = constant.symbol.value;
 
             if (constantMap.containsKey(nameString)) {
-                BLangConstantValue lastValue = constantMap.get(nameString);
-                if (!value.equals(lastValue)) {
-                    if (lastValue == null) {
-                        dlog.error(constant.name.pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL, nameString);
-                    } else {
-                        dlog.error(constant.name.pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL_WITH_ANOTHER,
-                                nameString, lastValue);
+                if (value == null) {
+                    dlog.error(constant.name.pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL, nameString);
+                } else {
+                    BLangConstantValue lastValue = constantMap.get(nameString);
+                    if (!value.equals(lastValue)) {
+                        if (lastValue == null) {
+                            dlog.error(constant.name.pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL, nameString);
+                        } else {
+                            dlog.error(constant.name.pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL_WITH_ANOTHER,
+                                    nameString, lastValue);
+                        }
                     }
                 }
             } else {

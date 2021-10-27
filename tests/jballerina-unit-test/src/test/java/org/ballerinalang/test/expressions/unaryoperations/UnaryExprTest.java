@@ -194,6 +194,11 @@ public class UnaryExprTest {
         };
     }
 
+    @Test(description = "Test unary operators for nullable expressions")
+    public void testNullableUnaryExpressions() {
+        BRunUtil.invoke(result, "testNullableUnaryExpressions");
+    }
+
     @Test(description = "Test unary statement with errors")
     public void testUnaryStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 12);

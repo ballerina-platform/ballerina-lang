@@ -18,6 +18,8 @@ package org.ballerinalang.debugger.test.utils.client;
 import org.eclipse.lsp4j.debug.BreakpointEventArguments;
 import org.eclipse.lsp4j.debug.Capabilities;
 import org.eclipse.lsp4j.debug.CapabilitiesEventArguments;
+import org.eclipse.lsp4j.debug.CompletionsArguments;
+import org.eclipse.lsp4j.debug.CompletionsResponse;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
 import org.eclipse.lsp4j.debug.ContinueArguments;
 import org.eclipse.lsp4j.debug.ContinueResponse;
@@ -131,6 +133,19 @@ public class DAPRequestManager {
     public ThreadsResponse threads(long timeoutMillis) throws Exception {
         if (checkStatus()) {
             CompletableFuture<ThreadsResponse> resp = server.threads();
+            return resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
+        } else {
+            throw new IllegalStateException("DAP request manager is not active");
+        }
+    }
+
+    public CompletionsResponse completions(CompletionsArguments args) throws Exception {
+        return completions(args, DefaultTimeouts.COMPLETIONS.getValue());
+    }
+
+    public CompletionsResponse completions(CompletionsArguments args, long timeoutMillis) throws Exception {
+        if (checkStatus()) {
+            CompletableFuture<CompletionsResponse> resp = server.completions(args);
             return resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
         } else {
             throw new IllegalStateException("DAP request manager is not active");
@@ -331,6 +346,7 @@ public class DAPRequestManager {
         SCOPES(2000),
         VARIABLES(15000),
         EVALUATE(15000),
+        COMPLETIONS(10000),
         STEP_OVER(5000),
         STEP_IN(10000),
         STEP_OUT(5000),

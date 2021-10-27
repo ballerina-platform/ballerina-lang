@@ -57,7 +57,7 @@ public class MultiplyOperationTest {
     }
 
     @Test(description = "Test two int multiply overflow expression", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\" int range " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
                     "overflow\"\\}.*")
     public void testIntOverflowByMultiplication() {
         BRunUtil.invoke(result, "overflowByMultiplication");
@@ -110,5 +110,10 @@ public class MultiplyOperationTest {
         BAssertUtil.validateError(resultNegative, 9, "operator '*' not defined for 'int' and 'float'", 41, 18);
         BAssertUtil.validateError(resultNegative, 10, "operator '*' not defined for 'C' and 'float'", 45, 14);
         BAssertUtil.validateError(resultNegative, 11, "operator '*' not defined for 'C' and 'float'", 46, 14);
+    }
+
+    @Test(description = "Test multiplication of nullable values")
+    public void testMultiplyNullable() {
+        BRunUtil.invoke(result, "testMultiplyNullable");
     }
 }

@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
+import static io.ballerina.runtime.internal.ErrorUtils.createAmbiguousConversionError;
 import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
@@ -85,7 +86,7 @@ public class FromJsonWithType {
                 return null;
             }
             throw createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
         }
 
         Type sourceType = TypeChecker.getType(value);
@@ -103,7 +104,7 @@ public class FromJsonWithType {
         if (convertibleTypes.isEmpty()) {
             throw CloneUtils.createConversionError(value, targetType, errors);
         } else if (convertibleTypes.size() > 1) {
-            throw createConversionError(value, targetType, AMBIGUOUS_TARGET);
+            throw createAmbiguousConversionError(value, targetType);
         }
 
         Type matchingType = convertibleTypes.get(0);

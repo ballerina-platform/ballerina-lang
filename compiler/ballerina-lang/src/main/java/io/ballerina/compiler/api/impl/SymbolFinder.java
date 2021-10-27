@@ -737,6 +737,7 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         lookupNode(transactionNode.transactionBody);
+        lookupNode(transactionNode.onFailClause);
     }
 
     @Override
@@ -1067,7 +1068,9 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
-        // TODO: Getting the name
+        if (setEnclosingNode(bLangNamedArgsExpression.varSymbol, bLangNamedArgsExpression.name.pos)) {
+            return;
+        }
         lookupNode(bLangNamedArgsExpression.expr);
     }
 

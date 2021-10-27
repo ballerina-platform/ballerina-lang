@@ -47,11 +47,9 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.Qualifier.FINAL;
 import static io.ballerina.compiler.api.symbols.Qualifier.LISTENER;
@@ -166,7 +164,7 @@ public class ServiceSemanticAPITest {
     public Object[][] getLookupPos() {
         List<String> moduleSymbols = List.of("AServiceType", "Listener", "lsn", "ProcessingService", "AServiceClass");
         return new Object[][]{
-                {68, 26, concatSymbols(moduleSymbols, "magic")},
+                {68, 26, moduleSymbols},
 //                {70, 59, concatSymbols(moduleSymbols, "magic", "createError")} // TODO: Fix #27314
         };
     }
@@ -299,9 +297,5 @@ public class ServiceSemanticAPITest {
                 .filter(s -> s.getModule().isPresent() &&
                         !"ballerina".equals(s.getModule().get().getModule().get().id().orgName()))
                 .collect(Collectors.toList());
-    }
-
-    private List<String> concatSymbols(List<String> moduleSymbols, String... symbols) {
-        return Stream.concat(moduleSymbols.stream(), Arrays.stream(symbols)).collect(Collectors.toList());
     }
 }
