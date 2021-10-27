@@ -25,6 +25,7 @@ import java.util.List;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
+import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.XMLNS;
 import static io.ballerina.semantic.api.test.visiblesymbols.BaseVisibleSymbolsTest.ExpectedSymbolInfo.from;
@@ -49,7 +50,9 @@ public class VisibleSymbolsInStatementsTest extends BaseVisibleSymbolsTest {
                         from("anInt", VARIABLE),
                         from("test", FUNCTION),
                         from("test2", FUNCTION),
-                        from("HELLO", CONSTANT)
+                        from("HELLO", CONSTANT),
+                        from("testLetExp1", FUNCTION),
+                        from("testLetExp2", FUNCTION)
                 );
         return new Object[][]{
                 {2, 13, expModuleSymbols},
@@ -91,6 +94,16 @@ public class VisibleSymbolsInStatementsTest extends BaseVisibleSymbolsTest {
                 {48, 9, concat(expModuleSymbols,
                                from("b7a", XMLNS),
                                from("x", VARIABLE)
+                )},
+                {54, 51, concat(expModuleSymbols,
+                        from("x", PARAMETER),
+                        from("x1", VARIABLE),
+                        from("x2", VARIABLE)
+                )},
+                {58, 42, concat(expModuleSymbols,
+                        from("y", PARAMETER),
+                        from("x3", VARIABLE),
+                        from("x4", VARIABLE)
                 )},
         };
     }
