@@ -125,8 +125,8 @@ public class SemTypeTest {
             vars.forEach(v -> {
                 SemType t1 = scope.lookup(new Name(v[0])).symbol.type.getSemtype();
                 SemType t2 = sm.get(v[1]);
-                SemTypes.isSubtype(tc, t1, t2);
-                SemTypes.isSubtype(tc, t2, t1);
+                Assert.assertTrue(SemTypes.isSubtype(tc, t1, t2));
+                Assert.assertTrue(SemTypes.isSubtype(tc, t2, t1));
             });
         });
 
