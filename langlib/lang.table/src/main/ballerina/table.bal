@@ -44,7 +44,7 @@ type KeyType anydata;
 #
 # + t - the table
 # + return - number of members in parameter `t`
-public isolated function length(table<MapType> t) returns int = @java:Method {
+public isolated function length(table<map<any|error>> t) returns int = @java:Method {
     'class: "org.ballerinalang.langlib.table.Length",
     name: "length"
 } external;
@@ -108,7 +108,7 @@ public isolated function add(table<MapType> t, MapType val) = @java:Method {
 
 // Functional iteration
 
-# Applies a function each member of a table and returns a table of the result.
+# Applies a function to each member of a table and returns a table of the result.
 #
 # + t - the table
 # + func - a function to apply to each member
@@ -189,7 +189,7 @@ public isolated function removeIfHasKey(table<MapType> key<KeyType> t, KeyType k
 # This panics if any member cannot be removed.
 #
 # + t - the table
-public isolated function removeAll(table<MapType> t) returns () = @java:Method {
+public isolated function removeAll(table<map<any|error>> t) returns () = @java:Method {
     'class: "org.ballerinalang.langlib.table.RemoveAll",
     name: "removeAll"
 } external;
@@ -208,7 +208,7 @@ public isolated function hasKey(table<MapType> key<KeyType> t, KeyType k) return
 #
 # + t - the table
 # + return - a new list of all keys
-public isolated function keys(table<MapType> key<KeyType> t) returns KeyType[] = @java:Method {
+public isolated function keys(table<map<any|error>> key<KeyType> t) returns KeyType[] = @java:Method {
     'class: "org.ballerinalang.langlib.table.GetKeys",
     name: "keys"
 } external;
