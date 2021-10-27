@@ -15,14 +15,39 @@
 // under the License.
 
 string aString = "foo";
-int anInt = 10;
 
-function test() {
-    int b = let int x = 2, int z = 5+x in z * x * anInt;
+public function workerSendToWorker() returns int {
+    @strand{thread:"any"}
+    worker w1 {
+      int i = 40;
+      i -> w2;
 
-    string strTemp = string `a string template: ${anInt}`;
+      float x = 12.34;
+      x ->> w2;
 
-    'object:RawTemplate rawTemp = `a raw template: ${aString}`;
+      var res = flush w2;
+    }
+
+    @strand{thread:"any"}
+    worker w2 returns int {
+      int j = 25;
+      j = <- w1;
+
+      float y = <- w1;
+      return j;
+    }
+    int ret = wait w2;
+
+    return ret + 1;
 }
 
-function exprBodyScope(string myStr) returns string => m
+function testFork() {
+    int x = 10;
+
+    fork {
+        worker w1 {
+          int i = x;
+          // cursor pos
+        }
+    }
+}
