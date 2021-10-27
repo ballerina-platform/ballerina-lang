@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,32 +14,32 @@
 // specific language governing permissions and limitations
 // under the License.
 
-string aString = "foo";
-int anInt = 10;
+public class Foo {
+    string field1 = "abc";
 
-public function workerSendToWorker() returns int {
-    @strand{thread:"any"}
-    worker w1 {
-      int i = 40;
-      i -> w2;
-
-      float x = 12.34;
-      x ->> w2;
-
-      var res = flush w2;
-    }
-
-    @strand{thread:"any"}
-    worker w2 returns int {
-      int j = 25;
-      j = <- w1;
-
-      float y = <- w1;
-      return j;
-    }
-    int ret = wait w2;
-
-    return ret + 1;
 }
 
-const HELLO = "Hello";
+public class Bar {
+    string name1 = "";
+    private int n;
+
+    public function init(int n = 0) {
+        self.n = n;
+    }
+
+    public function inc() {
+        self.n += 1;
+        int x = 5;
+
+    }
+}
+
+type Person record {|
+    string name2;
+
+|};
+
+type PersonObj object {
+    string name3;
+
+};

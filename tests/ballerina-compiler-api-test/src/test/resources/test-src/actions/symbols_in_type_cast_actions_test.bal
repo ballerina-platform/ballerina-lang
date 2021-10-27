@@ -15,15 +15,25 @@
 // under the License.
 
 function test() {
-    do {
-        string doStr = "test str in do";
-    } on fail var e1 {
-        string str = "test str in do on fail";
+    worker w1 returns int {
+        return 12;
     }
+    AClient ac = new ();
+    string s1 = <string>ac->get();
+    future<Person> p = <future<Person>>getPerson();
+    _ = <future<int>> w1;
+}
 
-    transaction {
-        var res = commit;
-    } on fail var e2 {
-        string str = "test str in trx on fail";
+function getPerson() returns future<Person> {
+}
+
+client class AClient {
+    remote function get() returns any {
+        return "value";
     }
 }
+
+type Person record {
+    string name = "John Doe";
+    int age = 20;
+};

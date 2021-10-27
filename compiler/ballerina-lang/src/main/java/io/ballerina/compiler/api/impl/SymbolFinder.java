@@ -737,6 +737,7 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         lookupNode(transactionNode.transactionBody);
+        lookupNode(transactionNode.onFailClause);
     }
 
     @Override

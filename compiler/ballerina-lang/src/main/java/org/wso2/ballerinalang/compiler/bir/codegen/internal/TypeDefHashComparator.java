@@ -29,13 +29,17 @@ import java.util.Comparator;
  */
 public class TypeDefHashComparator implements Comparator<BIRTypeDefinition> {
 
-    private final TypeHashVisitor typeHashVisitor = new TypeHashVisitor();
+    private final TypeHashVisitor typeHashVisitor;
+
+    public TypeDefHashComparator(TypeHashVisitor typeHashVisitor) {
+        this.typeHashVisitor = typeHashVisitor;
+    }
 
     @Override
     public int compare(BIRTypeDefinition o1, BIRTypeDefinition o2) {
-        Integer o1TypeHash = typeHashVisitor.visit(o1.type);
+        Integer o1TypeHash = typeHashVisitor.getHash(o1.type);
         typeHashVisitor.reset();
-        Integer o2TypeHash = typeHashVisitor.visit(o2.type);
+        Integer o2TypeHash = typeHashVisitor.getHash(o2.type);
         typeHashVisitor.reset();
         return Integer.compare(o1TypeHash, o2TypeHash);
     }

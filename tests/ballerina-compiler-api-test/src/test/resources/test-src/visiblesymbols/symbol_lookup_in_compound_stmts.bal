@@ -17,7 +17,7 @@
 const c1 = "foo";
 const c2 = 1;
 
-function func() {
+function testRegularCompoundStmts() {
     any|error v = {x1: 1, b: true};
 
     match v {
@@ -40,5 +40,39 @@ function func() {
         {} => {
 
         }
+    }
+
+    foreach var i in 1...10 {
+        float y = 1.2;
+
+        while (true) {
+            string z = "Z";
+
+            lock {
+                // cursor pos
+            }
+        }
+        float z = 2.3;
+        // cursor pos
+    }
+
+    do {
+        string doStr = "test str in do";
+    } on fail var e1 {
+        string str = "test str in do on fail";
+    }
+
+    transaction {
+        var res = commit;
+    } on fail var e2 {
+        string str = "test str in trx on fail";
+    }
+
+    retry {
+        int y = 2;
+    }
+
+    retry transaction {
+        string s = "";
     }
 }
