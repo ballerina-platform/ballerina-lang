@@ -43,13 +43,12 @@ public class PerformanceAnalyzerTest {
 
     private static final String PERFORMANCE_ANALYZE = "performanceAnalyzer/getEndpoints";
     private static final Path RES_DIR = Paths.get("src", "test", "resources").toAbsolutePath();
-    private static final Path project = RES_DIR.resolve("ballerina")
-            .resolve("main.bal");
-    private static final Path resultJson = RES_DIR.resolve("result")
-            .resolve("result.json");
 
     @Test(description = "Test performance analyzer")
-    public void testPerformanceAnalyzer() throws IOException, ExecutionException, InterruptedException {
+    public void testFunction() throws IOException, ExecutionException, InterruptedException {
+
+        Path project = RES_DIR.resolve("ballerina").resolve("main.bal");
+        Path resultJson = RES_DIR.resolve("result").resolve("main.json");
 
         Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
         TestUtil.openDocument(serviceEndpoint, project);
@@ -57,6 +56,27 @@ public class PerformanceAnalyzerTest {
         PerformanceAnalyzerGraphRequest request = new PerformanceAnalyzerGraphRequest();
         request.setDocumentIdentifier(new TextDocumentIdentifier(project.toString()));
         request.setRange(new Range(new Position(21, 4), new Position(28, 5)));
+
+        CompletableFuture<?> result = serviceEndpoint.request(PERFORMANCE_ANALYZE, request);
+        JsonObject json = (JsonObject) result.get();
+
+        BufferedReader br = new BufferedReader(new FileReader(resultJson.toAbsolutePath().toString()));
+        JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
+        Assert.assertEquals(json, expected);
+    }
+
+    @Test(description = "Test performance analyzer")
+    public void testIfElse() throws IOException, ExecutionException, InterruptedException {
+
+        Path project = RES_DIR.resolve("ballerina").resolve("ifElse.bal");
+        Path resultJson = RES_DIR.resolve("result").resolve("ifElse.json");
+
+        Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
+        TestUtil.openDocument(serviceEndpoint, project);
+
+        PerformanceAnalyzerGraphRequest request = new PerformanceAnalyzerGraphRequest();
+        request.setDocumentIdentifier(new TextDocumentIdentifier(project.toString()));
+        request.setRange(new Range(new Position(20, 4), new Position(30, 5)));
 
         CompletableFuture<?> result = serviceEndpoint.request(PERFORMANCE_ANALYZE, request);
         JsonObject json = (JsonObject) result.get();

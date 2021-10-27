@@ -570,6 +570,7 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
     @Override
     public void visit(BlockStatementNode blockStatementNode) {
 
+        visitSyntaxNode(blockStatementNode);
     }
 
     @Override
