@@ -5130,34 +5130,24 @@ public class Types {
 
         if (returnType.tag == TypeTags.NIL ||
                 (returnType.tag == TypeTags.UNION &&
-                        (isAssignable(returnType, symTable.nilType) ||
-                                isSubTypeOfErrorOrNilContainingErrorAndNil((BUnionType) returnType)))) {
+                        isSubTypeOfErrorOrNilContainingNil((BUnionType) returnType))) {
             return;
         }
 
         dlog.error(function.returnTypeNode.pos, diagnosticCode, function.returnTypeNode.getBType().toString());
     }
 
-    public boolean isSubTypeOfErrorOrNilContainingErrorAndNil(BUnionType type) {
+    public boolean isSubTypeOfErrorOrNilContainingNil(BUnionType type) {
         if (!type.isNullable()) {
             return false;
         }
 
-        Set<BType> memberTypes = type.getMemberTypes();
-
-        boolean hasError = false;
-
-        for (BType memType : memberTypes) {
-            if (memType.tag == TypeTags.ERROR) {
-                hasError = true;
-                continue;
-            }
-
-            if (memType.tag != TypeTags.NIL) {
+        for (BType memType : type.getMemberTypes()) {
+            if (memType.tag != TypeTags.NIL && memType.tag != TypeTags.ERROR) {
                 return false;
             }
         }
-        return hasError;
+        return true;
     }
 
     /**
