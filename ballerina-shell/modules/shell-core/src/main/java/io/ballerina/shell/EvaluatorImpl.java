@@ -68,7 +68,6 @@ class EvaluatorImpl extends Evaluator {
             addAllDiagnostics(treeParser.diagnostics());
             addAllDiagnostics(snippetFactory.diagnostics());
             addAllDiagnostics(invoker.diagnostics());
-            preprocessor.resetDiagnostics();
             treeParser.resetDiagnostics();
             snippetFactory.resetDiagnostics();
             invoker.resetDiagnostics();
