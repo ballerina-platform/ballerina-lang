@@ -24,7 +24,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
-import static org.ballerinalang.test.BAssertUtil.validateWarning;
 
 /**
  * Test cases related to isolated objects.
@@ -48,7 +47,6 @@ public class IsolatedObjectTest {
 
     private static final String ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC =
             "invalid access of mutable storage in an 'isolated' function";
-    private static final String WARN_FUNCTION_SHOULD_RETURN_NIL = "this function should explicitly return a value";
 
     @Test
     public void testIsolatedObjectSemanticNegative() {
@@ -98,7 +96,6 @@ public class IsolatedObjectTest {
         validateError(result, i++,
                       "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 101, 20);
         validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 118, 30);
-        validateWarning(result, i++, WARN_FUNCTION_SHOULD_RETURN_NIL, 130, 39);
         validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 131, 18);
         validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 131, 24);
         validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 131, 36);
@@ -227,11 +224,6 @@ public class IsolatedObjectTest {
                 "'lock' statement", 591, 13);
         validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
                 "'lock' statement", 592, 13);
-        validateWarning(result, i++, WARN_FUNCTION_SHOULD_RETURN_NIL, 599, 38);
-        validateWarning(result, i++, WARN_FUNCTION_SHOULD_RETURN_NIL, 601, 44);
-        validateWarning(result, i++, WARN_FUNCTION_SHOULD_RETURN_NIL, 603, 45);
-        validateWarning(result, i++, WARN_FUNCTION_SHOULD_RETURN_NIL, 605, 57);
-        validateWarning(result, i++, WARN_FUNCTION_SHOULD_RETURN_NIL, 607, 78);
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 614, 13);
         validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 614, 13);
         validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 621, 13);
@@ -248,7 +240,6 @@ public class IsolatedObjectTest {
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 686, 13);
         validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 687, 17);
         validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 688, 20);
-        validateWarning(result, i++, WARN_FUNCTION_SHOULD_RETURN_NIL, 699, 50);
         validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 702, 23);
         validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 724, 20);
         validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 735, 31);
@@ -269,8 +260,7 @@ public class IsolatedObjectTest {
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 817, 74);
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 822, 62);
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 822, 71);
-        Assert.assertEquals(result.getErrorCount(), i - 7);
-        Assert.assertEquals(result.getWarnCount(), 7);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @Test

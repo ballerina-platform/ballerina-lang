@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.ballerinalang.test.BAssertUtil.validateHint;
-import static org.ballerinalang.test.BAssertUtil.validateWarning;
 
 /**
  * Test cases related to reachability analysis.
@@ -40,7 +39,6 @@ public class ReachabilityAnalysisTest {
     private static final String HINT_UNNECESSARY_CONDITION =
             "unnecessary condition: expression will always evaluate to 'true'";
     private static final String ALWAYS_FALSE_CONDITION = "expression will always evaluate to 'false'";
-    private static final String WARN_SHOULD_EXPLICITLY_RETURN_NIL = "this function should explicitly return a value";
 
     private CompileResult result;
 
@@ -112,7 +110,6 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_MUST_RETURN_A_RESULT, 239, 1);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 244, 9);
         validateError(result, i++, ERROR_MUST_RETURN_A_RESULT, 250, 1);
-        validateWarning(result, i++, WARN_SHOULD_EXPLICITLY_RETURN_NIL, 252, 48);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 263, 27);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 266, 17);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 268, 16);
@@ -179,9 +176,8 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 741, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 755, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 771, 5);
-        Assert.assertEquals(result.getErrorCount(), i - 16);
+        Assert.assertEquals(result.getErrorCount(), i - 15);
         Assert.assertEquals(result.getHintCount(), 15);
-        Assert.assertEquals(result.getWarnCount(), 1);
     }
 
     @Test

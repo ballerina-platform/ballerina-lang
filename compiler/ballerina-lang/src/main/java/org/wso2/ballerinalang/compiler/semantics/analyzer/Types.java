@@ -5128,19 +5128,26 @@ public class Types {
     public void validateErrorOrNilReturn(BLangFunction function, DiagnosticCode diagnosticCode) {
         BType returnType = function.returnTypeNode.getBType();
 
-        if (returnType.tag == TypeTags.NIL) {
+        if (returnType.tag == TypeTags.NIL ||
+                (returnType.tag == TypeTags.UNION &&
+                        isSubTypeOfErrorOrNilContainingNil((BUnionType) returnType))) {
             return;
         }
 
-        if (returnType.tag == TypeTags.UNION) {
-            Set<BType> memberTypes = ((BUnionType) returnType).getMemberTypes();
-            if (returnType.isNullable() &&
-                    memberTypes.stream().allMatch(type -> type.tag == TypeTags.NIL || type.tag == TypeTags.ERROR)) {
-                return;
-            }
+        dlog.error(function.returnTypeNode.pos, diagnosticCode, function.returnTypeNode.getBType().toString());
+    }
+
+    public boolean isSubTypeOfErrorOrNilContainingNil(BUnionType type) {
+        if (!type.isNullable()) {
+            return false;
         }
 
-        dlog.error(function.returnTypeNode.pos, diagnosticCode, function.returnTypeNode.getBType().toString());
+        for (BType memType : type.getMemberTypes()) {
+            if (memType.tag != TypeTags.NIL && memType.tag != TypeTags.ERROR) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
