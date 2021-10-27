@@ -30,7 +30,7 @@ jobs:
 
             - name: Build
               run: |
-                  ./gradlew build -x test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+                  ./gradlew clean build -x test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
 
     windows-build:
         name: Windows
@@ -59,4 +59,4 @@ jobs:
 
             - name: Build
               run: |
-                  ./gradlew.bat build -x test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+                  ./gradlew.bat clean build -x test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
