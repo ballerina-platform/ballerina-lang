@@ -18,6 +18,7 @@ jobs:
               with:
                 distribution: 'temurin'
                 java-version: 8
+                check-latest: true
 
             -   name: Initialize Submodules
                 run: |
@@ -27,9 +28,13 @@ jobs:
               uses: actions/setup-node@v1
               with:
                   node-version: '10.22.1'
+                  
+            - name: Gradle Version
+              run: |
+                  ./gradlew -v
 
             - name: Build
-              run: |
+              run: |                  
                   ./gradlew clean build -x test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
 
     windows-build:
