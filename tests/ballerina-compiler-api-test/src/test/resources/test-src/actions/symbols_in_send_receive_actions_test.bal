@@ -14,22 +14,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Vehicle record {|
-    string brand;
-    string model;
-    int manufactoredYear;
-|};
+function test() {
+    worker w1 {
+        int t1 = 10;
+        t1 -> w2;
 
-public type Car record {|
-    *Vehicle;
-|};
+        json j = {};
+        j = <- w2;
 
-public type UniformTypeBitSet int:Unsigned32;
+        _ = t1 ->> w2;
+    }
 
-public type SemType UniformTypeBitSet|ComplexSemType;
+    worker w2 {
+        int r1;
+        r1 = <- w1;
 
-public type ComplexSemType readonly & record {|
-    UniformTypeBitSet all;
-    UniformTypeBitSet some;
-    Car aCar;
-|};
+        json j = {"a": "b"};
+        j -> w1;
+
+        int r2;
+        r2 = <- w1;
+        error? unionResult = flush w1;
+    }
+}

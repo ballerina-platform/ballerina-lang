@@ -14,22 +14,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Vehicle record {|
-    string brand;
-    string model;
-    int manufactoredYear;
-|};
+function test() {
+    worker w1 returns int {
+        return 12;
+    }
+    AClient ac = new ();
+    string s1 = <string>ac->get();
+    future<Person> p = <future<Person>>getPerson();
+    _ = <future<int>> w1;
+}
 
-public type Car record {|
-    *Vehicle;
-|};
+function getPerson() returns future<Person> {
+}
 
-public type UniformTypeBitSet int:Unsigned32;
+client class AClient {
+    remote function get() returns any {
+        return "value";
+    }
+}
 
-public type SemType UniformTypeBitSet|ComplexSemType;
-
-public type ComplexSemType readonly & record {|
-    UniformTypeBitSet all;
-    UniformTypeBitSet some;
-    Car aCar;
-|};
+type Person record {
+    string name = "John Doe";
+    int age = 20;
+};
