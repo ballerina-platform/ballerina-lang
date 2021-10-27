@@ -23,15 +23,6 @@ jobs:
                 run: |
                     git submodule update --init
 
-            -   name: Cache Gradle packages
-                uses: actions/cache@v2
-                with:
-                    path: |
-                        ~/.gradle/caches
-                        ~/.gradle/wrapper
-                    key: 1.2.x-${{ runner.os }}-gradle-${{ github.sha }}
-                    restore-keys: 1.2.x-${{ runner.os }}-gradle-
-
             - name: Setup Node
               uses: actions/setup-node@v1
               with:
