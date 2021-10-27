@@ -251,6 +251,13 @@ public class FunctionNilReturnTest {
         validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 257, 59);
         validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 265, 35);
         validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 274, 35);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 291, 84);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 294, 84);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 300, 84);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 303, 84);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 306, 84);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 312, 84);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 315, 84);
         Assert.assertEquals(compileResult.getWarnCount(), i);
 
     }
