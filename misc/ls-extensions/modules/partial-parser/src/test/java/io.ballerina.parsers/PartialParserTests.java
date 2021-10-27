@@ -43,8 +43,12 @@ public class PartialParserTests {
     private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
 
     private final Path singleStatementST = RES_DIR.resolve("syntax-tree").resolve("single_statement.json");
-    private final Path singleStatementModifiedST = RES_DIR.resolve("syntax-tree")
-            .resolve("single_statement_modification.json");
+    private final Path singleStatementModifiedWithReplaceST = RES_DIR.resolve("syntax-tree")
+            .resolve("single_statement_replace_modification.json");
+    private final Path singleStatementModifiedWithDeleteST = RES_DIR.resolve("syntax-tree")
+            .resolve("single_statement_delete_modification.json");
+    private final Path singleStatementModifiedWithInsertST = RES_DIR.resolve("syntax-tree")
+            .resolve("single_statement_insert_modification.json");
     private final Path expressionST = RES_DIR.resolve("syntax-tree").resolve("expression.json");
 
     private Endpoint serviceEndpoint;
@@ -65,8 +69,8 @@ public class PartialParserTests {
         Assert.assertEquals(json.getSyntaxTree(), expected);
     }
 
-    @Test(description = "Test getting ST for a single statement with modification")
-    public void testModifiedSTForSingleStatement()
+    @Test(description = "Test getting ST for a single statement with replace modification")
+    public void testModifiedSTForReplacement()
             throws ExecutionException, InterruptedException, FileNotFoundException {
         String statement = "string fullName = firstName + \"Cooper\";";
         String modification = "middleName + \"Hofstadter\"";
@@ -74,7 +78,38 @@ public class PartialParserTests {
         PartialSTRequest request = new PartialSTRequest(statement, stModification);
         CompletableFuture<?> result = serviceEndpoint.request(SINGLE_STATEMENT, request);
         STResponse json = (STResponse) result.get();
-        BufferedReader br = new BufferedReader(new FileReader(singleStatementModifiedST.toAbsolutePath().toString()));
+        BufferedReader br = new BufferedReader(
+                new FileReader(singleStatementModifiedWithReplaceST.toAbsolutePath().toString()));
+        JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
+        Assert.assertEquals(json.getSyntaxTree(), expected);
+    }
+
+    @Test(description = "Test getting ST for a single statement with delete modification")
+    public void testModifiedSTForDeletion()
+            throws ExecutionException, InterruptedException, FileNotFoundException {
+        String statement = "string fullName = firstName + \"Cooper\";";
+        String modification = "";
+        STModification stModification = new STModification(0, 16, 0, 38, modification);
+        PartialSTRequest request = new PartialSTRequest(statement, stModification);
+        CompletableFuture<?> result = serviceEndpoint.request(SINGLE_STATEMENT, request);
+        STResponse json = (STResponse) result.get();
+        BufferedReader br = new BufferedReader(
+                new FileReader(singleStatementModifiedWithDeleteST.toAbsolutePath().toString()));
+        JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
+        Assert.assertEquals(json.getSyntaxTree(), expected);
+    }
+
+    @Test(description = "Test getting ST for a single statement with insert modification")
+    public void testModifiedSTForInsertion()
+            throws ExecutionException, InterruptedException, FileNotFoundException {
+        String statement = "";
+        String modification = "int age = 15;";
+        STModification stModification = new STModification(0, 0, 0, 0, modification);
+        PartialSTRequest request = new PartialSTRequest(statement, stModification);
+        CompletableFuture<?> result = serviceEndpoint.request(SINGLE_STATEMENT, request);
+        STResponse json = (STResponse) result.get();
+        BufferedReader br = new BufferedReader(
+                new FileReader(singleStatementModifiedWithInsertST.toAbsolutePath().toString()));
         JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
         Assert.assertEquals(json.getSyntaxTree(), expected);
     }
