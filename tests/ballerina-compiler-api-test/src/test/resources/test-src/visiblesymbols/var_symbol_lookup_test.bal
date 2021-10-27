@@ -1,4 +1,4 @@
-// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,16 +14,39 @@
 // specific language governing permissions and limitations
 // under the License.
 
+string aString = "foo";
+int anInt = 10;
+
 function test() {
-    do {
-        string doStr = "test str in do";
-    } on fail var e1 {
-        string str = "test str in do on fail";
+    string greet = "Hello " + aString;
+
+    var greetFn = function (string name) returns string => HELLO + " " + name;
+    greet = greetFn("Pubudu");
+
+    if (true) {
+        int a = 20;
+
+        if (true) {
+            var x = 0;
+            // cursor pos
+        }
+
+        int y = 10;
+    } else {
+        int b = 40;
     }
 
-    transaction {
-        var res = commit;
-    } on fail var e2 {
-        string str = "test str in trx on fail";
-    }
+    int z = 20;
 }
+
+function test2() {
+    xmlns "https://ballerina.io" as b7a;
+
+    int x;
+    x = 10;
+    x += 30;
+
+    fail x;
+}
+
+const HELLO = "Hello";
