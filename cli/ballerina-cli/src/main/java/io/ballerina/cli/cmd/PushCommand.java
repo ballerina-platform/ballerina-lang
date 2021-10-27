@@ -222,7 +222,16 @@ public class PushCommand implements BLauncherCmd {
     private void pushPackage(BuildProject project) {
         Path balaFilePath = validateBalaFile(project);
         pushBalaToCustomRepo(balaFilePath);
-        outStream.println("Successfully pushed " + project.targetDir().relativize(balaFilePath)
+
+        Path relativePathToBalaFile;
+
+        try {
+            relativePathToBalaFile = project.sourceRoot().relativize(balaFilePath);
+        } catch (IllegalArgumentException e) {
+            relativePathToBalaFile = balaFilePath;
+        }
+
+        outStream.println("Successfully pushed " + relativePathToBalaFile
                 + " to '" + repositoryName + "' repository.");
     }
 
