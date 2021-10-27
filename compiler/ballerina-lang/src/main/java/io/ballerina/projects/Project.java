@@ -18,6 +18,7 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.environment.ProjectEnvironment;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
@@ -98,6 +99,18 @@ public abstract class Project {
         CompilerContext compilerContext = this.projectEnvironmentContext().getService(CompilerContext.class);
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(PROJECT_DIR, this.sourceRoot().toAbsolutePath().toString());
+    }
+
+    /**
+     * Refresh the project to clear compilation caches.
+     */
+    public void refresh() {
+        Package clone = this.currentPackage().duplicate();
+        setCurrentPackage(clone);
+        CompilerContext compilerContext = this.projectEnvironmentContext()
+                .getService(CompilerContext.class);
+        PackageCache packageCache = PackageCache.getInstance(compilerContext);
+        packageCache.flush();
     }
 
     public abstract DocumentId documentId(Path file);

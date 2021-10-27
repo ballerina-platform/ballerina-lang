@@ -244,7 +244,8 @@ class PackageContext {
     }
 
     PackageResolution getResolution(CompilationOptions compilationOptions) {
-        return PackageResolution.from(this, compilationOptions);
+        packageResolution = PackageResolution.from(this, compilationOptions);
+        return packageResolution;
     }
 
     Collection<PackageDependency> packageDependencies() {
@@ -291,5 +292,18 @@ class PackageContext {
                 packageDependencies.add(moduleDependency.packageDependency());
             }
         }
+    }
+
+    PackageContext duplicate() {
+        Map<ModuleId, ModuleContext> duplicatedModuleContextMap = new HashMap<>();
+        for (ModuleId moduleId : this.moduleIds) {
+            ModuleContext moduleContext = this.moduleContext(moduleId);
+            duplicatedModuleContextMap.put(moduleId, moduleContext.duplicate());
+        }
+
+        return new PackageContext(this.project, this.packageId, this.packageManifest,
+                this.dependencyManifest, this.ballerinaTomlContext, this.dependenciesTomlContext,
+                this.cloudTomlContext, this.compilerPluginTomlContext, this.packageMdContext,
+                this.compilationOptions, duplicatedModuleContextMap, this.pkgDescDependencyGraph);
     }
 }
