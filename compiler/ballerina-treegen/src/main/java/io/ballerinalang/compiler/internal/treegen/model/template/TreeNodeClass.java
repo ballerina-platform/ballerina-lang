@@ -29,6 +29,7 @@ import java.util.Locale;
  */
 public class TreeNodeClass {
     private static final String INTERNAL_NODE_CLASS_NAME_PREFIX = "ST";
+    private static final String INTERNAL_ROOT_NODE_CLASS_NAME = "Node";
 
     private final String packageName;
     private final boolean isAbstract;
@@ -60,13 +61,13 @@ public class TreeNodeClass {
 
         this.externalClassName = className;
         this.internalClassName = INTERNAL_NODE_CLASS_NAME_PREFIX + className;
-        this.tsClassName = className.replaceAll("Node", "");
+        this.tsClassName = className.replaceAll(INTERNAL_ROOT_NODE_CLASS_NAME, "");
 
         this.externalSuperClassName = superClassName;
         this.internalSuperClassName = INTERNAL_NODE_CLASS_NAME_PREFIX + superClassName;
-        this.tsSuperClassName = "Node".equals(superClassName)
-                ? ("ST" + superClassName)
-                : superClassName.replaceAll("Node", "");
+        this.tsSuperClassName = INTERNAL_ROOT_NODE_CLASS_NAME.equals(superClassName)
+                ? (INTERNAL_NODE_CLASS_NAME_PREFIX + superClassName)
+                : superClassName.replaceAll(INTERNAL_ROOT_NODE_CLASS_NAME, "");
     }
 
     public String packageName() {
@@ -120,7 +121,7 @@ public class TreeNodeClass {
     }
 
     public boolean extendFromNode() {
-        return "Node".equals(superClassName);
+        return INTERNAL_ROOT_NODE_CLASS_NAME.equals(superClassName);
     }
 
     public void addImports(List<String> classNameList) {

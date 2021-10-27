@@ -29,6 +29,8 @@ import java.util.Locale;
 public class Field {
     private static final String LIST_CN = "NodeList";
     private static final String SEPARATED_LIST_CN = "SeparatedNodeList";
+    private static final String ROOT_CLASS_NAME = "Node";
+    private static final String PREFIX_FOR_TS_ROOT_CLASS = "ST";
     private final String fieldClassName;
     private final String fieldTSClassName;
     private final String fieldName;
@@ -49,9 +51,9 @@ public class Field {
                  boolean isOptional,
                  boolean isLast) {
         this.fieldClassName = fieldClassName;
-        this.fieldTSClassName = "Node".equals(fieldClassName)
-                ? ("ST" + fieldClassName)
-                : fieldClassName.replaceAll("Node", "");
+        this.fieldTSClassName = ROOT_CLASS_NAME.equals(fieldClassName)
+                ? (PREFIX_FOR_TS_ROOT_CLASS + fieldClassName)
+                : fieldClassName.replaceAll(ROOT_CLASS_NAME, "");
         this.fieldName = fieldName;
         this.index = index;
         this.occurrenceKind = occurrenceKind;
