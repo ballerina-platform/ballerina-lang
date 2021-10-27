@@ -56,7 +56,7 @@ public class SymbolsInWaitActionsTest {
                 // Single Wait Action
                 {24, 28, "foo", SymbolKind.FUNCTION},
                 {24, 32, "name", SymbolKind.VARIABLE},
-////                {24, 38, "b", SymbolKind.PARAMETER},    // TODO: 33222
+                {24, 38, "b", SymbolKind.PARAMETER},
                 {24, 42, "age", SymbolKind.VARIABLE},
                 {25, 25, "W1", SymbolKind.WORKER},
 
