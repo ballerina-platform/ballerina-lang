@@ -141,10 +141,9 @@ public class LSExtensionTestUtil {
         return parser.parse(TestUtil.getResponseString(result)).getAsJsonObject().getAsJsonObject("result");
     }
 
-    public static BallerinaConnectorListResponse getConnectors(String filePath, String connector,
+    public static BallerinaConnectorListResponse getConnectors(BallerinaConnectorListRequest request,
                                                                Endpoint serviceEndpoint) {
-        BallerinaConnectorListRequest connectorListRequest = new BallerinaConnectorListRequest(filePath, connector);
-        CompletableFuture result = serviceEndpoint.request(GET_CONNECTORS, connectorListRequest);
+        CompletableFuture result = serviceEndpoint.request(GET_CONNECTORS, request);
         return GSON.fromJson(getResult(result), BallerinaConnectorListResponse.class);
     }
 

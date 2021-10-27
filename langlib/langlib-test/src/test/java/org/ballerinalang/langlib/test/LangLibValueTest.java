@@ -359,7 +359,8 @@ public class LangLibValueTest {
                 { "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray" },
                 { "testCloneWithTypeWithUnionTypeArrayFromIntArray" },
                 { "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative" },
-                { "testConvertJsonToNestedRecordsWithErrors" }
+                { "testConvertJsonToNestedRecordsWithErrors" },
+                { "testCloneWithTypeNestedStructuredTypesNegative"}
         };
     }
 

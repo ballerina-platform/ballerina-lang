@@ -79,12 +79,14 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
     private Map<Integer, Integer> generated;
     private Stack<BType> visiting;
     private Set<BType> unresolvedTypes;
+    private Map<BType, Integer> cache;
 
     public TypeHashVisitor() {
         visited = new HashMap<>();
         generated = new HashMap<>();
         visiting = new Stack<>();
         unresolvedTypes = new HashSet<>();
+        cache = new HashMap<>();
     }
 
     @Override
@@ -98,6 +100,16 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         visited.clear();
         generated.clear();
         unresolvedTypes.clear();
+    }
+
+    public Integer getHash(BType type) {
+        Integer hash = cache.get(type);
+        if (hash != null) {
+            return hash;
+        }
+        hash = visit(type);
+        cache.put(type, hash);
+        return hash;
     }
 
     @Override
