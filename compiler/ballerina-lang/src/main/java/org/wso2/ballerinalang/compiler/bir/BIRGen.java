@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.wso2.ballerinalang.compiler.bir;
 
 import io.ballerina.tools.diagnostics.Location;
@@ -55,7 +56,6 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer;
-import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -180,7 +180,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -269,9 +268,7 @@ public class BIRGen extends BLangNodeVisitor {
         astPkg.accept(this);
 
         this.birOptimizer.optimizePackage(birPkg);
-        astPkg.symbol.birPackageFile = new BIRPackageFile(new BIRBinaryWriter(birPkg).serialize());
-
-        if (astPkg.hasTestablePackage()) {
+        if (!astPkg.moduleContextDataHolder.skipTests() && astPkg.hasTestablePackage()) {
             BIRPackage testBirPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName, astPkg.packageID.pkgName,
                     astPkg.packageID.name, astPkg.packageID.version, astPkg.packageID.sourceFileName);
             this.env = new BIRGenEnv(testBirPkg);
@@ -300,8 +297,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     private void setEntryPoints(BLangPackage pkgNode) {
         BLangFunction mainFunc = getMainFunction(pkgNode);
-        if (mainFunc != null || listenerDeclarationFound(pkgNode.getGlobalVariables()) ||
-                pkgNode.services.size() != 0) {
+        if (mainFunc != null || listenerDeclarationFound(pkgNode.getGlobalVariables()) || !pkgNode.services.isEmpty()) {
             pkgNode.symbol.entryPointExists = true;
         }
     }
@@ -1718,11 +1714,6 @@ public class BIRGen extends BLangNodeVisitor {
         setScopeAndEmit(instruction);
 
         this.env.targetOperand = toVarRef;
-
-        // Invoke the struct initializer here.
-        if (astStructLiteralExpr.initializer != null) {
-            //TODO
-        }
     }
 
     private List<BIROperand> mapToVarDcls(TreeMap<Integer, BVarSymbol> enclMapSymbols) {
@@ -2433,7 +2424,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRBasicBlock lockedBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(lockedBB);
         this.env.enclBasicBlocks.add(lockedBB);
-        BIRTerminator.Lock lock = new BIRTerminator.Lock(null, lockedBB, this.currentScope);
+        BIRTerminator.Lock lock = new BIRTerminator.Lock(lockStmt.pos, lockedBB, this.currentScope);
         this.env.enclBB.terminator = lock;
         lockStmtMap.put(lockStmt, lock); // Populate the cache.
         this.env.unlockVars.peek().addLock(lock);
@@ -2468,7 +2459,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRBasicBlock unLockedBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(unLockedBB);
         this.env.enclBasicBlocks.add(unLockedBB);
-        this.env.enclBB.terminator = new BIRTerminator.Unlock(null, unLockedBB, this.currentScope);
+        this.env.enclBB.terminator = new BIRTerminator.Unlock(unLockStmt.pos, unLockedBB, this.currentScope);
         ((BIRTerminator.Unlock) this.env.enclBB.terminator).relatedLock = lockStmtMap.get(unLockStmt.relatedLock);
         this.env.enclBB = unLockedBB;
 

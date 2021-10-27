@@ -50,7 +50,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
         final String span4Position = FILE_NAME + ":24:15";
         final String span5Position = FILE_NAME + ":32:21";
         final String span6Position = FILE_NAME + ":38:16";
-        final String entryPointFunctionModule = "intg_tests/tracing_tests:0";
+        final String entryPointFunctionModule = DEFAULT_MODULE_ID;
         final String entryPointFunctionName = "main";
         final List<BMockSpan.CheckPoint> expectedCheckpoints = Arrays.asList(
                 new BMockSpan.CheckPoint(entryPointFunctionModule, FILE_NAME + ":20:5"),

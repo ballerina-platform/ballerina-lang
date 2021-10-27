@@ -1142,11 +1142,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     private void prepareForAdd(long index, Object value, Type sourceType, int currentArraySize) {
         // check types
-        if (!TypeChecker.checkIsType(value, sourceType, this.elementType)) {
-            BString reason = getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER);
-            BString detail = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, this.elementType,
-                    sourceType);
-            throw ErrorCreator.createError(reason, detail);
+        if (!TypeChecker.checkIsType(null, value, sourceType, this.elementType)) {
+            throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
+                    INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER), BLangExceptionHelper.getErrorDetails(
+                            RuntimeErrors.INCOMPATIBLE_TYPE, this.elementType, sourceType));
         }
 
         int intIndex = (int) index;

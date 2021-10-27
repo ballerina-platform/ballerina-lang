@@ -16,14 +16,19 @@
  */
 package org.ballerinalang.test.annotations;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.core.model.types.TypeTags;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.desugar.AnnotationDesugar;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -32,6 +37,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -46,6 +52,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Class to test annotation attachments.
@@ -152,9 +161,37 @@ public class AnnotationAttachmentTest {
                         .filter(serviceNode ->
                                 serviceNode.getAbsolutePath().stream().anyMatch(p -> p.getValue().contains("ser")))
                         .findFirst()
-                        .get().getServiceClass().getAnnotationAttachments();
+                        .get().getServiceClass().getAnnotationAttachments()
+                        .stream()
+                        .filter(ann -> !isServiceIntropAnnot((BLangAnnotationAttachment) ann))
+                        .collect(Collectors.toList());
         Assert.assertEquals(attachments.size(), 1);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v8", "val", "v8");
+    }
+
+    @Test
+    public void testIntrospectionInfoAnnot() {
+        Optional<ServiceNode> serviceDeclarationOpt = (Optional<ServiceNode>) compileResult.getAST()
+                .getServices().stream()
+                .filter(serviceNode ->
+                        serviceNode.getAbsolutePath().stream().anyMatch(p -> p.getValue().contains("introspection")))
+                .findFirst();
+        Assert.assertTrue(serviceDeclarationOpt.isPresent());
+        ServiceNode serviceDeclaration = serviceDeclarationOpt.get();
+        BSymbol symbol = ((BLangService) serviceDeclaration).symbol;
+        String serviceName = symbol.getOriginalName().getValue();
+        PackageID moduleId = symbol.pkgID;
+        Location position = serviceDeclaration.getPosition();
+        String serviceId = String.format("%d", Objects.hash(serviceName, moduleId, position.lineRange()));
+        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
+                serviceDeclaration.getServiceClass().getAnnotationAttachments();
+        Assert.assertEquals(attachments.size(), 1);
+        assertAnnotationNameAndKeyValuePair(attachments.get(0),
+                "IntrospectionDocConfig", "name", serviceId);
+    }
+
+    private boolean isServiceIntropAnnot(BLangAnnotationAttachment annot) {
+        return AnnotationDesugar.SERVICE_INTROSPECTION_INFO_ANN.equals(annot.annotationName.value);
     }
 
     @Test
@@ -182,7 +219,10 @@ public class AnnotationAttachmentTest {
                 compileResult.getAST().getClassDefinitions().stream()
                         .filter(classNode -> classNode.getName().getValue().equals("$anonType$_3"))
                         .findFirst()
-                        .get().getAnnotationAttachments();
+                        .get().getAnnotationAttachments()
+                        .stream()
+                        .filter(ann -> !isServiceIntropAnnot((BLangAnnotationAttachment) ann))
+                        .collect(Collectors.toList());
         Assert.assertEquals(attachments.size(), 1);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v8", "val", "v82");
     }
@@ -335,7 +375,10 @@ public class AnnotationAttachmentTest {
     public void testAnnotsWithConstLists() {
         CompileResult result = BCompileUtil.compile("test-src/annotations/annots_with_list_consts.bal");
         List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>) result.getAST()
-                .getClassDefinitions().get(0).getAnnotationAttachments();
+                .getClassDefinitions().get(0).getAnnotationAttachments()
+                .stream()
+                .filter(ann -> !isServiceIntropAnnot((BLangAnnotationAttachment) ann))
+                .collect(Collectors.toList());
         Assert.assertEquals(attachments.size(), 1);
         BLangAnnotationAttachment attachment = attachments.get(0);
         BLangRecordLiteral recordLiteral = getMappingConstructor(attachment, "v1");
@@ -414,7 +457,10 @@ public class AnnotationAttachmentTest {
                 compileResult.getAST().getClassDefinitions().stream()
                         .filter(classNode -> classNode.getName().getValue().equals("$anonType$_7"))
                         .findFirst()
-                        .get().getAnnotationAttachments();
+                        .get().getAnnotationAttachments()
+                        .stream()
+                        .filter(ann -> !isServiceIntropAnnot((BLangAnnotationAttachment) ann))
+                        .collect(Collectors.toList());
         validateEmptyMapConstructorExprInAnnot(attachments, "v20", "A");
     }
 

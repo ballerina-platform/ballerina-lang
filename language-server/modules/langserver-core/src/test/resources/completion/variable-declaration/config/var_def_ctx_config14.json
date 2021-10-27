@@ -707,6 +707,15 @@
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function (..) {..}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AP",
+      "filterText": "function",
+      "insertText": "function () returns int {\n    return 0;\n}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

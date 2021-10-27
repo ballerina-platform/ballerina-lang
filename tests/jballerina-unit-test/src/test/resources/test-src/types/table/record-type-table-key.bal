@@ -5,6 +5,7 @@ function runKeySpecifierTestCases() {
     testTableConstructorWithCompositeKeySpecifier();
     testTableTypeWithKeyTypeConstraint();
     testTableTypeWithCompositeKeyTypeConstraint();
+    testTableTypeWithMultiFieldKeys();
 }
 
 type Customer record {
@@ -67,6 +68,27 @@ function testTableTypeWithCompositeKeyTypeConstraint() {
                                                 {name: {fname: "James" , lname: "Clark"}, id: 23 , address: "Thailand" }];
 
     assertEquality(tableAsString, tab.toString());
+}
+
+type EmployeeId record {
+    readonly string firstname;
+    readonly string lastname;
+};
+
+type Employee1 record {
+    *EmployeeId;
+    int leaves;
+};
+
+type EmployeeTable table<Employee1> key<EmployeeId>;
+
+function testTableTypeWithMultiFieldKeys() {
+    string expected = "[{\"leaves\":10,\"firstname\":\"John\",\"lastname\":\"Wick\"}]";
+    table<Employee1> key<EmployeeId> t1 = table key(firstname,lastname) [{firstname: "John", lastname: "Wick", leaves: 10}];
+    assertEquality(expected, t1.toString());
+
+    EmployeeTable t2 = table key(firstname,lastname) [{firstname: "John", lastname: "Wick", leaves: 10}];
+    assertEquality(expected, t2.toString());
 }
 
 function runMemberAccessTestCases() {

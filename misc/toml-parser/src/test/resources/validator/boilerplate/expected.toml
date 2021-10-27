@@ -25,7 +25,6 @@ max_memory = "256Mi"
 min_cpu = "1000m"
 max_cpu = "1500m"
 [cloud.deployment.autoscaling]
-enable = true
 min_replicas = 2
 max_replicas = 3
 cpu = 50

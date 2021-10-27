@@ -13,6 +13,14 @@
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "employee",
+      "kind": "Variable",
+      "detail": "Employee",
+      "sortText": "B",
+      "insertText": "employee",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

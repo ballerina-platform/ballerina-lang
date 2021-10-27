@@ -16,7 +16,7 @@
               "character": 4
             }
           },
-          "newText": "\n                       function getName() returns string {\n                           return \"\";\n                       }\n"
+          "newText": "\n        function getName() returns string {\n            return \"\";\n        }\n    "
         }
       ]
     },
@@ -34,7 +34,7 @@
               "character": 4
             }
           },
-          "newText": "\n                       function getId() returns int {\n                           return 0;\n                       }\n"
+          "newText": "\n        function getId() returns int {\n            return 0;\n        }\n    "
         }
       ]
     }

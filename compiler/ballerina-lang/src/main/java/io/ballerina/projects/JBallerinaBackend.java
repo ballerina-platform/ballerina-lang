@@ -124,7 +124,6 @@ public class JBallerinaBackend extends CompilerBackend {
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
         this.interopValidator = InteropValidator.getInstance(compilerContext);
         this.jvmCodeGenerator = CodeGenerator.getInstance(compilerContext);
-
         // TODO: Move to a compiler extension once Compiler revamp is complete
         if (packageContext.compilationOptions().observabilityIncluded()) {
             ObservabilitySymbolCollector observabilitySymbolCollector
@@ -299,6 +298,9 @@ public class JBallerinaBackend extends CompilerBackend {
             return;
         }
         CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage);
+        if (compiledJarFile == null) {
+            return;
+        }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile);
@@ -306,8 +308,7 @@ public class JBallerinaBackend extends CompilerBackend {
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
         }
-
-        // skip generation of the test jar if --skip-tests option is set to true
+        // skip generation of the test jar if --with-tests option is not provided
         if (moduleContext.project().buildOptions().skipTests()) {
             return;
         }
@@ -614,7 +615,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private void addConflictedJars(JarLibrary jarLibrary, HashMap<String, JarLibrary> copiedEntries, String entryName) {
-        if (entryName.endsWith(".class") && !entryName.equals("module-info.class")) {
+        if (entryName.endsWith(".class") && !entryName.endsWith("module-info.class")) {
             JarLibrary conflictingJar = copiedEntries.get(entryName);
 
             // Ignore if conflicting jars has same name

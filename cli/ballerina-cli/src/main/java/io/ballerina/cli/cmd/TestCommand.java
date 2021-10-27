@@ -123,7 +123,7 @@ public class TestCommand implements BLauncherCmd {
             description = "hidden option for code coverage to include all classes")
     private String includes;
 
-    private static final String testCmd = "bal test [--offline] [--skip-tests]\n" +
+    private static final String testCmd = "bal test [--offline]\n" +
             "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
 
     public void execute() {

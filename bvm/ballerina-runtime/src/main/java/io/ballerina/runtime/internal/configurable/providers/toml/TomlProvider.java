@@ -41,6 +41,7 @@ import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
@@ -624,7 +625,7 @@ public class TomlProvider implements ConfigProvider {
                 break;
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
-                validateUnionValueArray(tomlValue, variableName, arrayType, elementType);
+                validateUnionValueArray(tomlValue, variableName, arrayType, (BUnionType) elementType);
                 break;
             default:
                 Type effectiveType = ((IntersectionType) elementType).getEffectiveType();
@@ -647,7 +648,11 @@ public class TomlProvider implements ConfigProvider {
     }
 
     private void validateUnionValueArray(TomlNode tomlValue, String variableName, ArrayType arrayType,
-                                         Type elementType) {
+                                         BUnionType elementType) {
+        if (tomlValue.kind() == TomlType.TABLE_ARRAY) {
+            validateMapUnionArray((TomlTableArrayNode) tomlValue, variableName, arrayType, elementType);
+            return;
+        }
         TomlValueNode valueNode = ((TomlKeyValueNode) tomlValue).value();
         if (valueNode.kind() != getEffectiveTomlType(arrayType, variableName)) {
             invalidTomlLines.add(tomlValue.location().lineRange());
@@ -656,6 +661,19 @@ public class TomlProvider implements ConfigProvider {
         }
         visitedNodes.add(tomlValue);
         validateArrayElements(variableName, ((TomlArrayValueNode) valueNode).elements(), elementType);
+    }
+
+    private void validateMapUnionArray(TomlTableArrayNode tomlValue, String variableName, ArrayType arrayType,
+                                       BUnionType elementType) {
+        if (!Utils.containsMapType(elementType.getMemberTypes())) {
+            invalidTomlLines.add(tomlValue.location().lineRange());
+            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName, arrayType,
+                    getTomlTypeString(tomlValue));
+        }
+        visitedNodes.add(tomlValue);
+        for (TomlNode tomlValueNode : tomlValue.children()) {
+            validateUnionValue(tomlValueNode, variableName, elementType);
+        }
     }
 
     private void validatePrimitiveArray(TomlNode tomlValue, String variableName, ArrayType arrayType) {
@@ -668,8 +686,7 @@ public class TomlProvider implements ConfigProvider {
         validateArrayElements(variableName, arrayList, arrayType.getElementType());
     }
 
-    private void validateArrayElements(String variableName, List<TomlValueNode> arrayList,
-                                                                          Type elementType) {
+    private void validateArrayElements(String variableName, List<TomlValueNode> arrayList, Type elementType) {
         int arraySize = arrayList.size();
         for (int i = 0; i < arraySize; i++) {
             String elementName = variableName + "[" + i + "]";
@@ -703,7 +720,7 @@ public class TomlProvider implements ConfigProvider {
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             recordType = (RecordType) type;
         } else {
-            recordType = (RecordType) ((BIntersectionType) type).constituentTypes.get(0);
+            recordType = (RecordType) ReadOnlyUtils.getMutableType((BIntersectionType) type);
         }
         if (tomlNode.kind() != getEffectiveTomlType(recordType, variableName)) {
             invalidTomlLines.add(tomlNode.location().lineRange());

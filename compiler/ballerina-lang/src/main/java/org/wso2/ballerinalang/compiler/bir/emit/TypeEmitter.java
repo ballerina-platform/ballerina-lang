@@ -106,6 +106,12 @@ class TypeEmitter {
                 return "xml";
             case TypeTags.XML_TEXT:
                 return "xml:Text";
+            case TypeTags.XML_ELEMENT:
+                return "xml:Element";
+            case TypeTags.XML_COMMENT:
+                return "xml:Comment";
+            case TypeTags.XML_PI:
+                return "xml:ProcessingInstruction";
             case TypeTags.DECIMAL:
                 return "decimal";
             case TypeTags.CHAR_STRING:

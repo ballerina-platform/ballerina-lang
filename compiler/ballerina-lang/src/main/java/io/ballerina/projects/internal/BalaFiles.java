@@ -396,13 +396,15 @@ public class BalaFiles {
         }
 
         return compilerPluginJson.map(pluginJson -> PackageManifest
-                .from(pkgDesc, CompilerPluginDescriptor.from(pluginJson), platforms, dependencies,
-                        packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
-                        packageJson.getExport(), packageJson.getSourceRepository(), packageJson.getBallerinaVersion()))
+                        .from(pkgDesc, CompilerPluginDescriptor.from(pluginJson), platforms, dependencies,
+                                packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
+                                packageJson.getExport(), packageJson.getSourceRepository(),
+                                packageJson.getBallerinaVersion(), packageJson.getVisibility()))
                 .orElseGet(() -> PackageManifest
                         .from(pkgDesc, null, platforms, dependencies, packageJson.getLicenses(),
                                 packageJson.getAuthors(), packageJson.getKeywords(), packageJson.getExport(),
-                                packageJson.getSourceRepository(), packageJson.getBallerinaVersion()));
+                                packageJson.getSourceRepository(), packageJson.getBallerinaVersion(),
+                                packageJson.getVisibility()));
     }
 
     private static DependencyManifest getDependencyManifest(DependencyGraphJson dependencyGraphJson) {
@@ -449,6 +451,19 @@ public class BalaFiles {
         } catch (IOException e) {
             throw new ProjectException("Failed to read the package.json in '" + balaPath + "'");
         }
+        return packageJson;
+    }
+
+    public static PackageJson readPkgJson(Path packageJsonPath) {
+        PackageJson packageJson;
+        try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath)) {
+            packageJson = gson.fromJson(bufferedReader, PackageJson.class);
+        } catch (JsonSyntaxException e) {
+            throw new ProjectException("Invalid package.json format");
+        } catch (IOException e) {
+            throw new ProjectException("Failed to read the package.json");
+        }
+
         return packageJson;
     }
 

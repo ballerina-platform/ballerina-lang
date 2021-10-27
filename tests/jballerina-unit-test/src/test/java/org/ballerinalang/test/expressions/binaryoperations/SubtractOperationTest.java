@@ -56,7 +56,7 @@ public class SubtractOperationTest {
     }
 
     @Test(description = "Test two int subtract overflow expression", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\" int range " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
                     "overflow\"\\}.*")
     public void testIntOverflowBySubtraction() {
         BRunUtil.invoke(result, "overflowBySubtraction");
@@ -123,5 +123,10 @@ public class SubtractOperationTest {
         BAssertUtil.validateError(resultNegative, 9, "operator '-' not defined for 'int' and 'float'", 41, 18);
         BAssertUtil.validateError(resultNegative, 10, "operator '-' not defined for 'C' and 'float'", 45, 14);
         BAssertUtil.validateError(resultNegative, 11, "operator '-' not defined for 'C' and 'float'", 46, 14);
+    }
+
+    @Test(description = "Test subtraction of nullable values")
+    public void testSubNullable() {
+        BRunUtil.invoke(result, "testSubNullable");
     }
 }

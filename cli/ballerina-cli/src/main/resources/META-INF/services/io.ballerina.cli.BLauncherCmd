@@ -10,3 +10,4 @@ io.ballerina.cli.cmd.SearchCommand
 io.ballerina.cli.cmd.AddCommand
 io.ballerina.cli.cmd.CleanCommand
 io.ballerina.cli.cmd.ShellCommand
+io.ballerina.cli.cmd.PackCommand

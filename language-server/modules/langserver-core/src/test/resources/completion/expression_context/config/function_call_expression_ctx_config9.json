@@ -740,6 +740,15 @@
       "filterText": "num2",
       "insertText": "num2 = ${1:0}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function (..) {..}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AP",
+      "filterText": "function",
+      "insertText": "function (int i, int i1) returns int {\n    return 0;\n}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

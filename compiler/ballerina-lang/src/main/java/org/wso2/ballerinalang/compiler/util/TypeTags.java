@@ -145,4 +145,18 @@ public class TypeTags {
         }
         return false;
     }
+
+    public static boolean isSimpleBasicType(int tag) {
+        switch (tag) {
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.BOOLEAN:
+            case TypeTags.NIL:
+                return true;
+            default:
+                return (TypeTags.isIntegerTypeTag(tag)) || (TypeTags.isStringTypeTag(tag));
+        }
+    }
+
 }
