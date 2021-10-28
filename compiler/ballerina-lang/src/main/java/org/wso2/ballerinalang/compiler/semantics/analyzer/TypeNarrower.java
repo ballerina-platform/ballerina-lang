@@ -165,18 +165,16 @@ public class TypeNarrower extends BLangNodeVisitor {
      *
      * @param expr Expression to evaluate
      * @param currentEnv Current environment
-     * @param isConstTrueCondition Indicates whether the current expression can be evaluated to constant true
      * @return target environment
      */
-    public SymbolEnv evaluateFalsityFollowingIfWithoutElse(BLangExpression expr, SymbolEnv currentEnv,
-                                                           boolean isConstTrueCondition) {
+    public SymbolEnv evaluateFalsityFollowingIfWithoutElse(BLangExpression expr, SymbolEnv currentEnv) {
         if (!checkValidExpressionToEvaluateFalsity(expr)) {
-            return currentEnv;
+            return null;
         }
 
         Map<BVarSymbol, NarrowedTypes> narrowedTypes = getNarrowedTypes(expr, currentEnv);
         if (narrowedTypes.isEmpty()) {
-            return currentEnv;
+            return null;
         }
 
         SymbolEnv narrowedEnv = SymbolEnv.createTypeNarrowedEnv(expr, currentEnv);
@@ -185,7 +183,8 @@ public class TypeNarrower extends BLangNodeVisitor {
             BVarSymbol originalSym = getOriginalVarSymbol(narrowedType.getKey());
             BType falseType = narrowedType.getValue().falseType;
             symbolEnter.defineTypeNarrowedSymbol(expr.pos, narrowedEnv, originalSym,
-                    isConstTrueCondition ? symTable.neverType : falseType, originalSym.origin == VIRTUAL);
+                    falseType == symTable.nullSet || falseType == symTable.semanticError ?
+                            symTable.neverType : falseType, originalSym.origin == VIRTUAL);
         }
 
         return narrowedEnv;
@@ -244,8 +243,7 @@ public class TypeNarrower extends BLangNodeVisitor {
                 falseType = falseType == symTable.semanticError ?
                         types.getRemainingType(originalSym.type, trueType) : falseType;
             } else {
-                falseType =  targetNode.getKind() != NodeKind.IF &&
-                        (falseType == trueType || falseType == symTable.nullSet) ? symTable.neverType : falseType;
+                falseType = falseType == symTable.nullSet ? symTable.neverType : falseType;
             }
 
             symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, originalSym,
@@ -494,9 +492,17 @@ public class TypeNarrower extends BLangNodeVisitor {
         if (expr.getKind() == NodeKind.BINARY_EXPR && ((BLangBinaryExpr) expr).opKind == OperatorKind.NOT_EQUAL) {
             trueType = types.getRemainingType(varSymbol.type, narrowWithType);
             falseType = types.getTypeIntersection(nonLoggingContext, varSymbol.type, narrowWithType, this.env);
-        } else if (expr.getKind() == NodeKind.TYPE_TEST_EXPR && ((BLangTypeTestExpr) expr).isNegation) {
-            trueType = types.getRemainingType(varSymbol.type, narrowWithType);
-            falseType = types.getTypeIntersection(nonLoggingContext, varSymbol.type, narrowWithType, this.env);
+        } else if (expr.getKind() == NodeKind.TYPE_TEST_EXPR) {
+            if (((BLangTypeTestExpr) expr).isNegation) {
+                trueType = types.getRemainingType(varSymbol.type, narrowWithType);
+                falseType = types.getTypeIntersection(nonLoggingContext, varSymbol.type, narrowWithType, this.env);
+            } else {
+                trueType = types.getTypeIntersection(nonLoggingContext, varSymbol.type, narrowWithType, this.env);
+                falseType = types.getRemainingType(varSymbol.type, narrowWithType);
+            }
+            if (falseType == trueType) {
+                falseType = symTable.nullSet;
+            }
         } else {
             trueType = types.getTypeIntersection(nonLoggingContext, varSymbol.type, narrowWithType, this.env);
             falseType = types.getRemainingType(varSymbol.type, narrowWithType);
