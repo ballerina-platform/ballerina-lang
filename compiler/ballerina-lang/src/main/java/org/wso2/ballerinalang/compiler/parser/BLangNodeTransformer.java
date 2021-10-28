@@ -3021,7 +3021,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(RestArgumentNode restArgumentNode) {
         BLangRestArgsExpression varArgs = (BLangRestArgsExpression) TreeBuilder.createVarArgsNode();
-        varArgs.pos = getPosition(restArgumentNode.ellipsis());
+        varArgs.pos = getPosition(restArgumentNode);
         varArgs.expr = createExpression(restArgumentNode.expression());
         return varArgs;
     }

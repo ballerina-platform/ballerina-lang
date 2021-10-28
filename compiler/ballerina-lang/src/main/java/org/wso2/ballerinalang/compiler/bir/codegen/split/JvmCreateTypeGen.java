@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.TypeDefHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmArrayTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmErrorTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmObjectTypeGen;
@@ -110,7 +111,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_IMMUTABLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeFieldName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.TYPE_HASH_COMPARATOR;
 
 /**
  * BIR types to JVM byte code generation class.
@@ -127,12 +127,14 @@ public class JvmCreateTypeGen {
     private final JvmUnionTypeGen jvmUnionTypeGen;
     private final JvmTupleTypeGen jvmTupleTypeGen;
     private final JvmArrayTypeGen jvmArrayTypeGen;
-    private final TypeHashVisitor typeHashVisitor = new TypeHashVisitor();
+    private final TypeHashVisitor typeHashVisitor;
+    public final TypeDefHashComparator typeDefHashComparator;
     private final String typesClass;
     private final String anonTypesClass;
     private final ClassWriter typesCw;
 
-    public JvmCreateTypeGen(JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen, PackageID packageID) {
+    public JvmCreateTypeGen(JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen, PackageID packageID,
+                            TypeHashVisitor typeHashVisitor) {
         this.jvmTypeGen = jvmTypeGen;
         this.jvmConstantsGen = jvmConstantsGen;
         this.typesClass = getModuleLevelClassName(packageID, MODULE_TYPES_CLASS_NAME);
@@ -144,6 +146,8 @@ public class JvmCreateTypeGen {
         this.jvmTupleTypeGen = new JvmTupleTypeGen(this, jvmTypeGen, jvmConstantsGen, packageID);
         this.jvmArrayTypeGen = new JvmArrayTypeGen(jvmTypeGen);
         this.typesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        this.typeHashVisitor =  typeHashVisitor;
+        this.typeDefHashComparator = new TypeDefHashComparator(typeHashVisitor);
         typesCw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, typesClass, null, OBJECT, null);
     }
 
@@ -446,7 +450,7 @@ public class JvmCreateTypeGen {
                 JvmSignatures.GET_ANON_TYPE, null, null);
         mv.visitCode();
         // filter anon types and sorts them before generating switch case.
-        Set<BIRTypeDefinition> typeDefSet = new TreeSet<>(TYPE_HASH_COMPARATOR);
+        Set<BIRTypeDefinition> typeDefSet = new TreeSet<>(typeDefHashComparator);
         for (BIRTypeDefinition t : typeDefinitions) {
             if (t.internalName.value.contains(BLangAnonymousModelHelper.ANON_PREFIX)
                     || Symbols.isFlagOn(t.type.flags, Flags.ANONYMOUS)) {

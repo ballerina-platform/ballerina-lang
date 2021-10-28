@@ -24,6 +24,7 @@ configurations {
 }
 
 dependencies {
+    implementation project(':ballerina-tools-api')
     compileOnly project(':ballerina-parser')
     compileOnly project(':ballerina-lang')
     compileOnly project(':diagram-util')
