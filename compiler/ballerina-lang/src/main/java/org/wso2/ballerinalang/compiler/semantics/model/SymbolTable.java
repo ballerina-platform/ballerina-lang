@@ -772,7 +772,7 @@ public class SymbolTable {
                 BType unsignedIntTypeLhs = unsignedIntTypes[i];
                 BType unsignedIntTypeRhs = unsignedIntTypes[j];
                 defineBinaryOperator(orOpKind, unsignedIntTypeLhs, unsignedIntTypeRhs,
-                                     i <= j ? unsignedIntTypeLhs : unsignedIntTypeRhs);
+                                     i >= j ? unsignedIntTypeLhs : unsignedIntTypeRhs);
             }
         }
 
