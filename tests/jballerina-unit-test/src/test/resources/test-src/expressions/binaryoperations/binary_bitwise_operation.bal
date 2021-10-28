@@ -137,7 +137,7 @@ function testBitwiseOROperation() {
     assertEqual(a10, 13);
 
     int:Unsigned32 f = 5;
-    int:Unsigned16 a11 = e | f;
+    int:Unsigned32 a11 = e | f;
     assertEqual(a11, 13);
 
     int a12 = e | panicIndex;
@@ -145,6 +145,18 @@ function testBitwiseOROperation() {
 
     int:Unsigned16|int a13 = c | e;
     assertEqual(a13, 15);
+
+    int:Unsigned16 g = 256;
+    int:Unsigned8 h = 0;
+
+    int:Unsigned16 i = g | h;
+    assertEqual(i, 256);
+    assertEqual((i == (256|0)), true);
+
+    int:Unsigned32 j = 12;
+    int:Unsigned8 k = 5;
+    int:Unsigned32 l = j | k;
+    assertEqual(l, 13);
 }
 
 function testBitwiseXOROperation() {
@@ -188,7 +200,7 @@ function testBitwiseXOROperation() {
     assertEqual(a10, 9);
 
     int:Unsigned32 f = 5;
-    int:Unsigned16 a11 = e ^ f;
+    int:Unsigned32 a11 = e ^ f;
     assertEqual(a11, 9);
 
     int:Unsigned32|int a12 = e ^ panicIndex;
