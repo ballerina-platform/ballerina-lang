@@ -41,10 +41,11 @@ function testAbs() returns [int, int] {
     return [x.abs(), y.abs()];
 }
 
-function testToHexString() returns [string, string] {
+function testToHexString() returns [string, string, string] {
     int x = 123456789;
     int y = -12345;
-    return [x.toHexString(), y.toHexString()];
+    int z = -12345234234;
+    return [x.toHexString(), y.toHexString(), z.toHexString()];
 }
 
 function testFromHexString() returns [int|error, int|error] {
