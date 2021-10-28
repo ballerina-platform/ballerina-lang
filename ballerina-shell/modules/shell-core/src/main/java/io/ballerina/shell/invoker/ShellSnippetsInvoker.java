@@ -192,6 +192,17 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         }
     }
 
+    protected String getProjectDoc(Object context, String templateFile) throws InvokerException {
+        Mustache template = getTemplate(templateFile);
+        try (StringWriter stringWriter = new StringWriter()) {
+            template.execute(stringWriter, context);
+            return stringWriter.toString();
+        } catch (IOException e) {
+            addErrorDiagnostic("File generation failed: " + e.getMessage());
+            throw new InvokerException(e);
+        }
+    }
+
     /**
      * Get the project with the context data.
      *
@@ -294,6 +305,12 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      */
     protected void executeProject(ClassLoadContext context, String templateName) throws InvokerException {
         Project project = getProject(context, templateName);
+        PackageCompilation compilation = compile(project);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        executeProject(jBallerinaBackend);
+    }
+
+    protected void executeProjectNew(Project project) throws InvokerException {
         PackageCompilation compilation = compile(project);
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
         executeProject(jBallerinaBackend);

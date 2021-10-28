@@ -18,15 +18,12 @@
 
 package io.ballerina.shell.invoker.classload;
 
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JvmTarget;
-import io.ballerina.projects.ModuleId;
-import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.Project;
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.*;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.*;
 import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.invoker.ShellSnippetsInvoker;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
@@ -42,6 +39,11 @@ import io.ballerina.shell.snippet.types.VariableDeclarationSnippet;
 import io.ballerina.shell.utils.Identifier;
 import io.ballerina.shell.utils.QuotedImport;
 import io.ballerina.shell.utils.StringUtils;
+import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
+import io.ballerina.tools.text.TextRange;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -71,6 +73,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     // Templates
     private static final String DECLARATION_TEMPLATE_FILE = "template.declaration.mustache";
     private static final String EXECUTION_TEMPLATE_FILE = "template.execution.mustache";
+
+    private static final String UPDATE_VARIABLE = "__updateVariables";
 
     /**
      * Set of identifiers that are known or seen at the initialization.
@@ -227,7 +231,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         // If there are no declarations/variables, we can simply execute.
         if (noModuleDeclarations && noVariableDeclarations) {
             ClassLoadContext execContext = createVariablesExecutionContext(List.of(), executableSnippets, Map.of());
-            executeProject(execContext, EXECUTION_TEMPLATE_FILE);
+            Project customProject = updateSyntaxTree(execContext);
+            executeProjectNew(customProject);
             return Optional.ofNullable(InvokerMemory.recall(contextId, CONTEXT_EXPR_VAR_NAME));
         }
 
@@ -271,7 +276,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         try {
             ClassLoadContext execContext = createVariablesExecutionContext(
                     variableDeclarations.keySet(), executableSnippets, allNewVariables);
-            executeProject(execContext, EXECUTION_TEMPLATE_FILE);
+            Project customProject = updateSyntaxTree(execContext);
+            executeProjectNew(customProject);
             return Optional.ofNullable(InvokerMemory.recall(contextId, CONTEXT_EXPR_VAR_NAME));
         } catch (InvokerException e) {
             // Execution failed... Reverse all by deleting declarations.
@@ -585,4 +591,71 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         return System.err;
     }
 
+    /**
+     * @return Updated syntax tree.
+     */
+    public Project updateSyntaxTree(ClassLoadContext execContext) throws InvokerException {
+        String balCode = getProjectDoc(execContext, EXECUTION_TEMPLATE_FILE);
+        TextDocument document = TextDocuments.from(balCode);
+        SyntaxTree syntaxTree = SyntaxTree.from(document);
+
+        Project projectNew = getProject(execContext, EXECUTION_TEMPLATE_FILE);
+        PackageCompilation compilationNew = compile(projectNew);
+        ModuleId moduleId = projectNew.currentPackage().getDefaultModule().moduleId();
+        SemanticModel semanticModel = compilationNew.getSemanticModel(moduleId);
+        List<Symbol> symbols = semanticModel.moduleSymbols().stream().filter(s -> s instanceof VariableSymbol).
+                collect(Collectors.toList());
+        List<Symbol> functions = semanticModel.moduleSymbols().stream().filter(s -> s instanceof FunctionSymbol)
+                .collect(Collectors.toList());
+        Map<Symbol,List<Location>> refs = new HashMap<>();
+        // use node list
+        ArrayList<Node> nodeList = new ArrayList<>();
+        for (Symbol symbol:symbols) {
+            refs.put(symbol, semanticModel.references(symbol));
+        }
+
+        TextRange functionTextRange;
+        TextRange functionPosition = null;
+        for (Symbol function : functions) {
+            if (function.nameEquals(UPDATE_VARIABLE)) {
+                Optional<Location> location = function.getLocation();
+                if (location.isPresent()) {
+                    functionTextRange = location.get().textRange();
+                    Node functionNode = ((ModulePartNode) syntaxTree.rootNode()).findNode(functionTextRange);
+                    functionPosition = functionNode.textRange();
+                } // else throw error
+                break;
+            }
+        }
+
+        for (Symbol symbol : symbols) {
+            List<Location> locations = refs.get(symbol);
+            for (int i = 1; i < locations.size(); i++) {
+                TextRange symbolTextRange = locations.get(i).textRange();
+
+                int startOffset = symbolTextRange.startOffset();
+                int endOffset = symbolTextRange.endOffset();
+
+                if (!((functionPosition.startOffset() < startOffset) && (endOffset < functionPosition.endOffset()))) {
+                    nodeList.add(((ModulePartNode) syntaxTree.rootNode()).findNode(symbolTextRange));
+                }
+            }
+        }
+
+        NodeRewriter nodeRewriter = new NodeRewriter();
+        for (Node node:nodeList) {
+            List<Node> replacementNodes = nodeRewriter.accept(node);
+            if (replacementNodes != null) {
+                for (Node replacementNode: replacementNodes) {
+                    if (replacementNode != null) {
+                        syntaxTree = syntaxTree.replaceNode(node, replacementNode);
+                    }
+                }
+            }
+        }
+
+        String newBalCode = syntaxTree.toSourceCode();
+        Project customProject = getProject(newBalCode, true);
+        return customProject;
+    }
 }
