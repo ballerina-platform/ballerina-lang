@@ -91,16 +91,16 @@ public class SymbolsInStartActionsTest {
     public Object[][] getPosOfSymbolsInStartAction() {
         return new Object[][]{
                 {25, 18, "nm", SymbolKind.VARIABLE},
-//                {25, 22, "age", SymbolKind.PARAMETER},    // TODO: Fix #33222
+                {25, 22, "age", SymbolKind.PARAMETER},
                 {26, 29, "ints", SymbolKind.VARIABLE},
 
                 {29, 26, "ag", SymbolKind.VARIABLE},
-//                {29, 30, "path", SymbolKind.PARAMETER},   // TODO: Fix #33222
+                {29, 30, "path", SymbolKind.PARAMETER},
                 {29, 37, "nm", SymbolKind.VARIABLE},
                 {30, 37, "ints", SymbolKind.VARIABLE},
 
                 {32, 28, "nm", SymbolKind.VARIABLE},
-//                {32, 32, "b", SymbolKind.PARAMETER},  // TODO: Fix #33222
+                {32, 32, "b", SymbolKind.PARAMETER},
                 {32, 36, "ag", SymbolKind.VARIABLE},
                 {33, 39, "ints", SymbolKind.VARIABLE},
         };
