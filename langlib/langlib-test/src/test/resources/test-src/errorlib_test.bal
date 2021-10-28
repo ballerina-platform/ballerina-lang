@@ -90,20 +90,20 @@ function stack2() returns error {
 
 function getErrorStackTrace() returns any {
     error e = stack0();
-    return e.stackTrace();
+    return e.stackTrace().map(x => x.toString());
 }
 
 public function testErrorStackTrace() returns [int, string] {
         error e = stack0();
-        string[] ar = e.stackTrace().callStack.map(function (errorLib:CallStackElement elem) returns string {
-            return elem.callableName + ":" + elem.fileName;
+        string[] ar = e.stackTrace().map(function (errorLib:StackFrame elem) returns string {
+            return elem.toString();
         });
-        return [e.stackTrace().callStack.length(), ar.toString()];
+        return [e.stackTrace().length(), ar.toString()];
 }
 
 public function testErrorCallStack() {
     error e = error("error!");
-    error:CallStack stackTrace = e.stackTrace();
+    error:StackFrame[] stackTrace = e.stackTrace();
 
     any|error res = stackTrace;
     test:assertFalse(res is error);
@@ -114,7 +114,7 @@ public function testErrorCallStack() {
     } else {
         s = res.toString();
     }
-    test:assertValueEqual("object lang.error:CallStack", s);
+    test:assertValueEqual("[callableName: testErrorCallStack  fileName: errorlib_test.bal lineNumber: 105]", s);
 }
 
 public function testRetriableTest() {
