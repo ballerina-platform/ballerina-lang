@@ -125,7 +125,7 @@ public class TypeParamBoundTableFunctionsTest {
 
         TypeSymbol mapFnRetType = mapFnType.returnTypeDescriptor().get();
         assertEquals(mapFnRetType.typeKind(), TypeDescKind.TABLE);
-        assertEquals(((TableTypeSymbol) mapFnRetType).rowTypeParameter().typeKind(), TypeDescKind.UNION);
+        assertEquals(((TableTypeSymbol) mapFnRetType).rowTypeParameter().typeKind(), TypeDescKind.MAP);
     }
 
     @Test
