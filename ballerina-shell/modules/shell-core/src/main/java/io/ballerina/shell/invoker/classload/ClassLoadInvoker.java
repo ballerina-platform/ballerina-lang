@@ -19,11 +19,19 @@
 package io.ballerina.shell.invoker.classload;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.*;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.projects.*;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.Project;
 import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.invoker.ShellSnippetsInvoker;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
@@ -40,7 +48,6 @@ import io.ballerina.shell.utils.Identifier;
 import io.ballerina.shell.utils.QuotedImport;
 import io.ballerina.shell.utils.StringUtils;
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import io.ballerina.tools.text.TextRange;
@@ -607,7 +614,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
                 collect(Collectors.toList());
         List<Symbol> functions = semanticModel.moduleSymbols().stream().filter(s -> s instanceof FunctionSymbol)
                 .collect(Collectors.toList());
-        Map<Symbol,List<Location>> refs = new HashMap<>();
+        Map<Symbol, List<Location>> refs = new HashMap<>();
         // use node list
         ArrayList<Node> nodeList = new ArrayList<>();
         for (Symbol symbol:symbols) {

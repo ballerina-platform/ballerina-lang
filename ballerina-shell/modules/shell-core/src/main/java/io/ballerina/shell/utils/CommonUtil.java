@@ -8,7 +8,9 @@ import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
 
-
+/**
+ * Common utils to be reused in shell implementation.
+ */
 public class CommonUtil {
 
     public static NonTerminalNode findNode(Symbol symbol, SyntaxTree syntaxTree) {
