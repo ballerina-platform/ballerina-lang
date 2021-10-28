@@ -43,6 +43,11 @@ import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 public abstract class XmlNonElementItem extends XmlValue implements BXmlNonElementItem {
 
     @Override
+    public boolean isSingleton() {
+        return true;
+    }
+
+    @Override
     public String getItemType() {
         return getNodeType().value();
     }
