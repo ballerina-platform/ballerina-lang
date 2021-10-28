@@ -97,6 +97,11 @@ public class LangLibIntTest {
     }
 
     @Test
+    public void testToHexStringNonPositives() {
+        BRunUtil.invoke(compileResult, "testToHexStringNonPositives");
+    }
+
+    @Test
     public void testFromHexString() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFromHexString");
         assertEquals(((BInteger) returns[0]).intValue(), 11259205);

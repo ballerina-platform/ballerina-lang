@@ -48,6 +48,12 @@ function testToHexString() returns [string, string, string] {
     return [x.toHexString(), y.toHexString(), z.toHexString()];
 }
 
+function testToHexStringNonPositives() {
+    assertValueEquality("-2", (-2).toHexString());
+    assertValueEquality("0", (0).toHexString());
+    assertValueEquality("-400", (-1024).toHexString());
+}
+
 function testFromHexString() returns [int|error, int|error] {
     int|error v1 = ints:fromHexString("aBCd45");
     int|error v2 = ints:fromHexString("12invalid34");
@@ -99,4 +105,15 @@ function testLangLibCallOnFiniteType() {
     Ints x = 12;
     string s = x.toHexString();
     test:assertValueEqual("c", s);
+}
+
+type AssertionError distinct error;
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertValueEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
