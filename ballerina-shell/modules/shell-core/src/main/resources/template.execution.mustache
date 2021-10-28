@@ -30,14 +30,27 @@ function __memorize(string name, any|error value) {
 {{#varDclns}}
     {{^isNew }}
         {{#isAny }}
-            {{{prefix}}} {{{typeLHS}}} {{{name}}} = <{{{type}}}> __recall_any("{{{encodedName}}}");
+            {{{prefix}}} {{{type}}} {{{name}}} = <{{{type}}}> __recall_any("{{{encodedName}}}");
         {{/isAny}}
         {{^isAny }}
-            {{{prefix}}} {{{typeLHS}}} {{{name}}} = <{{{type}}}> __recall_any_error("{{{encodedName}}}");
+            {{{prefix}}} {{{type}}} {{{name}}} = <{{{type}}}> __recall_any_error("{{{encodedName}}}");
         {{/isAny}}
     {{/isNew}}
 {{/varDclns}}
 {{{lastVarDcln}}}
+
+function __updateVariables() {
+    {{#varDclns}}
+        {{^isNew }}
+            {{#isAny }}
+                {{{name}}} = <{{{type}}}> __recall_any("{{{encodedName}}}");
+            {{/isAny}}
+            {{^isAny }}
+                {{{name}}} = <{{{type}}}> __recall_any_error("{{{encodedName}}}");
+            {{/isAny}}
+        {{/isNew}}
+    {{/varDclns}}
+}
 
 // Global expression variable (previous evaluation value)
 any|error {{{exprVarName}}} = __recall_any_error("{{{exprVarName}}}");
@@ -74,6 +87,7 @@ function __stmts() returns any {
 // This will execute the statement and initialize and save vars.
 function __run() returns any {
     any|error retValue = trap __stmts();
+    __updateVariables();
     __memorize("{{{exprVarName}}}", {{{exprVarName}}});
     {{#varDclns}}
         __memorize("{{{encodedName}}}", {{{name}}});
