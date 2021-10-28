@@ -43,12 +43,9 @@ public complexAddition function() -> () {
     }
     bb6 {
         %0 = ConstLoad 0;
-        GOTO bb8;
+        GOTO bb7;
     }
     bb7 {
-        GOTO bb8;
-    }
-    bb8 {
         return;
     }
 

@@ -114,12 +114,9 @@ mapInits function() -> (string|(), int|()) {
     }
     bb16 {
         %0 = newArray (string|(), int|())[%10];
-        GOTO bb18;
+        GOTO bb17;
     }
     bb17 {
-        GOTO bb18;
-    }
-    bb18 {
         return;
     }
 
