@@ -2157,7 +2157,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private void emitUnusedVariableWarnings(Map<BSymbol, Location> unusedLocalVariables) {
         for (Map.Entry<BSymbol, Location> entry : unusedLocalVariables.entrySet()) {
-            this.dlog.warning(entry.getValue(), DiagnosticWarningCode.UNUSED_LOCAL_VARIABLE);
+            this.dlog.warning(entry.getValue(), DiagnosticWarningCode.UNUSED_LOCAL_VARIABLE, entry.getKey().name);
         }
     }
 
@@ -2178,7 +2178,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
-        return owner.tag == SymTag.FUNCTION;
+        if (owner.tag != SymTag.FUNCTION) {
+            return false;
+        }
+
+        long flags = symbol.flags;
+
+        return !Symbols.isFlagOn(flags, Flags.REQUIRED_PARAM)
+                && !Symbols.isFlagOn(flags, Flags.DEFAULTABLE_PARAM)
+                && !Symbols.isFlagOn(flags, Flags.INCLUDED)
+                && !Symbols.isFlagOn(flags, Flags.REST_PARAM);
     }
 
     private boolean isRead(BLangSimpleVarRef varRefExpr) {
