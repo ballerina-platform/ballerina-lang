@@ -21,6 +21,8 @@ package io.ballerina.shell.parser.trials;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.shell.parser.TrialTreeParser;
 
+import java.util.Collection;
+
 /**
  * Trial which is run with and without trailing semicolon.
  *
@@ -34,7 +36,7 @@ public abstract class DualTreeParserTrial extends TreeParserTrial {
     }
 
     @Override
-    public Node parse(String source) throws ParserTrialFailedException {
+    public Collection<Node> parse(String source) throws ParserTrialFailedException {
         try {
             return parseSource(source);
         } catch (ParserTrialFailedException e) {
@@ -45,5 +47,5 @@ public abstract class DualTreeParserTrial extends TreeParserTrial {
         }
     }
 
-    public abstract Node parseSource(String source) throws ParserTrialFailedException;
+    public abstract Collection<Node> parseSource(String source) throws ParserTrialFailedException;
 }

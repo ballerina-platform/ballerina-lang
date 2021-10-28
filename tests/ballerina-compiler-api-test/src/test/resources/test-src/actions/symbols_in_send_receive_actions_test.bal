@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,27 +14,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
-string aString = "foo";
-int anInt = 10;
-
 function test() {
-    string greet = "Hello " + aString;
+    worker w1 {
+        int t1 = 10;
+        t1 -> w2;
 
-    var greetFn = function (string name) returns string => HELLO + " " + name;
-    greet = greetFn("Pubudu");
+        json j = {};
+        j = <- w2;
 
-    if (true) {
-        int a = 20;
-
-        while(true) {
-            var x = 0;
-
-        }
-
-        int y = 10;
+        _ = t1 ->> w2;
     }
 
-    int z = 20;
-}
+    worker w2 {
+        int r1;
+        r1 = <- w1;
 
-const HELLO = "Hello";
+        json j = {"a": "b"};
+        j -> w1;
+
+        int r2;
+        r2 = <- w1;
+        error? unionResult = flush w1;
+    }
+}
