@@ -92,7 +92,8 @@ public class DiagnosticsTest {
                 {"missing semicolon token", 18, 0},
                 // TODO: Update the following with https://github.com/ballerina-platform/ballerina-lang/issues/33235
                 {"incompatible types: expected 'map<string>', found 'map<other>'", 26, 20},
-                {"incompatible types: expected 'function ((any|error)) returns ((any|error))', found 'string'", 27, 7},
+                {"incompatible types: expected 'function (ballerina/lang.map:0.0.0:Type) returns " +
+                        "(ballerina/lang.map:0.0.0:Type1)', found 'string'", 27, 7},
                 {"missing open parenthesis token", 27, 7},
                 {"undefined symbol 'b'", 27, 16},
                 {"missing comma token", 27, 18},

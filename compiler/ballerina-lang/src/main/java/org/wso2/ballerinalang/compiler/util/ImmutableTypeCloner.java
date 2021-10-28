@@ -396,16 +396,17 @@ public class ImmutableTypeCloner {
                 return (BIntersectionType) type;
 
             case TypeTags.TYPEREFDESC:
-
                 BTypeReferenceType originalType = (BTypeReferenceType) type;
+                BType refType = types.getReferredType(originalType);
 
                 BTypeSymbol immutableReferenceTSymbol = new BTypeSymbol(SymTag.TYPE_REF,
                         originalType.tsymbol.flags | Flags.READONLY,
                         getImmutableTypeName(names, getSymbolFQN(originalType.tsymbol)),
                         pkgId, null, env.scope.owner, pos, SOURCE);
 
-                BType immutableConstraint = getImmutableType(pos, types, types.getReferredType(originalType),
-                                env, pkgId, owner, symTable, anonymousModelHelper, names, unresolvedTypes);
+                BType immutableConstraint = getImmutableType(pos, types, refType,
+                        env, pkgId, owner, symTable, anonymousModelHelper, names, unresolvedTypes);
+
                 BTypeReferenceType immutableReferenceType = new BTypeReferenceType(immutableConstraint,
                         immutableReferenceTSymbol, originalType.flags | Flags.READONLY);
 

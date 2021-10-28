@@ -1574,6 +1574,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
             effectiveTypeSymbol.name = typeDefSymbol.name;
             effectiveTypeSymbol.pkgID = typeDefSymbol.pkgID;
+
+            //todo @chiran
+            if (effectiveDefinedType.tag == TypeTags.TYPEREFDESC) {
+                ((BIntersectionType)types.getReferredType(effectiveDefinedType)).effectiveType.tsymbol.name = typeDefSymbol.name;
+                ((BIntersectionType)types.getReferredType(effectiveDefinedType)).effectiveType.tsymbol.pkgID = typeDefSymbol.pkgID;
+            }
         }
 
         handleDistinctDefinition(typeDefinition, typeDefSymbol, definedType, referenceConstraintType);
