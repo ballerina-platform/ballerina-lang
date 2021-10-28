@@ -518,7 +518,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
             BVarSymbol symbol = var.symbol;
 
-            if (isLocalVariable(symbol)) {
+            if (isLocalVariableDefinedWithNonWildCardBindingPattern(symbol)) {
                 this.unusedLocalVariables.put(symbol, var.pos);
             }
 
@@ -551,7 +551,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         try {
             if (variable.isDeclaredWithVar) {
                 addVarIfInferredTypeIncludesError(variable);
-            } else if (isLocalVariable(symbol)) {
+            } else if (isLocalVariableDefinedWithNonWildCardBindingPattern(symbol)) {
                 this.unusedLocalVariables.put(symbol, variable.pos);
             }
 
@@ -2171,7 +2171,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean isLocalVariable(BVarSymbol symbol) {
+    private boolean isLocalVariableDefinedWithNonWildCardBindingPattern(BVarSymbol symbol) {
+        if (symbol.name == Names.IGNORE) {
+            return false;
+        }
+
         BSymbol owner = symbol.owner;
 
         if (owner == null || owner.tag == SymTag.PACKAGE) {
