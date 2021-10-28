@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.ballerinalang.test.BAssertUtil.validateHint;
-import static org.ballerinalang.test.BAssertUtil.validateWarning;
 
 /**
  * Test cases related to reachability analysis.
@@ -40,9 +39,6 @@ public class ReachabilityAnalysisTest {
     private static final String HINT_UNNECESSARY_CONDITION =
             "unnecessary condition: expression will always evaluate to 'true'";
     private static final String ALWAYS_FALSE_CONDITION = "expression will always evaluate to 'false'";
-    private static final String WARN_SHOULD_EXPLICITLY_RETURN_NIL = "this function should explicitly return a value";
-    private static final String ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED =
-            "expression of type 'never' or equivalent to type 'never' not allowed here";
 
     private CompileResult result;
 
@@ -96,7 +92,6 @@ public class ReachabilityAnalysisTest {
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 117, 15);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 120, 9);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 133, 15);
-        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 135, 15);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 136, 9);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 149, 15);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 153, 9);
@@ -115,7 +110,6 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_MUST_RETURN_A_RESULT, 239, 1);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 244, 9);
         validateError(result, i++, ERROR_MUST_RETURN_A_RESULT, 250, 1);
-        validateWarning(result, i++, WARN_SHOULD_EXPLICITLY_RETURN_NIL, 252, 48);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 263, 27);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 266, 17);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 268, 16);
@@ -182,40 +176,8 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 741, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 755, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 771, 5);
-        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 779, 15);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 782, 9);
-        validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 782, 19);
-        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 791, 15);
-        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 793, 15);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 794, 9);
-        validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 794, 19);
-        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 803, 15);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 806, 9);
-        validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 806, 19);
-        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 815, 15);
-        validateError(result, i++, "incompatible types: 'float' will not be matched to 'int'", 817, 15);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 818, 9);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 829, 9);
-        validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 829, 19);
-        validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 839, 15);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 840, 9);
-        validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 840, 19);
-        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 850, 8);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 853, 5);
-        validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 853, 13);
-        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 858, 8);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 863, 5);
-        validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 863, 16);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 873, 5);
-        validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 873, 16);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 883, 5);
-        validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 883, 16);
-        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 888, 8);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 891, 9);
-        validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 891, 19);
-        Assert.assertEquals(result.getErrorCount(), i - 25);
-        Assert.assertEquals(result.getHintCount(), 24);
-        Assert.assertEquals(result.getWarnCount(), 1);
+        Assert.assertEquals(result.getErrorCount(), i - 15);
+        Assert.assertEquals(result.getHintCount(), 15);
     }
 
     @Test
@@ -228,31 +190,35 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, "incompatible types: expected '(int|string)', found 'boolean'", 52, 20);
         validateError(result, i++, "incompatible types: expected 'boolean', found '(int|string|boolean)'", 65, 21);
         validateError(result, i++, "incompatible types: expected 'int', found 'boolean'", 67, 13);
-        validateError(result, i++, "incompatible types: expected 'int', found 'string'", 81, 21);
-        validateError(result, i++, "incompatible types: expected 'string', found '(int|string)'", 89, 16);
-        validateError(result, i++, "incompatible types: expected 'string', found '(int|string)'", 110, 16);
-        validateError(result, i++, "incompatible types: expected 'int', found 'string'", 123, 17);
-        validateError(result, i++, "incompatible types: expected 'string', found '(int|string|boolean)'", 125, 16);
-        validateError(result, i++, "incompatible types: expected 'boolean', found 'float'", 137, 21);
-        validateError(result, i++, "incompatible types: expected 'string', found '(int|string)'", 140, 16);
-        validateError(result, i++, "incompatible types: expected 'string', found '(int|string)'", 156, 16);
-        validateError(result, i++, "incompatible types: expected 'boolean', found 'boolean?'", 170, 25);
-        validateError(result, i++, "incompatible types: expected 'int', found 'int?'", 173, 17);
-        validateError(result, i++, "incompatible types: expected 'string', found '(int|string)'", 176, 16);
-        validateError(result, i++, "incompatible types: expected 'int', found 'string'", 190, 13);
-        validateError(result, i++, "incompatible types: expected 'int', found '(int|string)'", 196, 13);
-        validateError(result, i++, "incompatible types: expected 'string', found 'int'", 198, 16);
-        validateError(result, i++, "incompatible types: expected 'string', found 'string?'", 201, 16);
-        validateError(result, i++, "incompatible types: expected '10', found '20'", 211, 12);
-        validateError(result, i++, "incompatible types: expected '20', found '10'", 221, 12);
-        validateError(result, i++, "incompatible types: expected '10', found '20'", 234, 12);
-        validateError(result, i++, "incompatible types: expected '20', found '10'", 244, 12);
-        validateError(result, i++, "incompatible types: expected '()', found 'int'", 252, 12);
-        validateError(result, i++, "incompatible types: expected 'int', found 'int?'", 254, 13);
-        validateError(result, i++, "incompatible types: expected '()', found 'int'", 262, 12);
-        validateError(result, i++, "incompatible types: expected 'int', found 'int?'", 264, 13);
-        validateError(result, i++, "incompatible types: expected '20', found '10'", 272, 12);
-        validateError(result, i++, "incompatible types: expected '10', found '10|20'", 274, 12);
+        validateError(result, i++, "incompatible types: expected 'int', found 'boolean'", 79, 13);
+        validateError(result, i++, "incompatible types: expected 'int', found 'string'", 93, 21);
+        validateError(result, i++, "incompatible types: expected 'string', found '(int|string)'", 101, 16);
+        validateError(result, i++, "incompatible types: expected 'string', found '(int|string)'", 122, 16);
+        validateError(result, i++, "incompatible types: expected 'int', found 'string'", 135, 17);
+        validateError(result, i++, "incompatible types: expected 'string', found '(int|string|boolean)'", 137, 16);
+        validateError(result, i++, "incompatible types: expected 'boolean', found 'float'", 149, 21);
+        validateError(result, i++, "incompatible types: expected 'string', found '(int|string)'", 152, 16);
+        validateError(result, i++, "incompatible types: expected 'string', found '(int|string)'", 168, 16);
+        validateError(result, i++, "incompatible types: expected 'boolean', found 'boolean?'", 182, 25);
+        validateError(result, i++, "incompatible types: expected 'int', found 'int?'", 185, 17);
+        validateError(result, i++, "incompatible types: expected 'string', found '(int|string)'", 188, 16);
+        validateError(result, i++, "incompatible types: expected 'string', found '(int|string)'", 198, 16);
+        validateError(result, i++, "incompatible types: expected 'int', found 'string'", 212, 13);
+        validateError(result, i++, "incompatible types: expected 'int', found '(int|string)'", 218, 13);
+        validateError(result, i++, "incompatible types: expected 'string', found 'int'", 220, 16);
+        validateError(result, i++, "incompatible types: expected 'string', found 'string?'", 223, 16);
+        validateError(result, i++, "incompatible types: expected '10', found '20'", 233, 12);
+        validateError(result, i++, "incompatible types: expected 'string', found '10'", 243, 16);
+        validateError(result, i++, "incompatible types: expected '20', found '10'", 253, 12);
+        validateError(result, i++, "incompatible types: expected '10', found '20'", 266, 12);
+        validateError(result, i++, "incompatible types: expected 'string', found '10'", 276, 16);
+        validateError(result, i++, "incompatible types: expected '20', found '10'", 286, 12);
+        validateError(result, i++, "incompatible types: expected '()', found 'int'", 294, 12);
+        validateError(result, i++, "incompatible types: expected 'int', found 'int?'", 296, 13);
+        validateError(result, i++, "incompatible types: expected '()', found 'int'", 304, 12);
+        validateError(result, i++, "incompatible types: expected 'int', found 'int?'", 306, 13);
+        validateError(result, i++, "incompatible types: expected '20', found '10'", 314, 12);
+        validateError(result, i++, "incompatible types: expected '10', found '10|20'", 316, 12);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }
