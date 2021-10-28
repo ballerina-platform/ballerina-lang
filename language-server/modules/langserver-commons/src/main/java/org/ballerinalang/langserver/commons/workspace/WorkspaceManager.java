@@ -33,6 +33,7 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -210,7 +211,9 @@ public interface WorkspaceManager {
      * The file change notification is sent from the client to the server to signal changes to watched files.
      *
      * @param params watched files event parameters
+     * @return list of project roots which were reloaded. If a project has not been reloaded,
+     * then the list will be empty
      * @throws WorkspaceDocumentException when project or document not found
      */
-    void didChangeWatched(DidChangeWatchedFilesParams params) throws WorkspaceDocumentException;
+    List<Path> didChangeWatched(DidChangeWatchedFilesParams params) throws WorkspaceDocumentException;
 }

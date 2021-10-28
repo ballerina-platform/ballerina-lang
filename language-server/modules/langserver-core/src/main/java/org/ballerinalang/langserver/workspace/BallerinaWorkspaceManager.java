@@ -58,14 +58,15 @@ import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.FileChangeType;
 import org.eclipse.lsp4j.FileEvent;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -76,6 +77,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 
@@ -424,9 +428,9 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     }
 
     @Override
-    public void didChangeWatched(DidChangeWatchedFilesParams params) throws WorkspaceDocumentException {
+    public List<Path> didChangeWatched(DidChangeWatchedFilesParams params) throws WorkspaceDocumentException {
         if (!LSClientConfigHolder.getInstance(serverContext).getConfig().isEnableFileWatcher()) {
-            return;
+            return Collections.emptyList();
         }
         List<FileEvent> changes = params.getChanges();
         if (changes.size() == 1) {
@@ -434,7 +438,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             String uri = fileEvent.getUri();
             Optional<Path> pathFromURI = CommonUtil.getPathFromURI(uri);
             if (pathFromURI.isEmpty()) {
-                return;
+                return Collections.emptyList();
             }
             Path filePath = pathFromURI.get();
             boolean isBallerinaSourceChange = filePath.getFileName().toString()
@@ -443,23 +447,41 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 // If already opened in the cache, this will be captured via the textDocument/didChange event
                 this.didChangeWatched(filePath, fileEvent);
             }
-            return;
+            return Collections.emptyList();
         }
 
         Set<Path> reloadableProjects = new HashSet<>();
         for (FileEvent fileEvent : changes) {
             String uri = fileEvent.getUri();
             Optional<Path> pathFromURI = CommonUtil.getPathFromURI(uri);
-            
+
             if (pathFromURI.isEmpty()) {
-                return;
+                return Collections.emptyList();
             }
             Path filePath = pathFromURI.get();
 
             this.findProjectRoot(filePath).ifPresent(reloadableProjects::add);
         }
 
-        reloadableProjects.forEach(path -> createProject(path, LSContextOperation.WS_WF_CHANGED.getName()));
+        reloadableProjects.forEach(path -> {
+            Optional<ProjectPair> projectPair = this.projectPair(path);
+            if (projectPair.isEmpty()) {
+                return;
+            }
+            Lock lock = projectPair.get().lockAndGet();
+            try {
+                ProjectPair project = createProject(path, LSContextOperation.WS_WF_CHANGED.getName());
+                projectPair.get().setProject(project.project());
+            } catch (Throwable e) {
+                // Failed to reload the project
+                String message = "Failed to reload project: ["
+                        + projectPair.get().project().sourceRoot().toString() + "]";
+                clientLogger.logError(LSContextOperation.WS_WF_CHANGED, message, e, null, (Position) null);
+            } finally {
+                lock.unlock();
+            }
+        });
+        return new ArrayList<>(reloadableProjects);
     }
 
     /**
@@ -1079,7 +1101,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
         return projectPair;
     }
-    
+
     private boolean isWatchedModuleChange(FileEvent fileEvent) {
         String uri = fileEvent.getUri();
         Optional<Path> optFilePath = CommonUtil.getPathFromURI(uri);
