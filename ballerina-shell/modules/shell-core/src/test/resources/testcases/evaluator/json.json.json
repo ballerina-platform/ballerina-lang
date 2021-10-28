@@ -1,31 +1,55 @@
 [
   {
     "description": "Create a JSON string value.",
-    "code": "json j1 = \"Apple\"; j1",
+    "code": "json j1 = \"Apple\";"
+  },
+  {
+    "description": "Create a JSON string value - get value.",
+    "code": "j1",
     "expr": "\"Apple\""
   },
   {
     "description": "Create a JSON number value.",
-    "code": "json j2 = 5.36; j2",
+    "code": "json j2 = 5.36;"
+  },
+  {
+    "description": "Create a JSON number value - get value.",
+    "code": "j2",
     "expr": "5.36"
   },
   {
     "description": "Create a JSON true value.",
-    "code": "json j3 = true; j3",
+    "code": "json j3 = true;"
+  },
+  {
+    "description": "Create a JSON true value - get value.",
+    "code": "j3",
     "expr": "true"
   },
   {
     "description": "Create a JSON false value.",
-    "code": "json j4 = false; j4",
+    "code": "json j4 = false;"
+  },
+  {
+    "description": "Create a JSON false value - get value.",
+    "code": "j4",
     "expr": "false"
   },
   {
     "description": "Create a JSON null value.",
-    "code": "json j5 = null; j5"
+    "code": "json j5 = null;"
+  },
+  {
+    "description": "Create a JSON null value - get value.",
+    "code": "j5;"
   },
   {
     "description": "Creates a JSON Object. This is equivalent to a `map<json>`.",
-    "code": "json j6 = {name: \"apple\", color: \"red\", price: j2}; j6",
+    "code": "json j6 = {name: \"apple\", color: \"red\", price: j2};"
+  },
+  {
+    "description": "Creates a JSON Object. This is equivalent to a `map<json>` - get value.",
+    "code": "j6",
     "expr": "{\"name\":\"apple\",\"color\":\"red\",\"price\":5.36}"
   },
   {
@@ -35,12 +59,20 @@
   },
   {
     "description": "Create a JSON Array.",
-    "code": "json j7 = [1, false, null, \"foo\", {first: \"John\", last: \"Pala\"}]; j7.toJsonString()",
+    "code": "json j7 = [1, false, null, \"foo\", {first: \"John\", last: \"Pala\"}];"
+  },
+  {
+    "description": "Create a JSON Array - get value.",
+    "code": "j7.toJsonString()",
     "expr": "\"[1, false, null, \"foo\", {\"first\":\"John\", \"last\":\"Pala\"}]\""
   },
   {
     "description": "The `.mergeJson()` method can be used to merge two `json` values.",
-    "code": "json j8 = checkpanic j5.mergeJson(j7); j8.toJsonString()",
+    "code": "json j8 = checkpanic j5.mergeJson(j7);"
+  },
+  {
+    "description": "The `.mergeJson()` method can be used to merge two `json` values - get value.",
+    "code": "j8.toJsonString()",
     "expr": "\"[1, false, null, \"foo\", {\"first\":\"John\", \"last\":\"Pala\"}]\""
   },
   {
@@ -53,7 +85,11 @@
   },
   {
     "description": "`.mergeJson()` can also be used to merge two JSON objects.",
-    "code": "json j11 = checkpanic j9.mergeJson(j10); j11.toJsonString()",
+    "code": "json j11 = checkpanic j9.mergeJson(j10);"
+  },
+  {
+    "description": "`.mergeJson()` can also be used to merge two JSON objects - get value.",
+    "code": "j11.toJsonString()",
     "expr": "\"{\"name\":\"Anne\", \"age\":20, \"marks\":{\"math\":90, \"language\":95, \"physics\":85}}\""
   },
   {
@@ -68,7 +104,11 @@
   },
   {
     "description": "Parsing a json back from a string.",
-    "code": "string s = j6.toJsonString(); json j13 = checkpanic s.fromJsonString(); j13.toJsonString()",
+    "code": "string s = j6.toJsonString(); json j13 = checkpanic s.fromJsonString();"
+  },
+  {
+    "description": "Parsing a json back from a string - get value.",
+    "code": "j13.toJsonString()",
     "expr": "\"{\"name\":\"apple\", \"color\":\"red\", \"price\":5.36}\""
   },
   {

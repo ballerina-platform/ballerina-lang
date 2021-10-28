@@ -18,11 +18,42 @@ string aString = "foo";
 int anInt = 10;
 
 function test() {
-    int b = let int x = 2, int z = 5+x in z * x * anInt;
+    string greet = "Hello " + aString;
 
-    string strTemp = string `a string template: ${anInt}`;
+    var greetFn = function (string name) returns string => HELLO + " " + name;
+    greet = greetFn("Pubudu");
 
-    'object:RawTemplate rawTemp = `a raw template: ${aString}`;
+    if (true) {
+        int a = 20;
+
+        if (true) {
+            var x = 0;
+            // cursor pos
+        }
+
+        int y = 10;
+    } else {
+        int b = 40;
+    }
+
+    int z = 20;
 }
 
-function exprBodyScope(string myStr) returns string => m
+function test2() {
+    xmlns "https://ballerina.io" as b7a;
+
+    int x;
+    x = 10;
+    x += 30;
+
+    fail x;
+}
+
+const HELLO = "Hello";
+
+function testLetExp1(float x) returns float {
+    return let float x1 = x*x, float x2 = x + 5 in ;
+}
+
+function testLetExp2(float y) returns float =>
+    let float x3 = y+y, float x4 = y*y in ;

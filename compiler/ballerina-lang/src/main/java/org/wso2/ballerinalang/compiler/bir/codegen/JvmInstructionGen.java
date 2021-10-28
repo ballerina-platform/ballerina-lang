@@ -1798,6 +1798,7 @@ public class JvmInstructionGen {
     void generateXMLStoreIns(BIRNonTerminator.XMLAccess xmlStoreIns) {
 
         this.loadVar(xmlStoreIns.lhsOp.variableDcl);
+        this.mv.visitTypeInsn(CHECKCAST, XML_VALUE);
         this.loadVar(xmlStoreIns.rhsOp.variableDcl);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "addChildren", XML_ADD_CHILDREN,
                 false);

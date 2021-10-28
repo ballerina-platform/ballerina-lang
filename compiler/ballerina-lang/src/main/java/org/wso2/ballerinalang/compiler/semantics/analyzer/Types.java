@@ -596,6 +596,10 @@ public class Types {
     }
 
     public boolean isSubTypeOfBaseType(BType type, int baseTypeTag) {
+        if (type.tag == TypeTags.INTERSECTION) {
+            type = ((BIntersectionType) type).effectiveType;
+        }
+
         if (type.tag != TypeTags.UNION) {
 
             if ((TypeTags.isIntegerTypeTag(type.tag) || type.tag == TypeTags.BYTE) && TypeTags.INT == baseTypeTag) {
@@ -3930,6 +3934,9 @@ public class Types {
                     });
                 }
                 memberTypes.add(bType);
+                break;
+            case TypeTags.INTERSECTION:
+                memberTypes.addAll(expandAndGetMemberTypesRecursive(((BIntersectionType) bType).effectiveType));
                 break;
             default:
                 memberTypes.add(bType);
