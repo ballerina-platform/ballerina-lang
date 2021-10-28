@@ -31,12 +31,16 @@ package org.ballerinalang.langlib.floatingpoint;
 //)
 public class Min {
 
+    private Min() {
+    }
+
     public static double min(double[] ns) {
         double min = Double.POSITIVE_INFINITY;
-        int size = ns.length;
-        for (int i = 0; i < size; i++) {
-            double current = ns[i];
-            min = current <= min ? current : min;
+        for (double current : ns) {
+            if (Double.isNaN(current)) {
+                return current;
+            }
+            min = Math.min(current, min);
         }
         return min;
     }

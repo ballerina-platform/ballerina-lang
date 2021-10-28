@@ -117,3 +117,11 @@ function testFromHexString() {
     test:assertValueEqual(err.message(), "{ballerina/lang.float}NumberParsingError");
     test:assertValueEqual(<string> checkpanic err.detail()["message"], "For input string: \"AInvalidNum\"");
 }
+
+function testMinAndMaxWithNaN() {
+    float a = float:max(1, float:NaN);
+    test:assertTrue(a === float:NaN);
+
+    float b = float:min(5, float:NaN);
+    test:assertTrue(b === float:NaN);
+}
