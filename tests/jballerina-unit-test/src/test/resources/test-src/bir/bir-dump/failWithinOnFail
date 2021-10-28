@@ -1,0 +1,64 @@
+failWithinOnFail function() -> string|error {
+    %0(RETURN) string|error;
+    %1(LOCAL) int;
+    %3(LOCAL) string;
+    %6(TEMP) int;
+    %7(TEMP) boolean;
+    %9(TEMP) string;
+    %14(LOCAL) error;
+    %17(TEMP) error;
+    %18(TEMP) ();
+    %19(TEMP) typeDesc<any|error>;
+    %20(TEMP) map<Cloneable>;
+    %21(TEMP) string;
+    %22(TEMP) Cloneable;
+    %23(TEMP) string;
+    %24(TEMP) ...;
+
+    bb0 {
+        %1 = ConstLoad 0;
+        %3 = ConstLoad ;
+        GOTO bb1;
+    }
+    bb1 {
+        %6 = ConstLoad 2;
+        %7 = %1 < %6;
+        %7? bb2 : bb5;
+    }
+    bb2 {
+        GOTO bb3;
+    }
+    bb3 {
+        %9 = ConstLoad -> Within do statement;
+        %3 = %3 + %9;
+        %6 = ConstLoad 1;
+        %1 = %1 + %6;
+        %9 = ConstLoad custom error;
+        %18 = ConstLoad 0;
+        %17 = <error> %18;
+        %19 = newType ...;
+        %21 = ConstLoad message;
+        %23 = ConstLoad error value;
+        %22 = <Cloneable> %23;
+        %20 = NewMap %19;
+        %24 = cloneReadOnly(%20) -> bb4;
+    }
+    bb4 {
+        %14 = error error(%9, %17, %24);
+        %23 = ConstLoad -> Error caught in inner on fail;
+        %3 = %3 + %23;
+        %0 = %14;
+        GOTO bb6;
+    }
+    bb5 {
+        %9 = ConstLoad -> Execution completed.;
+        %3 = %3 + %9;
+        %0 = <string|error> %3;
+        GOTO bb6;
+    }
+    bb6 {
+        return;
+    }
+
+
+}
