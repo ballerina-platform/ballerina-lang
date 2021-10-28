@@ -39,7 +39,7 @@ import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
 import io.ballerina.shell.snippet.types.ModuleMemberDeclarationSnippet;
 import io.ballerina.shell.snippet.types.StatementSnippet;
 import io.ballerina.shell.snippet.types.VariableDeclarationSnippet;
-import io.ballerina.shell.utils.QuotedIdentifier;
+import io.ballerina.shell.utils.Identifier;
 import io.ballerina.shell.utils.QuotedImport;
 import io.ballerina.shell.utils.StringUtils;
 
@@ -76,7 +76,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
      * Set of identifiers that are known or seen at the initialization.
      * These can't be overridden.
      */
-    private final Set<QuotedIdentifier> initialIdentifiers;
+    private final Set<Identifier> initialIdentifiers;
     /**
      * List of imports done.
      * These are imported to the read generated code as necessary.
@@ -86,13 +86,13 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
      * List of module level declarations such as functions, classes, etc...
      * The snippets are saved as is.
      */
-    private final Map<QuotedIdentifier, String> moduleDclns;
+    private final Map<Identifier, String> moduleDclns;
     /**
      * List of global variables used in the code.
      * This is a map of variable name to its type.
-     * The variable name must be a quoted identifier.
+     * The variable name must be an identifier.
      */
-    private final Map<QuotedIdentifier, GlobalVariable> globalVars;
+    private final Map<Identifier, GlobalVariable> globalVars;
     /**
      * Flag to keep track of whether the invoker is initialized.
      */
@@ -107,7 +107,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
      * Persisted at the end of iteration to `imports`.
      * Key is the source snippet name (variable name/dcln name), value is the prefixes.
      */
-    private final Map<QuotedIdentifier, Set<QuotedIdentifier>> newImports;
+    private final Map<Identifier, Set<Identifier>> newImports;
     /**
      * Type symbol of ANY. This is found at initialization.
      * This is used to check is a type symbol can be assigned to any.
@@ -144,7 +144,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         PackageCompilation compilation = compile(project);
         // Remember all the visible var symbols
         // Also use this to cache ANY type symbol
-        QuotedIdentifier runFunctionName = new QuotedIdentifier(MODULE_RUN_METHOD_NAME);
+        Identifier runFunctionName = new Identifier(MODULE_RUN_METHOD_NAME);
         for (GlobalVariableSymbol symbol : globalVariableSymbols(project, compilation)) {
             initialIdentifiers.add(symbol.getName());
             if (symbol.getName().equals(runFunctionName)) {
@@ -180,10 +180,10 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
 
         // TODO: (#28036) Fix the closure bug.
 
-        Map<VariableDeclarationSnippet, Set<QuotedIdentifier>> variableDeclarations = new HashMap<>();
-        Map<QuotedIdentifier, ModuleMemberDeclarationSnippet> moduleDeclarations = new HashMap<>();
+        Map<VariableDeclarationSnippet, Set<Identifier>> variableDeclarations = new HashMap<>();
+        Map<Identifier, ModuleMemberDeclarationSnippet> moduleDeclarations = new HashMap<>();
         List<ExecutableSnippet> executableSnippets = new ArrayList<>();
-        List<QuotedIdentifier> variableNames = new ArrayList<>();
+        List<Identifier> variableNames = new ArrayList<>();
 
         // Fill the required arrays/maps
         // Only compilation to find import validity.
@@ -201,10 +201,10 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
 
             } else if (newSnippet instanceof ModuleMemberDeclarationSnippet) {
                 ModuleMemberDeclarationSnippet moduleDclnSnippet = (ModuleMemberDeclarationSnippet) newSnippet;
-                QuotedIdentifier moduleDeclarationName = moduleDclnSnippet.name();
+                Identifier moduleDeclarationName = moduleDclnSnippet.name();
                 moduleDeclarations.put(moduleDeclarationName, moduleDclnSnippet);
-                Set<QuotedIdentifier> usedPrefixes = newSnippet.usedImports().stream()
-                        .map(QuotedIdentifier::new).collect(Collectors.toSet());
+                Set<Identifier> usedPrefixes = newSnippet.usedImports().stream()
+                        .map(Identifier::new).collect(Collectors.toSet());
                 newImports.put(moduleDeclarationName, usedPrefixes);
 
             } else if (newSnippet instanceof ExecutableSnippet) {
@@ -244,9 +244,9 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         // Find all the global variables that were defined
         // and Map all variable names with its global variable
         Collection<GlobalVariableSymbol> globalVariableSymbols = globalVariableSymbols(project, compilation);
-        Map<QuotedIdentifier, GlobalVariable> allNewVariables = new HashMap<>();
+        Map<Identifier, GlobalVariable> allNewVariables = new HashMap<>();
         for (VariableDeclarationSnippet snippet : variableDeclarations.keySet()) {
-            Map<QuotedIdentifier, GlobalVariable> newVariables = createGlobalVariables(
+            Map<Identifier, GlobalVariable> newVariables = createGlobalVariables(
                     snippet.qualifiersAndMetadata(), snippet.names(), globalVariableSymbols,
                     snippet.isDeclaredWithVar());
             allNewVariables.putAll(newVariables);
@@ -256,7 +256,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         newImports.forEach(importsManager::storeImportUsages);
         addDebugDiagnostic("Implicit imports added: " + newImports);
         addDebugDiagnostic("Found new variables: " + allNewVariables);
-        for (Map.Entry<QuotedIdentifier, ModuleMemberDeclarationSnippet> dcln : moduleDeclarations.entrySet()) {
+        for (Map.Entry<Identifier, ModuleMemberDeclarationSnippet> dcln : moduleDeclarations.entrySet()) {
             String moduleDclnCode = dcln.getValue().toString();
             moduleDclns.put(dcln.getKey(), moduleDclnCode);
             addDebugDiagnostic("Module dcln name: " + dcln.getKey());
@@ -285,10 +285,10 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
 
     @Override
     public void delete(Set<String> declarationNames) throws InvokerException {
-        Map<QuotedIdentifier, GlobalVariable> queuedGlobalVars = new HashMap<>();
-        Map<QuotedIdentifier, String> queuedModuleDclns = new HashMap<>();
+        Map<Identifier, GlobalVariable> queuedGlobalVars = new HashMap<>();
+        Map<Identifier, String> queuedModuleDclns = new HashMap<>();
         for (String declarationName : declarationNames) {
-            QuotedIdentifier identifier = new QuotedIdentifier(declarationName);
+            Identifier identifier = new Identifier(declarationName);
             if (globalVars.containsKey(identifier)) {
                 queuedGlobalVars.put(identifier, globalVars.get(identifier));
             } else if (moduleDclns.containsKey(identifier)) {
@@ -324,15 +324,15 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
      */
     private void processImport(ImportDeclarationSnippet importSnippet) throws InvokerException {
         QuotedImport quotedImport = importSnippet.getImportedModule();
-        QuotedIdentifier quotedPrefix = importSnippet.getPrefix();
+        Identifier prefix = importSnippet.getPrefix();
 
         if (importsManager.moduleImported(quotedImport)
-                && importsManager.prefix(quotedImport).equals(quotedPrefix)
-                && importsManager.containsPrefix(quotedPrefix)) {
+                && importsManager.prefix(quotedImport).equals(prefix)
+                && importsManager.containsPrefix(prefix)) {
             // Same module with same prefix. No need to check.
-            addDebugDiagnostic("Detected reimport: " + quotedPrefix);
+            addDebugDiagnostic("Detected reimport: " + prefix);
             return;
-        } else if (importsManager.containsPrefix(quotedPrefix)) {
+        } else if (importsManager.containsPrefix(prefix)) {
             // Prefix is already used. (Not for the same module - checked above)
             addErrorDiagnostic("The import prefix was already used by another import.");
             throw new InvokerException();
@@ -368,17 +368,17 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
      */
     private ClassLoadContext createDeclarationContext(
             Collection<VariableDeclarationSnippet> variableDeclarations,
-            Collection<QuotedIdentifier> variableNames,
-            Map<QuotedIdentifier, ModuleMemberDeclarationSnippet> moduleDeclarations) {
+            Collection<Identifier> variableNames,
+            Map<Identifier, ModuleMemberDeclarationSnippet> moduleDeclarations) {
         // Load current declarations
-        Map<QuotedIdentifier, VariableContext> oldVarDclns = globalVariableContexts();
-        Map<QuotedIdentifier, String> moduleDclnStringsMap = new HashMap<>(moduleDclns);
+        Map<Identifier, VariableContext> oldVarDclns = globalVariableContexts();
+        Map<Identifier, String> moduleDclnStringsMap = new HashMap<>(moduleDclns);
 
         StringJoiner lastVarDclns = new StringJoiner("\n");
         Set<String> importStrings = new HashSet<>();
 
         // Remove old declarations and add new declarations
-        for (Map.Entry<QuotedIdentifier, ModuleMemberDeclarationSnippet> dcln : moduleDeclarations.entrySet()) {
+        for (Map.Entry<Identifier, ModuleMemberDeclarationSnippet> dcln : moduleDeclarations.entrySet()) {
             importStrings.addAll(getRequiredImportStatements(dcln.getValue()));
             moduleDclnStringsMap.put(dcln.getKey(), dcln.getValue().toString());
         }
@@ -389,7 +389,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             importStrings.addAll(getRequiredImportStatements(varSnippet));
         }
         Collection<String> variableNameStrs = variableNames.stream()
-                .map(QuotedIdentifier::getName)
+                .map(Identifier::getName)
                 .collect(Collectors.toSet());
 
         return new ClassLoadContext(this.contextId, importStrings, moduleDclnStringsMap.values(),
@@ -408,9 +408,9 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     private ClassLoadContext createVariablesExecutionContext(
             Collection<VariableDeclarationSnippet> variableDeclarationSnippets,
             Collection<ExecutableSnippet> executableSnippets,
-            Map<QuotedIdentifier, GlobalVariable> newVariables) {
+            Map<Identifier, GlobalVariable> newVariables) {
 
-        Map<QuotedIdentifier, VariableContext> varDclnsMap = globalVariableContexts();
+        Map<Identifier, VariableContext> varDclnsMap = globalVariableContexts();
         StringJoiner newVariableDclns = new StringJoiner("\n");
         Set<String> importStrings = new HashSet<>();
 
@@ -436,8 +436,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
      *
      * @return Global variable declarations map.
      */
-    private Map<QuotedIdentifier, VariableContext> globalVariableContexts() {
-        Map<QuotedIdentifier, VariableContext> varDclns = new HashMap<>();
+    private Map<Identifier, VariableContext> globalVariableContexts() {
+        Map<Identifier, VariableContext> varDclns = new HashMap<>();
         globalVars.forEach((k, v) -> varDclns.put(k, VariableContext.oldVar(v)));
         return varDclns;
     }
@@ -456,16 +456,16 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
      * @param isDeclaredWithVar     Declared with a var or not.
      * @return Exported found variable information (name and type)
      */
-    private Map<QuotedIdentifier, GlobalVariable> createGlobalVariables(
+    private Map<Identifier, GlobalVariable> createGlobalVariables(
             String qualifiersAndMetadata,
-            Set<QuotedIdentifier> definedVariables,
+            Set<Identifier> definedVariables,
             Collection<GlobalVariableSymbol> globalVarSymbols,
             boolean isDeclaredWithVar) {
-        Map<QuotedIdentifier, GlobalVariable> foundVariables = new HashMap<>();
+        Map<Identifier, GlobalVariable> foundVariables = new HashMap<>();
         addDebugDiagnostic("Found variables: " + definedVariables);
 
         for (GlobalVariableSymbol globalVariableSymbol : globalVarSymbols) {
-            QuotedIdentifier variableName = globalVariableSymbol.getName();
+            Identifier variableName = globalVariableSymbol.getName();
             TypeSymbol typeSymbol = globalVariableSymbol.getTypeSymbol();
 
             // Is a built-in variable/function
@@ -480,9 +480,9 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             // Determine the type information
             boolean isAssignableToAny = typeSymbol.assignableTo(anyTypeSymbol);
             // Find the variable type
-            Set<QuotedIdentifier> requiredImports = new HashSet<>();
+            Set<Identifier> requiredImports = new HashSet<>();
             String variableType = importsManager.extractImportsFromType(typeSymbol, requiredImports);
-            this.newImports.put(variableName, requiredImports);
+            this.newImports.put(new Identifier(variableName.getName()), requiredImports);
             GlobalVariable globalVariable = new GlobalVariable(variableType, isDeclaredWithVar,
                     variableName, isAssignableToAny, qualifiersAndMetadata);
             foundVariables.put(variableName, globalVariable);
@@ -519,7 +519,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         Set<String> importStrings = getRequiredImportStatements();
         // Add all used imports in this snippet
         snippet.usedImports().stream()
-                .map(QuotedIdentifier::new)
+                .map(Identifier::new)
                 .map(importsManager::getImport).filter(Objects::nonNull)
                 .forEach(importStrings::add);
         return importStrings;
@@ -543,7 +543,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     public List<String> availableImports() {
         // Imports with prefixes
         List<String> importStrings = new ArrayList<>();
-        for (QuotedIdentifier prefix : importsManager.prefixes()) {
+        for (Identifier prefix : importsManager.prefixes()) {
             String importStatement = String.format("(%s) %s", prefix, importsManager.getImport(prefix));
             importStrings.add(importStatement);
         }
@@ -569,7 +569,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     public List<String> availableModuleDeclarations() {
         // Module level dclns.
         List<String> moduleDclnStrings = new ArrayList<>();
-        for (Map.Entry<QuotedIdentifier, String> entry : moduleDclns.entrySet()) {
+        for (Map.Entry<Identifier, String> entry : moduleDclns.entrySet()) {
             String varString = String.format("(%s) %s", entry.getKey(),
                     StringUtils.shortenedString(entry.getValue()));
             moduleDclnStrings.add(varString);

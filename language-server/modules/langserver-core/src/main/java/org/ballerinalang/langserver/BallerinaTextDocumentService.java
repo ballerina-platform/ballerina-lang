@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver;
 
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -29,6 +28,7 @@ import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.DocumentSymbolContext;
 import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.ballerinalang.langserver.commons.HoverContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -48,6 +48,7 @@ import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.util.LSClientUtil;
 import org.ballerinalang.langserver.util.definition.DefinitionUtil;
+import org.ballerinalang.langserver.util.documentsymbol.DocumentSymbolUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.rename.RenameUtil;
 import org.eclipse.lsp4j.CodeAction;
@@ -87,6 +88,7 @@ import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.jsonrpc.CompletableFutures;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
@@ -96,6 +98,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -131,7 +134,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams position) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             String fileUri = position.getTextDocument().getUri();
             CompletionContext context = ContextBuilder.buildCompletionContext(fileUri,
                     this.workspaceManager,
@@ -139,7 +142,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     this.serverContext,
                     position.getPosition());
             try {
-                return LangExtensionDelegator.instance().completion(position, context, this.serverContext);
+                return LangExtensionDelegator.instance()
+                        .completion(position, context, this.serverContext, cancelChecker);
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation exception
             } catch (Throwable e) {
                 // Note: Not catching UserErrorException separately to avoid flooding error msgs popups
                 String msg = "Operation 'text/completion' failed!";
@@ -153,28 +159,30 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<Hover> hover(HoverParams params) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             String fileUri = params.getTextDocument().getUri();
-            HoverContext context = ContextBuilder
-                    .buildHoverContext(fileUri, this.workspaceManager, this.serverContext, params.getPosition());
-            Hover hover;
+            HoverContext context = ContextBuilder.buildHoverContext(
+                    fileUri, this.workspaceManager,
+                    this.serverContext, params.getPosition(),
+                    cancelChecker);
             try {
-                hover = HoverUtil.getHover(context);
+                return HoverUtil.getHover(context);
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation exception
             } catch (Throwable e) {
                 // Note: Not catching UserErrorException separately to avoid flooding error msgs popups
                 String msg = "Operation 'text/hover' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_HOVER, msg, e, params.getTextDocument(),
                         params.getPosition());
-                hover = HoverUtil.getDefaultHoverObject();
             }
 
-            return hover;
+            return null;
         });
     }
 
     @Override
     public CompletableFuture<SignatureHelp> signatureHelp(SignatureHelpParams params) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             String uri = params.getTextDocument().getUri();
             Optional<Path> sigFilePath = CommonUtil.getPathFromURI(uri);
 
@@ -187,57 +195,65 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     this.workspaceManager,
                     this.clientCapabilities.getTextDocCapabilities().getSignatureHelp(),
                     this.serverContext,
-                    params.getPosition());
+                    params.getPosition(),
+                    cancelChecker);
             try {
                 // Find token at cursor position
                 return SignatureHelpUtil.getSignatureHelp(context);
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Signature Help", e);
-                return new SignatureHelp();
+            } catch (CancellationException ignore) {
+                // ignore the cancellation exception
             } catch (Throwable e) {
                 String msg = "Operation 'text/signature' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_SIGNATURE, msg, e, params.getTextDocument(),
                         params.getPosition());
-                return new SignatureHelp();
             }
+
+            return null;
         });
     }
 
     @Override
     public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition
             (DefinitionParams params) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
                 BallerinaDefinitionContext defContext = ContextBuilder.buildDefinitionContext(
                         params.getTextDocument().getUri(),
                         this.workspaceManager,
                         this.serverContext,
-                        params.getPosition());
+                        params.getPosition(),
+                        cancelChecker);
                 return Either.forLeft(DefinitionUtil.getDefinition(defContext, params.getPosition()));
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Goto Definition", e);
-                return Either.forLeft(Collections.emptyList());
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation Exception
             } catch (Throwable e) {
                 String msg = "Operation 'text/definition' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_DEFINITION, msg, e, params.getTextDocument(),
                         params.getPosition());
-                return Either.forLeft(Collections.emptyList());
             }
+
+            return Either.forLeft(Collections.emptyList());
         });
     }
 
     @Override
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
                 ReferencesContext context = ContextBuilder.buildReferencesContext(params.getTextDocument().getUri(),
                         this.workspaceManager,
                         this.serverContext,
-                        params.getPosition());
+                        params.getPosition(),
+                        cancelChecker);
 
                 Map<Module, List<io.ballerina.tools.diagnostics.Location>> referencesMap =
                         ReferencesUtil.getReferences(context);
 
+                context.checkCancelled();
                 List<Location> references = new ArrayList<>();
                 referencesMap.forEach((module, locations) ->
                         locations.forEach(location -> {
@@ -248,20 +264,22 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 return references;
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Find References", e);
-                return new ArrayList<>();
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation exception
             } catch (Throwable e) {
                 String msg = "Operation 'text/references' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_REFERENCES, msg, e, params.getTextDocument(),
                         params.getPosition());
-                return new ArrayList<>();
             }
+
+            return Collections.emptyList();
         });
     }
 
     @Override
     public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>>
     documentSymbol(DocumentSymbolParams params) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             String fileUri = params.getTextDocument().getUri();
             Optional<Path> docSymbolFilePath = CommonUtil.getPathFromURI(fileUri);
 
@@ -270,7 +288,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 return new ArrayList<>();
             }
             try {
-                return new ArrayList<>();
+                DocumentSymbolContext context = ContextBuilder.buildDocumentSymbolContext(params,
+                        this.workspaceManager,
+                        this.serverContext,
+                        this.clientCapabilities);
+                return DocumentSymbolUtil.documentSymbols(context);
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Document Symbols", e);
                 return new ArrayList<>();
@@ -285,16 +307,18 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             String fileUri = params.getTextDocument().getUri();
             try {
                 CodeActionContext context = ContextBuilder.buildCodeActionContext(fileUri, workspaceManager,
-                        this.serverContext, params);
+                        this.serverContext, params, cancelChecker);
                 return LangExtensionDelegator.instance().codeActions(params, context, this.serverContext).stream()
                         .map((Function<CodeAction, Either<Command, CodeAction>>) Either::forRight)
                         .collect(Collectors.toList());
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Code Action", e);
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation exception
             } catch (Throwable e) {
                 String msg = "Operation 'text/codeAction' failed!";
                 Range range = params.getRange();
@@ -307,13 +331,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<? extends CodeLens>> codeLens(CodeLensParams params) {
-        return CompletableFuture.supplyAsync(() -> {
-            List<CodeLens> lenses;
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             if (!LSCodeLensesProviderHolder.getInstance(this.serverContext).isEnabled()) {
                 // Disabled ballerina codeLens feature
                 clientCapabilities.getTextDocCapabilities().setCodeLens(null);
                 // Skip code lenses if codeLens disabled
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
 
             String fileUri = params.getTextDocument().getUri();
@@ -321,24 +344,23 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
             // Note: If the path does not exist, then return early and ignore
             if (docSymbolFilePath.isEmpty()) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
 
-            DocumentServiceContext codeLensContext = ContextBuilder.buildBaseContext(fileUri,
-                    this.workspaceManager,
-                    LSContextOperation.TXT_CODE_LENS, this.serverContext);
-
+            DocumentServiceContext codeLensContext = ContextBuilder.buildDocumentServiceContext(
+                    fileUri, this.workspaceManager,
+                    LSContextOperation.TXT_CODE_LENS, this.serverContext,
+                    cancelChecker);
             try {
-                lenses = CodeLensUtil.getCodeLenses(codeLensContext, params.getTextDocument());
-                return lenses;
+                return CodeLensUtil.getCodeLenses(codeLensContext, params.getTextDocument());
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Code Lens", e);
-                // Source compilation failed, serve from cache
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation exception
             } catch (Throwable e) {
                 String msg = "Operation 'text/codeLens' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_CODE_LENS, msg, e, params.getTextDocument(),
                         (Position) null);
-                // Source compilation failed, serve from cache
             }
 
             return Collections.emptyList();
@@ -346,42 +368,35 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     @Override
-    public CompletableFuture<CodeLens> resolveCodeLens(CodeLens unresolved) {
-        return null;
-    }
-
-    @Override
     public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
-        return CompletableFuture.supplyAsync(() -> {
-            TextEdit textEdit = new TextEdit();
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             String fileUri = params.getTextDocument().getUri();
-            Optional<Path> formattingFilePath = CommonUtil.getPathFromURI(fileUri);
-            // Note: If the path does not exist, then return early and ignore
-            if (formattingFilePath.isEmpty()) {
-                return Collections.singletonList(textEdit);
-            }
+            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(fileUri,
+                    this.workspaceManager,
+                    LSContextOperation.TXT_FORMATTING,
+                    this.serverContext,
+                    cancelChecker);
             try {
-                CommonUtil.getPathFromURI(fileUri);
-                Optional<Document> document = workspaceManager.document(formattingFilePath.get());
-                if (document.isEmpty()) {
-                    return new ArrayList<>();
+                Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
+                if (syntaxTree.isEmpty()) {
+                    return Collections.emptyList();
                 }
-                SyntaxTree syntaxTree = document.get().syntaxTree();
-                String formattedSource = Formatter.format(syntaxTree).toSourceCode();
-
-                LinePosition eofPos = syntaxTree.rootNode().lineRange().endLine();
+                String formattedSource = Formatter.format(syntaxTree.get()).toSourceCode();
+                LinePosition eofPos = syntaxTree.get().rootNode().lineRange().endLine();
                 Range range = new Range(new Position(0, 0), new Position(eofPos.line() + 1, eofPos.offset()));
-                textEdit = new TextEdit(range, formattedSource);
+                TextEdit textEdit = new TextEdit(range, formattedSource);
                 return Collections.singletonList(textEdit);
             } catch (UserErrorException | FormatterException e) {
                 this.clientLogger.notifyUser("Formatting", e);
-                return Collections.singletonList(textEdit);
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation exception
             } catch (Throwable e) {
                 String msg = "Operation 'text/formatting' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_FORMATTING, msg, e, params.getTextDocument(),
                         (Position) null);
-                return Collections.singletonList(textEdit);
             }
+
+            return Collections.emptyList();
         });
     }
 
@@ -393,59 +408,62 @@ class BallerinaTextDocumentService implements TextDocumentService {
      */
     @Override
     public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
-        return CompletableFuture.supplyAsync(() -> {
-            TextEdit textEdit = new TextEdit();
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             String fileUri = params.getTextDocument().getUri();
-            Optional<Path> formattingFilePath = CommonUtil.getPathFromURI(fileUri);
-            // Note: If the path does not exist, then return early and ignore
-            if (formattingFilePath.isEmpty()) {
-                return Collections.singletonList(textEdit);
-            }
+            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(fileUri,
+                    this.workspaceManager,
+                    LSContextOperation.TXT_FORMATTING,
+                    this.serverContext,
+                    cancelChecker);
             try {
-                CommonUtil.getPathFromURI(fileUri);
-                Optional<Document> document = workspaceManager.document(formattingFilePath.get());
-                if (document.isEmpty()) {
-                    return new ArrayList<>();
+                Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
+                if (syntaxTree.isEmpty()) {
+                    return Collections.emptyList();
                 }
-                SyntaxTree syntaxTree = document.get().syntaxTree();
                 Range range = params.getRange();
                 LinePosition startPos = LinePosition.from(range.getStart().getLine(), range.getStart().getCharacter());
                 LinePosition endPos = LinePosition.from(range.getEnd().getLine(), range.getEnd().getCharacter());
 
-                LineRange lineRange = LineRange.from(syntaxTree.filePath(), startPos, endPos);
-                SyntaxTree formattedTree = Formatter.format(syntaxTree, lineRange);
+                LineRange lineRange = LineRange.from(syntaxTree.get().filePath(), startPos, endPos);
+                SyntaxTree formattedTree = Formatter.format(syntaxTree.get(), lineRange);
 
-                LinePosition eofPos = syntaxTree.rootNode().lineRange().endLine();
+                LinePosition eofPos = syntaxTree.get().rootNode().lineRange().endLine();
                 Range updateRange = new Range(new Position(0, 0), new Position(eofPos.line() + 1, eofPos.offset()));
-                textEdit = new TextEdit(updateRange, formattedTree.toSourceCode());
+                TextEdit textEdit = new TextEdit(updateRange, formattedTree.toSourceCode());
+
                 return Collections.singletonList(textEdit);
             } catch (UserErrorException | FormatterException e) {
                 this.clientLogger.notifyUser("Formatting", e);
-                return Collections.singletonList(textEdit);
+            } catch (CancellationException ignore) {
+                // ignore the cancellation exception
             } catch (Throwable e) {
                 String msg = "Operation 'text/rangeFormatting' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_RANGE_FORMATTING, msg, e, params.getTextDocument(),
                         (Position) null);
-                return Collections.singletonList(textEdit);
             }
+
+            return Collections.emptyList();
         });
     }
 
     @Override
     public CompletableFuture<Either<Range, PrepareRenameResult>> prepareRename(PrepareRenameParams params) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
                 PrepareRenameContext context = ContextBuilder.buildPrepareRenameContext(
                         params.getTextDocument().getUri(),
                         this.workspaceManager,
                         this.serverContext,
-                        params.getPosition());
+                        params.getPosition(),
+                        cancelChecker);
                 Optional<Range> range = RenameUtil.prepareRename(context);
                 if (range.isPresent()) {
                     return Either.forLeft(range.get());
                 }
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Rename", e);
+            } catch (CancellationException ignore) {
+                // ignore the cancellation exception
             } catch (Throwable t) {
                 String msg = "Operation 'text/prepareRename' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_PREPARE_RENAME, msg, t, params.getTextDocument(),
@@ -458,16 +476,19 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
                 RenameContext context = ContextBuilder.buildRenameContext(params,
                         this.workspaceManager,
                         this.serverContext,
-                        this.clientCapabilities);
+                        this.clientCapabilities,
+                        cancelChecker);
 
                 return RenameUtil.rename(context);
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Rename", e);
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation exception
             } catch (Throwable e) {
                 String msg = "Operation 'text/rename' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_RENAME, msg, e, params.getTextDocument(),
@@ -481,13 +502,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public void didOpen(DidOpenTextDocumentParams params) {
         String fileUri = params.getTextDocument().getUri();
         try {
-            DocumentServiceContext context = ContextBuilder.buildBaseContext(fileUri, this.workspaceManager,
+            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(fileUri, this.workspaceManager,
                     LSContextOperation.TXT_DID_OPEN, this.serverContext);
             this.workspaceManager.didOpen(context.filePath(), params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
                     "' {fileUri: '" + fileUri + "'} opened");
             DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
-            diagnosticsHelper.compileAndSendDiagnostics(this.languageServer.getClient(), context);
+            diagnosticsHelper.schedulePublishDiagnostics(this.languageServer.getClient(), context);
             LSClientUtil.chekAndRegisterCommands(context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didOpen' failed!";
@@ -501,7 +522,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         String fileUri = params.getTextDocument().getUri();
         try {
             // Update content
-            DocumentServiceContext context = ContextBuilder.buildBaseContext(fileUri,
+            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(fileUri,
                     this.workspaceManager,
                     LSContextOperation.TXT_DID_CHANGE,
                     this.serverContext);
@@ -510,7 +531,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() +
                     "' {fileUri: '" + fileUri + "'} updated");
             DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
-            diagnosticsHelper.compileAndSendDiagnostics(this.languageServer.getClient(), context);
+            diagnosticsHelper.schedulePublishDiagnostics(this.languageServer.getClient(), context);
             LSClientUtil.chekAndRegisterCommands(context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didChange' failed!";
@@ -523,7 +544,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public void didClose(DidCloseTextDocumentParams params) {
         String fileUri = params.getTextDocument().getUri();
         try {
-            DocumentServiceContext context = ContextBuilder.buildBaseContext(fileUri,
+            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(fileUri,
                     this.workspaceManager,
                     LSContextOperation.TXT_DID_CLOSE,
                     this.serverContext);
@@ -543,41 +564,52 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<FoldingRange>> foldingRange(FoldingRangeRequestParams params) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
                 boolean lineFoldingOnly = this.clientCapabilities.getTextDocCapabilities().getFoldingRange() != null &&
                         Boolean.TRUE.equals(this.clientCapabilities.getTextDocCapabilities()
                                 .getFoldingRange().getLineFoldingOnly());
-                FoldingRangeContext foldingRangeContext = ContextBuilder.buildFoldingRangeContext(
+                FoldingRangeContext context = ContextBuilder.buildFoldingRangeContext(
                         params.getTextDocument().getUri(),
                         this.workspaceManager,
                         this.serverContext,
-                        lineFoldingOnly);
-                return FoldingRangeProvider.getFoldingRange(foldingRangeContext);
+                        lineFoldingOnly,
+                        cancelChecker);
+                return FoldingRangeProvider.getFoldingRange(context);
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation exception
             } catch (Throwable e) {
                 String msg = "Operation 'text/foldingRange' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_FOLDING_RANGE, msg, e,
                         new TextDocumentIdentifier(params.getTextDocument().getUri()),
                         (Position) null);
-                return Collections.emptyList();
             }
+
+            return Collections.emptyList();
         });
     }
 
     @Override
     public CompletableFuture<SemanticTokens> semanticTokensFull(SemanticTokensParams params) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
-                SemanticTokensContext semanticTokensContext = ContextBuilder.buildSemanticTokensContext(
-                        params.getTextDocument().getUri(), this.workspaceManager, this.serverContext);
-                return SemanticTokensUtils.getSemanticTokens(semanticTokensContext);
+                SemanticTokensContext context = ContextBuilder.buildSemanticTokensContext(
+                        params.getTextDocument().getUri(),
+                        this.workspaceManager,
+                        this.serverContext,
+                        cancelChecker);
+
+                return SemanticTokensUtils.getSemanticTokens(context);
+            } catch (CancellationException ignore) {
+                // Ignore cancellation exception
             } catch (Throwable e) {
                 String msg = "Operation 'textDocument/semanticTokens/full' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_SEMANTIC_TOKENS_FULL, msg, e,
                         new TextDocumentIdentifier(params.getTextDocument().getUri()),
                         (Position) null);
-                return new SemanticTokens(new ArrayList<>());
             }
+            
+            return new SemanticTokens(new ArrayList<>());
         });
     }
 }

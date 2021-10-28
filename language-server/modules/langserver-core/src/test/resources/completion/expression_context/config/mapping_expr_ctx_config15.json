@@ -17,7 +17,7 @@
     {
       "label": "rec2f1",
       "kind": "Field",
-      "detail": "(record {| int rec2f1; int rec2f2; anydata...; |}).rec2f1",
+      "detail": "RecordName2.rec2f1",
       "sortText": "G",
       "insertText": "rec2f1: ${1:0}",
       "insertTextFormat": "Snippet"
@@ -25,15 +25,15 @@
     {
       "label": "rec2f2",
       "kind": "Field",
-      "detail": "(record {| int rec2f1; int rec2f2; anydata...; |}).rec2f2",
+      "detail": "RecordName2.rec2f2",
       "sortText": "G",
       "insertText": "rec2f2: ${2:0}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Fill record {| int rec2f1; int rec2f2; anydata...; |} Required Fields",
+      "label": "Fill RecordName2 Required Fields",
       "kind": "Property",
-      "detail": "record {| int rec2f1; int rec2f2; anydata...; |}",
+      "detail": "RecordName2",
       "sortText": "R",
       "filterText": "fill",
       "insertText": "rec2f1: 0,\nrec2f2: 0",

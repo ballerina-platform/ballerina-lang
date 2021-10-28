@@ -70,7 +70,7 @@ public class XMLLexer extends AbstractLexer {
                 token = readTokenInXMLAttributes(true);
                 break;
             case XML_COMMENT:
-                token = readTokenInXMLComment();
+                token = readTokenInXMLCommentOrCDATA(false);
                 break;
             case XML_PI:
                 processLeadingXMLTrivia();
@@ -85,6 +85,9 @@ public class XMLLexer extends AbstractLexer {
                 break;
             case XML_DOUBLE_QUOTED_STRING:
                 token = processXMLDoubleQuotedString();
+                break;
+            case XML_CDATA_SECTION:
+                token = readTokenInXMLCommentOrCDATA(true);
                 break;
             default:
                 token = null;
@@ -320,6 +323,12 @@ public class XMLLexer extends AbstractLexer {
                             startMode(ParserMode.XML_COMMENT);
                             return getXMLSyntaxTokenWithoutTrailingWS(SyntaxKind.XML_COMMENT_START_TOKEN);
                         }
+                        // '<![CDATA[' is the CDATA start.
+                        if (isCDATAStart()) {
+                            reader.advance(8);
+                            startMode(ParserMode.XML_CDATA_SECTION);
+                            return getXMLSyntaxTokenWithoutTrailingWS(SyntaxKind.XML_CDATA_START_TOKEN);
+                        }
                         break;
                     case LexerTerminals.QUESTION_MARK:
                         // '<?' is the processing instruction start.
@@ -351,6 +360,16 @@ public class XMLLexer extends AbstractLexer {
         // Everything else treat as charData
         startMode(ParserMode.XML_TEXT);
         return readTokenInXMLText();
+    }
+
+    private boolean isCDATAStart() {
+        return reader.peek(1) == LexerTerminals.OPEN_BRACKET &&
+                reader.peek(2) == 'C' &&
+                reader.peek(3) == 'D' &&
+                reader.peek(4) == 'A' &&
+                reader.peek(5) == 'T' &&
+                reader.peek(6) == 'A' &&
+                reader.peek(7) == LexerTerminals.OPEN_BRACKET;
     }
 
     /*
@@ -780,11 +799,16 @@ public class XMLLexer extends AbstractLexer {
 
     /*
      * ------------------------------------------------------------------------------------------------------------
-     * XML_COMMENT Mode
+     * XML_COMMENT or XML_CDATA_SECTION Mode
      * ------------------------------------------------------------------------------------------------------------
      */
 
-    private STToken readTokenInXMLComment() {
+    /**
+     * Reads a token in XML comment or in XML CDATA section.
+     * @param isCdata whether in `XML_CDATA_SECTION` mode or not
+     * @return token
+     */
+    private STToken readTokenInXMLCommentOrCDATA(boolean isCdata) {
         reader.mark();
         if (reader.isEOF()) {
             return getXMLSyntaxToken(SyntaxKind.EOF_TOKEN);
@@ -799,7 +823,7 @@ public class XMLLexer extends AbstractLexer {
          */
         switch (reader.peek()) {
             case LexerTerminals.MINUS:
-                if (reader.peek(1) == LexerTerminals.MINUS) {
+                if (!isCdata && reader.peek(1) == LexerTerminals.MINUS) {
                     // '-->' marks the end of comment
                     if (reader.peek(2) == LexerTerminals.GT) {
                         reader.advance(3);
@@ -821,6 +845,14 @@ public class XMLLexer extends AbstractLexer {
                     return getXMLSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
                 }
                 break;
+            case LexerTerminals.CLOSE_BRACKET:
+                if (isCdata && reader.peek(1) == LexerTerminals.CLOSE_BRACKET &&
+                        reader.peek(2) == LexerTerminals.GT) {
+                    reader.advance(3);
+                    endMode();
+                    return getXMLSyntaxTokenWithoutTrailingWS(SyntaxKind.XML_CDATA_END_TOKEN);
+                }
+                break;
             default:
                 break;
         }
@@ -831,7 +863,7 @@ public class XMLLexer extends AbstractLexer {
         while (!reader.isEOF()) {
             switch (reader.peek()) {
                 case LexerTerminals.MINUS:
-                    if (reader.peek(1) == LexerTerminals.MINUS) {
+                    if (!isCdata && reader.peek(1) == LexerTerminals.MINUS) {
                         // '-->' marks the end of comment
                         if (reader.peek(2) == LexerTerminals.GT) {
                             break;
@@ -853,6 +885,13 @@ public class XMLLexer extends AbstractLexer {
                 case LexerTerminals.BACKTICK:
                     endMode();
                     break;
+                case LexerTerminals.CLOSE_BRACKET:
+                    if (isCdata && reader.peek(1) == LexerTerminals.CLOSE_BRACKET &&
+                            reader.peek(2) == LexerTerminals.GT) {
+                        break;
+                    }
+                    reader.advance();
+                    continue;
                 default:
                     reader.advance();
                     continue;

@@ -3,7 +3,7 @@
     "character": 4,
     "expected": [
         {
-            "title": "Implement method \u0027pushText2\u0027",
+            "title": "Implement method \u0027pushText3\u0027",
             "edits": [
                 {
                     "range": {
@@ -16,7 +16,7 @@
                             "character": 0
                         }
                     },
-                    "newText": "\n    public function pushText2(string text) returns error? {\n        return;\n    }\n"
+                    "newText": "\n    public function pushText3(string text) {\n        \n    }\n"
                 }
             ]
         }

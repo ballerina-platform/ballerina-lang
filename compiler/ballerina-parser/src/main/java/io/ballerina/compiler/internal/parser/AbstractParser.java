@@ -81,7 +81,7 @@ public abstract class AbstractParser {
         if (this.insertedToken != null) {
             STToken nextToken = this.insertedToken;
             this.insertedToken = null;
-            return nextToken;
+            return consumeWithInvalidNodes(nextToken);
         }
 
         if (invalidNodeInfoStack.isEmpty()) {
@@ -94,6 +94,10 @@ public abstract class AbstractParser {
     private STToken consumeWithInvalidNodes() {
         // TODO can we improve this logic by cloning only once with all the invalid tokens?
         STToken token = this.tokenReader.read();
+        return consumeWithInvalidNodes(token);
+    }
+
+    private STToken consumeWithInvalidNodes(STToken token) {
         while (!invalidNodeInfoStack.isEmpty()) {
             InvalidNodeInfo invalidNodeInfo = invalidNodeInfoStack.pop();
             token = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(token, invalidNodeInfo.node,

@@ -70,18 +70,22 @@ public class FieldCompletionItemBuilder {
      */
     public static CompletionItem build(RecordFieldSymbol symbol, BallerinaCompletionContext context) {
         String recordFieldName = symbol.getName().orElseThrow();
-        String insertText;
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(recordFieldName);
         completionItem.setKind(CompletionItemKind.Field);
+        OptionalFieldAccessWriteAmbiguityResolver resolver = new OptionalFieldAccessWriteAmbiguityResolver(context);
+        Boolean readableContext = context.getNodeAtCursor().apply(resolver);
 
-        Optional<TextEdit> recordFieldAdditionalTextEdit = getRecordFieldAdditionalTextEdit(symbol, context);
-        if (recordFieldAdditionalTextEdit.isPresent()) {
-            insertText = "?." + recordFieldName;
-            completionItem.setAdditionalTextEdits(Collections.singletonList(recordFieldAdditionalTextEdit.get()));
-        } else {
-            insertText = recordFieldName;
+        String insertText = recordFieldName;
+        // Here we added null check since the value is null for ExternalTreeNodeList.
+        if (readableContext != null && readableContext) {
+            Optional<TextEdit> recordFieldAdditionalTextEdit = getRecordFieldAdditionalTextEdit(symbol, context);
+            if (recordFieldAdditionalTextEdit.isPresent()) {
+                insertText = "?." + recordFieldName;
+                completionItem.setAdditionalTextEdits(Collections.singletonList(recordFieldAdditionalTextEdit.get()));
+            }
         }
+
         completionItem.setInsertText(insertText);
 
         return completionItem;
@@ -105,7 +109,7 @@ public class FieldCompletionItemBuilder {
 
             return item;
         }
-        
+
         return build(objectFieldSymbol);
     }
 

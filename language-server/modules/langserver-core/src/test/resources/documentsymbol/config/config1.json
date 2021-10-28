@@ -1,0 +1,579 @@
+{
+  "source": {
+    "file": "project1/main.bal"
+  },
+  "result": [
+    {
+      "right": {
+        "name": "User",
+        "kind": "Class",
+        "range": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 39,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 39,
+            "character": 1
+          }
+        },
+        "children": [
+          {
+            "name": "init",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 11,
+                "character": 4
+              },
+              "end": {
+                "line": 20,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 11,
+                "character": 4
+              },
+              "end": {
+                "line": 20,
+                "character": 5
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "getAddress",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 22,
+                "character": 4
+              },
+              "end": {
+                "line": 26,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 22,
+                "character": 4
+              },
+              "end": {
+                "line": 26,
+                "character": 5
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "getEmail",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 28,
+                "character": 4
+              },
+              "end": {
+                "line": 30,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 28,
+                "character": 4
+              },
+              "end": {
+                "line": 30,
+                "character": 5
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "getType",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 32,
+                "character": 4
+              },
+              "end": {
+                "line": 34,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 32,
+                "character": 4
+              },
+              "end": {
+                "line": 34,
+                "character": 5
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "getUserName",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 36,
+                "character": 4
+              },
+              "end": {
+                "line": 38,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 36,
+                "character": 4
+              },
+              "end": {
+                "line": 38,
+                "character": 5
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "right": {
+        "name": "Item",
+        "kind": "Class",
+        "range": {
+          "start": {
+            "line": 42,
+            "character": 0
+          },
+          "end": {
+            "line": 58,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 42,
+            "character": 0
+          },
+          "end": {
+            "line": 58,
+            "character": 1
+          }
+        },
+        "children": [
+          {
+            "name": "init",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 46,
+                "character": 4
+              },
+              "end": {
+                "line": 51,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 46,
+                "character": 4
+              },
+              "end": {
+                "line": 51,
+                "character": 5
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "getCode",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 53,
+                "character": 4
+              },
+              "end": {
+                "line": 57,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 53,
+                "character": 4
+              },
+              "end": {
+                "line": 57,
+                "character": 5
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "right": {
+        "name": "main",
+        "kind": "Function",
+        "range": {
+          "start": {
+            "line": 60,
+            "character": 0
+          },
+          "end": {
+            "line": 75,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 60,
+            "character": 0
+          },
+          "end": {
+            "line": 75,
+            "character": 1
+          }
+        },
+        "children": []
+      }
+    },
+    {
+      "right": {
+        "name": "service /abc/users  on new http:Listener(8080) ",
+        "kind": "Interface",
+        "range": {
+          "start": {
+            "line": 77,
+            "character": 0
+          },
+          "end": {
+            "line": 94,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 77,
+            "character": 0
+          },
+          "end": {
+            "line": 94,
+            "character": 1
+          }
+        },
+        "children": [
+          {
+            "name": "post:/",
+            "kind": "Function",
+            "range": {
+              "start": {
+                "line": 79,
+                "character": 4
+              },
+              "end": {
+                "line": 81,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 79,
+                "character": 4
+              },
+              "end": {
+                "line": 81,
+                "character": 5
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "post:{id}",
+            "kind": "Function",
+            "range": {
+              "start": {
+                "line": 83,
+                "character": 4
+              },
+              "end": {
+                "line": 85,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 83,
+                "character": 4
+              },
+              "end": {
+                "line": 85,
+                "character": 5
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "post:register/{id}",
+            "kind": "Function",
+            "range": {
+              "start": {
+                "line": 87,
+                "character": 4
+              },
+              "end": {
+                "line": 89,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 87,
+                "character": 4
+              },
+              "end": {
+                "line": 89,
+                "character": 5
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "get:user/{id}",
+            "kind": "Function",
+            "range": {
+              "start": {
+                "line": 91,
+                "character": 4
+              },
+              "end": {
+                "line": 93,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 91,
+                "character": 4
+              },
+              "end": {
+                "line": 93,
+                "character": 5
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "right": {
+        "name": "service /abc/items  on new http:Listener(8090) ",
+        "kind": "Interface",
+        "range": {
+          "start": {
+            "line": 96,
+            "character": 0
+          },
+          "end": {
+            "line": 108,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 96,
+            "character": 0
+          },
+          "end": {
+            "line": 108,
+            "character": 1
+          }
+        },
+        "children": [
+          {
+            "name": "post:add",
+            "kind": "Function",
+            "range": {
+              "start": {
+                "line": 97,
+                "character": 4
+              },
+              "end": {
+                "line": 99,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 97,
+                "character": 4
+              },
+              "end": {
+                "line": 99,
+                "character": 5
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "get:item",
+            "kind": "Function",
+            "range": {
+              "start": {
+                "line": 101,
+                "character": 4
+              },
+              "end": {
+                "line": 103,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 101,
+                "character": 4
+              },
+              "end": {
+                "line": 103,
+                "character": 5
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "right": {
+        "name": "service  on new udp:Listener(8080) ",
+        "kind": "Interface",
+        "range": {
+          "start": {
+            "line": 111,
+            "character": 0
+          },
+          "end": {
+            "line": 120,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 111,
+            "character": 0
+          },
+          "end": {
+            "line": 120,
+            "character": 1
+          }
+        },
+        "children": [
+          {
+            "name": "onDatagram",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 112,
+                "character": 4
+              },
+              "end": {
+                "line": 115,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 112,
+                "character": 4
+              },
+              "end": {
+                "line": 115,
+                "character": 5
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "processDataAndGetToken",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 117,
+                "character": 4
+              },
+              "end": {
+                "line": 119,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 117,
+                "character": 4
+              },
+              "end": {
+                "line": 119,
+                "character": 5
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "right": {
+        "name": "deprecatedFunction",
+        "kind": "Function",
+        "range": {
+          "start": {
+            "line": 123,
+            "character": 0
+          },
+          "end": {
+            "line": 129,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 123,
+            "character": 0
+          },
+          "end": {
+            "line": 129,
+            "character": 1
+          }
+        },
+        "tags": [
+          "Deprecated"
+        ],
+        "children": []
+      }
+    }
+  ]
+}
