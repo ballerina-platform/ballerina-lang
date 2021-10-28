@@ -891,3 +891,44 @@ function testUnreachableCodeWithTypeNarrowing5() {
         never _ = x; // unreachable code
     }
 }
+
+function testUnreachableCodeWithTypeNarrowing6() {
+    int|string|float a = 10;
+    if a is int {
+        int b = 10;
+    } else if a is string {
+        int b = 20;
+    } else if a is float {
+        int b = 30;
+    } else if a is string {
+        never _ = a; // unreachable code
+    }
+}
+
+function testUnreachableCodeWithTypeNarrowing7() {
+    int|string|float a = 10;
+    if a is int {
+        int b = 10;
+    } else if a is string {
+        int b = 20;
+    } else if a is float {
+        int b = 30;
+    } else if a is string {
+        never _ = a;
+    } else if a is float {
+        never _ = a; // unreachable code
+    }
+}
+
+function testUnreachableCodeWithTypeNarrowing8() {
+    int|string|float a = 10;
+    if a is int {
+        int b = 10;
+    } else if a is string {
+        int b = 20;
+    } else if a is float {
+        int b = 30;
+    } else {
+        never _ = a; // unreachable code
+    }
+}

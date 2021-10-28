@@ -665,6 +665,56 @@ function testReachableCodeWithUnaryConditionsInIf() {
     assertEqual(res, 3);
 }
 
+function testReachableCodeWithTypeNarrowing() {
+    int? res = getValueForToken({kind: -1, value: ()});
+    assertEqual(res, ());
+
+    res = getValueForToken2(true);
+    assertEqual(res, ());
+}
+
+type Token record {
+    int kind;
+    anydata value;
+};
+
+function getValueForToken(Token previousToken) returns int? {
+    if previousToken.kind == -1 {
+        Token token = {kind: 0, value: ()};
+
+        if token.kind != 0 {
+            return 10;
+        }
+
+        if token.kind == 1 {
+            token = {kind: 0, value: ()};
+            return 20;
+        }
+    } else {
+        Token token = {kind: 0, value: ()};
+        return 30;
+    }
+    return;
+}
+
+function getValueForToken2(boolean b) returns int? {
+    if b {
+        Token token = {kind: 0, value: ()};
+
+        if token.kind != 0 {
+            return 10;
+        }
+
+        if token.kind == 1 {
+             return 20;
+        }
+    } else {
+        Token token = {kind: 0, value: ()};
+        return 30;
+    }
+    return;
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;
