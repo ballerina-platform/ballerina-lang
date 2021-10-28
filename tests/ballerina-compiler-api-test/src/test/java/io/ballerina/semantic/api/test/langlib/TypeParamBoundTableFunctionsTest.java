@@ -73,7 +73,7 @@ public class TypeParamBoundTableFunctionsTest {
         List<ParameterSymbol> params = lengthFnType.params().get();
 
         assertEquals(params.size(), 1);
-        assertFirstParam(params.get(0));
+        assertFirstParamMapType(params.get(0));
     }
 
     @Test
@@ -231,7 +231,7 @@ public class TypeParamBoundTableFunctionsTest {
         List<ParameterSymbol> params = removeAllFnType.params().get();
 
         assertEquals(params.size(), 1);
-        assertFirstParam(params.get(0));
+        assertFirstParamMapType(params.get(0));
     }
 
     @Test
@@ -249,7 +249,7 @@ public class TypeParamBoundTableFunctionsTest {
         List<ParameterSymbol> params = hasKeyFnType.params().get();
 
         assertEquals(params.size(), 1);
-        assertFirstParam(params.get(0));
+        assertFirstParamMapType(params.get(0));
     }
 
     @Test
@@ -278,6 +278,13 @@ public class TypeParamBoundTableFunctionsTest {
         assertTrue(langlibFns.containsKey(fnName));
         FunctionSymbol fn = langlibFns.get(fnName);
         return fn.typeDescriptor();
+    }
+
+    private void assertFirstParamMapType(ParameterSymbol param) {
+        TypeSymbol typeSymbol = param.typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), TypeDescKind.TABLE);
+        TypeSymbol type = ((TableTypeSymbol) typeSymbol).rowTypeParameter();
+        assertEquals(type.typeKind(), TypeDescKind.MAP);
     }
 
     private void assertFirstParam(ParameterSymbol param) {
