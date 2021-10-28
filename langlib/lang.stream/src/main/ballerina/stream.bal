@@ -55,7 +55,7 @@ public isolated function filter(stream<Type,CompletionType> stm, @isolatedParam 
 
 # Returns the next element in the stream wrapped in a record or () if the stream ends.
 #
-# + strm - The stream
+# + stm - The stream
 # + return - If the stream has elements, return the element wrapped in a record with single field called `value`,
 #            otherwise returns ()
 public isolated function next(stream<Type, CompletionType> stm) returns record {| Type value; |}|CompletionType {
