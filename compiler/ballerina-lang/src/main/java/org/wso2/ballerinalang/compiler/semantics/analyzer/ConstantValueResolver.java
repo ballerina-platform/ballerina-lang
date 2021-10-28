@@ -19,15 +19,20 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -41,14 +46,19 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+
+import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 
 /**
  * @since 0.990.4
@@ -83,6 +93,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         constants.forEach(constant -> constant.accept(this));
         constantMap.clear();
         constants.forEach(constant -> checkUniqueness(constant));
+        constants.forEach(constant -> updateSymbolType(constant));
     }
 
     @Override
@@ -466,6 +477,18 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             } else {
                 constantMap.put(nameString, value);
             }
+        }
+    }
+
+    private void updateSymbolType(BLangConstant constant) {
+        if (constant.symbol.kind == SymbolKind.CONSTANT && constant.symbol.type.getKind() != TypeKind.FINITE) {
+            BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
+                    Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY, constant.symbol.pkgID, null,
+                    constant.symbol.owner, constant.symbol.pos, SOURCE);
+
+            BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
+            //finiteType.addValue(constant.symbol.value);
+            constant.symbol.type = finiteType;
         }
     }
 }
