@@ -160,30 +160,51 @@ function testGetContent() returns [string, string] {
     return [pi.getContent(), comment.getContent()];
 }
 
+type attributesMap map<string>;
+
 function testCreateElement() {
-    xml children = xml `hello world`;
+    xml children1 = xml `<foo>hello</foo><foo>world</foo>`;
+    xml:Text children2 = xml `hello`;
+    xml:Comment children3 = xml `<!--Comment1-->`;
+    xml:Element children4 = xml `<foo>hello world</foo>`;
+    xml:ProcessingInstruction children5 = xml `<?foo?>`;
+
     map<string> attributes1 = {
         "href" : "https://ballerina.io"
     };
+
     map<string> attributes2 = {
         "href" : "https://ballerina.io",
         "src" : "test.jpg"
     };
-    xml:Element r1 = 'xml:createElement("elem", attributes1, children);
-    xml:Element r2 = 'xml:createElement("elem", attributes2, children);
+
+    attributesMap attributes3 = {"href":"https://ballerina.io"};
+
+    xml:Element r1 = 'xml:createElement("elem", attributes1, children1);
+    xml:Element r2 = 'xml:createElement("elem", attributes2, children1);
     xml:Element r3 = 'xml:createElement("elem");
     xml:Element r4 = 'xml:createElement("elem", attributes1);
-    xml:Element r5 = 'xml:createElement("elem", {}, children);
+    xml:Element r5 = 'xml:createElement("elem", {}, children1);
     xml:Element r6 = 'xml:createElement("elem", {}, xml ``);
     xml:Element r7 = 'xml:createElement("elem", {"href" : "https://ballerina.io"}, xml `hello world`);
+    xml:Element r8 = 'xml:createElement("elem", attributes1, children5);
+    xml:Element r9 = 'xml:createElement("elem", attributes1, children2);
+    xml:Element r11 = 'xml:createElement("elem", attributes1, children3);
+    xml:Element r12 = 'xml:createElement("elem", attributes1, children4);
+    xml:Element r10 = 'xml:createElement("elem", attributes3, children1);
 
-    assertEquals(r1.toString(), "<elem href=\"https://ballerina.io\">hello world</elem>");
-    assertEquals(r2.toString(), "<elem href=\"https://ballerina.io\" src=\"test.jpg\">hello world</elem>");
+    assertEquals(r1.toString(), "<elem href=\"https://ballerina.io\"><foo>hello</foo><foo>world</foo></elem>");
+    assertEquals(r2.toString(), "<elem href=\"https://ballerina.io\" src=\"test.jpg\"><foo>hello</foo><foo>world</foo></elem>");
     assertEquals(r3.toString(), "<elem/>");
     assertEquals(r4.toString(), "<elem href=\"https://ballerina.io\"/>");
-    assertEquals(r5.toString(), "<elem>hello world</elem>");
+    assertEquals(r5.toString(), "<elem><foo>hello</foo><foo>world</foo></elem>");
     assertEquals(r6.toString(), "<elem/>");
     assertEquals(r7.toString(), "<elem href=\"https://ballerina.io\">hello world</elem>");
+    assertEquals(r8.toString(), "<elem href=\"https://ballerina.io\"><?foo?></elem>");
+    assertEquals(r9.toString(), "<elem href=\"https://ballerina.io\">hello</elem>");
+    assertEquals(r10.toString(), "<elem href=\"https://ballerina.io\"><foo>hello</foo><foo>world</foo></elem>");
+    assertEquals(r11.toString(), "<elem href=\"https://ballerina.io\"><!--Comment1--></elem>");
+    assertEquals(r12.toString(), "<elem href=\"https://ballerina.io\"><foo>hello world</foo></elem>");
 }
 
 function testCreateProcessingInstruction() returns xml {
