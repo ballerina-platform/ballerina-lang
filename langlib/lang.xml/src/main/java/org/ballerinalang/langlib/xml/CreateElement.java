@@ -18,6 +18,7 @@
 package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
@@ -39,10 +40,11 @@ import io.ballerina.runtime.internal.XmlFactory;
 //)
 public class CreateElement {
 
-    public static BXml createElement(BString name, BXml children) {
+    public static BXml createElement(BString name, BMap<BString, BString> attributes, BXml children) {
         BXmlQName xmlqName = ValueCreator.createXmlQName(name);
         String temp = null;
         BXml xmlElement = XmlFactory.createXMLElement(xmlqName, temp);
+        xmlElement.setAttributes(attributes);
         xmlElement.setChildren(getChildren(children));
         return xmlElement;
     }
@@ -54,3 +56,4 @@ public class CreateElement {
         return children;
     }
 }
+
