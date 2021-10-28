@@ -3940,11 +3940,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        BType exprType = typeTestExpr.expr.getBType();
+        BType typeNodeType = typeTestExpr.typeNode.getBType();
         // Check whether the condition is always true. If the variable type is assignable to target type,
         // then type check will always evaluate to true.
-        if (types.isAssignable(typeTestExpr.expr.getBType(), typeTestExpr.typeNode.getBType())) {
+        if (types.isAssignable(exprType, typeNodeType)) {
             if (typeTestExpr.isNegation) {
                 dlog.hint(typeTestExpr.pos, DiagnosticHintCode.EXPRESSION_ALWAYS_FALSE);
+                return;
+            }
+            if (types.isNeverTypeOrStructureTypeWithARequiredNeverMember(exprType)) {
+                dlog.hint(typeTestExpr.pos, DiagnosticHintCode.UNNECESSARY_CONDITION_FOR_VARIABLE_OF_TYPE_NEVER);
                 return;
             }
             dlog.hint(typeTestExpr.pos, DiagnosticHintCode.UNNECESSARY_CONDITION);
