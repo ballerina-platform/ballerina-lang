@@ -76,11 +76,6 @@ public class XmlComment extends XmlNonElementItem {
     }
 
     @Override
-    public boolean isSingleton() {
-        return true;
-    }
-
-    @Override
     public String getTextValue() {
         return data;
     }
