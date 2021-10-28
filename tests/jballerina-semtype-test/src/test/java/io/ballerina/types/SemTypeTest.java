@@ -119,17 +119,17 @@ public class SemTypeTest {
         ensureNoErrors(bLangPackage);
         List<String[]> vars = extractVarTypes(fileName);
         Context tc = Context.from(bLangPackage.semtypeEnv);
-        Map<String, SemType> sm = bLangPackage.semtypeEnv.geTypeNameSemTypeMap();
+        Scope globalScope = bLangPackage.symbol.scope;
         bLangPackage.functions.forEach(func -> {
             Scope scope = func.getBody().scope;
             vars.forEach(v -> {
                 SemType t1 = scope.lookup(new Name(v[0])).symbol.type.getSemtype();
-                SemType t2 = sm.get(v[1]);
+                SemType t2 = globalScope.lookup(new Name(v[1])).symbol.type.getSemtype();
+
                 Assert.assertTrue(SemTypes.isSubtype(tc, t1, t2));
                 Assert.assertTrue(SemTypes.isSubtype(tc, t2, t1));
             });
         });
-
     }
 
     private String toText(List<String> expectedRels) {
@@ -144,7 +144,7 @@ public class SemTypeTest {
         BLangPackage bLangPackage = BCompileUtil.compileSemType(sourceFilePath);
         ensureNoErrors(bLangPackage);
         Context typeCheckContext = Context.from(bLangPackage.semtypeEnv);
-        Map<String, SemType> typeMap = bLangPackage.semtypeEnv.geTypeNameSemTypeMap();
+        Map<String, SemType> typeMap = bLangPackage.semtypeEnv.getTypeNameSemTypeMap();
 
         List<TypeRel> subtypeRelations = new ArrayList<>();
         List<String> typeNameList = typeMap.keySet().stream()
@@ -205,7 +205,7 @@ public class SemTypeTest {
             Path path = resolvePath(fileName);
             Stream<String> lines = Files.lines(Path.of(path.toString()));
             return lines.filter(s -> s.startsWith("// "))
-                    .map(s -> s.substring(3).strip().split("="))
+                    .map(s -> s.substring(3).replaceAll("\\s","").split("="))
                     .collect(Collectors.toList());
         } catch (IOException e) {
             Assert.fail(e.toString());

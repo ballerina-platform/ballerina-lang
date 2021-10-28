@@ -529,7 +529,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private SemType resolveTypeDefn(Env semtypeEnv, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth) {
         if (defn.semType != null) {
-            addSemtypeBType(defn.getTypeNode(), defn.semType);
+            //addSemtypeBType(defn.getTypeNode(), defn.semType);
             return defn.semType;
         }
 
