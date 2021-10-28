@@ -322,12 +322,13 @@ public class TypeParamAnalyzer {
                         while (constraint.tag == TypeTags.XML) {
                             constraint = ((BXMLType) constraint).constraint;
                         }
-                        findTypeParam(loc, ((BXMLType) expType).constraint, constraint, env,
-                                resolvedTypes, result);
+                        findTypeParam(loc, ((BXMLType) expType).constraint, constraint, env, resolvedTypes, result);
                         return;
                     case TypeTags.XML_TEXT:
-                        findTypeParam(loc, ((BXMLType) expType).constraint, actualType, env,
-                                resolvedTypes, result);
+                    case TypeTags.XML_ELEMENT:
+                    case TypeTags.XML_PI:
+                    case TypeTags.XML_COMMENT:
+                        findTypeParam(loc, ((BXMLType) expType).constraint, actualType, env, resolvedTypes, result);
                         return;
                     case TypeTags.UNION:
                         findTypeParamInUnion(loc, ((BXMLType) expType).constraint, (BUnionType) actualType, env,
