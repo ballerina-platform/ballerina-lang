@@ -37,12 +37,14 @@ import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.repos.TempDirCompilationCache;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -246,5 +248,23 @@ public class TestBalaProject {
         } catch (ProjectException e) {
             // ignore
         }
+    }
+
+    @Test
+    public void testProjectRefresh() {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_refresh_tests").resolve("package_refresh_bala");
+        Project project = TestUtils.loadProject(projectDirPath);
+        Assert.assertEquals(project.kind(), ProjectKind.BALA_PROJECT);
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        int errorCount = compilation.diagnosticResult().errorCount();
+        Assert.assertEquals(errorCount, 3);
+
+        BCompileUtil.compileAndCacheBala("projects_for_refresh_tests/package_refresh_two_v3");
+        int errorCount2 = project.currentPackage().getCompilation().diagnosticResult().errorCount();
+        Assert.assertEquals(errorCount2, 3);
+
+        project.refresh();
+        int errorCount3 = project.currentPackage().getCompilation().diagnosticResult().errorCount();
+        Assert.assertEquals(errorCount3, 0);
     }
 }

@@ -56,6 +56,7 @@ import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.tools.text.LinePosition;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
@@ -1549,6 +1550,23 @@ public class TestBuildProject extends BaseTest {
             Assert.fail(e.getMessage());
         }
         return buildProject;
+    }
+
+    @Test
+    public void testProjectRefresh() {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_refresh_tests").resolve("package_refresh_one");
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+        int errorCount = compilation.diagnosticResult().errorCount();
+        Assert.assertEquals(errorCount, 3);
+
+        BCompileUtil.compileAndCacheBala("projects_for_refresh_tests/package_refresh_two");
+        int errorCount2 = buildProject.currentPackage().getCompilation().diagnosticResult().errorCount();
+        Assert.assertEquals(errorCount2, 3);
+
+        buildProject.refresh();
+        int errorCount3 = buildProject.currentPackage().getCompilation().diagnosticResult().errorCount();
+        Assert.assertEquals(errorCount3, 0);
     }
 
     @AfterClass (alwaysRun = true)

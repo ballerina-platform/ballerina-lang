@@ -29,6 +29,7 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.SingleFileProject;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
@@ -236,6 +237,24 @@ public class TestSingleFileProject {
         Assert.assertEquals(
                 compilation.diagnosticResult().diagnostics().stream().findFirst().get().location().lineRange()
                         .filePath(), "main_with_error.bal");
+    }
+
+    @Test
+    public void testProjectRefresh() {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_refresh_tests").resolve("single-file")
+                .resolve("main.bal");
+        SingleFileProject singleFileProject = TestUtils.loadSingleFileProject(projectDirPath);
+        PackageCompilation compilation = singleFileProject.currentPackage().getCompilation();
+        int errorCount = compilation.diagnosticResult().errorCount();
+        Assert.assertEquals(errorCount, 3);
+
+        BCompileUtil.compileAndCacheBala("projects_for_refresh_tests/package_refresh_two_v2");
+        int errorCount2 = singleFileProject.currentPackage().getCompilation().diagnosticResult().errorCount();
+        Assert.assertEquals(errorCount2, 3);
+
+        singleFileProject.refresh();
+        int errorCount3 = singleFileProject.currentPackage().getCompilation().diagnosticResult().errorCount();
+        Assert.assertEquals(errorCount3, 0);
     }
 
     @AfterClass(alwaysRun = true)
