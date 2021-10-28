@@ -27,6 +27,7 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -251,6 +252,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private Types types;
     private Map<BSymbol, InitStatus> uninitializedVars;
     private Map<BSymbol, Location> unusedErrorVarsDeclaredWithVar;
+    private Map<BSymbol, Location> unusedLocalVariables;
     private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
     private Map<BSymbol, Set<BSymbol>> functionToDependency;
     private boolean flowTerminated = false;
@@ -374,6 +376,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        Map<BSymbol, Location> prevUnusedLocalVariables = this.unusedLocalVariables;
+        this.unusedLocalVariables = new HashMap<>();
+
         this.currDependentSymbolDeque.push(funcNode.symbol);
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         funcNode.annAttachments.forEach(bLangAnnotationAttachment -> analyzeNode(bLangAnnotationAttachment.expr, env));
@@ -381,6 +386,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(funcNode.restParam, funcEnv);
         analyzeBranch(funcNode.body, funcEnv);
         this.currDependentSymbolDeque.pop();
+
+        emitUnusedVariableWarnings(this.unusedLocalVariables);
+        this.unusedLocalVariables = prevUnusedLocalVariables;
     }
 
     @Override
@@ -507,6 +515,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BLangVariable var = varDefNode.var;
         if (var.expr == null) {
             addUninitializedVar(var);
+
+            BVarSymbol symbol = var.symbol;
+
+            if (isLocalVariable(symbol)) {
+                this.unusedLocalVariables.put(symbol, var.pos);
+            }
+
             return;
         }
 
@@ -536,6 +551,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         try {
             if (variable.isDeclaredWithVar) {
                 addVarIfInferredTypeIncludesError(variable);
+            } else if (isLocalVariable(symbol)) {
+                this.unusedLocalVariables.put(symbol, variable.pos);
             }
 
             if (variable.expr != null) {
@@ -1032,7 +1049,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        unusedErrorVarsDeclaredWithVar.remove(varRefExpr.symbol);
+        this.unusedErrorVarsDeclaredWithVar.remove(varRefExpr.symbol);
+
+        if (this.unusedLocalVariables != null && isRead(varRefExpr)) {
+            // The map will be null for module-level references.
+            this.unusedLocalVariables.remove(varRefExpr.symbol);
+        }
+
         checkVarRef(varRefExpr.symbol, varRefExpr.pos);
     }
 
@@ -1977,7 +2000,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkAssignment(BLangExpression varRef) {
-        switch (varRef.getKind()) {
+        NodeKind kind = varRef.getKind();
+        switch (kind) {
             case RECORD_VARIABLE_REF:
                 BLangRecordVarRef recordVarRef = (BLangRecordVarRef) varRef;
                 recordVarRef.recordRefFields.forEach(field -> checkAssignment(field.variableReference));
@@ -2033,18 +2057,22 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 }
 
                 analyzeNode(expr, env);
+
+                if (kind == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+                    analyzeNode(((BLangIndexBasedAccess) varRef).indexExpr, env);
+                }
+
                 return;
             default:
                 break;
         }
 
-        if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
-                varRef.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
+        if (kind != NodeKind.SIMPLE_VARIABLE_REF && kind != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
             return;
         }
 
         // So global variable assignments happen in functions.
-        if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+        if (kind == NodeKind.SIMPLE_VARIABLE_REF) {
             BSymbol symbol = ((BLangSimpleVarRef) varRef).symbol;
             checkFinalEntityUpdate(varRef.pos, varRef, symbol);
 
@@ -2127,6 +2155,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private void emitUnusedVariableWarnings(Map<BSymbol, Location> unusedLocalVariables) {
+        for (Map.Entry<BSymbol, Location> entry : unusedLocalVariables.entrySet()) {
+            this.dlog.warning(entry.getValue(), DiagnosticWarningCode.UNUSED_LOCAL_VARIABLE);
+        }
+    }
+
     private void addVarIfInferredTypeIncludesError(BLangSimpleVariable variable) {
         BType typeIntersection =
                 types.getTypeIntersection(Types.IntersectionContext.compilerInternalIntersectionContext(),
@@ -2135,6 +2169,36 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 typeIntersection != symTable.semanticError && typeIntersection != symTable.noType) {
             unusedErrorVarsDeclaredWithVar.put(variable.symbol, variable.pos);
         }
+    }
+
+    private boolean isLocalVariable(BVarSymbol symbol) {
+        BSymbol owner = symbol.owner;
+
+        if (owner == null || owner.tag == SymTag.PACKAGE) {
+            return false;
+        }
+
+        return owner.tag == SymTag.FUNCTION;
+    }
+
+    private boolean isRead(BLangSimpleVarRef varRefExpr) {
+        if (!varRefExpr.isLValue) {
+            return true;
+        }
+
+        BLangNode parent = varRefExpr.parent;
+
+        if (parent == null || parent.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR) {
+            return false;
+        }
+
+        BLangNode parentParent = parent.parent;
+
+        if (parentParent == null || parentParent.getKind() != NodeKind.ASSIGNMENT) {
+            return false;
+        }
+
+        return ((BLangIndexBasedAccess) parent).indexExpr == varRefExpr;
     }
 
     private enum InitStatus {
