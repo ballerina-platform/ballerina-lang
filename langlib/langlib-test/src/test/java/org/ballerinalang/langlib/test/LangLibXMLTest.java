@@ -187,10 +187,7 @@ public class LangLibXMLTest {
 
     @Test
     public void testCreateElement() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateElement");
-        assertEquals((returns[0]).stringValue(), "<elem>hello world</elem>");
-        assertEquals((returns[1]).stringValue(), "hello world");
-        assertEquals((returns[2]).stringValue(), "");
+        BRunUtil.invoke(compileResult, "testCreateElement");
     }
 
     @Test
