@@ -113,8 +113,8 @@ public isolated function add(table<MapType> t, MapType val) = @java:Method {
 # + t - the table
 # + func - a function to apply to each member
 # + return - new table containing result of applying function `func` to each member
-public isolated function 'map(table<MapType> t, @isolatedParam function(MapType val) returns Type func)
-   returns table<Type> key<never> = @java:Method {
+public isolated function 'map(table<MapType> t, @isolatedParam function(MapType val) returns MapType1 func)
+   returns table<MapType1> key<never> = @java:Method {
     'class: "org.ballerinalang.langlib.table.Map",
     name: "map"
 } external;
