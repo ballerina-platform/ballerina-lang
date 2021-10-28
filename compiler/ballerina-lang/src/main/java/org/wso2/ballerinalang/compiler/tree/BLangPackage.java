@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree;
 import io.ballerina.projects.internal.ModuleContextDataHolder;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.types.Env;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -88,6 +89,9 @@ public class BLangPackage extends BLangNode implements PackageNode {
 
     public ModuleContextDataHolder moduleContextDataHolder;
 
+    // Semtype env
+    public final Env semtypeEnv;
+
     public BLangPackage() {
         this.compUnits = new ArrayList<>();
         this.imports = new ArrayList<>();
@@ -106,6 +110,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.testablePkgs = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.diagnostics = new TreeSet<>(new DiagnosticComparator());
+        this.semtypeEnv = new Env();
     }
 
     @Override

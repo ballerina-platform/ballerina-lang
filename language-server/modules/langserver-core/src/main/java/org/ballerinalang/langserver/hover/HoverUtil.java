@@ -34,6 +34,7 @@ import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
@@ -74,7 +75,11 @@ public class HoverUtil {
 
         Position cursorPosition = context.getCursorPosition();
         LinePosition linePosition = LinePosition.from(cursorPosition.getLine(), cursorPosition.getCharacter());
+        // Check for the cancellation before the time consuming operation
+        context.checkCancelled();
         Optional<Symbol> symbolAtCursor = semanticModel.get().symbol(srcFile.get(), linePosition);
+        // Check for the cancellation after the time consuming operation
+        context.checkCancelled();
         if (symbolAtCursor.isEmpty()) {
             return HoverUtil.getDefaultHoverObject();
         }
@@ -101,8 +106,9 @@ public class HoverUtil {
             case ENUM:
             case ENUM_MEMBER:
             case CLASS_FIELD:
-            case VARIABLE:
                 return getDescriptionOnlyHoverObject(symbol);
+            case VARIABLE:
+                return getVariableHoverMarkupContent((VariableSymbol) symbol);
             case TYPE:
                 if (symbol instanceof TypeReferenceTypeSymbol) {
                     return getHoverForSymbol(((TypeReferenceTypeSymbol) symbol).definition(), context);
@@ -286,13 +292,6 @@ public class HoverUtil {
         return getDescriptionOnlyHoverObject(((Documentable) symbol).documentation().get());
     }
 
-//    private static boolean skipFirstParam(LSContext context, BInvokableSymbol invokableSymbol) {
-    // Fixme in the next phase
-//        NonTerminalNode evalNode = context.get(CompletionKeys.TOKEN_AT_CURSOR_KEY).parent();
-//        return CommonUtil.isLangLibSymbol(invokableSymbol) && evalNode.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
-//        return false;
-//    }
-
     private static Hover getFunctionHoverMarkupContent(FunctionSymbol symbol, HoverContext ctx) {
         Optional<Documentation> documentation = symbol.documentation();
         if (documentation.isEmpty()) {
@@ -339,6 +338,28 @@ public class HoverUtil {
                     returnTypeName + " : " + documentation.get().returnDescription().get();
             hoverContent.add(returnDoc);
         }
+
+        Hover hover = new Hover();
+        MarkupContent hoverMarkupContent = new MarkupContent();
+        hoverMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
+        hoverMarkupContent.setValue(hoverContent.stream().collect(Collectors.joining(getHorizontalSeparator())));
+        hover.setContents(hoverMarkupContent);
+
+        return hover;
+    }
+
+    private static Hover getVariableHoverMarkupContent(VariableSymbol symbol) {
+        Optional<Documentation> documentation = symbol.documentation();
+        List<String> hoverContent = new ArrayList<>();
+        if (documentation.isPresent() && documentation.get().description().isPresent()) {
+            hoverContent.add(documentation.get().description().get());
+        }
+
+        TypeSymbol varTypeSymbol = symbol.typeDescriptor();
+        String type = varTypeSymbol.signature();
+        String varName = symbol.getName().isPresent() ? " " + symbol.getName().get() : "";
+        String modifiedVariable = quotedString(type) + varName;
+        hoverContent.add(modifiedVariable);
 
         Hover hover = new Hover();
         MarkupContent hoverMarkupContent = new MarkupContent();

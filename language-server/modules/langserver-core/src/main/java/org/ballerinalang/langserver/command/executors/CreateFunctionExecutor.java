@@ -29,20 +29,20 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.codeaction.providers.CreateFunctionCodeAction;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.command.visitors.FunctionCallExpressionTypeFinder;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
-import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.exception.UserErrorException;
-import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
@@ -132,8 +132,11 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
                 .map(Optional::get)
                 .collect(Collectors.toSet());
 
-        CodeActionContext codeActionContext = ContextBuilder.buildCodeActionContext(uri, context.workspace(),
-                context.languageServercontext(), new CodeActionParams());
+        DocumentServiceContext docServiceContext = ContextBuilder.buildDocumentServiceContext(
+                uri,
+                context.workspace(),
+                LSContextOperation.WS_EXEC_CMD,
+                context.languageServercontext());
 
         List<String> args = new ArrayList<>();
         int argIndex = 1;
@@ -154,10 +157,10 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             if (type.isPresent() && type.get().typeKind() != TypeDescKind.COMPILATION_ERROR) {
                 varName = CommonUtil.generateParameterName(varName, argIndex,
                         CommonUtil.getRawType(type.get()), visibleSymbolNames);
-                args.add(FunctionGenerator.getParameterTypeAsString(codeActionContext, type.get()) + " " + varName);
+                args.add(FunctionGenerator.getParameterTypeAsString(docServiceContext, type.get()) + " " + varName);
             } else {
                 varName = CommonUtil.generateParameterName(varName, argIndex, null, visibleSymbolNames);
-                args.add(FunctionGenerator.getParameterTypeAsString(codeActionContext, null) + " " + varName);
+                args.add(FunctionGenerator.getParameterTypeAsString(docServiceContext, null) + " " + varName);
             }
             visibleSymbolNames.add(varName);
             argIndex++;
@@ -187,7 +190,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         }
 
         // Generate function
-        String function = FunctionGenerator.generateFunction(codeActionContext, !newLineAtEnd, functionName,
+        String function = FunctionGenerator.generateFunction(docServiceContext, !newLineAtEnd, functionName,
                 args, returnTypeSymbol.get());
 
         edits.add(new TextEdit(insertRange, function));

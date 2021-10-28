@@ -40,8 +40,9 @@ public class XMLNSCompletionItemBuilder {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(namespaceSymbol.getName().orElse(""));
         completionItem.setInsertText(namespaceSymbol.getName().orElse(""));
-        completionItem.setDetail(namespaceSymbol.namespaceUri());
-        completionItem.setKind(CompletionItemKind.Unit);
+        completionItem.setDetail(namespaceSymbol.kind().name().toLowerCase());
+        completionItem.setDocumentation(namespaceSymbol.namespaceUri());
+        completionItem.setKind(CompletionItemKind.Variable);
 
         return completionItem;
     }

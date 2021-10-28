@@ -1,5 +1,5 @@
 type LinkedList record {|
-    string value;
+    () value;
     LinkedList next;
 |};
 

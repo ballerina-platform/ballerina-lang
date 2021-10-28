@@ -20,6 +20,7 @@ import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.SemanticTokensContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * Represents semantic tokens context implementation.
@@ -28,9 +29,11 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
  */
 public class SemanticTokensContextImpl extends AbstractDocumentServiceContext implements SemanticTokensContext {
 
-    SemanticTokensContextImpl(LSOperation operation, String fileUri, WorkspaceManager wsManager,
-                              LanguageServerContext serverContext) {
-        super(operation, fileUri, wsManager, serverContext);
+    SemanticTokensContextImpl(LSOperation operation, String fileUri,
+                              WorkspaceManager wsManager,
+                              LanguageServerContext serverContext,
+                              CancelChecker cancelChecker) {
+        super(operation, fileUri, wsManager, serverContext, cancelChecker);
     }
 
     /**
@@ -47,7 +50,8 @@ public class SemanticTokensContextImpl extends AbstractDocumentServiceContext im
             return new SemanticTokensContextImpl(this.operation,
                     this.fileUri,
                     this.wsManager,
-                    this.serverContext);
+                    this.serverContext,
+                    this.cancelChecker);
         }
 
         @Override

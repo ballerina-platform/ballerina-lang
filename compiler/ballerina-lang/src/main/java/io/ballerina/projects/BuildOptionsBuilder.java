@@ -95,6 +95,11 @@ public class BuildOptionsBuilder {
         return this;
     }
 
+    public BuildOptionsBuilder semType(Boolean value) {
+        compilationOptionsBuilder.semtype(value);
+        return this;
+    }
+
     public BuildOptions build() {
         CompilationOptions compilationOptions = compilationOptionsBuilder.build();
         return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions);

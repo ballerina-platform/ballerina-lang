@@ -1286,6 +1286,12 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_ATTRIBUTE_VALUE;
             case "TEMPLATE_STRING":
                 return SyntaxKind.TEMPLATE_STRING;
+            case "XML_CDATA":
+                return SyntaxKind.XML_CDATA;
+            case "XML_CDATA_START_TOKEN":
+                return SyntaxKind.XML_CDATA_START_TOKEN;
+            case "XML_CDATA_END_TOKEN":
+                return SyntaxKind.XML_CDATA_END_TOKEN;
             default:
                 return getDocumentationKind(kind);
         }
