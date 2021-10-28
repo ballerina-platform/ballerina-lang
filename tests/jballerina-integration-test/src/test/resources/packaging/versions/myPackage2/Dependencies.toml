@@ -10,7 +10,6 @@ dependencies-toml-version = "2"
 org = "ballerina"
 name = "jballerina.java"
 version = "0.0.0"
-transitive = false
 modules = [
 	{org = "ballerina", packageName = "jballerina.java", moduleName = "jballerina.java"}
 ]
@@ -19,7 +18,6 @@ modules = [
 org = "ballerina"
 name = "test"
 version = "0.0.0"
-transitive = false
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
@@ -28,10 +26,24 @@ modules = [
 ]
 
 [[package]]
+org = "gimantha"
+name = "myPackage2"
+version = "0.1.0"
+dependencies = [
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "test"},
+	{org = "waruna", name = "http"},
+	{org = "waruna", name = "websub"}
+]
+modules = [
+	{org = "gimantha", packageName = "myPackage2", moduleName = "myPackage2"},
+	{org = "gimantha", packageName = "myPackage2", moduleName = "myPackage2.mod1"}
+]
+
+[[package]]
 org = "waruna"
 name = "http"
 version = "1.1.2"
-transitive = false
 modules = [
 	{org = "waruna", packageName = "http", moduleName = "http"},
 	{org = "waruna", packageName = "http", moduleName = "http.client"}
@@ -41,7 +53,6 @@ modules = [
 org = "waruna"
 name = "websub"
 version = "1.0.1"
-transitive = false
 dependencies = [
 	{org = "waruna", name = "http"}
 ]

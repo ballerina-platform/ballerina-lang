@@ -7,10 +7,23 @@
 dependencies-toml-version = "2"
 
 [[package]]
+org = "a"
+name = "b_foo"
+version = "0.1.0"
+dependencies = [
+	{org = "a_b", name = "foo"},
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "test"}
+]
+modules = [
+	{org = "a", packageName = "b_foo", moduleName = "b_foo"},
+	{org = "a", packageName = "b_foo", moduleName = "b_foo.b_foo"}
+]
+
+[[package]]
 org = "a_b"
 name = "foo"
 version = "0.1.0"
-transitive = false
 modules = [
 	{org = "a_b", packageName = "foo", moduleName = "foo"}
 ]
@@ -19,7 +32,6 @@ modules = [
 org = "ballerina"
 name = "jballerina.java"
 version = "0.0.0"
-transitive = false
 modules = [
 	{org = "ballerina", packageName = "jballerina.java", moduleName = "jballerina.java"}
 ]
@@ -28,7 +40,6 @@ modules = [
 org = "ballerina"
 name = "test"
 version = "0.0.0"
-transitive = false
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]

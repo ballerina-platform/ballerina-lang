@@ -8,9 +8,19 @@ dependencies-toml-version = "2"
 
 [[package]]
 org = "testorg"
+name = "selectively_immutable_baz"
+version = "1.0.0"
+dependencies = [
+	{org = "testorg", name = "selectively_immutable_foo"}
+]
+modules = [
+	{org = "testorg", packageName = "selectively_immutable_baz", moduleName = "selectively_immutable_baz"}
+]
+
+[[package]]
+org = "testorg"
 name = "selectively_immutable_foo"
 version = "1.0.0"
-transitive = false
 modules = [
 	{org = "testorg", packageName = "selectively_immutable_foo", moduleName = "selectively_immutable_foo"}
 ]

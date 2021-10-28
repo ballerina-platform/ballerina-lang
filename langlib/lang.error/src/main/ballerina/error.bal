@@ -78,8 +78,8 @@ public type StackFrame readonly & object {
 public isolated function stackTrace(error e) returns StackFrame[] {
     StackFrame[] stackFrame = [];
     int i = 0;
-    CallStackElement[] callStackElements = externGetStackTrace();
-        foreach var callStackElement in  callStackElements {
+    CallStack callStackElements = externGetStackTrace(e);
+        foreach var callStackElement in  callStackElements.callStack {
         stackFrame[i] = new java:StackFrameImpl(callStackElement.callableName,
         callStackElement.fileName, callStackElement.lineNumber, callStackElement?.moduleName);
         i += 1;
@@ -125,7 +125,14 @@ type CallStackElement record {|
     int lineNumber;
 |};
 
-isolated function externGetStackTrace() returns CallStackElement[] = @java:Method {
-    name: "getStackTrace",
-    'class: "org.ballerinalang.langlib.error.GetStackTrace"
+# Represents an error call stack.
+#
+# + callStack - call stack
+class CallStack {
+    public CallStackElement[] callStack = [];
+}
+
+isolated function externGetStackTrace(error e) returns CallStack = @java:Method {
+    name: "stackTrace",
+    'class: "org.ballerinalang.langlib.error.StackTrace"
 } external;

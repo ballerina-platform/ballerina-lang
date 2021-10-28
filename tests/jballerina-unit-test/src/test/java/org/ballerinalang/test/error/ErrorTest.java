@@ -368,10 +368,8 @@ public class ErrorTest {
     @Test
     public void testStackOverFlow() {
         BValue[] result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
-        String expected1 = "{callableName:\"bar\", fileName:\"error_test.bal\", " +
-                "lineNumber:408}";
-        String expected2 = "{callableName:\"bar2\", fileName:\"error_test.bal\", " +
-                "lineNumber:412}";
+        String expected1 = "{callableName:\"bar\", moduleName:(), fileName:\"error_test.bal\", lineNumber:408}";
+        String expected2 = "{callableName:\"bar2\", moduleName:(), fileName:\"error_test.bal\", lineNumber:412}";
         String resultStack = ((BValueArray) result[0]).getRefValue(0).toString();
         Assert.assertTrue(resultStack.equals(expected1) || resultStack.equals(expected2), "Received unexpected " +
                 "stacktrace element: " + resultStack);
