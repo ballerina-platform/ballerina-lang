@@ -22,7 +22,7 @@
   },
   {
     "name": "Block Statement",
-    "input": "{ int var1 =4; };",
+    "input": "{ int var1 =4; }",
     "expected": [
       "BlockStatementNode"
     ]
@@ -50,14 +50,14 @@
   },
   {
     "name": "If Else Statement",
-    "input": "if (cond) { };",
+    "input": "if (cond) { }",
     "expected": [
       "IfElseStatementNode"
     ]
   },
   {
     "name": "While Statement",
-    "input": "while (cond) { };",
+    "input": "while (cond) { }",
     "expected": [
       "WhileStatementNode"
     ]
@@ -71,28 +71,28 @@
   },
   {
     "name": "Lock Statement",
-    "input": "lock { amount += n; };",
+    "input": "lock { amount += n; }",
     "expected": [
       "LockStatementNode"
     ]
   },
   {
     "name": "Fork Statement",
-    "input": "fork { worker abc returns int { } };",
+    "input": "fork { worker abc returns int { } }",
     "expected": [
       "ForkStatementNode"
     ]
   },
   {
     "name": "For Each Statement",
-    "input": "foreach var color in colors { };",
+    "input": "foreach var color in colors { }",
     "expected": [
       "ForEachStatementNode"
     ]
   },
   {
     "name": "Transaction Statement",
-    "input": "transaction { };",
+    "input": "transaction { }",
     "expected": [
       "TransactionStatementNode"
     ]
@@ -106,21 +106,21 @@
   },
   {
     "name": "Retry Statement",
-    "input": "retry<Type> (args) { };",
+    "input": "retry<Type> (args) { }",
     "expected": [
       "RetryStatementNode"
     ]
   },
   {
     "name": "Match Statement",
-    "input": "match var1 { 0 => {} 1 => { } };",
+    "input": "match var1 { 0 => {} 1 => { } }",
     "expected": [
       "MatchStatementNode"
     ]
   },
   {
     "name": "Do Statement",
-    "input": "do { };",
+    "input": "do { }",
     "expected": [
       "DoStatementNode"
     ]
