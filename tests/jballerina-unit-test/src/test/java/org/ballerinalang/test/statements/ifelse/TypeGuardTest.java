@@ -53,7 +53,8 @@ public class TypeGuardTest {
                 "unnecessary condition: expression will always evaluate to 'true'", 29, 13);
         BAssertUtil.validateError(negativeResult, i++, "unreachable code", 33, 9);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 33, 13);
+                "unnecessary condition: expression will always evaluate to 'true' for variable of type 'never'",
+                33, 13);
         BAssertUtil.validateError(negativeResult, i++, "expression of type 'never' or equivalent to " +
                 "type 'never' not allowed here", 34, 30);
         BAssertUtil.validateError(negativeResult, i++, "unreachable code", 38, 5);
