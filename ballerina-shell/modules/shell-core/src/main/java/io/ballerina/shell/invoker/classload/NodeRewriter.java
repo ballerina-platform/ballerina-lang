@@ -1,6 +1,8 @@
 package io.ballerina.shell.invoker.classload;
 
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.BlockStatementNode;
+import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarator;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -12,6 +14,11 @@ import io.ballerina.compiler.syntax.tree.StatementNode;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * NodeRewriter to update syntax tree nodes.
+ *
+ * @since 2.0.0
+ */
 public class NodeRewriter extends NodeTransformer {
 
     public List<Node> accept(Node node) {
@@ -26,7 +33,17 @@ public class NodeRewriter extends NodeTransformer {
         String varRef = assignmentStatementNode.varRef().toString().trim();
         String expression = assignmentStatementNode.expression().toString().trim();
         StatementNode node = NodeParser.parseStatements(
-                String.format(" _ = __memorize(\"%s\",%s);",varRef, expression)).get(0);
+                String.format(" _ = __memorize(\"%s\",%s);", varRef, expression)).get(0);
+        return node;
+    }
+
+    @Override
+    public Node transform(CompoundAssignmentStatementNode compoundAssignmentStatementNode) {
+        String lhs = compoundAssignmentStatementNode.lhsExpression().toString().trim();
+        String rhs = compoundAssignmentStatementNode.rhsExpression().toString().trim();
+        String binaryOperator = compoundAssignmentStatementNode.binaryOperator().toString();
+        StatementNode node = NodeParser.parseStatements(
+                String.format(" _ = __memorize(\"%s\", %s %s %s);", lhs, lhs, binaryOperator, rhs)).get(0);
         return node;
     }
 
@@ -38,7 +55,7 @@ public class NodeRewriter extends NodeTransformer {
     @Override
     public Node transform(FunctionBodyBlockNode functionBodyBlockNode) {
         NodeList<StatementNode> statementNodes = functionBodyBlockNode.statements();
-        for (int i=0; i < statementNodes.size(); i++) {
+        for (int i = 0; i < statementNodes.size(); i++) {
             statementNodes = statementNodes.set(i, (StatementNode) statementNodes.get(i).apply(this));
         }
         NamedWorkerDeclarator namedWorkerDeclarator =
@@ -48,6 +65,18 @@ public class NodeRewriter extends NodeTransformer {
                 namedWorkerDeclarator,
                 statementNodes,
                 functionBodyBlockNode.closeBraceToken());
+    }
+
+    @Override
+    public Node transform(BlockStatementNode blockStatementNode) {
+        NodeList<StatementNode> statementNodes = blockStatementNode.statements();
+        for (int i = 0; i < statementNodes.size(); i++) {
+            statementNodes = statementNodes.set(i, (StatementNode) statementNodes.get(i).apply(this));
+        }
+        return blockStatementNode.modify(
+                blockStatementNode.openBraceToken(),
+                statementNodes,
+                blockStatementNode.closeBraceToken());
     }
 
     protected <T extends Node> T modifyNode(T node) {
