@@ -379,9 +379,9 @@ public class TupleVariableDefinitionTest {
         String errorMsg3 = "tuple and expression size does not match";
         String errorMsg4 = "incompatible types: expected ";
 
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 19, 26);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 23, 26);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 24, 26);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 19, 5);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 23, 5);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 24, 5);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg2 + "'int'", 25, 34);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 29, 41);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 30, 48);
@@ -405,9 +405,9 @@ public class TupleVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected '[[string,[int,[boolean,int]]],[float,int]]', found 'any'", 101, 84);
         BAssertUtil.validateError(resultNegative, ++i,
-                "no new variables on left side", 106, 26);
+                "no new variables on left side", 106, 5);
         BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern: " +
-                        "expected an array or a tuple, but found '(string|int)'", 110, 16);
+                        "expected an array or a tuple, but found '(string|int)'", 110, 5);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
