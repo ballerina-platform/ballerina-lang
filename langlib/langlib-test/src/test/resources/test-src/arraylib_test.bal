@@ -682,7 +682,6 @@ function testSort1() {
     "{\"id\":2,\"fname\":\"Dan\",\"fee\":null,\"impact\":0.3,\"isUndergrad\":true}");
     assertValueEquality(sortedArr[4].toString(),
     "{\"id\":1,\"fname\":\"Amber\",\"fee\":10000.56,\"impact\":0.127,\"isUndergrad\":true}");
-    assertValueEquality(studentArr, sortedArr);
 
     Student[] sortedArr2 = studentArr.sort(array:DESCENDING, isolated function(Student s) returns string? {
         return s.fname;
@@ -698,7 +697,6 @@ function testSort1() {
     "{\"id\":1,\"fname\":\"Amber\",\"fee\":10000.56,\"impact\":0.127,\"isUndergrad\":true}");
     assertValueEquality(sortedArr2[4].toString(),
     "{\"id\":20,\"fname\":null,\"fee\":2000.56,\"impact\":0.45,\"isUndergrad\":false}");
-    assertValueEquality(studentArr, sortedArr2);
 
     Student[] sortedArr3 = studentArr.sort(array:ASCENDING, isolated function(Student s) returns float? {
         return s.fee;
@@ -714,7 +712,6 @@ function testSort1() {
     "{\"id\":10,\"fname\":\"Kate\",\"fee\":NaN,\"impact\":0.146,\"isUndergrad\":false}");
     assertValueEquality(sortedArr3[4].toString(),
     "{\"id\":2,\"fname\":\"Dan\",\"fee\":null,\"impact\":0.3,\"isUndergrad\":true}");
-    assertValueEquality(studentArr, sortedArr3);
 
     Student[] sortedArr4 = studentArr.sort(array:ASCENDING, isolated function(Student s) returns decimal {
         return s.impact;
@@ -730,9 +727,8 @@ function testSort1() {
     "{\"id\":3,\"fname\":\"Kate\",\"fee\":5000.56,\"impact\":0.4,\"isUndergrad\":false}");
     assertValueEquality(sortedArr4[4].toString(),
     "{\"id\":20,\"fname\":null,\"fee\":2000.56,\"impact\":0.45,\"isUndergrad\":false}");
-    assertValueEquality(studentArr, sortedArr4);
 
-    Student[] sortedArr5 = studentArr.sort(array:ASCENDING, isolated function(Student s) returns boolean {
+    Student[] sortedArr5 = sortedArr4.sort(array:ASCENDING, isolated function(Student s) returns boolean {
         return s.isUndergrad;
     });
 
@@ -746,9 +742,8 @@ function testSort1() {
     "{\"id\":1,\"fname\":\"Amber\",\"fee\":10000.56,\"impact\":0.127,\"isUndergrad\":true}");
     assertValueEquality(sortedArr5[4].toString(),
     "{\"id\":2,\"fname\":\"Dan\",\"fee\":null,\"impact\":0.3,\"isUndergrad\":true}");
-    assertValueEquality(studentArr, sortedArr5);
 
-
+    assertValueEquality(getStudentList(), studentArr); // no change to original array
 }
 
 function testSort2() {
@@ -761,7 +756,8 @@ function testSort2() {
     assertValueEquality(sortedArr[0], 188);
     assertValueEquality(sortedArr[1], 90);
     assertValueEquality(sortedArr[2], 52);
-    assertValueEquality(arr, sortedArr);
+
+    assertValueEquality(base16 ` 5A B C3 4 `, arr); // no change to original array
 }
 
 function testSort3() returns int[] {
@@ -795,7 +791,7 @@ function testSort4() {
     assertValueEquality(sortedArr[1].toString(), "[\"A+\",2]");
     assertValueEquality(sortedArr[2].toString(), "[\"A-\",3]");
     assertValueEquality(sortedArr[3].toString(), "[\"B\",3]");
-    assertValueEquality(grades, sortedArr);
+    assertValueEquality([["A+", 2], ["A-", 3], ["B", 3], ["C", 2]], grades); // no change to original array
 }
 
 function testSort5() {
@@ -815,7 +811,7 @@ function testSort5() {
     "{\"id\":1,\"fname\":\"Amber\",\"fee\":10000.56,\"impact\":0.127,\"isUndergrad\":true}");
     assertValueEquality(sortedArr[4].toString(),
     "{\"id\":20,\"fname\":null,\"fee\":2000.56,\"impact\":0.45,\"isUndergrad\":false}");
-    assertValueEquality(studentArr, sortedArr);
+     assertValueEquality(getStudentList(), studentArr); // no change to original array
 }
 
 isolated function getFullName(int id, string? name) returns string? {
@@ -848,7 +844,7 @@ function testSort6() {
 
     assertValueEquality(sortedArr.toString(),
     "[{\"k\":\"Bar\"},true,1,2.0,3,12.09,32,90,100,\"AA\",[\"BB\",true]]");
-    assertValueEquality(arr, sortedArr);
+    assertValueEquality([90, 2.0, 1, true, 32, "AA", 12.09, 100, 3, <map<string>>{"k":"Bar"}, ["BB", true]], arr);
 
     string?[] arr2 = ["Hello", "World!", (), "from", "Ballerina"];
 
@@ -909,7 +905,7 @@ function testSort6() {
     });
 
     assertValueEquality(sortedArr9.toString(), "[\"F\",\"C\",\"C\",\"B+\",\"B\",\"A-\",\"A+\",\"A+\"]");
-    assertValueEquality(sortedArr9, arr6);
+    assertValueEquality(["A+", "B+", "C", "F", "A-", "C", "A+", "B"], arr6); // no change to arr6
 
     Student s1 = {id: 1, fname: "Amber", fee: 10000.56, impact: 0.127, isUndergrad: true};
     Student s2 = {id: 2, fname: "Dan", fee: (), impact: 0.3, isUndergrad: true};
@@ -934,18 +930,19 @@ function testSort6() {
     assertValueEquality(sortedArr10[4].toString(), "James");
     assertValueEquality(sortedArr10[5].toString(),
     "{\"id\":10,\"fname\":\"Kate\",\"fee\":NaN,\"impact\":0.146,\"isUndergrad\":false}");
-    assertValueEquality(sortedArr10, arr7);
+    assertValueEquality(["Anne", s3, s1, "James", "Frank", s2], arr7); // no change to arr7
 
     int[] sortedArr11 = array:sort(arr5);
     assertValueEquality(sortedArr11.toString(), "[0,1,2,3,12,23,55,100]");
-    assertValueEquality(sortedArr11, arr5);
+    assertValueEquality([2, 0, 12, 1, 23, 3, 100, 55], arr5); // no change to arr5
+    assertValueEquality([0,1,2,3,12,23,55,100], sortedArr8); // no change to sortedArr8
 
     int[2]|int[] sortedArr12 = array:sort(arr4, array:DESCENDING, isolated function(int i) returns int {
         return i;
     });
 
     assertValueEquality(sortedArr12.toString(), "[21,9,7,3,1,0]");
-    assertValueEquality(sortedArr12, arr4);
+    assertValueEquality([1, 9, 3, 21, 0, 7], arr4); // no change to arr4
 
     string?[] sortedArr13 = array:sort(arr2, array:DESCENDING);
     assertValueEquality(sortedArr13.toString(), "[\"from\",\"World!\",\"Hello\",\"Ballerina\",null]");
@@ -970,7 +967,6 @@ function testSort7() {
     assertValueEquality(sortedArr[9], [1.8, (0.0/0.0)]);
     assertValueEquality(sortedArr[10], [(0.0/0.0), 9.0, 8.0, 10.0]);
     assertValueEquality(sortedArr[11], [(), 4.0]);
-    assertValueEquality(sortedArr, arr);
 
     float?[][] sortedArr2 = arr.sort(array:ASCENDING, isolated function(float?[] x) returns float?[] {
         return x;
@@ -988,7 +984,6 @@ function testSort7() {
     assertValueEquality(sortedArr2[9], [3.0]);
     assertValueEquality(sortedArr2[10], [(0.0/0.0), 9.0, 8.0, 10.0]);
     assertValueEquality(sortedArr2[11], [(), 4.0]);
-    assertValueEquality(sortedArr2, arr);
 
     int[][] arr2 = [[1, 9, 2],[0, 9, 1], [1, 7, 5], [9, 8, 2], [9, 8, 1]];
 
@@ -999,7 +994,6 @@ function testSort7() {
     assertValueEquality(sortedArr3[2], [1, 9, 2]);
     assertValueEquality(sortedArr3[3], [9, 8, 1]);
     assertValueEquality(sortedArr3[4], [9, 8, 2]);
-    assertValueEquality(sortedArr3, arr2);
 }
 
 function testSort8() {
@@ -1015,7 +1009,6 @@ function testSort8() {
     assertValueEquality(sortedArr[3], [1, 2, 0, 7]);
     assertValueEquality(sortedArr[4], [1, 2, 5]);
     assertValueEquality(sortedArr[5], [10, 2, 0]);
-    assertValueEquality(sortedArr, arr);
 
     [int?...][] arr2 = [[(), 2, 0], [1, 2, 0, 7], [1, 2, 5], [0, 9, 5], [1, 2, 0], [1, 1, 0], [0, (), 9]];
 
@@ -1030,7 +1023,6 @@ function testSort8() {
     assertValueEquality(sortedArr2[4], [0, 9, 5]);
     assertValueEquality(sortedArr2[5], [0, (), 9]);
     assertValueEquality(sortedArr2[6], [(), 2, 0]);
-    assertValueEquality(sortedArr2, arr2);
 
     [int, boolean...][] arr3 = [[3, true, true, true], [5, true, false, true], [1, false, false]];
 
@@ -1041,7 +1033,6 @@ function testSort8() {
     assertValueEquality(sortedArr3[0], [1, false, false]);
     assertValueEquality(sortedArr3[1], [5, true, false, true]);
     assertValueEquality(sortedArr3[2], [3, true, true, true]);
-    assertValueEquality(sortedArr3, arr3);
 }
 
 function testSort9() {
@@ -1066,7 +1057,6 @@ function testSort9() {
     assertValueEquality(sortedArr3[3], 1147483647);
     assertValueEquality(sortedArr3[4], 2147483637);
     assertValueEquality(sortedArr3[5], 2147483647);
-    assertValueEquality(sortedArr3, arr3);
 
     ints:Signed16[] arr4 = [32765, -32768, 32767, -32668, -30768, 32567];
 
@@ -1078,7 +1068,6 @@ function testSort9() {
     assertValueEquality(sortedArr4[3], -30768);
     assertValueEquality(sortedArr4[4], -32668);
     assertValueEquality(sortedArr4[5], -32768);
-    assertValueEquality(sortedArr4, arr4);
 
     ints:Signed8[] arr5 = [-100, -123, 100, 67, -34, 52];
 
@@ -1090,7 +1079,6 @@ function testSort9() {
     assertValueEquality(sortedArr5[3], 52);
     assertValueEquality(sortedArr5[4], 67);
     assertValueEquality(sortedArr5[5], 100);
-    assertValueEquality(sortedArr5, arr5);
 
     ints:Unsigned32[] arr6 = [50, 4294967295, 0, 4294957295, 4294967294, 123, 214967295];
 
@@ -1105,7 +1093,6 @@ function testSort9() {
     assertValueEquality(sortedArr6[4], 4294957295);
     assertValueEquality(sortedArr6[5], 4294967294);
     assertValueEquality(sortedArr6[6], 4294967295);
-    assertValueEquality(sortedArr6, arr6);
 
     ints:Unsigned16[] arr7 = [450, 65335, 0, 12, 65535, 12500, 4];
 
@@ -1118,7 +1105,6 @@ function testSort9() {
     assertValueEquality(sortedArr7[4], 12);
     assertValueEquality(sortedArr7[5], 4);
     assertValueEquality(sortedArr7[6], 0);
-    assertValueEquality(sortedArr7, arr7);
 
     ints:Unsigned8[] arr8 = [221, 100, 0, 255, 24, 9, 2];
 
@@ -1131,7 +1117,6 @@ function testSort9() {
     assertValueEquality(sortedArr8[4], 100);
     assertValueEquality(sortedArr8[5], 221);
     assertValueEquality(sortedArr8[6], 255);
-    assertValueEquality(sortedArr8, arr8);
 }
 
 function testSort10() {
@@ -1140,7 +1125,6 @@ function testSort10() {
     int[] sortedArr = arr.sort(array:ASCENDING, (i) => i);
 
     assertValueEquality(sortedArr.toString(), "[0,1,2,3,6,10]");
-    assertValueEquality(sortedArr, arr);
 
     final int methodInt1 = 2;
     var addFunc1 = isolated function (int funcInt1) returns (int) {
@@ -1156,30 +1140,25 @@ function testSort10() {
     int[] sortedArr2 = arr.sort(array:DESCENDING, addFunc1);
 
     assertValueEquality(sortedArr2.toString(), "[10,6,3,2,1,0]");
-    assertValueEquality(sortedArr2, arr);
 
     int[] sortedArr3 = array:sort(arr, array:ASCENDING, isolated function(int x) returns string[] => [x.toString(), "World"]);
 
     assertValueEquality(sortedArr3.toString(), "[0,1,10,2,3,6]");
-    assertValueEquality(sortedArr3, arr);
 
     int[] sortedArr4 = arr.sort(array:DESCENDING, (i) => i.toString());
 
     assertValueEquality(sortedArr4, [6,3,2,10,1,0]);
-    assertValueEquality(sortedArr4, arr);
 
     int?[] arr2 = [(), 1, 3, 10, 0, 6];
 
     int?[] sortedArr5 = arr2.sort(array:DESCENDING, (i) => i);
 
     assertValueEquality(sortedArr5, [10,6,3,1,0,()]);
-    assertValueEquality(sortedArr5, arr2);
 
     int[] arr3 = [];
     int[] sortedArr6 = arr3.sort(array:DESCENDING, (i) => i);
 
     assertValueEquality(sortedArr6, []);
-    assertValueEquality(sortedArr6, arr3);
 }
 
 function testTupleReverse() {
