@@ -20,7 +20,7 @@ import ballerina/lang.'object as lang_object;
 #
 # This type is created to have an Iterable object without having to expose actual
 # implementation details with private fields
-type IterableIntegerRange object {
+type IterableIntegerRange isolated object {
     *lang_object:Iterable;
 };
 
@@ -29,7 +29,7 @@ type IterableIntegerRange object {
 # + iStart - start expression of range expression
 # + iEnd - second expression on range expression
 # + iCurrent - current cursor
-public class __IntRange {
+public isolated class __IntRange {
 
     *IterableIntegerRange;
     private int iStart;
@@ -42,8 +42,10 @@ public class __IntRange {
         self.iCurrent = s;
     }
 
-    public isolated function hasNext() returns boolean {
-        return (self.iStart <= self.iCurrent) && (self.iCurrent <= self.iEnd);
+    private isolated function hasNext() returns boolean {
+        lock {
+            return (self.iStart <= self.iCurrent) && (self.iCurrent <= self.iEnd);
+        }
     }
 
     public isolated function next() returns record {|
@@ -51,8 +53,11 @@ public class __IntRange {
     |}? {
 
         if (self.hasNext()) {
-            record {|int value;|} nextVal = {value : self.iCurrent};
-            self.iCurrent += 1;
+            record {|int value;|} nextVal;
+            lock {
+                nextVal = {value : self.iCurrent};
+                self.iCurrent += 1;
+            }
             return nextVal;
         }
 
@@ -60,8 +65,16 @@ public class __IntRange {
     }
 
     public isolated function iterator() returns
-        object {public isolated function next() returns record {|int value;|}?;} {
-            return new __IntRange(self.iStart, self.iEnd);
+        isolated object {public isolated function next() returns record {|int value;|}?;} {
+            int startValue;
+            int endValue;
+
+            lock {
+                startValue = self.iStart;
+                endValue = self.iEnd;
+            }
+
+            return new __IntRange(startValue, endValue);
     }
 }
 
@@ -71,10 +84,10 @@ public class __IntRange {
 # + s - The lower bound of the integer range inclusive
 # + e - The upper bound if the integer range inclusive
 # + return - `Iterable<int,()>` object
-public isolated function createIntRange(int s, int e) returns object {
+public isolated function createIntRange(int s, int e) returns isolated object {
                                                                   *IterableIntegerRange;
                                                                   public isolated function iterator()
-                                                                  returns object {
+                                                                  returns isolated object {
                                                                               public isolated function next()
                                                                               returns record {| int value; |}?;
                                                                           };
