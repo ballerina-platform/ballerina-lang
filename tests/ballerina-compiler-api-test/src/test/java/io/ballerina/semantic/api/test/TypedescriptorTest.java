@@ -873,10 +873,21 @@ public class TypedescriptorTest {
         assertEquals(type.typeKind(), UNION);
 
         expandedMembers = ((UnionTypeSymbol) type).memberTypeDescriptors();
+        TypeSymbol member1 = expandedMembers.get(0);
+        TypeSymbol member2 = expandedMembers.get(1);
+
+        assertEquals(member1.typeKind(), TYPE_REFERENCE);
+        assertEquals(member2.typeKind(), TYPE_REFERENCE);
+
+        member1 = ((TypeReferenceTypeSymbol) member1).typeDescriptor();
+        expandedMembers = ((UnionTypeSymbol) member1).memberTypeDescriptors();
         assertEquals(expandedMembers.get(0).typeKind(), INT);
         assertEquals(expandedMembers.get(1).typeKind(), STRING);
-        assertEquals(expandedMembers.get(2).typeKind(), FLOAT);
-        assertEquals(expandedMembers.get(3).typeKind(), BOOLEAN);
+
+        member2 = ((TypeReferenceTypeSymbol) member2).typeDescriptor();
+        expandedMembers = ((UnionTypeSymbol) member2).memberTypeDescriptors();
+        assertEquals(expandedMembers.get(0).typeKind(), FLOAT);
+        assertEquals(expandedMembers.get(1).typeKind(), BOOLEAN);
     }
 
     @Test

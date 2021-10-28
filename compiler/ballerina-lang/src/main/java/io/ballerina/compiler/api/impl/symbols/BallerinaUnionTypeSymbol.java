@@ -24,13 +24,11 @@ import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
-import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,7 +70,7 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
             if (this.getBType().tag == TypeTags.UNION) {
                 TypesFactory typesFactory = TypesFactory.getInstance(this.context);
 
-                for (BType memberType : getAllTypes(this.getBType())) {
+                for (BType memberType : ((BUnionType) this.getBType()).getMemberTypes()) {
                     if (memberType.tag == TypeTags.TYPEREFDESC || memberType.getKind() != TypeKind.FINITE) {
                         members.add(typesFactory.getTypeDescriptor(memberType));
                         continue;
@@ -206,21 +204,5 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
             return true;
         }
         return false;
-    }
-
-    private List<BType> getAllTypes(BType type) {
-        if (type.tag != TypeTags.UNION) {
-            if (type.tag == TypeTags.TYPEREFDESC) {
-                BType refType = ((BTypeReferenceType) type).referredType;
-                if (refType.tag == TypeTags.UNION) {
-                    return getAllTypes(refType);
-                }
-            }
-            return Lists.of(type);
-        }
-
-        List<BType> memberTypes = new ArrayList<>();
-        ((BUnionType) type).getMemberTypes().forEach(memberType -> memberTypes.addAll(getAllTypes(memberType)));
-        return memberTypes;
     }
 }

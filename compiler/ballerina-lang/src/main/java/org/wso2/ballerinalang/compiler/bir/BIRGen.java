@@ -432,6 +432,7 @@ public class BIRGen extends BLangNodeVisitor {
             typeDefs.put(astTypeDefinition.symbol.type.tsymbol, typeDef);
             typeDef.referenceType = ((BTypeDefinitionSymbol) astTypeDefinition.symbol).referenceType;
         } else {
+            //enum symbols
             typeDefs.put(astTypeDefinition.symbol, typeDef);
         }
         this.env.enclPkg.typeDefs.add(typeDef);

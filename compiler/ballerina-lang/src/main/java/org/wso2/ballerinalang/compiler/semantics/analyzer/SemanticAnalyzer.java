@@ -35,7 +35,6 @@ import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.Field;
-import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
@@ -54,7 +53,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -2656,7 +2654,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     env.enclPkg.packageID, symTable, mappingMatchPattern.pos);
             recordTypeNode.initFunction =
                     TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
-            TypeDefBuilderHelper.addTypeDefinition(matchPatternRecType, matchPattenRecordSym, recordTypeNode, env);
+            TypeDefBuilderHelper.createTypeDefinitionForTSymbol(matchPatternRecType, matchPattenRecordSym,
+                    recordTypeNode, env);
         }
 
         mappingMatchPattern.setBType(types.resolvePatternTypeFromMatchExpr(mappingMatchPattern,
@@ -3176,7 +3175,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     env.enclPkg.packageID, symTable, restBindingPattern.pos);
             recordTypeNode.initFunction =
                     TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
-            TypeDefBuilderHelper.addTypeDefinition(matchPatternRecType, matchPattenRecordSym, recordTypeNode, env);
+            TypeDefBuilderHelper.createTypeDefinitionForTSymbol(matchPatternRecType, matchPattenRecordSym,
+                    recordTypeNode, env);
         }
         mappingBindingPattern.setBType(recordVarType);
     }

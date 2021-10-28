@@ -74,7 +74,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -1164,8 +1163,8 @@ public class Desugar extends BLangNodeVisitor {
 
         if (recordTypeNode.isAnonymous && recordTypeNode.isLocal) {
             BLangUserDefinedType userDefinedType = desugarLocalAnonRecordTypeNode(recordTypeNode);
-            TypeDefBuilderHelper.addTypeDefinition(recordTypeNode.getBType(), recordTypeNode.getBType().tsymbol,
-                                                   recordTypeNode, env);
+            TypeDefBuilderHelper.createTypeDefinitionForTSymbol(recordTypeNode.getBType(),
+                    recordTypeNode.getBType().tsymbol, recordTypeNode, env);
             recordTypeNode.desugared = true;
             result = userDefinedType;
             return;
@@ -1250,7 +1249,8 @@ public class Desugar extends BLangNodeVisitor {
         // We need to create type-defs for local anonymous types with type param.
         if (errorType.isLocal && errorType.isAnonymous && hasTypeParam) {
             BLangUserDefinedType userDefinedType = desugarLocalAnonRecordTypeNode(errorType);
-            TypeDefBuilderHelper.addTypeDefinition(errorType.getBType(), errorType.getBType().tsymbol, errorType, env);
+            TypeDefBuilderHelper.createTypeDefinitionForTSymbol(errorType.getBType(), errorType.getBType().tsymbol,
+                    errorType, env);
             errorType.desugared = true;
             result = userDefinedType;
             return;
@@ -2638,8 +2638,8 @@ public class Desugar extends BLangNodeVisitor {
                         (BRecordType) recordVarRef.getBType(), env.enclPkg.packageID, symTable, recordVarRef.pos);
                 recordTypeNode.initFunction = TypeDefBuilderHelper
                         .createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
-                TypeDefBuilderHelper.addTypeDefinition(recordVarRef.getBType(), recordVarRef.getBType().tsymbol,
-                                                       recordTypeNode, env);
+                TypeDefBuilderHelper.createTypeDefinitionForTSymbol(recordVarRef.getBType(),
+                        recordVarRef.getBType().tsymbol, recordTypeNode, env);
 
                 continue;
             }
@@ -4619,7 +4619,7 @@ public class Desugar extends BLangNodeVisitor {
         recordTypeNode.initFunction =
                 rewrite(TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable),
                         env);
-        TypeDefBuilderHelper.addTypeDefinition(recordType, recordType.tsymbol, recordTypeNode, env);
+        TypeDefBuilderHelper.createTypeDefinitionForTSymbol(recordType, recordType.tsymbol, recordTypeNode, env);
     }
 
     private boolean isRecordTypeDefExist(BTypeSymbol recordTypeSymbol, SymbolEnv env) {
@@ -4851,7 +4851,8 @@ public class Desugar extends BLangNodeVisitor {
                 errorFieldMatchPatterns.pos);
         recordTypeNode.initFunction = TypeDefBuilderHelper
                 .createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
-        TypeDefBuilderHelper.addTypeDefinition(detailRecordType, detailRecordType.tsymbol, recordTypeNode, env);
+        TypeDefBuilderHelper.createTypeDefinitionForTSymbol(detailRecordType, detailRecordType.tsymbol,
+                recordTypeNode, env);
         return detailRecordType;
     }
 
@@ -4941,7 +4942,8 @@ public class Desugar extends BLangNodeVisitor {
                 errorFieldBindingPatterns.pos);
         recordTypeNode.initFunction = TypeDefBuilderHelper
                 .createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
-        TypeDefBuilderHelper.addTypeDefinition(detailRecordType, detailRecordType.tsymbol, recordTypeNode, env);
+        TypeDefBuilderHelper.createTypeDefinitionForTSymbol(detailRecordType, detailRecordType.tsymbol,
+                recordTypeNode, env);
         return detailRecordType;
     }
 
@@ -9240,7 +9242,7 @@ public class Desugar extends BLangNodeVisitor {
             recordTypeNode.initFunction =
                     rewrite(TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable),
                             env);
-            TypeDefBuilderHelper.addTypeDefinition(recordVarType, recordSymbol, recordTypeNode, env);
+            TypeDefBuilderHelper.createTypeDefinitionForTSymbol(recordVarType, recordSymbol, recordTypeNode, env);
 
             return recordVarType;
         }
@@ -9263,12 +9265,12 @@ public class Desugar extends BLangNodeVisitor {
                 BLangRecordTypeNode recordTypeNode = createRecordTypeNode(errorVariable, (BRecordType) detailType);
                 recordTypeNode.initFunction = TypeDefBuilderHelper
                         .createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
-                TypeDefBuilderHelper.addTypeDefinition(detailType, detailType.tsymbol, recordTypeNode, env);
+                TypeDefBuilderHelper.createTypeDefinitionForTSymbol(detailType, detailType.tsymbol, recordTypeNode, env);
             }
             BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
             errorTypeSymbol.type = errorType;
 
-            TypeDefBuilderHelper.addTypeDefinition(errorType, errorTypeSymbol, createErrorTypeNode(errorType), env);
+            TypeDefBuilderHelper.createTypeDefinitionForTSymbol(errorType, errorTypeSymbol, createErrorTypeNode(errorType), env);
             return errorType;
         }
 

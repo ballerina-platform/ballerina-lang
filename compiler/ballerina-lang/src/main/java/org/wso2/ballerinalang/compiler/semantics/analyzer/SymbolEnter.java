@@ -34,7 +34,6 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -2960,7 +2959,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 env.enclPkg.packageID, symTable, pos);
         recordTypeNode.initFunction =
                 TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
-        TypeDefBuilderHelper.addTypeDefinition(recordVarType, recordSymbol, recordTypeNode, env);
+        TypeDefBuilderHelper.createTypeDefinitionForTSymbol(recordVarType, recordSymbol, recordTypeNode, env);
 
         return recordVarType;
     }
@@ -3683,6 +3682,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangTypeDefinition typeDef : typeDefNodes) {
             BLangType typeNode = typeDef.typeNode;
             if (typeNode.getKind() == NodeKind.ERROR_TYPE) {
+//                if(typeDef.symbol.scope == null) {
+//                    typeDef.symbol.scope = new Scope(typeDef.symbol);
+//                }
                 SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeNode, typeDef.symbol.scope, pkgEnv);
                 BLangErrorType errorTypeNode = (BLangErrorType) typeNode;
                 BType typeDefType = typeDef.symbol.type;
