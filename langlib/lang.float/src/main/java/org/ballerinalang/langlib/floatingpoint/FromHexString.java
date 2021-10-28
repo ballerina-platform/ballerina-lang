@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.floatingpoint;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FLOAT_LANG_LIB;
@@ -33,12 +34,23 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  */
 public class FromHexString {
 
+    private FromHexString() {
+    }
+
     public static Object fromHexString(BString s) {
+        String hexValue = s.getValue();
         try {
-            return Double.parseDouble(s.getValue());
+            if (hexValue.startsWith("0x") || hexValue.startsWith("0X")) {
+                return Double.parseDouble(hexValue);
+            }
+            return getNumberFormatError("invalid hex string: '" + hexValue + "'");
         } catch (NumberFormatException e) {
-            return ErrorCreator.createError(getModulePrefixedReason(FLOAT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER),
-                    StringUtils.fromString(e.getMessage()));
+            return getNumberFormatError(e.getMessage());
         }
+    }
+
+    private static BError getNumberFormatError(String message) {
+        return ErrorCreator.createError(getModulePrefixedReason(FLOAT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER),
+                StringUtils.fromString(message));
     }
 }
