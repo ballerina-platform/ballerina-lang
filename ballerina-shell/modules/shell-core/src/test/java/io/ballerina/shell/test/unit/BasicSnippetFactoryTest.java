@@ -32,6 +32,7 @@ import io.ballerina.shell.test.unit.base.TestCases;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -77,11 +78,13 @@ public class BasicSnippetFactoryTest {
         SnippetFactory snippetFactory = new BasicSnippetFactory();
         for (TestCase testCase : testCases) {
             try {
-                Node node = treeParser.parse(testCase.getInput());
-                Snippet snippet = snippetFactory.createSnippet(node);
-                Assert.assertNotNull(snippet, testCase.getName());
-                Assert.assertTrue(testCase.isAccepted(), testCase.getName());
-                Assert.assertEquals(snippet.getKind(), kind, testCase.getName());
+                Collection<Node> nodes = treeParser.parse(testCase.getInput());
+                for (Node node : nodes) {
+                    Snippet snippet = snippetFactory.createSnippet(node);
+                    Assert.assertNotNull(snippet, testCase.getName());
+                    Assert.assertTrue(testCase.isAccepted(), testCase.getName());
+                    Assert.assertEquals(snippet.getKind(), kind, testCase.getName());
+                }
             } catch (TreeParserException e) {
                 Assert.fail(testCase.getName() + " error: " + e);
             } catch (SnippetException e) {
