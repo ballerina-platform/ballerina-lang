@@ -112,11 +112,4 @@ public class AccessTest {
         BValue[] returns = BRunUtil.invoke(result, "testAccessOnGroupedExpressions");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
-
-    @Test
-    public void testAccessOptionalFieldWithoutOptionalFieldAccess() {
-        BValue[] returns = BRunUtil.invoke(result, "testAccessOptionalFieldWithoutOptionalFieldAccess");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
 }

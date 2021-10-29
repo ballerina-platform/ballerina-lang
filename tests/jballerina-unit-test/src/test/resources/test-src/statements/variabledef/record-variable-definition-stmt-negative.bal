@@ -269,7 +269,7 @@ type SchemaA record {|
 type SchemaB record {|
     string name;
     boolean age;
-    boolean married;
+    boolean? married;
     int...;
 |};
 
