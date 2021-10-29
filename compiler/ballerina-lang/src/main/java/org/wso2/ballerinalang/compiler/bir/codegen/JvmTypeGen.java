@@ -827,6 +827,7 @@ public class JvmTypeGen {
             defName = IdentifierUtils
                     .encodeNonFunctionIdentifier(((BStructureTypeSymbol) typeSymbol).typeDefinitionSymbol.name.value);
         }
+        //class symbols
         String fieldName = defName.isEmpty() ? getTypeFieldName(toNameString(typeToLoad)) : defName;
 
         boolean samePackage = JvmCodeGenUtil.isSameModule(this.packageID, packageID);

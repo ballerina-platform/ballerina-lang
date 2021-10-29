@@ -2266,11 +2266,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             setTypeOfVarRefInErrorBindingAssignment(lhsRef.restVar);
             checkInvalidTypeDef(lhsRef.restVar);
             BMapType expRestType = new BMapType(TypeTags.MAP, wideType, null);
-            if (types.getReferredType(lhsRef.restVar.getBType()).tag != TypeTags.MAP
-                    || !types.isAssignable(wideType,
-                    ((BMapType) types.getReferredType(lhsRef.restVar.getBType())).constraint)) {
+            BType restVarType = types.getReferredType(lhsRef.restVar.getBType());
+            if (restVarType.tag != TypeTags.MAP || !types.isAssignable(wideType, ((BMapType) restVarType).constraint)) {
                 dlog.error(lhsRef.restVar.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, lhsRef.restVar.getBType(),
-                           expRestType);
+                        expRestType);
                 return;
             }
             resetTypeNarrowing(lhsRef.restVar);
@@ -4264,8 +4263,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BRecordType recordType = annotConstrainedType.tag == TypeTags.RECORD
                     ? (BRecordType) annotConstrainedType
                     : (annotConstrainedType.tag == TypeTags.ARRAY
-                    && types.getReferredType(((BArrayType) annotType).eType).tag == TypeTags.RECORD ?
-                    (BRecordType) types.getReferredType(((BArrayType) annotType).eType) : null);
+                    && types.getReferredType(((BArrayType) annotConstrainedType).eType).tag == TypeTags.RECORD ?
+                    (BRecordType) types.getReferredType(((BArrayType) annotConstrainedType).eType) : null);
             if (recordType != null && hasRequiredFields(recordType)) {
                 this.dlog.error(annAttachmentNode.pos, DiagnosticErrorCode.ANNOTATION_ATTACHMENT_REQUIRES_A_VALUE,
                         recordType);

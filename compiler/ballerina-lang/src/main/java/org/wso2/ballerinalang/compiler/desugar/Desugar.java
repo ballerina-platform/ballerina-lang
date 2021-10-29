@@ -8462,8 +8462,7 @@ public class Desugar extends BLangNodeVisitor {
     private BType getElementType(BType bType) {
         BType type = types.getReferredType(bType);
         if (type.tag != TypeTags.ARRAY) {
-            //todo chiran
-            return type;
+            return bType;
         }
 
         return getElementType(((BArrayType) type).getElementType());
