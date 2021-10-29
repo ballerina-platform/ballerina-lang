@@ -99,14 +99,14 @@ public class ErrorConstructorExprTest {
         validateError(negativeSemanticResult, i++, "cannot infer type of the error from '(error|ErrorB)'", 51, 20);
         validateError(negativeSemanticResult, i++, "unknown type 'Blah'", 60, 27);
         validateError(negativeSemanticResult, i++, "cannot create a new error value from 'ErrorU1'", 62, 19);
-        validateError(negativeSemanticResult, i++, "compatible type for error constructor expression not found" +
-                " in type 'error'", 63, 13);
+        validateError(negativeSemanticResult, i++, "a type compatible with error constructor expressions not found " +
+                "expected 'error', found 'ErrorU2'", 63, 13);
         validateError(negativeSemanticResult, i++, "cannot create a new error value from 'ErrorU2'", 63, 19);
         validateError(negativeSemanticResult, i++, "undefined error type descriptor 'ErrorU3'", 64, 19);
         validateError(negativeSemanticResult, i++, "incompatible types: expected '(int|string)', found 'error'",
                 66, 18);
-        validateError(negativeSemanticResult, i++, "compatible type for error constructor expression not found" +
-                " in type '(int|string)'", 67, 16);
+        validateError(negativeSemanticResult, i++, "a type compatible with error constructor expressions not found" +
+                " expected '(int|string)', found 'error'", 67, 16);
         Assert.assertEquals(negativeSemanticResult.getErrorCount(), i);
     }
 

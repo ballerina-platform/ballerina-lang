@@ -2868,7 +2868,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (resolvedType != symTable.semanticError && expType != symTable.noType &&
                 !types.isAssignable(resolvedType, expType)) {
             dlog.error(errorConstructorExpr.pos,
-                    DiagnosticErrorCode.ERROR_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND, expType);
+                    DiagnosticErrorCode.ERROR_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND, expType, resolvedType);
             resultType = symTable.semanticError;
             return;
         }
