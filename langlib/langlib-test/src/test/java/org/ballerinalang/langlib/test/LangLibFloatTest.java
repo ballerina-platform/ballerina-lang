@@ -100,4 +100,17 @@ public class LangLibFloatTest {
     public void testFromHexString() {
         BRunUtil.invoke(compileResult, "testFromHexString");
     }
+
+    @Test(dataProvider = "functionsWithFromStringTests")
+    public void testFromString(String function) {
+        BRunUtil.invoke(compileResult, function);
+    }
+
+    @DataProvider
+    public  Object[] functionsWithFromStringTests() {
+        return new String[] {
+                "testFromStringPositive",
+                "testFromStringNegative"
+        };
+    }
 }
