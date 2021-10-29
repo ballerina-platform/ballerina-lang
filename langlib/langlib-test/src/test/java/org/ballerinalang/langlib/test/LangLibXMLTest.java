@@ -327,6 +327,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testSetChildrenFunction() {
+        BRunUtil.invoke(compileResult, "testSetChildrenFunction");
+    }
+
+    @Test
     public void testNegativeCases() {
         negativeResult = BCompileUtil.compile("test-src/xmllib_test_negative.bal");
         int i = 0;
