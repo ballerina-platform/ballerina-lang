@@ -441,9 +441,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 return Collections.emptyList();
             }
             Path filePath = pathFromURI.get();
-            boolean isBallerinaSourceChange = filePath.getFileName().toString()
-                    .endsWith(ProjectConstants.BLANG_SOURCE_EXT);
-            if (!this.openedDocuments.contains(filePath)) {
+            if (!this.openedDocuments.contains(filePath) || fileEvent.getType() == FileChangeType.Deleted) {
                 // If already opened in the cache, this will be captured via the textDocument/didChange event
                 this.didChangeWatched(filePath, fileEvent);
             }
