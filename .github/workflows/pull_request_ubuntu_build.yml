@@ -8,8 +8,7 @@ on:
       - release-stage
       - stage
       - ballerina-1.2.x
-      - stage-slbeta2
-      - 2.0.0-beta3-dev
+      - stage-slbeta4
       - langlib-fixes
 
 jobs:
