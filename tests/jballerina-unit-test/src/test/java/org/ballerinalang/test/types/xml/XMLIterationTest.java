@@ -63,45 +63,45 @@ public class XMLIterationTest {
                 29, 34);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found 'xml:Comment'",
-                40, 13);
+                38, 13);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: 'xml:Comment' is not an iterable collection",
-                40, 34);
+                38, 34);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found 'xml:ProcessingInstruction'",
-                51, 13);
+                47, 13);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: 'xml:ProcessingInstruction' is not an iterable collection",
-                51, 48);
+                47, 48);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected '(xml:Element|xml:Text)', found 'xml'",
-                59, 34);
+                53, 34);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found '(xml:Element|xml:Text)'",
-                63, 13);
+                57, 13);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: '(xml:Element|xml:Text)' is not an iterable collection",
-                63, 44);
+                57, 44);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found '(xml:Element|xml:Text)'",
-                68, 13);
+                62, 13);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: '(xml<xml:Element>|xml<xml:Text>)' is not an iterable collection",
-                68, 44);
+                62, 44);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', found 'record " +
                         "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
-                72, 68);
+                66, 68);
         BAssertUtil.validateError(negative, index++,
                 "xml langlib functions does not support union types as their arguments",
-                72, 68);
+                66, 68);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', found 'record " +
                         "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
-                73, 68);
+                67, 68);
         BAssertUtil.validateError(negative, index++,
                 "xml langlib functions does not support union types as their arguments",
-                73, 68);
+                67, 68);
         Assert.assertEquals(negative.getErrorCount(), index);
     }
 
@@ -123,6 +123,9 @@ public class XMLIterationTest {
         BRunUtil.invoke(result, "testXmlPISequenceIteration");
         BRunUtil.invoke(result, "testXmlUnionSequenceIteration");
         BRunUtil.invoke(result, "testXmlSequenceIteration");
+        BRunUtil.invoke(result, "xmlTypeParamCommentIter");
+        BRunUtil.invoke(result, "xmlTypeParamElementIter");
+        BRunUtil.invoke(result, "xmlTypeParamPIIter");
     }
 
     @Test
