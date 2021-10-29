@@ -80,11 +80,8 @@ public class ExplicitAnonymousFunctionExpressionNodeContext
             return false;
         }
         Token openParenToken = node.functionSignature().openParenToken();
-        if (openParenToken.isMissing()) {
-            return false;
-        }
         int cursor = context.getCursorPositionInTree();
         
-        return openParenToken.textRange().endOffset() <= cursor;
+        return !openParenToken.isMissing() && openParenToken.textRange().endOffset() <= cursor;
     }
 }
