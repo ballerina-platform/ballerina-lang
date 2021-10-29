@@ -116,6 +116,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDo
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -720,8 +721,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchClause matchClause) {
-
+        analyzeNode(matchClause.matchGuard, env);
         analyzeNode(matchClause.blockStmt, env);
+    }
+
+    @Override
+    public void visit(BLangMatchGuard matchGuard) {
+        analyzeNode(matchGuard.expr, env);
     }
 
     private boolean isLastPatternContainsIn(BLangMatchClause matchClause) {
