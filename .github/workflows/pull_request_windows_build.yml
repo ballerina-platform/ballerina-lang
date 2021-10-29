@@ -10,6 +10,7 @@ on:
       - ballerina-[0-9]+.[0-9]+.x
       - stage-slbeta2
       - 2.0.0-beta3-dev
+      - langlib-fixes
 
 jobs:
   windows_build:
