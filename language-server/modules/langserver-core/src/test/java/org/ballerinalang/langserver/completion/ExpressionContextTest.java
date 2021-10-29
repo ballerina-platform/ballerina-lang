@@ -60,7 +60,7 @@ public class ExpressionContextTest extends CompletionTest {
                 //"annotation_access_ctx_config3.json", fixed with #32843
                 "annotation_access_ctx_config4.json",
                 "annotation_access_ctx_config5.json",
-                "annotation_access_ctx_config6.json",
+                //"annotation_access_ctx_config6.json", fixed with #32843
                 "error_constructor_expr_ctx_config11.json", //#33027
                 
                 // TODO ContextTypeResolver's context type for method call expressions should be revisited

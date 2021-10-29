@@ -41,6 +41,7 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
 
@@ -67,7 +68,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
         }
 
         TypeSymbol typeSymbol = type.get();
-//
+
         if (!(typeSymbol.typeKind() instanceof TypeDescKind)) {
             return completionItems;
         }
@@ -84,23 +85,20 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
         }
 
         if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            String alias = ((QualifiedNameReferenceNode) nodeAtCursor).modulePrefix().text();
-            Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context, alias);
+            List<LSCompletionItem> completionItems = new ArrayList<>();
+            NonTerminalNode symbolAtCursor = context.getNodeAtCursor();
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) symbolAtCursor;
 
-            // Fixme
-//            return scopeEntry.map(value -> value.symbol.scope.entries.values().stream()
-//                    .filter(entry -> {
-//                        BSymbol symbol = entry.symbol;
-//                        return symbol instanceof BAnnotationSymbol && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC
-//                                && ((BAnnotationSymbol) symbol).points.stream()
-//                                .anyMatch(aPoint -> aPoint.point.getValue().equals(attachPoint.getValue()));
-//                    })
-//                    .map(entry -> {
-//                        BAnnotationSymbol symbol = (BAnnotationSymbol) entry.symbol;
-//                        return getAnnotationsCompletionItem(context, symbol);
-//                    })
-//                    .collect(Collectors.toList())).orElseGet(ArrayList::new);
-            return new ArrayList<>();
+            List<Symbol> moduleSymbols = getAnnotationContextEntries(context, qNameRef);
+            moduleSymbols.stream()
+                    .filter(symbol -> ((AnnotationSymbol) symbol).attachPoints()
+                            .stream()
+                            .anyMatch(aPoint -> aPoint.name().equals(attachPoint.name())))
+                    .forEach(annotation -> {
+                        AnnotationSymbol symbol = (AnnotationSymbol) annotation;
+                        completionItems.add(getAnnotationsCompletionItem(context, symbol));
+                    });
+            return completionItems;
         }
 
         List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
@@ -127,6 +125,15 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
         } else {
             return null;
         }
+    }
+    private static List<Symbol> getAnnotationContextEntries(BallerinaCompletionContext ctx,
+                                                            QualifiedNameReferenceNode qNameRef) {
+        String moduleAlias = QNameReferenceUtil.getAlias(qNameRef);
+        Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(ctx, moduleAlias);
+
+        return moduleSymbol.map(value -> value.allSymbols().stream()
+                .filter(symbol -> symbol.kind() == ANNOTATION)
+                .collect(Collectors.toList())).orElseGet(ArrayList::new);
     }
 
     private LSCompletionItem getAnnotationsCompletionItem(BallerinaCompletionContext ctx,
