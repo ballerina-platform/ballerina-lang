@@ -209,6 +209,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -1636,13 +1637,20 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
-        bLangArrowFunction.closureVarSymbols.forEach(closureVarSymbol -> {
-            if (this.uninitializedVars.keySet().contains(closureVarSymbol.bSymbol)) {
+        for (ClosureVarSymbol closureVarSymbol : bLangArrowFunction.closureVarSymbols) {
+            BSymbol symbol = closureVarSymbol.bSymbol;
+            if (this.uninitializedVars.containsKey(symbol)) {
                 this.dlog.error(closureVarSymbol.diagnosticLocation,
-                                DiagnosticErrorCode.USAGE_OF_UNINITIALIZED_VARIABLE,
-                                closureVarSymbol.bSymbol);
+                                DiagnosticErrorCode.USAGE_OF_UNINITIALIZED_VARIABLE, symbol);
             }
-        });
+
+            this.unusedErrorVarsDeclaredWithVar.remove(symbol);
+
+            if (this.unusedLocalVariables != null) {
+                // The map will be null for module-level references.
+                this.unusedLocalVariables.remove(symbol);
+            }
+        }
     }
 
     @Override
@@ -2314,6 +2322,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 for (BLangErrorVariable.BLangErrorDetailEntry member : errorVariable.detail) {
                     populateUnusedVariableMapForMembers(unusedLocalVariables, member.valueBindingPattern);
                 }
+                populateUnusedVariableMapForMembers(unusedLocalVariables, errorVariable.restDetail);
                 break;
         }
     }
