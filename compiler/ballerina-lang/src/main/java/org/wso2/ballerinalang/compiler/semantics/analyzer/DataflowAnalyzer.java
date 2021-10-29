@@ -1142,9 +1142,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangInvocation invocationExpr) {
         analyzeNode(invocationExpr.expr, env);
 
+        BSymbol symbol = invocationExpr.symbol;
         if (this.unusedLocalVariables != null) {
             // The map will be null for module-level calls.
-            this.unusedLocalVariables.remove(invocationExpr.symbol);
+            this.unusedLocalVariables.remove(symbol);
         }
 
         if (!isGlobalVarsInitialized(invocationExpr.pos)) {
@@ -1159,6 +1160,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (!isFieldsInitializedForSelfInvocation(invocationExpr.restArgs, invocationExpr.pos)) {
             return;
         }
+
+        checkVarRef(symbol, invocationExpr.pos);
 
         invocationExpr.requiredArgs.forEach(expr -> analyzeNode(expr, env));
         invocationExpr.restArgs.forEach(expr -> analyzeNode(expr, env));
@@ -1176,8 +1179,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             if (symTable.notFoundSymbol != dependsOnFunctionSym) {
                 addDependency(invokableOwnerSymbol, dependsOnFunctionSym);
             }
-        } else if (invocationExpr.symbol != null && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
-            BInvokableSymbol invokableProviderSymbol = (BInvokableSymbol) invocationExpr.symbol;
+        } else if (symbol != null && symbol.kind == SymbolKind.FUNCTION) {
+            BInvokableSymbol invokableProviderSymbol = (BInvokableSymbol) symbol;
             BSymbol curDependent = this.currDependentSymbolDeque.peek();
             if (curDependent != null && isGlobalVarSymbol(curDependent)) {
                 addDependency(curDependent, invokableProviderSymbol);
