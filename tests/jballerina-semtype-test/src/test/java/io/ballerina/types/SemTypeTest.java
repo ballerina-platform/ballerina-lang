@@ -75,7 +75,7 @@ public class SemTypeTest {
 
     @DataProvider(name = "fileNameProviderFunc")
     public Object[] fileNameProviderFunc() {
-        File dataDir = resolvePath("test-src/datax").toFile();
+        File dataDir = resolvePath("test-src/localVar").toFile();
         List<String> testFiles = Arrays.stream(dataDir.listFiles())
                 .map(File::getAbsolutePath)
                 .filter(name -> name.endsWith(".bal"))
@@ -123,11 +123,15 @@ public class SemTypeTest {
         bLangPackage.functions.forEach(func -> {
             Scope scope = func.getBody().scope;
             vars.forEach(v -> {
+                if (v.length != 2) {
+                    Assert.fail("test structure should be `variable = Type`");
+                }
                 SemType t1 = scope.lookup(new Name(v[0])).symbol.type.getSemtype();
                 SemType t2 = globalScope.lookup(new Name(v[1])).symbol.type.getSemtype();
 
-                Assert.assertTrue(SemTypes.isSubtype(tc, t1, t2));
-                Assert.assertTrue(SemTypes.isSubtype(tc, t2, t1));
+                String MSG = "semtype in local scope is different from global scope";
+                Assert.assertTrue(SemTypes.isSubtype(tc, t1, t2), MSG);
+                Assert.assertTrue(SemTypes.isSubtype(tc, t2, t1), MSG);
             });
         });
     }
