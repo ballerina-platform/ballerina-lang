@@ -62,11 +62,11 @@ public class SymbolsInWaitActionsTest {
 
                 // Multiple Wait Action
 //                {43, 51, "a", SymbolKind.RECORD_FIELD},   // TODO: Fix 33388
-//                {43, 54, "WA", SymbolKind.WORKER},  // TODO: Fix 33226
+                {43, 54, "WA", SymbolKind.WORKER},
 //                {43, 58, "a", SymbolKind.RECORD_FIELD},   // TODO: Fix 33388
-//                {43, 61, "WB", SymbolKind.WORKER},  // TODO: Fix 33226
-//                {44, 51, "WC", SymbolKind.WORKER},  // TODO: Fix 33226
-//                {44, 55, "WD", SymbolKind.WORKER},  // TODO: Fix 33226
+                {43, 61, "WB", SymbolKind.WORKER},
+                {44, 51, "WC", SymbolKind.WORKER},
+                {44, 55, "WD", SymbolKind.WORKER},
 
                 // Alternate Wait Action
                 {56, 29, "WA", SymbolKind.WORKER},
