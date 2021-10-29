@@ -129,9 +129,9 @@ public class SemTypeTest {
                 SemType t1 = scope.lookup(new Name(v[0])).symbol.type.getSemtype();
                 SemType t2 = globalScope.lookup(new Name(v[1])).symbol.type.getSemtype();
 
-                String MSG = "semtype in local scope is different from global scope";
-                Assert.assertTrue(SemTypes.isSubtype(tc, t1, t2), MSG);
-                Assert.assertTrue(SemTypes.isSubtype(tc, t2, t1), MSG);
+                String msg = "semtype in local scope is different from global scope";
+                Assert.assertTrue(SemTypes.isSubtype(tc, t1, t2), msg);
+                Assert.assertTrue(SemTypes.isSubtype(tc, t2, t1), msg);
             });
         });
     }
@@ -209,7 +209,7 @@ public class SemTypeTest {
             Path path = resolvePath(fileName);
             Stream<String> lines = Files.lines(Path.of(path.toString()));
             return lines.filter(s -> s.startsWith("// "))
-                    .map(s -> s.substring(3).replaceAll("\\s","").split("="))
+                    .map(s -> s.substring(3).replaceAll("\\s", "").split("="))
                     .collect(Collectors.toList());
         } catch (IOException e) {
             Assert.fail(e.toString());
