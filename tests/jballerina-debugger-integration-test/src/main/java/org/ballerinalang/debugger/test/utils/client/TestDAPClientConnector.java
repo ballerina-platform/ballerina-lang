@@ -136,7 +136,7 @@ public class TestDAPClientConnector {
                 debugClient.connect(requestManager);
                 myConnectionState = ConnectionState.CONNECTED;
                 return res;
-            });
+            }).get();
 
         } catch (Exception e) {
             myConnectionState = ConnectionState.NOT_CONNECTED;

@@ -27,6 +27,11 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import static org.ballerinalang.debugger.test.utils.DebugUtils.isInteger;
 
 /**
  * Socket based stream connection provider.
@@ -50,55 +55,77 @@ public class TestSocketStreamConnectionProvider extends TestProcessStreamConnect
 
     @Override
     public void start() throws IOException {
-        Thread socketThread = new Thread(() -> {
-            try {
-                socket = new Socket(address, port);
-            } catch (Exception e) {
-                LOG.warn(e.getMessage());
+        CountDownLatch latch = new CountDownLatch(1);
+        final Object[] finalResult = new Object[1];
+        Callback callback = new Callback() {
+            @Override
+            public void notifySuccess(Object result) {
+                latch.countDown();
+                finalResult[0] = result;
             }
-        });
-        final BufferedReader[] bufferedReader = new BufferedReader[1];
-        Thread adapterLauncherThread = new Thread(() -> {
+
+            @Override
+            public void notifyFailure(Exception error) {
+                latch.countDown();
+            }
+        };
+
+        try {
+            launchDebugServerAsync(callback);
+            boolean await = latch.await(4000, TimeUnit.MILLISECONDS);
+            if (await) {
+                try {
+                    socket = new Socket(address, port);
+                } catch (Exception e) {
+                    LOG.warn(e.getMessage());
+                }
+
+                if (socket == null) {
+                    inputStream = null;
+                    outputStream = null;
+                    throw new IOException("Unable to make socket connection: " + toString());
+                } else {
+                    inputStream = socket.getInputStream();
+                    outputStream = socket.getOutputStream();
+                }
+            }
+        } catch (InterruptedException interruptedException) {
+            // Kills process stream connection as the only socket connection will be used for the communication.
+            super.stop();
+        }
+    }
+
+    private void launchDebugServerAsync(Callback callback) {
+        CompletableFuture.runAsync(() -> {
             try {
                 super.start();
                 InputStream stdIn = super.getInputStream();
                 if (stdIn == null) {
                     throw new IOException("Debug adapter input stream is null.");
                 }
-                bufferedReader[0] = new BufferedReader(new InputStreamReader(stdIn, StandardCharsets.UTF_8), 1);
                 String line;
-                while ((line = bufferedReader[0].readLine()) != null && line.contains("Debug server started")) {
-                    // Just waits here for the debug adapter to print server init message to the std out.
+                try (BufferedReader buffReader = new BufferedReader(new InputStreamReader(stdIn,
+                        StandardCharsets.UTF_8))) {
+                    line = buffReader.readLine();
+                    while (line != null && !line.contains("Debug server started on ")) {
+                        // Just waits here for the debug adapter to print server init message to the std out.
+                        line = buffReader.readLine();
+                    }
                 }
+                if (line != null) {
+                    String[] messageParts = line.split(" ");
+                    String port = messageParts[messageParts.length - 1].trim();
+                    if (isInteger(port)) {
+                        callback.notifySuccess(Integer.parseInt(port));
+                        return;
+                    }
+                }
+                callback.notifyFailure(null);
             } catch (Exception e) {
                 Thread.currentThread().interrupt();
                 LOG.info(e.getMessage());
             }
         });
-
-        adapterLauncherThread.start();
-        try {
-            adapterLauncherThread.join(4000);
-        } catch (InterruptedException e) {
-            LOG.warn(e.getMessage());
-        }
-        socketThread.start();
-        try {
-            socketThread.join(4000);
-        } catch (InterruptedException e) {
-            LOG.warn(e.getMessage());
-        }
-        if (socket == null) {
-            inputStream = null;
-            outputStream = null;
-            throw new IOException("Unable to make socket connection: " + toString());
-        } else {
-            inputStream = socket.getInputStream();
-            outputStream = socket.getOutputStream();
-        }
-
-        // Kills process stream connection as the only socket connection will be used for the communication.
-        super.stop();
     }
 
     @Override

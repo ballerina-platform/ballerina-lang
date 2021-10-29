@@ -111,7 +111,26 @@ public class TestProcessStreamConnectionProvider implements TestStreamConnection
 
     public void stop() {
         if (process != null) {
-            process.destroy();
+            killProcessWithDescendants(process);
+        }
+    }
+
+    private void killProcessWithDescendants(Process parent) {
+        try {
+            // Kills the descendants of the process. The descendants of a process are the children
+            // of the process and the descendants of those children, recursively.
+            parent.descendants().forEach(processHandle -> {
+                boolean successful = processHandle.destroy();
+                if (!successful) {
+                    processHandle.destroyForcibly();
+                }
+            });
+
+            // Kills the parent process. Whether the process represented by this Process object will be normally
+            // terminated or not, is implementation dependent.
+            parent.destroyForcibly();
+            parent.waitFor();
+        } catch (Exception ignored) {
         }
     }
 

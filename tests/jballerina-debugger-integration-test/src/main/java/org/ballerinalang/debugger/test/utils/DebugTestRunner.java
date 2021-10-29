@@ -187,45 +187,19 @@ public class DebugTestRunner {
     public void initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind,
                                  int port, Map<String, Object> launchArgs) throws BallerinaTestException {
 
-        debugClientConnector = new TestDAPClientConnector(balServer.getServerHome(), testProjectPath,
-                testEntryFilePath, port);
-
+        debugClientConnector = new TestDAPClientConnector(balServer.getServerHome(), testProjectPath, testEntryFilePath,
+                port);
+        debugClientConnector.createConnection();
         if (debugClientConnector.isConnected()) {
             isConnected = true;
-            LOGGER.info("Connection is already created.");
-            return;
-        }
-
-        final int[] retryAttempt = {0};
-        // Else, tries to initiate the socket connection.
-        while (!isConnected && (++retryAttempt[0] <= MAX_RETRY_COUNT)) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            if (!debugClientConnector.isConnected()) {
-                LOGGER.debug("Not connected. Retrying...");
-                debugClientConnector.createConnection();
-                if (debugClientConnector.isConnected()) {
-                    isConnected = true;
-                    LOGGER.info(String.format("Connected to the remote server at %s.%n%n",
-                        debugClientConnector.getAddress()), false);
-                    break;
-                }
-            } else {
-                LOGGER.debug("Connection is already created.");
-                isConnected = true;
-                break;
-            }
-        }
-        if (!debugClientConnector.isConnected()) {
-            throw new BallerinaTestException(String.format("Connection to debug server at %s could not be " +
-                "established%n", debugClientConnector.getAddress()));
+            LOGGER.info(String.format("Connected to the remote server at %s.%n%n", debugClientConnector.getAddress()),
+                    false);
+        } else {
+            throw new BallerinaTestException(String.format("Failed to connect to the debug server at %s%n",
+                    debugClientConnector.getAddress()));
         }
 
         setBreakpoints(testBreakpoints);
-
         if (executionKind == DebugUtils.DebuggeeExecutionKind.BUILD) {
             attachToDebuggee();
         } else {
