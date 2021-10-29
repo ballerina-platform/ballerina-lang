@@ -145,6 +145,11 @@ function testFromHexString() {
     test:assertValueEqual(err.message(), "{ballerina/lang.float}NumberParsingError");
     test:assertValueEqual(<string> checkpanic err.detail()["message"], "invalid hex string: '2A'");
 
+    v1 = float:fromHexString("0x");
+    err = <error> v1;
+    test:assertValueEqual(err.message(), "{ballerina/lang.float}NumberParsingError");
+    test:assertValueEqual(<string> checkpanic err.detail()["message"], "invalid hex string: '0x'");
+
     v1 = float:fromHexString("0i");
     err = <error> v1;
     test:assertValueEqual(err.message(), "{ballerina/lang.float}NumberParsingError");

@@ -37,9 +37,6 @@ public class Max {
     public static double max(double[] ns) {
         double max = Double.NEGATIVE_INFINITY;
         for (double current : ns) {
-            if (Double.isNaN(current)) {
-                return current;
-            }
             max = Math.max(current, max);
         }
         return max;

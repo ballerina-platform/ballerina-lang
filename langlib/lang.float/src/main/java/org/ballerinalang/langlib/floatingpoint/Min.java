@@ -37,9 +37,6 @@ public class Min {
     public static double min(double[] ns) {
         double min = Double.POSITIVE_INFINITY;
         for (double current : ns) {
-            if (Double.isNaN(current)) {
-                return current;
-            }
             min = Math.min(current, min);
         }
         return min;

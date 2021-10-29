@@ -23,6 +23,8 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 
+import java.util.regex.Pattern;
+
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FLOAT_LANG_LIB;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
@@ -33,6 +35,8 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  * @since 1.0
  */
 public class FromHexString {
+
+    private static final Pattern HEX_FLOAT_LITERAL = Pattern.compile("[-+]?0[xX][\\dA-Fa-f.pP\\-+]+");
 
     private FromHexString() {
     }
@@ -50,14 +54,15 @@ public class FromHexString {
     }
 
     private static boolean isValidHexString(String hexValue) {
-        if ((hexValue.length() > 3) && (hexValue.startsWith("+") || hexValue.startsWith("-"))) {
-            return ((hexValue.charAt(1) == '0' && hexValue.charAt(2) == 'x') || hexValue.equals("+infinity") ||
-                    hexValue.equals("-infinity"));
+        switch (hexValue) {
+            case "+infinity":
+            case "-infinity":
+            case "infinity":
+            case "nan":
+                return true;
+            default:
+                return HEX_FLOAT_LITERAL.matcher(hexValue).matches();
         }
-        if ((hexValue.length() > 1) && (hexValue.charAt(0) == '0' && hexValue.charAt(1) == 'x')) {
-            return true;
-        }
-        return hexValue.equals("nan") || hexValue.equals("infinity");
     }
 
     private static BError getNumberFormatError(String message) {
