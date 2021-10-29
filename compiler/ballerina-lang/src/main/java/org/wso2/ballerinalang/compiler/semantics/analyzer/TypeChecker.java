@@ -6691,13 +6691,7 @@ public class TypeChecker extends BLangNodeVisitor {
                                                  BRecordType recordType) {
         BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env, fieldName, recordType.tsymbol);
 
-        if (Symbols.isOptional(fieldSymbol) && !fieldSymbol.type.isNullable()) {
-            if (varReferExpr.optionalFieldAccess || varReferExpr.isLValue) {
-                return symTable.semanticError;
-            }
-            varReferExpr.symbol = fieldSymbol;
-            return addNilForNillableAccessType(fieldSymbol.type);
-        } else if (Symbols.isOptional(fieldSymbol) || fieldSymbol == symTable.notFoundSymbol) {
+        if (Symbols.isOptional(fieldSymbol) || fieldSymbol == symTable.notFoundSymbol) {
             return symTable.semanticError;
         }
 
@@ -6963,6 +6957,16 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkRecordFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
         if (varRefType.tag == TypeTags.RECORD) {
+            BSymbol fieldSymbol = symResolver.resolveStructField(fieldAccessExpr.pos, this.env,
+                    fieldName, varRefType.tsymbol);
+
+            if (Symbols.isOptional(fieldSymbol) && !fieldSymbol.type.isNullable() && !fieldAccessExpr.isLValue) {
+                fieldAccessExpr.symbol = fieldSymbol;
+                return addNilForNillableAccessType(fieldSymbol.type);
+            } else if (fieldAccessExpr.expr.getBType().tag == TypeTags.UNION &&
+                    isFieldOptionalInRecords(fieldAccessExpr, fieldName) && fieldSymbol.type.isNullable()) {
+                return symTable.semanticError;
+            }
             return checkRecordRequiredFieldAccess(fieldAccessExpr, fieldName, (BRecordType) varRefType);
         }
 
@@ -6987,6 +6991,18 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return BUnionType.create(null, fieldTypeMembers);
+    }
+
+    private boolean isFieldOptionalInRecords(BLangFieldBasedAccess fieldAccessExpr, Name fieldName) {
+        Set<BType> memberTypes = ((BUnionType) fieldAccessExpr.expr.getBType()).getMemberTypes();
+        for (BType memType: memberTypes) {
+            BSymbol fieldSymbol = symResolver.resolveStructField(fieldAccessExpr.pos, this.env,
+                    fieldName, memType.tsymbol);
+            if (Symbols.isOptional(fieldSymbol)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private BType checkRecordFieldAccessLhsExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType,
@@ -7090,6 +7106,10 @@ public class TypeChecker extends BLangNodeVisitor {
                     recordUnionDiagnostics.optionalInRecords.add(recordMember);
                 }
 
+                if (isNilableType(fieldAccessExpr, memberType, fieldName)) {
+                    recordUnionDiagnostics.nilableInRecords.add(recordMember);
+                }
+
             } else {
                 // The field being accessed is not declared in this record member type
                 recordUnionDiagnostics.undeclaredInRecords.add(recordMember);
@@ -7098,6 +7118,13 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return recordUnionDiagnostics;
+    }
+
+    private boolean isNilableType(BLangFieldBasedAccess fieldAccessExpr, BType memberType,
+                              Name fieldName) {
+        BSymbol fieldSymbol = symResolver.resolveStructField(fieldAccessExpr.pos, this.env,
+                fieldName, memberType.tsymbol);
+        return fieldSymbol.type.isNullable();
     }
 
     private void logRhsFieldAccExprErrors(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
@@ -7125,12 +7152,25 @@ public class TypeChecker extends BLangNodeVisitor {
             LinkedHashSet<BType> memberTypes = ((BUnionType) varRefType).getMemberTypes();
             RecordUnionDiagnostics recUnionInfo = checkRecordUnion(fieldAccessExpr, memberTypes, fieldName);
 
-            if (recUnionInfo.hasUndeclaredAndOptional()) {
+            if (recUnionInfo.hasOptionalAndNilableAndUndeclared()) {
+
+                dlog.error(fieldAccessExpr.pos,
+                        DiagnosticErrorCode.UNDECLARED_AND_OPTIONAL_AND_NILABLE_FIELDS_IN_UNION_OF_RECORDS, fieldName,
+                        recUnionInfo.recordsToString(recUnionInfo.undeclaredInRecords),
+                        recUnionInfo.recordsToString(recUnionInfo.optionalInRecords),
+                        recUnionInfo.recordsToString(recUnionInfo.nilableInRecords));
+            } else if (recUnionInfo.hasUndeclaredAndOptional()) {
 
                 dlog.error(fieldAccessExpr.pos,
                         DiagnosticErrorCode.UNDECLARED_AND_OPTIONAL_FIELDS_IN_UNION_OF_RECORDS, fieldName,
                         recUnionInfo.recordsToString(recUnionInfo.undeclaredInRecords),
                         recUnionInfo.recordsToString(recUnionInfo.optionalInRecords));
+            } else if (recUnionInfo.hasOptionalAndNilable()) {
+
+                dlog.error(fieldAccessExpr.pos,
+                        DiagnosticErrorCode.OPTIONAL_AND_NILABLE_FIELDS_IN_UNION_OF_RECORDS, fieldName,
+                        recUnionInfo.recordsToString(recUnionInfo.optionalInRecords),
+                        recUnionInfo.recordsToString(recUnionInfo.nilableInRecords));
             } else if (recUnionInfo.hasUndeclared()) {
 
                 dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.UNDECLARED_FIELD_IN_UNION_OF_RECORDS, fieldName,
@@ -8416,6 +8456,9 @@ public class TypeChecker extends BLangNodeVisitor {
         // Set of record types which has the field name declared as optional
         Set<BRecordType> optionalInRecords = new LinkedHashSet<>();
 
+        // Set of record types which has the field type that includes nil
+        Set<BRecordType> nilableInRecords = new LinkedHashSet<>();
+
         boolean hasUndeclaredAndOptional() {
             return undeclaredInRecords.size() > 0 && optionalInRecords.size() > 0;
         }
@@ -8426,6 +8469,15 @@ public class TypeChecker extends BLangNodeVisitor {
 
         boolean hasOptional() {
             return optionalInRecords.size() > 0;
+        }
+
+        boolean hasOptionalAndNilable() {
+            return nilableInRecords.size() > 0 && optionalInRecords.size() > 0;
+        }
+
+        boolean hasOptionalAndNilableAndUndeclared() {
+            return nilableInRecords.size() > 0 && optionalInRecords.size() > 0 &&
+                    undeclaredInRecords.size() > 0;
         }
 
         String recordsToString(Set<BRecordType> recordTypeSet) {
