@@ -164,12 +164,12 @@ public class ConfigNegativeTest {
                                         ".intVar'"}},
                 // not supported both toml type and cli type
                 {new String[]{"-Corg.mod1.myMap=4"}, "MatchedTypeValues.toml",
-                        new VariableKey[]{new VariableKey(MODULE, "myMap", PredefinedTypes.TYPE_MAP, null, true)}, 5
-                        , 1, new String[]{"error: configurable variable 'myMap' with type 'map' is not supported",
-                        "warning: [org.mod1.myMap=4] unused command line argument"}},
+                        new VariableKey[]{new VariableKey(MODULE, "myMap", PredefinedTypes.TYPE_MAP, null, true)}, 6
+                        , 0, new String[]{"error: configurable variable 'myMap' with type 'map' is not supported",
+                        "error: [org.mod1.myMap=4] unused command line argument"}},
                 // not supported cli union type
                 {new String[]{"-Corg.mod1.myUnion=5"}, null, new VariableKey[]{
-                        new VariableKey(MODULE, "myUnion", incompatibleUnionType, null, true)}, 1, 1,
+                        new VariableKey(MODULE, "myUnion", incompatibleUnionType, null, true)}, 2, 0,
                         new String[]{"error: value for configurable variable 'myUnion' with type '(int|string)' is " +
                                 "not supported as a command line argument"}},
                 // not supported cli type
@@ -177,8 +177,8 @@ public class ConfigNegativeTest {
                         new VariableKey[]{
                                 new VariableKey(MODULE, "myMap",
                                                 new BIntersectionType(MODULE, new BType[]{}, PredefinedTypes.TYPE_MAP
-                                                        , 0, true), null, true)}, 1
-                        , 1, new String[]{"error: value for configurable variable 'myMap' with type 'map' is not " +
+                                                        , 0, true), null, true)}, 2
+                        , 0, new String[]{"error: value for configurable variable 'myMap' with type 'map' is not " +
                 "supported as a command line argument"}},
                 // not supported union type
                 {new String[]{""}, "InvalidUnionType.toml", new VariableKey[]{
