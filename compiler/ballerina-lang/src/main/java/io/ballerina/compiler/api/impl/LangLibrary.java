@@ -46,8 +46,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getReferredType;
-
 /**
  * A class to hold the lang library function info required for types.
  *
@@ -78,7 +76,7 @@ public class LangLibrary {
 
             if (isLangLibModule(moduleID)) {
                 if (!LANG_VALUE.equals(moduleID.nameComps.get(1).value)) {
-                    addLangLibMethods(moduleID.nameComps.get(1).value, module, this.langLibMethods);
+                    addLangLibMethods(moduleID.nameComps.get(1).value, module, this.langLibMethods, types);
                 } else {
                     populateLangValueLibrary(module, this.langLibMethods);
                 }
@@ -162,7 +160,7 @@ public class LangLibrary {
     }
 
     private static void addLangLibMethods(String basicType, BPackageSymbol langLibModule,
-                                          Map<String, Map<String, BInvokableSymbol>> langLibMethods) {
+                                          Map<String, Map<String, BInvokableSymbol>> langLibMethods, Types types) {
         Map<String, BInvokableSymbol> methods = new HashMap<>();
 
         for (Map.Entry<Name, Scope.ScopeEntry> nameScopeEntry : langLibModule.scope.entries.entrySet()) {
@@ -176,7 +174,7 @@ public class LangLibrary {
 
             if (Symbols.isFlagOn(invSymbol.flags, Flags.PUBLIC) &&
                     (!invSymbol.params.isEmpty()
-                            && basicType.compareToIgnoreCase(getReferredType(invSymbol.params.get(0).type)
+                            && basicType.compareToIgnoreCase(types.getReferredType(invSymbol.params.get(0).type)
                             .getKind().name()) == 0 || invSymbol.restParam != null
                             && basicType.compareToIgnoreCase(((BArrayType) invSymbol.restParam.type)
                             .eType.tsymbol.getName().getValue()) == 0)) {

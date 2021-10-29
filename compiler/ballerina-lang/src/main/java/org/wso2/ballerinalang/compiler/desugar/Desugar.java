@@ -10365,8 +10365,10 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         fields.clear();
-        return types.getReferredType(type).tag == TypeTags.RECORD ?
-                new BLangStructLiteral(pos, type, rewrittenFields) : new BLangMapLiteral(pos, type, rewrittenFields);
+        BType refType = types.getReferredType(type);
+        return refType.tag == TypeTags.RECORD ?
+                new BLangStructLiteral(pos, type, refType.tsymbol, rewrittenFields) :
+                new BLangMapLiteral(pos, type, rewrittenFields);
     }
 
     protected void addTransactionInternalModuleImport() {

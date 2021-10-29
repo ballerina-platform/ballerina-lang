@@ -32,11 +32,11 @@ import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -474,7 +474,7 @@ class JMethodResolver {
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TYPEREFDESC:
-                    return isValidParamBType(jType, ((BTypeReferenceType) bType).referredType, isLastParam,
+                    return isValidParamBType(jType, JvmCodeGenUtil.getReferredType(bType), isLastParam,
                             restParamExist);
                 default:
                     return false;
@@ -634,7 +634,7 @@ class JMethodResolver {
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TYPEREFDESC:
-                    return isValidReturnBType(jType, ((BTypeReferenceType) bType).referredType,
+                    return isValidReturnBType(jType, JvmCodeGenUtil.getReferredType(bType),
                             jMethodRequest, visitedSet);
                 default:
                     return false;

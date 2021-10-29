@@ -2614,7 +2614,7 @@ public class BIRGen extends BLangNodeVisitor {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
         InstructionKind insKind;
-        BType astAccessExprExprType = types.getReferredType(astIndexBasedAccessExpr.expr.getBType());;
+        BType astAccessExprExprType = types.getReferredType(astIndexBasedAccessExpr.expr.getBType());
         if (variableStore) {
             BIROperand rhsOp = this.env.targetOperand;
 

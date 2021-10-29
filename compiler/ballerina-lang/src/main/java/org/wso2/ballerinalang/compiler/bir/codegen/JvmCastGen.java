@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -474,7 +473,7 @@ public class JvmCastGen {
             case TypeTags.NEVER:
                 break;
             case TypeTags.TYPEREFDESC:
-                generateJToBCheckCast(mv, indexMap, sourceType, ((BTypeReferenceType) targetType).referredType);
+                generateJToBCheckCast(mv, indexMap, sourceType, JvmCodeGenUtil.getReferredType(targetType));
                 return;
             default:
                 switch (targetType.tag) {
@@ -764,7 +763,7 @@ public class JvmCastGen {
             case TypeTags.FINITE:
                 return targetType.isNullable();
             case TypeTags.TYPEREFDESC:
-                return isNillable(((BTypeReferenceType) targetType).referredType);
+                return isNillable(JvmCodeGenUtil.getReferredType(targetType));
         }
 
         return false;
@@ -1382,7 +1381,7 @@ public class JvmCastGen {
                 targetTypeClass = HANDLE_VALUE;
                 break;
             case TypeTags.TYPEREFDESC:
-                targetTypeClass = getTargetClass(((BTypeReferenceType) targetType).referredType);
+                targetTypeClass = getTargetClass(JvmCodeGenUtil.getReferredType(targetType));
                 break;
             default:
                 return null;
@@ -1455,7 +1454,7 @@ public class JvmCastGen {
                     generateCast(mv, sourceType, ((BIntersectionType) targetType).effectiveType);
                     return;
                 case TypeTags.TYPEREFDESC:
-                    generateCast(mv, sourceType, ((BTypeReferenceType) targetType).referredType);
+                    generateCast(mv, sourceType, JvmCodeGenUtil.getReferredType(targetType));
                     return;
             }
         }
@@ -1489,7 +1488,7 @@ public class JvmCastGen {
                         false);
                 break;
             case TypeTags.TYPEREFDESC:
-                generateCastToInt(mv, ((BTypeReferenceType) sourceType).referredType);
+                generateCastToInt(mv, JvmCodeGenUtil.getReferredType(sourceType));
                 break;
             default:
                 throw new BLangCompilerException("Casting is not supported from '" + sourceType + "' to 'int'");

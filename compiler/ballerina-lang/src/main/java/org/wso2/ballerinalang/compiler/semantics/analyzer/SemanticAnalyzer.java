@@ -521,8 +521,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
             ((BEnumSymbol) typeDefinition.symbol).addAnnotations(annotSymbols);
-//            BTypeDefinitionSymbol typeDefinitionSymbol = (BTypeDefinitionSymbol) typeDefinition.symbol;
-//            ((BEnumSymbol) typeDefinitionSymbol.type.tsymbol).addAnnotations(annotSymbols);
             HashSet<String> enumElements = new HashSet<String>();
             BLangUnionTypeNode bLangUnionTypeNode = (BLangUnionTypeNode)  typeDefinition.typeNode;
             for (int j = bLangUnionTypeNode.memberTypeNodes.size() - 1; j >= 0; j--) {

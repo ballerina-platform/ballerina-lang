@@ -712,6 +712,7 @@ public class JvmPackageGen {
                 if (typeSymbol instanceof BTypeDefinitionSymbol) {
                     objectTypeSymbol = (BObjectTypeSymbol) typeSymbol.type.tsymbol;
                 } else {
+                    //class symbols
                     objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
                 }
                 if (objectTypeSymbol != null) {

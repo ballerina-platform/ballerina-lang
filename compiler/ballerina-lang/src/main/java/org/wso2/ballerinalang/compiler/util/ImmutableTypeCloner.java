@@ -187,9 +187,7 @@ public class ImmutableTypeCloner {
                                                                   Names names,
                                                                   Set<Flag> origObjFlagSet,
                                                                   Set<BType> unresolvedTypes) {
-        //todo @chiran IntersectionTypeTest
         BType origBType = types.getReferredType(bType);
-//        BType origBType = bType;
         SelectivelyImmutableReferenceType type = (SelectivelyImmutableReferenceType) origBType;
         if (origBType.tag == TypeTags.INTERSECTION && Symbols.isFlagOn(origBType.flags, Flags.READONLY)) {
             return (BIntersectionType) origBType;

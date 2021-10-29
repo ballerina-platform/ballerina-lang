@@ -266,15 +266,12 @@ public class JvmDesugarPhase {
     private static void encodeTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs,
                                                  HashMap<String, String> encodedVsInitialIds) {
         for (BIRTypeDefinition typeDefinition : typeDefs) {
-            //todo @chiran
             if (typeDefinition.referenceType != null) {
-                typeDefinition.type.tsymbol.name =
-                        Names.fromString(
-                                encodeNonFunctionIdentifier(((BTypeReferenceType) typeDefinition.referenceType).definitionName, encodedVsInitialIds));
+                typeDefinition.type.tsymbol.name = Names.fromString(encodeNonFunctionIdentifier(
+                        ((BTypeReferenceType) typeDefinition.referenceType).definitionName, encodedVsInitialIds));
             } else {
-                typeDefinition.type.tsymbol.name =
-                        Names.fromString(
-                                encodeNonFunctionIdentifier(typeDefinition.type.tsymbol.name.value, encodedVsInitialIds));
+                typeDefinition.type.tsymbol.name = Names.fromString(encodeNonFunctionIdentifier(
+                        typeDefinition.type.tsymbol.name.value, encodedVsInitialIds));
             }
 
             typeDefinition.internalName =

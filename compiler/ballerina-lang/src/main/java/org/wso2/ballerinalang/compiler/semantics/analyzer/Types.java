@@ -5263,8 +5263,6 @@ public class Types {
 
         if (returnType.tag == TypeTags.UNION) {
             Set<BType> memberTypes = getEffectiveMemberTypes(((BUnionType) returnType));
-            //todo @chiran
-//            Set<BType> memberTypes = ((BUnionType) returnType).getMemberTypes();
             if (returnType.isNullable() &&
                     memberTypes.stream().allMatch(type -> type.tag == TypeTags.NIL || type.tag == TypeTags.ERROR)) {
                 return;

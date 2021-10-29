@@ -237,10 +237,9 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         public BAttachedFunction initializer;
         public TreeMap<Integer, BVarSymbol> enclMapSymbols;
 
-        public BLangStructLiteral(Location pos, BType structType, List<RecordField> fields) {
+        public BLangStructLiteral(Location pos, BType structType, BTypeSymbol typeSymbol, List<RecordField> fields) {
             super(pos);
             this.setBType(structType);
-            BTypeSymbol typeSymbol = getConstraintFromReferenceType(structType).tsymbol;
             this.initializer = ((BRecordTypeSymbol) typeSymbol).initializerFunc;
             this.fields = fields;
         }
@@ -249,14 +248,6 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
         }
-    }
-
-    private static BType getConstraintFromReferenceType(BType type) {
-        BType constraint = type;
-        if (type.tag == TypeTags.TYPEREFDESC) {
-            constraint = getConstraintFromReferenceType(((BTypeReferenceType) type).referredType);
-        }
-        return constraint;
     }
 
     /**

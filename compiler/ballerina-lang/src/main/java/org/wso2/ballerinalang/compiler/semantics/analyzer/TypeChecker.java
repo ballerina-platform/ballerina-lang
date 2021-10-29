@@ -1878,10 +1878,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (tag == TypeTags.TYPEREFDESC) {
             BType refType = types.getReferredType(bType);
-            //todo @chiran
-//            return checkMappingConstructorCompatibility(types.getReferredType(bType), mappingConstructor);
-            BType compatibleType = checkMappingConstructorCompatibility(refType,
-                    mappingConstructor);
+            BType compatibleType = checkMappingConstructorCompatibility(refType, mappingConstructor);
             return (refType.tag != TypeTags.UNION && refType.tag != TypeTags.INTERSECTION) ? bType : compatibleType;
         }
 

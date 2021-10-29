@@ -46,7 +46,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -392,7 +391,7 @@ public class JvmInstructionGen {
                 mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, TO_UNSIGNED_LONG, "(I)J", false);
                 return;
             case TypeTags.TYPEREFDESC:
-                generateIntToUnsignedIntConversion(mv, ((BTypeReferenceType) targetType).referredType);
+                generateIntToUnsignedIntConversion(mv, JvmCodeGenUtil.getReferredType(targetType));
         }
     }
 
@@ -479,7 +478,7 @@ public class JvmInstructionGen {
                 generateJVarLoad(mv, (JType) bType, valueIndex);
                 break;
             case TypeTags.TYPEREFDESC:
-                generateVarLoadForType(mv, ((BTypeReferenceType) bType).referredType, valueIndex);
+                generateVarLoadForType(mv, JvmCodeGenUtil.getReferredType(bType), valueIndex);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
@@ -556,7 +555,7 @@ public class JvmInstructionGen {
                 generateJVarStore(mv, (JType) bType, valueIndex);
                 break;
             case TypeTags.TYPEREFDESC:
-                generateVarStoreForType(mv, ((BTypeReferenceType) bType).referredType, valueIndex);
+                generateVarStoreForType(mv, JvmCodeGenUtil.getReferredType(bType), valueIndex);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
@@ -1956,20 +1955,6 @@ public class JvmInstructionGen {
         }
         this.storeToVar(newTypeDesc.lhsOp.variableDcl);
     }
-
-//    void generateNewTypedescIns(BIRNonTerminator.NewTypeDesc newTypeDesc) {
-//        List<BIROperand> closureVars = newTypeDesc.closureVars;
-//        BType type = JvmCodeGenUtil.getReferredType(newTypeDesc.type);
-//        if (type.tag == TypeTags.RECORD && closureVars.isEmpty() && type.tsymbol != null) {
-//            PackageID packageID = newTypeDesc.type.tsymbol.pkgID;
-//            String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
-//            String fieldName = jvmTypeGen.getTypedescFieldName(toNameString(newTypeDesc.type));
-//            mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, String.format("L%s;", TYPEDESC_VALUE));
-//        } else {
-//            generateNewTypedescCreate(newTypeDesc.type, closureVars);
-//        }
-//        this.storeToVar(newTypeDesc.lhsOp.variableDcl);
-//    }
 
     private void generateNewTypedescCreate(BType btype, List<BIROperand> closureVars) {
         BType type = JvmCodeGenUtil.getReferredType(btype);

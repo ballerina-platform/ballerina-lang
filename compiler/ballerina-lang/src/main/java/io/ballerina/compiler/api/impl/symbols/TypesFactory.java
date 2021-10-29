@@ -174,7 +174,6 @@ public class TypesFactory {
 
         ModuleID moduleID = tSymbol == null ? null : new BallerinaModuleID(tSymbol.pkgID);
 
-        //bType.tsymbol.tag == SymTag.TYPE_REF
         if (isTypeReference(bType, tSymbol, rawTypeOnly)) {
             return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType, tSymbol,
                     typeRefFromIntersectType);
@@ -327,10 +326,6 @@ public class TypesFactory {
         if (Symbols.isFlagOn(tSymbol.flags, Flags.ANONYMOUS)) {
             return false;
         }
-//
-//        if (tSymbol.origin == SymbolOrigin.BUILTIN) {
-//            return false;
-//        }
 
         if (!isBuiltinNamedType(bType.tag) && !tSymbol.name.value.isEmpty()) {
             return true;

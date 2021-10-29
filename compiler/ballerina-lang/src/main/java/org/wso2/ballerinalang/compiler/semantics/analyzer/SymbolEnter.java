@@ -1574,10 +1574,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             effectiveTypeSymbol.name = typeDefSymbol.name;
             effectiveTypeSymbol.pkgID = typeDefSymbol.pkgID;
 
-            //todo @chiran
             if (effectiveDefinedType.tag == TypeTags.TYPEREFDESC) {
-                ((BIntersectionType)types.getReferredType(effectiveDefinedType)).effectiveType.tsymbol.name = typeDefSymbol.name;
-                ((BIntersectionType)types.getReferredType(effectiveDefinedType)).effectiveType.tsymbol.pkgID = typeDefSymbol.pkgID;
+                BType referredEffectiveType = ((BIntersectionType) types.getReferredType(effectiveDefinedType))
+                        .effectiveType;
+                referredEffectiveType.tsymbol.name = typeDefSymbol.name;
+                referredEffectiveType.tsymbol.pkgID = typeDefSymbol.pkgID;
             }
         }
 
@@ -3682,9 +3683,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangTypeDefinition typeDef : typeDefNodes) {
             BLangType typeNode = typeDef.typeNode;
             if (typeNode.getKind() == NodeKind.ERROR_TYPE) {
-//                if(typeDef.symbol.scope == null) {
-//                    typeDef.symbol.scope = new Scope(typeDef.symbol);
-//                }
                 SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeNode, typeDef.symbol.scope, pkgEnv);
                 BLangErrorType errorTypeNode = (BLangErrorType) typeNode;
                 BType typeDefType = typeDef.symbol.type;

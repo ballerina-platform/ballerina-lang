@@ -350,13 +350,8 @@ public class BIRTypeWriter implements TypeVisitor {
         // Write the package details in the form of constant pool entry TODO find a better approach
         writePackageIndex(tsymbol);
 
-        //todo @chiran
-        BTypeDefinitionSymbol typDefSymbol = ((BRecordTypeSymbol) tsymbol).typeDefinitionSymbol;
-        if (typDefSymbol != null) {
-            buff.writeInt(addStringCPEntry(typDefSymbol.name.value));
-        } else {
-            buff.writeInt(addStringCPEntry(tsymbol.name.value));
-        }
+        BTypeDefinitionSymbol typDefSymbol = tsymbol.typeDefinitionSymbol;
+        buff.writeInt(addStringCPEntry(Objects.requireNonNullElse(typDefSymbol, tsymbol).name.value));
 
         buff.writeBoolean(bRecordType.sealed);
         writeTypeCpIndex(bRecordType.restFieldType);
@@ -404,7 +399,6 @@ public class BIRTypeWriter implements TypeVisitor {
         // Write the package details in the form of constant pool entry TODO find a better approach
         writePackageIndex(tSymbol);
 
-        //todo @chiran
         BTypeDefinitionSymbol typDefSymbol = ((BObjectTypeSymbol) tSymbol).typeDefinitionSymbol;
         buff.writeInt(addStringCPEntry(Objects.requireNonNullElse(typDefSymbol, tSymbol).name.value));
 

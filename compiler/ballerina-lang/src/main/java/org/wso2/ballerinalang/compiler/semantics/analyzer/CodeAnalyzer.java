@@ -4626,7 +4626,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
 
             BLangTypeInit newExpr = (BLangTypeInit) parent;
-            //todo @chiran
             if (newExpr.getBType().tag != TypeTags.STREAM) {
                 return;
             }

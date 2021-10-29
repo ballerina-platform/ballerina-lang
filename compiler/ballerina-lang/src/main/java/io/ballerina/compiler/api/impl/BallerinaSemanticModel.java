@@ -439,13 +439,6 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private BSymbol getInternalSymbol(Symbol symbol) {
-        //todo @chiran
-//        if (symbol.kind() == TYPE) {
-//            if (symbol instanceof BallerinaTypeReferenceTypeSymbol) {
-//                return ((BallerinaTypeReferenceTypeSymbol) symbol).tSymbol;
-//            }
-//            return ((AbstractTypeSymbol) symbol).getBType().tsymbol;
-//        }
         if (symbol.kind() == TYPE) {
             AbstractTypeSymbol abstractTypeSymbol = (AbstractTypeSymbol) symbol;
             if (abstractTypeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE) {
