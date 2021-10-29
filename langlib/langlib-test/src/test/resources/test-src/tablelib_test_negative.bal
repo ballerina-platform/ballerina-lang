@@ -188,3 +188,9 @@ type KeyType anydata;
 function foo(table <MapType> key<KeyType>? t) {
 
 }
+
+function testMap() {
+    any empTab = tab.'map(function (Person person) returns string {
+          return "";
+    });
+}
