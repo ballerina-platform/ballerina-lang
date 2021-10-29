@@ -340,6 +340,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
+        lookupNodes(varNode.annAttachments);
         lookupNode(varNode.typeNode);
         lookupNode(varNode.expr);
         setEnclosingNode(varNode, varNode.name.pos);
