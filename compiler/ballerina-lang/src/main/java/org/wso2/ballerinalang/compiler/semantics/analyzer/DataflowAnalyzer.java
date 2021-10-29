@@ -352,6 +352,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeModuleInitFunc(BLangFunction funcNode) {
+        Map<BSymbol, Location> prevUnusedLocalVariables = this.unusedLocalVariables;
+        this.unusedLocalVariables = new HashMap<>();
+
         this.currDependentSymbolDeque.push(funcNode.symbol);
         SymbolEnv moduleInitFuncEnv = SymbolEnv.createModuleInitFunctionEnv(funcNode, funcNode.symbol.scope, env);
         for (BLangAnnotationAttachment bLangAnnotationAttachment : funcNode.annAttachments) {
@@ -359,6 +362,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
         analyzeNode(funcNode.body, moduleInitFuncEnv);
         this.currDependentSymbolDeque.pop();
+
+        emitUnusedVariableWarnings(this.unusedLocalVariables);
+        this.unusedLocalVariables = prevUnusedLocalVariables;
     }
 
     private void checkForUninitializedGlobalVars(List<BLangVariable> globalVars) {
@@ -477,6 +483,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
 
             if (classDefinition.initFunction.body != null) {
+                Map<BSymbol, Location> prevUnusedLocalVariables = this.unusedLocalVariables;
+                this.unusedLocalVariables = new HashMap<>();
+
                 if (classDefinition.initFunction.body.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
                     for (BLangStatement statement :
                             ((BLangBlockFunctionBody) classDefinition.initFunction.body).stmts) {
@@ -485,6 +494,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 } else if (classDefinition.initFunction.body.getKind() == NodeKind.EXPR_FUNCTION_BODY) {
                     analyzeNode(((BLangExprFunctionBody) classDefinition.initFunction.body).expr, objectEnv);
                 }
+
+                emitUnusedVariableWarnings(this.unusedLocalVariables);
+                this.unusedLocalVariables = prevUnusedLocalVariables;
             }
         }
 
@@ -518,7 +530,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
             BVarSymbol symbol = var.symbol;
 
-            if (isLocalVariableDefinedWithNonWildCardBindingPattern(symbol)) {
+            if (var.getKind() == NodeKind.VARIABLE &&
+                    isLocalVariableDefinedWithNonWildCardBindingPattern((BLangSimpleVariable) var)) {
                 this.unusedLocalVariables.put(symbol, var.pos);
             }
 
@@ -549,9 +562,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             this.currDependentSymbolDeque.push(dependentVar);
         }
         try {
+            boolean varWithInferredTypeIncludingError = false;
             if (variable.isDeclaredWithVar) {
-                addVarIfInferredTypeIncludesError(variable);
-            } else if (isLocalVariableDefinedWithNonWildCardBindingPattern(symbol)) {
+                varWithInferredTypeIncludingError = addVarIfInferredTypeIncludesError(variable);
+            }
+
+            if (!varWithInferredTypeIncludingError &&
+                    isLocalVariableDefinedWithNonWildCardBindingPattern(variable) &&
+                    !isVariableDeclaredForWorkerDeclaration(variable)) {
                 this.unusedLocalVariables.put(symbol, variable.pos);
             }
 
@@ -578,6 +596,20 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
             this.currDependentSymbolDeque.pop();
         }
+    }
+
+    private boolean isVariableDeclaredForWorkerDeclaration(BLangSimpleVariable variable) {
+        BLangExpression expr = variable.expr;
+
+        if (expr == null) {
+            return false;
+        }
+
+        if (Symbols.isFlagOn(variable.symbol.flags, Flags.WORKER)) {
+            return true;
+        }
+
+        return expr.getKind() == NodeKind.LAMBDA && ((BLangLambdaFunction) expr).function.flagSet.contains(Flag.WORKER);
     }
 
     @Override
@@ -1102,6 +1134,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationExpr) {
         analyzeNode(invocationExpr.expr, env);
+
+        if (this.unusedLocalVariables != null) {
+            // The map will be null for module-level calls.
+            this.unusedLocalVariables.remove(invocationExpr.symbol);
+        }
+
         if (!isGlobalVarsInitialized(invocationExpr.pos)) {
             return;
         }
@@ -1465,6 +1503,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        Map<BSymbol, Location> prevUnusedLocalVariables = this.unusedLocalVariables;
+        this.unusedLocalVariables = new HashMap<>();
+
+        if (prevUnusedLocalVariables != null) {
+            this.unusedLocalVariables.putAll(prevUnusedLocalVariables);
+        }
+
         Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
 
         BLangFunction funcNode = bLangLambdaFunction.function;
@@ -1480,6 +1525,18 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         // Restore the original set of uninitialized vars
         this.uninitializedVars = prevUninitializedVars;
+
+        if (prevUnusedLocalVariables != null) {
+            prevUnusedLocalVariables.keySet().removeIf(bSymbol -> !this.unusedLocalVariables.containsKey(bSymbol));
+
+            // Remove the entries added from the previous context since errors should be logged after the analysis
+            // completes for that context.
+            this.unusedLocalVariables.keySet().removeAll(prevUnusedLocalVariables.keySet());
+        }
+
+        emitUnusedVariableWarnings(this.unusedLocalVariables);
+
+        this.unusedLocalVariables = prevUnusedLocalVariables;
     }
 
     @Override
@@ -1789,6 +1846,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        analyzeNode(annotAccessExpr.expr, env);
     }
 
     @Override
@@ -1836,6 +1894,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
         analyzeNode(bLangTupleVariable.typeNode, env);
+        populateUnusedVariableMapForNonSimpleBindingPatternVariables(this.unusedLocalVariables, bLangTupleVariable);
         this.currDependentSymbolDeque.push(bLangTupleVariable.symbol);
         analyzeNode(bLangTupleVariable.expr, env);
         this.currDependentSymbolDeque.pop();
@@ -1849,6 +1908,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
         analyzeNode(bLangRecordVariable.typeNode, env);
+        populateUnusedVariableMapForNonSimpleBindingPatternVariables(this.unusedLocalVariables, bLangRecordVariable);
         this.currDependentSymbolDeque.push(bLangRecordVariable.symbol);
         analyzeNode(bLangRecordVariable.expr, env);
         this.currDependentSymbolDeque.pop();
@@ -1862,6 +1922,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
         analyzeNode(bLangErrorVariable.typeNode, env);
+        populateUnusedVariableMapForNonSimpleBindingPatternVariables(this.unusedLocalVariables, bLangErrorVariable);
         this.currDependentSymbolDeque.push(bLangErrorVariable.symbol);
         analyzeNode(bLangErrorVariable.expr, env);
         this.currDependentSymbolDeque.pop();
@@ -2161,18 +2222,32 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void addVarIfInferredTypeIncludesError(BLangSimpleVariable variable) {
+    private boolean addVarIfInferredTypeIncludesError(BLangSimpleVariable variable) {
         BType typeIntersection =
                 types.getTypeIntersection(Types.IntersectionContext.compilerInternalIntersectionContext(),
                                           variable.getBType(), symTable.errorType, env);
         if (typeIntersection != null &&
                 typeIntersection != symTable.semanticError && typeIntersection != symTable.noType) {
             unusedErrorVarsDeclaredWithVar.put(variable.symbol, variable.pos);
+            return true;
         }
+        return false;
     }
 
-    private boolean isLocalVariableDefinedWithNonWildCardBindingPattern(BVarSymbol symbol) {
-        if (symbol.name == Names.IGNORE) {
+    private boolean isLocalVariableDefinedWithNonWildCardBindingPattern(BLangSimpleVariable variable) {
+        if (isWildCardBindingPattern(variable)) {
+            return false;
+        }
+
+        return isLocalVariable(variable.symbol);
+    }
+
+    private boolean isWildCardBindingPattern(BLangSimpleVariable variable) {
+        return Names.IGNORE.value.equals(variable.name.value);
+    }
+
+    private boolean isLocalVariable(BVarSymbol symbol) {
+        if (symbol == null) {
             return false;
         }
 
@@ -2192,6 +2267,55 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 && !Symbols.isFlagOn(flags, Flags.DEFAULTABLE_PARAM)
                 && !Symbols.isFlagOn(flags, Flags.INCLUDED)
                 && !Symbols.isFlagOn(flags, Flags.REST_PARAM);
+    }
+
+    private void populateUnusedVariableMapForNonSimpleBindingPatternVariables(
+            Map<BSymbol, Location> unusedLocalVariables, BLangVariable variable) {
+        if (!isLocalVariable(variable.symbol)) {
+            return;
+        }
+
+        populateUnusedVariableMapForMembers(unusedLocalVariables, variable);
+    }
+
+    private void populateUnusedVariableMapForMembers(Map<BSymbol, Location> unusedLocalVariables,
+                                                     BLangVariable variable) {
+        if (variable == null) {
+            return;
+        }
+
+        switch (variable.getKind()) {
+            case VARIABLE:
+                BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;
+                if (!isWildCardBindingPattern(simpleVariable)) {
+                    unusedLocalVariables.put(simpleVariable.symbol, simpleVariable.pos);
+                }
+                break;
+            case RECORD_VARIABLE:
+                BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
+                for (BLangRecordVariable.BLangRecordVariableKeyValue member : recordVariable.variableList) {
+                    populateUnusedVariableMapForMembers(unusedLocalVariables, member.valueBindingPattern);
+                }
+
+                populateUnusedVariableMapForMembers(unusedLocalVariables, (BLangVariable) recordVariable.restParam);
+                break;
+            case TUPLE_VARIABLE:
+                BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
+                for (BLangVariable memberVariable : tupleVariable.memberVariables) {
+                    populateUnusedVariableMapForMembers(unusedLocalVariables, memberVariable);
+                }
+
+                populateUnusedVariableMapForMembers(unusedLocalVariables, tupleVariable.restVariable);
+                break;
+            case ERROR_VARIABLE:
+                BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
+                populateUnusedVariableMapForMembers(unusedLocalVariables, errorVariable.message);
+                populateUnusedVariableMapForMembers(unusedLocalVariables, errorVariable.cause);
+                for (BLangErrorVariable.BLangErrorDetailEntry member : errorVariable.detail) {
+                    populateUnusedVariableMapForMembers(unusedLocalVariables, member.valueBindingPattern);
+                }
+                break;
+        }
     }
 
     private boolean isRead(BLangSimpleVarRef varRefExpr) {
