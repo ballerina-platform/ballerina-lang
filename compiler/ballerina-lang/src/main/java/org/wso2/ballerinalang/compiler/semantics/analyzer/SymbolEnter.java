@@ -1797,8 +1797,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             enumMembers.add((BConstantSymbol) ((BLangUserDefinedType) member).symbol);
         }
 
-        BEnumSymbol enumSymbol = new BEnumSymbol(enumMembers, Flags.asMask(typeDefinition.flagSet), names.fromIdNode(typeDefinition.name),
-                names.fromIdNode(typeDefinition.name), env.enclPkg.symbol.pkgID, definedType, env.scope.owner,
+        BEnumSymbol enumSymbol = new BEnumSymbol(enumMembers, Flags.asMask(typeDefinition.flagSet),
+                names.fromIdNode(typeDefinition.name), names.fromIdNode(typeDefinition.name),
+                env.enclPkg.symbol.pkgID, definedType, env.scope.owner,
                 typeDefinition.pos, SOURCE);
 
         enumSymbol.name = names.fromIdNode(typeDefinition.name);

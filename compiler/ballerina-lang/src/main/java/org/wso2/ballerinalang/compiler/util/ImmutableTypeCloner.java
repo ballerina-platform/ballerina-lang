@@ -409,8 +409,8 @@ public class ImmutableTypeCloner {
                         immutableReferenceTSymbol, originalType.flags | Flags.READONLY);
 
                 immutableReferenceTSymbol.type = immutableReferenceType;
-                BIntersectionType immutableReferenceIntersectionType = createImmutableIntersectionType(env, originalType,
-                        immutableReferenceType, symTable);
+                BIntersectionType immutableReferenceIntersectionType = createImmutableIntersectionType(env,
+                        originalType, immutableReferenceType, symTable);
 
                 originalType.immutableType = immutableReferenceIntersectionType;
                 immutableReferenceType.tsymbol = immutableReferenceTSymbol;

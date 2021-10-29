@@ -2171,7 +2171,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         typeBLangTypeMap.put(typeTwo, bLangTypeTwo);
 
-        boolean hasReadOnlyType = typeOneReference == symTable.readonlyType || typeTwoReference == symTable.readonlyType;
+        boolean hasReadOnlyType = typeOneReference == symTable.readonlyType
+                || typeTwoReference == symTable.readonlyType;
 
         if (typeOneReference.tag == TypeTags.ERROR || typeTwoReference.tag == TypeTags.ERROR) {
             isErrorIntersection = true;

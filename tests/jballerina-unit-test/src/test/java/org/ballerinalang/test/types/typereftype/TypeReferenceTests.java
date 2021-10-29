@@ -42,7 +42,8 @@ public class TypeReferenceTests {
                 "found 'function (FooBar) returns (int)'", 18, 29);
         validateError(compileResult, index++, "incompatible types: expected 'Foo', found 'int'", 25, 22);
         validateError(compileResult, index++, "incompatible types: expected 'Foo', found 'int'", 28, 16);
-        validateError(compileResult, index++, "incompatible types: expected 'string', found 'ImmutableIntArray'", 32, 16);
+        validateError(compileResult, index++, "incompatible types: expected 'string', " +
+                "found 'ImmutableIntArray'", 32, 16);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }

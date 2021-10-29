@@ -9264,12 +9264,14 @@ public class Desugar extends BLangNodeVisitor {
                 BLangRecordTypeNode recordTypeNode = createRecordTypeNode(errorVariable, (BRecordType) detailType);
                 recordTypeNode.initFunction = TypeDefBuilderHelper
                         .createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
-                TypeDefBuilderHelper.createTypeDefinitionForTSymbol(detailType, detailType.tsymbol, recordTypeNode, env);
+                TypeDefBuilderHelper.createTypeDefinitionForTSymbol(detailType, detailType.tsymbol,
+                        recordTypeNode, env);
             }
             BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
             errorTypeSymbol.type = errorType;
 
-            TypeDefBuilderHelper.createTypeDefinitionForTSymbol(errorType, errorTypeSymbol, createErrorTypeNode(errorType), env);
+            TypeDefBuilderHelper.createTypeDefinitionForTSymbol(errorType, errorTypeSymbol,
+                    createErrorTypeNode(errorType), env);
             return errorType;
         }
 
