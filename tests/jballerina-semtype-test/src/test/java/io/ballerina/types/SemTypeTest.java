@@ -47,7 +47,7 @@ public class SemTypeTest {
 
     @DataProvider(name = "fileNameProvider")
     public Object[] fileNameProvider() {
-        File dataDir = resolvePath("test-src/data").toFile();
+        File dataDir = resolvePath("test-src/datax").toFile();
         List<String> testFiles = Arrays.stream(dataDir.listFiles())
                 .map(File::getAbsolutePath)
                 .filter(name -> name.endsWith(".bal"))
@@ -58,7 +58,7 @@ public class SemTypeTest {
         ignore(testFiles, "float-singleton2.bal");
         ignore(testFiles, "int-singleton.bal");
         ignore(testFiles, "function.bal");
-
+        /*
         include(testFiles,
                 "test-src/simple-type/type-test.bal",
                 "test-src/simple-type/list-type-test.bal",
@@ -66,6 +66,8 @@ public class SemTypeTest {
                 "test-src/simple-type/int-singleton-altered.bal",
                 "test-src/simple-type/function-altered.bal",
                 "test-src/simple-type/float-altered.bal");
+
+         */
 
         return testFiles.toArray(new String[0]);
         //return new Object[]{"test-src/data/error2.bal"};
@@ -109,6 +111,7 @@ public class SemTypeTest {
     }
 
     private List<String> getSubtypeRels(String sourceFilePath) {
+        // debug
         BLangPackage bLangPackage = BCompileUtil.compileSemType(sourceFilePath);
         ensureNoErrors(bLangPackage);
 
