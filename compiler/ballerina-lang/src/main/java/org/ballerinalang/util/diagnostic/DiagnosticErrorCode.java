@@ -170,6 +170,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_ARRAY_LENGTH("BCE2126", "invalid.array.length"),
     CANNOT_RESOLVE_CONST("BCE2127", "cannot.resolve.const"),
     ALREADY_INITIALIZED_SYMBOL_WITH_ANOTHER("BCE2128", "already.initialized.symbol.with.another"),
+    UNDECLARED_AND_OPTIONAL_AND_NILABLE_FIELDS_IN_UNION_OF_RECORDS("BCE2129", "undeclared.and.optional." +
+            "and.nilable.fields.in.union.of.records"),
+    OPTIONAL_AND_NILABLE_FIELDS_IN_UNION_OF_RECORDS("BCE2130", "optional.and.nilable.fields.in.union.of.records"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
