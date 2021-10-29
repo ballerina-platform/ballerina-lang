@@ -25,7 +25,7 @@ function arraySizeReferenceInDifferentScopeTest() {
 
     function () anonFunction =
                 function () {
-                   int[constLength] i = [1, 2];
+                   int[constLength] _ = [1, 2];
                 };
 
     anonFunction();
