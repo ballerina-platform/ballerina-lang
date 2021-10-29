@@ -215,10 +215,14 @@ public isolated function getContent(ProcessingInstruction|Comment x) returns str
 # Creates a new xml element item.
 #
 # + name - the name of the new element
+# + attributes - the attributes of the new element
 # + children - the children of the new element
-# + return - an xml sequence consisting of only a new xml element with parameter `name` as the name,
-#   no attributes, and parameter `children` as the children
-public isolated function createElement(string name, xml children = concat())
+# + return - an xml sequence consisting of only a new xml element with name `name`,
+#   attributes `attributes`, and children `children`
+# The element's attribute map is a newly created map, into which any attributes specified
+# by the `attributes` map are copied.
+
+public isolated function createElement(string name, map<string> attributes = {}, xml children = xml``)
     returns Element = @java:Method {
         'class: "org.ballerinalang.langlib.xml.CreateElement",
         name: "createElement"

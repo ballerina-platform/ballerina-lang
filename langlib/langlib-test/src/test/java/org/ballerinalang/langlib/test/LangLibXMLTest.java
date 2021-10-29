@@ -187,10 +187,7 @@ public class LangLibXMLTest {
 
     @Test
     public void testCreateElement() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateElement");
-        assertEquals((returns[0]).stringValue(), "<elem>hello world</elem>");
-        assertEquals((returns[1]).stringValue(), "hello world");
-        assertEquals((returns[2]).stringValue(), "");
+        BRunUtil.invoke(compileResult, "testCreateElement");
     }
 
     @Test
@@ -347,6 +344,14 @@ public class LangLibXMLTest {
         validateError(negativeResult, i++, "incompatible types: expected 'xml:Element', found 'xml'", 69, 13);
         validateError(negativeResult, i++, "incompatible types: expected 'xml<xml:Element>', found 'xml'",
                 75, 28);
+        validateError(negativeResult, i++, "incompatible types: expected 'map<string>', found 'record {| string x; anydata...; |}'",
+                95, 49);
+        validateError(negativeResult, i++, "incompatible types: expected 'map<string>', found 'attributesRecord'",
+                96, 49);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml', found 'string'",
+                97, 62);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'xml:Element'",
+                98, 41);
         assertEquals(negativeResult.getErrorCount(), i);
     }
 
