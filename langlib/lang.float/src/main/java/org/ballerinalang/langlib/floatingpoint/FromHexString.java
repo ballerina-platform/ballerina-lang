@@ -40,13 +40,24 @@ public class FromHexString {
     public static Object fromHexString(BString s) {
         String hexValue = s.getValue();
         try {
-            if (hexValue.startsWith("0x") || hexValue.startsWith("0X")) {
+            if (isValidHexString(hexValue.toLowerCase())) {
                 return Double.parseDouble(hexValue);
             }
             return getNumberFormatError("invalid hex string: '" + hexValue + "'");
         } catch (NumberFormatException e) {
             return getNumberFormatError(e.getMessage());
         }
+    }
+
+    private static boolean isValidHexString(String hexValue) {
+        if ((hexValue.length() > 3) && (hexValue.startsWith("+") || hexValue.startsWith("-"))) {
+            return ((hexValue.charAt(1) == '0' && hexValue.charAt(2) == 'x') || hexValue.equals("+infinity") ||
+                    hexValue.equals("-infinity"));
+        }
+        if ((hexValue.length() > 1) && (hexValue.charAt(0) == '0' && hexValue.charAt(1) == 'x')) {
+            return true;
+        }
+        return hexValue.equals("nan") || hexValue.equals("infinity");
     }
 
     private static BError getNumberFormatError(String message) {
