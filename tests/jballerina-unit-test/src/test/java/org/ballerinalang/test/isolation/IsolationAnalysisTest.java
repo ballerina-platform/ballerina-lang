@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.isolation;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -27,6 +28,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
 
 /**
  * Test cases related to isolation analysis.
@@ -104,7 +106,11 @@ public class IsolationAnalysisTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/isolation-analysis/implicitly_final_var_access_in_anon_isolated_functions.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
-        Assert.assertEquals(result.getWarnCount(), 0);
+
+        Assert.assertEquals(result.getWarnCount(), 9);
+        for (Diagnostic diagnostic : result.getDiagnostics()) {
+            Assert.assertTrue(diagnostic.message().startsWith("unused variable"));
+        }
     }
 
     @Test
@@ -133,9 +139,13 @@ public class IsolationAnalysisTest {
         CompileResult result = BCompileUtil.compile("test-src/isolation-analysis/isolation_analysis_negative.bal");
 
         int i = 0;
+        validateWarning(result, i++, "unused variable 'w'", 30, 5);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 30, 13);
+        validateWarning(result, i++, "unused variable 'x'", 31, 5);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 31, 19);
+        validateWarning(result, i++, "unused variable 'y'", 33, 5);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 33, 17);
+        validateWarning(result, i++, "unused variable 'z'", 34, 5);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 34, 17);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 34, 19);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 36, 12);
@@ -149,13 +159,17 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 55, 13);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 68, 13);
         validateError(result, i++, "worker declaration not allowed in an 'isolated' function", 74, 12);
+        validateWarning(result, i++, "unused variable 'ft'", 80, 5);
         validateError(result, i++, "async invocation not allowed in an 'isolated' function", 80, 22);
+        validateWarning(result, i++, "unused variable 'a'", 94, 5);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 94, 13);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 101, 22);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 105, 25);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 124, 17);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 129, 28);
+        validateWarning(result, i++, "unused variable 'i'", 133, 9);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 133, 17);
+        validateWarning(result, i++, "unused variable 'x'", 139, 9);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 139, 17);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 144, 28);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 148, 17);
@@ -179,7 +193,9 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 172, 33);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 173, 20);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 180, 34);
+        validateWarning(result, i++, "unused variable 'af2'", 183, 5);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 183, 34);
+        validateWarning(result, i++, "unused variable 'af3'", 186, 5);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 186, 56);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 191, 5);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 192, 13);
@@ -190,31 +206,44 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 193, 26);
         validateError(result, i++, "fork statement not allowed in an 'isolated' function", 208, 5);
         validateError(result, i++, "worker declaration not allowed in an 'isolated' function", 209, 16);
+        validateWarning(result, i++, "unused variable 'ln2'", 218, 5);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 218, 20);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 223, 81);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 223, 94);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 227, 45);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 227, 73);
+        validateWarning(result, i++, "unused variable 'cl'", 253, 5);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 253, 27);
+        validateWarning(result, i++, "unused variable 'arr'", 254, 5);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 254, 17);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 271, 14);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 272, 14);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 271, 13);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 272, 13);
+        validateWarning(result, i++, "unused variable 'x3'", 273, 5);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 273, 14);
+        validateWarning(result, i++, "unused variable 'fn1'", 277, 4);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 277, 52);
+        validateWarning(result, i++, "unused variable 'fn2'", 281, 7);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 282, 10);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 282, 20);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 283, 17);
+        validateWarning(result, i++, "unused variable 'fn3'", 287, 4);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 287, 85);
+        validateWarning(result, i++, "unused variable 'fn4'", 289, 4);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 290, 7);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 291, 14);
+        validateWarning(result, i++, "unused variable 'fn5'", 294, 4);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 299, 20);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 300, 20);
+        validateWarning(result, i++, "unused variable 'fn6'", 305, 4);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 305, 51);
+        validateWarning(result, i++, "unused variable 'fn7'", 308, 7);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 308, 54);
+        validateWarning(result, i++, "unused variable 'fn8'", 311, 4);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 311, 70);
+        validateWarning(result, i++, "unused variable 'fn9'", 313, 4);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 313, 76);
-        Assert.assertEquals(result.getErrorCount(), i);
-        Assert.assertEquals(result.getWarnCount(), 0);
+        Assert.assertEquals(result.getErrorCount(), i - 23);
+        Assert.assertEquals(result.getWarnCount(), 23);
     }
 
     @Test
@@ -241,13 +270,19 @@ public class IsolationAnalysisTest {
         int i = 0;
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_IN_OBJECT_FIELD_DEFAULT, 20, 13);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_IN_OBJECT_FIELD_DEFAULT, 24, 13);
+        validateWarning(result, i++, "unused variable 'f'", 40, 5);
+        validateWarning(result, i++, "unused variable 'br'", 42, 5);
+        validateWarning(result, i++, "unused variable 'bz'", 44, 5);
         validateError(result, i++, INVALID_NON_ISOLATED_INIT_EXPR_IN_ISOLATED_FUNC_ERROR, 44, 14);
+        validateWarning(result, i++, "unused variable 'f2'", 46, 5);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_IN_OBJECT_FIELD_DEFAULT, 47, 17);
+        validateWarning(result, i++, "unused variable 'br2'", 50, 5);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_IN_OBJECT_FIELD_DEFAULT, 51, 17);
+        validateWarning(result, i++, "unused variable 'bz2'", 58, 5);
         validateError(result, i++, INVALID_NON_ISOLATED_INIT_EXPR_IN_ISOLATED_FUNC_ERROR, 58, 15);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_IN_OBJECT_FIELD_DEFAULT, 68, 14);
         validateError(result, i++, INVALID_NON_ISOLATED_INIT_EXPRESSION_IN_OBJECT_FIELD_DEFAULT, 74, 12);
-        Assert.assertEquals(result.getErrorCount(), i);
+        Assert.assertEquals(result.getDiagnostics().length, i);
     }
 
     @AfterClass

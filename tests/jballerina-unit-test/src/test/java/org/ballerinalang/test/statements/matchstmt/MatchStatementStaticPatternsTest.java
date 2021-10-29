@@ -363,7 +363,7 @@ public class MatchStatementStaticPatternsTest {
     @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatched() {
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        Assert.assertEquals(resultNegative.getWarnCount(), 60);
+        Assert.assertEquals(resultNegative.getWarnCount(), 61);
         int i = -1;
         String patternNotMatched = "pattern will not be matched";
 
@@ -433,6 +433,7 @@ public class MatchStatementStaticPatternsTest {
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 256, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 257, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 257, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 269, 5);
         BAssertUtil.validateError(resultNegative, ++i, "this function must return a result", 274, 1);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 284, 9);
     }

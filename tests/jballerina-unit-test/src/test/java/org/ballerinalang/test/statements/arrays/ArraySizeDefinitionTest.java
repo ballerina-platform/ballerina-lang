@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.statements.arrays;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
@@ -42,7 +43,12 @@ public class ArraySizeDefinitionTest {
     @Test
     public void testCompilationSizeReferenceErrors() {
         CompileResult resultPositive = BCompileUtil.compile("test-src/statements/arrays/array_size_test.bal");
-        Assert.assertEquals(resultPositive.getDiagnostics().length, 0);
+        Assert.assertEquals(resultPositive.getErrorCount(), 0);
+        Assert.assertEquals(resultPositive.getWarnCount(), 6);
+
+        for (Diagnostic diagnostic : resultPositive.getDiagnostics()) {
+            Assert.assertTrue(diagnostic.message().startsWith("unused variable"));
+        }
 
         int index = 0;
         CompileResult resultNegative = BCompileUtil.compile("test-src/statements/arrays/array_size_test_" +

@@ -24,6 +24,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -61,11 +62,15 @@ public class FinalObjectFieldTest {
         CompileResult result = BCompileUtil.compile("test-src/object/final_object_fields_negative.bal");
         int index = 0;
 
+        validateWarning(result, index++, "unused variable 'st'", 28, 5);
         validateError(result, index++, "cannot update 'final' object field 'name'", 30, 5);
+        validateWarning(result, index++, "unused variable 'e'", 54, 5);
         validateError(result, index++, "cannot update 'final' object field 'details'", 56, 5);
+        validateWarning(result, index++, "unused variable 'sd'", 73, 5);
         validateError(result, index++, "cannot update 'final' object field 'name'", 74, 5);
+        validateWarning(result, index++, "unused variable 'cl'", 90, 5);
         validateError(result, index++, "cannot update 'final' object field 'name'", 91, 5);
         validateError(result, index++, "cannot update 'final' object field 'name'", 92, 5);
-        assertEquals(result.getErrorCount(), index);
+        assertEquals(result.getDiagnostics().length, index);
     }
 }

@@ -265,18 +265,28 @@ public class ErrorVariableReferenceTest {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/expressions/varref/error_variable_reference_negative.bal");
         int i = 0;
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 's'", 20, 5);
         BAssertUtil.validateError(resultNegative, i++,
                 "variables in a binding pattern must be distinct; found duplicate variable 's'", 22, 24);
         BAssertUtil.validateError(resultNegative, i++,
                 "variables in a binding pattern must be distinct; found duplicate variable 's'", 22, 36);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'r'", 27, 21);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'message'", 27, 34);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'abc'", 27, 49);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'r'", 28, 11);
 //        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'message'", 28, 24);
 //        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'abc'", 28, 39);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'r2'", 30, 21);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'message2'", 30, 35);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'rest'", 30, 45);
 //        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'r2'", 31, 11);
 //        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'message2'", 31, 25);
 //        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'rest'", 31, 38);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'r3'", 34, 30);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'message3'", 34, 44);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'abc3'", 34, 60);
 //        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'message3'", 35, 24);
 //        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'abc3'", 35, 40);
-        Assert.assertEquals(resultNegative.getErrorCount(), i);
+        Assert.assertEquals(resultNegative.getDiagnostics().length, i);
     }
 }
