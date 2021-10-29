@@ -19,7 +19,7 @@ package org.ballerinalang.debugger.test.utils;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.debugger.test.utils.client.TestDAPClientConnector;
+import org.ballerinalang.debugger.test.utils.client.DAPClientConnector;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BalServer;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -78,7 +78,7 @@ public class DebugTestRunner {
     private static Path testProjectBaseDir;
     private static Path testSingleFileBaseDir;
     private static BalServer balServer;
-    private TestDAPClientConnector debugClientConnector;
+    private DAPClientConnector debugClientConnector;
     private boolean isConnected = false;
     private int port;
     private BMainInstance balClient = null;
@@ -187,7 +187,7 @@ public class DebugTestRunner {
     public void initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind,
                                  int port, Map<String, Object> launchArgs) throws BallerinaTestException {
 
-        debugClientConnector = new TestDAPClientConnector(balServer.getServerHome(), testProjectPath, testEntryFilePath,
+        debugClientConnector = new DAPClientConnector(balServer.getServerHome(), testProjectPath, testEntryFilePath,
                 port);
         debugClientConnector.createConnection();
         if (debugClientConnector.isConnected()) {

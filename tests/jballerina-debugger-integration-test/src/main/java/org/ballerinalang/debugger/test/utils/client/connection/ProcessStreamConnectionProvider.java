@@ -35,7 +35,7 @@ import java.util.Objects;
  * commands - The commands to start the process
  * workingDir - The working directory of the process
  */
-public class TestProcessStreamConnectionProvider implements TestStreamConnectionProvider {
+public class ProcessStreamConnectionProvider implements StreamConnectionProvider {
 
     private final List<String> commands;
     private final String workingDir;
@@ -44,9 +44,9 @@ public class TestProcessStreamConnectionProvider implements TestStreamConnection
     private static final String ENV_JAVA_OPTS = "JAVA_OPTS";
     private static final String ENV_DEBUGGER_TEST_MODE = "BAL_DEBUGGER_TEST";
     private static final String JACOCO_AGENT_ARGS = " -javaagent:%s=destfile=%s ";
-    private static final Logger LOG = LoggerFactory.getLogger(TestProcessStreamConnectionProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ProcessStreamConnectionProvider.class);
 
-    public TestProcessStreamConnectionProvider(List<String> commands, String workingDir, String balHome) {
+    public ProcessStreamConnectionProvider(List<String> commands, String workingDir, String balHome) {
         this.commands = commands;
         this.workingDir = workingDir;
         this.balHome = balHome;
@@ -136,8 +136,8 @@ public class TestProcessStreamConnectionProvider implements TestStreamConnection
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof TestProcessStreamConnectionProvider) {
-            TestProcessStreamConnectionProvider other = (TestProcessStreamConnectionProvider) obj;
+        if (obj instanceof ProcessStreamConnectionProvider) {
+            ProcessStreamConnectionProvider other = (ProcessStreamConnectionProvider) obj;
             return commands.size() == other.commands.size()
                     && new HashSet<>(commands).equals(new HashSet<>(other.commands))
                     && workingDir.equals(other.workingDir);

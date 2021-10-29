@@ -36,9 +36,9 @@ import static org.ballerinalang.debugger.test.utils.DebugUtils.isInteger;
 /**
  * Socket based stream connection provider.
  */
-public class TestSocketStreamConnectionProvider extends TestProcessStreamConnectionProvider {
+public class SocketStreamConnectionProvider extends ProcessStreamConnectionProvider {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TestSocketStreamConnectionProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SocketStreamConnectionProvider.class);
     private final String address;
     private final int port;
 
@@ -46,8 +46,8 @@ public class TestSocketStreamConnectionProvider extends TestProcessStreamConnect
     private InputStream inputStream;
     private OutputStream outputStream;
 
-    public TestSocketStreamConnectionProvider(List<String> commands, String workingDir, String address, int port,
-                                              String balHome) {
+    public SocketStreamConnectionProvider(List<String> commands, String workingDir, String address, int port,
+                                          String balHome) {
         super(commands, workingDir, balHome);
         this.address = address;
         this.port = port;
@@ -121,9 +121,11 @@ public class TestSocketStreamConnectionProvider extends TestProcessStreamConnect
                     }
                 }
                 callback.notifyFailure(null);
+            } catch (IOException e) {
+                callback.notifyFailure(e);
             } catch (Exception e) {
-                Thread.currentThread().interrupt();
-                LOG.info(e.getMessage());
+                LOG.info(e.getMessage(), e);
+                callback.notifyFailure(e);
             }
         });
     }
@@ -159,8 +161,8 @@ public class TestSocketStreamConnectionProvider extends TestProcessStreamConnect
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof TestSocketStreamConnectionProvider) {
-            TestSocketStreamConnectionProvider other = (TestSocketStreamConnectionProvider) obj;
+        if (obj instanceof SocketStreamConnectionProvider) {
+            SocketStreamConnectionProvider other = (SocketStreamConnectionProvider) obj;
             return port == other.port && address.equals(other.address) && super.equals(obj);
         }
         return false;
