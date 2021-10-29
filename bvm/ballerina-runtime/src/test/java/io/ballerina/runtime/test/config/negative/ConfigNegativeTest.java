@@ -121,7 +121,7 @@ public class ConfigNegativeTest {
                         }},
                 // valid toml value invalid cli
                 {new String[]{"-Corg.mod1.intVar=waruna"}, "MatchedTypeValues.toml",
-                        new VariableKey[]{new VariableKey(MODULE, "intVar", PredefinedTypes.TYPE_INT, true)}, 0, 3,
+                        new VariableKey[]{new VariableKey(MODULE, "intVar", PredefinedTypes.TYPE_INT, true)}, 2, 1,
                         new String[]{
                                 "warning: [org.mod1.intVar=waruna] configurable variable 'intVar' is expected to be " +
                                         "of type 'int', but found 'waruna'"
@@ -147,25 +147,25 @@ public class ConfigNegativeTest {
                         new VariableKey[]{new VariableKey(MODULE, "intArr",
                                                           new BIntersectionType(MODULE, new BType[]{}, TypeCreator
                                                                   .createArrayType(PredefinedTypes.TYPE_INT), 0, false),
-                                                          null, true)}, 0, 3,
+                                                          null, true)}, 2, 1,
                         new String[]{
                                 "warning: value for configurable variable 'intArr' with type '" +
                                         "int[]' is not supported as a command line argument",
-                                "warning: [MatchedTypeValues.toml:(3:1,3:14)] unused configuration value 'org.mod1" +
+                                "error: [MatchedTypeValues.toml:(3:1,3:14)] unused configuration value 'org.mod1" +
                                         ".intVar'"}},
                 // supported toml type but not cli type and cli value not given
                 {new String[]{""}, "MatchedTypeValues.toml",
                         new VariableKey[]{new VariableKey(MODULE, "intArr",
                                                           new BIntersectionType(MODULE, new BType[]{}, TypeCreator
                                                                   .createArrayType(PredefinedTypes.TYPE_INT), 0, false),
-                                                          null, true)}, 0, 2,
+                                                          null, true)}, 2, 0,
                         new String[]{
-                                "warning: [MatchedTypeValues.toml:(3:1,3:14)] unused configuration value 'org.mod1" +
+                                "error: [MatchedTypeValues.toml:(3:1,3:14)] unused configuration value 'org.mod1" +
                                         ".intVar'"}},
                 // not supported both toml type and cli type
                 {new String[]{"-Corg.mod1.myMap=4"}, "MatchedTypeValues.toml",
-                        new VariableKey[]{new VariableKey(MODULE, "myMap", PredefinedTypes.TYPE_MAP, null, true)}, 1
-                        , 5, new String[]{"error: configurable variable 'myMap' with type 'map' is not supported",
+                        new VariableKey[]{new VariableKey(MODULE, "myMap", PredefinedTypes.TYPE_MAP, null, true)}, 5
+                        , 1, new String[]{"error: configurable variable 'myMap' with type 'map' is not supported",
                         "warning: [org.mod1.myMap=4] unused command line argument"}},
                 // not supported cli union type
                 {new String[]{"-Corg.mod1.myUnion=5"}, null, new VariableKey[]{
@@ -182,11 +182,11 @@ public class ConfigNegativeTest {
                 "supported as a command line argument"}},
                 // not supported union type
                 {new String[]{""}, "InvalidUnionType.toml", new VariableKey[]{
-                        new VariableKey(MODULE, "floatUnionVar", incompatibleUnionType, null, true)}, 1, 2,
+                        new VariableKey(MODULE, "floatUnionVar", incompatibleUnionType, null, true)}, 3, 0,
                         new String[]{"error: [InvalidUnionType.toml:(2:1,2:19)] configurable variable 'floatUnionVar'" +
                                 " is expected to be of type '(int|string)', but found 'float'"}},
                 {new String[]{""}, "InvalidUnionType.toml", new VariableKey[]{
-                        new VariableKey(MODULE, "ambiguousUnionVar", ambiguousUnionType, null, true)}, 1, 1,
+                        new VariableKey(MODULE, "ambiguousUnionVar", ambiguousUnionType, null, true)}, 2, 0,
                         new String[]{"error: [InvalidUnionType.toml:(4:1,5:16)] ambiguous target types found for " +
                                 "configurable variable 'ambiguousUnionVar' with type '(map<anydata>|map<string>)'"}},
         };
