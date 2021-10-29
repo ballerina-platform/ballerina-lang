@@ -294,3 +294,39 @@ function testUndeclaredAndOptional() {
     anydata y = pqrstuv.y;
     anydata z = pqrstuv.z;
 }
+
+type FooOne record {|
+    int i?;
+|};
+
+type BarOne record {|
+    int? i;
+|};
+
+function testNilableAndOptional() {
+    FooOne|BarOne val = <BarOne> {i: 5};
+    int? i = val.i;
+}
+
+type AB record {
+    int x;
+    int? y?;
+    string z;
+};
+
+type BC record {
+    int? x?;
+    string? z?;
+};
+
+type CD record {
+    int y?;
+};
+
+function testUndeclaredAndOptionalAndNilable() {
+    AB r = {x: 5, y: 6, z: "test"};
+    (AB|BC|CD) abcd = r;
+    anydata x = abcd.x;
+    anydata y = abcd.y;
+    anydata z = abcd.z;
+}

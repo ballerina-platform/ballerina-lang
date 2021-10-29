@@ -48,7 +48,7 @@ public class FieldAccessTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 32);
+        Assert.assertEquals(negativeResult.getErrorCount(), 36);
         int i = 0;
         validateError(negativeResult, i++, "field access cannot be used to access an optional field of a type " +
                 "that includes nil, use optional field access or member access", 32, 9);
@@ -89,13 +89,15 @@ public class FieldAccessTest {
                 "member access to access a field that may have been specified as a rest field", 191, 17);
         validateError(negativeResult, i++, "invalid field access: 'y' is not a required field in record 'R7', use " +
                 "member access to access a field that may have been specified as a rest field", 202, 17);
-
         validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
-                "fields of non-nilable types, field 'a' is optional in record(s) 'SA', 'UA', and 'VA'", 247, 17);
+                "fields of non-nilable types, field 'a' is optional in record(s) 'SA', 'UA', and 'VA' and type includes nil " +
+                "in record(s) 'SA', 'UA', and 'VA'", 247, 17);
         validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
-                "fields of non-nilable types, field 'b' is optional in record(s) 'SA', and 'UA'", 248, 17);
+                "fields of non-nilable types, field 'b' is optional in record(s) 'SA', and 'UA' and type includes nil in " +
+                "record(s) 'SA', and 'UA'", 248, 17);
         validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
-                "fields of non-nilable types, field 'c' is optional in record(s) 'TA'", 249, 17);
+                "fields of non-nilable types, field 'c' is optional in record(s) 'TA' and type includes nil in " +
+                "record(s) 'TA'", 249, 17);
 
         validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
                 "fields of non-nilable types, field 'x' is undeclared in record(s) 'SA', 'UA', and 'VA'", 251, 17);
@@ -113,6 +115,19 @@ public class FieldAccessTest {
         validateError(negativeResult, i++, "field access can only be used to access required fields or optional" +
                 " fields of non-nilable types, field 'z' is undeclared in record(s) 'RB', 'SB', and 'VB' and " +
                 "optional in record(s) 'QB', and 'TB'", 295, 17);
+        validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
+                "fields of non-nilable types, field 'i' is optional in record(s) 'FooOne' and type includes nil in record(s) " +
+                "'BarOne'", 308, 14);
+
+        validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
+                "fields of non-nilable types, field 'x' is undeclared in record(s) 'CD', optional in record(s) 'BC' and type " +
+                "includes nil in record(s) 'BC'", 329, 17);
+        validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
+                "fields of non-nilable types, field 'y' is undeclared in record(s) 'BC', optional in record(s) 'AB', and 'CD' " +
+                "and type includes nil in record(s) 'AB'", 330, 17);
+        validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
+                "fields of non-nilable types, field 'z' is undeclared in record(s) 'CD', optional in record(s) 'BC' and type " +
+                "includes nil in record(s) 'BC'", 331, 17);
     }
 
     @Test(dataProvider = "recordFieldAccessFunctions")
@@ -240,5 +255,15 @@ public class FieldAccessTest {
     public void testFieldAccessOnMapConstruct() {
         BValue[] returns = BRunUtil.invoke(result, "testFieldAccessOnMapConstruct");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testAccessOptionalFieldWithFieldAccess1() {
+        BValue[] returns = BRunUtil.invoke(result, "testAccessOptionalFieldWithFieldAccess1");
+    }
+
+    @Test
+    public void testAccessOptionalFieldWithFieldAccess2() {
+        BValue[] returns = BRunUtil.invoke(result, "testAccessOptionalFieldWithFieldAccess2");
     }
 }
