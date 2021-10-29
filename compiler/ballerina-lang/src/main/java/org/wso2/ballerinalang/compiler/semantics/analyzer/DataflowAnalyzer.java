@@ -525,14 +525,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
-        BLangVariable var = varDefNode.var;
+        BLangSimpleVariable var = varDefNode.var;
         if (var.expr == null) {
             addUninitializedVar(var);
+            analyzeNode(var.typeNode, env);
 
             BVarSymbol symbol = var.symbol;
 
-            if (var.getKind() == NodeKind.VARIABLE &&
-                    isLocalVariableDefinedWithNonWildCardBindingPattern((BLangSimpleVariable) var)) {
+            if (var.getKind() == NodeKind.VARIABLE && isLocalVariableDefinedWithNonWildCardBindingPattern(var)) {
                 this.unusedLocalVariables.put(symbol, var.pos);
             }
 
