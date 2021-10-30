@@ -1214,11 +1214,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFromClause fromClause) {
+        populateUnusedVariableMapForMembers(this.unusedLocalVariables,
+                                            (BLangVariable) fromClause.variableDefinitionNode.getVariable());
         analyzeNode(fromClause.collection, env);
     }
 
     @Override
     public void visit(BLangJoinClause joinClause) {
+        populateUnusedVariableMapForMembers(this.unusedLocalVariables,
+                                            (BLangVariable) joinClause.variableDefinitionNode.getVariable());
         analyzeNode(joinClause.collection, env);
         if (joinClause.onClause != null) {
             analyzeNode((BLangNode) joinClause.onClause, env);
@@ -2274,6 +2278,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         if (owner == null || owner.tag == SymTag.PACKAGE) {
             return false;
+        }
+
+        if (owner.tag == SymTag.LET) {
+            return true;
         }
 
         if (owner.tag != SymTag.FUNCTION) {

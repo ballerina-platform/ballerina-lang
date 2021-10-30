@@ -84,6 +84,13 @@ public class UnusedVariableTest {
         validateWarning(result, i++, getUnusedVariableWarning("km"), 205, 50);
         validateWarning(result, i++, getUnusedVariableWarning("kd2"), 205, 63);
         validateWarning(result, i++, getUnusedVariableWarning("x"), 206, 9);
+        validateWarning(result, i++, getUnusedVariableWarning("x"), 226, 17);
+        validateWarning(result, i++, getUnusedVariableWarning("y"), 226, 28);
+        validateWarning(result, i++, getUnusedVariableWarning("i"), 234, 20);
+        validateWarning(result, i++, getUnusedVariableWarning("j"), 241, 21);
+        validateWarning(result, i++, getUnusedVariableWarning("customer"), 251, 26);
+        validateWarning(result, i++, getUnusedVariableWarning("person"), 252, 25);
+        validateWarning(result, i++, getUnusedVariableWarning("customer"), 258, 26);
         Assert.assertEquals(result.getWarnCount(), i);
         Assert.assertEquals(result.getErrorCount(), 0);
     }

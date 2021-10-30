@@ -147,7 +147,7 @@ record {
 function f9(int a, int b = 1, int... c) { // OK, warning only for local variables
 }
 
-function f11() {
+function f10() {
     var l = 0; // used `l`
     var arr = <int[]> []; // unused `arr`
     arr[l] = 1;
@@ -177,7 +177,7 @@ type Foo record {
     error<record {| int i; string j; |}> k;
 };
 
-function f10() {
+function f11() {
     int[] a1 = []; // used
 
     foreach var i in a1 { // unused `i`
@@ -206,4 +206,66 @@ function f10() {
         int x = i + kd1;
         string _ = j1 + j2;
     }
+}
+
+function f12() {
+    int l = 9; // used
+    l += 1;
+}
+
+type Customer record {
+    string name;
+};
+
+type Person record {
+    string firstName;
+    string lastName;
+};
+
+function f13() {
+    int _ = let int x = 1, int y = 2 in 1; // unused `x`, `y`
+
+    int _ = let int x = 1, int y = 2 in x + y; // used `x`
+}
+
+function f14() {
+    int[] arr = [];
+
+    int[] _ = from int i in arr // unused `i`
+                select 1;
+
+    int[] _ = from int i in arr // used `i`
+                select i;
+
+    int[] _ = from int i in arr  // used `i`
+                let int j = 2 * i  // unused `j`
+                select 1;
+
+    int[] _ = from int i in arr // used `i`
+                let int j = 2 * i // used `j`
+                select j;
+
+    Customer[] customerList = [];
+    Person[] personList = [];
+
+    record {}[] _ = from var customer in customerList // unused `customer`
+                        join Person person in personList // unused `person`
+                        on 1 equals 1
+                        select {
+                            "name": ""
+                        };
+
+    record {}[] _ = from Customer customer in customerList // unused `customer`
+                        join var person in personList // used `person`
+                        on 1 equals 1
+                        select {
+                            "name": person.firstName
+                        };
+
+    record {}[] _ = from var customer in customerList // unused `customer`
+                        join Person person in personList // used `person`
+                        on customer.name equals person.firstName + person.lastName
+                        select {
+                            "name": person.firstName
+                        };
 }
