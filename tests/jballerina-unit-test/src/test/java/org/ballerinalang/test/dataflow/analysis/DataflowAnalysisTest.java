@@ -112,8 +112,36 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 751, 13);
         BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 756, 28);
         BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 756, 41);
-        Assert.assertEquals(result.getErrorCount(), i - 12);
-        Assert.assertEquals(result.getWarnCount(), 12);
+        BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 762, 7);
+        BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 763, 15);
+        BAssertUtil.validateError(result, i++, "variable 'n' is not initialized", 766, 5);
+        BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 766, 7);
+        BAssertUtil.validateError(result, i++, "variable 'n' is not initialized", 767, 13);
+        BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 767, 15);
+        BAssertUtil.validateError(result, i++, "variable 'f1' is not initialized", 776, 5);
+        BAssertUtil.validateError(result, i++, "variable 'f2' is not initialized", 785, 5);
+        BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 785, 8);
+        BAssertUtil.validateError(result, i++, "variable 'j' is not initialized", 785, 11);
+        BAssertUtil.validateError(result, i++, "variable 'k' is not initialized", 785, 17);
+        BAssertUtil.validateError(result, i++, "variable 'f2' is not initialized", 791, 5);
+        BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 793, 8);
+        BAssertUtil.validateError(result, i++, "variable 'j' is not initialized", 793, 11);
+        BAssertUtil.validateError(result, i++, "variable 'k' is not initialized", 793, 17);
+        BAssertUtil.validateError(result, i++, "variable 'b' is not initialized", 796, 5);
+        BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 796, 10);
+        BAssertUtil.validateError(result, i++, "variable 'b' is not initialized", 797, 5);
+        BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 827, 18);
+        BAssertUtil.validateError(result, i++, "variable 'anydataArr' is not initialized", 827, 24);
+        BAssertUtil.validateError(result, i++, "variable 'fn2' is not initialized", 829, 19);
+        BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 831, 23);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'a1'", 842, 5);
+        BAssertUtil.validateError(result, i++, "variable 'j' is not initialized", 842, 23);
+        BAssertUtil.validateError(result, i++, "variable 'j' is not initialized", 843, 23);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'a2'", 846, 5);
+        BAssertUtil.validateError(result, i++, "variable 't1' is not initialized", 854, 9);
+
+        Assert.assertEquals(result.getErrorCount(), i - 14);
+        Assert.assertEquals(result.getWarnCount(), 14);
     }
 
     @Test(description = "Test uninitialized variables in error-constructor-expr")

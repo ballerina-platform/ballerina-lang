@@ -755,3 +755,104 @@ function testUninitializedVarWithLet() {
    int i;
    int _ = let int x = 4 + i in 2 * x * i;
 }
+
+function testUninitializedVariablesWithMemberAccess() {
+    int i;
+    int[] m = [];
+    m[i] = 1; // variable 'i' is not initialized
+    int _ = m[i]; // variable 'i' is not initialized
+
+    int[] n;
+    n[i] = 2; // variable 'n' is not initialized, variable 'i' is not initialized
+    int _ = n[i]; // variable 'n' is not initialized, variable 'i' is not initialized
+
+    int j = 0;
+    m[j] = 3; // OK
+    int _ = m[j]; // OK
+}
+
+function testUninitializedVariablesWithFunctionCalls() {
+    function () f1;
+    f1(); // uninitialized `f1`
+
+    f1 = function () {};
+    f1(); // OK
+
+    function (int i, string j = "", boolean... k) f2;
+    int i;
+    string j;
+    boolean[] k;
+    f2(i, j, ...k); // uninitialized `f2`, `i`, `j`, `k`
+
+    function (int i, string j = "", boolean... k) f3 = function (int i, string j = "", boolean... k) {};
+    int i2 = 0;
+    string j2 = "";
+    boolean[] k2 = [true];
+    f2(i2, j2, ...k2); // uninitialized `f2`
+    f3(i2, j2, ...k2); // OK
+    f3(i, j, ...k); // uninitialized `i`, `j`, `k`
+
+    Bar b;
+    b.fn(i); // uninitialized `b`, `i`
+    b.method(); // uninitialized `b`
+
+    i = 1;
+    b = new(function (int i) {});
+    b.fn(i); // OK
+    b.method(); // OK
+}
+
+class Bar {
+    function (int i) fn;
+
+    function init(function (int i) fn) {
+        self.fn = fn;
+    }
+
+    function method() {
+    }
+}
+
+function testUninitializedVariablesInTheMatchGuard() {
+    int[] & readonly arr = [];
+
+    int i;
+    anydata[] anydataArr;
+    function () returns boolean fn2;
+
+    int i2 = 0;
+    anydata[] anydataArr2 = [];
+
+    match arr {
+        [] if fn(i, ...anydataArr) => { // uninitialized `i`, `anydataArr`
+        }
+        [1, 2] if fn2() => { // uninitialized `fn2`
+        }
+        var [x, y] if i < 3 => { // uninitialized `i`
+        }
+        [1, 2, 3] if fn(i2, ...anydataArr2) => { // OK
+        }
+    }
+}
+
+isolated function fn(any... x) returns boolean => true;
+
+function testUninitializedVariablesInTheTypeNodeOfLocalDeclStmts() {
+    final int j;
+    record {| int i = j; |} a1; // uninitialized `j`
+    record {| int i = j; |} _ = {}; // uninitialized `j`
+
+    final int k = 1;
+    record {| int i = k; |} a2; // OK
+    record {| int i = k; |} _ = {}; // OK
+}
+
+annotation v1 on type;
+
+function testUninitializedVariablesInAnnotationAccessExprs() {
+    typedesc<any> t1;
+    _ = t1.@v1; // uninitialized `t1`
+
+    typedesc t2 = int;
+    _ = t2.@v1; // OK
+}
