@@ -490,9 +490,13 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if (!funcNode.interfaceFunction && funcNode.returnTypeNode.getBType().tag == TypeTags.UNION) {
-            LinkedHashSet<BType> memberTypes = ((BUnionType) funcNode.returnTypeNode.getBType()).getMemberTypes();
-            if (memberTypes.contains(symTable.nilType) && !this.statementReturnsPanicsOrFails) {
+        BType returnType = funcNode.returnTypeNode.getBType();
+
+        if (!funcNode.interfaceFunction && returnType.tag == TypeTags.UNION) {
+            LinkedHashSet<BType> memberTypes = ((BUnionType) returnType).getMemberTypes();
+            if (memberTypes.contains(symTable.nilType) &&
+                    !types.isSubTypeOfErrorOrNilContainingNil((BUnionType) returnType) &&
+                    !this.statementReturnsPanicsOrFails) {
                 this.dlog.warning(funcNode.returnTypeNode.pos,
                         DiagnosticWarningCode.FUNCTION_SHOULD_EXPLICITLY_RETURN_A_VALUE);
             }
