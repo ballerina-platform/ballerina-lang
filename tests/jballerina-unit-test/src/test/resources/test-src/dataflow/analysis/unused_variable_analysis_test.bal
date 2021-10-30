@@ -297,3 +297,50 @@ function f15() {
     }
 }
 
+service on new Listener(10) {
+    resource function get f1() {
+        int i = 1;
+    }
+
+    remote function fn2() {
+        int[] a = [];
+        int b = 1;
+        a[b] = 2;
+    }
+
+    function fn3(int i) {
+        int j;
+        j = 0;
+    }
+}
+
+class Listener {
+    int i;
+
+    function init(int i) {
+        int j = 1;
+        self.i = i;
+    }
+
+    public function attach(service object {} s, string|string[]? name = ()) returns error? {
+    }
+
+    public function detach(service object {} s) returns error? {
+    }
+
+    public function 'start() returns error? {
+        int x = 1;
+    }
+
+    public function gracefulStop() returns error? {
+    }
+
+    public function immediateStop() returns error? {
+    }
+}
+
+function init() {
+    int i = 1;
+    int j = 2;
+    int k = j + 1;
+}

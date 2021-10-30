@@ -99,6 +99,13 @@ public class UnusedVariableTest {
         validateWarning(result, i++, getUnusedVariableWarning("s"), 291, 13);
         validateWarning(result, i++, getUnusedVariableWarning("d"), 293, 9);
         validateWarning(result, i++, getUnusedVariableWarning("m"), 295, 9);
+        validateWarning(result, i++, getUnusedVariableWarning("i"), 302, 9);
+        validateWarning(result, i++, getUnusedVariableWarning("a"), 306, 9);
+        validateWarning(result, i++, getUnusedVariableWarning("j"), 312, 9);
+        validateWarning(result, i++, getUnusedVariableWarning("j"), 321, 9);
+        validateWarning(result, i++, getUnusedVariableWarning("x"), 332, 9);
+        validateWarning(result, i++, getUnusedVariableWarning("i"), 343, 5);
+        validateWarning(result, i++, getUnusedVariableWarning("k"), 345, 5);
         Assert.assertEquals(result.getWarnCount(), i);
         Assert.assertEquals(result.getErrorCount(), 0);
     }
