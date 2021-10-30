@@ -188,6 +188,11 @@ public class IntegerRangeOperatorTest {
         BRunUtil.invoke(result, "testHalfOpenIntRangeOnIntSubTypes");
     }
 
+    @Test
+    public void testIsolatednessOfRangeExprIterableAndIterator() {
+        BRunUtil.invoke(result, "testIsolatednessOfRangeExprIterableAndIterator");
+    }
+
     @Test(description = "Test integer range operators with errors")
     public void testSubtractStmtNegativeCases() {
         Assert.assertEquals(negativeResult.getErrorCount(), 8);
