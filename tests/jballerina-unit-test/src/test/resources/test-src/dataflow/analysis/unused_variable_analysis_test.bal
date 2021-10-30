@@ -269,3 +269,31 @@ function f14() {
                             "name": person.firstName
                         };
 }
+
+function f15() {
+    int[] x = [];
+
+    match x {
+        var [a, b]|var [a, ...b] => { // unused `a`, `b`
+            int _ = 1;
+        }
+        var [d, e, f] => { // unused `f`
+            int _ = d + e;
+        }
+        [var g]|var [...g] => { // unused `g`
+        }
+    }
+
+    any|error y = 1;
+
+    match y {
+        error(var a, var b, ...var c)|var [a, b, ...c] => { // unused `b`
+            string s = a + c.toBalString();
+        }
+        var {d}|[var d] => { // unused `d`
+        }
+        var m => { // unused `m`
+        }
+    }
+}
+

@@ -721,6 +721,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchClause matchClause) {
+        Location pos = matchClause.pos;
+        for (BVarSymbol symbol : matchClause.declaredVars.values()) {
+            if (!isWildCardBindingPattern(symbol)) {
+                unusedLocalVariables.put(symbol, pos);
+            }
+        }
         analyzeNode(matchClause.matchGuard, env);
         analyzeNode(matchClause.blockStmt, env);
     }
@@ -2267,6 +2273,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private boolean isWildCardBindingPattern(BLangSimpleVariable variable) {
         return Names.IGNORE.value.equals(variable.name.value);
+    }
+
+    private boolean isWildCardBindingPattern(BVarSymbol symbol) {
+        return Names.IGNORE == symbol.name;
     }
 
     private boolean isLocalVariable(BVarSymbol symbol) {
