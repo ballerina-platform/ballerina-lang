@@ -70,6 +70,20 @@ public class UnusedVariableTest {
         validateWarning(result, i++, getUnusedVariableWarning("o"), 157, 5);
         validateWarning(result, i++, getUnusedVariableWarning("i"), 163, 5);
         validateWarning(result, i++, getUnusedVariableWarning("a"), 171, 5);
+        validateWarning(result, i++, getUnusedVariableWarning("i"), 183, 13);
+        validateWarning(result, i++, getUnusedVariableWarning("e"), 192, 13);
+        validateWarning(result, i++, getUnusedVariableWarning("m"), 196, 9);
+        validateWarning(result, i++, getUnusedVariableWarning("i"), 202, 18);
+        validateWarning(result, i++, getUnusedVariableWarning("j1"), 202, 25);
+        validateWarning(result, i++, getUnusedVariableWarning("j2"), 202, 29);
+        validateWarning(result, i++, getUnusedVariableWarning("jr"), 202, 33);
+        validateWarning(result, i++, getUnusedVariableWarning("km"), 202, 50);
+        validateWarning(result, i++, getUnusedVariableWarning("kd1"), 202, 58);
+        validateWarning(result, i++, getUnusedVariableWarning("kd2"), 202, 63);
+        validateWarning(result, i++, getUnusedVariableWarning("jr"), 205, 33);
+        validateWarning(result, i++, getUnusedVariableWarning("km"), 205, 50);
+        validateWarning(result, i++, getUnusedVariableWarning("kd2"), 205, 63);
+        validateWarning(result, i++, getUnusedVariableWarning("x"), 206, 9);
         Assert.assertEquals(result.getWarnCount(), i);
         Assert.assertEquals(result.getErrorCount(), 0);
     }

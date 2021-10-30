@@ -170,3 +170,40 @@ function f11() {
     var o3 = <record {int x;}> {x: 12}; // used `o3`
     var a = o3[n2]; // unused `a`
 }
+
+type Foo record {
+    int i;
+    string[5] j;
+    error<record {| int i; string j; |}> k;
+};
+
+function f10() {
+    int[] a1 = []; // used
+
+    foreach var i in a1 { // unused `i`
+    }
+
+    foreach var i in a1 { // used `i`
+        _ = 1 + i;
+    }
+
+    error[] a2 = []; // used
+
+    foreach error e in a2 { // unused `e`
+    }
+
+    foreach error e in a2 { // used `e`
+        int m; // unused `m`
+        _ = e is error<record {int i;}>;
+    }
+
+    Foo[] a3 = [];
+
+    foreach Foo {i, j: [j1, j2, ...jr], k: error(km, i = kd1, ...kd2)} in a3 { // unused `i`, `j1`, `j2`, `jr`, `km`, `kd1`, `kd2`
+    }
+
+    foreach Foo {i, j: [j1, j2, ...jr], k: error(km, i = kd1, ...kd2)} in a3 { // unused `jr`, `km`, `kd2`
+        int x = i + kd1;
+        string _ = j1 + j2;
+    }
+}

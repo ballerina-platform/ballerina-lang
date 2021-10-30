@@ -775,6 +775,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForeach foreach) {
+        populateUnusedVariableMapForMembers(this.unusedLocalVariables,
+                                            (BLangVariable) foreach.variableDefinitionNode.getVariable());
         analyzeNode(foreach.collection, env);
         analyzeNode(foreach.body, env);
         if (foreach.onFailClause != null) {
