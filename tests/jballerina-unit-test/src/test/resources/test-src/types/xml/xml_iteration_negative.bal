@@ -29,6 +29,8 @@ function xmlTypeParamElementIter() {
     foreach 'xml:Element elem in el2 {
         concatString(elem.toString());
     }
+
+    record {| 'xml:Comment value; |}? nextElement2 = el2.iterator().next();
 }
 
 function xmlTypeParamCommentIter() {
@@ -38,6 +40,8 @@ function xmlTypeParamCommentIter() {
     foreach 'xml:Comment elem in comment2 {
         concatString(elem.toString());
     }
+
+    record {| 'xml:Element value; |}? nextComment2 = comment2.iterator().next();
 }
 
 function xmlTypeParamPIIter() {
@@ -47,6 +51,8 @@ function xmlTypeParamPIIter() {
     foreach 'xml:ProcessingInstruction elem in pi2 {
         concatString(elem.toString());
     }
+
+    record {| 'xml:Comment value; |}? nextPI2 = pi2.iterator().next();
 }
 
 function xmlTypeParamUnionIter() {
