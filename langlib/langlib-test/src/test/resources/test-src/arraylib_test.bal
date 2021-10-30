@@ -682,6 +682,7 @@ function testSort1() {
     "{\"id\":2,\"fname\":\"Dan\",\"fee\":null,\"impact\":0.3,\"isUndergrad\":true}");
     assertValueEquality(sortedArr[4].toString(),
     "{\"id\":1,\"fname\":\"Amber\",\"fee\":10000.56,\"impact\":0.127,\"isUndergrad\":true}");
+    assertFalse(studentArr == sortedArr);
 
     Student[] sortedArr2 = studentArr.sort(array:DESCENDING, isolated function(Student s) returns string? {
         return s.fname;
@@ -697,6 +698,7 @@ function testSort1() {
     "{\"id\":1,\"fname\":\"Amber\",\"fee\":10000.56,\"impact\":0.127,\"isUndergrad\":true}");
     assertValueEquality(sortedArr2[4].toString(),
     "{\"id\":20,\"fname\":null,\"fee\":2000.56,\"impact\":0.45,\"isUndergrad\":false}");
+    assertFalse(studentArr == sortedArr2);
 
     Student[] sortedArr3 = studentArr.sort(array:ASCENDING, isolated function(Student s) returns float? {
         return s.fee;
@@ -742,6 +744,7 @@ function testSort1() {
     "{\"id\":1,\"fname\":\"Amber\",\"fee\":10000.56,\"impact\":0.127,\"isUndergrad\":true}");
     assertValueEquality(sortedArr5[4].toString(),
     "{\"id\":2,\"fname\":\"Dan\",\"fee\":null,\"impact\":0.3,\"isUndergrad\":true}");
+    assertFalse(sortedArr4 == sortedArr5);
 
     assertValueEquality(getStudentList(), studentArr); // no change to original array
 }
@@ -757,6 +760,7 @@ function testSort2() {
     assertValueEquality(sortedArr[1], 90);
     assertValueEquality(sortedArr[2], 52);
 
+    assertFalse(arr == sortedArr);
     assertValueEquality(base16 ` 5A B C3 4 `, arr); // no change to original array
 }
 
