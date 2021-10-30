@@ -272,7 +272,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.currDependentSymbolDeque = new ArrayDeque<>();
         this.globalVariableRefAnalyzer = GlobalVariableRefAnalyzer.getInstance(context);
-
+        this.unusedLocalVariables = new HashMap<>();
     }
 
     public static DataflowAnalyzer getInstance(CompilerContext context) {
@@ -307,6 +307,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         Map<BSymbol, Location> prevUnusedErrorVarsDeclaredWithVar = this.unusedErrorVarsDeclaredWithVar;
         this.unusedErrorVarsDeclaredWithVar = new HashMap<>();
 
+        Map<BSymbol, Location> prevUnusedLocalVariables = this.unusedLocalVariables;
+        this.unusedLocalVariables = new HashMap<>();
+
         // Rearrange the top level nodes so that global variables come on top
         List<TopLevelNode> sortedListOfNodes = new ArrayList<>(pkgNode.globalVars);
         addModuleInitToSortedNodeList(pkgNode, sortedListOfNodes);
@@ -325,6 +328,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.globalVariableRefAnalyzer.populateFunctionDependencies(this.functionToDependency, pkgNode.globalVars);
         pkgNode.globalVariableDependencies = globalVariableRefAnalyzer.getGlobalVariablesDependsOn();
         checkUnusedImports(pkgNode.imports);
+
+        emitUnusedVariableWarnings(this.unusedLocalVariables);
+        this.unusedLocalVariables = prevUnusedLocalVariables;
+
         checkUnusedErrorVarsDeclaredWithVar();
         this.unusedErrorVarsDeclaredWithVar = prevUnusedErrorVarsDeclaredWithVar;
 
@@ -1098,8 +1105,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVarRef varRefExpr) {
         this.unusedErrorVarsDeclaredWithVar.remove(varRefExpr.symbol);
 
-        if (this.unusedLocalVariables != null && isRead(varRefExpr)) {
-            // The map will be null for module-level references.
+        if (isRead(varRefExpr)) {
             this.unusedLocalVariables.remove(varRefExpr.symbol);
         }
 
@@ -1151,10 +1157,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(invocationExpr.expr, env);
 
         BSymbol symbol = invocationExpr.symbol;
-        if (this.unusedLocalVariables != null) {
-            // The map will be null for module-level calls.
-            this.unusedLocalVariables.remove(symbol);
-        }
+        this.unusedLocalVariables.remove(symbol);
 
         if (!isGlobalVarsInitialized(invocationExpr.pos)) {
             return;
@@ -1527,10 +1530,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         Map<BSymbol, Location> prevUnusedLocalVariables = this.unusedLocalVariables;
         this.unusedLocalVariables = new HashMap<>();
-
-        if (prevUnusedLocalVariables != null) {
-            this.unusedLocalVariables.putAll(prevUnusedLocalVariables);
-        }
+        this.unusedLocalVariables.putAll(prevUnusedLocalVariables);
 
         Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
 
@@ -1548,13 +1548,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         // Restore the original set of uninitialized vars
         this.uninitializedVars = prevUninitializedVars;
 
-        if (prevUnusedLocalVariables != null) {
-            prevUnusedLocalVariables.keySet().removeIf(bSymbol -> !this.unusedLocalVariables.containsKey(bSymbol));
+        prevUnusedLocalVariables.keySet().removeIf(bSymbol -> !this.unusedLocalVariables.containsKey(bSymbol));
 
-            // Remove the entries added from the previous context since errors should be logged after the analysis
-            // completes for that context.
-            this.unusedLocalVariables.keySet().removeAll(prevUnusedLocalVariables.keySet());
-        }
+        // Remove the entries added from the previous context since errors should be logged after the analysis
+        // completes for that context.
+        this.unusedLocalVariables.keySet().removeAll(prevUnusedLocalVariables.keySet());
 
         emitUnusedVariableWarnings(this.unusedLocalVariables);
 
