@@ -108,6 +108,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
 
     private final SymbolResolver symResolver;
     private final SymbolTable symTable;
+    private final TypeNarrower typeNarrower;
     private final Types types;
     private final BLangDiagnosticLog dlog;
     private final Names names;
@@ -133,6 +134,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
+        this.typeNarrower = TypeNarrower.getInstance(context);
     }
 
     public static ReachabilityAnalyzer getInstance(CompilerContext context) {
@@ -716,10 +718,11 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        validateAssignmentToNarrowedVariable(names.fromIdNode(varRef.variableName), location, env);
+        validateAssignmentToNarrowedVariable(varRef, location, env);
     }
 
-    private void validateAssignmentToNarrowedVariable(Name name, Location location, SymbolEnv env) {
+    private void validateAssignmentToNarrowedVariable(BLangSimpleVarRef varRef, Location location, SymbolEnv env) {
+        Name name = names.fromIdNode(varRef.variableName);
         SymbolEnv loopEnv = this.loopEnvs.peek();
         SymbolEnv currentEnv = env;
 
@@ -732,6 +735,15 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             }
 
             if (currentEnv == loopEnv) {
+                BLangNode loopNode = loopEnv.node;
+                if (loopNode.getKind() == NodeKind.WHILE &&
+                        ((BLangWhile) loopNode).expr.narrowedTypeInfo.containsKey(
+                                typeNarrower.getOriginalVarSymbol((BVarSymbol) varRef.symbol))) {
+                    // A while loop may narrow an already narrowed variable, so checking specifically if the loop
+                    // itself narrows the variable too.
+                    return;
+                }
+
                 break;
             }
 
