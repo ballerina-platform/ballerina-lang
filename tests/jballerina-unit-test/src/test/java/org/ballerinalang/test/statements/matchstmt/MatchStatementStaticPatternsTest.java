@@ -441,7 +441,7 @@ public class MatchStatementStaticPatternsTest {
     @Test(description = "Test unreachable pattern")
     public void testUnreachablePatterns() {
         Assert.assertEquals(resultNegative2.getErrorCount(), 2);
-        Assert.assertEquals(resultNegative2.getWarnCount(), 25);
+        Assert.assertEquals(resultNegative2.getWarnCount(), 33);
         int i = -1;
         String unreachablePattern = "unreachable pattern";
 
@@ -469,9 +469,17 @@ public class MatchStatementStaticPatternsTest {
         BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 139, 12);
         BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 148, 9);
         BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 150, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 's'", 151, 9);
         BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 158, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 'a'", 158, 9);
         BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 159, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 'a'", 159, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 'b'", 159, 9);
         BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 160, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 'a'", 160, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 'b'", 160, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 'c'", 160, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 's'", 161, 9);
     }
 
     @AfterClass

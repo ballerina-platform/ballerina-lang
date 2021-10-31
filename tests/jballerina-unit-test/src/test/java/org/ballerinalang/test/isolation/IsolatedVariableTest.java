@@ -144,6 +144,7 @@ public class IsolatedVariableTest {
         validateError(result, i++, ERROR_INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK, 343, 17);
         validateWarning(result, i++, "unused variable 'k'", 350, 17);
         validateError(result, i++, ERROR_INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK, 354, 9);
+        validateWarning(result, i++, "unused variable 'item'", 357, 13);
         validateWarning(result, i++, "unused variable 'e'", 359, 7);
         validateError(result, i++, ERROR_INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK, 360, 9);
         validateWarning(result, i++, "unused variable 'e'", 367, 7);
@@ -151,8 +152,8 @@ public class IsolatedVariableTest {
         validateWarning(result, i++, "unused variable 'e'", 373, 7);
         validateError(result, i++, ERROR_INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK, 374, 9);
         validateError(result, i++, ERROR_INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK, 374, 11);
-        Assert.assertEquals(result.getErrorCount(), i - 14);
-        Assert.assertEquals(result.getWarnCount(), 14);
+        Assert.assertEquals(result.getErrorCount(), i - 15);
+        Assert.assertEquals(result.getWarnCount(), 15);
     }
 
     @Test
@@ -160,7 +161,7 @@ public class IsolatedVariableTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/isolated-variables/isolated_variables.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
 
-        Assert.assertEquals(compileResult.getWarnCount(), 11);
+        Assert.assertEquals(compileResult.getWarnCount(), 12);
         for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
             Assert.assertTrue(diagnostic.message().startsWith("unused variable"));
         }

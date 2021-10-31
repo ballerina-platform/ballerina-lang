@@ -56,6 +56,7 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 241, 13);
         BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 244, 9);
         BAssertUtil.validateError(result, i++, "variable 's' is not initialized", 249, 24);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'val'", 261, 13);
         BAssertUtil.validateError(result, i++, "variable 'm' is not initialized", 261, 24);
         BAssertUtil.validateError(result, i++, "variable 'm' is not initialized", 262, 9);
         BAssertUtil.validateWarning(result, i++, "unused variable 'str'", 271, 5);
@@ -69,6 +70,7 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'msg' is not initialized", 311, 20);
         BAssertUtil.validateError(result, i++, "uninitialized field 'd'", 325, 5);
         BAssertUtil.validateError(result, i++, "variable 'd' is not initialized", 350, 16);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'y'", 380, 9);
         BAssertUtil.validateWarning(result, i++, "concurrent calls will not be made to this method since the method " +
                 "is not an 'isolated' method", 393, 5);
         BAssertUtil.validateWarning(result, i++, "unused variable 'a'", 394, 9);
@@ -95,7 +97,21 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "uninitialized field 's'", 615, 22);
         BAssertUtil.validateError(result, i++, "variable 'k' may not have been initialized", 625, 12);
         BAssertUtil.validateError(result, i++, "variable 'k' may not have been initialized", 647, 12);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'a'", 654, 9);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'b'", 654, 9);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'a'", 655, 9);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'b'", 655, 9);
         BAssertUtil.validateError(result, i++, "variable 'k' may not have been initialized", 657, 12);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'a'", 664, 9);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'b'", 664, 9);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'a'", 665, 9);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'b'", 665, 9);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'x'", 666, 9);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'a'", 675, 9);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'b'", 675, 9);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'a'", 676, 9);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'b'", 676, 9);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'x'", 677, 9);
         BAssertUtil.validateError(result, i++, "variable 'k' may not have been initialized", 679, 12);
         BAssertUtil.validateError(result, i++, "variable 'k' may not have been initialized", 702, 12);
         BAssertUtil.validateError(result, i++, "unreachable code", 708, 9);
@@ -133,6 +149,8 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 827, 18);
         BAssertUtil.validateError(result, i++, "variable 'anydataArr' is not initialized", 827, 24);
         BAssertUtil.validateError(result, i++, "variable 'fn2' is not initialized", 829, 19);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'x'", 831, 9);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'y'", 831, 9);
         BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 831, 23);
         BAssertUtil.validateWarning(result, i++, "unused variable 'a1'", 842, 5);
         BAssertUtil.validateError(result, i++, "variable 'j' is not initialized", 842, 23);
@@ -140,8 +158,8 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateWarning(result, i++, "unused variable 'a2'", 846, 5);
         BAssertUtil.validateError(result, i++, "variable 't1' is not initialized", 854, 9);
 
-        Assert.assertEquals(result.getErrorCount(), i - 14);
-        Assert.assertEquals(result.getWarnCount(), 14);
+        Assert.assertEquals(result.getErrorCount(), i - 32);
+        Assert.assertEquals(result.getWarnCount(), 32);
     }
 
     @Test(description = "Test uninitialized variables in error-constructor-expr")

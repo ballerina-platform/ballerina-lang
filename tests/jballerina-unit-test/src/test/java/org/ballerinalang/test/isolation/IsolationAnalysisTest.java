@@ -107,7 +107,7 @@ public class IsolationAnalysisTest {
                 "test-src/isolation-analysis/implicitly_final_var_access_in_anon_isolated_functions.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
 
-        Assert.assertEquals(result.getWarnCount(), 9);
+        Assert.assertEquals(result.getWarnCount(), 10);
         for (Diagnostic diagnostic : result.getDiagnostics()) {
             Assert.assertTrue(diagnostic.message().startsWith("unused variable"));
         }

@@ -40,7 +40,7 @@ public class VariableDeclaredWithWithVarIncludingErrorTest {
                 "test-src/types/var/var_with_inferred_type_including_error.bal");
         assertEquals(result.getErrorCount(), 0);
 
-        assertEquals(result.getWarnCount(), 15);
+        assertEquals(result.getWarnCount(), 40);
         for (Diagnostic diagnostic : result.getDiagnostics()) {
             assertTrue(diagnostic.message().startsWith("unused variable"));
         }
@@ -60,6 +60,7 @@ public class VariableDeclaredWithWithVarIncludingErrorTest {
         validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("e2"), 30, 43);
         validateWarning(negativeResult, index++, "unused variable 'errs2'", 33, 5);
         validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("e1"), 33, 25);
+        validateWarning(negativeResult, index++, "unused variable 'e2'", 33, 48);
         validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("e3"), 33, 76);
         validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("x"), 44, 7);
         assertEquals(index, negativeResult.getDiagnostics().length);
