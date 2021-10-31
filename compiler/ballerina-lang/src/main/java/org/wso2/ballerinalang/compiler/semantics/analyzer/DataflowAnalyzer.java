@@ -1664,11 +1664,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
 
             this.unusedErrorVarsDeclaredWithVar.remove(symbol);
-
-            if (this.unusedLocalVariables != null) {
-                // The map will be null for module-level references.
-                this.unusedLocalVariables.remove(symbol);
-            }
+            this.unusedLocalVariables.remove(symbol);
         }
     }
 
