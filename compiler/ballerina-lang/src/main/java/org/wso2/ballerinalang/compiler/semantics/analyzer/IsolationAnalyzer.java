@@ -25,7 +25,6 @@ import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
@@ -2511,12 +2510,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             case LITERAL:
             case NUMERIC_LITERAL:
                 return true;
-            case BINARY_EXPR:
-                OperatorKind opKind = ((BLangBinaryExpr) expression).opKind;
-                if (opKind == OperatorKind.HALF_OPEN_RANGE || opKind == OperatorKind.CLOSED_RANGE) {
-                    return true;
-                }
-                break;
             case LIST_CONSTRUCTOR_EXPR:
                 for (BLangExpression expr : ((BLangListConstructorExpr) expression).exprs) {
                     if (isIsolatedExpression(expr, logErrors, visitRestOnError, nonIsolatedExpressions) || logErrors ||
