@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.context.util.ModulePartNodeContextUtil;
+import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -159,7 +160,8 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(ModulePartNodeContextUtil.getTopLevelItems(context));
         completionItems.addAll(this.getTypeDescContextItems(context));
-
+        completionItems.addAll(ServiceTemplateGenerator.getInstance(context.languageServercontext())
+                .getServiceTemplates(context));
         return completionItems;
     }
 

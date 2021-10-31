@@ -676,6 +676,38 @@
       "sortText": "E",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service / on module1:Listener",
+      "kind": "Snippet",
+      "detail": "service template",
+      "sortText": "E",
+      "insertText": "service /${1} on new module1:Listener(${2:0}) {\n    ${3}\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "service / on test:MockListener",
+      "kind": "Snippet",
+      "detail": "service template",
+      "sortText": "E",
+      "insertText": "service /${1} on new test:MockListener(${2:0},${3:()}) {\n    ${4}\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
+        }
+      ]
     }
   ]
 }

@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 2,
-    "character": 8
+    "line": 8,
+    "character": 5
   },
-  "source": "class_def/source/source15.bal",
+  "source": "module_part_context/source/lsproject/main.bal",
   "items": [
     {
       "label": "import",
@@ -152,11 +152,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -282,17 +282,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "D",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
@@ -301,11 +290,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testClass",
-      "kind": "Interface",
-      "detail": "Class",
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
       "sortText": "D",
-      "insertText": "testClass",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -449,31 +441,68 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
+      "label": "mod1",
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "filterText": "test",
-      "insertText": "test",
+      "insertText": "mod1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "module2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
         }
       ]
     },
@@ -482,18 +511,17 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "filterText": "array",
       "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -506,18 +534,17 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "filterText": "java",
       "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -526,50 +553,25 @@
       ]
     },
     {
-      "label": "ballerina/lang.value",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "filterText": "value",
-      "insertText": "value",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "runtime",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -686,11 +688,43 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "lsproject.module3",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "module3",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "import lsproject.module3;\n"
+        }
+      ]
+    },
+    {
       "label": "service / on module1:Listener",
       "kind": "Snippet",
       "detail": "service template",
       "sortText": "E",
       "insertText": "service /${1} on new module1:Listener(${2:0}) {\n    ${3}\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "service / on mod1:Listener",
+      "kind": "Snippet",
+      "detail": "service template",
+      "sortText": "E",
+      "insertText": "service /${1} on new mod1:Listener() {\n\n    remote function method1() {\n        ${2}\n    }\n\n    function method2() returns string|error {\n        return ${3:\"\"};\n    }\n\n    function method3($CompilationError$|int arg1) returns $CompilationError$ {\n        ${4}\n    }\n\n}\n",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
@@ -705,11 +739,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },

@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 2,
-    "character": 8
+    "line": 34,
+    "character": 4
   },
-  "source": "class_def/source/source15.bal",
+  "source": "module_part_context/source/source14.bal",
   "items": [
     {
       "label": "import",
@@ -282,6 +282,22 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "D",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Service",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "D",
+      "insertText": "Service",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -293,19 +309,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "D",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testClass",
+      "label": "Listener",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "D",
-      "insertText": "testClass",
+      "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
     {
@@ -449,17 +457,15 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "filterText": "test",
-      "insertText": "test",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -473,7 +479,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
         }
       ]
     },
@@ -482,7 +511,6 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "filterText": "array",
       "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -506,7 +534,6 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "filterText": "java",
       "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -526,12 +553,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.value",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "filterText": "value",
-      "insertText": "value",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -545,31 +571,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "runtime",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -716,6 +718,15 @@
           "newText": "import ballerina/lang.test;\n"
         }
       ]
+    },
+    {
+      "label": "service / on Listener",
+      "kind": "Snippet",
+      "detail": "service template",
+      "sortText": "E",
+      "insertText": "service /${1} on new Listener() {\n\n    remote function method1() {\n        ${2}\n    }\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     }
   ]
 }
