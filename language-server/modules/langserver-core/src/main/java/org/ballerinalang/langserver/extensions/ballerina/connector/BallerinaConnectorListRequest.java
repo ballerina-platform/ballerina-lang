@@ -18,6 +18,9 @@
 
 package org.ballerinalang.langserver.extensions.ballerina.connector;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Request to get connectorList.
  *
@@ -28,6 +31,7 @@ public class BallerinaConnectorListRequest {
     private String targetFile;
     private String query;
     private String packageName;
+    private String organization;
     private String connector;
     private String description;
     private String template;
@@ -35,18 +39,9 @@ public class BallerinaConnectorListRequest {
     private String ballerinaVersion;
     private boolean platform;
     private boolean userPackages;
-
     private int limit;
     private int offset;
     private String sort;
-
-    public BallerinaConnectorListRequest() {
-    }
-
-    public BallerinaConnectorListRequest(String file, String packageName) {
-        this.targetFile = file;
-        this.packageName = packageName;
-    }
 
     public String getTargetFile() {
         return targetFile;
@@ -70,6 +65,14 @@ public class BallerinaConnectorListRequest {
 
     public void setPackageName(String packageName) {
         this.packageName = packageName;
+    }
+
+    public String getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(String organization) {
+        this.organization = organization;
     }
 
     public String getConnector() {
@@ -169,5 +172,55 @@ public class BallerinaConnectorListRequest {
                 ", offset=" + offset +
                 ", sort='" + sort + '\'' +
                 '}';
+    }
+
+    public Map<String, String> getQueryMap() {
+        Map<String, String> params = new HashMap();
+
+        if (getQuery() != null) {
+            params.put("q", getQuery());
+        }
+
+        if (getSort() != null) {
+            params.put("sort", getSort());
+        }
+
+        if (getOrganization() != null) {
+            params.put("org", getOrganization());
+        }
+
+        if (getPackageName() != null) {
+            params.put("package", getPackageName());
+        }
+
+        if (isPlatform()) {
+            params.put("platform", isPlatform() ? "1" : "0");
+        }
+
+        if (getDescription() != null) {
+            params.put("description", getDescription());
+        }
+
+        if (isUserPackages()) {
+            params.put("user-packages", isUserPackages() ? "1" : "0");
+        }
+
+        if (getKeyword() != null) {
+            params.put("keyword", getKeyword());
+        }
+
+        if (getBallerinaVersion() != null) {
+            params.put("ballerina_version", getBallerinaVersion());
+        }
+
+        if (getLimit() != 0) {
+            params.put("limit", Integer.toString(getLimit()));
+        }
+
+        if (getOffset() != 0) {
+            params.put("offset", Integer.toString(getOffset()));
+        }
+
+        return params;
     }
 }

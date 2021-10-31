@@ -188,12 +188,12 @@ public class JvmTypeGen {
     private final String objectsClass;
     private final String errorsClass;
 
-    public JvmTypeGen(JvmConstantsGen jvmConstantsGen, PackageID packageID) {
+    public JvmTypeGen(JvmConstantsGen jvmConstantsGen, PackageID packageID, TypeHashVisitor typeHashVisitor) {
         this.jvmConstantsGen = jvmConstantsGen;
         this.packageID = packageID;
         isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
         isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
-        typeHashVisitor = new TypeHashVisitor();
+        this.typeHashVisitor = typeHashVisitor;
         this.anonTypesClass = getModuleLevelClassName(packageID, MODULE_ANON_TYPES_CLASS_NAME);
         this.recordsClass = getModuleLevelClassName(packageID, MODULE_RECORDS_CREATOR_CLASS_NAME);
         this.objectsClass = getModuleLevelClassName(packageID, MODULE_OBJECTS_CREATOR_CLASS_NAME);

@@ -32,15 +32,16 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public abstract class AbstractSchema {
-
+    private final String description;
     private final Type type;
     private final Map<String, String> message;
     private final CompositionSchema compositionSchemas;
 
-    public AbstractSchema(Type type, Map<String, String> message, CompositionSchema compositionSchemas) {
+    public AbstractSchema(Type type, Map<String, String> message, CompositionSchema compositionSchemas, String desc) {
         this.type = type;
         this.message = message;
         this.compositionSchemas = compositionSchemas;
+        this.description = desc;
     }
 
     public Type type() {
@@ -63,5 +64,9 @@ public abstract class AbstractSchema {
             return compositionSchema.validate(givenValueNode, key);
         }
         return Collections.emptyList();
+    }
+    
+    public Optional<String> description() {
+        return Optional.ofNullable(this.description);
     }
 }

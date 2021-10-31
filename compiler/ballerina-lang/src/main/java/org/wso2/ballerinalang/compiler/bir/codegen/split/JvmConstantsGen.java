@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmModuleCons
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmTupleTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmUnionTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -56,15 +57,18 @@ public class JvmConstantsGen {
 
     private final JvmArrayTypeConstantsGen arrayTypeConstantsGen;
 
-    public static final BTypeHashComparator TYPE_HASH_COMPARATOR = new BTypeHashComparator();
+    public final BTypeHashComparator bTypeHashComparator;
 
-    public JvmConstantsGen(BIRNode.BIRPackage module, String moduleInitClass, CompilerContext compilerContext) {
+    public JvmConstantsGen(BIRNode.BIRPackage module, String moduleInitClass, CompilerContext compilerContext,
+                           TypeHashVisitor typeHashVisitor) {
+        this.bTypeHashComparator = new BTypeHashComparator(typeHashVisitor);
         this.stringConstantsGen = new JvmBStringConstantsGen(module.packageID);
         this.moduleConstantsGen = new JvmModuleConstantsGen(module);
         this.jvmBallerinaConstantsGen = new JvmBallerinaConstantsGen(module, moduleInitClass, this);
-        this.unionTypeConstantsGen = new JvmUnionTypeConstantsGen(module.packageID);
-        this.tupleTypeConstantsGen = new JvmTupleTypeConstantsGen(module.packageID);
-        this.arrayTypeConstantsGen = new JvmArrayTypeConstantsGen(module.packageID, Types.getInstance(compilerContext));
+        this.unionTypeConstantsGen = new JvmUnionTypeConstantsGen(module.packageID, bTypeHashComparator);
+        this.tupleTypeConstantsGen = new JvmTupleTypeConstantsGen(module.packageID, bTypeHashComparator);
+        this.arrayTypeConstantsGen = new JvmArrayTypeConstantsGen(module.packageID,
+                bTypeHashComparator, Types.getInstance(compilerContext));
     }
 
     public String getBStringConstantVar(String value) {
@@ -98,7 +102,7 @@ public class JvmConstantsGen {
         tupleTypeConstantsGen.generateGetBTupleType(mv, varName);
     }
 
-    public synchronized String getTypeConstantsVar(BType type) {
+    public String getTypeConstantsVar(BType type) {
         switch (type.tag) {
             case TypeTags.ARRAY:
                 return arrayTypeConstantsGen.add((BArrayType) type);

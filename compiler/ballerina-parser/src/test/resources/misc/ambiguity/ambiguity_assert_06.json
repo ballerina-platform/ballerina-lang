@@ -96,9 +96,11 @@
                               "children": [
                                 {
                                   "kind": "FIELD_ACCESS",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
@@ -106,6 +108,10 @@
                                         },
                                         {
                                           "kind": "COLON_TOKEN",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
+                                          ],
                                           "trailingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
@@ -224,9 +230,14 @@
                                                   "kind": "INVALID_NODE_MINUTIAE",
                                                   "invalidNode": {
                                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
                                                     "children": [
                                                       {
-                                                        "kind": "COLON_TOKEN"
+                                                        "kind": "COLON_TOKEN",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
+                                                        ]
                                                       }
                                                     ]
                                                   }
