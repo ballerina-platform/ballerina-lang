@@ -72,7 +72,7 @@ public type InboundOAuth2Provider object {
                 auth:setAuthenticationContext("oauth2", credential);
                 auth:setPrincipal(claims["username"] is string ? <string>claims["username"] : (),
                                   claims["username"] is string ? <string>claims["username"] : (),
-                                  getScopes(claims["scopes"] is string ? <string>claims["scopes"] : ""), claims);
+                                  getScopes(claims["scope"] is string ? <string>claims["scope"] : ""), claims);
                 return true;
             }
         }
