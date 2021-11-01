@@ -18,6 +18,7 @@
 package org.ballerinalang.test.narrowing;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
@@ -37,9 +38,14 @@ public class AssignmentToNarrowedVarsInLoopsTest {
     public void testAssignmentToNarrowedVarsInLoops() {
         CompileResult result = BCompileUtil.compile("test-src/narrowing/assignment_to_narrowed_vars_in_loops.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
+        Assert.assertEquals(result.getHintCount(), 2);
 
         Assert.assertEquals(result.getWarnCount(), 88);
         for (Diagnostic diagnostic : result.getDiagnostics()) {
+            if (diagnostic.diagnosticInfo().severity() != DiagnosticSeverity.WARNING) {
+                continue;
+            }
+
             Assert.assertTrue(diagnostic.message().startsWith("unused variable"));
         }
     }
@@ -128,6 +134,7 @@ public class AssignmentToNarrowedVarsInLoopsTest {
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 568, 17);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 587, 17);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 609, 21);
+        BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 628, 13);
 
         Assert.assertEquals(result.getErrorCount(), index - 29);
         Assert.assertEquals(result.getWarnCount(), 29);

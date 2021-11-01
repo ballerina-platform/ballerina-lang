@@ -617,3 +617,15 @@ function f19(int?[] arr) returns boolean {
 
     return false;
 }
+
+function f20() {
+    int|string x = 1;
+    int|string y = 1;
+
+    if x is int {
+        while y is byte {
+            int _ = x;
+            x = "";
+        }
+    }
+}
