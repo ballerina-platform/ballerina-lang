@@ -603,21 +603,35 @@ public class CommandUtil {
     }
 
     public static void findNonDefaultModules(Path balaPath, Path modulePath, String packageName) {
-        List<Path> modulesList = new ArrayList<>();
         Stream<Path> collectModules = null;
-        Path moduleDirPath = modulePath.resolve("non_default_modules");
+        Path moduleDirPath = modulePath.resolve("modules");
         try {
             Files.createDirectories(moduleDirPath);
             if (Files.list(balaPath.resolve("modules")) != null) {
                 collectModules = Files.list(balaPath.resolve("modules"));
-                modulesList.addAll(collectModules.collect(Collectors.toList()));
+                List<Path> modulesList = collectModules.collect(Collectors.toList());
                 for (Path module : modulesList) {
                     String moduleName = module.getFileName().toString();
                     if (!moduleName.equals(packageName)) {
-                        try {
-                            Files.walkFileTree(module, new FileUtils.Copy(module, moduleDirPath));
+                        Gson gson = new Gson();
+
+                        // no need to read package.json
+                        Path packageJsonPath = balaPath.resolve("package.json");
+                        try (InputStream inputStream = new FileInputStream(String.valueOf(packageJsonPath))) {
+                            Reader fileReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+                            PackageJson packageJson = gson.fromJson(fileReader, PackageJson.class);
+                            List<String> exportModules = packageJson.getExport();
+                            for (String exportModule : exportModules) {
+                                if (exportModule.equals(moduleName)) {
+                                    Files.walkFileTree(module, new FileUtils.Copy(module, moduleDirPath));
+                                }
+                            }
                         } catch (IOException e) {
-                            throw new RuntimeException("Error while accessing non default modules: " + e.getMessage());
+                            printError(errStream,
+                                    "Error while reading the package json file: " + e.getMessage(),
+                                    null,
+                                    false);
+                            getRuntime().exit(1);
                         }
                     }
                 }
