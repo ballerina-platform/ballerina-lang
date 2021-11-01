@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.DiagnosticState.REDECLARED;
 import static io.ballerina.compiler.api.symbols.DiagnosticState.UNKNOWN_TYPE;
@@ -529,7 +530,43 @@ public class SymbolLookupTest {
         };
     }
 
+    @Test(dataProvider = "FieldSymbolPosProvider")
+    public void testSymbolLookupInFields(int line, int column, int expSymbols, List<String> expSymbolNames) {
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_in_fields.bal");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, srcFile, line, column, moduleID);
+        assertEquals(symbolsInFile.size(), expSymbols);
+
+        for (String symName : expSymbolNames) {
+            assertTrue(symbolsInFile.containsKey(symName), "Symbol not found: " + symName);
+        }
+    }
+
+    @DataProvider(name = "FieldSymbolPosProvider")
+    public Object[][] getFieldSymbolPositions() {
+        List<String> moduleSymbols = List.of("Foo", "Bar", "Person", "PersonObj");
+        return new Object[][]{
+                {18, 4, 4, moduleSymbols},
+                {24, 4, 4, moduleSymbols},
+                {32, 8, 10, concatSymbols(moduleSymbols, "init", "inc", "self", "x")},
+                {38, 4, 4, moduleSymbols},
+                {43, 4, 4, moduleSymbols},
+        };
+    }
+
     private String createSymbolString(Symbol symbol) {
         return (symbol.getName().isPresent() ? symbol.getName().get() : "") + symbol.kind();
+    }
+
+    private List<String> concatSymbols(List<String> moduleSymbols, String... symbols) {
+        return Stream.concat(moduleSymbols.stream(), Arrays.stream(symbols)).collect(Collectors.toList());
     }
 }

@@ -1,11 +1,15 @@
+# Contains configs of the container
 [container.image]
-name = "hello"
+name = "hello" # Name of the container
 repository = "local"
-tag = "v1.0.0"
+tag = "latest"
 base = "ballerina/jre11:v1"
 [[container.copy.files]]
 sourceFile = "./data/data.txt"
 target = "/home/ballerina/data/data.txt"
+[[cloud.config.maps]]
+file = "resource/file.text"
+mount_path = "/home/ballerina/foo/file.conf"
 [[cloud.config.envs]]
 key_ref = "FOO"
 name = "foo"
@@ -16,18 +20,14 @@ name = "ROOT_PASSWORD"
 secret_name = "db-crdential-secret"
 [[cloud.config.files]]
 file = "resource/file.text"
-mount_path = "/home/ballerina/foo/file.conf"
 [cloud.deployment]
-internal_domain_name = "module_svc"
-external_accessible = true
 min_memory = "100Mi"
 max_memory = "256Mi"
-min_cpu = "1000m"
-max_cpu = "1500m"
+min_cpu = "200m"
+max_cpu = "500m"
 [cloud.deployment.autoscaling]
-enable = true
-min_replicas = 2
-max_replicas = 3
+min_replicas = 1
+max_replicas = 2
 cpu = 50
 memory = 80
 [cloud.deployment.probes.readiness]
@@ -36,7 +36,14 @@ path = "/readyz"
 [cloud.deployment.probes.liveness]
 port = 9091
 path = "/healthz"
-[cloud.deployment.storage.volumes]
+[[cloud.deployment.storage.volumes]]
 name = "volume1"
 local_path = "files"
 size = "2Gi"
+[[cloud.secret.files]]
+file = "resource/file.text"
+mount_path = "/home/ballerina/foo/file.conf"
+[[cloud.secret.envs]]
+key_ref = "MY_SECRET"
+name = "mykey"
+secret_name = "mysecret"

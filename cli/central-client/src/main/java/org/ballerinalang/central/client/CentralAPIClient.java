@@ -52,6 +52,7 @@ import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -685,13 +686,13 @@ public class CentralAPIClient {
     /**
      * Get connectors with search filters.
      *
-     * @param packageName       The connector package name.
+     * @param params            Search query param map.
      * @param supportedPlatform The supported platform.
      * @param ballerinaVersion  The ballerina version.
      * @return Connector list.
      * @throws CentralClientException Central Client exception.
      */
-    public JsonElement getConnectors(String packageName, String supportedPlatform, String ballerinaVersion)
+    public JsonElement getConnectors(Map<String, String> params, String supportedPlatform, String ballerinaVersion)
             throws CentralClientException {
         Optional<ResponseBody> body = Optional.empty();
         // TODO: update this client initiation with default timeouts after fixing central/connectors API.
@@ -701,15 +702,16 @@ public class CentralAPIClient {
                 .readTimeout(20, TimeUnit.SECONDS)
                 .proxy(this.proxy)
                 .build();
+
         try {
-            HttpUrl url = HttpUrl.parse(this.baseUrl).newBuilder()
-                    .addPathSegment(CONNECTORS)
-                    .addQueryParameter("package", packageName)
-                    .build();
+            HttpUrl.Builder httpBuilder = HttpUrl.parse(this.baseUrl).newBuilder().addPathSegment(CONNECTORS);
+            for (Map.Entry<String, String> param : params.entrySet()) {
+                httpBuilder.addQueryParameter(param.getKey(), param.getValue());
+            }
 
             Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .get()
-                    .url(url)
+                    .url(httpBuilder.build())
                     .build();
 
             Call httpRequestCall = client.newCall(searchReq);
@@ -723,11 +725,10 @@ public class CentralAPIClient {
                     return new Gson().toJsonTree(body.get().string());
                 }
             }
-            handleResponseErrors(searchResponse, ERR_CANNOT_GET_CONNECTOR + " request:" + packageName);
+            handleResponseErrors(searchResponse, ERR_CANNOT_GET_CONNECTOR);
             return new JsonArray();
         } catch (IOException e) {
-            throw new CentralClientException(ERR_CANNOT_GET_CONNECTOR + "'" + packageName
-                    + "'. reason: " + e.getMessage());
+            throw new CentralClientException(ERR_CANNOT_GET_CONNECTOR + "'. reason: " + e.getMessage());
         } finally {
             body.ifPresent(ResponseBody::close);
             try {
