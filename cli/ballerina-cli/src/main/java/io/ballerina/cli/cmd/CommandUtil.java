@@ -290,7 +290,7 @@ public class CommandUtil {
         Gson gson = new Gson();
         Path packageJsonPath = balaPath.resolve("package.json");
         try (InputStream inputStream = new FileInputStream(String.valueOf(packageJsonPath))) {
-            Reader fileReader = new InputStreamReader(inputStream, "UTF-8");
+            Reader fileReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
             PackageJson packageJson = gson.fromJson(fileReader, PackageJson.class);
             if (packageJson.getTemplate()) {
                 // Copy platform library

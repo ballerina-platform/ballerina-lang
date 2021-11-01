@@ -187,10 +187,16 @@ public class NewCommand implements BLauncherCmd {
                     try {
                         applyBalaTemplate(path, balaCache, template);
                     } catch (CentralClientException centralClientException) {
-                        try {
-                            throw new CentralClientException(centralClientException.getMessage());
-                        } catch (CentralClientException ignored) {
+                        if (Files.exists(path)) {
+                            try {
+                                Files.delete(path);
+                            } catch (IOException ignored) {
+                            }
                         }
+                        CommandUtil.printError(errStream, centralClientException.getMessage(),
+                                null,
+                                false);
+                        CommandUtil.exitError(this.exitWhenFinish);
                     }
                 } else {
                     // Pull pkg from central
@@ -203,14 +209,22 @@ public class NewCommand implements BLauncherCmd {
         } catch (PackageAlreadyExistsException e) {
             try {
                 applyBalaTemplate(path, balaCache, template);
-            } catch (CentralClientException centralClientException) {
-                try {
-                    throw new CentralClientException(centralClientException.getMessage());
-                } catch (CentralClientException ignored) {
+                if (Files.exists(path)) {
+                    errStream.println("Created new Ballerina package '" + guessPkgName(packageName)
+                            + "' at " + userDir.relativize(path) + ".");
                 }
+            } catch (CentralClientException centralClientException) {
+                if (Files.exists(path)) {
+                    try {
+                        Files.delete(path);
+                    } catch (IOException ignored) {
+                    }
+                }
+                CommandUtil.printError(errStream, centralClientException.getMessage(),
+                        null,
+                        false);
+                CommandUtil.exitError(this.exitWhenFinish);
             }
-            errStream.println("Created new Ballerina package '" + guessPkgName(packageName)
-                    + "' at " + userDir.relativize(path) + ".");
             CommandUtil.exitError(this.exitWhenFinish);
         } catch (AccessDeniedException e) {
             CommandUtil.printError(errStream,
@@ -236,8 +250,10 @@ public class NewCommand implements BLauncherCmd {
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
         }
-        errStream.println("Created new Ballerina package '" + guessPkgName(packageName)
-                + "' at " + userDir.relativize(path) + ".");
+        if (Files.exists(path)) {
+            errStream.println("Created new Ballerina package '" + guessPkgName(packageName)
+                    + "' at " + userDir.relativize(path) + ".");
+        }
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }

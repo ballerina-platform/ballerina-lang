@@ -126,16 +126,18 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
                 Settings settings = RepoUtils.readSettings();
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                         initializeProxy(settings.getProxy()), getAccessTokenOfCLI(settings));
-                JsonElement connectorSearchResult = client.getConnectors(request.getPackageName(),
+                JsonElement connectorSearchResult = client.getConnectors(request.getQueryMap(),
                         "any", RepoUtils.getBallerinaVersion());
                 CentralConnectorListResult centralConnectorListResult = new Gson().fromJson(
                         connectorSearchResult.getAsString(), CentralConnectorListResult.class);
                 connectorList.setCentralConnectors(centralConnectorListResult.getConnectors());
 
                 // Fetch local project connectors.
-                Path filePath = Paths.get(request.getTargetFile());
-                List<Connector> localConnectors = fetchLocalConnectors(filePath, false);
-                connectorList.setLocalConnectors(localConnectors);
+                if (request.getTargetFile() != null) {
+                    Path filePath = Paths.get(request.getTargetFile());
+                    List<Connector> localConnectors = fetchLocalConnectors(filePath, false);
+                    connectorList.setLocalConnectors(localConnectors);
+                }
             } catch (Exception e) {
                 String msg = "Operation 'ballerinaConnector/connectors' failed!";
                 this.clientLogger.logError(this.connectorExtContext, msg, e, null, (Position) null);
@@ -152,12 +154,17 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
      * @return connector list
      * @throws IOException
      */
-    private List<Connector> fetchLocalConnectors(Path filePath, boolean detailed) throws IOException {
+    private List<Connector> fetchLocalConnectors(Path filePath, boolean detailed) {
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
         Project balaProject = ProjectLoader.loadProject(filePath, defaultBuilder);
-
-        List<Connector> connectors = ConnectorGenerator.getProjectConnectors(balaProject, detailed);
+        List<Connector> connectors = new ArrayList<>();
+        try {
+            connectors = ConnectorGenerator.getProjectConnectors(balaProject, detailed);
+        } catch (IOException e) {
+            String msg = "Local connector fetching operation failed!";
+            this.clientLogger.logError(this.connectorExtContext, msg, e, null, (Position) null);
+        }
 
         List<Connector> localConnectors = new ArrayList<>();
         for (Connector conn : connectors) {

@@ -104,6 +104,9 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                 // Create variables of function/invocable type
                 {"createVariableWithFunctionType1.json", "createVariableWithFunctionType1.bal"},
                 {"createVariableWithFunctionType2.json", "createVariableWithFunctionType1.bal"},
+                
+                {"createVariableWithFunctionCall1.json", "createVariableWithFunctionCall1.bal"},
+                {"createVariableWithFunctionCall2.json", "createVariableWithFunctionCall2.bal"},
         };
     }
 }

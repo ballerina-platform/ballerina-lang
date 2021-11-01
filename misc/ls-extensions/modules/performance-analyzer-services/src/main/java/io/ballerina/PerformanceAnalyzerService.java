@@ -49,6 +49,7 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
     static final String ERROR = "error";
     static final String SUCCESS = "Success";
     static final String CONNECTION_ERROR = "CONNECTION_ERROR";
+    static final String AUTHENTICATION_ERROR = "AUTHENTICATION_ERROR";
     static final String SOME_ERROR = "SOME_ERROR_OCCURRED";
     private static HashMap<JsonObject, JsonObject> cachedResponses = new HashMap<>();
 
@@ -155,7 +156,7 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
         data.add("analyzeType", gson.toJsonTree(analyzeType.getAnalyzeType()));
 
         try {
-            HttpClient client = HttpClient.newHttpClient();
+            HttpClient client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(api))
                     .headers("Content-Type", "application/json",
@@ -170,6 +171,11 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
 
             if (response.statusCode() == 200) {
                 return gson.fromJson(response.body(), JsonObject.class);
+            } else if (response.statusCode() == 401) {
+                JsonObject obj = new JsonObject();
+                obj.addProperty("type", ERROR);
+                obj.addProperty("message", AUTHENTICATION_ERROR);
+                return obj;
             }
             JsonObject obj = new JsonObject();
             obj.addProperty("type", ERROR);

@@ -19,11 +19,13 @@ package org.ballerinalang.langserver.command.visitors;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -31,6 +33,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
@@ -199,24 +202,26 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     }
 
     @Override
+    public void visit(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
+        semanticModel.typeOf(errorConstructorExpressionNode)
+                .map(CommonUtil::getRawType)
+                .ifPresent(this::checkAndSetTypeResult);
+    }
+
+    @Override
     public void visit(PositionalArgumentNode positionalArgumentNode) {
         positionalArgumentNode.parent().accept(this);
         if (!resultFound) {
             return;
         }
-        FunctionTypeSymbol functionTypeSymbol;
-        if (returnTypeSymbol.typeKind() == TypeDescKind.FUNCTION) {
-            functionTypeSymbol = (FunctionTypeSymbol) returnTypeSymbol;
-        } else if (returnTypeSymbol.kind() == SymbolKind.CLASS) {
-            Optional<MethodSymbol> methodSymbol = ((ClassSymbol) returnTypeSymbol).initMethod();
-            if (methodSymbol.isEmpty()) {
-                return;
-            }
-            functionTypeSymbol = methodSymbol.get().typeDescriptor();
-        } else {
+
+        // This is the message parameter of an error constructor.
+        if (returnTypeSymbol.typeKind() == TypeDescKind.ERROR) {
+            checkAndSetTypeDescResult(TypeDescKind.STRING);
             return;
         }
-        Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
+        
+        Optional<List<ParameterSymbol>> params = getParameterSymbols();
         if (params.isEmpty() || params.get().isEmpty()) {
             return;
         }
@@ -267,25 +272,56 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
         if (!resultFound) {
             return;
         }
-        FunctionTypeSymbol functionTypeSymbol;
-        if (returnTypeSymbol.typeKind() == TypeDescKind.FUNCTION) {
-            functionTypeSymbol = (FunctionTypeSymbol) returnTypeSymbol;
-        } else if (returnTypeSymbol.kind() == SymbolKind.CLASS) {
-            Optional<MethodSymbol> methodSymbol = ((ClassSymbol) returnTypeSymbol).initMethod();
-            if (methodSymbol.isEmpty()) {
+
+        if (returnTypeSymbol.typeKind() == TypeDescKind.ERROR) {
+            ErrorTypeSymbol errorTypeSymbol = (ErrorTypeSymbol) returnTypeSymbol;
+            TypeSymbol detailType = CommonUtil.getRawType(errorTypeSymbol.detailTypeDescriptor());
+            if (detailType.typeKind() != TypeDescKind.RECORD) {
+                // Should be a map<> - member type is assumed to be anydata at this time
+                checkAndSetTypeDescResult(TypeDescKind.ANYDATA);
                 return;
             }
-            functionTypeSymbol = methodSymbol.get().typeDescriptor();
-        } else {
+
+            RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) detailType;
+            RecordFieldSymbol fieldSymbol = recordTypeSymbol.fieldDescriptors()
+                    .get(namedArgumentNode.argumentName().name().text());
+            if (fieldSymbol == null) {
+                resetResult();
+                return;
+            }
+
+            checkAndSetTypeResult(fieldSymbol.typeDescriptor());
             return;
         }
-        Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
+        
+        Optional<List<ParameterSymbol>> params = getParameterSymbols();
         if (params.isEmpty()) {
             return;
         }
         params.get().stream().filter(param -> param.getName().isPresent()
                         && param.getName().get().equals(namedArgumentNode.argumentName().name().text())).findFirst()
                 .ifPresent(parameterSymbol -> this.checkAndSetTypeResult(parameterSymbol.typeDescriptor()));
+    }
+
+    /**
+     * Returns the parameter symbols once the {@link #returnTypeSymbol} is detected as a function/method symbol.
+     *
+     * @return Optional parameter symbol list
+     */
+    private Optional<List<ParameterSymbol>> getParameterSymbols() {
+        FunctionTypeSymbol functionTypeSymbol;
+        if (returnTypeSymbol.typeKind() == TypeDescKind.FUNCTION) {
+            functionTypeSymbol = (FunctionTypeSymbol) returnTypeSymbol;
+        } else if (returnTypeSymbol.kind() == SymbolKind.CLASS) {
+            Optional<MethodSymbol> methodSymbol = ((ClassSymbol) returnTypeSymbol).initMethod();
+            if (methodSymbol.isEmpty()) {
+                return Optional.empty();
+            }
+            functionTypeSymbol = methodSymbol.get().typeDescriptor();
+        } else {
+            return Optional.empty();
+        }
+        return functionTypeSymbol.params();
     }
 
     @Override
@@ -309,8 +345,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     @Override
     public void visit(IfElseStatementNode ifElseStatementNode) {
-        this.returnTypeDescKind = TypeDescKind.BOOLEAN;
-        this.returnTypeSymbol = null;
+        checkAndSetTypeDescResult(TypeDescKind.BOOLEAN);
     }
 
     @Override
@@ -327,6 +362,22 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
         if (typeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
             resultFound = true;
         }
+    }
+    
+    private void checkAndSetTypeDescResult(TypeDescKind typeDescKind) {
+        if (typeDescKind == null) {
+            return;
+        }
+
+        this.returnTypeSymbol = null;
+        this.returnTypeDescKind = typeDescKind;
+        this.resultFound = true;
+    }
+    
+    private void resetResult() {
+        this.returnTypeDescKind = null;
+        this.returnTypeSymbol = null;
+        this.resultFound = false;
     }
 
     /**

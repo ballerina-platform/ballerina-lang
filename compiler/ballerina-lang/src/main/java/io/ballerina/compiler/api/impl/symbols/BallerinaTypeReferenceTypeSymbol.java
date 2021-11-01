@@ -91,7 +91,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         }
 
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-        this.definition = symbolFactory.getBCompiledSymbol(this.getBType().tsymbol, this.name());
+        this.definition = symbolFactory.getBCompiledSymbol(this.tSymbol, this.name());
         return this.definition;
     }
 
