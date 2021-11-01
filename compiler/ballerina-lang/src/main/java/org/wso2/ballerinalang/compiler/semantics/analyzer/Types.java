@@ -128,6 +128,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.SIGNED
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED16_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED32_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED8_MAX_VALUE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.NEVER;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.isSimpleBasicType;
 
 /**
@@ -3005,7 +3006,7 @@ public class Types {
 
             // If LHS field is required, there should be a corresponding RHS field
             if (rhsField == null) {
-                if (!Symbols.isOptional(lhsField.symbol)) {
+                if (!Symbols.isOptional(lhsField.symbol) || lhsField.type.tag == NEVER) {
                     return false;
                 }
                 continue;

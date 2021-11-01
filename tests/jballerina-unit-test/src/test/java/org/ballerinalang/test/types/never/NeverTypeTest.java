@@ -41,6 +41,7 @@ public class NeverTypeTest {
     public void setup() {
         neverTypeTestResult = BCompileUtil.compile("test-src/types/never/never-type.bal");
         negativeCompileResult = BCompileUtil.compile("test-src/types/never/never-type-negative.bal");
+        runtimeResult = BCompileUtil.compile("test-src/types/never/never_type_runtime.bal");
     }
 
 
@@ -195,6 +196,10 @@ public class NeverTypeTest {
                 "or equivalent to type 'never'", 229, 5);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
                 "or equivalent to type 'never'", 230, 5);
+        BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected " +
+                "'record {| never x?; never y?; anydata...; |}', found 'record {| never x?; anydata...; |}'", 244, 39);
+        BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected " +
+                "'record {| never x?; anydata...; |}', found 'record {| anydata...; |}'", 247, 29);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 
@@ -302,7 +307,6 @@ public class NeverTypeTest {
 
     @Test(dataProvider = "dataToTestNeverRuntime", description = "Test never runtime")
     public void testNeverRuntime(String functionName) {
-        runtimeResult = BCompileUtil.compile("test-src/types/never/never_type_runtime.bal");
         BRunUtil.invoke(runtimeResult, functionName);
     }
 
@@ -321,7 +325,8 @@ public class NeverTypeTest {
                 "testNeverRuntime10",
                 "testNeverRuntime11",
                 "testNeverRuntime12",
-                "testNeverWithAnyAndAnydataRuntime"
+                "testNeverWithAnyAndAnydataRuntime",
+                "testNeverFieldTypeCheck"
         };
     }
 

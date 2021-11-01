@@ -133,6 +133,20 @@ function testNeverWithAnyAndAnydataRuntime() {
     assertEquality(true, c4);
 }
 
+function testNeverFieldTypeCheck() {
+    record {} r1 = {"x": 2, "color": "blue"};
+    assertEquality(false, r1 is record {never x?;});
+
+    record {int x;} r2 = {x: 2, "color": "blue"};
+    assertEquality(false, r2 is record {never x?;});
+
+    record {never? x;} r3 = {x: (), "color": "blue"};
+    assertEquality(false, r3 is record {never x?;});
+
+    record {} r4 = {"color": "blue"};
+    assertEquality(true, r4 is record {never x?;});
+}
+
 function baz1() returns map<never> {
     return {};
 }
