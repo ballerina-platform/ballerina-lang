@@ -117,6 +117,16 @@ public class PackCommand implements BLauncherCmd {
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
     }
 
+    public PackCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                       boolean skipCopyLibsFromDist, Path targetDir) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        this.targetDir = targetDir;
+    }
+
     @Override
     public void execute() {
         long start = 0;

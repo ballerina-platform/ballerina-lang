@@ -715,4 +715,24 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.exists(customTargetDir.resolve("report")));
     }
 
+    @Test (dependsOnMethods = "testCustomTargetDir")
+    public void testCustomTargetDirWithTests() {
+        Path projectPath = this.testResources.resolve("validProjectWithTests");
+        Path customTargetDir = projectPath.resolve("customTargetDir2");
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true,
+                false, true, false, null, customTargetDir);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("bin")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("build")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("report")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("rerun_test.json")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache").resolve("tests_cache").resolve("test_suit" +
+                ".json")));
+    }
+
 }
