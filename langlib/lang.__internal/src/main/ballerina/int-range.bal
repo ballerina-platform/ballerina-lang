@@ -32,8 +32,8 @@ type IterableIntegerRange isolated object {
 public isolated class __IntRange {
 
     *IterableIntegerRange;
-    private int iStart;
-    private int iEnd;
+    private final int iStart;
+    private final int iEnd;
     private int iCurrent;
 
     public isolated function init(int s, int e) {
@@ -43,9 +43,11 @@ public isolated class __IntRange {
     }
 
     private isolated function hasNext() returns boolean {
+        int currentVal;
         lock {
-            return (self.iStart <= self.iCurrent) && (self.iCurrent <= self.iEnd);
+            currentVal = self.iCurrent;
         }
+        return (self.iStart <= currentVal) && (currentVal <= self.iEnd);
     }
 
     public isolated function next() returns record {|
@@ -66,15 +68,7 @@ public isolated class __IntRange {
 
     public isolated function iterator() returns
         isolated object {public isolated function next() returns record {|int value;|}?;} {
-            int startValue;
-            int endValue;
-
-            lock {
-                startValue = self.iStart;
-                endValue = self.iEnd;
-            }
-
-            return new __IntRange(startValue, endValue);
+            return new __IntRange(self.iStart, self.iEnd);
     }
 }
 
