@@ -324,44 +324,26 @@ public class LangLibValueTest {
     }
 
     @DataProvider(name = "cloneWithTypeFunctions")
-    public Object[][] cloneWithTypeFunctions() {
-        return new Object[][]{
-                {"testCloneWithTypeJsonRec1"},
-                {"testCloneWithTypeJsonRec2"},
-                {"testCloneWithTypeOptionalFieldToMandotoryField"},
-                {"testCloneWithTypeAmbiguousTargetType"},
-                {"testCloneWithTypeForNilPositive"},
-                {"testCloneWithTypeForNilNegative"},
-                {"testCloneWithTypeNumeric1"},
-                {"testCloneWithTypeNumeric2"},
-                {"testCloneWithTypeNumeric3"},
-                {"testCloneWithTypeNumeric4"},
-                {"testCloneWithTypeNumeric5"},
-                {"testCloneWithTypeNumeric6"},
-                {"testCloneWithTypeNumeric7"},
-                {"testCloneWithTypeToArrayOfRecord"},
-                {"testCloneWithTypeToArrayOfMap"},
-                {"testCloneWithTypeIntArrayToUnionArray"},
-                {"testCloneWithTypeIntSubTypeArray"},
-                {"testCloneWithTypeStringArray"},
-                {"testCloneWithTypeWithInferredArgument"},
-                {"testCloneWithTypeWithImmutableTypes"},
-                {"testCloneWithTypeDecimalToInt"},
-                {"testCloneWithTypeDecimalToIntNegative"},
-                {"testCloneWithTypeDecimalToByte"},
-                {"testCloneWithTypeDecimalToIntSubType"},
-                {"testCloneWithTypeTupleToJSON"},
-                {"testCloneWithTypeImmutableStructuredTypes"},
-                {"testCloneWithTypeWithFiniteArrayTypeFromIntArray"},
-                {"testCloneWithTypeWithFiniteType"},
-                {"testCloneWithTypeWithUnionOfFiniteType"},
-                {"testCloneWithTypeWithFiniteArrayTypeFromIntArray"},
-                {"testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray"},
-                {"testCloneWithTypeWithUnionTypeArrayFromIntArray"},
-                {"testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative"},
-                {"testConvertJsonToNestedRecordsWithErrors"},
-                {"testCloneWithTypeNestedStructuredTypesNegative"},
-                {"testCloneWithTypeJsonToRecordRestField"},
+    public Object[] cloneWithTypeFunctions() {
+        return new String[]{
+                "testCloneWithTypeJsonRec1", "testCloneWithTypeJsonRec2",
+                "testCloneWithTypeOptionalFieldToMandotoryField", "testCloneWithTypeAmbiguousTargetType",
+                "testCloneWithTypeForNilPositive", "testCloneWithTypeForNilNegative", "testCloneWithTypeNumeric1",
+                "testCloneWithTypeNumeric2", "testCloneWithTypeNumeric3", "testCloneWithTypeNumeric4",
+                "testCloneWithTypeNumeric5", "testCloneWithTypeNumeric6", "testCloneWithTypeNumeric7",
+                "testCloneWithTypeToArrayOfRecord", "testCloneWithTypeToArrayOfMap",
+                "testCloneWithTypeIntArrayToUnionArray", "testCloneWithTypeIntSubTypeArray",
+                "testCloneWithTypeStringArray", "testCloneWithTypeWithInferredArgument",
+                "testCloneWithTypeWithImmutableTypes", "testCloneWithTypeDecimalToInt",
+                "testCloneWithTypeDecimalToIntNegative", "testCloneWithTypeDecimalToByte",
+                "testCloneWithTypeDecimalToIntSubType", "testCloneWithTypeTupleToJSON",
+                "testCloneWithTypeImmutableStructuredTypes", "testCloneWithTypeWithFiniteArrayTypeFromIntArray",
+                "testCloneWithTypeWithFiniteType", "testCloneWithTypeWithUnionOfFiniteType",
+                "testCloneWithTypeWithFiniteArrayTypeFromIntArray",
+                "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray",
+                "testCloneWithTypeWithUnionTypeArrayFromIntArray",
+                "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative", "testConvertJsonToNestedRecordsWithErrors",
+                "testCloneWithTypeNestedStructuredTypesNegative", "testCloneWithTypeJsonToRecordRestField"
         };
     }
 
@@ -492,11 +474,10 @@ public class LangLibValueTest {
     }
 
     @DataProvider(name = "ensureTypeNegativeFunctions")
-    public Object[][] ensureTypeNegativeFunctions() {
-        return new Object[][]{
-                {"testEnsureTypeNegative"},
-                {"testEnsureTypeJsonToNestedRecordsWithErrors"},
-                {"testEnsureTypeFloatToIntNegative"}
+    public Object[] ensureTypeNegativeFunctions() {
+        return new String[]{
+                "testEnsureTypeNegative", "testEnsureTypeJsonToNestedRecordsWithErrors",
+                "testEnsureTypeFloatToIntNegative"
         };
     }
 
