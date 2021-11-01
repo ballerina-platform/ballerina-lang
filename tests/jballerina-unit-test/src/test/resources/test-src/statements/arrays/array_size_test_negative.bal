@@ -19,34 +19,34 @@ int intLength = 2;
 const stringLength = "2";
 
 function arraySizeTest() {
-    int[constLength] a = [1, 2, 3];
-    int[intLength] b = [1, 2];
-    int[stringLength] c = [1, 2];
-    int[length] d = [1, 2];
-    int[2] e = [1, 2, 3];
+    int[constLength] _ = [1, 2, 3];
+    int[intLength] _ = [1, 2];
+    int[stringLength] _ = [1, 2];
+    int[length] _ = [1, 2];
+    int[2] _ = [1, 2, 3];
 
-    int[2][constLength] f = [[1,2],[1,2,3]];
-    int[2][intLength] g = [[1,2],[1,2]];
-    int[2][stringLength] h = [[1,2],[1,2]];
-    int[2][length] i = [[1,2],[1,2]];
-    int[2][2] j = [[1,2],[1,2,3]];
+    int[2][constLength] _ = [[1,2],[1,2,3]];
+    int[2][intLength] _ = [[1,2],[1,2]];
+    int[2][stringLength] _ = [[1,2],[1,2]];
+    int[2][length] _ = [[1,2],[1,2]];
+    int[2][2] _ = [[1,2],[1,2,3]];
 
-    int[constLength][2] k = [[1,2],[1,2],[1,2]];
-    int[intLength][2] l = [[1,2],[1,2]];
-    int[stringLength][2] m = [[1,2],[1,2]];
-    int[length][2] n = [[1,2],[1,2]];
-    int[2][2] o = [[1,2],[1,2],[1,2]];
+    int[constLength][2] _ = [[1,2],[1,2],[1,2]];
+    int[intLength][2] _ = [[1,2],[1,2]];
+    int[stringLength][2] _ = [[1,2],[1,2]];
+    int[length][2] _ = [[1,2],[1,2]];
+    int[2][2] _ = [[1,2],[1,2],[1,2]];
 
-    int[2][constLength][2] p = [[[1,2],[1,2],[1,2]],[[1,2],[1,2]]];
-    int[2][intLength][2] q = [[[1,2],[1,2]],[[1,2],[1,2]]];
-    int[2][stringLength][2] r = [[[1,2],[1,2]],[[1,2],[1,2]]];
-    int[2][length][2] s = [[[1,2],[1,2]],[[1,2],[1,2]]];
-    int[2][2][2] t = [[[1,2],[1,2],[1,2]],[[1,2],[1,2]]];
-    int["TEST"] testArr = [];
+    int[2][constLength][2] _ = [[[1,2],[1,2],[1,2]],[[1,2],[1,2]]];
+    int[2][intLength][2] _ = [[[1,2],[1,2]],[[1,2],[1,2]]];
+    int[2][stringLength][2] _ = [[[1,2],[1,2]],[[1,2],[1,2]]];
+    int[2][length][2] _ = [[[1,2],[1,2]],[[1,2],[1,2]]];
+    int[2][2][2] _ = [[[1,2],[1,2],[1,2]],[[1,2],[1,2]]];
+    int["TEST"] _ = [];
 
-    int[2147483638] u = [];
-    int[int:MAX_VALUE] v = [];
+    int[2147483638] _ = [];
+    int[int:MAX_VALUE] _ = [];
 
-    int[9223372036854775808] w = [];
-    int[0x001234567890abcdef01] x = [];
+    int[9223372036854775808] _ = [];
+    int[0x001234567890abcdef01] _ = [];
 }

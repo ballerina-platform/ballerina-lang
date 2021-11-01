@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.ballerinalang.test.BAssertUtil.validateHint;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
 
 /**
  * Test error-constructor-expr.
@@ -107,7 +108,10 @@ public class ErrorConstructorExprTest {
     public void testCodeAnalysisNegative() {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/expressions/errorconstructorexpr/error-constructor-expr-code-analysis-negative.bal");
-        validateHint(negativeResult, 0, "unnecessary condition: expression will always evaluate to " +
+        int i = 0;
+        validateWarning(negativeResult, i++, "unused variable 'er'", 19, 5);
+        validateHint(negativeResult, i++, "unnecessary condition: expression will always evaluate to " +
                 "'true'", 19, 37);
+        Assert.assertEquals(negativeResult.getDiagnostics().length, i);
     }
 }
