@@ -439,6 +439,7 @@ public class XMLParser extends AbstractParser {
             case GT_TOKEN:
             case DOUBLE_QUOTE_TOKEN:
             case SINGLE_QUOTE_TOKEN:
+            case IDENTIFIER_TOKEN: // Lexer will return identifier if the start quote is missing    
                 return true;
             default:
                 return false;

@@ -83,7 +83,7 @@ isolated class InvalidIsolatedClassAccessingMutableFieldsOutsideLock {
 }
 
 function testInvalidIsolatedObjectConstructorAccessingMutableFieldsOutsideLock() {
-    isolated object {} invalidIsolatedObjectConstructorAccessingMutableFieldsOutsideLock = isolated object {
+    isolated object {} _ = isolated object {
         final int a = 1;
         private string b = "hello";
         private int[] c = [];
@@ -130,14 +130,14 @@ isolated class InvalidIsolatedClassWithNonUniqueInitializerExprs {
     function init(int[][]? a) returns error? {
         self.a = a ?: [globIntArr, globIntArr];
         record {} rec = {"a": 1, "b": 2.0};
-        anydata ad = rec;
+        anydata _ = rec;
         self.c = rec;
         self.h = check 'float:fromString(globStr);
     }
 }
 
 function testInvalidIsolatedObjectWithNonUniqueInitializerExprs() {
-    isolated object {} invalidIsolatedObjectWithNonUniqueInitializerExprs = isolated object {
+    isolated object {} _ = isolated object {
         private int[][] a = [globIntArr, globIntArr];
         private map<boolean> b = globBoolMap;
         private record {} c = {[globStr]: accessGlobBoolMap(globStr)};
@@ -267,7 +267,7 @@ isolated class InvalidIsolatedClassWithInvalidCopyOut {
 }
 
 function testInvalidIsolatedObjectWithInvalidCopyOut() {
-    isolated object {} invalidIsolatedObjectWithInvalidCopyOut = isolated object {
+    isolated object {} _ = isolated object {
         private map<boolean>[] c = [];
 
         isolated function invalidCopyOutOne(map<boolean>[] boolMaps) returns map<boolean> {

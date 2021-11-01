@@ -42,7 +42,7 @@ public readonly class StackFrameImpl {
 
     }
 
-    public function init(string callableName, string fileName, int lineNumber, string? moduleName) {
+    public isolated function init(string callableName, string fileName, int lineNumber, string? moduleName) {
         self.callableName = callableName;
         self.moduleName = moduleName;
         self.fileName = fileName;

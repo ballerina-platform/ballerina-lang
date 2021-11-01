@@ -20,7 +20,10 @@ package org.ballerinalang.langlib.floatingpoint;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
+
+import java.util.regex.Pattern;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FLOAT_LANG_LIB;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
@@ -33,12 +36,37 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  */
 public class FromHexString {
 
+    private static final Pattern HEX_FLOAT_LITERAL = Pattern.compile("[-+]?0[xX][\\dA-Fa-f.pP\\-+]+");
+
+    private FromHexString() {
+    }
+
     public static Object fromHexString(BString s) {
+        String hexValue = s.getValue();
         try {
-            return Double.parseDouble(s.getValue());
+            if (isValidHexString(hexValue.toLowerCase())) {
+                return Double.parseDouble(hexValue);
+            }
+            return getNumberFormatError("invalid hex string: '" + hexValue + "'");
         } catch (NumberFormatException e) {
-            return ErrorCreator.createError(getModulePrefixedReason(FLOAT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER),
-                    StringUtils.fromString(e.getMessage()));
+            return getNumberFormatError(e.getMessage());
         }
+    }
+
+    private static boolean isValidHexString(String hexValue) {
+        switch (hexValue) {
+            case "+infinity":
+            case "-infinity":
+            case "infinity":
+            case "nan":
+                return true;
+            default:
+                return HEX_FLOAT_LITERAL.matcher(hexValue).matches();
+        }
+    }
+
+    private static BError getNumberFormatError(String message) {
+        return ErrorCreator.createError(getModulePrefixedReason(FLOAT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER),
+                StringUtils.fromString(message));
     }
 }

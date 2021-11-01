@@ -53,9 +53,9 @@ public class RuntimeTest {
         BValue[] returns = BRunUtil.invoke(errorResult, "testGetCallStack");
         Assert.assertEquals(returns.length, 5);
         Assert.assertEquals(returns[0].stringValue(), "{callableName:\"externGetStackTrace\", moduleName:\"ballerina" +
-                ".lang.runtime.0\", fileName:\"runtime.bal\", lineNumber:95}");
+                ".lang.runtime.0\", fileName:\"runtime.bal\", lineNumber:93}");
         Assert.assertEquals(returns[1].stringValue(), "{callableName:\"getStackTrace\", moduleName:\"ballerina" +
-                ".lang.runtime.0\", fileName:\"runtime.bal\", lineNumber:85}");
+                ".lang.runtime.0\", fileName:\"runtime.bal\", lineNumber:82}");
         Assert.assertEquals(returns[2].stringValue(), "{callableName:\"level2Function\", moduleName:(), " +
                 "fileName:\"runtime-error.bal\", lineNumber:12}");
         Assert.assertEquals(returns[3].stringValue(), "{callableName:\"level1Function\", moduleName:(), " +
