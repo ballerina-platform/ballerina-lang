@@ -439,9 +439,7 @@ public class ExpressionTypeTestNew {
 
         assertEquals(type.userSpecifiedMemberTypes().get(0).typeKind(), TYPE_REFERENCE);
         assertEquals(type.userSpecifiedMemberTypes().get(1).typeKind(), NIL);
-
-//        TODO: https://github.com/ballerina-platform/ballerina-lang/issues/33017
-//        assertType(198, 19, 198, 25, TYPEDESC);
+        assertType(198, 19, 198, 25, TYPEDESC);
     }
 
     @Test(dataProvider = "ErrorCtrPos")
