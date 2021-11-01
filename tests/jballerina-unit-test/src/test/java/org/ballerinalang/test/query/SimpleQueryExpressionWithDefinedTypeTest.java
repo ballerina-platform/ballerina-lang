@@ -371,6 +371,16 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         BRunUtil.invoke(result, "testTypeTestInWhereClause");
     }
 
+    @Test
+    public void testWildcardBindingPatternInQueryExpr1() {
+        BRunUtil.invoke(result, "testWildcardBindingPatternInQueryExpr1");
+    }
+
+    @Test
+    public void testWildcardBindingPatternInQueryExpr2() {
+        BRunUtil.invoke(result, "testWildcardBindingPatternInQueryExpr2");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
