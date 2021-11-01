@@ -72,8 +72,8 @@ public function funcFoo() returns int|ErrorUnion {
     return e;
 }
 
-public function getAnotherDetail(error e) returns AnotherDetail {
-    return <AnotherDetail>e.detail();
+public function getAnotherDetail(error e) returns readonly & AnotherDetail {
+    return <AnotherDetail & readonly>e.detail();
 }
 
 function stack0() returns error {
