@@ -127,11 +127,11 @@ function testReturningInMatch() returns string? {
 }
 
 function testReturnsDuringValidCheck() returns error? { // doesn't have to explicitly return nil since the return type is a subtype of `error?`
-    int x = checkpanic ints:fromString("15");
+    int _ = checkpanic ints:fromString("15");
 }
 
 function testValidCheckWithExplicitReturn() returns error? {
-    int x = checkpanic ints:fromString("15");
+    int _ = checkpanic ints:fromString("15");
     return;
 }
 
