@@ -1,0 +1,24 @@
+{
+  "line": 55,
+  "character": 27,
+  "expected": [
+    {
+      "title": "Add type cast to assignment",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 55,
+              "character": 13
+            },
+            "end": {
+              "line": 55,
+              "character": 13
+            }
+          },
+          "newText": "<xml:Text> "
+        }
+      ]
+    }
+  ]
+}
