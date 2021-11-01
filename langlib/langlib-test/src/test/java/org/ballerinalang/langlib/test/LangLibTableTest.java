@@ -166,7 +166,7 @@ public class LangLibTableTest {
 
     @Test
     public void testCompilerNegativeCases() {
-        assertEquals(negativeResult.getErrorCount(), 23);
+        assertEquals(negativeResult.getErrorCount(), 24);
         int index = 0;
         validateError(negativeResult, index++, "incompatible types: expected 'table<Employee> " +
                 "key(name)', found 'table<Person> key<string>'", 68, 36);
@@ -211,8 +211,10 @@ public class LangLibTableTest {
         validateError(negativeResult, index++, "incompatible types: expected '[]', found 'int'", 182, 20);
         validateError(negativeResult, index++, "table with constraint of type map cannot have key specifier " +
                 "or key type constraint", 188, 30);
+        validateError(negativeResult, index++, "incompatible types: expected 'function (map<(any|error)>) returns " +
+                "(map<(any|error)>)', found 'function (Person) returns (string)'", 195, 27);
         validateError(negativeResult, index, "incompatible types: expected 'function (map<(any|error)>) returns " +
-                "(map<(any|error)>)', found 'function (Person) returns (string)'", 193, 27);
+                "(map<(any|error)>)', found 'function (Person) returns (string)'", 199, 18);
     }
 
     @Test
