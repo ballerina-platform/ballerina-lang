@@ -5698,7 +5698,8 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseFieldAccessOrMethodCall(STNode lhsExpr, boolean isInConditionalExpr) {
         STNode dotToken = parseDotToken();
         STToken token = peek();
-        if (token.kind == SyntaxKind.MAP_KEYWORD || token.kind == SyntaxKind.START_KEYWORD) {
+        if (token.kind == SyntaxKind.MAP_KEYWORD || token.kind == SyntaxKind.START_KEYWORD || 
+                token.kind == SyntaxKind.JOIN_KEYWORD) {
             STNode methodName = getKeywordAsSimpleNameRef();
             STNode openParen = parseArgListOpenParenthesis();
             STNode args = parseArgsList();
@@ -11287,7 +11288,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseQueryExprRhs(STNode queryConstructType, boolean isRhsExpr) {
-        this.tokenReader.startKeywordMode(KeywordMode.QUERY);
+//        this.tokenReader.startKeywordMode(KeywordMode.QUERY);
         switchContext(ParserRuleContext.QUERY_EXPRESSION);
         STNode fromClause = parseFromClause(isRhsExpr);
 
@@ -11348,7 +11349,7 @@ public class BallerinaParser extends AbstractParser {
         STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
         STNode onConflictClause = parseOnConflictClause(isRhsExpr);
 
-        this.tokenReader.endKeywordMode();
+//        this.tokenReader.endKeywordMode();
         return STNodeFactory.createQueryExpressionNode(queryConstructType, queryPipeline, selectClause,
                 onConflictClause);
     }

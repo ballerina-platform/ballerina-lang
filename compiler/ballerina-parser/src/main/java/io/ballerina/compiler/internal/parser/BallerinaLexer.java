@@ -1011,24 +1011,12 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.CLASS_KEYWORD);
             case LexerTerminals.CONFIGURABLE:
                 return getSyntaxToken(SyntaxKind.CONFIGURABLE_KEYWORD);
-            default:
-                if (this.keywordModes.contains(KeywordMode.QUERY)) {
-                    return getQueryCtxKeywordOrIdentifier(tokenText);
-                }
-                return getIdentifierToken();
-        }
-    }
-
-    private STToken getQueryCtxKeywordOrIdentifier(String tokenText) {
-        switch (tokenText) {
             case LexerTerminals.WHERE:
                 return getSyntaxToken(SyntaxKind.WHERE_KEYWORD);
             case LexerTerminals.SELECT:
                 return getSyntaxToken(SyntaxKind.SELECT_KEYWORD);
             case LexerTerminals.LIMIT:
                 return getSyntaxToken(SyntaxKind.LIMIT_KEYWORD);
-            case LexerTerminals.JOIN:
-                return getSyntaxToken(SyntaxKind.JOIN_KEYWORD);
             case LexerTerminals.OUTER:
                 return getSyntaxToken(SyntaxKind.OUTER_KEYWORD);
             case LexerTerminals.EQUALS:
@@ -1041,10 +1029,42 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.ASCENDING_KEYWORD);
             case LexerTerminals.DESCENDING:
                 return getSyntaxToken(SyntaxKind.DESCENDING_KEYWORD);
+            case LexerTerminals.JOIN:
+                return getSyntaxToken(SyntaxKind.JOIN_KEYWORD);
             default:
+//                if (this.keywordModes.contains(KeywordMode.QUERY)) {
+//                    return getQueryCtxKeywordOrIdentifier(tokenText);
+//                }
                 return getIdentifierToken();
         }
     }
+
+//    private STToken getQueryCtxKeywordOrIdentifier(String tokenText) {
+//        switch (tokenText) {
+//            case LexerTerminals.WHERE:
+//                return getSyntaxToken(SyntaxKind.WHERE_KEYWORD);
+//            case LexerTerminals.SELECT:
+//                return getSyntaxToken(SyntaxKind.SELECT_KEYWORD);
+//            case LexerTerminals.LIMIT:
+//                return getSyntaxToken(SyntaxKind.LIMIT_KEYWORD);
+//            case LexerTerminals.OUTER:
+//                return getSyntaxToken(SyntaxKind.OUTER_KEYWORD);
+//            case LexerTerminals.EQUALS:
+//                return getSyntaxToken(SyntaxKind.EQUALS_KEYWORD);
+//            case LexerTerminals.ORDER:
+//                return getSyntaxToken(SyntaxKind.ORDER_KEYWORD);
+//            case LexerTerminals.BY:
+//                return getSyntaxToken(SyntaxKind.BY_KEYWORD);
+//            case LexerTerminals.ASCENDING:
+//                return getSyntaxToken(SyntaxKind.ASCENDING_KEYWORD);
+//            case LexerTerminals.DESCENDING:
+//                return getSyntaxToken(SyntaxKind.DESCENDING_KEYWORD);
+//            case LexerTerminals.JOIN:
+//                return getSyntaxToken(SyntaxKind.JOIN_KEYWORD);
+//            default:
+//                return getIdentifierToken();
+//        }
+//    }
 
     /**
      * Process and returns an invalid token. Consumes the input until {@link #isEndOfInvalidToken()}
