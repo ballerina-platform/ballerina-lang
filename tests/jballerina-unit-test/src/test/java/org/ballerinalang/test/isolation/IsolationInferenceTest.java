@@ -103,7 +103,7 @@ public class IsolationInferenceTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/isolation-analysis/isolation_inference_isolation_analysis_negative.bal");
         int i = 0;
-        validateError(result, i++, "invalid invocation of a non-isolated function in an 'isolated' function", 20, 18);
+        validateError(result, i++, "invalid invocation of a non-isolated function in an 'isolated' function", 20, 16);
         assertEquals(result.getErrorCount(), i);
     }
 
