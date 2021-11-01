@@ -156,6 +156,13 @@ public class BuildProject extends Project {
     }
 
     @Override
+    public Project duplicate() {
+        BuildProject buildProject = new BuildProject(
+                ProjectEnvironmentBuilder.getDefaultBuilder(), this.sourceRoot, buildOptions());
+        return cloneProject(buildProject);
+    }
+
+    @Override
     public DocumentId documentId(Path file) {
         if (isFilePathInProject(file)) {
             Path parent = Optional.of(file.toAbsolutePath().getParent()).get();
