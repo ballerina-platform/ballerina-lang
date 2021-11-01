@@ -64,19 +64,28 @@ public class FinalAccessTest {
     public void testFinalVariableNegative() {
         CompileResult resultNegative = BCompileUtil.compile("test-src/types/finaltypes/test_final_var_negative.bal");
         int i = 0;
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'v1'", 20, 5);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'globalFinalInt'", 21, 5);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'name'", 25, 5);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'name'", 26, 5);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'name'", 30, 5);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'name'", 31, 5);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'name'", 35, 5);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'name'", 36, 5);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'name'", 40, 5);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'name'", 41, 5);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'i'", 52, 5);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 's'", 54, 5);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 's'", 63, 5);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'i'", 67, 5);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to potentially initialized final 'i'",
                                   75, 5);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 's'", 77, 5);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 's'", 82, 5);
         BAssertUtil.validateError(resultNegative, i++, "variable 'i' may not have been initialized", 94, 13);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 't'", 101, 5);
 
-        Assert.assertEquals(resultNegative.getErrorCount(), i);
+        Assert.assertEquals(resultNegative.getDiagnostics().length, i);
     }
 
     @Test(description = "Test final global variable")

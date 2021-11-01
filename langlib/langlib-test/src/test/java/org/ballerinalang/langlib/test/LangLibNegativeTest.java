@@ -59,7 +59,19 @@ public class LangLibNegativeTest {
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(int|error)'",
                 58, 14);
         BAssertUtil.validateError(negativeResult, err++, "undefined function 'toXML' in type 'int'",
-                63, 19);;
+                63, 19);
+        BAssertUtil.validateError(negativeResult, err++, "invalid token 'join'",
+                71, 29);
+        BAssertUtil.validateError(negativeResult, err++, "missing identifier",
+                71, 29);
+        BAssertUtil.validateError(negativeResult, err++, "missing semicolon token",
+                71, 33);
+        BAssertUtil.validateError(negativeResult, err++, "invalid token ','",
+                71, 42);
+        BAssertUtil.validateError(negativeResult, err++, "invalid token '\"string...\"'",
+                71, 44);
+        BAssertUtil.validateError(negativeResult, err++, "missing identifier",
+                71, 56);
         BAssertUtil.validateError(negativeResult, err++, "undefined function 'toHexString' in type '12|foo'", 78, 18);
         Assert.assertEquals(negativeResult.getErrorCount(), err);
     }

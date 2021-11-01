@@ -95,10 +95,15 @@ public class LangLibFloatTest {
                 "testFloatNotExactEquality"
         };
     }
-
+  
     @Test
     public void testFromHexString() {
         BRunUtil.invoke(compileResult, "testFromHexString");
+    }
+  
+    @Test
+    public void testMinAndMaxWithNaN() {
+        BRunUtil.invoke(compileResult, "testMinAndMaxWithNaN");
     }
 
     @Test(dataProvider = "functionsWithFromStringTests")
@@ -112,5 +117,5 @@ public class LangLibFloatTest {
                 "testFromStringPositive",
                 "testFromStringNegative"
         };
-    }
+    }  
 }
