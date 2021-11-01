@@ -495,7 +495,7 @@ public class ExpressionTypeTestNew {
         return new Object[][]{
                 {220, 12, 220, 88, INT},
                 {220, 24, 220, 26, INT},
-//                {220, 37, 220, 42, STRING}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32999
+                {220, 37, 220, 42, STRING},
                 {220, 70, 220, 78, STRING},
                 {220, 83, 220, 88, INT},
         };
