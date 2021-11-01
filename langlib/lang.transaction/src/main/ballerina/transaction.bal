@@ -133,7 +133,7 @@ public transactional isolated function onRollback(RollbackHandler handler) = @ja
     name: "onRollback"
 } external;
 
-function wrapRollbackError(Error? e) = @java:Method {
+isolated function wrapRollbackError(Error? e) = @java:Method {
     'class: "org.ballerinalang.langlib.transaction.WrapRollbackError",
     name: "wrapRollbackError"
 } external;
