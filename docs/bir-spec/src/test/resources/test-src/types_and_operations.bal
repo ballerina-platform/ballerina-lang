@@ -591,9 +591,9 @@ public function functionWithBitwiseOperations() {
 
     'int:Unsigned8 e = 254;
     'int:Unsigned16 f = 511;
-    'int:Unsigned8 res3 = e | f;
+    'int:Unsigned16 res3 = e | f;
 
-    'int:Unsigned8 res4 = e ^ f;
+    'int:Unsigned16 res4 = e ^ f;
 
     int g = 12345678;
     'int:Signed8 h = -127;
