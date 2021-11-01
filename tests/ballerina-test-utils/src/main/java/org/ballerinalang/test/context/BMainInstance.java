@@ -18,8 +18,6 @@
 package org.ballerinalang.test.context;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.ballerinalang.test.util.terminator.Terminator;
-import org.ballerinalang.test.util.terminator.TerminatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,8 +39,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.ballerinalang.test.util.terminator.OSUtils.getOperatingSystem;
 
 /**
  * This class hold the server information and manage the a server instance.
@@ -354,7 +350,7 @@ public class BMainInstance implements BMain {
             // (as expected), or still being executed, in launch mode. Do not terminate if the debuggee is in attach
             // mode at this point.
             if (!isAttachMode) {
-                terminateProcess(process, cmdArgs);
+                terminateProcessWithDescendants(process);
             }
 
             if (elapsedTime >= timeout) {
@@ -376,7 +372,7 @@ public class BMainInstance implements BMain {
             // (as expected), or still being executed, in launch mode. Do not terminate if the debuggee is in attach
             // mode at this point.
             if (!isAttachMode) {
-                terminateProcess(process, cmdArgs);
+                terminateProcessWithDescendants(process);
             }
         }
         return process;
@@ -425,59 +421,23 @@ public class BMainInstance implements BMain {
      * Cleans up all the (sub)processes spawn during ballerina command execution.
      *
      * @param process parent process instance.
-     * @param cmdArgs ballerina command args.
      */
-    private void terminateProcess(Process process, String[] cmdArgs) {
-        // Extracts the debug port from the command arguments.
-        String port = "";
-        for (int i = 0; i < cmdArgs.length; i++) {
-            if (cmdArgs[i].equals("--debug")) {
-                port = cmdArgs[i + 1];
-                terminateProcess(process, port);
-                break;
-            }
-        }
-    }
+    public void terminateProcessWithDescendants(Process process) {
+        try {
+            // Kills the descendants of the process. The descendants of a process are the children
+            // of the process and the descendants of those children, recursively.
+            process.descendants().forEach(processHandle -> {
+                boolean successful = processHandle.destroy();
+                if (!successful) {
+                    processHandle.destroyForcibly();
+                }
+            });
 
-    /**
-     * Cleans up all the (sub)processes spawn during ballerina command execution.
-     *
-     * @param process     parent process instance.
-     * @param programPort program port.
-     */
-    public void terminateProcess(Process process, String programPort) {
-        killBashProcess(process);
-        terminateJVMProcess(programPort);
-    }
-
-    /**
-     * Kill the bach process spawn during ballerina command execution.
-     *
-     * @param process parent process instance.
-     */
-    private void killBashProcess(Process process) {
-        // Kill the bash process.
-        if (process != null && process.isAlive()) {
+            // Kills the parent process. Whether the process represented by this Process object will be normally
+            // terminated or not, is implementation dependent.
             process.destroyForcibly();
-            process = null;
-        }
-    }
-
-    /**
-     * Kill the JVM process spawn during ballerina command execution.
-     *
-     * @param port program port.
-     */
-    private void terminateJVMProcess(String port) {
-        if (port.isEmpty()) {
-            return;
-        }
-
-        // Terminates the suspended jvm process and its sub-processes(if any), using the os-specific process terminator
-        // implementation.
-        Terminator terminator = TerminatorFactory.getTerminator(getOperatingSystem());
-        if (terminator != null) {
-            terminator.terminate("address=" + port);
+            process.waitFor();
+        } catch (Exception ignored) {
         }
     }
 

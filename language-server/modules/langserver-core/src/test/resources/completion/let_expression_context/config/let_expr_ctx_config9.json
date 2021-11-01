@@ -572,6 +572,22 @@
       "sortText": "R",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "x1",
+      "kind": "Variable",
+      "detail": "float",
+      "sortText": "AB",
+      "insertText": "x1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "x2",
+      "kind": "Variable",
+      "detail": "float",
+      "sortText": "AB",
+      "insertText": "x2",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

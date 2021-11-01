@@ -2770,8 +2770,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(VariableDeclarationNode varDeclaration) {
-        return (BLangNode) createBLangVarDef(getPosition(varDeclaration), varDeclaration.typedBindingPattern(),
-                varDeclaration.initializer(), varDeclaration.finalKeyword());
+        VariableDefinitionNode varNode =
+                createBLangVarDef(getPosition(varDeclaration), varDeclaration.typedBindingPattern(),
+                                  varDeclaration.initializer(), varDeclaration.finalKeyword());
+        ((BLangVariable) varNode.getVariable()).annAttachments = applyAll(varDeclaration.annotations());
+        return (BLangNode) varNode;
     }
 
     private VariableDefinitionNode createBLangVarDef(Location location,
@@ -3020,7 +3023,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(RestArgumentNode restArgumentNode) {
         BLangRestArgsExpression varArgs = (BLangRestArgsExpression) TreeBuilder.createVarArgsNode();
-        varArgs.pos = getPosition(restArgumentNode.ellipsis());
+        varArgs.pos = getPosition(restArgumentNode);
         varArgs.expr = createExpression(restArgumentNode.expression());
         return varArgs;
     }

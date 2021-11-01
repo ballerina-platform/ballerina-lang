@@ -9,12 +9,20 @@
   },
   {
     "description": "Create readonly variable.",
-    "code": "MainController mc = new MainController(123, [\"AB\"]); Controller & readonly immutableController = mc; immutableController.getId()",
+    "code": "MainController mc = new MainController(123, [\"AB\"]); Controller & readonly immutableController = mc;"
+  },
+  {
+    "description": "Create readonly variable - get value.",
+    "code": "immutableController.getId()",
     "expr": "\"Main: 123\""
   },
   {
     "description": "Check for type of variable.",
-    "code": "Controller controller = immutableController; controller is readonly & Controller",
+    "code": "Controller controller = immutableController;"
+  },
+  {
+    "description": "Check for type of variable - get value.",
+    "code": "controller is readonly & Controller",
     "expr": "true"
   }
 ]

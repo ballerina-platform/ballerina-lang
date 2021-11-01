@@ -33,7 +33,6 @@ public class ForeachNegativeTests {
     @Test
     public void testForeachSemanticsNegative() {
         CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-semantics-negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 17);
         int index = 0;
         BAssertUtil.validateError(compile, index++,
                 "invalid list binding pattern: attempted to infer a list type, but found 'string'",
@@ -67,7 +66,35 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, index++,
                 "incompatible types: '(json|error)' cannot be cast to 'json'", 166, 21);
         BAssertUtil.validateError(compile, index++, "invalid record binding pattern with type 'anydata'", 206, 17);
-        BAssertUtil.validateError(compile, index, "invalid record binding pattern with type 'any'", 213, 17);
+        BAssertUtil.validateError(compile, index++, "invalid record binding pattern with type 'any'", 213, 17);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected 'string', found 'int'", 238, 20);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected 'int[]', found 'int'", 239, 19);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected 'string', found 'int'", 249, 18);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected 'string', found 'int'", 249, 21);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected 'string', found 'int'", 257, 20);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected 'boolean', found 'string'", 258, 21);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected 'int[]', found 'int'", 267, 19);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected '(int|string)', found '" +
+                "(int|string|boolean)'", 278, 24);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected '(string|boolean)', found '" +
+                "(int|string|boolean)'", 279, 28);
+        // https://github.com/ballerina-platform/ballerina-lang/issues/33366
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected 'string', " +
+                "found '(int|string|boolean)'", 280, 20);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected 'map<int>', found 'record {| " +
+                "(int|string)...; |}'", 288, 22);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected 'int', found '(int|boolean)'", 296,
+                                  17);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected 'int', found '(string|int)'", 297,
+                                  17);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected '(int|boolean)', found '" +
+                "(int|string|boolean)'", 307, 18);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected '(int|boolean)', found '" +
+                "(int|string|boolean)'", 307, 21);
+        // https://github.com/ballerina-platform/ballerina-lang/issues/33366
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected '(int|string)', found '" +
+                "(int|string|boolean)'", 308, 24);
+        Assert.assertEquals(compile.getErrorCount(), index);
     }
 
     @Test
@@ -83,7 +110,6 @@ public class ForeachNegativeTests {
     @Test
     public void testForeachVarTypeNegative() {
         CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-var-type-negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 7);
         int index = 0;
         BAssertUtil.validateError(compile, index++,
                 "incompatible types: expected 'anydata', found 'json'", 34, 13);
@@ -96,7 +122,26 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, index++, "incompatible types: expected 'json', found 'xml'", 63, 13);
         BAssertUtil.validateError(compile, index++, "incompatible types: expected 'anydata', " +
                 "found '(boolean|float|xml)'", 70, 14);
-        BAssertUtil.validateError(compile, index, "incompatible types: expected 'string:Char', " +
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected 'string:Char', " +
                 "found 'int'", 77, 13);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected '(int[2] & readonly)', found " +
+                "'int[2][]'", 85, 13);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected '(int[2] & readonly)', found '" +
+                "(byte[2] & readonly)'", 92, 13);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected '([int,string,boolean] & readonly)" +
+                "', found '[string,int,boolean]'", 99, 13);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected '(([int,int] & readonly)|([int,int]" +
+                " & readonly))', found '[[int,int],[string,string]]'", 106, 13);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected '((int[2] & readonly)|(string[2] &" +
+                                          " readonly)|(boolean[3] & readonly))', found '[(int|boolean),(int|boolean)," +
+                                          "(int|string)...]'", 113, 13);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected '((record {| int a; int b; |} & " +
+                "readonly)|(record {| string[] a; boolean? b; |} & readonly))', found 'record {| int a; boolean? b; " +
+                "|}'", 122, 13);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected '(([int,string] & readonly)|" +
+                "([boolean,int] & readonly))', found '([int,int] & readonly)'", 129, 13);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected '(([int,string,boolean.." +
+                ".]|[boolean,int]) & readonly)', found '[int,(string|int),int...]'", 136, 13);
+        Assert.assertEquals(compile.getErrorCount(), index);
     }
 }

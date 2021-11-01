@@ -1,0 +1,60 @@
+{
+  "line": 11,
+  "character": 7,
+  "expected": [
+    {
+      "title": "Create variable with 'record {| int a; |}'",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 4
+            },
+            "end": {
+              "line": 11,
+              "character": 4
+            }
+          },
+          "newText": "record {| int a; |} rec = "
+        }
+      ]
+    },
+    {
+      "title": "Create variable with 'json'",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 4
+            },
+            "end": {
+              "line": 11,
+              "character": 4
+            }
+          },
+          "newText": "json rec = "
+        }
+      ]
+    },
+    {
+      "title": "Create variable with \u0027map\u003cint\u003e\u0027",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 4
+            },
+            "end": {
+              "line": 11,
+              "character": 4
+            }
+          },
+          "newText": "map\u003cint\u003e rec \u003d "
+        }
+      ]
+    }
+  ]
+}
