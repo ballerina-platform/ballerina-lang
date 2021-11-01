@@ -105,12 +105,19 @@ public abstract class Project {
      * Refresh the project to clear compilation caches.
      */
     public void refresh() {
-        Package clone = this.currentPackage().duplicate();
-        setCurrentPackage(clone);
+        cloneProject(this);
         CompilerContext compilerContext = this.projectEnvironmentContext()
                 .getService(CompilerContext.class);
         PackageCache packageCache = PackageCache.getInstance(compilerContext);
         packageCache.flush();
+    }
+
+    public abstract Project duplicate();
+
+    protected Project cloneProject(Project project) {
+        Package clone = this.currentPackage.duplicate(project);
+        project.setCurrentPackage(clone);
+        return project;
     }
 
     public abstract DocumentId documentId(Path file);

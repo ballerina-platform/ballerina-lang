@@ -294,14 +294,14 @@ class PackageContext {
         }
     }
 
-    PackageContext duplicate() {
+    PackageContext duplicate(Project project) {
         Map<ModuleId, ModuleContext> duplicatedModuleContextMap = new HashMap<>();
         for (ModuleId moduleId : this.moduleIds) {
             ModuleContext moduleContext = this.moduleContext(moduleId);
-            duplicatedModuleContextMap.put(moduleId, moduleContext.duplicate());
+            duplicatedModuleContextMap.put(moduleId, moduleContext.duplicate(project));
         }
 
-        return new PackageContext(this.project, this.packageId, this.packageManifest,
+        return new PackageContext(project, this.packageId, this.packageManifest,
                 this.dependencyManifest, this.ballerinaTomlContext, this.dependenciesTomlContext,
                 this.cloudTomlContext, this.compilerPluginTomlContext, this.packageMdContext,
                 this.compilationOptions, duplicatedModuleContextMap, this.pkgDescDependencyGraph);

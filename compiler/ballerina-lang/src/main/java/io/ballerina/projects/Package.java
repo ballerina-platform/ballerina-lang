@@ -210,8 +210,8 @@ public class Package {
         return this.packageMd;
     }
 
-    Package duplicate() {
-        return new Package(packageContext.duplicate(), this.project);
+    Package duplicate(Project project) {
+        return new Package(packageContext.duplicate(project), project);
     }
 
     /**

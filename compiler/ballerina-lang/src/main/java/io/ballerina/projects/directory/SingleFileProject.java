@@ -73,6 +73,13 @@ public class SingleFileProject extends Project {
     }
 
     @Override
+    public Project duplicate() {
+        SingleFileProject singleFileProject = new SingleFileProject(
+                ProjectEnvironmentBuilder.getDefaultBuilder(), this.sourceRoot, buildOptions());
+        return cloneProject(singleFileProject);
+    }
+
+    @Override
     public DocumentId documentId(Path file) {
         if (!this.sourceRoot.toAbsolutePath().normalize().toString().equals(
                 file.toAbsolutePath().normalize().toString())) {
