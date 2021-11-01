@@ -189,9 +189,9 @@ public class MappingConstructorExprTest {
         validateError(result, i++, "invalid usage of mapping constructor expression: key 'i' may " +
                 "duplicate a key specified via spread field '...b'", 64, 29);
         validateError(result, i++, "invalid usage of mapping constructor expression: key 'y' may " +
-                "duplicate a key specified via spread field '...m1'", 69, 30);
+                "duplicate a key specified via spread field '...m1'", 69, 29);
         validateError(result, i++, "invalid usage of mapping constructor expression: spread field 'm1' may" +
-                " have already specified keys", 74, 35);
+                " have already specified keys", 74, 34);
         validateError(result, i++, "invalid usage of mapping constructor expression: multiple " +
                 "spread fields of inclusive mapping types are not allowed", 84, 35);
         validateError(result, i++, "invalid usage of mapping constructor expression: spread field 'b2' " +
@@ -201,9 +201,9 @@ public class MappingConstructorExprTest {
         validateError(result, i++, "invalid usage of mapping constructor expression: multiple spread " +
                 "fields of inclusive mapping types are not allowed", 94, 35);
         validateError(result, i++, "invalid usage of mapping constructor expression: multiple " +
-                "spread fields of inclusive mapping types are not allowed", 100, 30);
+                "spread fields of inclusive mapping types are not allowed", 100, 29);
         validateError(result, i, "invalid usage of mapping constructor expression: multiple " +
-                "spread fields of inclusive mapping types are not allowed", 106, 34);
+                "spread fields of inclusive mapping types are not allowed", 106, 33);
     }
 
     @Test

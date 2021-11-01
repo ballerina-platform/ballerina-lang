@@ -40,7 +40,6 @@ public class ReachabilityAnalysisTest {
     private static final String HINT_UNNECESSARY_CONDITION =
             "unnecessary condition: expression will always evaluate to 'true'";
     private static final String ALWAYS_FALSE_CONDITION = "expression will always evaluate to 'false'";
-    private static final String WARN_SHOULD_EXPLICITLY_RETURN_NIL = "this function should explicitly return a value";
 
     private CompileResult result;
 
@@ -91,10 +90,13 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 75, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 87, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 96, 9);
+        validateWarning(result, i++, "unused variable 'a'", 111, 5);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 117, 15);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 120, 9);
+        validateWarning(result, i++, "unused variable 'a'", 127, 5);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 133, 15);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 136, 9);
+        validateWarning(result, i++, "unused variable 'a'", 143, 5);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 149, 15);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 153, 9);
         validateError(result, i++, ERROR_MUST_RETURN_A_RESULT, 166, 1);
@@ -112,7 +114,7 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_MUST_RETURN_A_RESULT, 239, 1);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 244, 9);
         validateError(result, i++, ERROR_MUST_RETURN_A_RESULT, 250, 1);
-        validateWarning(result, i++, WARN_SHOULD_EXPLICITLY_RETURN_NIL, 252, 48);
+        validateWarning(result, i++, "unused variable 'str'", 255, 5);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 263, 27);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 266, 17);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 268, 16);
@@ -134,6 +136,8 @@ public class ReachabilityAnalysisTest {
         validateHint(result, i++, ALWAYS_FALSE_CONDITION, 387, 11);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 388, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 399, 9);
+        validateWarning(result, i++, "unused variable 'a'", 399, 9);
+        validateWarning(result, i++, "unused variable 'a'", 401, 9);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 413, 8);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 416, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 421, 9);
@@ -141,6 +145,7 @@ public class ReachabilityAnalysisTest {
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 439, 19);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 442, 13);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 445, 5);
+        validateWarning(result, i++, "unused variable 'res'", 450, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 459, 17);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 461, 16);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 464, 13);
@@ -150,6 +155,7 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 499, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 504, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 513, 5);
+        validateWarning(result, i++, "unused variable 'x'", 513, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 518, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 533, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 540, 9);
@@ -159,6 +165,7 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 576, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 586, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 595, 9);
+        validateWarning(result, i++, "unused variable 'x'", 600, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 604, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 611, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 621, 9);
@@ -179,9 +186,9 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 741, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 755, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 771, 5);
-        Assert.assertEquals(result.getErrorCount(), i - 16);
+        Assert.assertEquals(result.getErrorCount(), i - 15 - 9);
         Assert.assertEquals(result.getHintCount(), 15);
-        Assert.assertEquals(result.getWarnCount(), 1);
+        Assert.assertEquals(result.getWarnCount(), 9);
     }
 
     @Test
