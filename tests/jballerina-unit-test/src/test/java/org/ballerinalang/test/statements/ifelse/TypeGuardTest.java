@@ -65,6 +65,8 @@ public class TypeGuardTest {
                                   "incompatible types: 'string' will not be matched to 'int'", 108, 25);
         BAssertUtil.validateError(negativeResult, i++,
                                   "incompatible types: 'string' will not be matched to 'float'", 108, 37);
+        BAssertUtil.validateWarning(negativeResult, i++, "unused variable 'y'", 109, 9);
+        BAssertUtil.validateWarning(negativeResult, i++, "unused variable 's'", 111, 9);
         BAssertUtil.validateError(negativeResult, i++,
                                   "incompatible types: 'string' will not be matched to 'float'", 117, 25);
         BAssertUtil.validateError(negativeResult, i++,
