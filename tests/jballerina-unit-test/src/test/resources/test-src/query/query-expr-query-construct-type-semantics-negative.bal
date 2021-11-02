@@ -27,7 +27,7 @@ function testOnConflictClauseWithNonTableTypes() {
     Person p3 = {firstName: "Max", lastName: "Gomaz", age: 33};
     Person[] personList = [p1, p2, p3];
 
-    Person[] outputPersonList =
+    Person[] _ =
             from var person in personList
             let int newAge = 34
             where person.age == 33

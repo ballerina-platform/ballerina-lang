@@ -107,8 +107,14 @@ public class MatchStmtTypeNarrowingTest {
         BAssertUtil.validateHint(resultNegative, ++i, ALWAYS_TRUE_HINT, 95, 18);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 97, 9);
         BAssertUtil.validateHint(resultNegative, ++i, ALWAYS_TRUE_HINT, 97, 18);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 110, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 112, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 112, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'name'", 117, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 117, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 119, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'name'", 119, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 119, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 132, 9);
         BAssertUtil.validateHint(resultNegative, ++i, ALWAYS_TRUE_HINT, 137, 18);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 139, 9);

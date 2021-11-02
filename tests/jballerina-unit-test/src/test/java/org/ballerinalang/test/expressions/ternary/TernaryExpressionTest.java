@@ -360,6 +360,11 @@ public class TernaryExpressionTest {
         BRunUtil.invoke(compileResult, "testTernaryAsArgument");
     }
 
+    @Test
+    public void testIfAndThenExprBeingFieldAccess() {
+        BRunUtil.invoke(compileResult, "testIfAndThenExprBeingFieldAccess");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

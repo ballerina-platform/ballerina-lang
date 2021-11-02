@@ -90,32 +90,37 @@ public class BlockStmtTest {
 
     @Test(description = "Test block statement with errors")
     public void testBlockStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 15);
+        int index = 0;
         //testUnreachableStmtInIfFunction1
-        BAssertUtil.validateError(resultNegative, 0, "unreachable code", 9, 5);
+        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 9, 5);
+
+        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'b'", 17, 5);
+
         //testUnreachableStmtInIfFunction2
-        BAssertUtil.validateError(resultNegative, 1, "unreachable code", 25, 5);
+        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 25, 5);
         //testUnreachableStmtInIfBlock
-        BAssertUtil.validateError(resultNegative, 2, "unreachable code", 33, 9);
+        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 33, 9);
         //testUnreachableStmtInWhileBlock
-        BAssertUtil.validateError(resultNegative, 3, "unreachable code", 46, 13);
+        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 46, 13);
         //testCommentAfterReturnStmt
-        BAssertUtil.validateError(resultNegative, 4, "unreachable code", 62, 5);
+        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 62, 5);
         //testUnreachableTrapExpression
-        BAssertUtil.validateError(resultNegative, 5, "unreachable code", 73, 5);
+        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 73, 5);
         //testUnreachableNext
-        BAssertUtil.validateError(resultNegative, 6, "unreachable code", 84, 9);
-        BAssertUtil.validateError(resultNegative, 7, "unreachable code", 86, 5);
+        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 84, 9);
+        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 86, 5);
         //testUnreachableBreak
-        BAssertUtil.validateError(resultNegative, 8, "break cannot be used outside of a loop", 92, 9);
-        BAssertUtil.validateError(resultNegative, 9, "unreachable code", 92, 9);
+        BAssertUtil.validateError(resultNegative, index++, "break cannot be used outside of a loop", 92, 9);
+        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 92, 9);
         //testUnreachableThrow
-        BAssertUtil.validateError(resultNegative, 10, "unreachable code", 107, 9);
-        BAssertUtil.validateError(resultNegative, 11, "unreachable code", 116, 9);
-        BAssertUtil.validateError(resultNegative, 12, "unreachable code", 126, 9);
+        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 107, 9);
+        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 116, 9);
+        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 126, 9);
         //testUninitializedVariableAssignInBlock
-        BAssertUtil.validateError(resultNegative, 13, "variable 'a' is not initialized", 136, 17);
-        BAssertUtil.validateError(resultNegative, 14, "variable 'a' is not initialized", 143, 9);
+        BAssertUtil.validateError(resultNegative, index++, "variable 'a' is not initialized", 136, 17);
+        BAssertUtil.validateError(resultNegative, index++, "variable 'a' is not initialized", 143, 9);
+
+        Assert.assertEquals(resultNegative.getDiagnostics().length, index);
     }
 
     @AfterClass

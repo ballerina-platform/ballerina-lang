@@ -100,4 +100,9 @@ public class LangLibFloatTest {
     public void testFromHexString() {
         BRunUtil.invoke(compileResult, "testFromHexString");
     }
+
+    @Test
+    public void testMinAndMaxWithNaN() {
+        BRunUtil.invoke(compileResult, "testMinAndMaxWithNaN");
+    }
 }

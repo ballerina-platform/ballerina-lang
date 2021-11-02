@@ -2175,12 +2175,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         Name varName = names.fromIdNode(varRefExpr.variableName);
         if (varName == Names.IGNORE) {
-            if (varRefExpr.isLValue) {
-                varRefExpr.setBType(this.symTable.anyType);
-            } else {
-                varRefExpr.setBType(this.symTable.semanticError);
-                dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED);
-            }
+            varRefExpr.setBType(this.symTable.anyType);
 
             // If the variable name is a wildcard('_'), the symbol should be ignorable.
             varRefExpr.symbol = new BVarSymbol(0, true, varName,

@@ -1623,13 +1623,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         switch (variable.getKind()) {
             case VARIABLE:
                 BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;
-                Name varName = names.fromIdNode(simpleVariable.name);
-                if (varName == Names.IGNORE) {
-                    dlog.error(simpleVariable.pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED);
-                    return;
-                }
-
                 simpleVariable.setBType(rhsType);
+
+                handleWildCardBindingVariable(simpleVariable);
 
                 int ownerSymTag = blockEnv.scope.owner.tag;
                 if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE
@@ -3910,9 +3906,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-        if (names.fromIdNode(constant.name) == Names.IGNORE) {
-            dlog.error(constant.name.pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED);
-        }
         if (constant.typeNode != null && !types.isAllowedConstantType(constant.typeNode.getBType())) {
             if (types.isAssignable(constant.typeNode.getBType(), symTable.anydataType) &&
                     !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(constant.typeNode.getBType())) {
