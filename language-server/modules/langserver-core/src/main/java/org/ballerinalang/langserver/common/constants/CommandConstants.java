@@ -141,4 +141,6 @@ public class CommandConstants {
             "Convert module variable '%s' to listener declaration";
 
     public static final String CONVERT_TO_READONLY_CLONE = "Convert to Readonly Clone";
+    
+    public static final String ADD_EXPLICIT_RETURN_STATEMENT = "Add Explicit Return Statement";
 }
