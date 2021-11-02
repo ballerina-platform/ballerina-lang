@@ -932,3 +932,53 @@ function testUnreachableCodeWithTypeNarrowing8() {
         never _ = a; // unreachable code
     }
 }
+
+public function testUnreachableCodeWithTypeNarrowing9() {
+    int? a = 10;
+    string b = "A";
+    if b == "" || a == 0 {
+        int? _ = a;
+    } else if a is int || a is () {
+        int? _ = a;
+    } else if a is () {
+        never _ = a; // unreachable code
+    }
+}
+
+public function testUnreachableCodeWithTypeNarrowing10() {
+    10|20 a = 10;
+    if a == 10 || a == 20 {
+        int _ = a;
+    } else if a is 20 {
+        never _ = a; // unreachable code
+    }
+}
+
+public function testUnreachableCodeWithTypeNarrowing11() {
+    10 a = 10;
+    20 b = 20;
+    if a == 10 && b == 20 {
+        int _ = a;
+    } else if a is 20 {
+        never _ = a;
+    }
+}
+
+public function testUnreachableCodeWithTypeNarrowing12() {
+    10 a = 10;
+    20 b = 20;
+    if a == 10 && b == 20 {
+        int _ = a;
+    } else {
+        never _ = a;
+    }
+}
+
+public function testUnreachableCodeWithTypeNarrowing13() {
+    10|20 a = 10;
+    if a == 10 || a == 20 {
+        int _ = a;
+    } else {
+        never _ = a; // unreachable code
+    }
+}
