@@ -28,7 +28,8 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 public enum DiagnosticHintCode implements DiagnosticCode {
 
     UNNECESSARY_CONDITION("BCH2000", "unnecessary.condition"),
-    EXPRESSION_ALWAYS_FALSE("BCH2001", "expression.always.false");
+    UNNECESSARY_CONDITION_FOR_VARIABLE_OF_TYPE_NEVER("BCH2001", "unnecessary.condition.for.variable.of.type.never"),
+    EXPRESSION_ALWAYS_FALSE("BCH2002", "expression.always.false");
 
     private String diagnosticId;
     private String messageKey;
