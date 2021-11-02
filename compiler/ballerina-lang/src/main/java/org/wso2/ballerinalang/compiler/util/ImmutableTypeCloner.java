@@ -394,28 +394,15 @@ public class ImmutableTypeCloner {
                 return (BIntersectionType) type;
 
             case TypeTags.TYPEREFDESC:
-                BTypeReferenceType originalType = (BTypeReferenceType) type;
-                BType refType = types.getReferredType(originalType);
-
-                BTypeSymbol immutableReferenceTSymbol = new BTypeSymbol(SymTag.TYPE_REF,
-                        originalType.tsymbol.flags | Flags.READONLY,
-                        getImmutableTypeName(names, getSymbolFQN(originalType.tsymbol)),
-                        pkgId, null, env.scope.owner, pos, SOURCE);
-
-                BType immutableConstraint = getImmutableType(pos, types, refType,
-                        env, pkgId, owner, symTable, anonymousModelHelper, names, unresolvedTypes);
-
-                BTypeReferenceType immutableReferenceType = new BTypeReferenceType(immutableConstraint,
-                        immutableReferenceTSymbol, originalType.flags | Flags.READONLY);
-
-                immutableReferenceTSymbol.type = immutableReferenceType;
-                BIntersectionType immutableReferenceIntersectionType = createImmutableIntersectionType(env,
-                        originalType, immutableReferenceType, symTable);
-
-                originalType.immutableType = immutableReferenceIntersectionType;
-                immutableReferenceType.tsymbol = immutableReferenceTSymbol;
-
-                return immutableReferenceIntersectionType;
+                BIntersectionType intersectionType = setImmutableType(pos, types,
+                        (SelectivelyImmutableReferenceType) types.getReferredType(type), env, pkgId, owner, symTable,
+                        anonymousModelHelper, names, origObjFlagSet, unresolvedTypes);
+                LinkedHashSet<BType> constituentTypes = new LinkedHashSet<>() {{
+                    add(type);
+                    add(symTable.readonlyType);
+                }};
+                intersectionType.setConstituentTypes(constituentTypes);
+                return intersectionType;
             default:
                 return defineImmutableUnionType(pos, types, env, pkgId, owner, symTable, anonymousModelHelper, names,
                                                 unresolvedTypes, (BUnionType) type);
