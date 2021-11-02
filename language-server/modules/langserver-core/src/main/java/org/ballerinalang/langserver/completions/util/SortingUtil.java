@@ -250,7 +250,7 @@ public class SortingUtil {
         if (isCompletionItemAssignable(completionItem, typeSymbol)) {
             return genSortText(1) + genSortText(toRank(context, completionItem));
         } else {
-            return genSortText(toRank(context, completionItem, 2));
+            return genSortText(toRank(context, completionItem, 4));
         }
     }
 
