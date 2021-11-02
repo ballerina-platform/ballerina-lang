@@ -265,7 +265,7 @@ public class TestBalaProject {
         int errorCount2 = project.currentPackage().getCompilation().diagnosticResult().errorCount();
         Assert.assertEquals(errorCount2, 3);
 
-        project.refresh();
+        project.clearCaches();
         int errorCount3 = project.currentPackage().getCompilation().diagnosticResult().errorCount();
         Assert.assertEquals(errorCount3, 0);
     }

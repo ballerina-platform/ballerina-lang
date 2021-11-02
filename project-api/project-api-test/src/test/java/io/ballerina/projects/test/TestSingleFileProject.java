@@ -256,7 +256,7 @@ public class TestSingleFileProject {
         int errorCount2 = singleFileProject.currentPackage().getCompilation().diagnosticResult().errorCount();
         Assert.assertEquals(errorCount2, 3);
 
-        singleFileProject.refresh();
+        singleFileProject.clearCaches();
         int errorCount3 = singleFileProject.currentPackage().getCompilation().diagnosticResult().errorCount();
         Assert.assertEquals(errorCount3, 0);
     }
@@ -271,6 +271,15 @@ public class TestSingleFileProject {
 
         Assert.assertNotSame(project, duplicate);
         Assert.assertNotSame(project.currentPackage().project(), duplicate.currentPackage().project());
+        Assert.assertNotSame(
+                project.currentPackage().project().buildOptions(), duplicate.currentPackage().project().buildOptions());
+        Assert.assertNotSame(project.projectEnvironmentContext(),
+                duplicate.projectEnvironmentContext());
+        Assert.assertNotSame(project.projectEnvironmentContext().getService(CompilerContext.class),
+                duplicate.projectEnvironmentContext().getService(CompilerContext.class));
+        Assert.assertNotSame(
+                PackageCache.getInstance(project.projectEnvironmentContext().getService(CompilerContext.class)),
+                PackageCache.getInstance(duplicate.projectEnvironmentContext().getService(CompilerContext.class)));
 
         Assert.assertNotSame(project.currentPackage(), duplicate.currentPackage());
         Assert.assertEquals(project.currentPackage().packageId(), duplicate.currentPackage().packageId());
@@ -305,12 +314,6 @@ public class TestSingleFileProject {
         Assert.assertEquals(
                 project.currentPackage().getDefaultModule().document(documentId).syntaxTree().toSourceCode(),
                 duplicate.currentPackage().getDefaultModule().document(documentId).syntaxTree().toSourceCode());
-
-        Assert.assertNotSame(project.projectEnvironmentContext().getService(CompilerContext.class),
-                duplicate.projectEnvironmentContext().getService(CompilerContext.class));
-        Assert.assertNotSame(
-                PackageCache.getInstance(project.projectEnvironmentContext().getService(CompilerContext.class)),
-                PackageCache.getInstance(duplicate.projectEnvironmentContext().getService(CompilerContext.class)));
 
         project.currentPackage().getCompilation();
         duplicate.currentPackage().getCompilation();

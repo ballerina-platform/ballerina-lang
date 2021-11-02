@@ -1556,7 +1556,7 @@ public class TestBuildProject extends BaseTest {
     }
 
     @Test
-    public void testProjectRefresh() {
+    public void testProjectClearCaches() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_refresh_tests").resolve("package_refresh_one");
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
@@ -1567,7 +1567,7 @@ public class TestBuildProject extends BaseTest {
         int errorCount2 = buildProject.currentPackage().getCompilation().diagnosticResult().errorCount();
         Assert.assertEquals(errorCount2, 3);
 
-        buildProject.refresh();
+        buildProject.clearCaches();
         int errorCount3 = buildProject.currentPackage().getCompilation().diagnosticResult().errorCount();
         Assert.assertEquals(errorCount3, 0);
     }
@@ -1581,6 +1581,15 @@ public class TestBuildProject extends BaseTest {
         Project duplicate = project.duplicate();
         Assert.assertNotSame(project, duplicate);
         Assert.assertNotSame(project.currentPackage().project(), duplicate.currentPackage().project());
+        Assert.assertNotSame(
+                project.currentPackage().project().buildOptions(), duplicate.currentPackage().project().buildOptions());
+        Assert.assertNotSame(project.projectEnvironmentContext(),
+                duplicate.projectEnvironmentContext());
+        Assert.assertNotSame(project.projectEnvironmentContext().getService(CompilerContext.class),
+                duplicate.projectEnvironmentContext().getService(CompilerContext.class));
+        Assert.assertNotSame(
+                PackageCache.getInstance(project.projectEnvironmentContext().getService(CompilerContext.class)),
+                PackageCache.getInstance(duplicate.projectEnvironmentContext().getService(CompilerContext.class)));
 
         Assert.assertEquals(project.sourceRoot().toString(), duplicate.sourceRoot().toString());
         Assert.assertTrue(duplicate.buildOptions().codeCoverage());
@@ -1649,11 +1658,6 @@ public class TestBuildProject extends BaseTest {
                         duplicate.currentPackage().module(moduleId).document(documentId).syntaxTree().toSourceCode());
             }
         }
-        Assert.assertNotSame(project.projectEnvironmentContext().getService(CompilerContext.class),
-                duplicate.projectEnvironmentContext().getService(CompilerContext.class));
-        Assert.assertNotSame(
-                PackageCache.getInstance(project.projectEnvironmentContext().getService(CompilerContext.class)),
-                PackageCache.getInstance(duplicate.projectEnvironmentContext().getService(CompilerContext.class)));
 
         project.currentPackage().getCompilation();
         duplicate.currentPackage().getCompilation();

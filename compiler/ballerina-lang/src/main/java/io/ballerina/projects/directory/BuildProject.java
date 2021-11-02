@@ -157,8 +157,9 @@ public class BuildProject extends Project {
 
     @Override
     public Project duplicate() {
+        BuildOptions duplicateBuildOptions = new BuildOptionsBuilder().build().acceptTheirs(buildOptions());
         BuildProject buildProject = new BuildProject(
-                ProjectEnvironmentBuilder.getDefaultBuilder(), this.sourceRoot, buildOptions());
+                ProjectEnvironmentBuilder.getDefaultBuilder(), this.sourceRoot, duplicateBuildOptions);
         return cloneProject(buildProject);
     }
 

@@ -74,8 +74,9 @@ public class SingleFileProject extends Project {
 
     @Override
     public Project duplicate() {
+        BuildOptions duplicateBuildOptions = new BuildOptionsBuilder().build().acceptTheirs(buildOptions());
         SingleFileProject singleFileProject = new SingleFileProject(
-                ProjectEnvironmentBuilder.getDefaultBuilder(), this.sourceRoot, buildOptions());
+                ProjectEnvironmentBuilder.getDefaultBuilder(), this.sourceRoot, duplicateBuildOptions);
         return cloneProject(singleFileProject);
     }
 
