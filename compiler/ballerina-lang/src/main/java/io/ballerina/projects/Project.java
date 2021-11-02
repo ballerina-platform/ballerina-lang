@@ -18,8 +18,8 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.environment.ProjectEnvironment;
-import org.wso2.ballerinalang.compiler.PackageCache;
 import io.ballerina.projects.util.ProjectConstants;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
@@ -82,7 +82,7 @@ public abstract class Project {
     }
 
     public Path targetDir() {
-        if (this.buildOptions == null || this.buildOptions.getTargetPath() == null) {
+        if (this.buildOptions.getTargetPath() == null) {
             return this.sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
         } else {
             return Paths.get(this.buildOptions().getTargetPath());
