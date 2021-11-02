@@ -615,48 +615,50 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         List<Symbol> functions = semanticModel.moduleSymbols().stream().filter(s -> s instanceof FunctionSymbol)
                 .collect(Collectors.toList());
         Map<Symbol, List<Location>> refs = new HashMap<>();
-        // use node list
         ArrayList<Node> nodeList = new ArrayList<>();
         for (Symbol symbol:symbols) {
             refs.put(symbol, semanticModel.references(symbol));
         }
 
+        List<TextRange> functionPositionFilterList = new ArrayList<>();
         TextRange functionTextRange;
-        TextRange functionPosition = null;
         for (Symbol function : functions) {
-            if (function.nameEquals(UPDATE_VARIABLE)) {
+            if (function.nameEquals(UPDATE_VARIABLE) || function.nameEquals("__run") ||
+                    function.nameEquals("__memorizeVariables")) {
                 Optional<Location> location = function.getLocation();
                 if (location.isPresent()) {
                     functionTextRange = location.get().textRange();
                     Node functionNode = ((ModulePartNode) syntaxTree.rootNode()).findNode(functionTextRange);
-                    functionPosition = functionNode.textRange();
-                } // else throw error
-                break;
+                    functionPositionFilterList.add(functionNode.textRange());
+                }
             }
         }
 
+        HashMap<String, String> symbolTypes = new HashMap<>();
         for (Symbol symbol : symbols) {
+            String symbolValue = symbol.getName().get();
+            String typeValue = ((VariableSymbol) symbol).typeDescriptor().signature();
+            symbolTypes.put(symbolValue, typeValue);
             List<Location> locations = refs.get(symbol);
             for (int i = 1; i < locations.size(); i++) {
+
                 TextRange symbolTextRange = locations.get(i).textRange();
 
                 int startOffset = symbolTextRange.startOffset();
                 int endOffset = symbolTextRange.endOffset();
 
-                if (!((functionPosition.startOffset() < startOffset) && (endOffset < functionPosition.endOffset()))) {
-                    nodeList.add(((ModulePartNode) syntaxTree.rootNode()).findNode(symbolTextRange));
+                if (isSymbolPositionAllowed(functionPositionFilterList, startOffset, endOffset)) {
+                    nodeList.add(((ModulePartNode) syntaxTree.rootNode()).findNode(symbolTextRange).parent());
                 }
             }
         }
 
-        NodeRewriter nodeRewriter = new NodeRewriter();
+        NodeRewriter nodeRewriter = new NodeRewriter(symbolTypes);
         for (Node node:nodeList) {
             List<Node> replacementNodes = nodeRewriter.accept(node);
-            if (replacementNodes != null) {
-                for (Node replacementNode: replacementNodes) {
-                    if (replacementNode != null) {
-                        syntaxTree = syntaxTree.replaceNode(node, replacementNode);
-                    }
+            for (Node replacementNode: replacementNodes) {
+                if (replacementNode != null) {
+                    syntaxTree = syntaxTree.replaceNode(node, replacementNode);
                 }
             }
         }
@@ -664,5 +666,19 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         String newBalCode = syntaxTree.toSourceCode();
         Project customProject = getProject(newBalCode, true);
         return customProject;
+    }
+
+    private boolean isSymbolPositionAllowed(List<TextRange> functionPositionFilterList,
+                                            int startOffset,
+                                            int endOffset) {
+        boolean isSymbolPositionAllowed = true;
+        for (TextRange textRange : functionPositionFilterList) {
+            if ((textRange.startOffset() < startOffset) && (endOffset < textRange.endOffset())) {
+                isSymbolPositionAllowed = false;
+                break;
+            }
+        }
+
+        return  isSymbolPositionAllowed;
     }
 }
