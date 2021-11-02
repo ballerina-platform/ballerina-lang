@@ -52,6 +52,12 @@ function __updateVariables() {
     {{/varDclns}}
 }
 
+function __memorizeVariables() {
+    {{#varDclns}}
+        __memorize("{{{encodedName}}}", {{{name}}});
+    {{/varDclns}}
+}
+
 // Global expression variable (previous evaluation value)
 any|error {{{exprVarName}}} = __recall_any_error("{{{exprVarName}}}");
 
@@ -60,14 +66,12 @@ any|error {{{exprVarName}}} = __recall_any_error("{{{exprVarName}}}");
 function __stmts() returns any {
     do {
         {{#lastStmts}}
-            // Statement evaluation
             {{#statement}}
                 if (0 < 1) {
                     {{{code}}}
                 }
             {{/statement}}
 
-            // Expression evaluation
             {{^statement}}
                 {{{exprVarName}}} = (
                     {{{code}}}
@@ -86,12 +90,11 @@ function __stmts() returns any {
 
 // This will execute the statement and initialize and save vars.
 function __run() returns any {
+    __memorizeVariables();
     any|error retValue = trap __stmts();
     __updateVariables();
     __memorize("{{{exprVarName}}}", {{{exprVarName}}});
-    {{#varDclns}}
-        __memorize("{{{encodedName}}}", {{{name}}});
-    {{/varDclns}}
+    __memorizeVariables();
     return checkpanic retValue;
 }
 
