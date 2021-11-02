@@ -5336,7 +5336,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
             if (type != SyntaxKind.TEMPLATE_STRING && type != SyntaxKind.XML_TEXT_CONTENT) {
                 try {
-                    text = IdentifierUtils.unescapeJava(IdentifierUtils.unescapeUnicodeCodepoints(text, true));
+                    text = IdentifierUtils.unescapeBallerina(text);
                 } catch (Exception e) {
                     // We may reach here when the string literal has syntax diagnostics.
                     // Therefore mock the compiler with an empty string.

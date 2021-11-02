@@ -161,13 +161,23 @@ public class IdentifierUtils {
     }
 
     /**
+     * Unescapes a ballerina string.
+     *
+     * @param text ballerina string to unescape
+     * @return unescaped ballerina string
+     */
+    public static String unescapeBallerina(String text) {
+        return unescapeJava(IdentifierUtils.unescapeUnicodeCodepoints(text, true));
+    }
+
+    /**
      * Replace the unicode patterns in identifiers into respective unicode characters.
      *
      * @param identifier         identifier string
      * @param isStringUnescaping whether to special case {@code \{5C}} when unescaping
      * @return modified identifier with unicode character
      */
-    public static String unescapeUnicodeCodepoints(String identifier, boolean isStringUnescaping) {
+    private static String unescapeUnicodeCodepoints(String identifier, boolean isStringUnescaping) {
         Matcher matcher = UNICODE_PATTERN.matcher(identifier);
         StringBuffer buffer = new StringBuffer(identifier.length());
         while (matcher.find()) {
@@ -182,7 +192,7 @@ public class IdentifierUtils {
             String ch = String.valueOf(chars);
 
             if (isStringUnescaping && ch.equals("\\")) {
-                // String unescaping is done in two stages.
+                // Ballerina string unescaping is done in two stages.
                 // 1. unicode code point unescaping (doing separately as [2] does not support code points > 0xFFFF)
                 // 2. java unescaping
                 // Replacing unicode code point of backslash at [1] would compromise [2]. Therefore, special case it.
