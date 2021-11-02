@@ -90,6 +90,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
 import javax.annotation.Nonnull;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
@@ -580,7 +581,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                                                    String prefix) {
         CompletionItem moduleCompletionItem = new CompletionItem();
         moduleCompletionItem.setLabel(label);
-        moduleCompletionItem.setFilterText(prefix);
+        moduleCompletionItem.setFilterText((prefix == null) ? "" : prefix);
         moduleCompletionItem.setInsertText(insertText);
         moduleCompletionItem.setDetail(ItemResolverConstants.MODULE_TYPE);
         moduleCompletionItem.setKind(CompletionItemKind.Module);
