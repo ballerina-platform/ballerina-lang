@@ -1,28 +1,23 @@
 import ballerina/module1;
 
-function getTDesc() returns typedesc<service> {
-    service ser = @a1 {
-        foo: "a1"
-    } service {
-        resource function res() {
-        }
-    };
+type AnnotationData record {|
 
-    typedesc<service> td = typeof ser;
-    
-    return td;
-}
+|};
+annotation AnnotationData MyAnnotation on service;
 
-function testAnnotationAccess() {
-    string message = "This is a test message!";
-    getTDesc().@
-    int testInt = 123;
-}
+public type MyService service object {
 
-type AnnotationType record {
-    string foo;  
-    int bar?;
 };
 
-annotation AnnotationType a1 on service;
+@MyAnnotation
+service MyService /path on new module1:Listener(9090) {
+    resource function get .() returns string {
+        getServiceAuthConfig(self, "foo");
+        return "Hello, World!";
+    }
+}
 
+isolated function getServiceAuthConfig(MyService serviceRef, string servicePath) {
+    typedesc<service object{}> serviceTypeDesc = typeof serviceRef;
+    AnnotationData serviceAnnotation = <AnnotationData>serviceTypeDesc.@
+}

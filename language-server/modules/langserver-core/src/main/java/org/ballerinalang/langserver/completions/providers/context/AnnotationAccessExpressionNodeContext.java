@@ -69,29 +69,30 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
 
         TypeSymbol typeSymbol = type.get();
 
-        if (!(typeSymbol.typeKind() instanceof TypeDescKind)) {
+        if (((TypeDescTypeSymbol) typeSymbol).typeParameter().isEmpty()) {
             return completionItems;
         }
-
+        
         return getAnnotationTags(context, typeSymbol);
     }
 
     public List<LSCompletionItem> getAnnotationTags(BallerinaCompletionContext context, TypeSymbol typeSymbol) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        TypeDescKind typeDescKind = ((TypeDescTypeSymbol) typeSymbol).typeParameter().get().typeKind();
         AttachPoint.Point attachPoint = getAttachPointForType(typeSymbol);
+        List<LSCompletionItem> completionItems = new ArrayList<>();
 
-        if (attachPoint == null) {
+        if (attachPoint == null && typeDescKind != TypeDescKind.ANY) {
             return new ArrayList<>();
         }
 
         if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            List<LSCompletionItem> completionItems = new ArrayList<>();
             NonTerminalNode symbolAtCursor = context.getNodeAtCursor();
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) symbolAtCursor;
 
             List<Symbol> moduleSymbols = getAnnotationContextEntries(context, qNameRef);
             moduleSymbols.stream()
-                    .filter(symbol -> ((AnnotationSymbol) symbol).attachPoints()
+                    .filter(symbol -> typeDescKind == TypeDescKind.ANY || ((AnnotationSymbol) symbol).attachPoints()
                             .stream()
                             .anyMatch(aPoint -> aPoint.name().equals(attachPoint.name())))
                     .forEach(annotation -> {
@@ -101,31 +102,33 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
             return completionItems;
         }
 
-        List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         visibleSymbols.stream()
-                .filter(symbol -> symbol.kind() == ANNOTATION && ((AnnotationSymbol) symbol).attachPoints()
+                .filter(symbol -> symbol.kind() == ANNOTATION 
+                        && (typeDescKind == TypeDescKind.ANY || ((AnnotationSymbol) symbol).attachPoints()
                         .stream()
-                        .anyMatch(aPoint -> aPoint.name().equals(attachPoint.name())))
+                        .anyMatch(aPoint -> aPoint.name().equals(attachPoint.name()))))
                 .forEach(annotation -> {
                     AnnotationSymbol symbol = (AnnotationSymbol) annotation;
                     completionItems.add(getAnnotationsCompletionItem(context, symbol));
                 });
-
-
+        
         return completionItems;
     }
 
-    private AttachPoint.Point getAttachPointForType(TypeSymbol typeSymbol) {
-        TypeDescKind typeDescKind = ((TypeDescTypeSymbol) typeSymbol).typeParameter().get().typeKind();
-        if (typeDescKind == TypeDescKind.SERVICE) {
-            return AttachPoint.Point.SERVICE;
-        } else if (typeDescKind == TypeDescKind.FUNCTION) {
-            return AttachPoint.Point.FUNCTION;
-        } else {
-            return null;
+    public static AttachPoint.Point getAttachPointForType(TypeSymbol typeSymbol) {
+        switch (((TypeDescTypeSymbol) typeSymbol).typeParameter().get().typeKind()) {
+            case TYPEDESC:
+                return AttachPoint.Point.TYPE;
+            case OBJECT:
+                return AttachPoint.Point.SERVICE;
+            case FUNCTION:
+                return AttachPoint.Point.FUNCTION;
+            default:
+                return null;
         }
     }
+    
     private static List<Symbol> getAnnotationContextEntries(BallerinaCompletionContext ctx,
                                                             QualifiedNameReferenceNode qNameRef) {
         String moduleAlias = QNameReferenceUtil.getAlias(qNameRef);
@@ -138,7 +141,6 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
 
     private LSCompletionItem getAnnotationsCompletionItem(BallerinaCompletionContext ctx,
                                                           AnnotationSymbol annotationSymbol) {
-        Optional<TypeSymbol> attachedType = annotationSymbol.typeDescriptor();
         CompletionItem item = new CompletionItem();
         item.setInsertText(annotationSymbol.getName().get());
         item.setLabel(annotationSymbol.getName().get());
