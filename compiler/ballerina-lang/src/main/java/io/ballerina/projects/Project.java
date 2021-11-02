@@ -102,9 +102,13 @@ public abstract class Project {
     }
 
     /**
-     * Refresh the project to clear compilation caches.
+     * Clears all caches of this project.
+     *
+     * The current content and the structure will be preserved. In-memory caches
+     * (i.e. package resolution caches, compilation caches)
+     * generated during project compilation will be discarded.
      */
-    public void refresh() {
+    public void clearCaches() {
         cloneProject(this);
         CompilerContext compilerContext = this.projectEnvironmentContext()
                 .getService(CompilerContext.class);
@@ -112,6 +116,14 @@ public abstract class Project {
         packageCache.flush();
     }
 
+    /**
+     * Creates a new Project instance which has the same structure as this Project.
+     *
+     * The new project will have the same structure and content as this. The caches of
+     * this project generated during project compilation will not be copied.
+     *
+     * @return The new Project instance.
+     */
     public abstract Project duplicate();
 
     protected Project cloneProject(Project project) {
