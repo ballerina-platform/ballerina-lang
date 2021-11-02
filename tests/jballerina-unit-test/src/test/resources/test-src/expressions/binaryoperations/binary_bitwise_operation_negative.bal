@@ -55,4 +55,15 @@ function testBinaryBitwiseOperationsNegativeScenarios() {
     int x14 = 1 ^ a4;
 
     int x15 = 1 ^ A2;
+
+    float? x16 = 4.0;
+    int? x17 = 1;
+
+    int? x18 = x16 & x17;
+    int? x19 = x16 | x17;
+    int? x20 = x16 ^ x17;
+
+    int:Unsigned8? x21 = 23;
+    int:Unsigned16? x22 = 1;
+    int:Unsigned8? x23 = x21 | x22;
 }
