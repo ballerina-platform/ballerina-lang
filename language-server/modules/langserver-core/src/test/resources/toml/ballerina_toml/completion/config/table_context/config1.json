@@ -49,6 +49,13 @@
       "detail": "String",
       "sortText": "A",
       "insertText": "distribution=\"${1:}\""
+    },
+    {
+      "label": "visibility",
+      "kind": "Snippet",
+      "detail": "String",
+      "sortText": "A",
+      "insertText": "visibility=\"${1:}\""
     }
   ]
 }

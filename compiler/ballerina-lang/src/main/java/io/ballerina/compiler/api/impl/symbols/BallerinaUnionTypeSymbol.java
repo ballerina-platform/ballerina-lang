@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -32,6 +33,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
@@ -70,12 +72,24 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
                 TypesFactory typesFactory = TypesFactory.getInstance(this.context);
 
                 for (BType memberType : ((BUnionType) this.getBType()).getMemberTypes()) {
-                    members.add(typesFactory.getTypeDescriptor(memberType));
+                    if (typesFactory.isTypeReference(memberType, memberType.tsymbol, false)
+                            || memberType.getKind() != TypeKind.FINITE) {
+                        members.add(typesFactory.getTypeDescriptor(memberType));
+                        continue;
+                    }
+
+                    BFiniteType finiteType = (BFiniteType) memberType;
+                    for (BLangExpression value : finiteType.getValueSpace()) {
+                        ModuleID moduleID = getModule().isPresent() ? getModule().get().id() : null;
+                        BFiniteType bFiniteType = new BFiniteType(value.getBType().tsymbol, Set.of(value));
+                        members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID, value, bFiniteType));
+                    }
                 }
             } else {
                 for (BLangExpression value : ((BFiniteType) this.getBType()).getValueSpace()) {
                     ModuleID moduleID = getModule().isPresent() ? getModule().get().id() : null;
-                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID, value, value.getBType()));
+                    BFiniteType bFiniteType = new BFiniteType(value.getBType().tsymbol, Set.of(value));
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID, value, bFiniteType));
                 }
             }
 

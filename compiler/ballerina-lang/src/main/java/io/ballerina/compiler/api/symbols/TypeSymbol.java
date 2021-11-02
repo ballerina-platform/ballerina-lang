@@ -51,6 +51,19 @@ public interface TypeSymbol extends Symbol {
      *
      * @param targetType The type with which compatibility is checked
      * @return Returns true if this type is assignable to the specified type
+     * @deprecated This method will be replaced by subtypeOf() method in a later version. This is just a rename in the
+     * method for aligning the method names with the language semantics. Switching to subtypeOf() will not break
+     * anything.
      */
+    @Deprecated
     boolean assignableTo(TypeSymbol targetType);
+
+    /**
+     * Checks whether this type is a subtype of the specified type. This is evaluated as per the language semantics
+     * defined in the spec.
+     *
+     * @param targetType The type with which compatibility is checked
+     * @return Returns true if this type is a subtype of the specified type
+     */
+    boolean subtypeOf(TypeSymbol targetType);
 }

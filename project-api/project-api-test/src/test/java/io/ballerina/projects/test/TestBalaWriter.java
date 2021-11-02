@@ -75,7 +75,7 @@ public class TestBalaWriter {
     public void testBalaWriter() throws IOException {
         Gson gson = new Gson();
         Path projectPath = RESOURCE_DIRECTORY.resolve("balawriter").resolve("projectOne");
-        Project project = BuildProject.load(projectPath);
+        Project project = TestUtils.loadBuildProject(projectPath);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         if (packageCompilation.diagnosticResult().hasErrors()) {
@@ -131,6 +131,8 @@ public class TestBalaWriter {
             Assert.assertFalse(packageJson.getExport().isEmpty());
             Assert.assertEquals(packageJson.getExport().get(0), "winery");
             Assert.assertEquals(packageJson.getExport().get(1), "winery.services");
+
+            Assert.assertEquals(packageJson.getVisibility(), "private");
 
             Assert.assertEquals(packageJson.getPlatform(), "java11");
             Assert.assertEquals(packageJson.getPlatformDependencies().size(), 1);
@@ -249,7 +251,7 @@ public class TestBalaWriter {
     public void testBalaWriterWithMinimalBalProject() throws IOException {
         Gson gson = new Gson();
         Path projectPath = RESOURCE_DIRECTORY.resolve("balawriter").resolve("projectTwo");
-        Project project = BuildProject.load(projectPath);
+        Project project = TestUtils.loadBuildProject(projectPath);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         Target target = new Target(project.sourceRoot());
@@ -301,7 +303,7 @@ public class TestBalaWriter {
         // package_d --> package_b --> package_c
         // package_d --> package_e
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_resolution_tests").resolve("package_d");
-        BuildProject project = BuildProject.load(projectDirPath);
+        BuildProject project = TestUtils.loadBuildProject(projectDirPath);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         Target target = new Target(project.sourceRoot());
@@ -377,7 +379,7 @@ public class TestBalaWriter {
         when(balaPath.toFile()).thenReturn(file);
 
         Path projectPath = RESOURCE_DIRECTORY.resolve("balawriter").resolve("projectTwo");
-        Project project = BuildProject.load(projectPath);
+        Project project = TestUtils.loadBuildProject(projectPath);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);

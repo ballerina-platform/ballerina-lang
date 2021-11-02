@@ -27,7 +27,7 @@ type TrxErrorData record {|
 public function main() {
     worker w1 returns FooError|TrxError? {
         int j = 25;
-        if (false) {
+        if (0 > 1) {
             return error FooError(FOO);
         }
 
@@ -39,6 +39,7 @@ public function main() {
         }
         j = <- w2;
         j = <- w2;
+        return;
     }
 
     worker w2 returns boolean|error {

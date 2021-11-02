@@ -58,4 +58,9 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
             return response;
         });
     }
+
+    @Override
+    public String getName() {
+        return Constants.CAPABILITY_NAME;
+    }
 }

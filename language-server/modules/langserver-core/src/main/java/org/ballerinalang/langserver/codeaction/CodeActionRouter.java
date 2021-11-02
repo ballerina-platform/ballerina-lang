@@ -16,8 +16,10 @@
 package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
+import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -25,6 +27,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -63,11 +66,10 @@ public class CodeActionRouter {
         SyntaxTree syntaxTree = ctx.currentSyntaxTree().orElseThrow();
         Optional<NonTerminalNode> topLevelNode = CodeActionUtil.getTopLevelNode(ctx.cursorPosition(), syntaxTree);
         CodeActionNodeType matchedNodeType = CodeActionUtil.codeActionNodeType(topLevelNode.orElse(null));
-        SemanticModel semanticModel = ctx.currentSemanticModel().orElseThrow();
         if (topLevelNode.isPresent() && matchedNodeType != CodeActionNodeType.NONE) {
             Range range = CommonUtil.toRange(topLevelNode.get().lineRange());
             Node expressionNode = CodeActionUtil.largestExpressionNode(topLevelNode.get(), range);
-            TypeSymbol matchedTypeSymbol = semanticModel.type(expressionNode.lineRange()).orElse(null);
+            TypeSymbol matchedTypeSymbol = getMatchedTypeSymbol(ctx, expressionNode).orElse(null);
 
             NodeBasedPositionDetails posDetails = NodeBasedPositionDetailsImpl.from(topLevelNode.get(),
                                                                                     matchedStatementNode(ctx,
@@ -130,5 +132,20 @@ public class CodeActionRouter {
             matchedNode = matchedNode.parent();
         }
         return matchedNode;
+    }
+
+    private static Optional<TypeSymbol> getMatchedTypeSymbol(CodeActionContext context, Node node) {
+        SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
+        if (node.kind() != SyntaxKind.CAPTURE_BINDING_PATTERN) {
+            return semanticModel.typeOf(node.lineRange());
+        }
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.cursorPosition());
+        CaptureBindingPatternNode patternNode = (CaptureBindingPatternNode) node;
+        String varName = patternNode.variableName().text();
+        return visibleSymbols.stream()
+                .filter(symbol -> symbol.getName().orElse("").equals(varName))
+                .map(SymbolUtil::getTypeDescriptor)
+                .findFirst()
+                .orElse(Optional.empty());
     }
 }

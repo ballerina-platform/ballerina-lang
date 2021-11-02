@@ -2217,14 +2217,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         Node containerExpr = indexedExpressionNode.containerExpression();
         BLangExpression expression = createExpression(containerExpr);
-        if (containerExpr.kind() == SyntaxKind.BRACED_EXPRESSION) {
-            indexBasedAccess.expr = ((BLangGroupExpr) expression).expression;
-            BLangGroupExpr group = (BLangGroupExpr) TreeBuilder.createGroupExpressionNode();
-            group.expression = indexBasedAccess;
-            group.pos = getPosition(indexedExpressionNode);
-            return group;
-        } else if (containerExpr.kind() == SyntaxKind.XML_STEP_EXPRESSION) {
+        if (containerExpr.kind() == SyntaxKind.XML_STEP_EXPRESSION) {
             // TODO : This check will be removed after changes are done for spec issue #536
+
+            // The original expression position is overwritten here since the modeling of BLangXMLNavigationAccess is
+            // different from the normal index based access.
+            expression.pos = indexBasedAccess.pos;
             ((BLangXMLNavigationAccess) expression).childIndex = indexBasedAccess.indexExpr;
             return expression;
         }
@@ -2772,8 +2770,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(VariableDeclarationNode varDeclaration) {
-        return (BLangNode) createBLangVarDef(getPosition(varDeclaration), varDeclaration.typedBindingPattern(),
-                varDeclaration.initializer(), varDeclaration.finalKeyword());
+        VariableDefinitionNode varNode =
+                createBLangVarDef(getPosition(varDeclaration), varDeclaration.typedBindingPattern(),
+                                  varDeclaration.initializer(), varDeclaration.finalKeyword());
+        ((BLangVariable) varNode.getVariable()).annAttachments = applyAll(varDeclaration.annotations());
+        return (BLangNode) varNode;
     }
 
     private VariableDefinitionNode createBLangVarDef(Location location,
@@ -3022,7 +3023,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(RestArgumentNode restArgumentNode) {
         BLangRestArgsExpression varArgs = (BLangRestArgsExpression) TreeBuilder.createVarArgsNode();
-        varArgs.pos = getPosition(restArgumentNode.ellipsis());
+        varArgs.pos = getPosition(restArgumentNode);
         varArgs.expr = createExpression(restArgumentNode.expression());
         return varArgs;
     }

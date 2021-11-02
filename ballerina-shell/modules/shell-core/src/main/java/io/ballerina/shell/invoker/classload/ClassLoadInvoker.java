@@ -478,7 +478,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             }
 
             // Determine the type information
-            boolean isAssignableToAny = typeSymbol.assignableTo(anyTypeSymbol);
+            boolean isAssignableToAny = typeSymbol.subtypeOf(anyTypeSymbol);
             // Find the variable type
             Set<Identifier> requiredImports = new HashSet<>();
             String variableType = importsManager.extractImportsFromType(typeSymbol, requiredImports);

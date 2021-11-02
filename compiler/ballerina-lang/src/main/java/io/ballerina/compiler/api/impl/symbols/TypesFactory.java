@@ -83,7 +83,6 @@ import static org.wso2.ballerinalang.compiler.util.TypeTags.JSON;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.MAP;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.NEVER;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.NIL;
-import static org.wso2.ballerinalang.compiler.util.TypeTags.NONE;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.READONLY;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.SEMANTIC_ERROR;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.SIGNED16_INT;
@@ -156,7 +155,7 @@ public class TypesFactory {
 
     TypeSymbol getTypeDescriptor(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly, boolean getOriginalType,
                                  boolean typeRefFromIntersectType) {
-        if (bType == null || bType.tag == NONE) {
+        if (bType == null) {
             return null;
         }
 
@@ -175,8 +174,7 @@ public class TypesFactory {
                     typeRefFromIntersectType);
         }
 
-        TypeSymbol typeSymbol = createTypeDescriptor(bType, tSymbol, moduleID);
-        return typeSymbol;
+        return createTypeDescriptor(bType, tSymbol, moduleID);
     }
 
     private TypeSymbol createTypeDescriptor(BType bType, BTypeSymbol tSymbol, ModuleID moduleID) {
@@ -309,7 +307,7 @@ public class TypesFactory {
         throw new IllegalStateException("Invalid XML subtype type tag: " + internalType.tag);
     }
 
-    private boolean isTypeReference(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly) {
+    public boolean isTypeReference(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly) {
         // Not considering type params as type refs for now because having it in the typedesc form will make more
         // sense for end users of the API consumers (e.g., VS Code plugin users). This probably can be removed once
         // https://github.com/ballerina-platform/ballerina-lang/issues/18150 is fixed.

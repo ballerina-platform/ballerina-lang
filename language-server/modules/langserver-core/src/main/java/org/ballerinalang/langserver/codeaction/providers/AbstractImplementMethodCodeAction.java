@@ -19,13 +19,17 @@ import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import org.apache.commons.lang3.StringUtils;
@@ -57,6 +61,7 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATO
  * @since 2.0.0
  */
 public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActionProvider {
+
     protected static final int DIAG_PROPERTY_NAME_INDEX = 0;
     protected static final int DIAG_PROPERTY_SYMBOL_INDEX = 1;
 
@@ -65,7 +70,7 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
             DiagnosticErrorCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_SERVICE_DECL.diagnosticId(),
             DiagnosticErrorCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_OBJECT_CTOR.diagnosticId()
     );
-    
+
     /**
      * Create a diagnostic based code action provider.
      */
@@ -85,9 +90,9 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
     /**
      * Returns a list of text edits based on diagnostics.
      *
-     * @param diagnostic diagnostic to evaluate
-     * @param positionDetails   {@link DiagBasedPositionDetails}
-     * @param context    language server context
+     * @param diagnostic      diagnostic to evaluate
+     * @param positionDetails {@link DiagBasedPositionDetails}
+     * @param context         language server context
      * @return list of Text Edits
      */
     public static List<TextEdit> getDiagBasedTextEdits(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
@@ -112,23 +117,23 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
             return Collections.emptyList();
         }
 
-        Node matchedNode = CommonUtil.findNode(classSymbol, context.currentSyntaxTree().get());
-        if (matchedNode == null) {
+        Optional<NonTerminalNode> matchedNode = CommonUtil.findNode(classSymbol, context.currentSyntaxTree().get());
+        if (matchedNode.isEmpty()) {
             return Collections.emptyList();
         }
 
         LinePosition editPosition;
         NodeList<Node> members;
-        if (matchedNode.kind() == SyntaxKind.CLASS_DEFINITION) {
-            ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) matchedNode;
+        if (matchedNode.get().kind() == SyntaxKind.CLASS_DEFINITION) {
+            ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) matchedNode.get();
             members = classDefinitionNode.members();
             editPosition = classDefinitionNode.closeBrace().lineRange().startLine();
-        } else if (matchedNode.kind() == SyntaxKind.SERVICE_DECLARATION) {
-            ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) matchedNode;
+        } else if (matchedNode.get().kind() == SyntaxKind.SERVICE_DECLARATION) {
+            ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) matchedNode.get();
             members = serviceDeclarationNode.members();
             editPosition = serviceDeclarationNode.closeBraceToken().lineRange().startLine();
-        } else if (matchedNode.kind() == SyntaxKind.OBJECT_CONSTRUCTOR) {
-            ObjectConstructorExpressionNode objConstructor = (ObjectConstructorExpressionNode) matchedNode;
+        } else if (matchedNode.get().kind() == SyntaxKind.OBJECT_CONSTRUCTOR) {
+            ObjectConstructorExpressionNode objConstructor = (ObjectConstructorExpressionNode) matchedNode.get();
             members = objConstructor.members();
             editPosition = objConstructor.closeBraceToken().lineRange().startLine();
         } else {
@@ -142,13 +147,22 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
                 .collect(Collectors.toList());
 
         String offsetStr;
+        int enclosingNodeOffset;
+        int closeBraceOffset = editPosition.offset();
+        Optional<Token> closeBraceToken = findCloseBraceTokenOfEnclosingNode(matchedNode.get());
+        enclosingNodeOffset = closeBraceToken.map(token -> token.lineRange().startLine().offset()).orElse(0);
         if (!concreteMethods.isEmpty()) {
             // If other methods exists, inherit offset
             FunctionDefinitionNode funcDefNode = concreteMethods.get(0);
             offsetStr = StringUtils.repeat(' ', funcDefNode.location().lineRange().endLine().offset());
         } else {
-            // Or else, adjust offset according to the parent class
-            offsetStr = StringUtils.repeat(' ', matchedNode.location().lineRange().startLine().offset() + 4);
+            if (matchedNode.get().kind() == SyntaxKind.OBJECT_CONSTRUCTOR) {
+                offsetStr = StringUtils.repeat(' ', enclosingNodeOffset + 8);
+                closeBraceOffset = enclosingNodeOffset + 4;
+            } else {
+                // Or else, adjust offset according to the parent class
+                offsetStr = StringUtils.repeat(' ', matchedNode.get().location().lineRange().startLine().offset() + 4);
+            }
         }
 
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
@@ -170,11 +184,14 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
                 }
             }
         }
-        
+
         int padding = 4;
         String paddingStr = StringUtils.repeat(" ", padding);
         StringBuilder editText = new StringBuilder();
-        editText.append(LINE_SEPARATOR).append(offsetStr).append(typeName).append(" ")
+        editText.append(LINE_SEPARATOR)
+                .append(offsetStr)
+                .append(typeName)
+                .append(" ")
                 .append(CommonKeys.OPEN_BRACE_KEY)
                 .append(LINE_SEPARATOR)
                 .append(offsetStr)
@@ -183,10 +200,30 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
                 .append(LINE_SEPARATOR)
                 .append(offsetStr)
                 .append(CommonKeys.CLOSE_BRACE_KEY)
-                .append(LINE_SEPARATOR);
-        
+                .append(LINE_SEPARATOR)
+                .append(StringUtils.repeat(' ', closeBraceOffset));
         Position editPos = CommonUtil.toPosition(editPosition);
         edits.add(new TextEdit(new Range(editPos, editPos), editText.toString()));
         return edits;
+    }
+
+    /**
+     * Given a node, finds the close brace token of the immediate enclosing block node.
+     *
+     * @param node node.
+     * @return {@link Optional<Token>} close brace token.
+     */
+    protected static Optional<Token> findCloseBraceTokenOfEnclosingNode(Node node) {
+        NonTerminalNode referenceNode = node.parent();
+        while (referenceNode != null) {
+            if (referenceNode.kind() == SyntaxKind.FUNCTION_BODY_BLOCK) {
+                return Optional.of(((FunctionBodyBlockNode) referenceNode).closeBraceToken());
+            }
+            if (referenceNode.kind() == SyntaxKind.BLOCK_STATEMENT) {
+                return Optional.of(((BlockStatementNode) referenceNode).closeBraceToken());
+            }
+            referenceNode = referenceNode.parent();
+        }
+        return Optional.empty();
     }
 }

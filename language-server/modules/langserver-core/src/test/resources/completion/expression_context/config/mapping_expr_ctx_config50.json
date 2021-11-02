@@ -13,6 +13,14 @@
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "recMap",
+      "kind": "Variable",
+      "detail": "map<map<RecordName>>",
+      "sortText": "B",
+      "insertText": "recMap",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

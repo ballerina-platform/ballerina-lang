@@ -111,14 +111,6 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
 
         SemanticModel semanticModel = context.workspace().semanticModel(filePath.get()).orElseThrow();
 
-        FunctionCallExpressionTypeFinder typeFinder = new FunctionCallExpressionTypeFinder(semanticModel);
-        Optional<TypeSymbol> returnTypeSymbol = typeFinder.typeOf(fnCallExprNode.get());
-
-        // Return type symbol of kind compilation error is treated as void
-        if (returnTypeSymbol.isEmpty()) {
-            return Collections.emptyList();
-        }
-
         LineRange rootLineRange = syntaxTree.rootNode().lineRange();
         int endLine = rootLineRange.endLine().line() + 1;
         int endCol = 0;
@@ -189,9 +181,23 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             insertRange = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
         }
 
-        // Generate function
-        String function = FunctionGenerator.generateFunction(docServiceContext, !newLineAtEnd, functionName,
-                args, returnTypeSymbol.get());
+        FunctionCallExpressionTypeFinder typeFinder = new FunctionCallExpressionTypeFinder(semanticModel);
+        typeFinder.findTypeOf(fnCallExprNode.get());
+        Optional<TypeSymbol> returnTypeSymbol = typeFinder.getReturnTypeSymbol();
+        Optional<TypeDescKind> returnTypeDescKind = typeFinder.getReturnTypeDescKind();
+
+        // Generate function. We have to check if we have a return type symbol or a return type desc kind. Depending
+        // on that, we need to use separate APIs.
+        String function;
+        if (returnTypeSymbol.isPresent()) {
+            function = FunctionGenerator.generateFunction(docServiceContext, !newLineAtEnd, functionName,
+                    args, returnTypeSymbol.get());
+        } else if (returnTypeDescKind.isPresent()) {
+            function = FunctionGenerator.generateFunction(docServiceContext, !newLineAtEnd, functionName,
+                    args, returnTypeDescKind.get());
+        } else {
+            return Collections.emptyList();
+        }
 
         edits.add(new TextEdit(insertRange, function));
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits);

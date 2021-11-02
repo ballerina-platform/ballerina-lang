@@ -20,6 +20,7 @@ package io.ballerina.cli.cmd;
 import io.ballerina.projects.util.ProjectConstants;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import picocli.CommandLine;
 
@@ -120,7 +121,48 @@ public class AddCommandTest extends BaseCommandTest {
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("invalid module name"));
+        Assert.assertTrue(readOutput().contains("invalid module name : 'mymo-dule' :\n"
+                        + "Module name can only contain alphanumerics, underscores and periods."));
+    }
+
+    // if module name more than 256 characters is passed
+    @Test(description = "Test add command with module name has more than 256 characters")
+    public void testAddCommandWithNameHasMoreThan256Chars() throws IOException {
+        String moduleName = "thisIsVeryLongModuleJustUsingItForTesting"
+                + "thisIsVeryLongModuleJustUsingItForTesting"
+                + "thisIsVeryLongModuleJustUsingItForTesting"
+                + "thisIsVeryLongModuleJustUsingItForTesting"
+                + "thisIsVeryLongModuleJustUsingItForTesting"
+                + "thisIsVeryLongModuleJustUsingItForTesting"
+                + "thisIsVeryLongModuleJustUsingItForTesting";
+        String[] args = {moduleName};
+        AddCommand addCommand = new AddCommand(projectPath, printStream, false);
+        new CommandLine(addCommand).parseArgs(args);
+        addCommand.execute();
+
+        Assert.assertTrue(readOutput().contains("invalid module name : '" + moduleName + "' :\n"
+                        + "Maximum length of module name is 256 characters."));
+    }
+
+    @DataProvider(name = "moduleNamesHasInvalidUnderscores")
+    public Object[][] provideModuleNamesHasInvalidUnderscores() {
+        return new Object[][] {
+                { "_my_module", "Module name cannot have initial underscore characters." },
+                { "my_module_", "Module name cannot have trailing underscore characters." },
+                { "my__module", "Module name cannot have consecutive underscore characters." }
+        };
+    }
+
+    @Test(description = "Test add command with given module invalid underscore",
+            dataProvider = "moduleNamesHasInvalidUnderscores")
+    public void testAddCommandWithNameHasInvalidUnderscore(String invalidModuleName, String errMessage)
+            throws IOException {
+        String[] args = { invalidModuleName };
+        AddCommand addCommand = new AddCommand(projectPath, printStream, false);
+        new CommandLine(addCommand).parseArgs(args);
+        addCommand.execute();
+
+        Assert.assertTrue(readOutput().contains("invalid module name : '" + invalidModuleName + "' :\n" + errMessage));
     }
 
     @Test(description = "Test add command with help flag")

@@ -547,7 +547,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _nadeeshaan/projectls:0.1.0_  \n  \n  \n**Params**  \n- `string` a  \n- `int` b(Defaultable)  \n  \n**Return** `string`   \n  \n"
+          "value": "**Package:** _gayal/projectls:0.1.0_  \n  \n  \n**Params**  \n- `string` a  \n- `int` b(Defaultable)  \n  \n**Return** `string`   \n  \n"
         }
       },
       "sortText": "E",
@@ -577,7 +577,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _nadeeshaan/projectls:0.1.0_  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
+          "value": "**Package:** _gayal/projectls:0.1.0_  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
         }
       },
       "sortText": "AC",
@@ -647,6 +647,15 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "filterText": "null",
+      "insertText": "null",
       "insertTextFormat": "Snippet"
     }
   ]

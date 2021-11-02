@@ -640,7 +640,7 @@
     {
       "label": "self",
       "kind": "Variable",
-      "detail": "isolated service object {resource function get . () returns () ;}",
+      "detail": "isolated service object {resource function get . () returns ();}",
       "sortText": "B",
       "insertText": "self",
       "insertTextFormat": "Snippet"

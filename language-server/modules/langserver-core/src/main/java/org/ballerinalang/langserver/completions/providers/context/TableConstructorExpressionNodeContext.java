@@ -45,8 +45,8 @@ public class TableConstructorExpressionNodeContext extends AbstractCompletionPro
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, TableConstructorExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         int cursor = ctx.getCursorPositionInTree();
-        
-        if (this.withinKeySpecifier(ctx, node)) {
+
+        if (this.onKeySpecifier(ctx, node)) {
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_KEY.get()));
         } else if (node.keySpecifier().isPresent() && node.keySpecifier().get().textRange().endOffset() < cursor) {
             /*
@@ -59,16 +59,15 @@ public class TableConstructorExpressionNodeContext extends AbstractCompletionPro
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.CLAUSE_FROM.get()));
         }
         this.sort(ctx, node, completionItems);
-
         return completionItems;
     }
 
-    private boolean withinKeySpecifier(BallerinaCompletionContext context, TableConstructorExpressionNode node) {
+    private boolean onKeySpecifier(BallerinaCompletionContext context, TableConstructorExpressionNode node) {
         int cursor = context.getCursorPositionInTree();
         Optional<KeySpecifierNode> keySpecifier = node.keySpecifier();
         Token tableKeyword = node.tableKeyword();
 
         return cursor > tableKeyword.textRange().endOffset()
-                && (!keySpecifier.isPresent() || cursor < keySpecifier.get().keyKeyword().textRange().startOffset());
+                && (keySpecifier.isEmpty() || cursor < keySpecifier.get().keyKeyword().textRange().startOffset());
     }
 }
