@@ -9,7 +9,6 @@ on:
       - stage
       - ballerina-1.2.x
       - stage-slbeta4
-      - langlib-fixes
 
 jobs:
   ubuntu_build:
