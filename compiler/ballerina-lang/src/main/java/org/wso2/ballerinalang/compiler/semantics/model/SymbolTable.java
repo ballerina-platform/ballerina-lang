@@ -462,8 +462,8 @@ public class SymbolTable {
 
         // Binary bitwise operators for nullable integer types
         defineNilableIntegerBitwiseAndOperations();
-        defineNilableIntegerBitwiseOperations(OperatorKind.BITWISE_OR);
-        defineNilableIntegerBitwiseOperations(OperatorKind.BITWISE_XOR);
+        defineNilableIntegerBitwiseOrAndXorOperations(OperatorKind.BITWISE_OR);
+        defineNilableIntegerBitwiseOrAndXorOperations(OperatorKind.BITWISE_XOR);
 
         // Binary shift operators for nullable integer types
         defineNilableIntegerLeftShiftOperations();
@@ -840,7 +840,7 @@ public class SymbolTable {
         }
     }
 
-    private void defineNilableIntegerBitwiseOperations(OperatorKind opKind) {
+    private void defineNilableIntegerBitwiseOrAndXorOperations(OperatorKind opKind) {
         BType[] unsignedIntTypes = {byteType, unsigned8IntType, unsigned16IntType, unsigned32IntType};
         BType[] signedIntTypes = {intType, signed8IntType, signed16IntType, signed32IntType};
 

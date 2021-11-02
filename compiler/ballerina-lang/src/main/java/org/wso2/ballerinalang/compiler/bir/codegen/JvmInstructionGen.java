@@ -546,7 +546,7 @@ public class JvmInstructionGen {
         }
     }
 
-    private BType getPossibleUnsignedIntSubType(BType lhsType, BType rhsType) {
+    private BType getSmallestBuiltInUnsignedIntSubTypeContainingTypes(BType lhsType, BType rhsType) {
 
         if (TypeTags.isSignedIntegerTypeTag(lhsType.tag) || TypeTags.isSignedIntegerTypeTag(rhsType.tag)) {
             throw new BLangCompilerException("expected two unsigned int subtypes, found '" + lhsType + "' and '" +
@@ -1159,7 +1159,7 @@ public class JvmInstructionGen {
 
         if (!TypeTags.isSignedIntegerTypeTag(opType1.tag) && !TypeTags.isSignedIntegerTypeTag(opType2.tag)) {
             generateIntToUnsignedIntConversion(this.mv,
-                    getPossibleUnsignedIntSubType(opType1, opType2));
+                    getSmallestBuiltInUnsignedIntSubTypeContainingTypes(opType1, opType2));
         }
 
         this.storeToVar(binaryIns.lhsOp.variableDcl);
@@ -1187,7 +1187,7 @@ public class JvmInstructionGen {
         this.mv.visitInsn(LXOR);
 
         if (!TypeTags.isSignedIntegerTypeTag(opType1.tag) && !TypeTags.isSignedIntegerTypeTag(opType2.tag)) {
-            generateIntToUnsignedIntConversion(this.mv, getPossibleUnsignedIntSubType(opType1, opType2));
+            generateIntToUnsignedIntConversion(this.mv, getSmallestBuiltInUnsignedIntSubTypeContainingTypes(opType1, opType2));
         }
 
         this.storeToVar(binaryIns.lhsOp.variableDcl);
