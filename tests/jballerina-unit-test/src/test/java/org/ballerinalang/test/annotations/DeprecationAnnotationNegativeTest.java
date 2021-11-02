@@ -35,7 +35,6 @@ public class DeprecationAnnotationNegativeTest {
     public void testDeprecationAnnotation() {
 
         CompileResult compileResult = BCompileUtil.compile("test-src/annotations/deprecation_annotation_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 23);
         int i = 0;
         BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
                 "documentation", 4, 1);
@@ -81,7 +80,8 @@ public class DeprecationAnnotationNegativeTest {
                 1);
         BAssertUtil.validateError(compileResult, i++, "invalid documentation: 'Deprecated' documentation is only " +
                 "allowed on constructs annotated as '@deprecated'", 225, 1);
-        BAssertUtil.validateError(compileResult, i, "'Deprecated parameters' documentation is not allowed here", 226,
+        BAssertUtil.validateError(compileResult, i++, "'Deprecated parameters' documentation is not allowed here", 226,
                 1);
+        Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 }

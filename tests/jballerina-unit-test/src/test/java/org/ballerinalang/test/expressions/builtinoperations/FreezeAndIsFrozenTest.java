@@ -209,7 +209,7 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":\"Failed " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":\"failed " +
                     "to remove element from map: modification not allowed on readonly value.*")
     public void testRemovalFromFrozenJson() {
         BRunUtil.invoke(result, "testRemovalFromFrozenJson", new BValue[0]);
@@ -231,7 +231,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
-                    "\"Failed to remove element from map: modification not allowed on readonly value\".*")
+                    "\"failed to remove element from map: modification not allowed on readonly value\".*")
     public void testRemovalFromFrozenInnerJson() {
         BRunUtil.invoke(result, "testRemovalFromFrozenInnerJson", new BValue[0]);
     }
@@ -260,7 +260,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":\"" +
-                    "Failed to remove element from map: modification not allowed on readonly value\".*")
+                    "failed to remove element from map: modification not allowed on readonly value\".*")
     public void testFrozenMapRemoval() {
         BRunUtil.invoke(result, "testFrozenMapRemoval", new BValue[0]);
     }
@@ -281,7 +281,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
-                    "\"Failed to remove element from map: modification not allowed on readonly value\".*")
+                    "\"failed to remove element from map: modification not allowed on readonly value\".*")
     public void testFrozenInnerMapRemoval() {
         BRunUtil.invoke(result, "testFrozenInnerMapRemoval", new BValue[0]);
     }

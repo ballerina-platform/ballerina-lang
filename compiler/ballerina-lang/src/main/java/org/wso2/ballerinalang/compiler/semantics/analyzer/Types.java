@@ -128,6 +128,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.SIGNED
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED16_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED32_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED8_MAX_VALUE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.isSimpleBasicType;
 
 /**
  * This class consists of utility methods which operate on types.
@@ -595,6 +596,10 @@ public class Types {
     }
 
     public boolean isSubTypeOfBaseType(BType type, int baseTypeTag) {
+        if (type.tag == TypeTags.INTERSECTION) {
+            type = ((BIntersectionType) type).effectiveType;
+        }
+
         if (type.tag != TypeTags.UNION) {
 
             if ((TypeTags.isIntegerTypeTag(type.tag) || type.tag == TypeTags.BYTE) && TypeTags.INT == baseTypeTag) {
@@ -3684,6 +3689,10 @@ public class Types {
     }
 
     boolean validNumericTypeExists(BType type) {
+
+        if (type.isNullable() && type.tag != TypeTags.NIL) {
+            type = getSafeType(type, true, false);
+        }
         if (isBasicNumericType(type)) {
             return true;
         }
@@ -3743,6 +3752,9 @@ public class Types {
     }
 
     boolean validIntegerTypeExists(BType type) {
+        if (type.isNullable() && type.tag != TypeTags.NIL) {
+            type = getSafeType(type, true, false);
+        }
         if (TypeTags.isIntegerTypeTag(type.tag)) {
             return true;
         }
@@ -3922,6 +3934,9 @@ public class Types {
                     });
                 }
                 memberTypes.add(bType);
+                break;
+            case TypeTags.INTERSECTION:
+                memberTypes.addAll(expandAndGetMemberTypesRecursive(((BIntersectionType) bType).effectiveType));
                 break;
             default:
                 memberTypes.add(bType);
@@ -5113,19 +5128,26 @@ public class Types {
     public void validateErrorOrNilReturn(BLangFunction function, DiagnosticCode diagnosticCode) {
         BType returnType = function.returnTypeNode.getBType();
 
-        if (returnType.tag == TypeTags.NIL) {
+        if (returnType.tag == TypeTags.NIL ||
+                (returnType.tag == TypeTags.UNION &&
+                        isSubTypeOfErrorOrNilContainingNil((BUnionType) returnType))) {
             return;
         }
 
-        if (returnType.tag == TypeTags.UNION) {
-            Set<BType> memberTypes = ((BUnionType) returnType).getMemberTypes();
-            if (returnType.isNullable() &&
-                    memberTypes.stream().allMatch(type -> type.tag == TypeTags.NIL || type.tag == TypeTags.ERROR)) {
-                return;
-            }
+        dlog.error(function.returnTypeNode.pos, diagnosticCode, function.returnTypeNode.getBType().toString());
+    }
+
+    public boolean isSubTypeOfErrorOrNilContainingNil(BUnionType type) {
+        if (!type.isNullable()) {
+            return false;
         }
 
-        dlog.error(function.returnTypeNode.pos, diagnosticCode, function.returnTypeNode.getBType().toString());
+        for (BType memType : type.getMemberTypes()) {
+            if (memType.tag != TypeTags.NIL && memType.tag != TypeTags.ERROR) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -5411,19 +5433,6 @@ public class Types {
         }
     }
 
-    private boolean isSimpleBasicType(int tag) {
-        switch (tag) {
-            case TypeTags.BYTE:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.BOOLEAN:
-            case TypeTags.NIL:
-                return true;
-            default:
-                return (TypeTags.isIntegerTypeTag(tag)) || (TypeTags.isStringTypeTag(tag));
-        }
-    }
-
     /**
      * Check whether a type is an ordered type.
      *
@@ -5651,6 +5660,16 @@ public class Types {
             default:
                 return false;
         }
+    }
+
+    boolean isSingletonType(BType type) {
+        return type.tag == TypeTags.FINITE && ((BFiniteType) type).getValueSpace().size() == 1;
+    }
+
+    boolean isSameSingletonType(BFiniteType type1, BFiniteType type2) {
+        BLangLiteral expr1 = (BLangLiteral) type1.getValueSpace().iterator().next();
+        BLangLiteral expr2 = (BLangLiteral) type2.getValueSpace().iterator().next();
+        return expr1.value.equals(expr2.value);
     }
 
     private static class ListenerValidationModel {

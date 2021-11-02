@@ -18,27 +18,43 @@
 package org.ballerinalang.langserver.command.visitors;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.StartActionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -156,10 +172,139 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     }
 
     @Override
+    public void visit(MethodCallExpressionNode methodCallExpressionNode) {
+        methodCallExpressionNode.methodName().accept(this);
+        if (resultFound) {
+            return;
+        }
+        TypeSymbol typeSymbol = semanticModel.typeOf(methodCallExpressionNode).orElse(null);
+        checkAndSetTypeResult(typeSymbol);
+    }
+
+    @Override
+    public void visit(RemoteMethodCallActionNode remoteMethodCallActionNode) {
+        remoteMethodCallActionNode.methodName().accept(this);
+        if (resultFound) {
+            return;
+        }
+        TypeSymbol typeSymbol = semanticModel.typeOf(remoteMethodCallActionNode).orElse(null);
+        checkAndSetTypeResult(typeSymbol);
+    }
+
+    @Override
     public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
         semanticModel.symbol(simpleNameReferenceNode)
                 .flatMap(SymbolUtil::getTypeDescriptor)
                 .ifPresent(this::checkAndSetTypeResult);
+    }
+
+    @Override
+    public void visit(PositionalArgumentNode positionalArgumentNode) {
+        positionalArgumentNode.parent().accept(this);
+        if (!resultFound) {
+            return;
+        }
+        FunctionTypeSymbol functionTypeSymbol;
+        if (returnTypeSymbol.typeKind() == TypeDescKind.FUNCTION) {
+            functionTypeSymbol = (FunctionTypeSymbol) returnTypeSymbol;
+        } else if (returnTypeSymbol.kind() == SymbolKind.CLASS) {
+            Optional<MethodSymbol> methodSymbol = ((ClassSymbol) returnTypeSymbol).initMethod();
+            if (methodSymbol.isEmpty()) {
+                return;
+            }
+            functionTypeSymbol = methodSymbol.get().typeDescriptor();
+        } else {
+            return;
+        }
+        Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
+        if (params.isEmpty() || params.get().isEmpty()) {
+            return;
+        }
+        SeparatedNodeList<FunctionArgumentNode> arguments;
+        switch (positionalArgumentNode.parent().kind()) {
+            case METHOD_CALL:
+                MethodCallExpressionNode methodCallExpressionNode =
+                        (MethodCallExpressionNode) positionalArgumentNode.parent();
+                arguments = methodCallExpressionNode.arguments();
+                break;
+            case FUNCTION_CALL:
+                FunctionCallExpressionNode functionCallExpressionNode =
+                        (FunctionCallExpressionNode) positionalArgumentNode.parent();
+                arguments = functionCallExpressionNode.arguments();
+                break;
+            case REMOTE_METHOD_CALL_ACTION:
+                RemoteMethodCallActionNode remoteMethodCallActionNode =
+                        (RemoteMethodCallActionNode) positionalArgumentNode.parent();
+                arguments = remoteMethodCallActionNode.arguments();
+                break;
+            case PARENTHESIZED_ARG_LIST:
+                ParenthesizedArgList parenthesizedArgList =
+                        (ParenthesizedArgList) positionalArgumentNode.parent();
+                arguments = parenthesizedArgList.arguments();
+                break;
+            default:
+                return;
+        }
+        if (arguments != null) {
+            int argIndex = -1;
+            for (int i = 0; i < arguments.size(); i++) {
+                if (arguments.get(i).equals(positionalArgumentNode)) {
+                    argIndex = i;
+                    break;
+                }
+            }
+            if (argIndex < 0 || params.get().size() < argIndex + 1) {
+                return;
+            }
+            ParameterSymbol parameterSymbol = params.get().get(argIndex);
+            checkAndSetTypeResult(parameterSymbol.typeDescriptor());
+        }
+    }
+
+    @Override
+    public void visit(NamedArgumentNode namedArgumentNode) {
+        namedArgumentNode.parent().accept(this);
+        if (!resultFound) {
+            return;
+        }
+        FunctionTypeSymbol functionTypeSymbol;
+        if (returnTypeSymbol.typeKind() == TypeDescKind.FUNCTION) {
+            functionTypeSymbol = (FunctionTypeSymbol) returnTypeSymbol;
+        } else if (returnTypeSymbol.kind() == SymbolKind.CLASS) {
+            Optional<MethodSymbol> methodSymbol = ((ClassSymbol) returnTypeSymbol).initMethod();
+            if (methodSymbol.isEmpty()) {
+                return;
+            }
+            functionTypeSymbol = methodSymbol.get().typeDescriptor();
+        } else {
+            return;
+        }
+        Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
+        if (params.isEmpty()) {
+            return;
+        }
+        params.get().stream().filter(param -> param.getName().isPresent()
+                        && param.getName().get().equals(namedArgumentNode.argumentName().name().text())).findFirst()
+                .ifPresent(parameterSymbol -> this.checkAndSetTypeResult(parameterSymbol.typeDescriptor()));
+    }
+
+    @Override
+    public void visit(ParenthesizedArgList parenthesizedArgList) {
+        parenthesizedArgList.parent().accept(this);
+    }
+
+    @Override
+    public void visit(ExplicitNewExpressionNode explicitNewExpressionNode) {
+        semanticModel.typeOf(explicitNewExpressionNode)
+                .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol)))
+                .stream().findFirst().ifPresent(this::checkAndSetTypeResult);
+    }
+
+    @Override
+    public void visit(ImplicitNewExpressionNode implicitNewExpressionNode) {
+        semanticModel.typeOf(implicitNewExpressionNode)
+                .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol)))
+                .stream().findFirst().ifPresent(this::checkAndSetTypeResult);
     }
 
     @Override

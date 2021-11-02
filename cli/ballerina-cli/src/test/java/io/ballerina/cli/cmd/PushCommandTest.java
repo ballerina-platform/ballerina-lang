@@ -83,7 +83,7 @@ public class PushCommandTest extends BaseCommandTest {
     @Test(description = "Push package without bala directory")
     public void testPushWithoutBalaDir() throws IOException {
         String expected = "cannot find bala file for the package: winery. Run "
-                + "'bal build -c' to compile and generate the bala.";
+                + "'bal pack' to compile and generate the bala.";
 
         Path validBalProject = this.testResources.resolve(VALID_PROJECT);
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
@@ -115,7 +115,7 @@ public class PushCommandTest extends BaseCommandTest {
 
         // Push
         String expected = "cannot find bala file for the package: winery. Run "
-                + "'bal build -c' to compile and generate the bala.";
+                + "'bal pack' to compile and generate the bala.";
         PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream, false);
         new CommandLine(pushCommand).parse();
         pushCommand.execute();

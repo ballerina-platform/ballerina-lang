@@ -16,7 +16,30 @@
           "message": {
             "pattern": "invalid 'name' under [package]: 'name' can only contain alphanumerics, underscores and periods",
             "maxLength": "invalid 'name' under [package]: maximum length of 'name' is 256 characters"
-          }
+          },
+          "allOf": [
+            {
+              "type": "string",
+              "pattern": "^(?!_).+",
+              "message": {
+                "pattern": "invalid 'name' under [package]: 'name' cannot have initial underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": ".*(?<!_)$",
+              "message": {
+                "pattern": "invalid 'name' under [package]: 'name' cannot have trailing underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": "(^(?!.*__).*$|^lang.*)",
+              "message": {
+                "pattern": "invalid 'name' under [package]: 'name' cannot have consecutive underscore characters"
+              }
+            }
+          ]
         },
         "org": {
           "type": "string",
@@ -25,7 +48,30 @@
           "message": {
             "pattern": "invalid 'org' under [package]: 'org' can only contain alphanumerics and underscores",
             "maxLength": "invalid 'org' under [package]: maximum length of 'org' is 256 characters"
-          }
+          },
+          "allOf": [
+            {
+              "type": "string",
+              "pattern": "^(?!_).+",
+              "message": {
+                "pattern": "invalid 'org' under [package]: 'org' cannot have initial underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": ".*(?<!_)$",
+              "message": {
+                "pattern": "invalid 'org' under [package]: 'org' cannot have trailing underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": "^(?!.*__).*$",
+              "message": {
+                "pattern": "invalid 'org' under [package]: 'org' cannot have consecutive underscore characters"
+              }
+            }
+          ]
         },
         "version": {
           "type": "string",
@@ -63,6 +109,13 @@
         },
         "distribution": {
           "type": "string"
+        },
+        "visibility": {
+          "type": "string",
+          "pattern": "^private$",
+          "message": {
+            "pattern": "invalid 'visibility' under [package]: 'visibility' can only have value 'private'"
+          }
         }
       }
     },

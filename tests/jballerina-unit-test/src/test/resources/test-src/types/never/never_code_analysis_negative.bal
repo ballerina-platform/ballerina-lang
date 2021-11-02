@@ -15,7 +15,7 @@
 // under the License.
 
 function testFunctionWithNeverReturnTypeReturningNil() returns never {
-    string a = "hello";
+    string _ = "hello";
 }
 
 public function testNeverReturnFuncInvWithPanic() {
@@ -27,8 +27,9 @@ function unreached() returns never {
 }
 
 function testCheckWithNeverTypeExpr() returns error? {
-    any e1 = check unreached();
-    any e2 = checkpanic unreached();
+    any _ = check unreached();
+    any _ = checkpanic unreached();
+    return;
 }
 
 function testNeverTypeRequiredAndDefaultableParamInInv() {
@@ -45,4 +46,5 @@ function num() returns error {
 
 function testInvalidUsageOfExprOfNeverInGroupedExpr() returns error? {
     error? x = check (unreached());
+    return;
 }

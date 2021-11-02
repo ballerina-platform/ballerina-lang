@@ -336,7 +336,6 @@ public class XMLLexer extends AbstractLexer {
                         startMode(ParserMode.XML_PI);
                         return getXMLSyntaxTokenWithoutTrailingWS(SyntaxKind.XML_PI_START_TOKEN);
                     case LexerTerminals.SLASH:
-                        endMode();
                         startMode(ParserMode.XML_ELEMENT_END_TAG);
                         return getXMLSyntaxToken(SyntaxKind.LT_TOKEN, false, false);
                     default:

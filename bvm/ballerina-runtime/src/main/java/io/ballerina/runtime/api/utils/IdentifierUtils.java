@@ -48,8 +48,10 @@ public class IdentifierUtils {
         StringBuilder sb = new StringBuilder();
         int index = 0;
         while (index < identifier.length()) {
-            if (isQuotedIdentifier(identifier, index)) {
-                String unicodePoint = CHAR_PREFIX + String.format("%04d", (int) identifier.charAt(index + 1));
+            String formattedString;
+            if (identifier.charAt(index) == '\\' && (index + 1 < identifier.length()) &&
+                    (formattedString = getFormattedStringForQuotedIdentifiers(identifier.charAt(index + 1))) != null)  {
+                String unicodePoint = CHAR_PREFIX + formattedString;
                 sb.append(unicodePoint);
                 index += 2;
             } else {
@@ -58,15 +60,6 @@ public class IdentifierUtils {
             }
         }
         return sb.toString();
-    }
-
-    private static boolean isEncodableGeneratedIdentifer(String identifier, int index) {
-        return JVM_RESERVED_CHAR_SET.contains(Character.toString(identifier.charAt(index)));
-    }
-
-    private static boolean isQuotedIdentifier(String identifier, int index) {
-        return identifier.charAt(index) == '\\' && (index + 1 < identifier.length()) &&
-                ENCODABLE_CHAR_SET.contains(Character.toString(identifier.charAt(index + 1)));
     }
 
     /**
@@ -82,8 +75,9 @@ public class IdentifierUtils {
     private static String encodeIdentifier(String identifier) {
         if (identifier.contains(ESCAPE_PREFIX)) {
             identifier = encodeSpecialCharacters(identifier);
+            return unescapeJava(identifier);
         }
-        return unescapeJava(identifier);
+        return identifier;
     }
 
     /**
@@ -104,8 +98,9 @@ public class IdentifierUtils {
         boolean isEncoded = false;
         int index = 0;
         while (index < identifier.length()) {
-            if (isEncodableGeneratedIdentifer(identifier, index)) {
-                String unicodePoint = CHAR_PREFIX + String.format("%04d", (int) identifier.charAt(index));
+            String formattedString = getFormattedStringForJvmReservedSet(identifier.charAt(index));
+            if (formattedString != null) {
+                String unicodePoint = CHAR_PREFIX + formattedString;
                 sb.append(unicodePoint);
                 isEncoded = true;
             } else {
@@ -114,6 +109,38 @@ public class IdentifierUtils {
             index++;
         }
         return new Identifier(sb.toString(), isEncoded);
+    }
+
+    private static String getFormattedStringForQuotedIdentifiers(char c) {
+        if (c == '$') {
+            return "0036";
+        }
+        return getFormattedStringForJvmReservedSet(c);
+    }
+
+    private static String getFormattedStringForJvmReservedSet(char c) {
+        switch (c) {
+            case '\\':
+                return "0092";
+            case '.':
+                return "0046";
+            case ':':
+                return "0058";
+            case ';':
+                return "0059";
+            case '[':
+                return "0091";
+            case ']':
+                return "0093";
+            case '/':
+                return "0047";
+            case '<':
+                return "0060";
+            case '>':
+                return "0062";
+            default:
+                return null;
+        }
     }
 
     /**
@@ -243,18 +270,29 @@ public class IdentifierUtils {
      */
     public static String encodeFunctionIdentifier(String functionName) {
         functionName = encodeIdentifier(functionName);
+        switch (functionName) {
+            case ".<init>":
+                return "$gen$$0046$0060init$0062";
+            case ".<start>":
+                return "$gen$$0046$0060start$0062";
+            case ".<stop>":
+                return "$gen$$0046$0060stop$0062";
+            case ".<testinit>":
+                return "$gen$$0046$0060testinit$0062";
+        }
         Identifier encodedName = encodeGeneratedName(functionName);
         return encodedName.isEncoded ? GENERATED_METHOD_PREFIX + encodedName.name : functionName;
     }
+
     /**
      * Encode the non-function identifiers to avoid using jvm reserved characters.
      *
-     * @param pkgName  non-function identifier string
+     * @param identifierString  non-function identifier string
      * @return encoded identifier
      */
-    public static String encodeNonFunctionIdentifier(String pkgName) {
-        pkgName = encodeIdentifier(pkgName);
-        Identifier encodedName = encodeGeneratedName(pkgName);
+    public static String encodeNonFunctionIdentifier(String identifierString) {
+        identifierString = encodeIdentifier(identifierString);
+        Identifier encodedName = encodeGeneratedName(identifierString);
         return encodedName.name;
     }
 

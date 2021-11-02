@@ -189,4 +189,19 @@ public class XMLTemplateExpressionTest extends AbstractExpressionsTest {
     public void testXMLCDATASectionRecovery() {
         testFile("xml-template/xml_template_source_32.bal", "xml-template/xml_template_assert_32.json");
     }
+
+    @Test
+    public void testMissingXMLStartTag() {
+        testFile("xml-template/xml_template_source_33.bal", "xml-template/xml_template_assert_33.json");
+    }
+
+    @Test
+    public void testMissingNameInXMLEndTag() {
+        testFile("xml-template/xml_template_source_34.bal", "xml-template/xml_template_assert_34.json");
+    }
+
+    @Test
+    public void testMissingQuoteInXMLAttributeValue() {
+        testFile("xml-template/xml_template_source_35.bal", "xml-template/xml_template_assert_35.json");
+    }
 }

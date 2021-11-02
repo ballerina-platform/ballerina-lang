@@ -46,8 +46,8 @@ public class WhileStmtTest {
         positiveCompileResult = BCompileUtil.compile("test-src/statements/whilestatement/while-stmt.bal");
         negativeCompileResult = BCompileUtil.compile("test-src/statements/whilestatement/while-stmt-negative.bal");
         onfailCompileResult = BCompileUtil.compile("test-src/statements/whilestatement/while-stmt-on-fail.bal");
-        onfailNegativeCompileResult = BCompileUtil.compile("test-src/statements/whilestatement/"
-                + "while-stmt-on-fail-negative.bal");
+        onfailNegativeCompileResult = BCompileUtil.compile(
+                "test-src/statements/whilestatement/while-stmt-on-fail-negative.bal");
     }
 
     @Test(description = "Test while loop with a condition which evaluates to true")
@@ -253,15 +253,20 @@ public class WhileStmtTest {
 
     @Test(description = "Check not incompatible types and reachable statements.")
     public void testNegative1() {
-        Assert.assertEquals(onfailNegativeCompileResult.getErrorCount(), 7);
-        BAssertUtil.validateError(onfailNegativeCompileResult, 0, "unreachable code", 17, 6);
-        BAssertUtil.validateError(onfailNegativeCompileResult, 1, "incompatible error definition type: " +
+        int index = 0;
+        BAssertUtil.validateError(onfailNegativeCompileResult, index++, "unreachable code", 17, 6);
+        BAssertUtil.validateWarning(onfailNegativeCompileResult, index++, "unused variable 'e'", 19, 4);
+        BAssertUtil.validateError(onfailNegativeCompileResult, index++, "incompatible error definition type: " +
                 "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 34, 4);
-        BAssertUtil.validateError(onfailNegativeCompileResult, 2, "unreachable code", 68, 7);
-        BAssertUtil.validateError(onfailNegativeCompileResult, 3, "this function must return a result", 83, 1);
-        BAssertUtil.validateError(onfailNegativeCompileResult, 4, "incompatible error definition type: " +
+        BAssertUtil.validateWarning(onfailNegativeCompileResult, index++, "unused variable 'e'", 34, 4);
+        BAssertUtil.validateWarning(onfailNegativeCompileResult, index++, "unused variable 'e'", 49, 4);
+        BAssertUtil.validateWarning(onfailNegativeCompileResult, index++, "unused variable 'e'", 65, 4);
+        BAssertUtil.validateError(onfailNegativeCompileResult, index++, "unreachable code", 68, 7);
+        BAssertUtil.validateError(onfailNegativeCompileResult, index++, "this function must return a result", 83, 1);
+        BAssertUtil.validateError(onfailNegativeCompileResult, index++, "incompatible error definition type: " +
                 "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 102, 4);
-        BAssertUtil.validateError(onfailNegativeCompileResult, 5, "unreachable code", 116, 9);
-        BAssertUtil.validateError(onfailNegativeCompileResult, 6, "unreachable code", 118, 5);
+        BAssertUtil.validateError(onfailNegativeCompileResult, index++, "unreachable code", 116, 9);
+        BAssertUtil.validateError(onfailNegativeCompileResult, index++, "unreachable code", 118, 5);
+        Assert.assertEquals(onfailNegativeCompileResult.getDiagnostics().length, index);
     }
 }

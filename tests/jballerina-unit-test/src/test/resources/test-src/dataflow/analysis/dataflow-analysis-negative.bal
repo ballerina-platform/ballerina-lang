@@ -19,15 +19,17 @@ import ballerina/lang.test;
  
  function testDataflow_1() returns string {
     string msg;
-    if (true) {
-        if (true) {
+    int|string? a = 10;
+    if (a is int) {
+        int|string? b = 10;
+        if (b is int) {
             msg = "1";
-        } else if (true) {
+        } else if (b is string) {
             msg = "2";
         } else {
             msg = "3";
         }
-    } else if (true) {
+    } else if (a is string) {
         msg = "4";
     } else {
         msg = "5";
@@ -38,10 +40,12 @@ import ballerina/lang.test;
 
 function testDataflow_2() returns string {
     string msg;
-    if (true) {
-        if (true) {
+    int|string? a = 10;
+    if (a is int) {
+        int|string? b = 10;
+        if (b is int) {
             msg = "1";
-        } else if (true) {
+        } else if (b is string) {
             // do nothing
         } else {
             msg = "2";
@@ -55,10 +59,12 @@ function testDataflow_2() returns string {
 
 function testDataflow_3() returns string {
     string msg;
-    if (true) {
-        if (true) {
+    int|string? a = 10;
+    if (a is int) {
+        int|string? b = 10;
+        if (b is int) {
             msg = "1";
-        } else if (true) {
+        } else if (b is string) {
             msg = "2";
         } else {
             // do nothing
@@ -72,8 +78,10 @@ function testDataflow_3() returns string {
 
 function testDataflow_4() returns string {
     string msg;
-    if (true) {
-        if (true) {
+    int|string? a = 10;
+    if (a is int) {
+        int|string? b = 10;
+        if (b is int) {
             msg = "1";
         }
     } else {
@@ -85,8 +93,10 @@ function testDataflow_4() returns string {
 
 function testDataflow_5() returns string {
     string msg;
-    if (true) {
-        if (true) {
+    int|string? a = 10;
+    if (a is int) {
+        int|string? b = 10;
+        if (b is int) {
             //do nothing
         } else {
             msg = "1";
@@ -100,8 +110,10 @@ function testDataflow_5() returns string {
 
 function testDataflow_6() returns string {
     string msg;
-    if (true) {
-        if (true) {
+    int|string? a = 10;
+    if (a is int) {
+        int|string? b = 10;
+        if (b is int) {
             msg = "1";
         } else {
             msg = "1";
@@ -115,9 +127,11 @@ function testDataflow_6() returns string {
 
 function testDataflow_7() returns string {
     string msg;
-    if (true) {
+    int|string? a = 10;
+    if (a is int) {
+        int|string? b = 10;
         msg = "1";
-        if (true) {
+        if (b is int) {
         } else {
         }
     } else {
@@ -129,8 +143,10 @@ function testDataflow_7() returns string {
 
 function testDataflow_8() returns string {
     string msg;
-    if (true) {
-        if (true) {
+    int|string? a = 10;
+    if (a is int) {
+        int|string? b = 10;
+        if (b is int) {
             // do nothing
         } else {
             // do nothing
@@ -145,16 +161,19 @@ function testDataflow_8() returns string {
 
 function testDataflow_9() returns string {
     string msg;
-    if (true) {
-        if (true) {
+    int|string? a = 10;
+    if (a is int) {
+        int|string|boolean|float? b = 10;
+        if (b is int) {
             msg = "1";
         } else {
-            if (true) {
-                if (true) {
-                    if (true) {
-                        if (true) {
+            if (b is string|boolean|float) {
+                if (b is string|boolean) {
+                    if (b is string) {
+                        int|string? c = 10;
+                        if (c is string) {
                             msg = "2.1.1.1.1";
-                        } else if (true) {
+                        } else if (c is int) {
                             msg = "2.1.1.1.2";
                         } else {
                             msg = "2.1.1.1.3";
@@ -178,16 +197,19 @@ function testDataflow_9() returns string {
 
 function testDataflow_10() returns string {
     string msg;
-    if (true) {
-        if (true) {
+    int|string? a = 10;
+    if (a is string) {
+        int|string|boolean|float? b = 10;
+        if (b is int) {
             msg = "1";
         } else {
-            if (true) {
-                if (true) {
-                    if (true) {
-                        if (true) {
+            if (b is string|boolean|float) {
+                if (b is string|boolean) {
+                    if (b is string) {
+                        int|string? c = 10;
+                        if (c is int) {
                             msg = "2.1.1.1.1";
-                        } else if (true) {
+                        } else if (c is string) {
                             // do nothing
                         } else {
                             msg = "2.1.1.1.3";
@@ -216,13 +238,14 @@ function testUninitializedVarReferrencing() {
     error e = error(s);
 
     // assigning uninitialized var
-    int b = a;
+    int _ = a;
 
     // increment uninitialized var
     a = a + 1;
 
+    int? x = 10;
     // panic uninitialized var
-    if (false) {
+    if (x is int) {
         panic getError(s);
     }
 
@@ -248,14 +271,14 @@ function testUninitializedVarReferrencing() {
     string|error str = a.cloneWithType(string);
 
     // uninitialized var XML
-    xml x1 = xml`<foo id="{{a}}" xmlns:ns0="{{a}}">
+    xml _ = xml`<foo id="{{a}}" xmlns:ns0="{{a}}">
                     <bar> hello {{a}}</bar>
                     <!-- refering to uninitialized {{a}} -->
                     <?target content {{a}}?>
                 </foo>`;
 
     // uninitialized var in string template
-    string text = string `hello ${a}`;
+    string _ = string `hello ${a}`;
 
     // uninitialized var index/field based access
     _ = m[s];
@@ -266,7 +289,7 @@ function testUninitializedVarReferrencing() {
 
     // uninitialized var in range expression
     //
-    var range = a...a+5;
+    var _ = a...a+5;
 }
 
 function foo(int a, string str = "hello", string... args) {
@@ -278,9 +301,11 @@ function getError(string msg) returns error {
 }
 
 function testDataflow_11() returns string {
-    if (true) {
+    int? a = 10;
+    if (a is int) {
+        int? b = 10;
         string msg;
-        if (true) {
+        if (b is int) {
             msg = "1";
         } else {
             return msg;
@@ -328,14 +353,16 @@ class Foo {
 
 function testIfFollowedByIf() returns int {
     int x;
-    if (true) {
-    } else if (true) {
+    int|string? a = 10;
+    if (a is int) {
+    } else if (a is string) {
     } else {
     }
 
-    if (true) {
+    int|string? b = 10;
+    if (b is int) {
         x = 1;
-    } else if (true) {
+    } else if (b is string) {
         x = 2;
     } else {
         x = 3;
@@ -385,10 +412,12 @@ function testCompoundAssignment() {
 function testUninitVsPartiallyInit() returns [string, string] {
     string a;
     string b;
-    if (true) {
-        if (true) {
+    int? c = 10;
+    if (c is int) {
+        int|string? d = 10;
+        if (d is int) {
             // do nothing
-        } else if (true) {
+        } else if (d is string) {
             b = "something";
         } else {
             // do nothing
@@ -448,28 +477,30 @@ service "testService" on testEP {
 
     resource function get resource_1(string conn, string request) {
         a = 5;
-        int b = a;
+        int _ = a;
         int c;
+        int? x = 10;
 
-        if (true) {
+        if (x is int) {
             return;
         } else {
             c = 3;
         }
 
-        int d = c;
+        int _ = c;
     }
 
     resource function get resource_2(string conn, string request) {
-        int b = a;
+        int _ = a;
     }
 }
 
 function testDataflowWithPanic_1() returns string {
     error e = error("some error");
     string msg;
-    if (true) {
-        if (true) {
+    int|string? a = 10;
+    if (a is int|string) {
+        if (a is int) {
             msg = "1";
         } else {
             panic e;
@@ -484,9 +515,10 @@ function testDataflowWithPanic_1() returns string {
 function testDataflowWithNestedPanic_1() returns string {
     error e = error("some error");
     string msg;
-    if (true) {
+    int|string? a = 10;
+    if (a is int|string) {
         panic e;
-        if (true) {
+        if (a is int) {
             msg = "1";
         } else {
             panic e;
@@ -501,9 +533,10 @@ function testDataflowWithNestedPanic_1() returns string {
 function testDataflowWithNestedPanic_2() returns string {
     error e = error("some error");
     string msg;
-    if (true) {
+    int|string? a = 10;
+    if (a is int|string) {
         panic e;
-        if (true) {
+        if (a is int) {
             // do nothing
         } else {
             panic e;
@@ -579,7 +612,7 @@ class F {
 }
 
 public function testDataFlow_13(){
-    var o = object { public string s; };
+    var _ = object { public string s; };
 }
 
 function testMatch2() returns int {
@@ -677,9 +710,9 @@ function testUninitializedVarWithContinueAndBreakInWhile() {
         } else {
             a = 1;
         }
-        int i = a; // OK
+        int _ = a; // OK
     }
-    int j = a; // variable 'a' may not have been initialized
+    int _ = a; // variable 'a' may not have been initialized
 
     int b;
     while false {
@@ -688,7 +721,7 @@ function testUninitializedVarWithContinueAndBreakInWhile() {
         } else {
             b = 1;
         }
-        int i = b; // OK
+        int _ = b; // OK
     }
     int k = b; // variable 'b' may not have been initialized
 }
@@ -706,7 +739,7 @@ function testUninitializedVarWithWhile1() {
         a = 10;
     }
     int j = a; // variable 'a' may not have been initialized
-    string k = b; // variable 'b' is not initialized
+    string _ = b; // variable 'b' is not initialized
 }
 
 function testUninitializedVarWithWhile2() {
@@ -720,5 +753,106 @@ function testUninitializedVarWithWhile2() {
 
 function testUninitializedVarWithLet() {
    int i;
-   int b = let int x = 4 + i in 2 * x * i;
+   int _ = let int x = 4 + i in 2 * x * i;
+}
+
+function testUninitializedVariablesWithMemberAccess() {
+    int i;
+    int[] m = [];
+    m[i] = 1; // variable 'i' is not initialized
+    int _ = m[i]; // variable 'i' is not initialized
+
+    int[] n;
+    n[i] = 2; // variable 'n' is not initialized, variable 'i' is not initialized
+    int _ = n[i]; // variable 'n' is not initialized, variable 'i' is not initialized
+
+    int j = 0;
+    m[j] = 3; // OK
+    int _ = m[j]; // OK
+}
+
+function testUninitializedVariablesWithFunctionCalls() {
+    function () f1;
+    f1(); // uninitialized `f1`
+
+    f1 = function () {};
+    f1(); // OK
+
+    function (int i, string j = "", boolean... k) f2;
+    int i;
+    string j;
+    boolean[] k;
+    f2(i, j, ...k); // uninitialized `f2`, `i`, `j`, `k`
+
+    function (int i, string j = "", boolean... k) f3 = function (int i, string j = "", boolean... k) {};
+    int i2 = 0;
+    string j2 = "";
+    boolean[] k2 = [true];
+    f2(i2, j2, ...k2); // uninitialized `f2`
+    f3(i2, j2, ...k2); // OK
+    f3(i, j, ...k); // uninitialized `i`, `j`, `k`
+
+    Bar b;
+    b.fn(i); // uninitialized `b`, `i`
+    b.method(); // uninitialized `b`
+
+    i = 1;
+    b = new(function (int i) {});
+    b.fn(i); // OK
+    b.method(); // OK
+}
+
+class Bar {
+    function (int i) fn;
+
+    function init(function (int i) fn) {
+        self.fn = fn;
+    }
+
+    function method() {
+    }
+}
+
+function testUninitializedVariablesInTheMatchGuard() {
+    int[] & readonly arr = [];
+
+    int i;
+    anydata[] anydataArr;
+    function () returns boolean fn2;
+
+    int i2 = 0;
+    anydata[] anydataArr2 = [];
+
+    match arr {
+        [] if fn(i, ...anydataArr) => { // uninitialized `i`, `anydataArr`
+        }
+        [1, 2] if fn2() => { // uninitialized `fn2`
+        }
+        var [x, y] if i < 3 => { // uninitialized `i`
+        }
+        [1, 2, 3] if fn(i2, ...anydataArr2) => { // OK
+        }
+    }
+}
+
+isolated function fn(any... x) returns boolean => true;
+
+function testUninitializedVariablesInTheTypeNodeOfLocalDeclStmts() {
+    final int j;
+    record {| int i = j; |} a1; // uninitialized `j`
+    record {| int i = j; |} _ = {}; // uninitialized `j`
+
+    final int k = 1;
+    record {| int i = k; |} a2; // OK
+    record {| int i = k; |} _ = {}; // OK
+}
+
+annotation v1 on type;
+
+function testUninitializedVariablesInAnnotationAccessExprs() {
+    typedesc<any> t1;
+    _ = t1.@v1; // uninitialized `t1`
+
+    typedesc t2 = int;
+    _ = t2.@v1; // OK
 }

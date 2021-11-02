@@ -47,7 +47,7 @@ function workerWaitsForWorker() {
     }
 
     worker w1 {
-        int j = <- w;
+        int _ = <- w;
     }
 
     worker w2 {
@@ -93,14 +93,14 @@ public function testForkWithinWorker() {
 public function singleUnfinishedWorker() {
     worker w1 {
         11 -> w3;
-        string fromw3 = <- w3;
+        string _ = <- w3;
     }
     worker w3 {
         "tow1-1" -> w2;
-        int m4 = <- w2;
+        int _ = <- w2;
     }
     worker w2 {
-        string m2 = <- w3;
+        string _ = <- w3;
         24 -> w3;
     }
     _ = wait {w1, w2, w3};

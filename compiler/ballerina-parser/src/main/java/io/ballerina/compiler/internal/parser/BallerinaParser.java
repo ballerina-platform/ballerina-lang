@@ -871,12 +871,12 @@ public class BallerinaParser extends AbstractParser {
                 STNode constKeyword = STNodeFactory.createEmptyNode();
                 return parseAnnotationDeclaration(metadata, publicQualifier, constKeyword);
             case IMPORT_KEYWORD:
-                reportInvalidMetaData(metadata);
+                reportInvalidMetaData(metadata, "import declaration");
                 reportInvalidQualifier(publicQualifier);
                 reportInvalidQualifierList(qualifiers);
                 return parseImportDecl();
             case XMLNS_KEYWORD:
-                reportInvalidMetaData(metadata);
+                reportInvalidMetaData(metadata, "XML namespace declaration");
                 reportInvalidQualifier(publicQualifier);
                 reportInvalidQualifierList(qualifiers);
                 return parseXMLNamespaceDeclaration(true);
@@ -1006,9 +1006,9 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private void reportInvalidMetaData(STNode metadata) {
+    private void reportInvalidMetaData(STNode metadata, String constructName) {
         if (metadata != null && metadata.kind != SyntaxKind.NONE) {
-            addInvalidNodeToNextToken(metadata, DiagnosticErrorCode.ERROR_INVALID_METADATA);
+            addInvalidNodeToNextToken(metadata, DiagnosticErrorCode.ERROR_INVALID_METADATA, constructName);
         }
     }
 
@@ -2674,7 +2674,7 @@ public class BallerinaParser extends AbstractParser {
         STNode colon = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.COLON_TOKEN,
                 DiagnosticErrorCode.ERROR_MISSING_COLON_TOKEN);
         STNode varOrFuncName = parseIdentifier(context);
-        return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
+        return createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
     }
 
     private STNode parseQualifiedTypeRefOrTypeDesc(List<STNode> qualifiers, boolean isInConditionalExpr) {
@@ -3992,19 +3992,23 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind != SyntaxKind.COLON_TOKEN) {
             return STNodeFactory.createSimpleNameReferenceNode(identifier);
         }
+        
+        if (isInConditionalExpr && (hasTrailingMinutiae(identifier) || hasTrailingMinutiae(nextToken))) {
+            return ConditionalExprResolver.getSimpleNameRefNode(identifier);
+        }
 
         STToken nextNextToken = peek(2);
         switch (nextNextToken.kind) {
             case IDENTIFIER_TOKEN:
                 STToken colon = consume();
                 STNode varOrFuncName = consume();
-                return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
+                return createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
             case MAP_KEYWORD:
                 colon = consume();
                 STToken mapKeyword = consume();
                 STNode refName = STNodeFactory.createIdentifierToken(mapKeyword.text(), mapKeyword.leadingMinutiae(),
                         mapKeyword.trailingMinutiae(), mapKeyword.diagnostics());
-                return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, refName);
+                return createQualifiedNameReferenceNode(identifier, colon, refName);
             case COLON_TOKEN:
                 // specially handle cases where there are more than one colon.
                 addInvalidTokenToNextToken(errorHandler.consumeInvalidToken());
@@ -4017,8 +4021,17 @@ public class BallerinaParser extends AbstractParser {
                 colon = consume();
                 varOrFuncName = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
                         DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER);
-                return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
+                return createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
         }
+    }
+    
+    private STNode createQualifiedNameReferenceNode(STNode identifier, STNode colon, STNode varOrFuncName) {
+        if (hasTrailingMinutiae(identifier) || hasTrailingMinutiae(colon)) {
+            colon = SyntaxErrors.addDiagnostic(colon,
+                    DiagnosticErrorCode.ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED);
+        }
+
+        return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
     }
 
     /**
@@ -4032,7 +4045,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case ELLIPSIS_TOKEN:
-                reportInvalidMetaData(metadata);
+                reportInvalidMetaData(metadata, "record rest descriptor");
                 STNode ellipsis = parseEllipsis();
                 STNode semicolonToken = parseSemicolon();
                 return STNodeFactory.createRecordRestDescriptorNode(type, ellipsis, semicolonToken);
@@ -5685,7 +5698,8 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseFieldAccessOrMethodCall(STNode lhsExpr, boolean isInConditionalExpr) {
         STNode dotToken = parseDotToken();
         STToken token = peek();
-        if (token.kind == SyntaxKind.MAP_KEYWORD || token.kind == SyntaxKind.START_KEYWORD) {
+        if (token.kind == SyntaxKind.MAP_KEYWORD || token.kind == SyntaxKind.START_KEYWORD || 
+                token.kind == SyntaxKind.JOIN_KEYWORD) {
             STNode methodName = getKeywordAsSimpleNameRef();
             STNode openParen = parseArgListOpenParenthesis();
             STNode args = parseArgsList();
@@ -6423,7 +6437,7 @@ public class BallerinaParser extends AbstractParser {
                 visibilityQualifier = STNodeFactory.createEmptyNode();
                 return parseObjectMethodOrFuncTypeDesc(metadata, visibilityQualifier, qualifiers, isObjectTypeDesc);
             case ASTERISK_TOKEN:
-                reportInvalidMetaData(metadata);
+                reportInvalidMetaData(metadata, "object type inclusion");
                 reportInvalidQualifierList(qualifiers);
                 STNode asterisk = consume();
                 STNode type = parseTypeReferenceInTypeInclusion();
@@ -11274,7 +11288,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseQueryExprRhs(STNode queryConstructType, boolean isRhsExpr) {
-        this.tokenReader.startKeywordMode(KeywordMode.QUERY);
+//        this.tokenReader.startKeywordMode(KeywordMode.QUERY);
         switchContext(ParserRuleContext.QUERY_EXPRESSION);
         STNode fromClause = parseFromClause(isRhsExpr);
 
@@ -11335,7 +11349,7 @@ public class BallerinaParser extends AbstractParser {
         STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
         STNode onConflictClause = parseOnConflictClause(isRhsExpr);
 
-        this.tokenReader.endKeywordMode();
+//        this.tokenReader.endKeywordMode();
         return STNodeFactory.createQueryExpressionNode(queryConstructType, queryPipeline, selectClause,
                 onConflictClause);
     }
@@ -12313,7 +12327,7 @@ public class BallerinaParser extends AbstractParser {
 
         STNode colon = parseColon();
         STNode peerWorker = parsePeerWorkerName();
-        return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, peerWorker);
+        return createQualifiedNameReferenceNode(identifier, colon, peerWorker);
     }
 
     /**
@@ -17543,13 +17557,14 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Reach here for something like: "{foo:bar". This could be anything.
-        STNode qualifiedNameRef = STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, secondIdentifier);
+        STNode qualifiedNameRef = createQualifiedNameReferenceNode(identifier, colon, secondIdentifier);
         switch (peek().kind) {
             case COMMA_TOKEN:
                 // {foo:bar, --> map-literal or binding pattern
-                // Return a qualified-name-reference node since this is ambiguous. Downstream code
+                // Return a specific field node since this is ambiguous. Downstream code
                 // will convert this to the respective node, once the ambiguity is resolved.
-                return qualifiedNameRef;
+                return STNodeFactory.createSpecificFieldNode(STNodeFactory.createEmptyNode(), identifier, colon,
+                        secondNameRef);
             case OPEN_BRACE_TOKEN: // { foo:bar{ --> var-decl with TBP
             case IDENTIFIER_TOKEN: // var-decl
                 List<STNode> varDeclQualifiers = new ArrayList<>();
@@ -17985,7 +18000,7 @@ public class BallerinaParser extends AbstractParser {
         // starting with "bar". Hence if its a typed-binding-pattern, then merge the "foo:" with
         // the rest of the type-desc.
         STTypedBindingPatternNode typedBP = (STTypedBindingPatternNode) typedBPOrExpr;
-        STNode qualifiedNameRef = STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, secondIdentifier);
+        STNode qualifiedNameRef = createQualifiedNameReferenceNode(identifier, colon, secondIdentifier);
         STNode newTypeDesc = mergeQualifiedNameWithTypeDesc(qualifiedNameRef, typedBP.typeDescriptor);
 
         STNode newTypeBP = STNodeFactory.createTypedBindingPatternNode(newTypeDesc, typedBP.bindingPattern);
@@ -18017,8 +18032,7 @@ public class BallerinaParser extends AbstractParser {
                 switchContext(ParserRuleContext.BLOCK_STMT);
                 startContext(ParserRuleContext.EXPRESSION_STATEMENT);
                 // stmt start with expr
-                STNode qualifiedName =
-                        STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, secondIdentifier);
+                STNode qualifiedName = createQualifiedNameReferenceNode(identifier, colon, secondIdentifier);
                 STNode updatedExpr = mergeQualifiedNameWithExpr(qualifiedName, expr);
                 return parseStatementStartWithExprRhs(updatedExpr);
         }

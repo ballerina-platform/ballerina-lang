@@ -209,6 +209,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_ENTITY_REFERENCE_NAME("BCE0412", "error.missing.entity.reference.name"),
     ERROR_MISSING_SEMICOLON_IN_XML_REFERENCE("BCE0413", "error.missing.semicolon.in.xml.reference"),
     ERROR_MISSING_ATTACH_POINT_NAME("BCE0414", "error.missing.attach.point.name"),
+    ERROR_MISSING_HEX_NUMBER_AFTER_HEX_INDICATOR("BCE0415", "error.missing.hex.number.after.hex.indicator"),
+    ERROR_MISSING_DIGIT_AFTER_DOT("BCE0416", "error.missing.digit.after.dot"),
 
     // Missing non-terminal nodes
     ERROR_MISSING_FUNCTION_NAME("BCE0500", "error.missing.function.name"),
@@ -337,6 +339,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_LOCAL_CONST_DECL_NOT_ALLOWED("BCE674", "error.local.const.decl.not.allowed"),
     ERROR_FIELD_INITIALIZATION_NOT_ALLOWED_IN_OBJECT_TYPE("BCE675",
             "error.field.initialization.not.allowed.in.object.type"),
+    ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED("BCE676", "error.intervening.whitespaces.are.not.allowed"),
     ;
 
     String diagnosticId;

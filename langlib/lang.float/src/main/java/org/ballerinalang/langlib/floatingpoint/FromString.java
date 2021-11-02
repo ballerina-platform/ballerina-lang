@@ -50,7 +50,7 @@ public class FromString {
             return TypeConverter.stringToFloat(s.getValue());
         } catch (NumberFormatException e) {
             return ErrorCreator.createError(ERROR_REASON,
-                                            BLangExceptionHelper.getErrorMessage(
+                                            BLangExceptionHelper.getErrorDetails(
                                                     RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                                     PredefinedTypes.TYPE_STRING, s, PredefinedTypes.TYPE_FLOAT));
         }

@@ -200,6 +200,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -1237,9 +1238,10 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean validateTableConstructorExpr(BLangTableConstructorExpr tableConstructorExpr,
                                                  BTableType tableType) {
         BType constraintType = tableType.constraint;
-
-        if (tableConstructorExpr.tableKeySpecifier != null) {
-            List<String> fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
+        List<String> fieldNameList = new ArrayList<>();
+        boolean isKeySpecifierEmpty = tableConstructorExpr.tableKeySpecifier == null;
+        if (!isKeySpecifierEmpty) {
+            fieldNameList.addAll(getTableKeyNameList(tableConstructorExpr.tableKeySpecifier));
 
             if (tableType.fieldNameList == null &&
                     !validateKeySpecifier(fieldNameList,
@@ -1261,25 +1263,39 @@ public class TypeChecker extends BLangNodeVisitor {
         if (keyTypeConstraint != null) {
             List<BType> memberTypes = new ArrayList<>();
 
-            if (keyTypeConstraint.tag == TypeTags.TUPLE) {
-                for (Type type : ((TupleType) keyTypeConstraint).getTupleTypes()) {
-                    memberTypes.add((BType) type);
-                }
-            } else {
-                memberTypes.add(keyTypeConstraint);
+            switch (keyTypeConstraint.tag) {
+                case TypeTags.TUPLE:
+                    for (Type type : ((TupleType) keyTypeConstraint).getTupleTypes()) {
+                        memberTypes.add((BType) type);
+                    }
+                    break;
+                case TypeTags.RECORD:
+                    Map<String, BField> fieldList = ((BRecordType) keyTypeConstraint).getFields();
+                    memberTypes = fieldList.entrySet().stream()
+                            .filter(e -> fieldNameList.contains(e.getKey())).map(entry -> entry.getValue().type)
+                            .collect(Collectors.toList());
+                    if (memberTypes.isEmpty()) {
+                        memberTypes.add(keyTypeConstraint);
+                    }
+                    break;
+                default:
+                    memberTypes.add(keyTypeConstraint);
             }
 
-            if (tableConstructorExpr.tableKeySpecifier == null && keyTypeConstraint.tag == TypeTags.NEVER) {
+            if (isKeySpecifierEmpty && keyTypeConstraint.tag == TypeTags.NEVER) {
                 return true;
             }
 
-            if (tableConstructorExpr.tableKeySpecifier == null ||
+            if (isKeySpecifierEmpty ||
                     tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList.size() != memberTypes.size()) {
-                dlog.error(tableConstructorExpr.pos,
-                        DiagnosticErrorCode.KEY_SPECIFIER_SIZE_MISMATCH_WITH_KEY_CONSTRAINT,
-                        memberTypes.size(),
-                        tableConstructorExpr.tableKeySpecifier == null ?
-                                0 : tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList.size());
+                if (isKeySpecifierEmpty) {
+                    dlog.error(tableConstructorExpr.pos,
+                            DiagnosticErrorCode.KEY_SPECIFIER_EMPTY_FOR_PROVIDED_KEY_CONSTRAINT, memberTypes);
+                } else {
+                    dlog.error(tableConstructorExpr.pos,
+                            DiagnosticErrorCode.KEY_SPECIFIER_SIZE_MISMATCH_WITH_KEY_CONSTRAINT,
+                            memberTypes, tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList);
+                }
                 resultType = symTable.semanticError;
                 return false;
             }
@@ -2159,12 +2175,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         Name varName = names.fromIdNode(varRefExpr.variableName);
         if (varName == Names.IGNORE) {
-            if (varRefExpr.isLValue) {
-                varRefExpr.setBType(this.symTable.anyType);
-            } else {
-                varRefExpr.setBType(this.symTable.semanticError);
-                dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED);
-            }
+            varRefExpr.setBType(this.symTable.anyType);
 
             // If the variable name is a wildcard('_'), the symbol should be ignorable.
             varRefExpr.symbol = new BVarSymbol(0, true, varName,
@@ -4018,7 +4029,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         SymbolEnv rhsExprEnv;
         BType lhsType;
-        if (binaryExpr.expectedType.tag == TypeTags.FLOAT || binaryExpr.expectedType.tag == TypeTags.DECIMAL) {
+        if (binaryExpr.expectedType.tag == TypeTags.FLOAT || binaryExpr.expectedType.tag == TypeTags.DECIMAL ||
+                isOptionalFloatOrDecimal(binaryExpr.expectedType)) {
             lhsType = checkAndGetType(binaryExpr.lhsExpr, env, binaryExpr);
         } else {
             lhsType = checkExpr(binaryExpr.lhsExpr, env);
@@ -4034,7 +4046,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType rhsType;
 
-        if (binaryExpr.expectedType.tag == TypeTags.FLOAT || binaryExpr.expectedType.tag == TypeTags.DECIMAL) {
+        if (binaryExpr.expectedType.tag == TypeTags.FLOAT || binaryExpr.expectedType.tag == TypeTags.DECIMAL ||
+                isOptionalFloatOrDecimal(binaryExpr.expectedType)) {
             rhsType = checkAndGetType(binaryExpr.rhsExpr, rhsExprEnv, binaryExpr);
         } else {
             rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
@@ -4092,6 +4105,20 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(binaryExpr, actualType, expType);
+    }
+
+    private boolean isOptionalFloatOrDecimal(BType expectedType) {
+        if (expectedType.tag == TypeTags.UNION && expectedType.isNullable() && expectedType.tag != TypeTags.ANY) {
+            Iterator<BType> memberTypeIterator = ((BUnionType) expectedType).getMemberTypes().iterator();
+            while (memberTypeIterator.hasNext()) {
+                BType memberType = memberTypeIterator.next();
+                if (memberType.tag == TypeTags.FLOAT || memberType.tag == TypeTags.DECIMAL) {
+                    return true;
+                }
+            }
+
+        }
+        return false;
     }
 
     private BType checkAndGetType(BLangExpression expr, SymbolEnv env, BLangBinaryExpr binaryExpr) {

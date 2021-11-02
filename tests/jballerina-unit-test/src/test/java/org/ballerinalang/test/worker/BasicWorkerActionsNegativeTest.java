@@ -56,20 +56,28 @@ public class BasicWorkerActionsNegativeTest {
     public void testNegativeWorkerActions() {
         int index = 0;
         CompileResult resultNegative = BCompileUtil.compile("test-src/workers/actions-negative.bal");
+        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'val'", 45, 9);
+        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'p3'", 56, 9);
         BAssertUtil.validateError(resultNegative, index++, "invalid worker flush expression for 'w1', there are no " +
                 "worker send statements to 'w1' from 'w3'", 62, 17);
+        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'val'", 63, 9);
         BAssertUtil.validateError(resultNegative, index++, "worker send statement position not supported yet, " +
                 "must be a top level statement in a worker", 76, 13);
+        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'msg'", 81, 9);
         BAssertUtil.validateError(resultNegative, index++, "invalid worker receive statement position, must be a " +
                 "top level statement in a worker", 83, 19);
+        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'x1'", 91, 9);
+        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'x2'", 92, 9);
+        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'result'", 93, 9);
         BAssertUtil.validateError(resultNegative, index++, "invalid worker flush expression for 'w2', there are no " +
                 "worker send statements to 'w2' from 'w1'", 93, 25);
+        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'j'", 100, 9);
         BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 144, 26);
         BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 161, 26);
         BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 162, 26);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 166, 29);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 167, 25);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 168, 26);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 166, 25);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 167, 22);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 168, 25);
         BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 169, 21);
         BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 190, 17);
         BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 198, 30);
@@ -77,9 +85,9 @@ public class BasicWorkerActionsNegativeTest {
         BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 218, 30);
         BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 219, 30);
         BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 220, 75);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 226, 33);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 227, 29);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 228, 30);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 226, 29);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 227, 26);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 228, 29);
         BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 229, 25);
         BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 231, 21);
 
@@ -95,10 +103,11 @@ public class BasicWorkerActionsNegativeTest {
         BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 263, 17);
         BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 266, 17);
         BAssertUtil.validateError(resultNegative, index++, "undefined worker 'w1'", 271, 26);
+        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'index'", 277, 17);
         BAssertUtil.validateError(resultNegative, index++,
                 "invalid worker receive statement position, must be a top level statement in a worker", 278, 21);
         BAssertUtil.validateError(resultNegative, index++,
-                "invalid worker receive statement position, must be a top level statement in a worker", 283, 19);
+                "invalid worker receive statement position, must be a top level statement in a worker", 283, 17);
         BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 290, 26);
         BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 292, 30);
         BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 298, 26);
@@ -108,12 +117,14 @@ public class BasicWorkerActionsNegativeTest {
         BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 309, 30);
         BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 312, 30);
         BAssertUtil.validateError(resultNegative, index++, "undefined worker 'w1'", 317, 39);
+        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'index'", 323, 30);
         BAssertUtil.validateError(resultNegative, index++,
                 "invalid worker receive statement position, must be a top level statement in a worker", 324, 34);
         BAssertUtil.validateError(resultNegative, index++,
-                "invalid worker receive statement position, must be a top level statement in a worker", 329, 32);
+                "invalid worker receive statement position, must be a top level statement in a worker", 329, 30);
 
-        Assert.assertEquals(resultNegative.getErrorCount(), index, "Worker actions negative test error count");
+        Assert.assertEquals(resultNegative.getDiagnostics().length, index,
+                            "Worker actions negative test diagnostic count");
     }
 
     private String formatMessage(String workerName) {

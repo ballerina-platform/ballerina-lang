@@ -49,7 +49,8 @@ public class BuildOptions {
     }
 
     public boolean skipTests() {
-        return toBooleanDefaultIfNull(this.skipTests);
+        // By default, the tests will be skipped
+        return toBooleanTrueIfNull(this.skipTests);
     }
 
     public boolean offlineBuild() {
@@ -127,6 +128,13 @@ public class BuildOptions {
     private boolean toBooleanDefaultIfNull(Boolean bool) {
         if (bool == null) {
             return false;
+        }
+        return bool;
+    }
+
+    private boolean toBooleanTrueIfNull(Boolean bool) {
+        if (bool == null) {
+            return true;
         }
         return bool;
     }

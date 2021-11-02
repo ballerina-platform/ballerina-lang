@@ -134,6 +134,16 @@ public class InitCommand implements BLauncherCmd {
             return;
         }
 
+        if (!ProjectUtils.validateUnderscoresOfName(packageName)) {
+            CommandUtil.printError(errStream,
+                                   "invalid package name : '" + packageName + "' :\n" +
+                                           ProjectUtils.getValidateUnderscoreError(packageName, "Package"),
+                                   null,
+                                   false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
         if (!ProjectUtils.validatePackageName(packageName)) {
             errStream.println("unallowed characters in the project name were replaced by " +
                     "underscores when deriving the package name. Edit the Ballerina.toml to change it.");

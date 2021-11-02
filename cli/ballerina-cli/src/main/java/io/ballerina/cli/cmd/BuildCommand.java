@@ -40,6 +40,7 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -49,7 +50,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
-import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.projects.internal.ManifestBuilder.getStringValueFromTomlTableNode;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.JACOCO_XML_FORMAT;
@@ -67,6 +67,7 @@ public class BuildCommand implements BLauncherCmd {
     private final PrintStream errStream;
     private boolean exitWhenFinish;
     private boolean skipCopyLibsFromDist;
+    private Boolean skipTests;
 
     public BuildCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -74,6 +75,7 @@ public class BuildCommand implements BLauncherCmd {
         this.errStream = System.err;
         this.exitWhenFinish = true;
         this.skipCopyLibsFromDist = false;
+        this.skipTests = true;
     }
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean dumpBuildTime) {
@@ -127,6 +129,7 @@ public class BuildCommand implements BLauncherCmd {
         this.output = output;
     }
 
+    // TODO : Remove after Beta4
     @CommandLine.Option(names = {"--compile", "-c"}, description = "Compile the source without generating " +
                                                                    "executable(s).")
     private boolean compile;
@@ -140,8 +143,8 @@ public class BuildCommand implements BLauncherCmd {
                                                               "dependencies.")
     private Boolean offline;
 
-    @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
-    private Boolean skipTests;
+    @CommandLine.Option(names = {"--with-tests"}, description = "Run test compilation and execution.")
+    private Boolean withTests;
 
     @CommandLine.Parameters (arity = "0..1")
     private final Path projectPath;
@@ -167,7 +170,7 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
     private String debugPort;
 
-    private static final String buildCmd = "bal build [-o <output>] [--offline] [--skip-tests] [--taint-check]\n" +
+    private static final String buildCmd = "bal build [-o <output>] [--offline] [--with-tests] [--taint-check]\n" +
             "                    [<ballerina-file | package-path>]";
 
     @CommandLine.Option(names = "--test-report", description = "enable test report generation")
@@ -208,6 +211,10 @@ public class BuildCommand implements BLauncherCmd {
             return;
         }
 
+        if (this.compile) {
+            this.outStream.println("warning: '-c compile' flag is deprecated. Please make use of 'bal pack' command");
+        }
+
         // load project
         Project project;
 
@@ -222,6 +229,11 @@ public class BuildCommand implements BLauncherCmd {
 
         if (sticky == null) {
             sticky = false;
+        }
+
+        // If withTests flag is not provided, we change the skipTests flag accordingly
+        if (withTests != null) {
+            this.skipTests = !withTests;
         }
 
         BuildOptions buildOptions = constructBuildOptions();
@@ -375,7 +387,7 @@ public class BuildCommand implements BLauncherCmd {
         }
         // Validate Settings.toml file
         try {
-            readSettings();
+            RepoUtils.readSettings();
         } catch (SettingsTomlException e) {
             this.outStream.println("warning: " + e.getMessage());
         }
@@ -454,7 +466,7 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal build [-o <output>] [--offline] [--skip-tests]\\n\" +\n" +
+        out.append("  bal build [-o <output>] [--offline] [--with-tests]\\n\" +\n" +
                 "            \"                    [<ballerina-file | package-path>]");
     }
 
