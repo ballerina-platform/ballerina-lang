@@ -2054,21 +2054,21 @@ public class Types {
 
     public BType getTypeWithEffectiveIntersectionTypes(BType bType) {
         BType type = getReferredType(bType);
+        BType effectiveType = null;
         if (type.tag == TypeTags.INTERSECTION) {
-            type = ((BIntersectionType) type).effectiveType;
+            effectiveType = ((BIntersectionType) type).effectiveType;
+            type = effectiveType;
         }
 
         if (type.tag != TypeTags.UNION) {
-            //todo chiran
-//            return bType;
-            return type;
+            return Objects.requireNonNullElse(effectiveType, bType);
         }
 
         LinkedHashSet<BType> members = new LinkedHashSet<>();
         boolean hasDifferentMember = false;
 
         for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-            BType effectiveType = getTypeWithEffectiveIntersectionTypes(memberType);
+            effectiveType = getTypeWithEffectiveIntersectionTypes(memberType);
             effectiveType = getReferredType(effectiveType);
             if (effectiveType != memberType) {
                 hasDifferentMember = true;
@@ -2079,7 +2079,7 @@ public class Types {
         if (hasDifferentMember) {
             return BUnionType.create(null, members);
         }
-        return type;
+        return bType;
     }
 
     /**

@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.Optional;
@@ -32,14 +33,17 @@ import static org.wso2.ballerinalang.compiler.util.TypeTags.TYPEREFDESC;
 public class BTypeReferenceType extends BType implements SelectivelyImmutableReferenceType {
 
     public BType referredType;
+    public BTypeDefinitionSymbol typeDefinitionSymbol;
     public final String definitionName;
     public BIntersectionType immutableType;
     private BIntersectionType intersectionType = null;
 
-    public BTypeReferenceType(BType referredType, BTypeSymbol tsymbol, long flags) {
+    public BTypeReferenceType(BType referredType, BTypeSymbol tsymbol, BTypeDefinitionSymbol typeDefinitionSymbol,
+                              long flags) {
         super(TYPEREFDESC, tsymbol, flags);
         this.referredType = referredType;
         this.definitionName = tsymbol.getName().getValue();
+        this.typeDefinitionSymbol = typeDefinitionSymbol;
     }
 
     @Override

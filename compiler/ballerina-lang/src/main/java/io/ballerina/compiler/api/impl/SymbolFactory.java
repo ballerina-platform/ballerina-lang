@@ -409,6 +409,15 @@ public class SymbolFactory {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
 
+        if (typeSymbol instanceof BTypeDefinitionSymbol) {
+            for (BLangAnnotationAttachment annAttachment : ((BTypeDefinitionSymbol) typeSymbol).annAttachments) {
+                if (annAttachment.annotationSymbol == null) {
+                    continue;
+                }
+                symbolBuilder.withAnnotation(createAnnotationSymbol(annAttachment.annotationSymbol));
+            }
+        }
+
         return symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(typeSymbol.type, typeSymbol, true))
                 .build();
     }

@@ -264,8 +264,7 @@ public class TypesFactory {
             case INTERSECTION:
                 return new BallerinaIntersectionTypeSymbol(this.context, moduleID, (BIntersectionType) bType);
             case TYPEREFDESC:
-                return createTypeDescriptor(types.getReferredType(bType),
-                        types.getReferredType(bType).tsymbol, moduleID);
+                return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType, tSymbol, false);
             default:
                 if (bType.tag == SEMANTIC_ERROR) {
                     return new BallerinaCompilationErrorTypeSymbol(this.context, moduleID, bType);

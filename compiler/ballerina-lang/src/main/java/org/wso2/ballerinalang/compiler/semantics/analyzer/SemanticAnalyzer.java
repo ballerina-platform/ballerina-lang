@@ -53,6 +53,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -518,6 +519,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             annotationAttachment.accept(this);
             annotSymbols.add(annotationAttachment.annotationSymbol);
         });
+
+        if (typeDefinition.symbol instanceof BTypeDefinitionSymbol) {
+            ((BTypeDefinitionSymbol) typeDefinition.symbol).annAttachments.addAll(typeDefinition.annAttachments);
+        }
 
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
             ((BEnumSymbol) typeDefinition.symbol).addAnnotations(annotSymbols);

@@ -23,8 +23,12 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @since 2.0.0
@@ -32,11 +36,13 @@ import org.wso2.ballerinalang.compiler.util.Names;
 public class BTypeDefinitionSymbol extends BSymbol {
 
     public BTypeReferenceType referenceType = null;
+    public List<BLangAnnotationAttachment> annAttachments;
 
     public BTypeDefinitionSymbol(long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                                  Location pos, SymbolOrigin origin) {
         super(SymTag.TYPE_DEF, flags, name, pkgID, type, owner, pos, origin);
         this.kind = SymbolKind.TYPE_DEF;
+        this.annAttachments = new ArrayList<>();
     }
 
     @Override

@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -52,14 +53,18 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     private boolean moduleEvaluated;
     private boolean fromIntersectionType;
     public BSymbol tSymbol;
+    public BType referredType;
+
 
     public BallerinaTypeReferenceTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType,
                                             BSymbol tSymbol, boolean fromIntersectionType) {
         super(context, TypeDescKind.TYPE_REFERENCE, bType);
-        this.definitionName = tSymbol != null ? tSymbol.getOriginalName().getValue() : null;
+        Types types = Types.getInstance(this.context);
+        referredType =  types.getReferredType(this.getBType());
+        this.definitionName = tSymbol.getOriginalName().getValue();
         this.tSymbol = tSymbol;
         this.fromIntersectionType = fromIntersectionType;
-        this.location = tSymbol != null ? tSymbol.pos : null;
+        this.location = tSymbol.pos;
     }
 
     @Override
@@ -67,7 +72,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         if (this.typeDescriptorImpl == null) {
             TypesFactory typesFactory = TypesFactory.getInstance(this.context);
             this.typeDescriptorImpl = typesFactory.getTypeDescriptor(
-                    this.getBType(), this.getBType().tsymbol, true, !fromIntersectionType, false);
+                    referredType, referredType.tsymbol, true, !fromIntersectionType, false);
         }
 
         return this.typeDescriptorImpl;

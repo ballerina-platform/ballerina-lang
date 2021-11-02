@@ -1533,7 +1533,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner, typeDefSymbol.pos, typeDefSymbol.origin);
         typeSymbol.markdownDocumentation = typeDefSymbol.markdownDocumentation;
         ((BTypeDefinitionSymbol) typeDefSymbol).referenceType = new BTypeReferenceType(definedType, typeSymbol,
-                typeDefSymbol.type.flags);
+                (BTypeDefinitionSymbol) typeDefSymbol, typeDefSymbol.type.flags);
+
 
         //todo remove after type ref introduced to runtime
         if (definedType.tsymbol.name == Names.EMPTY) {
