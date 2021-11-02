@@ -7544,7 +7544,8 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = arrayType.eType;
                     break;
                 }
-                actualType = getConstIndex(indexExpr) >= arrayType.size ? symTable.semanticError : arrayType.eType;
+                Long indexVal = getConstIndex(indexExpr);
+                actualType = indexVal >= arrayType.size || indexVal < 0 ? symTable.semanticError : arrayType.eType;
                 break;
             case TypeTags.FINITE:
                 BFiniteType finiteIndexExpr = (BFiniteType) indexExprType;
