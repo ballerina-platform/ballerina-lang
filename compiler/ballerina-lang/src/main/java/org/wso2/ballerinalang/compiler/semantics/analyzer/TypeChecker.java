@@ -2769,7 +2769,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         List<BType> expandedCandidates = getTypeCandidatesForErrorConstructor(errorConstructorExpr);
 
-        List<BType> errorDetailTypes = new ArrayList<>();
+        List<BType> errorDetailTypes = new ArrayList<>(expandedCandidates.size());
         for (BType expandedCandidate : expandedCandidates) {
             BType detailType = ((BErrorType) expandedCandidate).detailType;
             errorDetailTypes.add(detailType);
@@ -2791,6 +2791,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (selectedCandidate != symTable.semanticError
                 && (userProvidedTypeRef == null || userProvidedTypeRef.getBType() == selectedCandidate)) {
             checkProvidedErrorDetails(errorConstructorExpr, inferredDetailType);
+            // TODO: When the `userProvidedTypeRef` is present diagnostic message is provided for just `error`
+            // https://github.com/ballerina-platform/ballerina-lang/issues/33574
             resultType = types.checkType(errorConstructorExpr.pos, selectedCandidate, expType,
                     DiagnosticErrorCode.INCOMPATIBLE_TYPES);
             return;
@@ -2800,11 +2802,13 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(errorConstructorExpr.pos, DiagnosticErrorCode.CANNOT_INFER_ERROR_TYPE, expType);
         }
 
+        boolean validTypeRefFound = false;
         // Error details provided does not match the contextually expected error type.
         // if type reference is not provided let's take the `ballerina/lang.error:error` as the expected type.
         BErrorType errorType;
         if (userProvidedTypeRef != null && userProvidedTypeRef.getBType().tag == TypeTags.ERROR) {
             errorType = (BErrorType) userProvidedTypeRef.getBType();
+            validTypeRefFound = true;
         } else if (expandedCandidates.size() == 1) {
             errorType = (BErrorType) expandedCandidates.get(0);
         } else {
@@ -2864,7 +2868,20 @@ public class TypeChecker extends BLangNodeVisitor {
             errorConstructorExpr.setBType(errorType);
         }
 
-        resultType = errorConstructorExpr.getBType();
+        BType resolvedType = errorConstructorExpr.getBType();
+        if (resolvedType != symTable.semanticError && expType != symTable.noType &&
+                !types.isAssignable(resolvedType, expType)) {
+            if (validTypeRefFound) {
+                dlog.error(errorConstructorExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
+                        expType, userProvidedTypeRef);
+            } else {
+                dlog.error(errorConstructorExpr.pos,
+                        DiagnosticErrorCode.ERROR_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND, expType);
+            }
+            resultType = symTable.semanticError;
+            return;
+        }
+        resultType = resolvedType;
     }
 
     private void validateErrorConstructorPositionalArgs(BLangErrorConstructorExpr errorConstructorExpr) {
@@ -2930,6 +2947,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (errorTypeRef.getBType().tag != TypeTags.ERROR) {
                 if (errorTypeRef.getBType().tag != TypeTags.SEMANTIC_ERROR) {
                     dlog.error(errorTypeRef.pos, DiagnosticErrorCode.INVALID_ERROR_TYPE_REFERENCE, errorTypeRef);
+                    errorConstructorExpr.errorTypeRef.setBType(symTable.semanticError);
                 }
             } else {
                 return List.of(errorTypeRef.getBType());
@@ -5754,7 +5772,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private List<BLangNamedArgsExpression> checkProvidedErrorDetails(BLangErrorConstructorExpr errorConstructorExpr,
                                                                      BType expectedType) {
-        List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
+        List<BLangNamedArgsExpression> namedArgs = new ArrayList<>(errorConstructorExpr.namedArgs.size());
         for (BLangNamedArgsExpression namedArgsExpression : errorConstructorExpr.namedArgs) {
             BType target = checkErrCtrTargetTypeAndSetSymbol(namedArgsExpression, expectedType);
 
