@@ -340,6 +340,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_FIELD_INITIALIZATION_NOT_ALLOWED_IN_OBJECT_TYPE("BCE675",
             "error.field.initialization.not.allowed.in.object.type"),
     ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED("BCE676", "error.intervening.whitespaces.are.not.allowed"),
+    ERROR_INVALID_BINDING_PATTERN("BCE677", "error.invalid.binding.pattern"),
     ;
 
     String diagnosticId;
