@@ -133,6 +133,8 @@ function testNeverWithAnyAndAnydataRuntime() {
     assertEquality(true, c4);
 }
 
+type NeverUnion (never|string);
+
 function testNeverFieldTypeCheck() {
     record {} r1 = {"x": 2, "color": "blue"};
     assertEquality(false, r1 is record {never x?;});
@@ -163,6 +165,24 @@ function testNeverFieldTypeCheck() {
 
     record {||} r10 = {};
     assertEquality(true, r10 is record {never x?;}); //should be false
+
+    record {|int|(never|string)...; |} r11 = {};
+    assertEquality(false, r11 is record {never x?;});
+
+    record {|int|NeverUnion...; |} r12 = {};
+    assertEquality(false, r12 is record {never x?;});
+
+    record {never x?;} r13 = {};
+    assertEquality(false, r13 is record {|int|(never|string)...; |});
+
+    record {|never x?;|} r14 = {};
+    assertEquality(true, r14 is record {|int|(never|string)...; |});
+
+    record {never x?;} r15 = {};
+    assertEquality(false, r15 is record {|int|NeverUnion...; |});
+
+    record {|never x?;|} r16 = {};
+    assertEquality(true, r16 is record {|int|NeverUnion...; |});
 
     // Check compilation of never field binding
     record {|never...; |} x1 = {};
