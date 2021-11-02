@@ -143,8 +143,43 @@ function testNeverFieldTypeCheck() {
     record {never? x;} r3 = {x: (), "color": "blue"};
     assertEquality(false, r3 is record {never x?;});
 
-    record {} r4 = {"color": "blue"};
-    assertEquality(true, r4 is record {never x?;});
+    record {int? x;} r4 = {x: 2, "color": "blue"};
+    assertEquality(false, r4 is record {never x?;});
+
+    record {} r5 = {};
+    assertEquality(false, r5 is record {never x?;});
+
+    record {} r6 = {"color": "blue"};
+    assertEquality(false, r6 is record {never x?;});
+
+    record {|never...; |} r7 = {};
+    assertEquality(true, r7 is record {never x?;});
+
+    record {|never?...; |} r8 = {};
+    assertEquality(true, r8 is record {never x?;});
+
+    record {|int?...; |} r9 = {};
+    assertEquality(false, r9 is record {never x?;});
+
+    record {||} r10 = {};
+    assertEquality(true, r10 is record {never x?;}); //should be false
+
+    // Check compilation of never field binding
+    record {|never...; |} x1 = {};
+    record {never i?;} y1 = x1;
+    assertEquality(true, y1 is record {|never...; |});
+
+    record {|never?...; |} x2 = {};
+    record {never i?;} y2 = x2;
+    assertEquality(true, y2 is record {|never?...; |});
+
+    record {||} x3 = {};
+    record {never i?;} y3 = x3;
+    assertEquality(true, y3 is record {||});
+
+    record {|int j;|} x4 = {j: 1};
+    record {never i?; int j;} y4 = x4;
+    assertEquality(true, y4 is record {|int j;|});
 }
 
 function baz1() returns map<never> {

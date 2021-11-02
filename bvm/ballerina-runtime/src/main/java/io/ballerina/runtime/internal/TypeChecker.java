@@ -1315,8 +1315,8 @@ public class TypeChecker {
             Field targetField = targetFieldEntry.getValue();
             Field sourceField = sourceFields.get(fieldName);
 
-            if (targetField.getFieldType().getTag() == TypeTags.NEVER_TAG &&
-                    containsInvalidNeverField(fieldName, sourceField, sourceRecordValue)) {
+            if (targetField.getFieldType().getTag() == TypeTags.NEVER_TAG && containsInvalidNeverField(sourceField,
+                    sourceRecordType)) {
                 return false;
             }
 
@@ -1391,20 +1391,29 @@ public class TypeChecker {
         return true;
     }
 
-    private static boolean containsInvalidNeverField(String fieldName, Field sourceField, MapValue sourceRecordValue) {
+    private static boolean containsInvalidNeverField(Field sourceField, BRecordType sourceRecordType) {
         if (sourceField != null) {
-            Type sourceFieldType = sourceField.getFieldType();
-            int sourceTag = sourceFieldType.getTag();
-            if (sourceTag == TypeTags.UNION_TAG) {
-                for (Type member : ((BUnionType) sourceFieldType).getOriginalMemberTypes()) {
-                    if (member.getTag() == TypeTags.NEVER_TAG) {
-                        return false;
-                    }
+            return !containsNeverType(sourceField.getFieldType());
+        }
+        if (sourceRecordType.isSealed()) {
+            return true;
+        }
+        return !containsNeverType(sourceRecordType.getRestFieldType());
+    }
+
+    private static boolean containsNeverType(Type fieldType) {
+        int fieldTag = fieldType.getTag();
+        if (fieldTag == TypeTags.NEVER_TAG) {
+            return true;
+        }
+        if (fieldTag == TypeTags.UNION_TAG) {
+            for (Type member : ((BUnionType) fieldType).getOriginalMemberTypes()) {
+                if (member.getTag() == TypeTags.NEVER_TAG) {
+                    return true;
                 }
             }
-            return sourceTag != TypeTags.NEVER_TAG;
         }
-        return sourceRecordValue.containsKey(StringUtils.fromString(fieldName));
+        return false;
     }
 
     private static boolean hasIncompatibleReadOnlyFlags(Field targetField, Field sourceField) {
