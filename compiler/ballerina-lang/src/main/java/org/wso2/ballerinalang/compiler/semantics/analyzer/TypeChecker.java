@@ -2791,6 +2791,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (selectedCandidate != symTable.semanticError
                 && (userProvidedTypeRef == null || userProvidedTypeRef.getBType() == selectedCandidate)) {
             checkProvidedErrorDetails(errorConstructorExpr, inferredDetailType);
+            // TODO: When the `userProvidedTypeRef` is present diagnostic message is provided for just `error`
+            // https://github.com/ballerina-platform/ballerina-lang/issues/33574
             resultType = types.checkType(errorConstructorExpr.pos, selectedCandidate, expType,
                     DiagnosticErrorCode.INCOMPATIBLE_TYPES);
             return;
@@ -2800,11 +2802,13 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(errorConstructorExpr.pos, DiagnosticErrorCode.CANNOT_INFER_ERROR_TYPE, expType);
         }
 
+        boolean validTypeRefFound = false;
         // Error details provided does not match the contextually expected error type.
         // if type reference is not provided let's take the `ballerina/lang.error:error` as the expected type.
         BErrorType errorType;
         if (userProvidedTypeRef != null && userProvidedTypeRef.getBType().tag == TypeTags.ERROR) {
             errorType = (BErrorType) userProvidedTypeRef.getBType();
+            validTypeRefFound = true;
         } else if (expandedCandidates.size() == 1) {
             errorType = (BErrorType) expandedCandidates.get(0);
         } else {
@@ -2867,8 +2871,9 @@ public class TypeChecker extends BLangNodeVisitor {
         BType resolvedType = errorConstructorExpr.getBType();
         if (resolvedType != symTable.semanticError && expType != symTable.noType &&
                 !types.isAssignable(resolvedType, expType)) {
-            if (userProvidedTypeRef != null) {
-                dlog.error(errorConstructorExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType, resolvedType);
+            if (validTypeRefFound) {
+                dlog.error(errorConstructorExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
+                        expType, userProvidedTypeRef);
             } else {
                 dlog.error(errorConstructorExpr.pos,
                         DiagnosticErrorCode.ERROR_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND, expType);
@@ -2942,6 +2947,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (errorTypeRef.getBType().tag != TypeTags.ERROR) {
                 if (errorTypeRef.getBType().tag != TypeTags.SEMANTIC_ERROR) {
                     dlog.error(errorTypeRef.pos, DiagnosticErrorCode.INVALID_ERROR_TYPE_REFERENCE, errorTypeRef);
+                    errorConstructorExpr.errorTypeRef.setBType(symTable.semanticError);
                 }
             } else {
                 return List.of(errorTypeRef.getBType());
