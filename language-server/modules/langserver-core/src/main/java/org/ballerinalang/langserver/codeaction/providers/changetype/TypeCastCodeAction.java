@@ -78,7 +78,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
                 DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED_SYMBOL_INDEX);
         Optional<TypeSymbol> rhsTypeSymbol = positionDetails.diagnosticProperty(
                 DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
-        if (lhsTypeSymbol.isEmpty()) {
+        if (lhsTypeSymbol.isEmpty() || rhsTypeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -95,12 +95,17 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         }
 
         List<TextEdit> edits = new ArrayList<>();
-        Optional<String> typeName = CodeActionUtil.getPossibleType(lhsTypeSymbol.get(), edits, context);
+        //numeric types can be casted between each other.
+        if (!lhsTypeSymbol.get().subtypeOf(rhsTypeSymbol.get()) && (!isNumeric(lhsTypeSymbol.get())
+                || !isNumeric(rhsTypeSymbol.get()))) {
+            return Collections.emptyList();
+        }
+        String typeName = lhsTypeSymbol.get().signature();
         if (typeName.isEmpty()) {
             return Collections.emptyList();
         }
 
-        edits.addAll(getTextEdits(expressionNode.get(), typeName.get()));
+        edits.addAll(getTextEdits(expressionNode.get(), typeName));
         String commandTitle = CommandConstants.ADD_TYPE_CAST_TITLE;
         return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
     }
@@ -150,8 +155,8 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
      * the assignment/var declaration, etc. This considers if additional parentheses requires to be added around
      * the RHS expression.
      *
-     * @param expressionNode    Expression Node of the diagnostic position
-     * @param expectedTypeName  Expected type name as a string
+     * @param expressionNode   Expression Node of the diagnostic position
+     * @param expectedTypeName Expected type name as a string
      * @return Text edits to perform the cast
      */
     private List<TextEdit> getTextEdits(ExpressionNode expressionNode, String expectedTypeName) {
@@ -169,7 +174,13 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
 
             return List.of(castWithParentheses, closeParentheses);
         }
-        
+
         return List.of(new TextEdit(new Range(startPosition, startPosition), editText));
+    }
+
+    private boolean isNumeric(TypeSymbol typeSymbol) {
+        return (typeSymbol.typeKind().isIntegerType()
+                || typeSymbol.typeKind() == TypeDescKind.FLOAT
+                || typeSymbol.typeKind() == TypeDescKind.DECIMAL);
     }
 }

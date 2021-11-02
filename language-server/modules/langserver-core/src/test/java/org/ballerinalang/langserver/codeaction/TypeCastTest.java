@@ -55,9 +55,9 @@ public class TypeCastTest extends AbstractCodeActionTest {
                 {"typeCast2.json", "typeCast.bal"},
                 {"typeCast3.json", "typeCast.bal"},
                 {"typeCast4.json", "typeCast.bal"},
-                //{"typeCast5.json", "typeCast.bal"},
-                {"typeCast6.json", "typeCast.bal"},
-                {"typeCast7.json", "typeCast.bal"},
+                {"typeCast5.json", "typeCast.bal"},
+//                {"typeCast6.json", "typeCast.bal"}, Not supported by the subtype of API.
+//                {"typeCast7.json", "typeCast.bal"}, Casting within `` not supported.
                 {"nilTypeCast.json", "typeCast.bal"},
                 {"type_cast_function_param_config1.json", "type_cast_function_param_config1.bal"},
         };
@@ -67,6 +67,8 @@ public class TypeCastTest extends AbstractCodeActionTest {
     public Object[][] negativeDataProvider() {
         return new Object[][]{
                 {"typeCastNegative1.json", "typeCast2.bal"},
+                {"typeCastNegative2.json", "typeCast.bal"},
+                {"typeCastNegative3.json", "typeCast.bal"},
         };
     }
 }
