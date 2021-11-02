@@ -238,8 +238,22 @@ public class ReachabilityAnalysisTest {
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 929, 15);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 932, 9);
         validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 932, 19);
-        Assert.assertEquals(result.getErrorCount(), i - 31 - 9);
-        Assert.assertEquals(result.getHintCount(), 31);
+        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 941, 27);
+        validateHint(result, i++, HINT_UNNECESSARY_CONDITION_FOR_NEVER, 943, 15);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 944, 9);
+        validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 944, 19);
+        validateHint(result, i++, HINT_UNNECESSARY_CONDITION_FOR_NEVER, 952, 15);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 953, 9);
+        validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 953, 19);
+        validateHint(result, i++, HINT_UNNECESSARY_CONDITION_FOR_NEVER, 962, 15);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 963, 9);
+        validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 963, 19);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 973, 9);
+        validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 973, 19);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 982, 9);
+        validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 982, 19);
+        Assert.assertEquals(result.getErrorCount(), i - 35 - 9);
+        Assert.assertEquals(result.getHintCount(), 35);
         Assert.assertEquals(result.getWarnCount(), 9);
     }
 
