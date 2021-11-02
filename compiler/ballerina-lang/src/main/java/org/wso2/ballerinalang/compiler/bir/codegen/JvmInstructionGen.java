@@ -1187,7 +1187,8 @@ public class JvmInstructionGen {
         this.mv.visitInsn(LXOR);
 
         if (!TypeTags.isSignedIntegerTypeTag(opType1.tag) && !TypeTags.isSignedIntegerTypeTag(opType2.tag)) {
-            generateIntToUnsignedIntConversion(this.mv, getSmallestBuiltInUnsignedIntSubTypeContainingTypes(opType1, opType2));
+            generateIntToUnsignedIntConversion(this.mv,
+                    getSmallestBuiltInUnsignedIntSubTypeContainingTypes(opType1, opType2));
         }
 
         this.storeToVar(binaryIns.lhsOp.variableDcl);
