@@ -4289,6 +4289,24 @@ public class Types {
                 return lhsType;
             }
         }
+
+        if (Symbols.isFlagOn(lhsType.flags, Flags.READONLY) && lhsType.tag == TypeTags.UNION &&
+                ((BUnionType) lhsType).getIntersectionType().isPresent()) {
+            BIntersectionType intersectionType = ((BUnionType) lhsType).getIntersectionType().get();
+            BType finalType = type;
+            List<BType> types = intersectionType.getConstituentTypes().stream().filter(t -> t.tag != TypeTags.READONLY)
+                    .map(t -> getIntersection(intersectionContext, t, env, finalType, visitedTypes))
+                    .collect(Collectors.toList());
+
+            if (types.size() == 1) {
+                return types.get(0);
+            }
+
+            BUnionType unionType = BUnionType.create(null, new LinkedHashSet<>(types));
+            unionType.flags = unionType.flags | Flags.READONLY;
+            return unionType;
+        }
+
         if (type.tag == TypeTags.ERROR && lhsType.tag == TypeTags.ERROR) {
             BType intersectionType = getIntersectionForErrorTypes(intersectionContext, lhsType, type, env,
                                                             visitedTypes);

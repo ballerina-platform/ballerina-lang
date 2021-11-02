@@ -137,7 +137,7 @@ public class ErrorTest {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testCustomErrorDetails");
         Assert.assertEquals(returns[0].stringValue(), "trxErr {message:\"\", data:\"test\"}");
         Assert.assertEquals(((BError) returns[0]).getDetails().getType().getTag(), TypeTags.RECORD_TYPE_TAG);
-        Assert.assertEquals(((BError) returns[0]).getDetails().getType().getName(), "TrxErrorData & readonly");
+        Assert.assertEquals(((BError) returns[0]).getDetails().getType().getName(), "(TrxErrorData & readonly)");
     }
 
     @Test
