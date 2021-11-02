@@ -110,28 +110,3 @@ public isolated function toBalString(error e) returns string = @java:Method {
   'class: "org.ballerinalang.langlib.error.ToBalString",
   name: "toBalString"
 } external;
-
-# Representation of `CallStackElement`.
-#
-# + callableName - Callable name
-# + moduleName - Module name
-# + fileName - File name
-# + lineNumber - Line number
-type CallStackElement record {|
-    string callableName;
-    string moduleName?;
-    string fileName;
-    int lineNumber;
-|};
-
-# Represents an error call stack.
-#
-# + callStack - call stack
-class CallStack {
-    public CallStackElement[] callStack = [];
-}
-
-isolated function externGetStackTrace(error e) returns CallStack = @java:Method {
-    name: "stackTrace",
-    'class: "org.ballerinalang.langlib.error.StackTrace"
-} external;
