@@ -53,11 +53,11 @@
     {
       "label": "detail()",
       "kind": "Function",
-      "detail": "error:Detail",
+      "detail": "error:Detail & readonly",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.error:0.0.0_  \n  \nReturns the error's detail record.\n\nThe returned value will be immutable.  \n  \n  \n**Return** `error:Detail`   \n- error detail value  \n  \n"
+          "value": "**Package:** _ballerina/lang.error:0.0.0_  \n  \nReturns the error's detail record.\n\nThe returned value will be immutable.  \n  \n  \n**Return** `error:Detail & readonly`   \n- error detail value  \n  \n"
         }
       },
       "sortText": "BD",
