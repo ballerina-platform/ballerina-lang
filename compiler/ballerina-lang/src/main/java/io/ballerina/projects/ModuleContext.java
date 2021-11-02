@@ -396,12 +396,7 @@ class ModuleContext {
         try {
             symbolEnter.definePackage(pkgNode);
             packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
-
-            if (bootstrapLangLibName != null) {
-                compilerPhaseRunner.performLangLibTypeCheckPhases(pkgNode);
-            } else {
-                compilerPhaseRunner.performTypeCheckPhases(pkgNode);
-            }
+            compilerPhaseRunner.performTypeCheckPhases(pkgNode);
         } catch (Throwable t) {
             compilerPhaseRunner.addDiagnosticForUnhandledException(pkgNode, t);
         }
