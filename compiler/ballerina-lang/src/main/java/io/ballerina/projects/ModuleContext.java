@@ -495,4 +495,20 @@ class ModuleContext {
     Optional<MdDocumentContext> moduleMdContext() {
         return Optional.ofNullable(this.moduleMdContext);
     }
+
+    ModuleContext duplicate(Project project) {
+        Map<DocumentId, DocumentContext> srcDocContextMap = new HashMap<>();
+        for (DocumentId documentId : this.srcDocumentIds()) {
+            DocumentContext documentContext = this.documentContext(documentId);
+            srcDocContextMap.put(documentId, documentContext.duplicate());
+        }
+
+        Map<DocumentId, DocumentContext> testDocContextMap = new HashMap<>();
+        for (DocumentId documentId : this.testSrcDocumentIds()) {
+            DocumentContext documentContext = this.documentContext(documentId);
+            testDocContextMap.put(documentId, documentContext.duplicate());
+        }
+        return new ModuleContext(project, this.moduleId, this.moduleDescriptor, this.isDefaultModule,
+                srcDocContextMap, testDocContextMap, this.moduleMdContext().orElse(null), this.moduleDescDependencies);
+    }
 }
