@@ -20,6 +20,7 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.util.ProjectConstants;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -178,7 +179,7 @@ public class TestCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Check test command is preserving bin jar in target directory")
-    public void testTestCommandPreservingBinJarInTargetDir() {
+    public void testTestCommandPreservingBinJarInTargetDir() throws IOException {
         Path projectPath = this.testResources.resolve("validMultiModuleProjectWithTests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
         // build the project
@@ -186,12 +187,16 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
+        String md5BinJar = DigestUtils.md5Hex(
+                Files.newInputStream(projectPath.resolve("target").resolve("bin").resolve("winery.jar")));
 
         // Run tests
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         new CommandLine(testCommand).parse();
         testCommand.execute();
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
+        Assert.assertEquals(md5BinJar, DigestUtils.md5Hex(
+                Files.newInputStream(projectPath.resolve("target").resolve("bin").resolve("winery.jar"))));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
