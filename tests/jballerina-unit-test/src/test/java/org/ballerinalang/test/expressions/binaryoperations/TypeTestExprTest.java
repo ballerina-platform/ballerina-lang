@@ -75,14 +75,16 @@ public class TypeTestExprTest {
                 "unnecessary condition: expression will always evaluate to 'true'", 91, 9);
         BAssertUtil.validateError(negativeResult, i++, "unreachable code", 93, 12);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 93, 16);
+                "unnecessary condition: expression will always evaluate to 'true' for variable of type 'never'",
+                93, 16);
         BAssertUtil.validateError(negativeResult, i++, "unreachable code", 94, 9);
         BAssertUtil.validateError(negativeResult, i++, "unreachable code", 101, 5);
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 118, 9);
         BAssertUtil.validateError(negativeResult, i++, "unreachable code", 120, 12);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 120, 16);
+                "unnecessary condition: expression will always evaluate to 'true' for variable of type 'never'",
+                120, 16);
         BAssertUtil.validateError(negativeResult, i++, "unreachable code", 121, 9);
         BAssertUtil.validateError(negativeResult, i++, "unreachable code", 124, 5);
         BAssertUtil.validateHint(negativeResult, i++,
