@@ -23,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -100,7 +101,8 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        return List.of(createQuickFixCodeAction("Ignore unused variable", List.of(textEdit), context.fileUri()));
+        return List.of(createQuickFixCodeAction(CommandConstants.IGNORE_UNUSED_VAR_TITLE, 
+                List.of(textEdit), context.fileUri()));
     }
 
     @Override
