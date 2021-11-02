@@ -77,13 +77,13 @@
       }
     },
     {
-      "label": "reduce(function () func, any|error initial)",
+      "label": "reduce(function () func, table:Type initial)",
       "kind": "Function",
-      "detail": "any|error",
+      "detail": "table:Type",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nCombines the members of a table using a combining function.\n\nThe combining function takes the combined value so far and a member of the table,\nand returns a new combined value.\n  \n**Params**  \n- `function ()` func: combining function  \n- `any|error` initial: initial value for the first argument of combining function `func`  \n  \n**Return** `any|error`   \n- result of combining the members of parameter `t` using function `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nCombines the members of a table using a combining function.\n\nThe combining function takes the combined value so far and a member of the table,\nand returns a new combined value.\n  \n**Params**  \n- `function ()` func: combining function  \n- `table:Type` initial: initial value for the first argument of combining function `func`  \n  \n**Return** `table:Type`   \n- result of combining the members of parameter `t` using function `func`  \n  \n"
         }
       },
       "sortText": "BD",
@@ -151,11 +151,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {| map<any|error> value; |}?;}",
+      "detail": "object {public isolated function next() returns record {| table:MapType value; |}?;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nReturns an iterator over a table.\n\nThe iterator will iterate over the members of the table not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| map<any|error> value; |}?;}`   \n- a new iterator object that will iterate over the members of parameter `t`  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nReturns an iterator over a table.\n\nThe iterator will iterate over the members of the table not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| table:MapType value; |}?;}`   \n- a new iterator object that will iterate over the members of parameter `t`  \n  \n"
         }
       },
       "sortText": "BD",
@@ -339,11 +339,11 @@
     {
       "label": "map(function () func)",
       "kind": "Function",
-      "detail": "table<any|error>",
+      "detail": "table<table:Type>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nApplies a function each member of a table and returns a table of the result.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `table<any|error>`   \n- new table containing result of applying function `func` to each member  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nApplies a function each member of a table and returns a table of the result.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `table<table:Type>`   \n- new table containing result of applying function `func` to each member  \n  \n"
         }
       },
       "sortText": "BD",

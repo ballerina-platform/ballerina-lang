@@ -6,14 +6,6 @@
   "source": "xml_typedesc_context/source/source1.bal",
   "items": [
     {
-      "label": "NEW_XML_TYPE",
-      "kind": "TypeParameter",
-      "detail": "Element",
-      "sortText": "AN",
-      "insertText": "NEW_XML_TYPE",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",

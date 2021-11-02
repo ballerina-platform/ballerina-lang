@@ -263,19 +263,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestStream2()",
-      "kind": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "insertText": "TestStream2()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",

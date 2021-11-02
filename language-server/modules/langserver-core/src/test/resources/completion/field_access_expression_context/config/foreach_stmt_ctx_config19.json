@@ -60,11 +60,11 @@
     {
       "label": "filter(function () func)",
       "kind": "Function",
-      "detail": "stream<int, error?>",
+      "detail": "stream<int, stream:CompletionType>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nSelects the members from a stream for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `stream<int, error?>`   \n- new stream only containing members of parameter `stm` for which function `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nSelects the members from a stream for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `stream<int, stream:CompletionType>`   \n- new stream only containing members of parameter `stm` for which function `func` evaluates to true  \n  \n"
         }
       },
       "sortText": "BD",
@@ -79,11 +79,11 @@
     {
       "label": "next()",
       "kind": "Function",
-      "detail": "record {| any|error value; |}|error?",
+      "detail": "record {| stream:Type value; |}|stream:CompletionType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nReturns the next element in the stream wrapped in a record or () if the stream ends.\n  \n  \n  \n**Return** `record {| any|error value; |}|error?`   \n- If the stream has elements, return the element wrapped in a record with single field called `value`,  \notherwise returns ()  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nReturns the next element in the stream wrapped in a record or () if the stream ends.\n  \n  \n  \n**Return** `record {| stream:Type value; |}|stream:CompletionType`   \n- If the stream has elements, return the element wrapped in a record with single field called `value`,  \notherwise returns ()  \n  \n"
         }
       },
       "sortText": "BD",
@@ -92,13 +92,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "reduce(function () func, any|error initial)",
+      "label": "reduce(function () func, stream:Type1 initial)",
       "kind": "Function",
-      "detail": "any|error|error",
+      "detail": "stream:Type1|stream:ErrorType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nCombines the members of a stream using a combining function.\n\nThe combining function takes the combined value so far and a member of the stream,\nand returns a new combined value.\n  \n**Params**  \n- `function ()` func: combining function  \n- `any|error` initial: initial value for the first argument of combining function `func`  \n  \n**Return** `any|error|error`   \n- result of combining the members of parameter `stm` using function `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nCombines the members of a stream using a combining function.\n\nThe combining function takes the combined value so far and a member of the stream,\nand returns a new combined value.\n  \n**Params**  \n- `function ()` func: combining function  \n- `stream:Type1` initial: initial value for the first argument of combining function `func`  \n  \n**Return** `stream:Type1|stream:ErrorType`   \n- result of combining the members of parameter `stm` using function `func`  \n  \n"
         }
       },
       "sortText": "BD",
@@ -113,11 +113,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {| any|error value; |}|error?;}",
+      "detail": "object {public isolated function next() returns record {| stream:Type value; |}|stream:CompletionType;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nReturns an iterator over a stream.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| any|error value; |}|error?;}`   \n- a new iterator object that will iterate over the members of parameter `stm`.  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nReturns an iterator over a stream.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| stream:Type value; |}|stream:CompletionType;}`   \n- a new iterator object that will iterate over the members of parameter `stm`.  \n  \n"
         }
       },
       "sortText": "BD",
@@ -128,11 +128,11 @@
     {
       "label": "forEach(function () func)",
       "kind": "Function",
-      "detail": "error?",
+      "detail": "stream:CompletionType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nApplies a function to each member of a stream.\n\nThe function `func` is applied to each member of parameter `stm` stream in order.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `error?`   \n- () if the close completed successfully, otherwise an error  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nApplies a function to each member of a stream.\n\nThe function `func` is applied to each member of parameter `stm` stream in order.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `stream:CompletionType`   \n- () if the close completed successfully, otherwise an error  \n  \n"
         }
       },
       "sortText": "BD",
@@ -147,11 +147,11 @@
     {
       "label": "close()",
       "kind": "Function",
-      "detail": "error??",
+      "detail": "stream:CompletionType?",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nCloses a stream.\n\nThis releases any system resources being used by the stream.\nClosing a stream that has already been closed has no efffect and returns `()`.\n  \n  \n  \n**Return** `error??`   \n- () if the close completed successfully, otherwise an error  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nCloses a stream.\n\nThis releases any system resources being used by the stream.\nClosing a stream that has already been closed has no efffect and returns `()`.\n  \n  \n  \n**Return** `stream:CompletionType?`   \n- () if the close completed successfully, otherwise an error  \n  \n"
         }
       },
       "sortText": "BD",
@@ -211,11 +211,11 @@
     {
       "label": "map(function () func)",
       "kind": "Function",
-      "detail": "stream<any|error, error?>",
+      "detail": "stream<stream:Type1, stream:CompletionType>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nApplies a function to each member of a stream and returns a stream of the results.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `stream<any|error, error?>`   \n- new stream containing result of applying function `func` to each member of parameter `stm` in order  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nApplies a function to each member of a stream and returns a stream of the results.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `stream<stream:Type1, stream:CompletionType>`   \n- new stream containing result of applying function `func` to each member of parameter `stm` in order  \n  \n"
         }
       },
       "sortText": "BD",
