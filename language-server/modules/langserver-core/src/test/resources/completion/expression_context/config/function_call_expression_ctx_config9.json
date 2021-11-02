@@ -337,7 +337,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "U",
+      "sortText": "DQ",
       "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
@@ -493,7 +493,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "G",
+      "sortText": "BC",
       "filterText": "main",
       "insertText": "main()",
       "insertTextFormat": "Snippet"
@@ -543,7 +543,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `function (int, int) returns int` func  \n- `int` num1  \n- `int` num2  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "G",
+      "sortText": "BC",
       "filterText": "process",
       "insertText": "process(${1})",
       "insertTextFormat": "Snippet",
@@ -646,7 +646,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` b  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "G",
+      "sortText": "BC",
       "filterText": "subtractFunction",
       "insertText": "subtractFunction(${1})",
       "insertTextFormat": "Snippet",
@@ -751,7 +751,7 @@
       "label": "function (..) {..}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "AP",
+      "sortText": "CP",
       "filterText": "function",
       "insertText": "function (int i, int i1) returns int {\n    return 0;\n}",
       "insertTextFormat": "Snippet"

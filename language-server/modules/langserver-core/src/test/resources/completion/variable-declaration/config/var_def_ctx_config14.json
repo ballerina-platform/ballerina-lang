@@ -337,7 +337,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "U",
+      "sortText": "DQ",
       "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
@@ -501,7 +501,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "G",
+      "sortText": "BC",
       "filterText": "getInt",
       "insertText": "getInt()",
       "insertTextFormat": "Snippet"
@@ -579,7 +579,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
         }
       },
-      "sortText": "G",
+      "sortText": "BC",
       "filterText": "getString",
       "insertText": "getString()",
       "insertTextFormat": "Snippet"
@@ -632,7 +632,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `string` b  \n- `function () returns int` func  \n- `MyType` myType"
         }
       },
-      "sortText": "G",
+      "sortText": "BC",
       "filterText": "myFunc",
       "insertText": "myFunc(${1})",
       "insertTextFormat": "Snippet",
@@ -718,7 +718,7 @@
       "label": "function (..) {..}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "AP",
+      "sortText": "CP",
       "filterText": "function",
       "insertText": "function () returns int {\n    return 0;\n}",
       "insertTextFormat": "Snippet"

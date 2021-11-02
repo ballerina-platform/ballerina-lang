@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.ballerinalang.langserver.commons.completion.LSCompletionItem.CompletionItemType.SNIPPET;
+import static org.ballerinalang.langserver.commons.completion.LSCompletionItem.CompletionItemType.SYMBOL;
 
 /**
  * Enclose a set of utilities for sorting and ranking of completion items.
@@ -249,9 +250,19 @@ public class SortingUtil {
                                                     TypeSymbol typeSymbol) {
         if (isCompletionItemAssignable(completionItem, typeSymbol)) {
             return genSortText(1) + genSortText(toRank(context, completionItem));
-        } else {
-            return genSortText(toRank(context, completionItem, 4));
+        } else if (typeSymbol.typeKind() == TypeDescKind.FUNCTION) {
+            CompletionItemKind completionItemKind = completionItem.getCompletionItem().getKind();
+            if (completionItem.getType() == SYMBOL && completionItemKind == CompletionItemKind.Function) {
+                return genSortText(2) + genSortText(toRank(context, completionItem));
+            } else if (completionItem.getType() == SNIPPET) {
+                if (((SnippetCompletionItem) completionItem).id().equals(ItemResolverConstants.ANON_FUNCTION)) {
+                    return genSortText(3) + genSortText(toRank(context, completionItem));
+                } else if ( ((SnippetCompletionItem) completionItem).id().equals(Snippet.KW_FUNCTION.name())) {
+                    return genSortText(4) + genSortText(toRank(context, completionItem));
+                }
+            }
         }
+        return genSortText(toRank(context, completionItem, 4));
     }
 
     /**
@@ -289,11 +300,6 @@ public class SortingUtil {
                 optionalTypeSymbol = ((FunctionPointerCompletionItem) completionItem).getSymbol()
                         .flatMap(SymbolUtil::getTypeDescriptor);
                 break;
-            case SNIPPET:
-                if (typeSymbol.typeKind() == TypeDescKind.FUNCTION
-                        && ((SnippetCompletionItem) completionItem).id().equals(ItemResolverConstants.ANON_FUNCTION)) {
-                        return true;
-                }
         }
 
         return optionalTypeSymbol.isPresent() && optionalTypeSymbol.get().subtypeOf(typeSymbol);
