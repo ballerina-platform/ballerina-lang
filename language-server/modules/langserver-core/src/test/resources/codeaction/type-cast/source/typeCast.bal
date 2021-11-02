@@ -52,3 +52,5 @@ function checkNilCast() {
     int? val = getInt();
     () nil = val;
 }
+
+xml:Text x = xml `Hello <br /> World`;
