@@ -882,11 +882,11 @@ public class SymbolTable {
         for (int i = 0; i < unsignedNilableIntTypes.length; i++) {
             for (int j = 0; j < unsignedNilableIntTypes.length; j++) {
                 defineBinaryOperator(opKind, unsignedNilableIntTypes[i], unsignedNilableIntTypes[j],
-                        i <= j ? unsignedNilableIntTypes[i] : unsignedNilableIntTypes[j]);
+                        i >= j ? unsignedNilableIntTypes[i] : unsignedNilableIntTypes[j]);
                 defineBinaryOperator(opKind, unsignedNilableIntTypes[i], unsignedIntTypes[j],
-                        i <= j ? unsignedNilableIntTypes[i] : unsignedNilableIntTypes[j]);
+                        i >= j ? unsignedNilableIntTypes[i] : unsignedNilableIntTypes[j]);
                 defineBinaryOperator(opKind, unsignedIntTypes[i], unsignedNilableIntTypes[j],
-                        i <= j ? unsignedNilableIntTypes[i] : unsignedNilableIntTypes[j]);
+                        i >= j ? unsignedNilableIntTypes[i] : unsignedNilableIntTypes[j]);
             }
         }
     }
