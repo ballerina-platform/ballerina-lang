@@ -290,6 +290,12 @@ public class CommandUtil {
                 ProjectUtils.getRelativeBalaPath(orgName, packageName, version, platform));
         if (!Files.exists(balaPath)) {
             outStream.println("unexpected error occurred while finding the module from bala cache");
+            if (Files.exists(modulePath)) {
+                try {
+                    Files.delete(modulePath);
+                } catch (IOException ignored) {
+                }
+            }
             getRuntime().exit(1);
         } else {
             Gson gson = new Gson();
@@ -411,9 +417,13 @@ public class CommandUtil {
             } catch (CentralClientException ce) {
                 if (version == null) {
                     outStream = System.out;
-                    outStream.println("\nWarning: Unable to connect to the central, " +
-                            "searching the module from the local cache.\n");
-                    applyBalaTemplate(projectPath, balaCache, template);
+                    if (ce.getMessage().contains("nodename nor servname provided, or not known")) {
+                        outStream.println("\nWarning: Unable to connect to the central, " +
+                                "searching the module from the local cache.\n");
+                        applyBalaTemplate(projectPath, balaCache, template);
+                    } else {
+                        throw new CentralClientException(ce.getMessage());
+                    }
                     CommandUtil.exitError(exitWhenFinish);
                 } else {
                     throw new CentralClientException(ce.getMessage());
