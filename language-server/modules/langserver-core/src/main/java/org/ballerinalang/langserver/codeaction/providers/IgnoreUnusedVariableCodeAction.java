@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -87,9 +88,11 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
             textEdit = new TextEdit(editRange, "_");
         } else if (bindingPatternNode.kind() == SyntaxKind.FIELD_BINDING_PATTERN) {
             if (bindingPatternNode instanceof FieldBindingPatternVarnameNode) {
-                FieldBindingPatternVarnameNode fieldBindingPattern = (FieldBindingPatternVarnameNode) bindingPatternNode;
-                Range editRange = CommonUtil.toRange(fieldBindingPattern.variableName().lineRange());
-                textEdit = new TextEdit(editRange, "_");
+                FieldBindingPatternVarnameNode fieldBindingPattern =
+                        (FieldBindingPatternVarnameNode) bindingPatternNode;
+                Position position = CommonUtil.toPosition(fieldBindingPattern.variableName().lineRange().endLine());
+                Range editRange = new Range(position, position);
+                textEdit = new TextEdit(editRange, ": _");
             }
         }
 

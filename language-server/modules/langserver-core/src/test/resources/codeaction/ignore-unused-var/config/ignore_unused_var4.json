@@ -9,14 +9,14 @@
           "range": {
             "start": {
               "line": 6,
-              "character": 16
+              "character": 20
             },
             "end": {
               "line": 6,
               "character": 20
             }
           },
-          "newText": "_"
+          "newText": ": _"
         }
       ]
     }
