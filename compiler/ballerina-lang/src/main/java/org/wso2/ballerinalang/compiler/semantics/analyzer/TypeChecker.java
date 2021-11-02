@@ -2867,8 +2867,12 @@ public class TypeChecker extends BLangNodeVisitor {
         BType resolvedType = errorConstructorExpr.getBType();
         if (resolvedType != symTable.semanticError && expType != symTable.noType &&
                 !types.isAssignable(resolvedType, expType)) {
-            dlog.error(errorConstructorExpr.pos,
-                    DiagnosticErrorCode.ERROR_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND, expType, resolvedType);
+            if (userProvidedTypeRef != null) {
+                dlog.error(errorConstructorExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType, resolvedType);
+            } else {
+                dlog.error(errorConstructorExpr.pos,
+                        DiagnosticErrorCode.ERROR_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND, expType);
+            }
             resultType = symTable.semanticError;
             return;
         }
@@ -5762,7 +5766,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private List<BLangNamedArgsExpression> checkProvidedErrorDetails(BLangErrorConstructorExpr errorConstructorExpr,
                                                                      BType expectedType) {
-        List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
+        List<BLangNamedArgsExpression> namedArgs = new ArrayList<>(errorConstructorExpr.namedArgs.size());
         for (BLangNamedArgsExpression namedArgsExpression : errorConstructorExpr.namedArgs) {
             BType target = checkErrCtrTargetTypeAndSetSymbol(namedArgsExpression, expectedType);
 
