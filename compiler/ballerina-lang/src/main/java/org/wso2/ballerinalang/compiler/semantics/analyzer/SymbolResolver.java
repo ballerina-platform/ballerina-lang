@@ -417,6 +417,15 @@ public class SymbolResolver extends BLangNodeVisitor {
         return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
     }
 
+    BSymbol createUnaryOperator(OperatorKind kind,
+                                     BType type,
+                                     BType retType) {
+        List<BType> paramTypes = Lists.of(type);
+        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
+        return new BOperatorSymbol(names.fromString(kind.value()), null, opType, null, symTable.builtinPos,
+                VIRTUAL);
+    }
+
     public BSymbol resolvePkgSymbol(Location pos, SymbolEnv env, Name pkgAlias) {
         if (pkgAlias == Names.EMPTY) {
             // Return the current package symbol
@@ -1884,6 +1893,29 @@ public class SymbolResolver extends BLangNodeVisitor {
                 return createBinaryOperator(opKind, lhsType, rhsType, compatibleType2);
             }
             return createBinaryOperator(opKind, lhsType, rhsType, compatibleType1);
+        }
+        return symTable.notFoundSymbol;
+    }
+
+    public BSymbol getUnaryArithmeticOpsForTypeSets(OperatorKind opKind, BType type) {
+        boolean validIntTypesExists;
+        switch (opKind) {
+            case ADD:
+            case SUB:
+                validIntTypesExists = types.validNumericTypeExists(type);
+                break;
+            default:
+                return symTable.notFoundSymbol;
+        }
+        if (validIntTypesExists) {
+            BType compatibleType;
+            if (type.isNullable()) {
+                compatibleType = types.findCompatibleType(types.getSafeType(type, true, false));
+                compatibleType = BUnionType.create(null, compatibleType, symTable.nilType);
+            } else {
+                compatibleType = types.findCompatibleType(type);
+            }
+            return createUnaryOperator(opKind, type, compatibleType);
         }
         return symTable.notFoundSymbol;
     }
