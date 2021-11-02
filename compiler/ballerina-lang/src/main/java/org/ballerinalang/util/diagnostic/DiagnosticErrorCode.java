@@ -161,18 +161,15 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE2118", "field.access.cannot.be.used.to.access.optional.fields"),
     UNDECLARED_FIELD_IN_RECORD("BCE2119", "undeclared.field.in.record"),
     INVALID_FIELD_ACCESS_IN_RECORD_TYPE("BCE2120", "invalid.field.access.in.record.type"),
-    UNDECLARED_AND_OPTIONAL_FIELDS_IN_UNION_OF_RECORDS("BCE2121", "undeclared.and.optional.fields.in.union.of.records"),
+    UNDECLARED_AND_NILABLE_FIELDS_IN_UNION_OF_RECORDS("BCE2121", "undeclared.and.nilable.fields.in.union.of.records"),
     UNDECLARED_FIELD_IN_UNION_OF_RECORDS("BCE2122", "undeclared.field.in.union.of.records"),
-    OPTIONAL_FIELD_IN_UNION_OF_RECORDS("BCE2123", "optional.field.in.union.of.records"),
+    NILABLE_FIELD_IN_UNION_OF_RECORDS("BCE2123", "nilable.field.in.union.of.records"),
     ALREADY_INITIALIZED_SYMBOL("BCE2124", "already.initialized.symbol"),
     ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED(
             "BCE2125", "array.length.greater.that.2147483637.not.yet.supported"),
     INVALID_ARRAY_LENGTH("BCE2126", "invalid.array.length"),
     CANNOT_RESOLVE_CONST("BCE2127", "cannot.resolve.const"),
     ALREADY_INITIALIZED_SYMBOL_WITH_ANOTHER("BCE2128", "already.initialized.symbol.with.another"),
-    UNDECLARED_AND_OPTIONAL_AND_NILABLE_FIELDS_IN_UNION_OF_RECORDS("BCE2129", "undeclared.and.optional." +
-            "and.nilable.fields.in.union.of.records"),
-    OPTIONAL_AND_NILABLE_FIELDS_IN_UNION_OF_RECORDS("BCE2130", "optional.and.nilable.fields.in.union.of.records"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
