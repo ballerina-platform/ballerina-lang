@@ -19,7 +19,6 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependencyManifest;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageName;
@@ -126,11 +125,6 @@ public class PushCommand implements BLauncherCmd {
         BuildProject project;
         BuildOptions buildOptions = constructBuildOptions();
 
-        // If a custom target path is set, we modify the targetDir in the build options with the new custom one
-        if (this.targetDir != null) {
-            buildOptions.setTargetDir(this.targetDir.toString());
-        }
-
         try {
             project = BuildProject.load(userDir, buildOptions);
         } catch (ProjectException e) {
@@ -195,9 +189,7 @@ public class PushCommand implements BLauncherCmd {
     }
 
     private BuildOptions constructBuildOptions() {
-        return new BuildOptionsBuilder()
-                .experimental(experimentalFlag)
-                .build();
+        return BuildOptions.builder().build();
     }
 
     @Override

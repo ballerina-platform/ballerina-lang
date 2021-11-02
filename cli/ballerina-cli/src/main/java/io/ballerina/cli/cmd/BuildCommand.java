@@ -290,11 +290,6 @@ public class BuildCommand implements BLauncherCmd {
                 return;
             }
 
-            // If a custom target path is set, we modify the targetDir in the build options with the new custom one
-            if (this.targetDir != null) {
-                buildOptions.setTargetDir(this.targetDir.toString());
-            }
-
             try {
                 if (buildOptions.dumpBuildTime()) {
                     start = System.currentTimeMillis();

@@ -154,10 +154,6 @@ public class BuildOptions {
         return targetDir;
     }
 
-    public void setTargetDir(String targetDir) {
-        this.targetDir = targetDir;
-    }
-
     /**
      * Enum to represent build options.
      */
