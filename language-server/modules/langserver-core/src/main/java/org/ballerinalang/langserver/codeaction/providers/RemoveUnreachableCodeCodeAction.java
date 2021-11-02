@@ -40,14 +40,17 @@ public class RemoveUnreachableCodeCodeAction extends AbstractCodeActionProvider 
     private static final String CODE_ACTION_NAME = "REMOVE_UNREACHABLE_CODE";
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, CodeActionContext context) {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, 
+                                                    DiagBasedPositionDetails positionDetails, 
+                                                    CodeActionContext context) {
         if (!DiagnosticErrorCode.UNREACHABLE_CODE.diagnosticId().equals(diagnostic.diagnosticInfo().code())) {
             return Collections.emptyList();
         }
 
         LineRange lineRange = diagnostic.location().lineRange();
         TextEdit edit = new TextEdit(CommonUtil.toRange(lineRange), "");
-        return List.of(createQuickFixCodeAction(CommandConstants.REMOVE_UNREACHABLE_CODE_TITLE, List.of(edit), context.fileUri()));
+        return List.of(createQuickFixCodeAction(CommandConstants.REMOVE_UNREACHABLE_CODE_TITLE, 
+                List.of(edit), context.fileUri()));
     }
 
     @Override
