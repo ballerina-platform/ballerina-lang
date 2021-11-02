@@ -871,12 +871,12 @@ public class BallerinaParser extends AbstractParser {
                 STNode constKeyword = STNodeFactory.createEmptyNode();
                 return parseAnnotationDeclaration(metadata, publicQualifier, constKeyword);
             case IMPORT_KEYWORD:
-                reportInvalidMetaData(metadata);
+                reportInvalidMetaData(metadata, "import declaration");
                 reportInvalidQualifier(publicQualifier);
                 reportInvalidQualifierList(qualifiers);
                 return parseImportDecl();
             case XMLNS_KEYWORD:
-                reportInvalidMetaData(metadata);
+                reportInvalidMetaData(metadata, "XML namespace declaration");
                 reportInvalidQualifier(publicQualifier);
                 reportInvalidQualifierList(qualifiers);
                 return parseXMLNamespaceDeclaration(true);
@@ -1006,9 +1006,9 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private void reportInvalidMetaData(STNode metadata) {
+    private void reportInvalidMetaData(STNode metadata, String constructName) {
         if (metadata != null && metadata.kind != SyntaxKind.NONE) {
-            addInvalidNodeToNextToken(metadata, DiagnosticErrorCode.ERROR_INVALID_METADATA);
+            addInvalidNodeToNextToken(metadata, DiagnosticErrorCode.ERROR_INVALID_METADATA, constructName);
         }
     }
 
@@ -4045,7 +4045,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case ELLIPSIS_TOKEN:
-                reportInvalidMetaData(metadata);
+                reportInvalidMetaData(metadata, "record rest descriptor");
                 STNode ellipsis = parseEllipsis();
                 STNode semicolonToken = parseSemicolon();
                 return STNodeFactory.createRecordRestDescriptorNode(type, ellipsis, semicolonToken);
@@ -6437,7 +6437,7 @@ public class BallerinaParser extends AbstractParser {
                 visibilityQualifier = STNodeFactory.createEmptyNode();
                 return parseObjectMethodOrFuncTypeDesc(metadata, visibilityQualifier, qualifiers, isObjectTypeDesc);
             case ASTERISK_TOKEN:
-                reportInvalidMetaData(metadata);
+                reportInvalidMetaData(metadata, "object type inclusion");
                 reportInvalidQualifierList(qualifiers);
                 STNode asterisk = consume();
                 STNode type = parseTypeReferenceInTypeInclusion();
