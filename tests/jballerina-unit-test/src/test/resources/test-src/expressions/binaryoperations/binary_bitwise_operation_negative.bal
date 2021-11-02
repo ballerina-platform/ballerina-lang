@@ -66,4 +66,11 @@ function testBinaryBitwiseOperationsNegativeScenarios() {
     int:Unsigned8? x21 = 23;
     int:Unsigned16? x22 = 1;
     int:Unsigned8? x23 = x21 | x22;
+
+    int:Unsigned16? x24 = 1;
+    byte? x25 = 1;
+    byte? x26 = x24 | x25;
+
+    int:Unsigned32? x27 = 1;
+    byte? x28 = x27 | x25;
 }

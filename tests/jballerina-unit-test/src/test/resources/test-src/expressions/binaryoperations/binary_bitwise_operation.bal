@@ -331,6 +331,22 @@ function testBinaryBitwiseOperationsForNullable() {
     assertEqual(f ^ f, 0);
     assertEqual(g ^ g, 0);
     assertEqual(h ^ h, 0);
+
+    int:Unsigned16? l = 1;
+    byte? m = 1;
+    int:Unsigned16? n = l | m;
+    assertEqual(n, 1);
+
+    int:Unsigned32? o = 1;
+    int:Unsigned32? p = o | m;
+    assertEqual(p, 1);
+
+    int:Unsigned8? q = 1;
+    int:Unsigned8? r = q | m;
+    assertEqual(r, 1);
+
+    byte? s = q | m;
+    assertEqual(s, 1);
 }
 
 function assertEqual(anydata actual, anydata expected) {
