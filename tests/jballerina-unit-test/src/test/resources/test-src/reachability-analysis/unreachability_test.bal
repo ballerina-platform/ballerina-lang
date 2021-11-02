@@ -773,11 +773,11 @@ function testReachableCodeWithBinaryCondition19() {
 
 function testUnreachabilityWithIfElseStmts1(E e) {
     if e is X {
-        int a = 10;
+        int _ = 10;
     } else if e is Y {
-        int a = 20;
+        int _ = 20;
     } else if e is Z {
-        int a = 30;
+        int _ = 30;
     } else {
         never _ = e; // unreachable code
     }
@@ -785,11 +785,11 @@ function testUnreachabilityWithIfElseStmts1(E e) {
 
 function testUnreachabilityWithIfElseStmts2(E e) {
     if e is X {
-        int a = 10;
+        int _ = 10;
     } else if e is Y {
-        int a = 20;
+        int _ = 20;
     } else if e is Z {
-        int a = 30;
+        int _ = 30;
     } else if e is Y {
         never _ = e; // unreachable code
     }
@@ -797,11 +797,11 @@ function testUnreachabilityWithIfElseStmts2(E e) {
 
 function testUnreachabilityWithIfElseStmts3(int|string|float e) {
     if e is int {
-        int a = 10;
+        int _ = 10;
     } else if e is string {
-        int a = 20;
+        int _ = 20;
     } else if e is float {
-        int a = 30;
+        int _ = 30;
     } else {
         never _ = e; // unreachable code
     }
@@ -809,11 +809,11 @@ function testUnreachabilityWithIfElseStmts3(int|string|float e) {
 
 function testUnreachabilityWithIfElseStmts4(int|string|float e) {
     if e is int {
-        int a = 10;
+        int _ = 10;
     } else if e is string {
-        int a = 20;
+        int _ = 20;
     } else if e is float {
-        int a = 30;
+        int _ = 30;
     } else if e is int {
         never _ = e; // unreachable code
     }
@@ -822,9 +822,9 @@ function testUnreachabilityWithIfElseStmts4(int|string|float e) {
 function testUnreachabilityWithIfElseStmts5() {
     10|20 e = 10;
     if e == 10 {
-        int a = 10;
+        int _ = 10;
     } else if e == 20 {
-        int a = 20;
+        int _ = 20;
     } else {
         never _ = e; // unreachable code
     }
@@ -833,9 +833,9 @@ function testUnreachabilityWithIfElseStmts5() {
 function testUnreachabilityWithIfElseStmts6() {
     10|20 e = 10;
     if e == 10 {
-        int a = 10;
+        int _ = 10;
     } else if e == 20 {
-        int a = 20;
+        int _ = 20;
     } else if e == 10 {
         never _ = e; // unreachable code
     }
@@ -850,7 +850,7 @@ function testUnreachableCodeWithTypeNarrowing1() {
     if i is boolean {
         return;
     }
-    int x = i; // unreachable code
+    int _ = i; // unreachable code
 }
 
 function testUnreachableCodeWithTypeNarrowing2() {
@@ -860,7 +860,7 @@ function testUnreachableCodeWithTypeNarrowing2() {
         return;
     }
 
-    string b = a; // unreachable code
+    string _ = a; // unreachable code
 }
 
 function testUnreachableCodeWithTypeNarrowing3() {
@@ -870,7 +870,7 @@ function testUnreachableCodeWithTypeNarrowing3() {
         return;
     }
 
-    string a = b; // unreachable code
+    string _ = b; // unreachable code
 }
 
 function testUnreachableCodeWithTypeNarrowing4() {
@@ -880,7 +880,7 @@ function testUnreachableCodeWithTypeNarrowing4() {
         return;
     }
 
-    string a = b; // unreachable code
+    string _ = b; // unreachable code
 }
 
 function testUnreachableCodeWithTypeNarrowing5() {
@@ -895,11 +895,11 @@ function testUnreachableCodeWithTypeNarrowing5() {
 function testUnreachableCodeWithTypeNarrowing6() {
     int|string|float a = 10;
     if a is int {
-        int b = 10;
+        int _ = 10;
     } else if a is string {
-        int b = 20;
+        int _ = 20;
     } else if a is float {
-        int b = 30;
+        int _ = 30;
     } else if a is string {
         never _ = a; // unreachable code
     }
@@ -908,11 +908,11 @@ function testUnreachableCodeWithTypeNarrowing6() {
 function testUnreachableCodeWithTypeNarrowing7() {
     int|string|float a = 10;
     if a is int {
-        int b = 10;
+        int _ = 10;
     } else if a is string {
-        int b = 20;
+        int _ = 20;
     } else if a is float {
-        int b = 30;
+        int _ = 30;
     } else if a is string {
         never _ = a;
     } else if a is float {
@@ -923,11 +923,11 @@ function testUnreachableCodeWithTypeNarrowing7() {
 function testUnreachableCodeWithTypeNarrowing8() {
     int|string|float a = 10;
     if a is int {
-        int b = 10;
+        int _ = 10;
     } else if a is string {
-        int b = 20;
+        int _ = 20;
     } else if a is float {
-        int b = 30;
+        int _ = 30;
     } else {
         never _ = a; // unreachable code
     }
