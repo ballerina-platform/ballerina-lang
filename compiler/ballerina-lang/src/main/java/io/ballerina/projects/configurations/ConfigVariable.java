@@ -21,6 +21,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
  * Holder class for configurable variable details.
+ *
+ * @since 2.0.0
  */
 public class ConfigVariable {
 

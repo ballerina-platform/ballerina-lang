@@ -19,6 +19,8 @@ package io.ballerina.projects.configurations;
 
 /**
  * Holder class for module details to map the configurable variables against.
+ *
+ * @since 2.0.0
  */
 public class ConfigModuleDetails {
     String orgName;
