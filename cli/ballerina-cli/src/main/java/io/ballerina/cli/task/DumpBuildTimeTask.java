@@ -65,8 +65,10 @@ public class DumpBuildTimeTask implements Task {
         try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
             try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
                 Gson gson = new Gson();
-                String json = gson.toJson(BuildTime.getInstance());
+                BuildTime buildTime = BuildTime.getInstance();
+                String json = gson.toJson(buildTime);
                 writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+                printBuildTime(buildTime);
             } catch (IOException e) {
                 throw createLauncherException("couldn't write build time to file : " + e.getMessage());
             }
@@ -79,6 +81,19 @@ public class DumpBuildTimeTask implements Task {
         if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
             return project.sourceRoot().resolve("target").resolve(BUILD_TIME_JSON).toAbsolutePath();
         }
-        return currentDir.resolve("build-time.json").toAbsolutePath();
+        return currentDir.resolve(BUILD_TIME_JSON).toAbsolutePath();
+    }
+
+    private void printBuildTime(BuildTime buildTime) {
+        this.out.println("\ttimestamp : " + buildTime.timestamp);
+        this.out.println("\toffline : " + buildTime.offline);
+        this.out.println("\tcompile : " + buildTime.compile);
+        this.out.println("\tprojectLoadDuration : " + buildTime.projectLoadDuration);
+        this.out.println("\tpackageResolutionDuration : " + buildTime.packageResolutionDuration);
+        this.out.println("\tpackageCompilationDuration : " + buildTime.packageCompilationDuration);
+        this.out.println("\tcodeGenDuration : " + buildTime.codeGenDuration);
+        this.out.println("\temitArtifactDuration : " + buildTime.emitArtifactDuration);
+        this.out.println("\ttestingExecutionDuration : " + buildTime.testingExecutionDuration);
+        this.out.println("\ttotalDuration : " + buildTime.totalDuration);
     }
 }
