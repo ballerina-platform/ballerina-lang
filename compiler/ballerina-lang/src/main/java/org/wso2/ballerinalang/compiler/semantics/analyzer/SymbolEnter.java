@@ -2118,14 +2118,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                     // types and continue the flow and let it fail at semantic analyzer.
                     defineNode(constant.associatedTypeDefinition, env);
                     constantSymbol.type = staticType;
-                    constantSymbol.literalType = constant.expr.getBType();
+                    constantSymbol.literalType = staticType;
                 }
             } else {
                 // A literal type constant is defined without the type.
                 // Then the type of the symbol is the finite type.
                 defineNode(constant.associatedTypeDefinition, env);
                 constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
-                constantSymbol.literalType = constant.expr.getBType();
+                constantSymbol.literalType = symResolver.getTypeOfNumericLiteral(nodeKind, constant.expr.getBType());
             }
         } else if (constant.typeNode != null) {
             constantSymbol.type = constantSymbol.literalType = staticType;

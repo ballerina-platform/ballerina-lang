@@ -1345,13 +1345,27 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         for (BLangExpression literal : finiteTypeNode.valueSpace) {
-            ((BLangLiteral) literal).setBType(symTable.getTypeFromTag(((BLangLiteral) literal).getBType().tag));
+            literal.setBType(getTypeOfNumericLiteral(literal.getKind(), literal.getBType()));
             finiteType.addValue(literal);
         }
         finiteTypeSymbol.type = finiteType;
 
         resultType = finiteType;
     }
+
+public BType getTypeOfNumericLiteral(NodeKind nodeKind, BType type) {
+    if (nodeKind != NodeKind.NUMERIC_LITERAL || type.getKind() != TypeKind.UNION) {
+        return type;
+    }
+    Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+    if (memberTypes.contains(symTable.intType)) {
+        return symTable.intType;
+    } else if (memberTypes.contains(symTable.floatType)) {
+        return symTable.floatType;
+    } else {
+        return symTable.decimalType;
+    }
+}
 
     public void visit(BLangTupleTypeNode tupleTypeNode) {
         List<BType> memberTypes = new ArrayList<>();
