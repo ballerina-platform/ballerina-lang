@@ -101,9 +101,9 @@ public class PushCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         // Build project
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
-        new CommandLine(buildCommand).parse();
-        buildCommand.execute();
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parse();
+        packCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("compile-bal-project.txt"));
         Assert.assertTrue(
@@ -178,10 +178,10 @@ public class PushCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve(VALID_PROJECT);
         System.setProperty("user.dir", projectPath.toString());
 
-        // Build project
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
-        new CommandLine(buildCommand).parse();
-        buildCommand.execute();
+        // Pack project
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parse();
+        packCommand.execute();
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
 
@@ -202,10 +202,11 @@ public class PushCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve(VALID_PROJECT);
         System.setProperty("user.dir", projectPath.toString());
         Files.createFile(projectPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
-        // Build project
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
-        new CommandLine(buildCommand).parse();
-        buildCommand.execute();
+
+        // Pack project
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parse();
+        packCommand.execute();
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
 
@@ -227,9 +228,9 @@ public class PushCommandTest extends BaseCommandTest {
     public void testPushToAnUnsupportedRepo() throws IOException {
         Path projectPath = this.testResources.resolve("validLibraryProject");
         // Build project
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
-        new CommandLine(buildCommand).parse();
-        buildCommand.execute();
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parse();
+        packCommand.execute();
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
 
