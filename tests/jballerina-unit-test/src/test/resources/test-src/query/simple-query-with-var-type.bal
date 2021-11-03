@@ -390,7 +390,7 @@ function testQueryConstructingTableWithVar() returns error? {
                   where user.age > 21 && user.age < 60
                   select {user};
 
-    assertEquality(true, result1 is table<record {| User user; |}> key(user));
+    assertEquality(true, result1 is table<record {| User user; |}>);
     assertEquality({"user": u1}, result1.get(u1));
 
     User[] userList = [u1, u2];
@@ -399,7 +399,7 @@ function testQueryConstructingTableWithVar() returns error? {
                   where user.age > 21 && user.age < 60
                   select {user};
 
-    assertEquality(true, result2 is table<record {| User user; |}> key(user));
+    assertEquality(true, result2 is table<record {| User user; |}>);
     assertEquality({"user": u1}, result2.get(u1));
 }
 

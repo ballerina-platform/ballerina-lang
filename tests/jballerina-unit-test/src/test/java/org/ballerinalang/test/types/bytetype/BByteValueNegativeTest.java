@@ -81,20 +81,15 @@ public class BByteValueNegativeTest {
     @Test(description = "Test byte shift operators negative", groups = { "disableOnOldParser" })
     public void invalidByteShiftOperators() {
         CompileResult result = BCompileUtil.compile("test-src/types/byte/byte-shift-operators-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 13);
+        Assert.assertEquals(result.getErrorCount(), 8);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "incompatible types: expected 'byte', found 'int'", 2, 14);
         BAssertUtil.validateError(result, i++, "no whitespaces allowed in right shift op", 2, 16);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'byte', found 'boolean'", 3, 13);
         BAssertUtil.validateError(result, i++, "missing gt token", 3, 20);
         BAssertUtil.validateError(result, i++, "missing identifier", 3, 20);
-        BAssertUtil.validateError(result, i++, "incompatible types: expected 'byte', found 'int'", 4, 13);
         BAssertUtil.validateError(result, i++, "no whitespaces allowed in unsigned right shift op", 4, 15);
-        BAssertUtil.validateError(result, i++, "incompatible types: expected 'byte', found 'int'", 5, 12);
         BAssertUtil.validateError(result, i++, "no whitespaces allowed in unsigned right shift op", 5, 14);
-        BAssertUtil.validateError(result, i++, "incompatible types: expected 'byte', found 'int'", 6, 11);
         BAssertUtil.validateError(result, i++, "no whitespaces allowed in unsigned right shift op", 6, 13);
-        BAssertUtil.validateError(result, i++, "incompatible types: expected 'byte', found 'int'", 7, 9);
         BAssertUtil.validateError(result, i++, "no whitespaces allowed in unsigned right shift op", 7, 11);
     }
 
