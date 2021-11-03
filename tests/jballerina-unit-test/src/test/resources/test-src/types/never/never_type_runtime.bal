@@ -136,6 +136,8 @@ function testNeverWithAnyAndAnydataRuntime() {
 type NeverUnion (never|string);
 
 function testNeverFieldTypeCheck() {
+
+    // Check checkIsType type-checker method
     record {} r1 = {"x": 2, "color": "blue"};
     assertEquality(false, r1 is record {never x?;});
 
@@ -164,7 +166,7 @@ function testNeverFieldTypeCheck() {
     assertEquality(false, r9 is record {never x?;});
 
     record {||} r10 = {};
-    assertEquality(true, r10 is record {never x?;}); //should be false
+    assertEquality(true, r10 is record {never x?;}); 
 
     record {|int|(never|string)...; |} r11 = {};
     assertEquality(false, r11 is record {never x?;});
@@ -200,6 +202,39 @@ function testNeverFieldTypeCheck() {
     record {|int j;|} x4 = {j: 1};
     record {never i?; int j;} y4 = x4;
     assertEquality(true, y4 is record {|int j;|});
+
+    // Check checkIsLikeType type-checker method
+    record {} & readonly v1 = {"x": 2, "color": "blue"};
+    assertEquality(false, v1 is record {never x?;});
+
+    record {} & readonly v2 = {"x": 2};
+    assertEquality(false, v2 is record {never x?;});
+
+    record {int x;} & readonly v3 = {x: 2, "color": "blue"};
+    assertEquality(false, v3 is record {never x?;});
+
+    record {never? x;} & readonly v4 = {x: (), "color": "blue"};
+    assertEquality(false, v4 is record {never x?;});
+
+    record {never? x;} & readonly v5 = {x: (), "color": "blue"};
+    assertEquality(true, v5 is record {never? x;});
+
+    record {never? x;} & readonly v6 = {x: (), "color": "blue"};
+    assertEquality(true, v6 is record {never? x;});
+
+    record {} & readonly v7 = {};
+    assertEquality(true, v7 is record {never x?;});
+
+    record {} & readonly v8 = {"color": "blue"};
+    assertEquality(true, v8 is record {never x?;});
+
+    record {never x?;} v9 = {};
+    anydata result = (<anydata>v9).cloneReadOnly();
+    assertEquality(true, result is record {|int|(never|string)...; |});
+
+    record {never x?;} v10 = {};
+    result = (<anydata>v10).cloneReadOnly();
+    assertEquality(true, result is record {|int|NeverUnion...; |});
 }
 
 function baz1() returns map<never> {
