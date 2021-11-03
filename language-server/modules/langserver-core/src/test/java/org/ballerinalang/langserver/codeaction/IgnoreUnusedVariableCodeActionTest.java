@@ -45,6 +45,8 @@ public class IgnoreUnusedVariableCodeActionTest extends AbstractCodeActionTest {
                 {"ignore_unused_var5.json", "ignore_unused_var5.bal"},
                 {"ignore_unused_var6.json", "ignore_unused_var6.bal"},
                 {"ignore_unused_var_tuple1.json", "ignore_unused_var_tuple1.bal"},
+                // TODO unused reference - ignored for now
+                // {"ignore_unused_var_assignment1.json", "ignore_unused_var_assignment1.bal"},
         };
     }
 
