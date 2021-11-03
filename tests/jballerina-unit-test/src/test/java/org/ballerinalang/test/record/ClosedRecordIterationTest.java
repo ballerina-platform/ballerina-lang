@@ -57,7 +57,7 @@ public class ClosedRecordIterationTest {
         BAssertUtil.validateError(closedRecNegatives, index++,
                 "invalid list binding pattern: attempted to infer a list type, but found " +
                         "'(string|int|ClosedAddress)'",
-                40, 13);
+                40, 17);
         // Test invalid foreach iterable operation
         BAssertUtil.validateError(closedRecNegatives, index++,
                 "incompatible types: expected '[string,any]', found '(string|int|ClosedAddress)'",

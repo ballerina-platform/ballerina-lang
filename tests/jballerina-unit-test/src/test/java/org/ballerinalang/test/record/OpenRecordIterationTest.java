@@ -57,7 +57,7 @@ public class OpenRecordIterationTest {
         BAssertUtil.validateError(openRecNegatives, index++,
                                   "invalid list binding pattern: attempted to infer a list type, " +
                                   "but found 'anydata'",
-                                  34, 13);
+                                  34, 17);
 
         // Test invalid foreach iterable operation
         BAssertUtil.validateError(openRecNegatives, index++,

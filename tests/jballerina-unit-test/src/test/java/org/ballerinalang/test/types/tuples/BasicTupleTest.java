@@ -263,10 +263,10 @@ public class BasicTupleTest {
                         + "that belong to type 'any'", 187, 1);
         BAssertUtil.validateError(
                 resultNegative, i++, "a wildcard binding pattern can be used only with a value "
-                        + "that belong to type 'any'", 190, 5);
+                        + "that belong to type 'any'", 190, 9);
         BAssertUtil.validateError(
                 resultNegative, i++, "a wildcard binding pattern can be used only with a value "
-                        + "that belong to type 'any'", 193, 5);
+                        + "that belong to type 'any'", 193, 9);
     }
 
     @Test(dataProvider = "dataToTestTupleDeclaredWithVar", description = "Test tuple declared with var")
@@ -288,11 +288,11 @@ public class BasicTupleTest {
     public void testInvalidTupleDeclaredWithVar() {
         int i = 30;
         BAssertUtil.validateError(resultNegative, i++, "invalid list binding pattern; " +
-                "member variable count mismatch with member type count", 172, 5);
+                "member variable count mismatch with member type count", 172, 9);
         BAssertUtil.validateError(resultNegative, i++, "invalid list binding pattern; member variable " +
-                "count mismatch with member type count", 173, 5);
+                "count mismatch with member type count", 173, 9);
         BAssertUtil.validateError(resultNegative, i, "invalid list binding pattern; member variable " +
-                "count mismatch with member type count", 174, 5);
+                "count mismatch with member type count", 174, 9);
     }
 
     @Test(description = "Test invalid tuple assignments to JSON")
