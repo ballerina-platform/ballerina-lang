@@ -206,7 +206,6 @@ public class LangLibSubTypeTest {
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'decimal'," + FOUND_UNSIGNED_32, 237,
                                   17);
 
-        BAssertUtil.validateError(result, err++, EXPECT_BYTE + FOUND_INT, 251, 14);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'float'," + FOUND_INT, 252, 15);
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 253, 23);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'decimal'," + FOUND_BYTE, 254, 17);
