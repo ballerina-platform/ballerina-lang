@@ -1148,8 +1148,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         for (String fieldName : keySpecifierFieldNames) {
             for (BLangRecordLiteral recordLiteral : recordLiterals) {
-                BLangRecordKeyValueField recordKeyValueField = getRecordKeyValueField(recordLiteral, fieldName);
-                if (recordKeyValueField != null && isConstExpression(recordKeyValueField.getValue())) {
+                BLangExpression recordKeyValueField = getRecordKeyValueField(recordLiteral, fieldName);
+                if (recordKeyValueField != null && isConstExpression(recordKeyValueField)) {
                     continue;
                 }
 
@@ -1188,12 +1188,37 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private BLangRecordKeyValueField getRecordKeyValueField(BLangRecordLiteral recordLiteral,
+    private BLangExpression getRecordKeyValueField(BLangRecordLiteral recordLiteral,
                                                             String fieldName) {
         for (RecordLiteralNode.RecordField recordField : recordLiteral.fields) {
-            BLangRecordKeyValueField recordKeyValueField = (BLangRecordKeyValueField) recordField;
-            if (fieldName.equals(recordKeyValueField.key.toString())) {
-                return recordKeyValueField;
+            if (recordField.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField recordKeyValueField =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) recordField;
+                if (fieldName.equals(recordKeyValueField.key.toString())) {
+                    return recordKeyValueField.valueExpr;
+                }
+            } else if (recordField.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                if (fieldName.equals(((BLangRecordVarNameField) recordField).variableName.value)) {
+                    return (BLangRecordLiteral.BLangRecordVarNameField) recordField;
+                }
+            } else if (recordField.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
+                BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField =
+                        (BLangRecordLiteral.BLangRecordSpreadOperatorField) recordField;
+                BLangExpression spreadOpExpr = spreadOperatorField.expr;
+
+                BType spreadOpExprType = spreadOpExpr.getBType();
+                int spreadFieldTypeTag = spreadOpExprType.tag;
+
+                if (spreadFieldTypeTag != TypeTags.RECORD) {
+                    continue;
+                }
+
+                BRecordType recordType = (BRecordType) spreadOpExprType;
+                for (BField recField : recordType.fields.values()) {
+                    if (fieldName.equals(recField.name.value)) {
+                        return recordLiteral;
+                    }
+                }
             }
         }
 
