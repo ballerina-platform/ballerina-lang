@@ -3,6 +3,7 @@ import ballerina/module1;
 type AnnotationData record {|
 
 |};
+
 annotation AnnotationData MyAnnotation on service;
 
 public type MyService service object {

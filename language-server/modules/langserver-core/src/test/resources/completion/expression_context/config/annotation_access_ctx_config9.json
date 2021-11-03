@@ -1,38 +1,10 @@
 {
   "position": {
-    "line": 22,
-    "character": 21
+    "line": 24,
+    "character": 8
   },
-  "source": "expression_context/source/annotation_access_ctx_source5.bal",
+  "source": "expression_context/source/annotation_access_ctx_source9.bal",
   "items": [
-    {
-      "label": "tainted",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "tainted",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "typeParam",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "typeParam",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "MyAnnotation",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "MyAnnotation",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "untainted",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "untainted",
-      "insertTextFormat": "Snippet"
-    },
     {
       "label": "display",
       "kind": "Property",
@@ -41,10 +13,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "builtinSubtype",
+      "label": "MyAnnotationClass",
       "kind": "Property",
       "detail": "Annotation",
-      "insertText": "builtinSubtype",
+      "insertText": "MyAnnotationClass",
       "insertTextFormat": "Snippet"
     },
     {
@@ -52,27 +24,6 @@
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "deprecated",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "strand",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "strand",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "isolatedParam",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "isolatedParam",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "module1",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -160,6 +111,28 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
         }
       ]
     },

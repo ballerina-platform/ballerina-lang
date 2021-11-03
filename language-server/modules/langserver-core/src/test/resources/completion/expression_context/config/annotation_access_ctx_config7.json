@@ -1,24 +1,10 @@
 {
   "position": {
-    "line": 21,
-    "character": 72
+    "line": 13,
+    "character": 8
   },
   "source": "expression_context/source/annotation_access_ctx_source7.bal",
   "items": [
-    {
-      "label": "tainted",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "tainted",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "typeParam",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "typeParam",
-      "insertTextFormat": "Snippet"
-    },
     {
       "label": "MyAnnotation",
       "kind": "Property",
@@ -27,45 +13,233 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "untainted",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "untainted",
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "array",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.array;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/jballerina.java",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/jballerina.java;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "boolean",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "display",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "display",
+      "label": "decimal",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "builtinSubtype",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "builtinSubtype",
+      "label": "error",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "error",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "deprecated",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "deprecated",
+      "label": "float",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "float",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "strand",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "strand",
+      "label": "future",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "future",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "isolatedParam",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "isolatedParam",
+      "label": "int",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "int",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "map",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "map",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "object",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stream",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "stream",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "string",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "string",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "table",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "table",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transaction",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "transaction",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typedesc",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "xml",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "xml",
       "insertTextFormat": "Snippet"
     }
   ]

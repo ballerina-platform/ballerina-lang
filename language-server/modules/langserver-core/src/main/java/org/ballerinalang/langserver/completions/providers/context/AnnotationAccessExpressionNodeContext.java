@@ -17,9 +17,13 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -102,6 +106,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
             return completionItems;
         }
 
+        completionItems.addAll(this.getModuleCompletionItems(context));
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == ANNOTATION 
@@ -117,13 +122,26 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
     }
 
     public static AttachPoint.Point getAttachPointForType(TypeSymbol typeSymbol) {
-        switch (((TypeDescTypeSymbol) typeSymbol).typeParameter().get().typeKind()) {
+
+        TypeSymbol symbol = ((TypeDescTypeSymbol) typeSymbol).typeParameter().get();
+        switch (symbol.typeKind()) {
             case TYPEDESC:
+                TypeDescTypeSymbol typeDescTypeSymbol = (TypeDescTypeSymbol) symbol;
+                if (((TypeReferenceTypeSymbol) typeDescTypeSymbol.typeParameter().get()).typeDescriptor().kind() 
+                        == SymbolKind.CLASS) {
+                    return  AttachPoint.Point.CLASS;
+                }
                 return AttachPoint.Point.TYPE;
             case OBJECT:
-                return AttachPoint.Point.SERVICE;
+                if (((ObjectTypeSymbol) symbol).qualifiers().contains(Qualifier.SERVICE)) {
+                    return AttachPoint.Point.SERVICE;
+                } else {
+                    return AttachPoint.Point.OBJECT_FIELD;
+                }
             case FUNCTION:
                 return AttachPoint.Point.FUNCTION;
+            case RECORD:
+                return AttachPoint.Point.RECORD_FIELD;
             default:
                 return null;
         }

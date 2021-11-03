@@ -1,23 +1,15 @@
-import ballerina/module1;
-
 type AnnotationData record {|
 
 |};
-annotation AnnotationData MyAnnotation on service;
 
-public type MyService service object {
+annotation AnnotationData MyAnnotation on record field;
 
-};
+public function main() {
+    record {int x; int y;} r = {
+        x: 1,
+        y: 2
+    };
 
-@MyAnnotation
-service MyService /path on new module1:Listener(9090) {
-    resource function get .() returns string {
-        getServiceAuthConfig(self, "foo");
-        return "Hello, World!";
-    }
-}
-
-isolated function getServiceAuthConfig(MyService serviceRef, string servicePath) {
-    typedesc<any> serviceTypeDesc = typeof serviceRef;
-    AnnotationData serviceAnnotation = <AnnotationData>serviceTypeDesc.@
+    typedesc<record {}> td = typeof r;
+    td.@
 }

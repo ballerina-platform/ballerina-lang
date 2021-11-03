@@ -3,6 +3,7 @@ import ballerina/module1;
 type AnnotationData record {|
 
 |};
+
 annotation AnnotationData MyAnnotation on service;
 
 public type MyService service object {
@@ -19,5 +20,5 @@ service MyService /path on new module1:Listener(9090) {
 
 isolated function getServiceAuthConfig(MyService serviceRef, string servicePath) {
     typedesc<any> serviceTypeDesc = typeof serviceRef;
-    AnnotationData serviceAnnotation = <AnnotationData>serviceTypeDesc.@
+    serviceTypeDesc.@
 }
