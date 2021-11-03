@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
@@ -48,10 +49,11 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
     private static final String NAME = "IGNORE_VARIABLE";
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, 
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!DiagnosticWarningCode.UNUSED_LOCAL_VARIABLE.diagnosticId().equals(diagnostic.diagnosticInfo().code())) {
+        if (!DiagnosticWarningCode.UNUSED_LOCAL_VARIABLE.diagnosticId().equals(diagnostic.diagnosticInfo().code()) &&
+                !DiagnosticErrorCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT.diagnosticId().equals(diagnostic.diagnosticInfo().code())) {
             return Collections.emptyList();
         }
 
@@ -79,12 +81,18 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
             bindingPatternNode = (BindingPatternNode) node;
         } else if (node.kind() == SyntaxKind.FIELD_BINDING_PATTERN) {
             bindingPatternNode = (BindingPatternNode) node;
+        } else if (node.kind() == SyntaxKind.MAPPING_BINDING_PATTERN) {
+            bindingPatternNode = (BindingPatternNode) node;
+        } else if (node.kind() == SyntaxKind.LIST_BINDING_PATTERN) {
+            bindingPatternNode = (BindingPatternNode) node;
         } else {
             return Collections.emptyList();
         }
 
         TextEdit textEdit = null;
-        if (bindingPatternNode.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN) {
+        if (bindingPatternNode.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN ||
+                bindingPatternNode.kind() == SyntaxKind.MAPPING_BINDING_PATTERN ||
+                bindingPatternNode.kind() == SyntaxKind.LIST_BINDING_PATTERN) {
             Range editRange = CommonUtil.toRange(bindingPatternNode.lineRange());
             textEdit = new TextEdit(editRange, "_");
         } else if (bindingPatternNode.kind() == SyntaxKind.FIELD_BINDING_PATTERN) {
@@ -101,7 +109,7 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        return List.of(createQuickFixCodeAction(CommandConstants.IGNORE_UNUSED_VAR_TITLE, 
+        return List.of(createQuickFixCodeAction(CommandConstants.IGNORE_UNUSED_VAR_TITLE,
                 List.of(textEdit), context.fileUri()));
     }
 
