@@ -1204,15 +1204,10 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if (recordField.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
                 BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField =
                         (BLangRecordLiteral.BLangRecordSpreadOperatorField) recordField;
-                BLangExpression spreadOpExpr = spreadOperatorField.expr;
-
-                BType spreadOpExprType = spreadOpExpr.getBType();
-                int spreadFieldTypeTag = spreadOpExprType.tag;
-
-                if (spreadFieldTypeTag != TypeTags.RECORD) {
+                BType spreadOpExprType = spreadOperatorField.expr.getBType();
+                if (spreadOpExprType.tag != TypeTags.RECORD) {
                     continue;
                 }
-
                 BRecordType recordType = (BRecordType) spreadOpExprType;
                 for (BField recField : recordType.fields.values()) {
                     if (fieldName.equals(recField.name.value)) {
