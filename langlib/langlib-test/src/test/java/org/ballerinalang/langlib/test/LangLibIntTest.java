@@ -92,8 +92,13 @@ public class LangLibIntTest {
     public void testToHexString() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testToHexString");
         assertEquals(returns[0].stringValue(), "75bcd15");
-        // TODO: 7/6/19 Verify the representation of negative numbers
-//        assertEquals(returns[1].stringValue(), "ffffffffffffcfc7");
+        assertEquals(returns[1].stringValue(), "-3039");
+        assertEquals(returns[2].stringValue(), "-2dfd5533a");
+    }
+
+    @Test
+    public void testToHexStringNonPositives() {
+        BRunUtil.invoke(compileResult, "testToHexStringNonPositives");
     }
 
     @Test
