@@ -257,7 +257,7 @@ public class SortingUtil {
             } else if (completionItem.getType() == SNIPPET) {
                 if (((SnippetCompletionItem) completionItem).id().equals(ItemResolverConstants.ANON_FUNCTION)) {
                     return genSortText(3) + genSortText(toRank(context, completionItem));
-                } else if ( ((SnippetCompletionItem) completionItem).id().equals(Snippet.KW_FUNCTION.name())) {
+                } else if (((SnippetCompletionItem) completionItem).id().equals(Snippet.KW_FUNCTION.name())) {
                     return genSortText(4) + genSortText(toRank(context, completionItem));
                 }
             }
