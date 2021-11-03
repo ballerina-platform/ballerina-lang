@@ -1533,7 +1533,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner, typeDefSymbol.pos, typeDefSymbol.origin);
         typeSymbol.markdownDocumentation = typeDefSymbol.markdownDocumentation;
         ((BTypeDefinitionSymbol) typeDefSymbol).referenceType = new BTypeReferenceType(definedType, typeSymbol,
-                (BTypeDefinitionSymbol) typeDefSymbol, typeDefSymbol.type.flags);
+                typeDefSymbol.type.flags);
 
 
         //todo remove after type ref introduced to runtime
@@ -1574,13 +1574,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
             effectiveTypeSymbol.name = typeDefSymbol.name;
             effectiveTypeSymbol.pkgID = typeDefSymbol.pkgID;
-
-            if (effectiveDefinedType.tag == TypeTags.TYPEREFDESC) {
-                BType referredEffectiveType = ((BIntersectionType) types.getReferredType(effectiveDefinedType))
-                        .effectiveType;
-                referredEffectiveType.tsymbol.name = typeDefSymbol.name;
-                referredEffectiveType.tsymbol.pkgID = typeDefSymbol.pkgID;
-            }
         }
 
         handleDistinctDefinition(typeDefinition, typeDefSymbol, definedType, referenceConstraintType);

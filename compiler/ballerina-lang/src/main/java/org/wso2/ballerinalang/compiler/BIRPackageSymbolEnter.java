@@ -494,9 +494,6 @@ public class BIRPackageSymbolEnter {
             symbol = Symbols.createTypeDefinitionSymbol(flags, names.fromString(typeDefName),
                     this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol, pos, COMPILED_SOURCE);
             ((BTypeDefinitionSymbol) symbol).referenceType = (BTypeReferenceType) referenceType;
-            if (referenceType != null) {
-                ((BTypeDefinitionSymbol) symbol).referenceType.typeDefinitionSymbol = (BTypeDefinitionSymbol) symbol;
-            }
         }
         symbol.originalName = names.fromString(typeDefOrigName);
         symbol.origin = toOrigin(origin);
@@ -1156,8 +1153,7 @@ public class BIRPackageSymbolEnter {
                             Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                             names.fromString(typeDefName), env.pkgSymbol.pkgID, null, env.pkgSymbol,
                             symTable.builtinPos, COMPILED_SOURCE);
-                    BTypeReferenceType typeReferenceType = new BTypeReferenceType(null,
-                            typeSymbol, null, flags);
+                    BTypeReferenceType typeReferenceType = new BTypeReferenceType(null, typeSymbol, flags);
                     addShapeCP(typeReferenceType, cpI);
                     compositeStack.push(typeReferenceType);
                     typeReferenceType.referredType = readTypeFromCp();
