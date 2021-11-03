@@ -27,7 +27,6 @@ import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -114,7 +113,6 @@ public class TypesFactory {
     private final CompilerContext context;
     private final SymbolFactory symbolFactory;
     private final SymbolTable symbolTable;
-    private final Types types;
 
     private TypesFactory(CompilerContext context) {
         context.put(TYPES_FACTORY_KEY, this);
@@ -122,7 +120,6 @@ public class TypesFactory {
         this.context = context;
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
-        this.types = Types.getInstance(context);
     }
 
     public static TypesFactory getInstance(CompilerContext context) {
