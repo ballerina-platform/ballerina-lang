@@ -83,6 +83,9 @@ public class NumericLiteralAssignmentTest {
     public Object[][] intLiteralsAsNumericTypeInUnionFunctions() {
         return new Object[][]{
                 {"testIntLiteralAsIntInUnion"},
+                {"testIntLiteralAsIntInUnion2"},
+                {"testIntLiteralAsIntInUnion3"},
+                {"testIntLiteralAsIntInUnion4"},
                 {"testIntLiteralAsByteInUnion"},
                 {"testIntLiteralAsByteInUnion_2"},
                 {"testIntLiteralAsFloatInUnion"},
@@ -102,6 +105,11 @@ public class NumericLiteralAssignmentTest {
     public Object[][] floatLiteralsAsNumericTypeInUnionFunctions() {
         return new Object[][]{
                 {"testFloatLiteralAsFloatInUnion"},
+                {"testFloatLiteralAsFloatInUnion2"},
+                {"testFloatLiteralAsFloatInUnion3"},
+                {"testFloatLiteralAsFloatInUnion4"},
+                {"testFloatLiteralAsFloatInUnion5"},
+                {"testFloatLiteralAsFloatInUnion6"},
                 {"testFloatLiteralAsDecimalInUnion"},
                 {"testFloatLiteralAsDecimalInUnion_2"}
         };
@@ -133,7 +141,9 @@ public class NumericLiteralAssignmentTest {
     public Object[][] floatLiteralsAsNumericTypeViaFiniteTypeFunctions() {
         return new Object[][]{
                 {"testFloatLiteralAsFloatViaFiniteType"},
-                {"testFloatLiteralAsDecimalViaFiniteType"}
+                {"testFloatLiteralAsDecimalViaFiniteType"},
+                {"testDecimalLiteralAsDecimal"},
+                {"testDecimalLiteralAsDecimalInUnion"}
         };
     }
 

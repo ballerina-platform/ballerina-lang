@@ -211,3 +211,53 @@ function testFloatLiteralAsFloatWithBuiltinUnion() returns boolean {
     TempTwo|any|decimal z = 12.0;
     return result && z is float && z == f;
 }
+
+function testFloatLiteralAsFloatInUnion2() returns boolean {
+    float|decimal x = 123.04;
+    return x is float;
+}
+
+function testDecimalLiteralAsDecimal() returns boolean {
+    decimal x = 123.04;
+    return x is decimal;
+}
+
+function testFloatLiteralAsFloatInUnion3() returns boolean {
+    int|float|decimal x = 123.04;
+    return x is float;
+}
+
+function testFloatLiteralAsFloatInUnion4() returns boolean {
+    float|decimal x = 12;
+    return x is float;
+}
+
+function testFloatLiteralAsFloatInUnion5() returns boolean {
+    float|decimal x = 12f;
+    return x is float;
+}
+
+function testFloatLiteralAsFloatInUnion6() returns boolean {
+    int|float|decimal x = 12f;
+    return x is float;
+}
+
+function testIntLiteralAsIntInUnion2() returns boolean {
+    int|float|decimal x = 123;
+    return x is int;
+}
+
+function testIntLiteralAsIntInUnion3() returns boolean {
+    byte|float|decimal x = 123;
+    return x is byte;
+}
+
+function testIntLiteralAsIntInUnion4() returns boolean {
+    int|float|decimal x = 0x123f;
+    return x is int;
+}
+
+function testDecimalLiteralAsDecimalInUnion() returns boolean {
+    int|decimal x = 123.04;
+    return x is decimal;
+}
