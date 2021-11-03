@@ -55,12 +55,12 @@ import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -79,7 +79,7 @@ public class ServiceTemplateGenerator {
 
     private ServiceTemplateGenerator(LanguageServerContext context) {
         context.put(SERVICE_TEMPLATE_GENERATOR_KEY, this);
-        this.moduleListenerMap = new HashMap<>();
+        this.moduleListenerMap = new ConcurrentHashMap<>();
         isInitialized = false;
     }
 
@@ -146,25 +146,26 @@ public class ServiceTemplateGenerator {
         });
 
         //Generate listeners from the distribution
-        this.moduleListenerMap.entrySet().forEach(entry -> {
-            ModuleName moduleName = entry.getKey().getLeft();
-            String orgName = entry.getKey().getRight();
-            List<String> moduleNameComponents = Arrays.stream(moduleName.toString().split("\\."))
-                    .map(CommonUtil::escapeModuleName)
-                    .collect(Collectors.toList());
-            String aliasComponent = moduleNameComponents.get(moduleNameComponents.size() - 1);
-            String validatedName = CommonUtil.getValidatedSymbolName(ctx, aliasComponent);
-            String alias = !validatedName.equals(aliasComponent) ? validatedName : "";
-            String moduleHash = generateModuleHash(orgName, moduleName.toString());
-            if (processedModuleList.contains(moduleHash)) {
-                return;
-            }
-            List<Symbol> symbolsInModule = entry.getValue();
-            symbolsInModule.forEach(symbol -> generateServiceTemplateCompletionItem(symbol,
-                    orgName, moduleName.toString(), alias, true, ctx)
-                    .ifPresent(completionItems::add));
-            processedModuleList.add(moduleHash);
-        });
+        if (this.isInitialized) {
+            this.moduleListenerMap.forEach((key, symbolsInModule) -> {
+                ModuleName moduleName = key.getLeft();
+                String orgName = key.getRight();
+                List<String> moduleNameComponents = Arrays.stream(moduleName.toString().split("\\."))
+                        .map(CommonUtil::escapeModuleName)
+                        .collect(Collectors.toList());
+                String aliasComponent = moduleNameComponents.get(moduleNameComponents.size() - 1);
+                String validatedName = CommonUtil.getValidatedSymbolName(ctx, aliasComponent);
+                String alias = !validatedName.equals(aliasComponent) ? validatedName : "";
+                String moduleHash = generateModuleHash(orgName, moduleName.toString());
+                if (processedModuleList.contains(moduleHash)) {
+                    return;
+                }
+                symbolsInModule.forEach(symbol -> generateServiceTemplateCompletionItem(symbol,
+                        orgName, moduleName.toString(), alias, true, ctx)
+                        .ifPresent(completionItems::add));
+                processedModuleList.add(moduleHash);
+            });
+        }
 
         //Find listeners from the current project and generate completion items
         Optional<Project> project = ctx.workspace().project(ctx.filePath());

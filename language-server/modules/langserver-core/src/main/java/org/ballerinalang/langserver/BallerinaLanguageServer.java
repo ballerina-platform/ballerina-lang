@@ -199,8 +199,9 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         registerDynamicCapabilities();
 
         //Preload listeners from distribution.
-        ServiceTemplateGenerator.getInstance(serverContext)
-                .initialize(serverContext);
+        CompletableFuture.runAsync(() -> ServiceTemplateGenerator.getInstance(serverContext)
+                .initialize(serverContext));
+
         startListeningFileChanges();
     }
 
