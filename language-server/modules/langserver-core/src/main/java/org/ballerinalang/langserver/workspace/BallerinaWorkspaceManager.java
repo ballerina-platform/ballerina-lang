@@ -422,15 +422,13 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      */
     public void refreshProject(Path filePath) throws WorkspaceDocumentException {
         Optional<ProjectPair> projectPairOpt = projectPair(projectRoot(filePath));
-        Optional<Document> doc = projectPairOpt.flatMap(projectPair -> document(filePath, projectPair.project(), null));
-        if (doc.isEmpty()) {
-            throw new WorkspaceDocumentException("Document not found for filePath: " + filePath);
+        if (projectPairOpt.isEmpty()) {
+            throw new WorkspaceDocumentException("Project not found for filePath: " + filePath);
         }
 
         Lock lock = projectPairOpt.get().lockAndGet();
         try {
-            Document updatedDoc = doc.get().modify().withContent(doc.get().syntaxTree().toSourceCode()).apply();
-            projectPairOpt.get().setProject(updatedDoc.module().project());
+            projectPairOpt.get().project().clearCaches();
         } finally {
             lock.unlock();
         }
