@@ -14,7 +14,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function getStackTrace() returns error:StackFrame[] {
-    error e = error("error!");
-    return e.stackTrace();
+import ballerina/jballerina.java;
+
+# Representation of `CallStackElement`.
+#
+# + callableName - Callable name
+# + moduleName - Module name
+# + fileName - File name
+# + lineNumber - Line number
+type CallStackElement record {|
+    string callableName;
+    string moduleName?;
+    string fileName;
+    int lineNumber;
+|};
+
+# Represents an error call stack.
+#
+# + callStack - call stack
+class CallStack {
+    public CallStackElement[] callStack = [];
 }
+
+isolated function externGetStackTrace(error e) returns CallStack = @java:Method {
+    name: "stackTrace",
+    'class: "org.ballerinalang.langlib.error.StackTrace"
+} external;
