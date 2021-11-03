@@ -3356,7 +3356,8 @@ public class Types {
             }
             // Check whether the literal that needs to be tested is assignable to any of the member literal in the
             // value space.
-            return checkLiteralAssignabilityBasedOnType((BLangLiteral) memberLiteral, literalExpr);
+            return checkLiteralAssignabilityBasedOnType((BLangLiteral) memberLiteral, literalExpr,
+                                                        literalExpr.getBType().tag);
         });
     }
 
@@ -3370,14 +3371,14 @@ public class Types {
      * @param candidateLiteral Literal to be tested whether it is assignable to the base literal or not.
      * @return true if assignable; false otherwise.
      */
-    boolean checkLiteralAssignabilityBasedOnType(BLangLiteral baseLiteral, BLangLiteral candidateLiteral) {
+    boolean checkLiteralAssignabilityBasedOnType(BLangLiteral baseLiteral, BLangLiteral candidateLiteral,
+                                                 int candidateTypeTag) {
         // Different literal kinds.
         if (baseLiteral.getKind() != candidateLiteral.getKind()) {
             return false;
         }
         Object baseValue = baseLiteral.value;
         Object candidateValue = candidateLiteral.value;
-        int candidateTypeTag = candidateLiteral.getBType().tag;
 
         // Numeric literal assignability is based on assignable type and numeric equivalency of values.
         // If the base numeric literal is,
@@ -3469,6 +3470,28 @@ public class Types {
     boolean isByteLiteralValue(Long longObject) {
 
         return (longObject.intValue() >= BBYTE_MIN_VALUE && longObject.intValue() <= BBYTE_MAX_VALUE);
+    }
+
+    boolean isFloatLiteralValue(Location pos, String numericLiteral) {
+        double value = Double.parseDouble(String.valueOf(numericLiteral));
+        if (Double.isInfinite(value)) {
+            dlog.error(pos, DiagnosticErrorCode.FLOAT_TOO_LARGE, numericLiteral);
+            return false;
+        }
+
+        if (value == 0.0) {
+            for (int i = 0; i < numericLiteral.length(); i++) {
+                char character = numericLiteral.charAt(i);
+                if (character == 'p' || character == 'P' || character == 'e' || character == 'E') {
+                    break;
+                }
+                if (character >= '1' && character <= '9') {
+                    dlog.error(pos, DiagnosticErrorCode.FLOAT_TOO_SMALL, numericLiteral);
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     boolean isSigned32LiteralValue(Long longObject) {
@@ -5111,33 +5134,42 @@ public class Types {
         }
     }
 
+    private List<BType> getTypesList(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) type;
+            return new ArrayList<>(unionType.getMemberTypes());
+        } else {
+            return Lists.of(type);
+        }
+    }
+
     public boolean isValidLiteral(BLangLiteral literal, BType targetType) {
-        BType literalType = literal.getBType();
-        if (literalType.tag == targetType.tag) {
+        List<BType> typeList = getTypesList(literal.getBType());
+        if (typeList.contains(targetType)) {
             return true;
         }
 
         switch (targetType.tag) {
             case TypeTags.BYTE:
-                return literalType.tag == TypeTags.INT && isByteLiteralValue((Long) literal.value);
+                return typeList.contains(symTable.intType) && isByteLiteralValue((Long) literal.value);
             case TypeTags.DECIMAL:
-                return literalType.tag == TypeTags.FLOAT || literalType.tag == TypeTags.INT;
+                return typeList.contains(symTable.floatType) || typeList.contains(symTable.intType);
             case TypeTags.FLOAT:
-                return literalType.tag == TypeTags.INT;
+                return typeList.contains(symTable.intType);
             case TypeTags.SIGNED32_INT:
-                return literalType.tag == TypeTags.INT && isSigned32LiteralValue((Long) literal.value);
+                return typeList.contains(symTable.intType) && isSigned32LiteralValue((Long) literal.value);
             case TypeTags.SIGNED16_INT:
-                return literalType.tag == TypeTags.INT && isSigned16LiteralValue((Long) literal.value);
+                return typeList.contains(symTable.intType) && isSigned16LiteralValue((Long) literal.value);
             case TypeTags.SIGNED8_INT:
-                return literalType.tag == TypeTags.INT && isSigned8LiteralValue((Long) literal.value);
+                return typeList.contains(symTable.intType) && isSigned8LiteralValue((Long) literal.value);
             case TypeTags.UNSIGNED32_INT:
-                return literalType.tag == TypeTags.INT && isUnsigned32LiteralValue((Long) literal.value);
+                return typeList.contains(symTable.intType) && isUnsigned32LiteralValue((Long) literal.value);
             case TypeTags.UNSIGNED16_INT:
-                return literalType.tag == TypeTags.INT && isUnsigned16LiteralValue((Long) literal.value);
+                return typeList.contains(symTable.intType) && isUnsigned16LiteralValue((Long) literal.value);
             case TypeTags.UNSIGNED8_INT:
-                return literalType.tag == TypeTags.INT && isUnsigned8LiteralValue((Long) literal.value);
+                return typeList.contains(symTable.intType) && isUnsigned8LiteralValue((Long) literal.value);
             case TypeTags.CHAR_STRING:
-                return literalType.tag == TypeTags.STRING && isCharLiteralValue((String) literal.value);
+                return typeList.contains(symTable.stringType) && isCharLiteralValue((String) literal.value);
             default:
                 return false;
         }
