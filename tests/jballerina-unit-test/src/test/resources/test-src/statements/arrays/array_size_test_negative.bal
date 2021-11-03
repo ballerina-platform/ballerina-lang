@@ -50,3 +50,9 @@ function arraySizeTest() {
     int[9223372036854775808] _ = [];
     int[0x001234567890abcdef01] _ = [];
 }
+
+const negativeLength = -1;
+
+function arrayNegativeSizeTest() {
+    int[negativeLength] z = [];
+}
