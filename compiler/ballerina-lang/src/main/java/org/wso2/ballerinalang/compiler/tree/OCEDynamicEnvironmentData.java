@@ -30,5 +30,7 @@ public class OCEDynamicEnvironmentData {
     public BVarSymbol classEnclosedFunctionMap;
     public List<BVarSymbol> functionMapClosures;
 
+    public OCEDynamicEnvironmentData cloneRef;
+
     public OCEDynamicEnvironmentData() {}
 }

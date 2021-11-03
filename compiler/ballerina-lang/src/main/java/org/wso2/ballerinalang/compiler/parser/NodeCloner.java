@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
@@ -2284,7 +2285,17 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.isServiceDecl = source.isServiceDecl;
         clone.isObjectContructorDecl = source.isObjectContructorDecl;
         clone.internal = source.internal;
-        clone.oceEnvData = source.oceEnvData;
+        clone.oceEnvData = cloneOceEnvData(source.oceEnvData);
+    }
+
+    private OCEDynamicEnvironmentData cloneOceEnvData(OCEDynamicEnvironmentData source) {
+        if (source.cloneRef != null) {
+            return source.cloneRef;
+        }
+        OCEDynamicEnvironmentData clone = new OCEDynamicEnvironmentData();
+        clone.classDefinition = clone(source.classDefinition);
+        clone.typeInit = clone(source.typeInit);
+        return clone;
     }
 
     @Override
@@ -2318,6 +2329,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.typeInit = clone(source.typeInit);
         clone.referenceType = clone(source.referenceType);
         clone.isClient = source.isClient;
+        clone.isService = source.isService;
 
         source.cloneRef = clone;
     }
