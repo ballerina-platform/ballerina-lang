@@ -2770,8 +2770,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(VariableDeclarationNode varDeclaration) {
-        return (BLangNode) createBLangVarDef(getPosition(varDeclaration), varDeclaration.typedBindingPattern(),
-                varDeclaration.initializer(), varDeclaration.finalKeyword());
+        VariableDefinitionNode varNode =
+                createBLangVarDef(getPosition(varDeclaration), varDeclaration.typedBindingPattern(),
+                                  varDeclaration.initializer(), varDeclaration.finalKeyword());
+        ((BLangVariable) varNode.getVariable()).annAttachments = applyAll(varDeclaration.annotations());
+        return (BLangNode) varNode;
     }
 
     private VariableDefinitionNode createBLangVarDef(Location location,
