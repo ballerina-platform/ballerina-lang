@@ -69,3 +69,12 @@ function checkCast3() {
     any[] anyArr = [1,"hello"];
     int[] intArr = anyArr;
 }
+
+function checkCastInNamedArg() {
+   string | int arg = 10;
+   func1(arg1 = arg);
+}
+
+public function func1(int arg1) {
+
+}

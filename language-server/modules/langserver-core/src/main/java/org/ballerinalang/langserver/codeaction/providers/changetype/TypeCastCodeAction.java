@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
@@ -117,7 +118,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
 
     protected NonTerminalNode getMatchedNode(NonTerminalNode node) {
         List<SyntaxKind> syntaxKinds = Arrays.asList(SyntaxKind.LOCAL_VAR_DECL,
-                SyntaxKind.MODULE_VAR_DECL, SyntaxKind.ASSIGNMENT_STATEMENT, SyntaxKind.POSITIONAL_ARG);
+                SyntaxKind.MODULE_VAR_DECL, SyntaxKind.ASSIGNMENT_STATEMENT, SyntaxKind.POSITIONAL_ARG, SyntaxKind.NAMED_ARG);
         while (node != null && !syntaxKinds.contains(node.kind())) {
             node = node.parent();
         }
@@ -134,6 +135,8 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
             return Optional.of(((AssignmentStatementNode) node).expression());
         } else if (node.kind() == SyntaxKind.POSITIONAL_ARG) {
             return Optional.of(((PositionalArgumentNode) node).expression());
+        } else if (node.kind() == SyntaxKind.NAMED_ARG) {
+            return Optional.of(((NamedArgumentNode) node).expression());
         } else {
             return Optional.empty();
         }
