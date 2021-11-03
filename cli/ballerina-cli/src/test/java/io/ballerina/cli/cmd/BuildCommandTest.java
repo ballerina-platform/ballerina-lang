@@ -538,7 +538,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("emptyProjectWithCompilerPlugin");
         System.setProperty("user.dir", projectPath.toString());
 
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, false);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -552,7 +552,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("emptyProjectWithTestsOnly");
         System.setProperty("user.dir", projectPath.toString());
 
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, false);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -566,7 +566,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("emptyProjectWithNonDefaultModules");
         System.setProperty("user.dir", projectPath.toString());
 
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, false);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -580,7 +580,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("emptyProjectWithNonDefaultModulesTestOnly");
         System.setProperty("user.dir", projectPath.toString());
 
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, false);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -594,7 +594,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("emptyNonDefaultModule");
         System.setProperty("user.dir", projectPath.toString());
 
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, false);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);

@@ -90,7 +90,7 @@ public transactional isolated function getRollbackOnly() returns boolean = @java
 # Associates some data with the current transaction branch.
 #
 # + e - Data to be set
-public transactional isolated function setData((any|error) & readonly e) = @java:Method {
+public transactional isolated function setData(readonly data) = @java:Method {
     'class: "org.ballerinalang.langlib.transaction.SetData",
     name: "setData"
 } external;
@@ -100,7 +100,7 @@ public transactional isolated function setData((any|error) & readonly e) = @java
 # The data is set using `setData`.
 #
 # + return - the data, or `()` if no data has been set.
-public transactional isolated function getData() returns (any|error) & readonly = @java:Method {
+public transactional isolated function getData() returns readonly = @java:Method {
     'class: "org.ballerinalang.langlib.transaction.GetData",
     name: "getData"
 } external;
@@ -133,7 +133,7 @@ public transactional isolated function onRollback(RollbackHandler handler) = @ja
     name: "onRollback"
 } external;
 
-function wrapRollbackError(Error? e) = @java:Method {
+isolated function wrapRollbackError(Error? e) = @java:Method {
     'class: "org.ballerinalang.langlib.transaction.WrapRollbackError",
     name: "wrapRollbackError"
 } external;

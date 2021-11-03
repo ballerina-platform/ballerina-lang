@@ -4310,6 +4310,28 @@ public class Types {
                 return lhsType;
             }
         }
+
+        // TODO: intersections with readonly types are not handled properly. Here, the logic works as follows.
+        // Say we have an intersection called A & readonly and we have another type called B. As per the current
+        // implementation, we cannot easily find the intersection between (A & readonly) and B. Instead, what we
+        // do here is, first find the intersection between A and B then re-create the immutable type out of it.
+
+        if (Symbols.isFlagOn(lhsType.flags, Flags.READONLY) && lhsType.tag == TypeTags.UNION &&
+                ((BUnionType) lhsType).getIntersectionType().isPresent()) {
+            BIntersectionType intersectionType = ((BUnionType) lhsType).getIntersectionType().get();
+            BType finalType = type;
+            List<BType> types = intersectionType.getConstituentTypes().stream().filter(t -> t.tag != TypeTags.READONLY)
+                    .map(t -> getIntersection(intersectionContext, t, env, finalType, visitedTypes))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            if (types.size() == 1) {
+                BType bType = types.get(0);
+                return ImmutableTypeCloner.getImmutableType(null, this, bType, env, env.enclPkg.packageID, null,
+                        symTable, anonymousModelHelper, names,
+                        new LinkedHashSet<>());
+            }
+        }
+
         if (type.tag == TypeTags.ERROR && lhsType.tag == TypeTags.ERROR) {
             BType intersectionType = getIntersectionForErrorTypes(intersectionContext, lhsType, type, env,
                                                             visitedTypes);
@@ -4389,21 +4411,23 @@ public class Types {
             }
         } else if (isAnydataOrJson(type) && lhsType.tag == TypeTags.RECORD) {
             BType intersectionType = createRecordIntersection(intersectionContext, (BRecordType) lhsType,
-                    getEquivalentRecordType(getMapTypeForAnydataOrJson(type)), env, visitedTypes);
+                    getEquivalentRecordType(getMapTypeForAnydataOrJson(type, env)), env, visitedTypes);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
         } else if (type.tag == TypeTags.RECORD && isAnydataOrJson(lhsType)) {
             BType intersectionType = createRecordIntersection(intersectionContext,
-                    getEquivalentRecordType(getMapTypeForAnydataOrJson(lhsType)), (BRecordType) type, env,
+                    getEquivalentRecordType(getMapTypeForAnydataOrJson(lhsType, env)), (BRecordType) type, env,
                     visitedTypes);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
         } else if (isAnydataOrJson(type) && lhsType.tag == TypeTags.MAP) {
-            return getIntersection(intersectionContext, lhsType, env, getMapTypeForAnydataOrJson(type), visitedTypes);
+            return getIntersection(intersectionContext, lhsType, env, getMapTypeForAnydataOrJson(type, env),
+                    visitedTypes);
         } else if (type.tag == TypeTags.MAP && isAnydataOrJson(lhsType)) {
-            return getIntersection(intersectionContext, getMapTypeForAnydataOrJson(lhsType), env, type, visitedTypes);
+            return getIntersection(intersectionContext, getMapTypeForAnydataOrJson(lhsType, env), env, type,
+                    visitedTypes);
         } else if (isAnydataOrJson(type) && lhsType.tag == TypeTags.TUPLE) {
             BType intersectionType = createArrayAndTupleIntersection(intersectionContext,
                     getArrayTypeForAnydataOrJson(type), (BTupleType) lhsType, env, visitedTypes);
@@ -4457,7 +4481,7 @@ public class Types {
         return false;
     }
 
-    private BMapType getMapTypeForAnydataOrJson(BType type) {
+    private BMapType getMapTypeForAnydataOrJson(BType type, SymbolEnv env) {
         BMapType mapType = type.tag == TypeTags.ANYDATA ? symTable.mapAnydataType : symTable.mapJsonType;
 
         if (isImmutable(type)) {

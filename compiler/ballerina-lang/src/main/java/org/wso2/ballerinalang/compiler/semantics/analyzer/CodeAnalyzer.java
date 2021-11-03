@@ -3935,13 +3935,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
         analyzeNode(typeTestExpr.expr, env);
-        if (typeTestExpr.typeNode.getBType() == symTable.semanticError
-                || typeTestExpr.expr.getBType() == symTable.semanticError) {
-            return;
-        }
-
         BType exprType = typeTestExpr.expr.getBType();
         BType typeNodeType = typeTestExpr.typeNode.getBType();
+        if (typeNodeType == symTable.semanticError || exprType == symTable.semanticError) {
+            return;
+        }
         // Check whether the condition is always true. If the variable type is assignable to target type,
         // then type check will always evaluate to true.
         if (types.isAssignable(exprType, typeNodeType)) {
@@ -3961,9 +3959,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // It'll be only possible iff, the target type has been assigned to the source
         // variable at some point. To do that, a value of target type should be assignable
         // to the type of the source variable.
-        if (!intersectionExists(typeTestExpr.expr, typeTestExpr.typeNode.getBType())) {
-            dlog.error(typeTestExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CHECK, typeTestExpr.expr.getBType(),
-                       typeTestExpr.typeNode.getBType());
+        if (!intersectionExists(typeTestExpr.expr, typeNodeType)) {
+            dlog.error(typeTestExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CHECK, exprType, typeNodeType);
         }
     }
 

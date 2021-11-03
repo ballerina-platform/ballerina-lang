@@ -136,6 +136,7 @@ public class Bootstrap {
         }
 
         if (langLib.equals(ERROR)) {
+            symbolTable.langArrayModuleSymbol = loadLangLibFromBala(ARRAY, compilerContext);
             symbolTable.langValueModuleSymbol = loadLangLibFromBala(VALUE, compilerContext);
         }
 

@@ -59,7 +59,7 @@ class RetryMgr {
     public function init(int count = 3) {
         self.count = count;
     }
-    public function shouldRetry(error? e) returns boolean {
+    public function shouldRetry(error e) returns boolean {
         return true;
     }
 }

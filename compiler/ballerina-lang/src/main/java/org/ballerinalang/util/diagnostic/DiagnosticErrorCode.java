@@ -161,9 +161,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE2118", "field.access.cannot.be.used.to.access.optional.fields"),
     UNDECLARED_FIELD_IN_RECORD("BCE2119", "undeclared.field.in.record"),
     INVALID_FIELD_ACCESS_IN_RECORD_TYPE("BCE2120", "invalid.field.access.in.record.type"),
-    UNDECLARED_AND_OPTIONAL_FIELDS_IN_UNION_OF_RECORDS("BCE2121", "undeclared.and.optional.fields.in.union.of.records"),
+    UNDECLARED_AND_NILABLE_FIELDS_IN_UNION_OF_RECORDS("BCE2121", "undeclared.and.nilable.fields.in.union.of.records"),
     UNDECLARED_FIELD_IN_UNION_OF_RECORDS("BCE2122", "undeclared.field.in.union.of.records"),
-    OPTIONAL_FIELD_IN_UNION_OF_RECORDS("BCE2123", "optional.field.in.union.of.records"),
+    NILABLE_FIELD_IN_UNION_OF_RECORDS("BCE2123", "nilable.field.in.union.of.records"),
     ALREADY_INITIALIZED_SYMBOL("BCE2124", "already.initialized.symbol"),
     ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED(
             "BCE2125", "array.length.greater.that.2147483637.not.yet.supported"),
@@ -752,7 +752,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_LOOP("BCE4017", "invalid.assignment.to.narrowed.var.in.loop"),
 
     INVALID_NON_ISOLATED_CALL_IN_MATCH_GUARD("BCE4018", "invalid.non.isolated.call.in.match.guard"),
-    INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD("BCE4019", "invalid.call.with.mutable.args.in.match.guard")
+    INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD("BCE4019", "invalid.call.with.mutable.args.in.match.guard"),
+    ERROR_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND("BCE4020", "error.constructor.compatible.type.not.found")
     ;
 
     private String diagnosticId;

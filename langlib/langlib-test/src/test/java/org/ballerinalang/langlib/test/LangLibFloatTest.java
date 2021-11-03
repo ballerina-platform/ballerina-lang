@@ -105,4 +105,17 @@ public class LangLibFloatTest {
     public void testMinAndMaxWithNaN() {
         BRunUtil.invoke(compileResult, "testMinAndMaxWithNaN");
     }
+
+    @Test(dataProvider = "functionsWithFromStringTests")
+    public void testFromString(String function) {
+        BRunUtil.invoke(compileResult, function);
+    }
+
+    @DataProvider
+    public  Object[] functionsWithFromStringTests() {
+        return new String[] {
+                "testFromStringPositive",
+                "testFromStringNegative"
+        };
+    }  
 }
