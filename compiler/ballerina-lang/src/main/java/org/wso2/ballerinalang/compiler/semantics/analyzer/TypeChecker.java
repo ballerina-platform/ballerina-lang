@@ -4223,12 +4223,12 @@ public class TypeChecker extends BLangNodeVisitor {
         if (rhsReturnType == symTable.semanticError || lhsReturnType == symTable.semanticError) {
             resultType = symTable.semanticError;
         } else if (expType == symTable.noType) {
-            if (types.isSameType(rhsReturnType, lhsReturnType)) {
+            if (types.isAssignable(rhsReturnType, lhsReturnType)) {
                 resultType = lhsReturnType;
+            } else if (types.isAssignable(lhsReturnType, rhsReturnType)) {
+                resultType = rhsReturnType;
             } else {
-                dlog.error(elvisExpr.rhsExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, lhsReturnType,
-                        rhsReturnType);
-                resultType = symTable.semanticError;
+                resultType = BUnionType.create(null, rhsReturnType, rhsReturnType);
             }
         } else {
             resultType = expType;
