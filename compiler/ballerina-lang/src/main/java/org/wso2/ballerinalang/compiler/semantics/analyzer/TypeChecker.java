@@ -3930,8 +3930,7 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if (types.isAssignable(thenType, elseType)) {
                 resultType = elseType;
             } else {
-                dlog.error(ternaryExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, thenType, elseType);
-                resultType = symTable.semanticError;
+                resultType = BUnionType.create(null, elseType, thenType);
             }
         } else {
             resultType = expType;
