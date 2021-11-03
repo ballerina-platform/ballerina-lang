@@ -23,7 +23,6 @@ import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -39,16 +38,16 @@ public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements 
 
     private final String typeName;
 
-    public BallerinaSingletonTypeSymbol(CompilerContext context, ModuleID moduleID, BLangExpression shape,
+    public BallerinaSingletonTypeSymbol(CompilerContext context, ModuleID moduleID, BLangLiteral shape,
                                         BType bType) {
         super(context, TypeDescKind.SINGLETON, bType);
 
         // Special case handling for `()` since in BLangLiteral, `null` is used to represent nil.
-        if (shape instanceof BLangLiteral && ((BLangLiteral) shape).value == null
+        if (shape.value == null
                 && shape.getBType().tag == TypeTags.NIL) {
             this.typeName = "()";
-        } else if (shape instanceof BLangLiteral && ((BLangLiteral) shape).getOriginalValue() != null) {
-            this.typeName = ((BLangLiteral) shape).getOriginalValue();
+        } else if (shape.getOriginalValue() != null) {
+            this.typeName = shape.getOriginalValue();
         } else {
             this.typeName = shape.toString();
         }
