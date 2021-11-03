@@ -471,6 +471,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    private void addSemtypeBType(BLangType typeNode, SemType semType) {
+        if (typeNode != null) {
+            typeNode.getBType().setSemtype(semType);
+        }
+    }
+
     private void defineSemTypes(List<BLangNode> moduleDefs, SymbolEnv pkgEnv) {
         // note: Let's start mimicking what James do as it is easy to populate the types and use in testing.
         // Eventually this should be moved to SymbolResolver and should integrate wtih existing type-symbols.
@@ -502,6 +508,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             semtype = evaluateConst(constant);
         }
+        addSemtypeBType(constant.getTypeNode(), semtype);
         semtypeEnv.addTypeDef(constant.name.value, semtype);
     }
 
@@ -531,6 +538,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         defn.cycleDepth = depth;
         SemType s = resolveTypeDesc(semtypeEnv, mod, defn, depth, defn.typeNode);
+        addSemtypeBType(defn.getTypeNode(), s);
         if (defn.semType == null) {
             defn.semType = s;
             defn.cycleDepth = -1;

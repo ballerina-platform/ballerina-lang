@@ -23,7 +23,9 @@ import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,6 +75,17 @@ public class SemTypeTest {
         //return new Object[]{"test-src/data/error2.bal"};
     }
 
+    @DataProvider(name = "fileNameProviderFunc")
+    public Object[] fileNameProviderFunc() {
+        File dataDir = resolvePath("test-src/localVar").toFile();
+        List<String> testFiles = Arrays.stream(dataDir.listFiles())
+                .map(File::getAbsolutePath)
+                .filter(name -> name.endsWith(".bal"))
+                .collect(Collectors.toList());
+
+        return testFiles.toArray(new String[0]);
+    }
+
     private void include(List<String> testFiles, String... fileNames) {
         for (int i = 0; i < fileNames.length; i++) {
             testFiles.add(i, fileNames[i]);
@@ -102,6 +115,29 @@ public class SemTypeTest {
         Assert.assertEquals(subtypeRels, expectedRels);
     }
 
+    @Test(dataProvider = "fileNameProviderFunc")
+    public void funcTest(String fileName) {
+        BLangPackage bLangPackage = BCompileUtil.compileSemType(fileName);
+        ensureNoErrors(bLangPackage);
+        List<String[]> vars = extractVarTypes(fileName);
+        Context tc = Context.from(bLangPackage.semtypeEnv);
+        Scope globalScope = bLangPackage.symbol.scope;
+        bLangPackage.functions.forEach(func -> {
+            Scope scope = func.getBody().scope;
+            vars.forEach(v -> {
+                if (v.length != 2) {
+                    Assert.fail("test structure should be `variable = Type`");
+                }
+                SemType t1 = scope.lookup(new Name(v[0])).symbol.type.getSemtype();
+                SemType t2 = globalScope.lookup(new Name(v[1])).symbol.type.getSemtype();
+
+                String msg = "semtype in local scope is different from global scope";
+                Assert.assertTrue(SemTypes.isSubtype(tc, t1, t2), msg);
+                Assert.assertTrue(SemTypes.isSubtype(tc, t2, t1), msg);
+            });
+        });
+    }
+
     private String toText(List<String> expectedRels) {
         StringJoiner joiner = new StringJoiner("\n// ", "// ", "");
         for (String rel : expectedRels) {
@@ -114,9 +150,8 @@ public class SemTypeTest {
         // debug
         BLangPackage bLangPackage = BCompileUtil.compileSemType(sourceFilePath);
         ensureNoErrors(bLangPackage);
-
         Context typeCheckContext = Context.from(bLangPackage.semtypeEnv);
-        Map<String, SemType> typeMap = bLangPackage.semtypeEnv.geTypeNameSemTypeMap();
+        Map<String, SemType> typeMap = bLangPackage.semtypeEnv.getTypeNameSemTypeMap();
 
         List<TypeRel> subtypeRelations = new ArrayList<>();
         List<String> typeNameList = typeMap.keySet().stream()
@@ -165,6 +200,19 @@ public class SemTypeTest {
             return lines.filter(s -> s.startsWith("// ") && s.contains("<:"))
                     .map(s -> s.substring(3).strip())
                     .sorted()
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            Assert.fail(e.toString());
+        }
+        return null;
+    }
+
+    List<String[]> extractVarTypes(String fileName) {
+        try {
+            Path path = resolvePath(fileName);
+            Stream<String> lines = Files.lines(Path.of(path.toString()));
+            return lines.filter(s -> s.startsWith("// "))
+                    .map(s -> s.substring(3).replaceAll("\\s", "").split("="))
                     .collect(Collectors.toList());
         } catch (IOException e) {
             Assert.fail(e.toString());
