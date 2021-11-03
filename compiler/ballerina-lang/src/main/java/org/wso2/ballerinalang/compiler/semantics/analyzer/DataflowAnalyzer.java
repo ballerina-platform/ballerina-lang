@@ -987,10 +987,19 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private List<BLangExpression> createKeyArray(BLangRecordLiteral literal, List<String> fieldNames) {
         //fieldNames have to be literals in table constructor's record literal list
-        Map<String, BLangExpression> fieldMap =
-                literal.fields.stream().map(recordField -> (BLangRecordLiteral.BLangRecordKeyValueField) recordField)
-                        .map(d -> new SimpleEntry<>(d.key.expr.toString(), d.valueExpr)).
-                        collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
+        Map<String, BLangExpression> fieldMap = new HashMap<>();
+
+        for (RecordLiteralNode.RecordField recordField : literal.fields) {
+            if (recordField.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField keyVal =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) recordField;
+                fieldMap.put(keyVal.key.expr.toString(), keyVal.valueExpr);
+            } else if (recordField.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangRecordLiteral.BLangRecordVarNameField recordVarNameField =
+                        (BLangRecordLiteral.BLangRecordVarNameField) recordField;
+                fieldMap.put(recordVarNameField.getVariableName().value, recordVarNameField);
+            }
+        }
         return fieldNames.stream().map(fieldMap::get).collect(Collectors.toList());
     }
 
