@@ -49,7 +49,7 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
 
     private static final String NAME = "IGNORE_VARIABLE";
 
-    /** Interested diagnostic codes of this code action */
+    /** Interested diagnostic codes of this code action. */
     private static final Set<String> DIAGNOSTIC_CODES = Set.of(
             DiagnosticWarningCode.UNUSED_LOCAL_VARIABLE.diagnosticId(),
             DiagnosticErrorCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT.diagnosticId()
