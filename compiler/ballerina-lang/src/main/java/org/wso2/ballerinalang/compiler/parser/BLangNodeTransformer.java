@@ -2814,7 +2814,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             case LIST_BINDING_PATTERN:
                 initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), initializer,
                         qualifierList);
-                variable.pos = location;
+                initializer.ifPresent(initializerNode -> variable.pos = getPosition(bindingPattern, initializerNode));
                 return createTupleVariableDef(variable);
             case ERROR_BINDING_PATTERN:
                 initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), initializer,
