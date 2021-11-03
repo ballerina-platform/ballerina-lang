@@ -36,30 +36,30 @@ public class ForeachNegativeTests {
         int index = 0;
         BAssertUtil.validateError(compile, index++,
                 "invalid list binding pattern: attempted to infer a list type, but found 'string'",
-                39, 13);
+                39, 17);
         BAssertUtil.validateError(compile, index++,
                 "invalid list binding pattern: attempted to infer a list type, but found 'string'",
-                48, 13);
+                48, 17);
         BAssertUtil.validateError(compile, index++, "redeclared symbol 'i'", 48, 18);
         BAssertUtil.validateError(compile, index++, "redeclared symbol 's'", 48, 21);
         BAssertUtil.validateError(compile, index++,
                 "invalid list binding pattern: attempted to infer a list type, but found 'string'",
-                55, 13);
+                55, 17);
         BAssertUtil.validateError(compile, index++, "undefined symbol 'i'", 58, 13);
         BAssertUtil.validateError(compile, index++, "incompatible types: 'int' is not an iterable collection", 63,
                 22);
         BAssertUtil.validateError(compile, index++,
                 "invalid list binding pattern: attempted to infer a list type, but found 'string'",
-                76, 13);
+                76, 17);
         BAssertUtil.validateError(compile, index++,
                 "invalid list binding pattern: attempted to infer a list type, but found 'string'",
-                84, 13);
+                84, 17);
         BAssertUtil.validateError(compile, index++,
                 "invalid list binding pattern: attempted to infer a list type, but found 'json'",
-                93, 13);
+                93, 17);
         BAssertUtil.validateError(compile, index++,
                 "invalid list binding pattern: attempted to infer a list type, but found 'string'",
-                119, 13);
+                119, 17);
         BAssertUtil.validateError(compile, index++, "undefined function 'Error'", 141, 18);
         BAssertUtil.validateError(compile, index++, "undefined function 'Error'", 142, 18);
         BAssertUtil.validateError(compile, index++, "undefined function 'Error'", 143, 18);
