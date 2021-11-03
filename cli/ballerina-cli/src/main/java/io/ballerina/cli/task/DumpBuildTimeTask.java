@@ -18,6 +18,7 @@
 package io.ballerina.cli.task;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
@@ -85,15 +86,9 @@ public class DumpBuildTimeTask implements Task {
     }
 
     private void printBuildTime(BuildTime buildTime) {
-        this.out.println("\ttimestamp : " + buildTime.timestamp);
-        this.out.println("\toffline : " + buildTime.offline);
-        this.out.println("\tcompile : " + buildTime.compile);
-        this.out.println("\tprojectLoadDuration : " + buildTime.projectLoadDuration);
-        this.out.println("\tpackageResolutionDuration : " + buildTime.packageResolutionDuration);
-        this.out.println("\tpackageCompilationDuration : " + buildTime.packageCompilationDuration);
-        this.out.println("\tcodeGenDuration : " + buildTime.codeGenDuration);
-        this.out.println("\temitArtifactDuration : " + buildTime.emitArtifactDuration);
-        this.out.println("\ttestingExecutionDuration : " + buildTime.testingExecutionDuration);
-        this.out.println("\ttotalDuration : " + buildTime.totalDuration);
+        Gson gson = new Gson();
+        JsonObject buildTimeJson = (JsonObject) gson.toJsonTree(buildTime);
+        buildTimeJson.entrySet()
+                .forEach(entry -> this.out.println("\t" + entry.getKey() + " : " + entry.getValue().toString()));
     }
 }
