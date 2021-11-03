@@ -14906,8 +14906,10 @@ public class BallerinaParser extends AbstractParser {
             return parseBracedExprOrAnonFuncParamRhs(openParen, typeOrExpr, false);
         }
 
-        STNode closeParen = parseCloseParenthesis();
         STNode typeDescNode = getTypeDescFromExpr(typeOrExpr);
+        typeDescNode = parseComplexTypeDescriptor(typeDescNode, ParserRuleContext.TYPE_DESC_IN_PARENTHESIS, false);
+
+        STNode closeParen = parseCloseParenthesis();
         return STNodeFactory.createParenthesisedTypeDescriptorNode(openParen, typeDescNode, closeParen);
     }
 
