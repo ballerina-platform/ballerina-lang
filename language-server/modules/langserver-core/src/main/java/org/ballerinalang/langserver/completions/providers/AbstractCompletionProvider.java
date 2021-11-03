@@ -581,7 +581,9 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                                                    String prefix) {
         CompletionItem moduleCompletionItem = new CompletionItem();
         moduleCompletionItem.setLabel(label);
-        moduleCompletionItem.setFilterText((prefix == null) ? "" : prefix);
+        if (prefix != null) {
+            moduleCompletionItem.setFilterText(prefix);
+        }
         moduleCompletionItem.setInsertText(insertText);
         moduleCompletionItem.setDetail(ItemResolverConstants.MODULE_TYPE);
         moduleCompletionItem.setKind(CompletionItemKind.Module);
