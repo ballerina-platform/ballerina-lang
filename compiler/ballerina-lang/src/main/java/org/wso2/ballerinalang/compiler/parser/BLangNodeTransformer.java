@@ -254,6 +254,8 @@ import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -5289,16 +5291,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             SyntaxKind literalTokenKind = ((BasicLiteralNode) literal).literalToken().kind();
             if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN ||
                     literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
-                typeTag = TypeTags.INT;
                 value = getIntegerLiteral(literal, textValue, sign);
                 originalValue = textValue;
-                bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
-                if (literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN && withinByteRange(value)) {
-                    typeTag = TypeTags.BYTE;
-                }
             } else if (literalTokenKind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN) {
                 //TODO: Check effect of mapping negative(-) numbers as unary-expr
-                typeTag = NumericLiteralSupport.isDecimalDiscriminated(textValue) ? TypeTags.DECIMAL : TypeTags.FLOAT;
                 if (isFiniteType) {
                     value = textValue.replaceAll("[fd+]", "");
                     originalValue = textValue.replace("+", "");
@@ -5306,14 +5302,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     value = textValue;
                     originalValue = textValue;
                 }
-                bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
             } else if (literalTokenKind == SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN) {
                 //TODO: Check effect of mapping negative(-) numbers as unary-expr
-                typeTag = TypeTags.FLOAT;
                 value = getHexNodeValue(textValue);
                 originalValue = textValue;
-                bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
             }
+
+            bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
+            bLiteral.pos = getPosition(literal);
+            bLiteral.setBType(typeOfNumericLiteral(textValue, literalTokenKind));
+            bLiteral.value = value;
+            bLiteral.originalValue = originalValue;
+            return bLiteral;
         } else if (type == SyntaxKind.BOOLEAN_LITERAL) {
             typeTag = TypeTags.BOOLEAN;
             value = Boolean.parseBoolean(textValue);
@@ -5379,6 +5379,24 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLiteral.value = value;
         bLiteral.originalValue = originalValue;
         return bLiteral;
+    }
+
+    private BType typeOfNumericLiteral(String textValue, SyntaxKind literalTokenKind) {
+        if (literalTokenKind != SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
+            if (NumericLiteralSupport.isFloatDiscriminated(textValue)) {
+                return symTable.floatType;
+            } else if (NumericLiteralSupport.isDecimalDiscriminated(textValue)) {
+                return symTable.decimalType;
+            } else if (literalTokenKind == SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN) {
+                return symTable.floatType;
+            } else if (literalTokenKind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN) {
+                return BUnionType.create(null, symTable.floatType, symTable.decimalType);
+            } else {
+                return BUnionType.create(null, symTable.intType, symTable.floatType, symTable.decimalType);
+            }
+        } else {
+            return BUnionType.create(null, symTable.intType, symTable.floatType, symTable.decimalType);
+        }
     }
 
     private void validateUnicodePoints(String text, Location pos) {
