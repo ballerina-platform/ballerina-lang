@@ -138,4 +138,6 @@ public class CommandConstants {
 
     public static final String CONVERT_MODULE_VAR_TO_LISTENER_DECLARATION = 
             "Convert module variable '%s' to listener declaration";
+
+    public static final String REMOVE_UNREACHABLE_CODE_TITLE = "Remove unreachable code";
 }
