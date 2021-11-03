@@ -256,7 +256,7 @@ public class JDIEventProcessor {
         } catch (AbsentInformationException ignored) {
             // classes with no line number information can be ignored.
         } catch (Exception e) {
-            LOGGER.error(e.toString());
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
