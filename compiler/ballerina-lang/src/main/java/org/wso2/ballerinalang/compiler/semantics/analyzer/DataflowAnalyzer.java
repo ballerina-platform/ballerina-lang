@@ -1431,6 +1431,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
         analyzeNode(ternaryExpr.expr, env);
+        analyzeNode(ternaryExpr.thenExpr, env);
+        analyzeNode(ternaryExpr.elseExpr, env);
     }
 
     @Override
