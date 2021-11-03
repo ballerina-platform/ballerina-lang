@@ -186,6 +186,7 @@ public class CommandUtil {
             Files.createFile(devcontainer);
         }
 
+
         String defaultDevcontainer = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + DEVCONTAINER);
         defaultDevcontainer = defaultDevcontainer.replace("latest", RepoUtils.getBallerinaVersion());
         Files.write(devcontainer, defaultDevcontainer.getBytes(StandardCharsets.UTF_8));
@@ -306,7 +307,7 @@ public class CommandUtil {
                 if (packageJson.getTemplate()) {
                     // Copy platform library
                     Path platformLibPath = balaPath.resolve("platform").resolve("java11");
-                    Path projectPlatform = modulePath.resolve("Platform");
+                    Path projectPlatform = modulePath.resolve("libs");
                     if (Files.exists(platformLibPath)) {
                         Files.createDirectories(projectPlatform);
                         Files.walkFileTree(platformLibPath, new FileUtils.Copy(platformLibPath, projectPlatform));
@@ -417,12 +418,11 @@ public class CommandUtil {
             } catch (CentralClientException ce) {
                 if (version == null) {
                     outStream = System.out;
-                    if (ce.getMessage().contains("nodename nor servname provided, or not known")) {
-                        outStream.println("\nWarning: Unable to connect to the central, " +
-                                "searching the module from the local cache.\n");
+                    if (!ce.getMessage().contains("specified package is not a template")) {
+                        outStream.println("\nWarning: Unable to connect to the central, " + ce.getMessage());
                         applyBalaTemplate(projectPath, balaCache, template);
                     } else {
-                        throw new CentralClientException(ce.getMessage());
+                        outStream.println(ce.getMessage());
                     }
                     CommandUtil.exitError(exitWhenFinish);
                 } else {
