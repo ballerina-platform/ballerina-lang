@@ -856,3 +856,22 @@ function testUninitializedVariablesInAnnotationAccessExprs() {
     typedesc t2 = int;
     _ = t2.@v1; // OK
 }
+
+function testUninitializedVariablesTernaryExpr() {
+    boolean condition;
+
+    string a;
+    string b;
+
+    if condition {
+        b = "";
+    }
+
+    string _ = condition ? a : b; // `condition`, ``a` uninitialized, `b` may not be initialized
+
+    condition = false;
+    a = "";
+    b = "";
+
+    string _ = condition ? a : b; // OK
+}
