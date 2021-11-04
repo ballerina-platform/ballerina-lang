@@ -84,18 +84,16 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
         } else if (node.kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
             TypedBindingPatternNode typedBindingPatternNode = (TypedBindingPatternNode) node;
             bindingPatternNode = typedBindingPatternNode.bindingPattern();
-        } else if (node.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN) {
-            bindingPatternNode = (BindingPatternNode) node;
-        } else if (node.kind() == SyntaxKind.FIELD_BINDING_PATTERN) {
-            bindingPatternNode = (BindingPatternNode) node;
-        } else if (node.kind() == SyntaxKind.MAPPING_BINDING_PATTERN) {
-            bindingPatternNode = (BindingPatternNode) node;
-        } else if (node.kind() == SyntaxKind.LIST_BINDING_PATTERN) {
+        } else if (node.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN ||
+                node.kind() == SyntaxKind.FIELD_BINDING_PATTERN ||
+                node.kind() == SyntaxKind.MAPPING_BINDING_PATTERN ||
+                node.kind() == SyntaxKind.LIST_BINDING_PATTERN) {
             bindingPatternNode = (BindingPatternNode) node;
         } else {
             return Collections.emptyList();
         }
 
+        // If it's a variable, need to check for references
         if (bindingPatternNode.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN) {
             Optional<Integer> refCount = context.currentSemanticModel()
                     .flatMap(semanticModel -> semanticModel.symbol(bindingPatternNode))
