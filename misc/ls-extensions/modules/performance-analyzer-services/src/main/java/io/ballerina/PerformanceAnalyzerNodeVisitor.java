@@ -265,8 +265,8 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
                 io.ballerina.compiler.syntax.tree.Node rhsExpr = binaryExpressionNode.rhsExpr();
                 io.ballerina.compiler.syntax.tree.Node lhsExpr = binaryExpressionNode.lhsExpr();
                 if (rhsExpr.kind() == SyntaxKind.NUMERIC_LITERAL && lhsExpr.kind() == SyntaxKind.NUMERIC_LITERAL) {
-                    long rhsValue = Long.parseLong(rhsExpr.toString().trim());
-                    long lhsValue = Long.parseLong(lhsExpr.toString().trim());
+                    long rhsValue = Long.parseLong(rhsExpr.toSourceCode().trim());
+                    long lhsValue = Long.parseLong(lhsExpr.toSourceCode().trim());
                     iterationsCount = rhsValue - lhsValue + 1;
                 }
             }
