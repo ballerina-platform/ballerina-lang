@@ -42,6 +42,7 @@ public class AddExplicitReturnCodeActionTest extends AbstractCodeActionTest {
                 {"add_explicit_return_config4.json", "add_explicit_return_source1.bal"},
                 {"add_explicit_return_config5.json", "add_explicit_return_source1.bal"},
                 {"add_explicit_return_config6.json", "add_explicit_return_source1.bal"},
+                {"add_explicit_return_config7.json", "add_explicit_return_source1.bal"},
         };
     }
 

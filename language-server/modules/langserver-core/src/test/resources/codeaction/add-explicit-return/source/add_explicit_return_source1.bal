@@ -56,3 +56,5 @@ class TestClass2 {
         }
     }
 }
+
+function testFunction() returns int? {}

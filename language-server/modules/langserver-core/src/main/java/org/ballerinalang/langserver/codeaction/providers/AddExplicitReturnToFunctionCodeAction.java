@@ -145,7 +145,7 @@ public class AddExplicitReturnToFunctionCodeAction extends AbstractCodeActionPro
                     .append(StringUtils.repeat(" ", startLineRange.startLine().offset() + 4))
                     .append("return;")
                     .append(CommonUtil.LINE_SEPARATOR)
-                    .append(Collections.nCopies(startLineRange.startLine().offset(), " "))
+                    .append(StringUtils.repeat(" ", startLineRange.startLine().offset()))
                     .append("}");
         } else {
             newText.append(StringUtils.repeat(" ", 4))
