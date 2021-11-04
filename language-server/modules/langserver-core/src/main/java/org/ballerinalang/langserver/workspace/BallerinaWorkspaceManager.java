@@ -415,8 +415,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     }
 
     /**
-     * Refresh the project corresponding to the provided file path. Can be used to reload dependencies and trigger
-     * a recompile without document modifications. This is an internal API therefore, not available in the interface.
+     * Refresh the project by cloning it internally and clearing caches.
      *
      * @param filePath A path of a file in the project
      */

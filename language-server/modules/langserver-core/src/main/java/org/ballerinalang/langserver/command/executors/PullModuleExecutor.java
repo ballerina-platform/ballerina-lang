@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
@@ -59,6 +60,8 @@ import java.util.stream.Collectors;
 public class PullModuleExecutor implements LSCommandExecutor {
 
     public static final String COMMAND = "PULL_MODULE";
+    
+    private static final String TITLE_PULL_MODULE = "Pull Module";
 
     /**
      * {@inheritDoc}
@@ -89,24 +92,24 @@ public class PullModuleExecutor implements LSCommandExecutor {
         Project project = context.workspace().project(filePath)
                 .orElseThrow(() -> new UserErrorException("Couldn't find project to pull modules"));
 
+        ExtendedLanguageClient languageClient = context.getLanguageClient();
+        LSClientLogger clientLogger = LSClientLogger.getInstance(context.languageServercontext());
         String finalFileUri = fileUri;
         CompletableFuture
                 .runAsync(() -> {
-                    LSClientLogger.getInstance(context.languageServercontext())
-                            .logTrace("Started pulling modules for project: " + project.sourceRoot().toString());
+                    clientLogger.logTrace("Started pulling modules for project: " + project.sourceRoot().toString());
 
                     // Initialize progress notification
                     WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
                     workDoneProgressCreateParams.setToken(taskId);
-                    context.getLanguageClient().createProgress(workDoneProgressCreateParams);
+                    languageClient.createProgress(workDoneProgressCreateParams);
 
                     // Start progress
                     WorkDoneProgressBegin beginNotification = new WorkDoneProgressBegin();
-                    beginNotification.setTitle("Pull Module");
-                    // TODO: Implement cancellation support in the future
+                    beginNotification.setTitle(TITLE_PULL_MODULE);
                     beginNotification.setCancellable(false);
                     beginNotification.setMessage("pulling missing ballerina modules");
-                    context.getLanguageClient().notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                    languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
                             Either.forLeft(beginNotification)));
                 })
                 .thenRunAsync(() -> DependencyUtils.pullMissingDependencies(project))
@@ -123,7 +126,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
                             context.workspace(), LSContextOperation.TXT_DID_CHANGE,
                             context.languageServercontext());
                     DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(context.languageServercontext());
-                    diagnosticsHelper.schedulePublishDiagnostics(context.getLanguageClient(), docContext);
+                    diagnosticsHelper.schedulePublishDiagnostics(languageClient, docContext);
                 })
                 .thenRunAsync(() -> {
                     Optional<List<String>> missingModules = context.workspace()
@@ -146,21 +149,19 @@ public class PullModuleExecutor implements LSCommandExecutor {
                 .whenComplete((missingModules, t) -> {
                     boolean failed = true;
                     if (t != null) {
-                        LSClientLogger.getInstance(context.languageServercontext()).logError(LSContextOperation.WS_EXEC_CMD,
+                        clientLogger.logError(LSContextOperation.WS_EXEC_CMD,
                                 "Pull modules failed for project: " + project.sourceRoot().toString(),
                                 t, null, (Position) null);
                         if (t.getCause() instanceof UserErrorException) {
                             String errorMessage = t.getCause().getMessage();
-                            CommandUtil.notifyClient(context.getLanguageClient(), MessageType.Error, errorMessage);
+                            CommandUtil.notifyClient(languageClient, MessageType.Error, errorMessage);
                         } else {
-                            CommandUtil.notifyClient(context.getLanguageClient(), MessageType.Error,
-                                    "Failed to pull modules!");
+                            CommandUtil.notifyClient(languageClient, MessageType.Error, "Failed to pull modules!");
                         }
                     } else {
                         failed = false;
-                        CommandUtil.notifyClient(context.getLanguageClient(), MessageType.Info,
-                                "Module(s) pulled successfully!");
-                        LSClientLogger.getInstance(context.languageServercontext())
+                        CommandUtil.notifyClient(languageClient, MessageType.Info, "Module(s) pulled successfully!");
+                        clientLogger
                                 .logTrace("Finished pulling modules for project: " + project.sourceRoot().toString());
                     }
 
@@ -170,7 +171,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
                     } else {
                         endNotification.setMessage("Modules pulled successfully!");
                     }
-                    context.getLanguageClient().notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                    languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
                             Either.forLeft(endNotification)));
                 });
 
