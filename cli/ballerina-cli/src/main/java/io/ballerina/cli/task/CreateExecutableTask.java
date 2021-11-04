@@ -115,14 +115,19 @@ public class CreateExecutableTask implements Task {
         // todo following call has to be refactored after introducing new plugin architecture
         notifyPlugins(project, target);
 
-        // Print the path of the executable
         Path relativePathToExecutable = currentDir.relativize(executablePath);
-        if (relativePathToExecutable.toString().contains("..") ||
-                relativePathToExecutable.toString().contains("." + File.separator)) {
-            this.out.println("\t" + executablePath.toString());
+
+        if (project.buildOptions().getTargetPath() != null) {
+            this.out.println("\t" + relativePathToExecutable);
         } else {
-            this.out.println("\t" + relativePathToExecutable.toString());
+            if (relativePathToExecutable.toString().contains("..") ||
+                    relativePathToExecutable.toString().contains("." + File.separator)) {
+                this.out.println("\t" + executablePath.toString());
+            } else {
+                this.out.println("\t" + relativePathToExecutable.toString());
+            }
         }
+
     }
 
     private void notifyPlugins(Project project, Target target) {

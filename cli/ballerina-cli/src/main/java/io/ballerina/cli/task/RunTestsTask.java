@@ -450,7 +450,7 @@ public class RunTestsTask implements Task {
         try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
             try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
                 writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                out.println("\t" + jsonFile.getAbsolutePath() + "\n");
+                out.println("\t" + jsonFile.toPath() + "\n");
             }
         }
 

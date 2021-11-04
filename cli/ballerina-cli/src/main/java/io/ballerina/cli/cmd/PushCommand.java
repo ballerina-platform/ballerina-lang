@@ -217,10 +217,10 @@ public class PushCommand implements BLauncherCmd {
 
         Path relativePathToBalaFile;
 
-        try {
-            relativePathToBalaFile = project.sourceRoot().relativize(balaFilePath);
-        } catch (IllegalArgumentException e) {
+        if (project.buildOptions().getTargetPath() != null) {
             relativePathToBalaFile = balaFilePath;
+        } else {
+            relativePathToBalaFile = userDir.relativize(balaFilePath);
         }
 
         outStream.println("Successfully pushed " + relativePathToBalaFile
