@@ -514,9 +514,10 @@ public class Types {
         if (mappingMatchPattern.matchExpr == null) {
             return patternType;
         }
-        BType intersectionType = getTypeIntersection(
-                IntersectionContext.compilerInternalIntersectionContext(),
-                mappingMatchPattern.matchExpr.getBType(), patternType, env);
+        IntersectionContext intersectionContext = IntersectionContext.compilerInternalIntersectionContext();
+        intersectionContext.ignoreDefaultValues = true;
+        BType intersectionType = getTypeIntersection(intersectionContext, mappingMatchPattern.matchExpr.getBType(),
+                patternType, env);
         if (intersectionType == symTable.semanticError) {
             return symTable.noType;
         }
@@ -530,10 +531,10 @@ public class Types {
         if (varBindingPatternMatchPattern.matchExpr == null) {
             return mappingBindingPatternType;
         }
-        BType intersectionType = getTypeIntersection(
-                IntersectionContext.compilerInternalIntersectionContext(),
-                varBindingPatternMatchPattern.matchExpr.getBType(),
-                mappingBindingPatternType, env);
+        IntersectionContext intersectionContext = IntersectionContext.compilerInternalIntersectionContext();
+        intersectionContext.ignoreDefaultValues = true;
+        BType intersectionType = getTypeIntersection(intersectionContext,
+                varBindingPatternMatchPattern.matchExpr.getBType(), mappingBindingPatternType, env);
         if (intersectionType == symTable.semanticError) {
             return symTable.noType;
         }
