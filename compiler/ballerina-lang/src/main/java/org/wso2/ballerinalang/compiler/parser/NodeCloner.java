@@ -1882,7 +1882,11 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef.BLangPackageVarRef packageVarRef) {
-        // Ignore
+        BLangSimpleVarRef.BLangPackageVarRef clone = new BLangSimpleVarRef.BLangPackageVarRef(
+                (BVarSymbol) packageVarRef.varSymbol);
+        packageVarRef.cloneRef = clone;
+        clone.pkgAlias = packageVarRef.pkgAlias;
+        clone.variableName = packageVarRef.variableName;
     }
 
     @Override

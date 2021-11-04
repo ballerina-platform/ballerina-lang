@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 type Employee record {
@@ -203,6 +205,19 @@ function testLaxUnionFieldAccessNegative3() returns boolean {
     map<map<json>>|json mj = m;
     json|error jv = mj.e;
     return assertKeyNotFoundError(jv, "e");
+}
+
+json j = {
+        x: {
+            y: {
+                z: "value"
+            }
+        }
+};
+
+function testLaxFieldAccessDefinedInModuleLevelWithCheckExpr() returns error?{
+    string s = check j.x.y.z;
+    test:assertEquals(s, "value");
 }
 
 function assertNonMappingJsonError(json|error je) returns boolean {
