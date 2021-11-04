@@ -21,9 +21,8 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.CloudToml;
-import io.ballerina.projects.CompilationOptionsBuilder;
+import io.ballerina.projects.CompilationOptions;
 import io.ballerina.projects.CompilerPluginToml;
 import io.ballerina.projects.DependenciesToml;
 import io.ballerina.projects.DependencyGraph;
@@ -424,7 +423,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("projectWithBuildOptions");
         // 1) Initialize the project instance
         BuildProject project = null;
-        BuildOptions buildOptions = new BuildOptionsBuilder().skipTests(false).build();
+        BuildOptions buildOptions = BuildOptions.builder().setSkipTests(false).build();
         try {
             project = BuildProject.load(projectPath, buildOptions);
         } catch (Exception e) {
@@ -444,7 +443,7 @@ public class TestBuildProject extends BaseTest {
     public void testOverrideBuildOptionsOnTomlEdit() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("projectWithBuildOptions");
         // Initialize the project instance
-        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        BuildOptions buildOptions = BuildOptions.builder().setOffline(true).build();
         BuildProject project = loadBuildProject(projectPath, buildOptions);
 
         // Test when build option provided only during project load
@@ -921,7 +920,7 @@ public class TestBuildProject extends BaseTest {
     @Test(description = "test editing Ballerina.toml")
     public void testModifyDependenciesToml() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_edit_api_tests/package_test_dependencies_toml");
-        BuildProject project = loadBuildProject(projectPath, new BuildOptionsBuilder().sticky(true).build());
+        BuildProject project = loadBuildProject(projectPath, BuildOptions.builder().setSticky(true).build());
 
         PackageCompilation compilation = project.currentPackage().getCompilation();
         ResolvedPackageDependency packageDep =
@@ -1338,7 +1337,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
         // 1) Initialize the project instance
-        BuildOptions options = new BuildOptionsBuilder().experimental(true).build();
+        BuildOptions options = BuildOptions.builder().setExperimental(true).build();
         BuildProject project = loadBuildProject(projectPath, options);
 
         Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
@@ -1349,8 +1348,8 @@ public class TestBuildProject extends BaseTest {
         Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
 
         // 2) Pass compilations option 'offline' to the package compilation
-        CompilationOptionsBuilder compilationOptionsBuilder = new CompilationOptionsBuilder();
-        compilationOptionsBuilder.offline(true);
+        CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder = CompilationOptions.builder();
+        compilationOptionsBuilder.setOffline(true);
         project.currentPackage().getCompilation(compilationOptionsBuilder.build());
         Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
 
@@ -1379,8 +1378,8 @@ public class TestBuildProject extends BaseTest {
             Files.delete(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
         }
         // Set sticky false, to imitate the default build command behavior
-        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
-        buildOptionsBuilder.sticky(false);
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        buildOptionsBuilder.setSticky(false);
         BuildOptions buildOptions = buildOptionsBuilder.build();
 
         // 1) Initialize the project instance
@@ -1428,8 +1427,8 @@ public class TestBuildProject extends BaseTest {
         Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
 
         // Set sticky false, to imitate the default build command behavior
-        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
-        buildOptionsBuilder.sticky(false);
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        buildOptionsBuilder.setSticky(false);
         BuildOptions buildOptions = buildOptionsBuilder.build();
 
         // 1) Initialize the project instance
@@ -1575,7 +1574,8 @@ public class TestBuildProject extends BaseTest {
     @Test
     public void testProjectDuplicate() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
-        BuildOptionsBuilder optionsBuilder = new BuildOptionsBuilder().codeCoverage(true).experimental(true);
+        BuildOptions.BuildOptionsBuilder optionsBuilder = BuildOptions.builder()
+                .setCodeCoverage(true).setExperimental(true);
         Project project = loadProject(projectPath, optionsBuilder.build());
 
         Project duplicate = project.duplicate();

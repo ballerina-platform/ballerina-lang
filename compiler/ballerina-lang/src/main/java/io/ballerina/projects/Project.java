@@ -54,7 +54,7 @@ public abstract class Project {
         this.projectKind = projectKind;
         this.sourceRoot = projectPath;
         this.projectEnvironment = projectEnvironmentBuilder.build(this);
-        this.buildOptions = new BuildOptionsBuilder().build();
+        this.buildOptions = BuildOptions.builder().build();
     }
 
     void setBuildOptions(BuildOptions buildOptions) {

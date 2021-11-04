@@ -21,7 +21,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -75,7 +74,7 @@ public class BuildProject extends Project {
      * @return build project
      */
     public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
-        return load(environmentBuilder, projectPath, new BuildOptionsBuilder().build());
+        return load(environmentBuilder, projectPath, BuildOptions.builder().build());
     }
 
     /**
@@ -85,7 +84,7 @@ public class BuildProject extends Project {
      * @return BuildProject instance
      */
     public static BuildProject load(Path projectPath) {
-        return load(projectPath, new BuildOptionsBuilder().build());
+        return load(projectPath, BuildOptions.builder().build());
     }
 
     /**
@@ -157,7 +156,7 @@ public class BuildProject extends Project {
 
     @Override
     public Project duplicate() {
-        BuildOptions duplicateBuildOptions = new BuildOptionsBuilder().build().acceptTheirs(buildOptions());
+        BuildOptions duplicateBuildOptions = BuildOptions.builder().build().acceptTheirs(buildOptions());
         BuildProject buildProject = new BuildProject(
                 ProjectEnvironmentBuilder.getDefaultBuilder(), this.sourceRoot, duplicateBuildOptions);
         return cloneProject(buildProject);
