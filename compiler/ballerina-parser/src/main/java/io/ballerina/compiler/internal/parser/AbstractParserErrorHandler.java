@@ -242,6 +242,7 @@ public abstract class AbstractParserErrorHandler {
      * @return Recovery result
      */
     private Result seekMatch(ParserRuleContext currentCtx) {
+        ArrayDeque<ParserRuleContext> tempCtxStack = this.ctxStack;
         Result bestMatch;
         try {
             bestMatch = seekMatchInSubTree(currentCtx, 1, 0, true);
@@ -253,6 +254,7 @@ public abstract class AbstractParserErrorHandler {
                     "seekMatch caught " + exception;
             bestMatch = new Result(new ArrayDeque<>(), LOOKAHEAD_LIMIT - 1);
             bestMatch.solution = new Solution(Action.REMOVE, currentCtx, SyntaxKind.NONE, currentCtx.toString());
+            this.ctxStack = tempCtxStack;
         }
 
         return bestMatch;
@@ -364,6 +366,7 @@ public abstract class AbstractParserErrorHandler {
         // such that results with the same number of matches are put together. This is
         // done so that we can easily pick the best, without iterating through them.
         for (ParserRuleContext rule : alternativeRules) {
+            ArrayDeque<ParserRuleContext> tempCtxStack = this.ctxStack;
             Result result;
             try {
                 result = seekMatchInSubTree(rule, lookahead, currentDepth, isEntryPoint);
@@ -374,6 +377,7 @@ public abstract class AbstractParserErrorHandler {
                 // We should never reach here. If we do, please open an issue.
                 assert false : "Oh no, something went bad with parser error handler: \n" +
                         "seekInAlternativesPaths caught " + exception;
+                this.ctxStack = tempCtxStack;
                 continue;
             }
 
