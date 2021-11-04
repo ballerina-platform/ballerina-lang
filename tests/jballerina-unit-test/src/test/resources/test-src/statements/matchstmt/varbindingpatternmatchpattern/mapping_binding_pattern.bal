@@ -365,6 +365,66 @@ function testMappingBindingPattern17() {
     assertEquals((), mappingBindingPattern17(1));
 }
 
+type Foo record {|
+    int x;
+    int y = 1;
+|};
+
+function fn1() returns string {
+    Foo v = {x: 0, y: 1};
+    string matched = "";
+
+    match v {
+        var {x, y} => {
+            matched = "Matched";
+        }
+    }
+    return matched;
+}
+
+function fn2() returns string {
+    Foo v = {x: 0};
+    string matched = "";
+
+    match v {
+        var {x, y} => {
+            matched = "Matched";
+        }
+    }
+    return matched;
+}
+
+function fn3() returns string {
+    Foo v = {x: 0, y: 1};
+    string matched = "";
+
+    match v {
+        {x: var a, y: var b} => {
+            matched = "Matched";
+        }
+    }
+    return matched;
+}
+
+function fn4() returns string {
+    Foo v = {x: 0};
+    string matched = "";
+
+    match v {
+        {x: var a, y: var b} => {
+            matched = "Matched";
+        }
+    }
+    return matched;
+}
+
+function testMappingBindingToRecordWithDefaultValue() {
+    assertEquals("Matched", fn1());
+    assertEquals("Matched", fn2());
+    assertEquals("Matched", fn3());
+    assertEquals("Matched", fn4());
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

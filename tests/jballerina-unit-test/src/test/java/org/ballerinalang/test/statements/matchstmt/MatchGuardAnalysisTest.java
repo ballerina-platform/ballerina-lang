@@ -63,6 +63,14 @@ public class MatchGuardAnalysisTest {
         BAssertUtil.validateWarning(result, i++, "pattern will not be matched", 42, 9);
         BAssertUtil.validateError(result, i++, "incompatible types: 'Foo' will not be " +
                 "matched to 'record {| string x; int i; anydata...; |}'", 42, 30);
+        BAssertUtil.validateError(result, i++, "incompatible types: 'function () returns ()' will not be " +
+                "matched to 'isolated function'", 51, 19);
+        BAssertUtil.validateError(result, i++, "incompatible types: 'function (int,string) returns ()' " +
+                "will not be matched to 'isolated function'", 60, 19);
+        BAssertUtil.validateError(result, i++, "incompatible types: 'function (int,string) returns (int)' " +
+                "will not be matched to 'isolated function'", 69, 19);
+        BAssertUtil.validateError(result, i++, "incompatible types: 'function () returns (int)' will not be " +
+                "matched to 'isolated function'", 78, 19);
         Assert.assertEquals(result.getWarnCount(), 2);
         Assert.assertEquals(result.getErrorCount(), i - 2);
     }
