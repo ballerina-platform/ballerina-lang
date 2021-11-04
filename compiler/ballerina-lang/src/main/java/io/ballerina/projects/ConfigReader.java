@@ -136,7 +136,9 @@ public class ConfigReader {
                         for (MappingFieldNode fieldNode : annotation.annotValue().get().fields()) {
                             if (((SpecificFieldNode) fieldNode).fieldName().toString().trim()
                                     .equals("description")) {
-                                return ((SpecificFieldNode) fieldNode).valueExpr().toString();
+                                if (((SpecificFieldNode) fieldNode).valueExpr().isPresent()) {
+                                    return ((SpecificFieldNode) fieldNode).valueExpr().get().toString().trim();
+                                }
                             }
                         }
                     }
