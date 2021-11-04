@@ -9,6 +9,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -211,6 +212,48 @@ public class Package {
 
     Package duplicate(Project project) {
         return new Package(packageContext.duplicate(project), project);
+    }
+
+    /**
+     * Run {@code CodeGenerator} tasks in engaged {@code CompilerPlugin}s.
+     * <p>
+     * Returns a new package instances with generated files and a collected diagnostics
+     * reported by the code generator tasks in form of a {@code CodeGeneratorResult} instance.
+     * <p>
+     * Here is a sample usage of this API: <pre>
+     *   Project project = BuildProject.load(Paths.get(...));
+     *   Package currentPackage = project.currentPackage();
+     *   Package packageWithGenFiles = currentPackage.runCodeGeneratorPlugins();
+     *
+     *   // Compile the package with generated files.
+     *   PackageCompilation compilation = packageWithGenFiles.getCompilation();
+     *   </pre>
+     * <p>
+     * This method does not run other tasks such as {@code CodeAnalyzer}s in engaged compiler plugins.
+     *
+     * @return a {@code CodeGeneratorResult} instance
+     */
+    public CodeGeneratorResult runCodeGeneratorPlugins() {
+        PackageCompilation cachedCompilation = this.packageContext.cachedCompilation();
+        if (cachedCompilation != null) {
+            // Check whether there are engaged code generators, if not return
+            CompilerPluginManager compilerPluginManager = cachedCompilation.compilerPluginManager();
+            if (compilerPluginManager.engagedCodeGeneratorCount() == 0) {
+                return new CodeGeneratorResult(null, Collections.emptyList());
+            }
+        }
+
+        // There are engaged code generators or there is no cached compilation. We have to compile anyway
+        CompilationOptions compOptions = new CompilationOptionsBuilder().withCodeGenerators(true).build();
+        // TODO We can avoid this compilation. Move CompilerPluginManagers out of the PackageCompilation
+        // TODO How about PackageResolution
+        CompilerPluginManager compilerPluginManager = this.getCompilation(compOptions).compilerPluginManager();
+        if (compilerPluginManager.engagedCodeGeneratorCount() == 0) {
+            return new CodeGeneratorResult(null, Collections.emptyList());
+        }
+
+        CodeGeneratorManager codeGeneratorManager = compilerPluginManager.getCodeGeneratorManager();
+        return codeGeneratorManager.runCodeGenerators(this);
     }
 
     /**
