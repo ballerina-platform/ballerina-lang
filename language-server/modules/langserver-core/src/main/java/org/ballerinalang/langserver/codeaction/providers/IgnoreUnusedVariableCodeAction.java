@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.eclipse.lsp4j.CodeAction;
@@ -93,6 +94,19 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
             bindingPatternNode = (BindingPatternNode) node;
         } else {
             return Collections.emptyList();
+        }
+
+        if (bindingPatternNode.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN) {
+            Optional<Integer> refCount = context.currentSemanticModel()
+                    .flatMap(semanticModel -> semanticModel.symbol(bindingPatternNode))
+                    .flatMap(symbol -> context.workspace().project(context.filePath())
+                            .map(project -> ReferencesUtil.getReferences(project, symbol)))
+                    .map(modRefMap -> modRefMap.values().stream().map(List::size).reduce(0, Integer::sum));
+
+            // If more than 1 reference, we don't show the codeaction
+            if (refCount.isPresent() && refCount.get() > 1) {
+                return Collections.emptyList();
+            }
         }
 
         TextEdit textEdit = null;

@@ -34,6 +34,12 @@ public class IgnoreUnusedVariableCodeActionTest extends AbstractCodeActionTest {
         super.test(config, source);
     }
 
+    @Override
+    @Test(dataProvider = "negative-test-data-provider")
+    public void negativeTest(String config, String source) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config, source);
+    }
+
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -45,8 +51,14 @@ public class IgnoreUnusedVariableCodeActionTest extends AbstractCodeActionTest {
                 {"ignore_unused_var5.json", "ignore_unused_var5.bal"},
                 {"ignore_unused_var6.json", "ignore_unused_var6.bal"},
                 {"ignore_unused_var_tuple1.json", "ignore_unused_var_tuple1.bal"},
-                // TODO unused reference - ignored for now
-                // {"ignore_unused_var_assignment1.json", "ignore_unused_var_assignment1.bal"},
+        };
+    }
+
+    @DataProvider(name = "negative-test-data-provider")
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
+                {"ignore_unused_var_assignment1.json", "ignore_unused_var_assignment1.bal"},
+                {"ignore_unused_var_assignment2.json", "ignore_unused_var_assignment2.bal"},
         };
     }
 

@@ -1,6 +1,6 @@
 {
   "line": 1,
-  "character": 9,
+  "character": 11,
   "expected": [
     {
       "title": "Ignore unused variable"
