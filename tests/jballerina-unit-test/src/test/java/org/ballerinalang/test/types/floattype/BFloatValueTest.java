@@ -165,8 +165,13 @@ public class BFloatValueTest {
 
     @Test(groups = { "disableOnOldParser" })
     public void testIntegerValue() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 1);
+        Assert.assertEquals(negativeResult.getErrorCount(), 6);
         BAssertUtil.validateError(negativeResult, 0, "leading zeros in numeric literals", 3, 9);
+        BAssertUtil.validateError(negativeResult, 1, "float '999e9999999999' too large", 8, 15);
+        BAssertUtil.validateError(negativeResult, 2, "float '999e-9999999999' too small", 9, 15);
+        BAssertUtil.validateError(negativeResult, 3, "float '999e9999999999' too large", 10, 23);
+        BAssertUtil.validateError(negativeResult, 4, "float '99.9E99999999' too large", 11, 27);
+        BAssertUtil.validateError(negativeResult, 5, "float '99.9E-99999999' too small", 12, 27);
     }
 
     @Test(description = "Test float literal discrimination error")
