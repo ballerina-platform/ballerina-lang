@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -7145,8 +7146,21 @@ public class Desugar extends BLangNodeVisitor {
             rewriteBitwiseComplementOperator(unaryExpr);
             return;
         }
+
+        boolean isArithmeticOperation = symResolver.isArithmeticOperator(unaryExpr.operator);
+        if (isArithmeticOperation) {
+            createTypeCastExprForUnaryPlusAndMinus(unaryExpr);
+        }
+
         unaryExpr.expr = rewriteExpr(unaryExpr.expr);
         result = unaryExpr;
+    }
+
+    private void createTypeCastExprForUnaryPlusAndMinus(BLangUnaryExpr unaryExpr) {
+        if ((TypeTags.isIntegerTypeTag(unaryExpr.expr.getBType().tag))) {
+            return ;
+        }
+        unaryExpr.expr = createTypeCastExpr(unaryExpr.expr, unaryExpr.getBType());
     }
 
     /**
