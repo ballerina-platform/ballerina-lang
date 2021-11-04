@@ -125,8 +125,8 @@ public class PullModuleExecutor implements LSCommandExecutor {
                     DocumentServiceContext docContext = ContextBuilder.buildDocumentServiceContext(finalFileUri,
                             context.workspace(), LSContextOperation.TXT_DID_CHANGE,
                             context.languageServercontext());
-                    DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(context.languageServercontext());
-                    diagnosticsHelper.schedulePublishDiagnostics(languageClient, docContext);
+                    DiagnosticsHelper.getInstance(context.languageServercontext())
+                            .schedulePublishDiagnostics(languageClient, docContext);
                 })
                 .thenRunAsync(() -> {
                     Optional<List<String>> missingModules = context.workspace()
