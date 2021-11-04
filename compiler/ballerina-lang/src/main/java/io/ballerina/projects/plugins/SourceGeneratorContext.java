@@ -17,17 +17,18 @@
  */
 package io.ballerina.projects.plugins;
 
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.text.TextDocument;
 
 /**
- * The context for the compilation analysis task.
+ * The context for the source code generator task.
  *
- * @see CodeAnalysisContext
  * @since 2.0.0
  */
-public interface CompilationAnalysisContext {
+public interface SourceGeneratorContext {
 
     /**
      * Returns the current {@code Package} instance on which the compilation is being performed.
@@ -42,6 +43,23 @@ public interface CompilationAnalysisContext {
      * @return the package compilation instance
      */
     PackageCompilation compilation();
+
+    /**
+     * Adds the provided source code as a new file to the {@code Module} identified by the {@code ModuleId}.
+     *
+     * @param textDocument   a {@code TextDocument} that contains the source code
+     * @param filenamePrefix proposed prefix of the filename to be added
+     * @param moduleId       indicates the module to which the new source file should be added
+     */
+    void addSourceFile(TextDocument textDocument, String filenamePrefix, ModuleId moduleId);
+
+    /**
+     * Adds the provided source code as a new file to the default {@code Module} of the {@code Package}.
+     *
+     * @param textDocument   a {@code TextDocument} that contains the source code
+     * @param filenamePrefix proposed prefix of the filename to be added
+     */
+    void addSourceFile(TextDocument textDocument, String filenamePrefix);
 
     /**
      * Reports a diagnostic against the compilation.
