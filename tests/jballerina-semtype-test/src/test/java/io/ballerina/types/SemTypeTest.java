@@ -49,7 +49,7 @@ public class SemTypeTest {
 
     @DataProvider(name = "fileNameProvider")
     public Object[] fileNameProvider() {
-        File dataDir = resolvePath("test-src/datax").toFile();
+        File dataDir = resolvePath("test-src/data").toFile();
         List<String> testFiles = Arrays.stream(dataDir.listFiles())
                 .map(File::getAbsolutePath)
                 .filter(name -> name.endsWith(".bal"))

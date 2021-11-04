@@ -18,6 +18,11 @@
 package org.wso2.ballerinalang.compiler;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.Core;
+import io.ballerina.types.Env;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -142,6 +147,8 @@ public class BIRPackageSymbolEnter {
             new CompilerContext.Key<>();
 
     private Map<String, BVarSymbol> globalVarMap = new HashMap<>();
+
+    public Env semtypeEnv = new Env();
 
     public static BIRPackageSymbolEnter getInstance(CompilerContext context) {
         BIRPackageSymbolEnter packageReader = context.get(COMPILED_PACKAGE_SYMBOL_ENTER_KEY);
@@ -488,6 +495,9 @@ public class BIRPackageSymbolEnter {
 
         symbol.name = names.fromString(typeDefName);
         symbol.originalName = names.fromString(typeDefOrigName);
+        SemType s = resolveTypeDefSemtype(type);
+        type.setSemtype(s);
+        semtypeEnv.addTypeDef(typeDefName, s);
         symbol.type = type;
         symbol.pkgID = this.env.pkgSymbol.pkgID;
         symbol.flags = flags;
@@ -505,6 +515,55 @@ public class BIRPackageSymbolEnter {
         // skip line start, line end, column start and column end
         for (int i = 0; i < 4; i++) {
             dataInStream.readInt();
+        }
+    }
+
+    private SemType resolveTypeDefSemtype(BType type) {
+        switch (type.tag) {
+            case TypeTags.CHAR_STRING:
+                return SemTypes.CHAR;
+            case TypeTags.SIGNED8_INT:
+                return SemTypes.SINT8;
+            case TypeTags.SIGNED16_INT:
+                return SemTypes.SINT16;
+            case TypeTags.SIGNED32_INT:
+                return SemTypes.SINT32;
+            case TypeTags.UNSIGNED8_INT:
+                return SemTypes.UINT8;
+            case TypeTags.UNSIGNED16_INT:
+                return SemTypes.UINT16;
+            case TypeTags.UNSIGNED32_INT:
+                return SemTypes.UINT32;
+            case TypeTags.ANY:
+                return PredefinedType.ANY;
+            case TypeTags.BOOLEAN:
+                return PredefinedType.BOOLEAN;
+            case TypeTags.DECIMAL:
+                return PredefinedType.DECIMAL;
+            case TypeTags.ERROR:
+                return PredefinedType.ERROR;
+            case TypeTags.FLOAT:
+                return PredefinedType.FLOAT;
+            case TypeTags.HANDLE:
+                return PredefinedType.HANDLE;
+            case TypeTags.INT:
+                return PredefinedType.INT;
+            case TypeTags.READONLY:
+                return PredefinedType.READONLY;
+            case TypeTags.STRING:
+                return PredefinedType.STRING;
+            case TypeTags.TYPEDESC:
+                return PredefinedType.TYPEDESC;
+            case TypeTags.XML:
+                return PredefinedType.XML;
+            case TypeTags.JSON:
+                return Core.createJson(semtypeEnv);
+            case TypeTags.NIL:
+                return PredefinedType.NIL;
+            case TypeTags.BYTE:
+                return PredefinedType.BYTE;
+            default:
+                return null;
         }
     }
 
