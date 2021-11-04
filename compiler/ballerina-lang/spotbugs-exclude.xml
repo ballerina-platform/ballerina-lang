@@ -348,6 +348,14 @@
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
     <Match>
+        <Class name="io.ballerina.projects.CodeGeneratorManager$SourceGeneratorTask"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.SyntaxNodeAnalysisTask"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
         <Class name="io.ballerina.projects.directory.BuildProject"/>
         <Method name="createBuildFile"/>
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
