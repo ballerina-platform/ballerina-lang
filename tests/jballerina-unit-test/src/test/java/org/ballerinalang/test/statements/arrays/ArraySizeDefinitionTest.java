@@ -51,8 +51,7 @@ public class ArraySizeDefinitionTest {
         }
 
         int index = 0;
-        CompileResult resultNegative = BCompileUtil.compile("test-src/statements/arrays/array_size_test_" +
-                "negative.bal");
+        CompileResult resultNegative = BCompileUtil.compile("test-src/statements/arrays/array_size_test_negative.bal");
         BAssertUtil.validateError(resultNegative, index++, sizeMismatchError, 22, 26);
         BAssertUtil.validateError(resultNegative, index++, invalidReferenceExpressionError, 23, 9);
         BAssertUtil.validateError(resultNegative, index++, incompatibleTypeError, 24, 9);
@@ -81,6 +80,7 @@ public class ArraySizeDefinitionTest {
         BAssertUtil.validateError(resultNegative, index++, SIZE_LIMIT_ERROR, 48, 9);
         BAssertUtil.validateError(resultNegative, index++, INVALID_ARRAY_LENGTH_ERROR, 50, 9);
         BAssertUtil.validateError(resultNegative, index++, INVALID_ARRAY_LENGTH_ERROR, 51, 9);
+        BAssertUtil.validateError(resultNegative, index++, INVALID_ARRAY_LENGTH_ERROR, 57, 9);
         Assert.assertEquals(resultNegative.getDiagnostics().length, index);
     }
 

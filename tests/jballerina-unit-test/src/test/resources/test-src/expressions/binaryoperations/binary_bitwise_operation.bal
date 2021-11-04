@@ -137,7 +137,7 @@ function testBitwiseOROperation() {
     assertEqual(a10, 13);
 
     int:Unsigned32 f = 5;
-    int:Unsigned16 a11 = e | f;
+    int:Unsigned32 a11 = e | f;
     assertEqual(a11, 13);
 
     int a12 = e | panicIndex;
@@ -145,6 +145,18 @@ function testBitwiseOROperation() {
 
     int:Unsigned16|int a13 = c | e;
     assertEqual(a13, 15);
+
+    int:Unsigned16 g = 256;
+    int:Unsigned8 h = 0;
+
+    int:Unsigned16 i = g | h;
+    assertEqual(i, 256);
+    assertEqual((i == (256|0)), true);
+
+    int:Unsigned32 j = 12;
+    int:Unsigned8 k = 5;
+    int:Unsigned32 l = j | k;
+    assertEqual(l, 13);
 }
 
 function testBitwiseXOROperation() {
@@ -188,7 +200,7 @@ function testBitwiseXOROperation() {
     assertEqual(a10, 9);
 
     int:Unsigned32 f = 5;
-    int:Unsigned16 a11 = e ^ f;
+    int:Unsigned32 a11 = e ^ f;
     assertEqual(a11, 9);
 
     int:Unsigned32|int a12 = e ^ panicIndex;
@@ -259,6 +271,82 @@ function testBinaryBitwiseOperationsForNullable() {
     assertEqual(a & f, 0);
     assertEqual(a & g, 42);
     assertEqual(a & h, 43);
+
+    assertEqual(a | b, 47);
+    assertEqual(a | c, -21474833);
+    assertEqual(a | d, -453);
+    assertEqual(a | e, 111);
+    assertEqual(a | f, 21474879);
+    assertEqual(a | g, 54523);
+    assertEqual(a | h, 255);
+    assertEqual(b | b, 5);
+    assertEqual(b | c, -21474835);
+    assertEqual(b | d, -449);
+    assertEqual(b | e, 101);
+    assertEqual(c | c, -21474836);
+    assertEqual(c | d, -2);
+    assertEqual(c | e, -21474836);
+    assertEqual(c | f, -4);
+    assertEqual(c | g, -21441026);
+    assertEqual(c | h, -21474817);
+    assertEqual(d | d, -454);
+    assertEqual(d | e, -386);
+    assertEqual(d | f, -450);
+    assertEqual(d | g, -262);
+    assertEqual(d | h, -257);
+    assertEqual(e | e, 100);
+    assertEqual(e | f, 21474932);
+    assertEqual(e | g, 54526);
+    assertEqual(e | h, 255);
+    assertEqual(f | f, 21474836);
+    assertEqual(g | g, 54522);
+    assertEqual(h | h, 255);
+
+    assertEqual(a ^ b, 46);
+    assertEqual(a ^ c, -21474873);
+    assertEqual(a ^ d, -495);
+    assertEqual(a ^ e, 79);
+    assertEqual(a ^ f, 21474879);
+    assertEqual(a ^ g, 54481);
+    assertEqual(a ^ h, 212);
+    assertEqual(b ^ b, 0);
+    assertEqual(b ^ c, -21474839);
+    assertEqual(b ^ d, -449);
+    assertEqual(b ^ e, 97);
+    assertEqual(c ^ c, 0);
+    assertEqual(c ^ d, 21475286);
+    assertEqual(c ^ e, -21474936);
+    assertEqual(c ^ f, -8);
+    assertEqual(c ^ g, -21461738);
+    assertEqual(c ^ h, -21475053);
+    assertEqual(d ^ d, 0);
+    assertEqual(d ^ e, -418);
+    assertEqual(d ^ f, -21475282);
+    assertEqual(d ^ g, -54592);
+    assertEqual(d ^ h, -315);
+    assertEqual(e ^ e, 0);
+    assertEqual(e ^ f, 21474928);
+    assertEqual(e ^ g, 54430);
+    assertEqual(e ^ h, 155);
+    assertEqual(f ^ f, 0);
+    assertEqual(g ^ g, 0);
+    assertEqual(h ^ h, 0);
+
+    int:Unsigned16? l = 1;
+    byte? m = 1;
+    int:Unsigned16? n = l | m;
+    assertEqual(n, 1);
+
+    int:Unsigned32? o = 1;
+    int:Unsigned32? p = o | m;
+    assertEqual(p, 1);
+
+    int:Unsigned8? q = 1;
+    int:Unsigned8? r = q | m;
+    assertEqual(r, 1);
+
+    byte? s = q | m;
+    assertEqual(s, 1);
 }
 
 function assertEqual(anydata actual, anydata expected) {

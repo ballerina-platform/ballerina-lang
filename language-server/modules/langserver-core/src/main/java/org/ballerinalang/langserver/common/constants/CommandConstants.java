@@ -143,4 +143,6 @@ public class CommandConstants {
     public static final String CONVERT_TO_READONLY_CLONE = "Convert to Readonly Clone";
     
     public static final String ADD_EXPLICIT_RETURN_STATEMENT = "Add Explicit Return Statement";
+
+    public static final String REMOVE_UNREACHABLE_CODE_TITLE = "Remove unreachable code";
 }

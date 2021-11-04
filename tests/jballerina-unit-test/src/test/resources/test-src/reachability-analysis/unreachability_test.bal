@@ -770,3 +770,215 @@ function testReachableCodeWithBinaryCondition19() {
 
     int _ = 10; // unreachable code
 }
+
+function testUnreachabilityWithIfElseStmts1(E e) {
+    if e is X {
+        int _ = 10;
+    } else if e is Y {
+        int _ = 20;
+    } else if e is Z {
+        int _ = 30;
+    } else {
+        never _ = e; // unreachable code
+    }
+}
+
+function testUnreachabilityWithIfElseStmts2(E e) {
+    if e is X {
+        int _ = 10;
+    } else if e is Y {
+        int _ = 20;
+    } else if e is Z {
+        int _ = 30;
+    } else if e is Y {
+        never _ = e; // unreachable code
+    }
+}
+
+function testUnreachabilityWithIfElseStmts3(int|string|float e) {
+    if e is int {
+        int _ = 10;
+    } else if e is string {
+        int _ = 20;
+    } else if e is float {
+        int _ = 30;
+    } else {
+        never _ = e; // unreachable code
+    }
+}
+
+function testUnreachabilityWithIfElseStmts4(int|string|float e) {
+    if e is int {
+        int _ = 10;
+    } else if e is string {
+        int _ = 20;
+    } else if e is float {
+        int _ = 30;
+    } else if e is int {
+        never _ = e; // unreachable code
+    }
+}
+
+function testUnreachabilityWithIfElseStmts5() {
+    10|20 e = 10;
+    if e == 10 {
+        int _ = 10;
+    } else if e == 20 {
+        int _ = 20;
+    } else {
+        never _ = e; // unreachable code
+    }
+}
+
+function testUnreachabilityWithIfElseStmts6() {
+    10|20 e = 10;
+    if e == 10 {
+        int _ = 10;
+    } else if e == 20 {
+        int _ = 20;
+    } else if e == 10 {
+        never _ = e; // unreachable code
+    }
+}
+
+function testUnreachableCodeWithTypeNarrowing1() {
+    int|string|boolean i = 1;
+
+    if i is int|string {
+        panic error("Error");
+    }
+    if i is boolean {
+        return;
+    }
+    int _ = i; // unreachable code
+}
+
+function testUnreachableCodeWithTypeNarrowing2() {
+    int|string a = 1;
+    if a is int|string {
+        a = 2;
+        return;
+    }
+
+    string _ = a; // unreachable code
+}
+
+function testUnreachableCodeWithTypeNarrowing3() {
+    10 b = 10;
+
+    if b == 10 {
+        return;
+    }
+
+    string _ = b; // unreachable code
+}
+
+function testUnreachableCodeWithTypeNarrowing4() {
+    Type2 b = 10;
+
+    if b == 10 {
+        return;
+    }
+
+    string _ = b; // unreachable code
+}
+
+function testUnreachableCodeWithTypeNarrowing5() {
+    int|string x = 5;
+    if x is int|string {
+
+    } else {
+        never _ = x; // unreachable code
+    }
+}
+
+function testUnreachableCodeWithTypeNarrowing6() {
+    int|string|float a = 10;
+    if a is int {
+        int _ = 10;
+    } else if a is string {
+        int _ = 20;
+    } else if a is float {
+        int _ = 30;
+    } else if a is string {
+        never _ = a; // unreachable code
+    }
+}
+
+function testUnreachableCodeWithTypeNarrowing7() {
+    int|string|float a = 10;
+    if a is int {
+        int _ = 10;
+    } else if a is string {
+        int _ = 20;
+    } else if a is float {
+        int _ = 30;
+    } else if a is string {
+        never _ = a;
+    } else if a is float {
+        never _ = a; // unreachable code
+    }
+}
+
+function testUnreachableCodeWithTypeNarrowing8() {
+    int|string|float a = 10;
+    if a is int {
+        int _ = 10;
+    } else if a is string {
+        int _ = 20;
+    } else if a is float {
+        int _ = 30;
+    } else {
+        never _ = a; // unreachable code
+    }
+}
+
+public function testUnreachableCodeWithTypeNarrowing9() {
+    int? a = 10;
+    string b = "A";
+    if b == "" || a == 0 {
+        int? _ = a;
+    } else if a is int || a is () {
+        int? _ = a;
+    } else if a is () {
+        never _ = a; // unreachable code
+    }
+}
+
+public function testUnreachableCodeWithTypeNarrowing10() {
+    10|20 a = 10;
+    if a == 10 || a == 20 {
+        int _ = a;
+    } else if a is 20 {
+        never _ = a; // unreachable code
+    }
+}
+
+public function testUnreachableCodeWithTypeNarrowing11() {
+    10 a = 10;
+    20 b = 20;
+    if a == 10 && b == 20 {
+        int _ = a;
+    } else if a is 20 {
+        never _ = a;
+    }
+}
+
+public function testUnreachableCodeWithTypeNarrowing12() {
+    10 a = 10;
+    20 b = 20;
+    if a == 10 && b == 20 {
+        int _ = a;
+    } else {
+        never _ = a;
+    }
+}
+
+public function testUnreachableCodeWithTypeNarrowing13() {
+    10|20 a = 10;
+    if a == 10 || a == 20 {
+        int _ = a;
+    } else {
+        never _ = a; // unreachable code
+    }
+}
