@@ -38,8 +38,8 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
 
-import static io.ballerina.ProgramAnalyzerNodeVisitor.ACTION_INVOCATION_KEY;
-import static io.ballerina.ProgramAnalyzerNodeVisitor.ENDPOINTS_KEY;
+import static io.ballerina.PerformanceAnalyzerNodeVisitor.ACTION_INVOCATION_KEY;
+import static io.ballerina.PerformanceAnalyzerNodeVisitor.ENDPOINTS_KEY;
 
 /**
  * Implements functionality to find endpoints and action invocations.
@@ -69,13 +69,12 @@ public class EndpointsFinder {
             }
             Module defaultModule = module.get();
 
-            ProgramAnalyzerNodeVisitor nodeVisitor = new ProgramAnalyzerNodeVisitor();
-            nodeVisitor.setSemanticModel(semanticModel.get());
-            nodeVisitor.setFile(file);
-            if (range != null) {
-                nodeVisitor.setRange(range);
+            if (range == null) {
+                return null;
             }
 
+            PerformanceAnalyzerNodeVisitor nodeVisitor =
+                    new PerformanceAnalyzerNodeVisitor(semanticModel.get(), file, range);
             for (DocumentId currentDocumentID : defaultModule.documentIds()) {
                 Document document = defaultModule.document(currentDocumentID);
 
