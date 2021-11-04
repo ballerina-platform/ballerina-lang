@@ -254,6 +254,7 @@ public abstract class AbstractParserErrorHandler {
                     "seekMatch caught " + exception;
             bestMatch = new Result(new ArrayDeque<>(), LOOKAHEAD_LIMIT - 1);
             bestMatch.solution = new Solution(Action.REMOVE, currentCtx, SyntaxKind.NONE, currentCtx.toString());
+        } finally {
             this.ctxStack = tempCtxStack;
         }
 
@@ -377,8 +378,9 @@ public abstract class AbstractParserErrorHandler {
                 // We should never reach here. If we do, please open an issue.
                 assert false : "Oh no, something went bad with parser error handler: \n" +
                         "seekInAlternativesPaths caught " + exception;
-                this.ctxStack = tempCtxStack;
                 continue;
+            } finally {
+                this.ctxStack = tempCtxStack;
             }
 
             // exit early
