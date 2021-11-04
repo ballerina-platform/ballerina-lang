@@ -209,6 +209,10 @@ public class Package {
         return this.packageMd;
     }
 
+    Package duplicate(Project project) {
+        return new Package(packageContext.duplicate(project), project);
+    }
+
     /**
      * Returns an instance of the Package.Modifier.
      *

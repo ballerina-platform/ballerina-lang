@@ -712,10 +712,10 @@ public class SymbolResolver extends BLangNodeVisitor {
 
                 if (TypeTags.isIntegerTypeTag(member.tag) || member.tag == TypeTags.BYTE) {
                     member = symTable.intType;
-                }
-
-                if (TypeTags.isStringTypeTag(member.tag)) {
+                } else if (TypeTags.isStringTypeTag(member.tag)) {
                     member = symTable.stringType;
+                } else if (member.tag == TypeTags.INTERSECTION) {
+                    member = ((BIntersectionType) member).effectiveType;
                 }
 
                 if (types.isSubTypeOfBaseType(type, member.tag)) {
@@ -747,6 +747,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
                 bSymbol = symTable.notFoundSymbol;
                 break;
+            case TypeTags.INTERSECTION:
+                return lookupLangLibMethod(((BIntersectionType) type).effectiveType, name);
             default:
                 bSymbol = symTable.notFoundSymbol;
         }
@@ -1159,6 +1161,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                         length = 0;
                         dlog.error(size.pos,
                                 DiagnosticErrorCode.ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED);
+                    } else if (lengthCheck < 0) {
+                        length = 0;
+                        dlog.error(size.pos, DiagnosticErrorCode.INVALID_ARRAY_LENGTH);
                     } else {
                         length = (int) lengthCheck;
                     }

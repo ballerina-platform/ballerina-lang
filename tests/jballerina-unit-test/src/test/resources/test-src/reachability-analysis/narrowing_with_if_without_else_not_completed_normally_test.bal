@@ -67,18 +67,6 @@ function testUnreachableCodeWithTypeNarrowing3() {
     int x = i;
 }
 
-function testUnreachableCodeWithTypeNarrowing4() {
-    int|string|boolean i = 1;
-
-    if i is int|string {
-        panic error("Error");
-    }
-    if i is boolean {
-        return;
-    }
-    int x = i;
-}
-
 function testUnreachableCodeWithTypeNarrowing5() {
     int|string x = 1;
 
@@ -188,16 +176,6 @@ function testUnreachableCodeWithTypeNarrowing10() {
     string y = x;
 }
 
-function testTypeNarrowingWithIfWithoutElseNotCompletedNormally1() {
-    int|string a = 1;
-    if a is int|string {
-        a = 2;
-        return;
-    }
-
-    string b = a;
-}
-
 function testTypeNarrowingWithIfWithoutElseNotCompletedNormally2() {
     int|string a = 1;
     int? b = 12;
@@ -233,16 +211,6 @@ function testTypeNarrowingWithIfWithoutElseNotCompletedNormally3() {
     10 c = b;
 }
 
-function testTypeNarrowingWithIfWithoutElseNotCompletedNormally4() {
-    10 b = 10;
-
-    if b == 10 {
-        return;
-    }
-
-    string a = b;
-}
-
 function testTypeNarrowingWithIfWithoutElseNotCompletedNormally5() {
     10|20 b = 10;
 
@@ -264,16 +232,6 @@ function testTypeNarrowingWithIfWithoutElseNotCompletedNormally6() {
     }
 
     10 c = b;
-}
-
-function testTypeNarrowingWithIfWithoutElseNotCompletedNormally7() {
-    Type2 b = 10;
-
-    if b == 10 {
-        return;
-    }
-
-    string a = b;
 }
 
 function testTypeNarrowingWithIfWithoutElseNotCompletedNormally8() {

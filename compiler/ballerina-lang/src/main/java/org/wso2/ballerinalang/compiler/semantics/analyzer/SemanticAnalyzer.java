@@ -1616,16 +1616,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     void handleDeclaredVarInForeach(BLangVariable variable, BType rhsType, SymbolEnv blockEnv) {
+        if (rhsType.tag == TypeTags.INTERSECTION) {
+            rhsType = ((BIntersectionType) rhsType).effectiveType;
+        }
+
         switch (variable.getKind()) {
             case VARIABLE:
                 BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;
-                Name varName = names.fromIdNode(simpleVariable.name);
-                if (varName == Names.IGNORE) {
-                    dlog.error(simpleVariable.pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED);
-                    return;
-                }
-
                 simpleVariable.setBType(rhsType);
+
+                handleWildCardBindingVariable(simpleVariable);
 
                 int ownerSymTag = blockEnv.scope.owner.tag;
                 if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE
@@ -2391,7 +2391,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (ifNode.elseStmt != null) {
             boolean ifCompletionStatus = this.notCompletedNormally;
             resetNotCompletedNormally();
-            SymbolEnv elseEnv = typeNarrower.evaluateFalsity(ifNode.expr, ifNode.elseStmt, env);
+            SymbolEnv elseEnv = typeNarrower.evaluateFalsity(ifNode.expr, ifNode.elseStmt, env, false);
             BLangStatement elseStmt = ifNode.elseStmt;
             analyzeStmt(elseStmt, elseEnv);
             if (elseStmt.getKind() == NodeKind.IF) {
@@ -3891,25 +3891,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BLangIf ifNode = (BLangIf) node;
         if (ifNode.elseStmt == null && this.notCompletedNormally) {
             BLangExpression expr = ifNode.expr;
-            boolean constTrueCondition =
-                    ConditionResolver.checkConstCondition(types, symTable, expr) == symTable.trueType;
-            if (!constTrueCondition) {
-                SymbolEnv narrowedEnv = typeNarrower.evaluateFalsityFollowingIfWithoutElse(expr, env);
-                // Push narrowed env to prevEnvs if the `if` statement without `else` clause is not completed normally,
-                // so that the narrowed types are considered in the statements following the `if` statement.
-                // The immediate prevEnv would still have the block's env to handle resetting type narrowing
-                // when required.
+            SymbolEnv narrowedEnv = typeNarrower.evaluateFalsityFollowingIfWithoutElse(expr, env);
+            // Push narrowed env to prevEnvs if the `if` statement without `else` clause is not completed normally,
+            // so that the narrowed types are considered in the statements following the `if` statement.
+            // The immediate prevEnv would still have the block's env to handle resetting type narrowing
+            // when required.
+            if (narrowedEnv != null) {
                 this.prevEnvs.push(narrowedEnv);
             }
-            this.notCompletedNormally = constTrueCondition;
+            this.notCompletedNormally =
+                    ConditionResolver.checkConstCondition(types, symTable, expr) == symTable.trueType;
         }
     }
 
     @Override
     public void visit(BLangConstant constant) {
-        if (names.fromIdNode(constant.name) == Names.IGNORE) {
-            dlog.error(constant.name.pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED);
-        }
         if (constant.typeNode != null && !types.isAllowedConstantType(constant.typeNode.getBType())) {
             if (types.isAssignable(constant.typeNode.getBType(), symTable.anydataType) &&
                     !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(constant.typeNode.getBType())) {

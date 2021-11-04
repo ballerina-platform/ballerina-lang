@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/jballerina.java;
-import ballerina/lang.'array as lang_array;
-import ballerina/lang.'value as lang_value;
 
 # A listener that is dynamically registered with a module.
 public type DynamicListener object {
@@ -81,13 +79,13 @@ public type StackFrame readonly & object {
 # + return - an array representing the current call stack
 public isolated function getStackTrace() returns StackFrame[] {
     StackFrame[] stackFrame = [];
-    int i = 0;
     CallStackElement[] callStackElements = externGetStackTrace();
-    lang_array:forEach(callStackElements, function (CallStackElement callStackElement) {
-            stackFrame[i] = new java:StackFrameImpl(callStackElement.callableName,
-            callStackElement.fileName, callStackElement.lineNumber, callStackElement?.moduleName);
-        i += 1;
-    });
+
+    foreach CallStackElement callStackElement in callStackElements {
+        stackFrame.push(new java:StackFrameImpl(callStackElement.callableName,
+                                callStackElement.fileName, callStackElement.lineNumber, callStackElement?.moduleName));
+    }
+
     return stackFrame;
 }
 

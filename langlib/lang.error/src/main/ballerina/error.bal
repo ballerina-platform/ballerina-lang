@@ -54,40 +54,37 @@ public isolated function cause(error e) returns error? = @java:Method {
 # The returned value will be immutable.
 # + e - the error value
 # + return - error detail value
-public isolated function detail(error<DetailType> e) returns DetailType = @java:Method {
+public isolated function detail(error<DetailType> e) returns readonly & DetailType = @java:Method {
     'class: "org.ballerinalang.langlib.error.Detail",
     name: "detail"
 } external;
 
-# Representation of `CallStackElement`.
-#
-# + callableName - Callable name
-# + moduleName - Module name
-# + fileName - File name
-# + lineNumber - Line number
-public type CallStackElement record {|
-    string callableName;
-    string moduleName?;
-    string fileName;
-    int lineNumber;
-|};
-
-# Represents an error call stack.
-#
-# + callStack - call stack
-public class CallStack {
-    public CallStackElement[] callStack = [];
-}
+# Type representing a stack frame.
+# A call stack is represented as an array of stack frames.
+# This type is also present in lang.runtime to avoid a dependency.
+public type StackFrame readonly & object {
+   # Returns a string representing this StackFrame.
+   # This must not contain any newline characters.
+   # + return - a string
+   public function toString() returns string;
+};
 
 # Returns an object representing the stack trace of the error.
 #
 # + e - the error value
 # + return - a new object representing the stack trace of the error value
-public isolated function stackTrace(error e) returns CallStack = @java:Method {
-    'class: "org.ballerinalang.langlib.error.StackTrace",
-    name: "stackTrace"
-} external;
-
+# The first member of the array represents the top of the call stack.
+public isolated function stackTrace(error e) returns StackFrame[] {
+    StackFrame[] stackFrame = [];
+    int i = 0;
+    CallStack callStackElements = externGetStackTrace(e);
+    foreach var callStackElement in callStackElements.callStack {
+        stackFrame[i] = new java:StackFrameImpl(callStackElement.callableName,
+        callStackElement.fileName, callStackElement.lineNumber, callStackElement?.moduleName);
+        i += 1;
+    }
+    return stackFrame;
+}
 
 # Converts an error to a string.
 #

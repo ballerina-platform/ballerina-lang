@@ -16,7 +16,7 @@
     {
       "label": "CONST1",
       "kind": "Variable",
-      "detail": "Test",
+      "detail": "\"Test\"",
       "documentation": {
         "right": {
           "kind": "markdown",

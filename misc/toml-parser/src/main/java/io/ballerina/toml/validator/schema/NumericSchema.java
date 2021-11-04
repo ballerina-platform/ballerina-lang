@@ -45,8 +45,8 @@ public class NumericSchema extends PrimitiveValueSchema<Double> {
     private final Double maximum;
 
     public NumericSchema(Type type, Map<String, String> message, Double minimum, Double maximum, Double defaultValue,
-                         CompositionSchema compositionSchemas) {
-        super(type, message, defaultValue, compositionSchemas);
+                         CompositionSchema compositionSchemas, String description) {
+        super(type, message, defaultValue, compositionSchemas, description);
         this.minimum = minimum;
         this.maximum = maximum;
     }

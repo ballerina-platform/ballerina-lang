@@ -23,6 +23,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -301,5 +302,31 @@ public class ForeachMapTypedBindingPatternsTests {
         BValue[] returns = BRunUtil.invoke(program, "testEmptyMapIteration");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "");
+    }
+
+    @Test(dataProvider = "bindingPatternWithVarInForeachStatementForReadOnlyMembersOfMappings")
+    public void testBindingPatternWithVarInForeachStatementForReadOnlyMembersOfMappings(String function) {
+        BRunUtil.invoke(program, function);
+    }
+
+    @DataProvider
+    public Object[] bindingPatternWithVarInForeachStatementForReadOnlyMembersOfMappings() {
+        return new String[] {
+                "testForeachIterationOverReadOnlyTupleMembersOfNonReadOnlyRecordWithVar",
+                "testForeachIterationOverReadOnlyArrayMembersOfReadOnlyMapWithVar"
+        };
+    }
+
+    @Test(dataProvider = "bindingPatternInForeachStatementForReadOnlyMembersOfMappings")
+    public void testBindingPatternInForeachStatementForReadOnlyMembersOfMappings(String function) {
+        BRunUtil.invoke(program, function);
+    }
+
+    @DataProvider
+    public Object[] bindingPatternInForeachStatementForReadOnlyMembersOfMappings() {
+        return new String[] {
+                "testForeachIterationOverReadOnlyTupleMembersOfNonReadOnlyRecord",
+                "testForeachIterationOverReadOnlyTupleMembersOfReadOnlyMap"
+        };
     }
 }

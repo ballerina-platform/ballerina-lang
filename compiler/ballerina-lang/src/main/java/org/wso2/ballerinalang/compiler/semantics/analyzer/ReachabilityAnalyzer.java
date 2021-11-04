@@ -108,6 +108,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
 
     private final SymbolResolver symResolver;
     private final SymbolTable symTable;
+    private final TypeNarrower typeNarrower;
     private final Types types;
     private final BLangDiagnosticLog dlog;
     private final Names names;
@@ -133,6 +134,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
+        this.typeNarrower = TypeNarrower.getInstance(context);
     }
 
     public static ReachabilityAnalyzer getInstance(CompilerContext context) {
@@ -242,7 +244,8 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         resetUnreachableBlock();
 
         boolean allBranchesTerminate = this.breakAsLastStatement || this.statementReturnsPanicsOrFails;
-        handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(allBranchesTerminate);
+        handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(allBranchesTerminate,
+                                                                         this.continueAsLastStatement);
 
         boolean ifStmtReturnsPanicsOrFails = this.statementReturnsPanicsOrFails;
         boolean currentErrorThrown = this.errorThrown;
@@ -266,7 +269,8 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             resetUnreachableBlock();
 
             handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
-                    this.breakAsLastStatement || this.statementReturnsPanicsOrFails);
+                    this.breakAsLastStatement || this.statementReturnsPanicsOrFails,
+                    this.continueAsLastStatement);
 
             if (booleanConstCondition == symTable.semanticError) {
                 this.statementReturnsPanicsOrFails = ifStmtReturnsPanicsOrFails && this.statementReturnsPanicsOrFails;
@@ -369,7 +373,8 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
                     env.enclInvokable));
             analyzeReachability(matchClause, this.env);
             handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
-                    this.breakAsLastStatement || this.statementReturnsPanicsOrFails);
+                    this.breakAsLastStatement || this.statementReturnsPanicsOrFails,
+                    this.continueAsLastStatement);
             allClausesReturns &= this.statementReturnsPanicsOrFails;
             allClausesBreak &= this.breakAsLastStatement;
             allClausesContinue &= this.continueAsLastStatement;
@@ -487,9 +492,13 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if (!funcNode.interfaceFunction && funcNode.returnTypeNode.getBType().tag == TypeTags.UNION) {
-            LinkedHashSet<BType> memberTypes = ((BUnionType) funcNode.returnTypeNode.getBType()).getMemberTypes();
-            if (memberTypes.contains(symTable.nilType) && !this.statementReturnsPanicsOrFails) {
+        BType returnType = funcNode.returnTypeNode.getBType();
+
+        if (!funcNode.interfaceFunction && returnType.tag == TypeTags.UNION) {
+            LinkedHashSet<BType> memberTypes = ((BUnionType) returnType).getMemberTypes();
+            if (memberTypes.contains(symTable.nilType) &&
+                    !types.isSubTypeOfErrorOrNilContainingNil((BUnionType) returnType) &&
+                    !this.statementReturnsPanicsOrFails) {
                 this.dlog.warning(funcNode.returnTypeNode.pos,
                         DiagnosticWarningCode.FUNCTION_SHOULD_EXPLICITLY_RETURN_A_VALUE);
             }
@@ -709,10 +718,11 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        validateAssignmentToNarrowedVariable(names.fromIdNode(varRef.variableName), location, env);
+        validateAssignmentToNarrowedVariable(varRef, location, env);
     }
 
-    private void validateAssignmentToNarrowedVariable(Name name, Location location, SymbolEnv env) {
+    private void validateAssignmentToNarrowedVariable(BLangSimpleVarRef varRef, Location location, SymbolEnv env) {
+        Name name = names.fromIdNode(varRef.variableName);
         SymbolEnv loopEnv = this.loopEnvs.peek();
         SymbolEnv currentEnv = env;
 
@@ -725,6 +735,15 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             }
 
             if (currentEnv == loopEnv) {
+                BLangNode loopNode = loopEnv.node;
+                if (loopNode.getKind() == NodeKind.WHILE &&
+                        ((BLangWhile) loopNode).expr.narrowedTypeInfo.containsKey(
+                                typeNarrower.getOriginalVarSymbol((BVarSymbol) varRef.symbol))) {
+                    // A while loop may narrow an already narrowed variable, so checking specifically if the loop
+                    // itself narrows the variable too.
+                    return;
+                }
+
                 break;
             }
 
@@ -740,12 +759,9 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(boolean branchTerminates) {
-        handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(branchTerminates, false);
-    }
+    private void handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
+            boolean branchTerminates, boolean isLoopBodyOrBranchWithContinueAsLastStmt) {
 
-    private void handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(boolean branchTerminates,
-                                                                                  boolean isLoop) {
         PotentiallyInvalidAssignmentInfo
                 currentBranchInfo = this.potentiallyInvalidAssignmentInLoopsInfo.pop();
 
@@ -755,7 +771,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
 
         List<Location> currentBranchLocations = currentBranchInfo.locations;
 
-        if (isLoop) {
+        if (isLoopBodyOrBranchWithContinueAsLastStmt) {
             handleInvalidAssignmentToTypeNarrowedVariableInLoop(currentBranchLocations);
             return;
         }

@@ -7,7 +7,7 @@ public function foo() {
     }
 
     worker w2 returns error? {
-      int j = check <- w1;
+      int _ = check <- w1;
       return;
     }
 }

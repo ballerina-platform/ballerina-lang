@@ -41,6 +41,7 @@ BALLERINA COMMANDS
         init            Initialise a new Ballerina package in the current directory
         add             Add a new Ballerina module in the package
         pull            Pull a package from Ballerina Central
+        pack            Create the distribution form of the package
         push            Upload a package to Ballerina Central
         search          Search Ballerina Central for packages
 

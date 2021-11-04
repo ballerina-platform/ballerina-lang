@@ -86,7 +86,7 @@ import static io.ballerina.runtime.internal.values.DecimalValue.isDecimalWithinI
  */
 public class TypeConverter {
 
-    private static final String NaN = "NaN";
+    private static final String NAN = "NaN";
     private static final String POSITIVE_INFINITY = "Infinity";
     private static final String NEGATIVE_INFINITY = "-Infinity";
 
@@ -643,18 +643,12 @@ public class TypeConverter {
                                                         List<String> errors) {
         Set<Type> convertibleTypes = getConvertibleTypes(sourceElement, targetType, varName, false,
                 unresolvedValues, errors);
-        if (convertibleTypes.isEmpty() || !isConvertible(convertibleTypes, sourceElement)) {
-            return false;
-        }
-        return true;
+        return !convertibleTypes.isEmpty() && isConvertible(convertibleTypes, sourceElement);
     }
 
     private static boolean isConvertible(Set<Type> convertibleTypes, Object sourceElement) {
-        if (convertibleTypes.size() > 1 && !convertibleTypes.contains(TypeChecker.getType(sourceElement))
-                && !hasIntegerSubTypes(convertibleTypes)) {
-            return false;
-        }
-        return true;
+        return convertibleTypes.size() <= 1 || convertibleTypes.contains(TypeChecker.getType(sourceElement))
+                || hasIntegerSubTypes(convertibleTypes);
     }
 
     public static boolean hasIntegerSubTypes(Set<Type> convertibleTypes) {
@@ -706,15 +700,12 @@ public class TypeConverter {
         long value = anyToIntCast(sourceVal, errorFunc);
         if (type == PredefinedTypes.TYPE_INT_SIGNED_32 && isSigned32LiteralValue(value)) {
             return value;
-        } else if (type == PredefinedTypes.TYPE_INT_SIGNED_16 && isSigned16LiteralValue(value)) {
-            return value;
-        } else if (type == PredefinedTypes.TYPE_INT_SIGNED_8 && isSigned8LiteralValue(value)) {
-            return value;
-        } else if (type == PredefinedTypes.TYPE_INT_UNSIGNED_32 && isUnsigned32LiteralValue(value)) {
-            return value;
-        } else if (type == PredefinedTypes.TYPE_INT_UNSIGNED_16 && isUnsigned16LiteralValue(value)) {
-            return value;
-        } else if (type == PredefinedTypes.TYPE_INT_UNSIGNED_8 && isUnsigned8LiteralValue(value)) {
+        }
+        if ((type == PredefinedTypes.TYPE_INT_SIGNED_16 && isSigned16LiteralValue(value)) ||
+                (type == PredefinedTypes.TYPE_INT_SIGNED_8 && isSigned8LiteralValue(value)) ||
+                (type == PredefinedTypes.TYPE_INT_UNSIGNED_32 && isUnsigned32LiteralValue(value)) ||
+                (type == PredefinedTypes.TYPE_INT_UNSIGNED_16 && isUnsigned16LiteralValue(value)) ||
+                (type == PredefinedTypes.TYPE_INT_UNSIGNED_8 && isUnsigned8LiteralValue(value))) {
             return value;
         }
         throw errorFunc.get();
@@ -928,7 +919,7 @@ public class TypeConverter {
 
     private static void checkIsValidFloat(double sourceVal, Type targetType) {
         if (Double.isNaN(sourceVal)) {
-            throw ErrorUtils.createNumericConversionError(NaN, PredefinedTypes.TYPE_FLOAT, targetType);
+            throw ErrorUtils.createNumericConversionError(NAN, PredefinedTypes.TYPE_FLOAT, targetType);
         }
 
         if (Double.isInfinite(sourceVal)) {
@@ -1164,7 +1155,7 @@ public class TypeConverter {
             return PredefinedTypes.TYPE_DECIMAL;
         }
 
-        Type anydataArrayType = new BArrayType(type);
+        Type anydataArrayType = new BArrayType(type, type.isReadOnly());
         if (checkIsLikeType(value, anydataArrayType)) {
             return anydataArrayType;
         }
@@ -1173,7 +1164,7 @@ public class TypeConverter {
             return PredefinedTypes.TYPE_XML;
         }
 
-        Type anydataMapType = new BMapType(type);
+        Type anydataMapType = new BMapType(type, type.isReadOnly());
         if (checkIsLikeType(value, anydataMapType)) {
             return anydataMapType;
         }

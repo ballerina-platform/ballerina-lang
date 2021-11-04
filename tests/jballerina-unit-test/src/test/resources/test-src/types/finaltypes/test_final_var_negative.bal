@@ -91,7 +91,7 @@ function testAccessOfSubsequentlyPotentiallyInitializedFinalNoInitVar() {
     } else {
         b = true;
     }
-    int x = i;
+    int _ = i;
 
     final string s;
 
