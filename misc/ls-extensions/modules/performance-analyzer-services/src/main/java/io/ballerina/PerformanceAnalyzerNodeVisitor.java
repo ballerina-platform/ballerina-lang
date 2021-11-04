@@ -73,38 +73,36 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
+public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
 
     public static final long DEFAULT_LOOP_SIZE = 2;
     public static final String ENDPOINTS_KEY = "endpoints";
     public static final String ACTION_INVOCATION_KEY = "actionInvocations";
 
-    private static final Logger logger = LoggerFactory.getLogger(ProgramAnalyzerNodeVisitor.class);
+    private static final Logger logger = LoggerFactory.getLogger(PerformanceAnalyzerNodeVisitor.class);
 
     private final HashMap<Integer, Object> variableMap;
     private final HashMap<Integer, Integer> referenceMap;
     private final HashMap<Integer, EndPointNode> endPointDeclarationMap;
 
     private final Node startNode;
+    private final SemanticModel model;
+    private final String file;
+    private final Range range;
     private Node currentNode;
-    private SemanticModel model;
     private Document document;
-    private String file;
     private boolean withinRange = false;
-    private Range range;
 
-    public ProgramAnalyzerNodeVisitor() {
+    public PerformanceAnalyzerNodeVisitor(SemanticModel model, String file, Range range) {
 
         this.variableMap = new HashMap<>();
         this.referenceMap = new HashMap<>();
         this.endPointDeclarationMap = new HashMap<>();
         this.startNode = new Node();
         this.currentNode = this.startNode;
-    }
-
-    public void setSemanticModel(SemanticModel model) {
-
         this.model = model;
+        this.file = file;
+        this.range = range;
     }
 
     public void setDocument(Document document) {
@@ -112,21 +110,11 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
         this.document = document;
     }
 
-    public void setFile(String file) {
-
-        this.file = file;
-    }
-
-    public void setRange(Range range) {
-
-        this.range = range;
-    }
-
     @Override
     public void visit(ModulePartNode modulePartNode) {
 
-        for (int i = 0; i < modulePartNode.members().size(); i++) {
-            modulePartNode.members().get(i).accept(this);
+        if (!modulePartNode.members().isEmpty()) {
+            modulePartNode.members().forEach(moduleMemberDeclarationNode -> moduleMemberDeclarationNode.accept(this));
         }
     }
 
@@ -134,19 +122,20 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
     public void visit(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
 
         Optional<Symbol> symbol = model.symbol(moduleVariableDeclarationNode);
-        if (symbol.isEmpty()) {
+        if (symbol.isEmpty() || moduleVariableDeclarationNode.initializer().isEmpty()) {
             return;
         }
 
-        if (moduleVariableDeclarationNode.initializer().isEmpty()) {
-            return;
-        }
-
-        if (isClientObject(symbol.get())) {
+        boolean clientObject = isClientObject(symbol.get());
+        if (clientObject) {
             resolveEndPoint(symbol.get(), moduleVariableDeclarationNode.initializer().get());
         }
 
-        if (isClientObject(symbol.get()) || isRecordObject(symbol.get())) {
+        LineRange lineRange = moduleVariableDeclarationNode.typedBindingPattern().bindingPattern().
+                location().lineRange();
+        String ref = lineRange.filePath() + lineRange.startLine() + lineRange.endLine();
+        int hashCode = Objects.hashCode(ref);
+        if (clientObject || isRecordObject(symbol.get())) {
             Optional<ExpressionNode> expressionNode = moduleVariableDeclarationNode.initializer();
 
             if (expressionNode.isPresent() && expressionNode.get().kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
@@ -154,9 +143,8 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
             }
         } else if ((symbol.get().kind() == SymbolKind.VARIABLE) &&
                 (moduleVariableDeclarationNode.initializer().get().kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION)) {
-            this.registerVariableRef(moduleVariableDeclarationNode.typedBindingPattern().bindingPattern().
-                            location().lineRange().hashCode(),
-                    moduleVariableDeclarationNode);
+
+            this.registerVariableRef(hashCode, moduleVariableDeclarationNode);
         }
 
         if (moduleVariableDeclarationNode.typedBindingPattern().bindingPattern().kind() ==
@@ -164,18 +152,15 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
 
             Optional<Symbol> initSymbol = model.symbol(moduleVariableDeclarationNode.initializer().get());
 
-            Integer key = moduleVariableDeclarationNode.typedBindingPattern().bindingPattern().
-                    location().lineRange().hashCode();
             SyntaxKind initializerKind = moduleVariableDeclarationNode.initializer().get().kind();
             if (initSymbol.isPresent() && initializerKind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-                putReference(key, getEndpointReference(initSymbol.get()));
-            } else if (initializerKind == SyntaxKind.NUMERIC_LITERAL) {
-                this.registerVariableRef(key, moduleVariableDeclarationNode);
-            } else if (initializerKind == SyntaxKind.STRING_LITERAL) {
-                this.registerVariableRef(key, moduleVariableDeclarationNode);
+                putReference(hashCode, getEndpointReference(initSymbol.get()));
+            } else if (initializerKind == SyntaxKind.NUMERIC_LITERAL || initializerKind == SyntaxKind.STRING_LITERAL) {
+                this.registerVariableRef(hashCode, moduleVariableDeclarationNode);
             }
         }
-        visitSyntaxNode(moduleVariableDeclarationNode);
+        moduleVariableDeclarationNode.typedBindingPattern().accept(this);
+        moduleVariableDeclarationNode.initializer().ifPresent(initializer -> initializer.accept(this));
     }
 
     @Override
@@ -191,7 +176,7 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
             withinRange = true;
         }
 
-        this.visitSyntaxNode(functionDefinitionNode);
+        functionDefinitionNode.functionBody().accept(this);
         withinRange = false;
     }
 
@@ -199,19 +184,20 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
     public void visit(VariableDeclarationNode variableDeclarationNode) {
 
         Optional<Symbol> symbol = model.symbol(variableDeclarationNode);
-        if (symbol.isEmpty()) {
+        if (symbol.isEmpty() || variableDeclarationNode.initializer().isEmpty()) {
             return;
         }
 
-        if (variableDeclarationNode.initializer().isEmpty()) {
-            return;
-        }
-
-        if (isClientObject(symbol.get())) {
+        boolean clientObject = isClientObject(symbol.get());
+        if (clientObject) {
             resolveEndPoint(symbol.get(), variableDeclarationNode.initializer().get());
         }
 
-        if (isClientObject(symbol.get()) || isRecordObject(symbol.get())) {
+        LineRange lineRange = variableDeclarationNode.typedBindingPattern().bindingPattern().
+                location().lineRange();
+        String ref = lineRange.filePath() + lineRange.startLine() + lineRange.endLine();
+        int hashCode = Objects.hashCode(ref);
+        if (clientObject || isRecordObject(symbol.get())) {
             Optional<ExpressionNode> expressionNode = variableDeclarationNode.initializer();
 
             if (expressionNode.isPresent() && expressionNode.get().kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
@@ -219,8 +205,7 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
             }
         } else if ((symbol.get().kind() == SymbolKind.VARIABLE) &&
                 (variableDeclarationNode.initializer().get().kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION)) {
-            this.registerVariableRef(variableDeclarationNode.typedBindingPattern().bindingPattern().
-                            location().lineRange().hashCode(),
+            this.registerVariableRef(hashCode,
                     variableDeclarationNode);
         }
 
@@ -229,19 +214,15 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
 
             Optional<Symbol> initSymbol = model.symbol(variableDeclarationNode.initializer().get());
 
-            Integer key = variableDeclarationNode.typedBindingPattern().bindingPattern().
-                    location().lineRange().hashCode();
             SyntaxKind initializerKind = variableDeclarationNode.initializer().get().kind();
             if (initSymbol.isPresent() && initializerKind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-                putReference(key, getEndpointReference(initSymbol.get()));
-            } else if (initializerKind == SyntaxKind.NUMERIC_LITERAL) {
-                this.registerVariableRef(key, variableDeclarationNode);
-            } else if (initializerKind == SyntaxKind.STRING_LITERAL) {
-                this.registerVariableRef(key, variableDeclarationNode);
+                putReference(hashCode, getEndpointReference(initSymbol.get()));
+            } else if (initializerKind == SyntaxKind.NUMERIC_LITERAL || initializerKind == SyntaxKind.STRING_LITERAL) {
+                this.registerVariableRef(hashCode, variableDeclarationNode);
             }
         }
 
-        visitSyntaxNode(variableDeclarationNode);
+        variableDeclarationNode.initializer().ifPresent(initializer -> initializer.accept(this));
     }
 
     @Override
@@ -253,18 +234,18 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
         Node ifBodyNode = new Node();
         this.currentNode = ifBodyNode;
 
-        visitSyntaxNode(ifElseStatementNode.ifBody());
+        ifElseStatementNode.ifBody().accept(this);
 
         ifStatementNode.setIfBody(ifBodyNode.getNextNode());
 
         Node elseBodyNode = new Node();
         this.currentNode = elseBodyNode;
 
-        if (ifElseStatementNode.elseBody().isPresent()) {
-            visitSyntaxNode(ifElseStatementNode.elseBody().get());
-            ifStatementNode.setElseBody(elseBodyNode.getNextNode());
-        }
-
+        ifElseStatementNode.elseBody().ifPresent(elseBody -> {
+                    elseBody.accept(this);
+                    ifStatementNode.setElseBody(elseBodyNode.getNextNode());
+                }
+        );
         this.currentNode = currentParentNode;
         this.setChildNode(ifStatementNode);
     }
@@ -280,10 +261,12 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
             node = bracedExpressionNode.expression();
 
             if (node.kind() == SyntaxKind.BINARY_EXPRESSION) {
-                if (((BinaryExpressionNode) node).rhsExpr().kind() == SyntaxKind.NUMERIC_LITERAL &&
-                        ((BinaryExpressionNode) node).lhsExpr().kind() == SyntaxKind.NUMERIC_LITERAL) {
-                    long rhsValue = Long.parseLong(((BinaryExpressionNode) node).rhsExpr().toString().trim());
-                    long lhsValue = Long.parseLong(((BinaryExpressionNode) node).lhsExpr().toString().trim());
+                BinaryExpressionNode binaryExpressionNode = (BinaryExpressionNode) node;
+                io.ballerina.compiler.syntax.tree.Node rhsExpr = binaryExpressionNode.rhsExpr();
+                io.ballerina.compiler.syntax.tree.Node lhsExpr = binaryExpressionNode.lhsExpr();
+                if (rhsExpr.kind() == SyntaxKind.NUMERIC_LITERAL && lhsExpr.kind() == SyntaxKind.NUMERIC_LITERAL) {
+                    long rhsValue = Long.parseLong(rhsExpr.toString().trim());
+                    long lhsValue = Long.parseLong(lhsExpr.toString().trim());
                     iterationsCount = rhsValue - lhsValue + 1;
                 }
             }
@@ -295,7 +278,7 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
         Node forBodyNode = new Node();
         this.currentNode = forBodyNode;
 
-        visitSyntaxNode(forEachStatementNode.blockStatement());
+        forEachStatementNode.blockStatement().accept(this);
         forStatementNode.setForBody(forBodyNode.getNextNode());
 
         this.currentNode = currentParentNode;
@@ -303,8 +286,6 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
         if (forEachStatementNode.blockStatement() != null) {
             this.setChildNode(forStatementNode);
         }
-
-        visitSyntaxNode(forEachStatementNode);
     }
 
     @Override
@@ -316,7 +297,7 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
         Node forBodyNode = new Node();
         this.currentNode = forBodyNode;
 
-        visitSyntaxNode(whileStatementNode.whileBody());
+        whileStatementNode.whileBody().accept(this);
         forStatementNode.setForBody(forBodyNode.getNextNode());
 
         this.currentNode = currentParentNode;
@@ -329,7 +310,7 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
     public void visit(RemoteMethodCallActionNode remoteMethodCallActionNode) {
 
         resolveActionInvocation(remoteMethodCallActionNode);
-        visitSyntaxNode(remoteMethodCallActionNode);
+        remoteMethodCallActionNode.expression().accept(this);
     }
 
     @Override
@@ -339,14 +320,9 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
                 assignmentStatementNode.expression().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
 
             Optional<Symbol> referenceSymbol = model.symbol(assignmentStatementNode.varRef());
-
-            if (referenceSymbol.isEmpty()) {
-                return;
-            }
-
             Optional<Symbol> expressionSymbol = model.symbol(assignmentStatementNode.expression());
 
-            if (expressionSymbol.isEmpty()) {
+            if (referenceSymbol.isEmpty() || expressionSymbol.isEmpty()) {
                 return;
             }
 
@@ -354,7 +330,8 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
                     getEndpointReference(expressionSymbol.get()));
         }
 
-        visitSyntaxNode(assignmentStatementNode);
+        assignmentStatementNode.varRef().accept(this);
+        assignmentStatementNode.expression().accept(this);
     }
 
     private void setChildNode(Node node) {
@@ -516,11 +493,11 @@ public class ProgramAnalyzerNodeVisitor extends NodeVisitor {
             }
             if (argumentNode.kind() == SyntaxKind.POSITIONAL_ARG &&
                     ((PositionalArgumentNode) argumentNode).expression().kind() == SyntaxKind.STRING_LITERAL) {
-                visitSyntaxNode(argumentNode);
+                argumentNode.accept(this);
                 return extractURL(url);
             } else if (argumentNode.kind() == SyntaxKind.NAMED_ARG &&
                     ((NamedArgumentNode) argumentNode).expression().kind() == SyntaxKind.STRING_LITERAL) {
-                visitSyntaxNode(argumentNode);
+                argumentNode.accept(this);
                 return extractURL(url);
             }
         }

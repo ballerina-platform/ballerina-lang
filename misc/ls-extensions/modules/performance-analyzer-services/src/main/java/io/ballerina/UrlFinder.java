@@ -28,7 +28,7 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 
 /**
- * Visitor to file the base url of endpoint.
+ * Visitor to find the base url of endpoint.
  *
  * @since 2.0.0
  */

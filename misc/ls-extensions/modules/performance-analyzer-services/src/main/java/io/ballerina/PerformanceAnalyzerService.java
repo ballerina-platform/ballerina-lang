@@ -51,7 +51,9 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
     static final String CONNECTION_ERROR = "CONNECTION_ERROR";
     static final String AUTHENTICATION_ERROR = "AUTHENTICATION_ERROR";
     static final String SOME_ERROR = "SOME_ERROR_OCCURRED";
-    private static HashMap<JsonObject, JsonObject> cachedResponses = new HashMap<>();
+    static final String ENDPOINT_RESOLVE_ERROR = "ENDPOINT_RESOLVE_ERROR";
+    private static final HashMap<JsonObject, JsonObject> realTimeCachedResponses = new HashMap<>();
+    private static final HashMap<JsonObject, JsonObject> advancedCachedResponses = new HashMap<>();
 
     private WorkspaceManager workspaceManager;
 
@@ -89,12 +91,15 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
             String fileUri = request.getDocumentIdentifier().getUri();
             JsonObject data = EndpointsFinder.getEndpoints(fileUri, this.workspaceManager, request.getRange());
             if (data == null) {
-                return null;
+                JsonObject obj = new JsonObject();
+                obj.addProperty("type", ERROR);
+                obj.addProperty("message", ENDPOINT_RESOLVE_ERROR);
+                return obj;
             }
 
             JsonObject graphData;
-            if (cachedResponses.get(data) != null) {
-                graphData = cachedResponses.get(data);
+            if (advancedCachedResponses.get(data) != null) {
+                graphData = advancedCachedResponses.get(data);
             } else {
                 graphData = getDataFromChoreo(request.getChoreoAPI(), data, AnalyzeType.ADVANCED,
                         request.getChoreoToken(), request.getChoreoCookie());
@@ -106,7 +111,7 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
                 if (graphData.get("type") == null) {
                     graphData.addProperty("type", SUCCESS);
                     graphData.addProperty("message", SUCCESS);
-                    cachedResponses.put(data, graphData);
+                    advancedCachedResponses.put(data, graphData);
                 }
             }
 
@@ -128,16 +133,26 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
             JsonObject data = EndpointsFinder.getEndpoints(fileUri, this.workspaceManager, request.getRange());
 
             if (data == null) {
-                return null;
+                JsonObject obj = new JsonObject();
+                obj.addProperty("type", ERROR);
+                obj.addProperty("message", ENDPOINT_RESOLVE_ERROR);
+                return obj;
             }
 
-            JsonObject realTimeData = getDataFromChoreo(request.getChoreoAPI(), data, AnalyzeType.REALTIME,
-                    request.getChoreoToken(), request.getChoreoCookie());
+            JsonObject realTimeData;
+            if (realTimeCachedResponses.get(data) != null) {
+                realTimeData = realTimeCachedResponses.get(data);
+            } else {
+                realTimeData = getDataFromChoreo(request.getChoreoAPI(), data, AnalyzeType.REALTIME,
+                        request.getChoreoToken(), request.getChoreoCookie());
 
-            if (realTimeData.get("type") == null) {
-                realTimeData.addProperty("type", SUCCESS);
-                realTimeData.addProperty("message", SUCCESS);
+                if (realTimeData.get("type") == null) {
+                    realTimeData.addProperty("type", SUCCESS);
+                    realTimeData.addProperty("message", SUCCESS);
+                    realTimeCachedResponses.put(data, realTimeData);
+                }
             }
+
             return realTimeData;
         });
     }
