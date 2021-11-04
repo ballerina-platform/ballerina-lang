@@ -141,30 +141,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "service/http",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "A",
-      "filterText": "service_http",
-      "insertText": "service /${1} on new http:Listener(8080) {\n\tresource function ${2:get} ${3:getResource}(http:Caller ${4:caller}, http:Request ${5:req}) {\n\t\t\n\t}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 2,
-              "character": 0
-            },
-            "end": {
-              "line": 2,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
       "label": "configurable",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -441,6 +417,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
+      "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
@@ -449,6 +426,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
+      "filterText": "mod1",
       "insertText": "mod1",
       "insertTextFormat": "Snippet"
     },
@@ -457,6 +435,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
+      "filterText": "module2",
       "insertText": "module2",
       "insertTextFormat": "Snippet"
     },
@@ -465,6 +444,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
+      "filterText": "runtime",
       "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -488,6 +468,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
+      "filterText": "value",
       "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -511,6 +492,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
+      "filterText": "array",
       "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -534,6 +516,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
+      "filterText": "java",
       "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -557,6 +540,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
+      "filterText": "test",
       "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -692,6 +676,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
+      "filterText": "",
       "insertText": "module3",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -711,29 +696,32 @@
       ]
     },
     {
-      "label": "service / on module1:Listener",
+      "label": "service on module1:Listener",
       "kind": "Snippet",
-      "detail": "service template",
+      "detail": "Snippet",
       "sortText": "E",
-      "insertText": "service /${1} on new module1:Listener(${2:0}) {\n    ${3}\n}\n",
+      "filterText": "service_module1_Listener",
+      "insertText": "service ${1} on new module1:Listener(${2:0}) {\n    ${3}\n}\n",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
     {
-      "label": "service / on mod1:Listener",
+      "label": "service on mod1:Listener",
       "kind": "Snippet",
-      "detail": "service template",
+      "detail": "Snippet",
       "sortText": "E",
-      "insertText": "service /${1} on new mod1:Listener() {\n\n    remote function method1() {\n        ${2}\n    }\n\n    function method2() returns string|error {\n        return ${3:\"\"};\n    }\n\n    function method3($CompilationError$|int arg1) returns $CompilationError$ {\n        ${4}\n    }\n\n}\n",
+      "filterText": "service_mod1_Listener",
+      "insertText": "service ${1} on new mod1:Listener() {\n\n    remote function method1() {\n        ${2}\n    }\n\n    function method2() returns string|error {\n        return ${3:\"\"};\n    }\n\n    function method3($CompilationError$|int arg1) returns $CompilationError$ {\n        ${4}\n    }\n\n}\n",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
     {
-      "label": "service / on test:MockListener",
+      "label": "service on test:MockListener",
       "kind": "Snippet",
-      "detail": "service template",
+      "detail": "Snippet",
       "sortText": "E",
-      "insertText": "service /${1} on new test:MockListener(${2:0},${3:()}) {\n    ${4}\n}\n",
+      "filterText": "service_test_MockListener",
+      "insertText": "service ${1} on new test:MockListener(${2:0}) {\n    ${3}\n}\n",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

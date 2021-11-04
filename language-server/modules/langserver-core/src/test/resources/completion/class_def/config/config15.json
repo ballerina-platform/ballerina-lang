@@ -141,30 +141,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "service/http",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "A",
-      "filterText": "service_http",
-      "insertText": "service /${1} on new http:Listener(8080) {\n\tresource function ${2:get} ${3:getResource}(http:Caller ${4:caller}, http:Request ${5:req}) {\n\t\t\n\t}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
       "label": "configurable",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -686,20 +662,22 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "service / on module1:Listener",
+      "label": "service on module1:Listener",
       "kind": "Snippet",
-      "detail": "service template",
+      "detail": "Snippet",
       "sortText": "E",
-      "insertText": "service /${1} on new module1:Listener(${2:0}) {\n    ${3}\n}\n",
+      "filterText": "service_module1_Listener",
+      "insertText": "service ${1} on new module1:Listener(${2:0}) {\n    ${3}\n}\n",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
     {
-      "label": "service / on test:MockListener",
+      "label": "service on test:MockListener",
       "kind": "Snippet",
-      "detail": "service template",
+      "detail": "Snippet",
       "sortText": "E",
-      "insertText": "service /${1} on new test:MockListener(${2:0},${3:()}) {\n    ${4}\n}\n",
+      "filterText": "service_test_MockListener",
+      "insertText": "service ${1} on new test:MockListener(${2:0}) {\n    ${3}\n}\n",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

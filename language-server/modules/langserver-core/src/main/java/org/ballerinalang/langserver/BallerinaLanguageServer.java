@@ -28,7 +28,6 @@ import org.ballerinalang.langserver.commons.registration.BallerinaClientCapabili
 import org.ballerinalang.langserver.commons.registration.BallerinaInitializeParams;
 import org.ballerinalang.langserver.commons.registration.BallerinaInitializeResult;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
-import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
 import org.ballerinalang.langserver.config.ClientConfigListener;
 import org.ballerinalang.langserver.config.LSClientConfig;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
@@ -129,10 +128,10 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setImplementationProvider(false);
         res.getCapabilities().setFoldingRangeProvider(true);
         res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
-
+        
         // Hover, references and definition support will be registered dynamically if supported
         if (!LSClientUtil.isDynamicHoverRegistrationSupported(params.getCapabilities().getTextDocument())) {
-            res.getCapabilities().setHoverProvider(true);
+                    res.getCapabilities().setHoverProvider(true);
         }
         if (!LSClientUtil.isDynamicDefinitionRegistrationSupported(params.getCapabilities().getTextDocument())) {
             res.getCapabilities().setDefinitionProvider(true);
@@ -197,11 +196,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
         // Register dynamic capabilities
         registerDynamicCapabilities();
-
-        //Preload listeners from distribution.
-        CompletableFuture.runAsync(() -> ServiceTemplateGenerator.getInstance(serverContext)
-                .initialize(serverContext));
-
+        
         startListeningFileChanges();
     }
 
@@ -210,7 +205,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
      */
     private void registerDynamicCapabilities() {
         registerTextSynchronizationForBalaUriScheme();
-
+        
         DocumentFilter balaFilter = new DocumentFilter();
         balaFilter.setScheme(CommonUtil.URI_SCHEME_BALA);
         DocumentFilter fileFilter = new DocumentFilter();
@@ -227,7 +222,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     }
 
     /**
-     * "bala" URI scheme is used to make stdlib and langlib files readonly at the editor.
+     * "bala" URI scheme is used to make stdlib and langlib files readonly at the editor. 
      */
     private void registerTextSynchronizationForBalaUriScheme() {
         LanguageClient client = serverContext.get(ExtendedLanguageClient.class);
@@ -246,19 +241,19 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
             TextDocumentChangeRegistrationOptions changeRegOptions = new TextDocumentChangeRegistrationOptions();
             changeRegOptions.setDocumentSelector(List.of(balaFilter));
             changeRegOptions.setSyncKind(TextDocumentSyncKind.Full);
-            Registration changeRegistration = new Registration(UUID.randomUUID().toString(),
+            Registration changeRegistration = new Registration(UUID.randomUUID().toString(), 
                     "textDocument/didChange", changeRegOptions);
 
             TextDocumentRegistrationOptions closeRegOptions = new TextDocumentRegistrationOptions();
             closeRegOptions.setDocumentSelector(List.of(balaFilter));
-            Registration closeRegistration = new Registration(UUID.randomUUID().toString(),
+            Registration closeRegistration = new Registration(UUID.randomUUID().toString(), 
                     "textDocument/didClose", closeRegOptions);
 
             client.registerCapability(new RegistrationParams(List.of(didOpenRegistration)));
             client.registerCapability(new RegistrationParams(List.of(changeRegistration)));
             client.registerCapability(new RegistrationParams(List.of(closeRegistration)));
         }
-
+        
         // TODO Server capabilities in server context are out of sync now.
     }
 
@@ -294,7 +289,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
             client.registerCapability(new RegistrationParams(List.of(referencesRegistration)));
         }
     }
-
+    
     private void registerDynamicCommandsSupport() {
         // If the client support dynamic registration of commands, we register the capability here
         if (LSClientUtil.isDynamicCommandRegistrationSupported(serverContext)) {
@@ -302,7 +297,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
             LSClientUtil.registerCommands(serverContext, commandsList);
         }
     }
-
+    
     private void registerDynamicSemanticTokenSupport() {
         // Register LS semantic tokens capabilities if dynamic registration is available
         LSClientCapabilities capabilities = this.serverContext.get(LSClientCapabilities.class);
