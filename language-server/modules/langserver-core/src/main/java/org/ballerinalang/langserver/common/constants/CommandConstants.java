@@ -145,4 +145,6 @@ public class CommandConstants {
     public static final String ADD_EXPLICIT_RETURN_STATEMENT = "Add Explicit Return Statement";
 
     public static final String REMOVE_UNREACHABLE_CODE_TITLE = "Remove unreachable code";
+
+    public static final String IGNORE_UNUSED_VAR_TITLE = "Ignore unused variable";
 }
