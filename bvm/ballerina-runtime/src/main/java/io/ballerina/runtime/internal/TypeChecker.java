@@ -1407,7 +1407,8 @@ public class TypeChecker {
             return true;
         }
         if (fieldTag == TypeTags.UNION_TAG) {
-            for (Type member : ((BUnionType) fieldType).getOriginalMemberTypes()) {
+            List<Type> memberTypes = ((BUnionType) fieldType).getOriginalMemberTypes();
+            for (Type member : memberTypes) {
                 if (member.getTag() == TypeTags.NEVER_TAG) {
                     return true;
                 }
