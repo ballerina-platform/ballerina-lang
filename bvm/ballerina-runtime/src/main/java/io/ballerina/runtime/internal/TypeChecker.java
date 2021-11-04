@@ -509,14 +509,18 @@ public class TypeChecker {
     }
 
     private static boolean isXMLValueRefEqual(XmlValue lhsValue, XmlValue rhsValue) {
+        if (lhsValue.getNodeType() == XmlNodeType.SEQUENCE && lhsValue.isSingleton()) {
+            return ((XmlSequence) lhsValue).getChildrenList().get(0) == rhsValue;
+        }
+        if (rhsValue.getNodeType() == XmlNodeType.SEQUENCE && rhsValue.isSingleton()) {
+            return ((XmlSequence) rhsValue).getChildrenList().get(0) == lhsValue;
+        }
         if (lhsValue.getNodeType() != rhsValue.getNodeType()) {
             return false;
         }
-
         if (lhsValue.getNodeType() == XmlNodeType.SEQUENCE && rhsValue.getNodeType() == XmlNodeType.SEQUENCE) {
             return isXMLSequenceRefEqual((XmlSequence) lhsValue, (XmlSequence) rhsValue);
         }
-
         if (lhsValue.getNodeType() == XmlNodeType.TEXT && rhsValue.getNodeType() == XmlNodeType.TEXT) {
             return isEqual(lhsValue, rhsValue);
         }
@@ -2172,16 +2176,11 @@ public class TypeChecker {
                 return checkFiniteTypeAssignable(sourceValue, sourceType, (BFiniteType) targetType,
                  unresolvedValues, allowNumericConversion);
             case TypeTags.XML_ELEMENT_TAG:
-                if (sourceTypeTag == TypeTags.XML_TAG) {
-                    XmlValue xmlSource = (XmlValue) sourceValue;
-                    return xmlSource.isSingleton();
-                }
-                return false;
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TEXT_TAG:
                 if (sourceTypeTag == TypeTags.XML_TAG) {
-                    return checkIsLikeNonElementSingleton((XmlValue) sourceValue, targetType);
+                    return checkIsLikeXmlValueSingleton((XmlValue) sourceValue, targetType);
                 }
                 return false;
             case TypeTags.XML_TAG:
@@ -2242,7 +2241,7 @@ public class TypeChecker {
         return nodeType;
     }
 
-    private static boolean checkIsLikeNonElementSingleton(XmlValue xmlSource, Type targetType) {
+    private static boolean checkIsLikeXmlValueSingleton(XmlValue xmlSource, Type targetType) {
 
         XmlNodeType nodeType = getXmlNodeType(targetType);
 
