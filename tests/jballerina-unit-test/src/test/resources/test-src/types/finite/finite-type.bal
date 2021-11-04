@@ -543,6 +543,19 @@ function testEscapedTypeName() returns FT {
    return f;
 }
 
+type Mat 1f|1d|2d;
+type Mat2 1|1f|2d;
+type Mat3 Mat|2f;
+
+function testFiniteType() {
+    Mat f1 = 1;
+    Mat2 f2 = 1;
+    Mat3 f3 = 1;
+    assertEquality(f1 is 1f, true);
+    assertEquality(f2 is 1, true);
+    assertEquality(f3 is 1f, true);
+}
+
 const ASSERTION_ERROR_REASON = "TypeAssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
