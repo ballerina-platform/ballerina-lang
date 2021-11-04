@@ -128,10 +128,11 @@ public class ConfigReader {
         if (variableNode != null) {
             Optional<MetadataNode> optionalMetadataNode =
                     ((ModuleVariableDeclarationNode) variableNode).metadata();
-            if (!optionalMetadataNode.isEmpty()) {
+            if (optionalMetadataNode.isPresent()) {
                 NodeList<AnnotationNode> annotations = optionalMetadataNode.get().annotations();
                 for (AnnotationNode annotation : annotations) {
-                    if (annotation.annotReference().toString().trim().equals("display")) {
+                    if (annotation.annotReference().toString().trim().equals("display") &&
+                            annotation.annotValue().isPresent()) {
                         for (MappingFieldNode fieldNode : annotation.annotValue().get().fields()) {
                             if (((SpecificFieldNode) fieldNode).fieldName().toString().trim()
                                     .equals("description")) {
