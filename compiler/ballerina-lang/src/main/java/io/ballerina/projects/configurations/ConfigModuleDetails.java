@@ -51,17 +51,4 @@ public class ConfigModuleDetails {
         return isCurrentPackage;
     }
 
-    public String toString() {
-        String val = "";
-        if (orgName != null) {
-            val = val.concat(orgName + ".");
-        }
-        if (packageName != null) {
-            val = val.concat(packageName + ".");
-        }
-        if (moduleName != null) {
-            val = val.concat(moduleName);
-        }
-        return val;
-    }
 }
