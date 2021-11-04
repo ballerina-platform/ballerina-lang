@@ -80,10 +80,6 @@ public class FloatingPointLiteralCodeAction extends LinterCodeAction {
         }
 
         final String text = literalNode.literalToken().text();
-        final int index = text.indexOf(DOT);
-        if (index == -1 || index != text.lastIndexOf(DOT)) {
-            return Optional.empty();    // Literal has more than one ".", Skip.
-        }
         final String newLiteral = text.replace(DOT, DOT_AND_ZERO);
 
         List<CodeActionArgument> args = List.of(CodeActionArgument.from(LINE_RANGE, node.lineRange()),

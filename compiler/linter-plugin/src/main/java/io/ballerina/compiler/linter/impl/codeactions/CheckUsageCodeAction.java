@@ -72,7 +72,7 @@ public class CheckUsageCodeAction extends LinterCodeAction {
         }
 
         List<CodeActionArgument> args = List.of(CodeActionArgument.from(LINE_RANGE, node.lineRange()),
-                CodeActionArgument.from(VALUE, updatedText));
+                CodeActionArgument.from(VALUE, updatedText.strip()));
         return Optional.of(CodeActionInfo.from(String.format(REMOVE_S_KEYWORD, checkingKeyword), args));
     }
 

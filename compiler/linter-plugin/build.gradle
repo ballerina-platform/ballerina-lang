@@ -16,6 +16,7 @@
  */
 
 apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 dependencies {
     implementation project(':ballerina-tools-api')
@@ -23,7 +24,11 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':toml-parser')
 
-    testCompile 'org.testng:testng'
+    testCompile project(':ballerina-test-utils')
+    testCompile project(':ballerina-lang')
+    testRuntime project(':ballerina-runtime')
+    testImplementation 'org.testng:testng'
+    testImplementation 'com.google.code.gson:gson'
 }
 
 description = 'Ballerina - Compiler Linter Plugin'
@@ -31,11 +36,11 @@ description = 'Ballerina - Compiler Linter Plugin'
 checkstyleMain {
 }
 
-//test {
-//    useTestNG() {
-//        suites 'src/test/resources/testng.xml'
-//    }
-//}
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
 
 processResources {
     include 'META-INF/services/*'
