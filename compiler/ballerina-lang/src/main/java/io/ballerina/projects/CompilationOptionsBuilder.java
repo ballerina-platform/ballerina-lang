@@ -35,12 +35,18 @@ public class CompilationOptionsBuilder {
     private Boolean sticky;
     private Boolean dumpGraph;
     private Boolean dumpRawGraph;
+    private Boolean withCodeGenerators;
 
     public CompilationOptionsBuilder() {
     }
 
     public CompilationOptionsBuilder offline(Boolean value) {
         offline = value;
+        return this;
+    }
+
+    public CompilationOptionsBuilder sticky(Boolean value) {
+        sticky = value;
         return this;
     }
 
@@ -84,13 +90,14 @@ public class CompilationOptionsBuilder {
         return this;
     }
 
+    CompilationOptionsBuilder withCodeGenerators(Boolean value) {
+        withCodeGenerators = value;
+        return this;
+    }
+
     public CompilationOptions build() {
         return new CompilationOptions(offline, experimental, observabilityIncluded, dumpBir,
                 dumpBirFile, cloud, listConflictedClasses, sticky,
-                dumpGraph, dumpRawGraph);
-    }
-
-    public void sticky(Boolean value) {
-        sticky = value;
+                dumpGraph, dumpRawGraph, withCodeGenerators);
     }
 }
