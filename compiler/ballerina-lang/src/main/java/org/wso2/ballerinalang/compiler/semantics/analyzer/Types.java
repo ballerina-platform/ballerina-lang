@@ -1261,6 +1261,7 @@ public class Types {
             case TypeTags.FINITE: // Assuming a finite type will only have members from simple basic types.
             case TypeTags.READONLY:
             case TypeTags.NIL:
+            case TypeTags.NEVER:
             case TypeTags.ERROR:
             case TypeTags.INVOKABLE:
             case TypeTags.TYPEDESC:
