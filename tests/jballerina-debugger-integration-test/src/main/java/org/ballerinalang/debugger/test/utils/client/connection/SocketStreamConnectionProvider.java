@@ -140,13 +140,6 @@ public class SocketStreamConnectionProvider extends ProcessStreamConnectionProvi
         return outputStream;
     }
 
-    // Todo - Implement
-
-    //    @Override
-    //    public InputStream getErrorStream() {
-    //        inputStream;
-    //    }
-
     @Override
     public void stop() {
         super.stop();
