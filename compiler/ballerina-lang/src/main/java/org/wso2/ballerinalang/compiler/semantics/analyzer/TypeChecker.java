@@ -467,6 +467,24 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
+    private int targetMemberTypeTag(BFiniteType finiteType) {
+        for (int i = TypeTags.SIGNED32_INT; i <= TypeTags.UNSIGNED8_INT; i++) {
+            for (BLangExpression valueExpr : finiteType.getValueSpace()) {
+                if (valueExpr.getBType().tag == i) {
+                    return i;
+                }
+            }
+        }
+        for (int i = TypeTags.INT; i <= TypeTags.DECIMAL; i++) {
+            for (BLangExpression valueExpr : finiteType.getValueSpace()) {
+                if (valueExpr.getBType().tag == i) {
+                    return i;
+                }
+            }
+        }
+        return 0;
+    }
+
     private BType setLiteralValueAndGetType(BLangLiteral literalExpr, BType expType) {
         // Get the type matching to the tag from the symbol table.
         BType literalType = symTable.getTypeFromTag(literalExpr.getBType().tag);
@@ -495,14 +513,6 @@ public class TypeChecker extends BLangNodeVisitor {
                     BType valueType = setLiteralValueAndGetType(literalExpr, symTable.byteType);
                     setLiteralValueForFiniteType(literalExpr, valueType);
                     return valueType;
-                } else if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.FLOAT)) {
-                    BType valueType = setLiteralValueAndGetType(literalExpr, symTable.floatType);
-                    setLiteralValueForFiniteType(literalExpr, valueType);
-                    return valueType;
-                } else if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.DECIMAL)) {
-                    BType valueType = setLiteralValueAndGetType(literalExpr, symTable.decimalType);
-                    setLiteralValueForFiniteType(literalExpr, valueType);
-                    return valueType;
                 } else if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.SIGNED32_INT)) {
                     BType valueType = setLiteralValueAndGetType(literalExpr, symTable.signed32IntType);
                     setLiteralValueForFiniteType(literalExpr, valueType);
@@ -525,6 +535,14 @@ public class TypeChecker extends BLangNodeVisitor {
                     return valueType;
                 } else if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.UNSIGNED8_INT)) {
                     BType valueType = setLiteralValueAndGetType(literalExpr, symTable.unsigned8IntType);
+                    setLiteralValueForFiniteType(literalExpr, valueType);
+                    return valueType;
+                }
+                int targetMemberTypeTag = targetMemberTypeTag(finiteType);
+                if ((targetMemberTypeTag == TypeTags.FLOAT || targetMemberTypeTag == TypeTags.DECIMAL) &&
+                        literalAssignableToFiniteType(literalExpr, finiteType, targetMemberTypeTag)) {
+                    BType valueType =
+                            setLiteralValueAndGetType(literalExpr, symTable.getTypeFromTag(targetMemberTypeTag));
                     setLiteralValueForFiniteType(literalExpr, valueType);
                     return valueType;
                 }
@@ -561,8 +579,10 @@ public class TypeChecker extends BLangNodeVisitor {
                     return setLiteralValueAndGetType(literalExpr, symTable.byteType);
                 }
 
-                finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.byteType);
-                if (finiteType != symTable.semanticError) {
+                BType finiteTypeMatchWithByteType =
+                        getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.byteType);
+                if (finiteTypeMatchWithByteType != symTable.semanticError) {
+                    finiteType = finiteTypeMatchWithByteType;
                     BType setType = setLiteralValueAndGetType(literalExpr, finiteType);
                     if (literalExpr.isFiniteContext) {
                         // i.e., a match was found for a finite type
@@ -570,29 +590,32 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
 
-                if (memberTypes.stream().anyMatch(memType -> memType.tag == TypeTags.FLOAT)) {
-                    return setLiteralValueAndGetType(literalExpr, symTable.floatType);
-                }
+                if (finiteType == symTable.semanticError) {
+                    if (memberTypes.stream().anyMatch(memType -> memType.tag == TypeTags.FLOAT)) {
+                        return setLiteralValueAndGetType(literalExpr, symTable.floatType);
+                    }
 
-                finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.floatType);
-                if (finiteType != symTable.semanticError) {
-                    BType setType = setLiteralValueAndGetType(literalExpr, finiteType);
-                    if (literalExpr.isFiniteContext) {
-                        // i.e., a match was found for a finite type
-                        return setType;
+                    finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.floatType);
+                    if (finiteType != symTable.semanticError) {
+                        BType setType = setLiteralValueAndGetType(literalExpr, finiteType);
+                        if (literalExpr.isFiniteContext) {
+                            // i.e., a match was found for a finite type
+                            return setType;
+                        }
                     }
                 }
 
-                if (memberTypes.stream().anyMatch(memType -> memType.tag == TypeTags.DECIMAL)) {
-                    return setLiteralValueAndGetType(literalExpr, symTable.decimalType);
-                }
-
-                finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.decimalType);
-                if (finiteType != symTable.semanticError) {
-                    BType setType = setLiteralValueAndGetType(literalExpr, finiteType);
-                    if (literalExpr.isFiniteContext) {
-                        // i.e., a match was found for a finite type
-                        return setType;
+                if (finiteType == symTable.semanticError) {
+                    if (memberTypes.stream().anyMatch(memType -> memType.tag == TypeTags.DECIMAL)) {
+                        return setLiteralValueAndGetType(literalExpr, symTable.decimalType);
+                    }
+                    finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.decimalType);
+                    if (finiteType != symTable.semanticError) {
+                        BType setType = setLiteralValueAndGetType(literalExpr, finiteType);
+                        if (literalExpr.isFiniteContext) {
+                            // i.e., a match was found for a finite type
+                            return setType;
+                        }
                     }
                 }
             }
@@ -613,6 +636,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 literalType = symTable.decimalType;
                 literalExpr.value = numericLiteral;
             } else if (expType.tag == TypeTags.FLOAT) {
+                if (!types.isFloatLiteralValue(literalExpr.pos, numericLiteral)) {
+                    resultType = symTable.semanticError;
+                    return resultType;
+                }
                 literalExpr.value = Double.parseDouble(String.valueOf(numericLiteral));
             } else if (expType.tag == TypeTags.FINITE && types.isAssignableToFiniteType(expType, literalExpr)) {
                 BFiniteType finiteType = (BFiniteType) expType;
@@ -629,7 +656,10 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if (expType.tag == TypeTags.UNION) {
                 BUnionType unionType = (BUnionType) expType;
                 BType unionMember = getAndSetAssignableUnionMember(literalExpr, unionType, symTable.floatType);
-                if (unionMember != symTable.noType) {
+                if (unionMember == symTable.floatType && !types.isFloatLiteralValue(literalExpr.pos, numericLiteral)) {
+                    resultType = symTable.semanticError;
+                    return resultType;
+                } else if (unionMember != symTable.noType) {
                     return unionMember;
                 }
             }
