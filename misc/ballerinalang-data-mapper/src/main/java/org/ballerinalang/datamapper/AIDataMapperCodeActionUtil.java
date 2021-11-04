@@ -21,7 +21,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
@@ -51,38 +50,27 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.datamapper.config.ClientExtendedConfigImpl;
-import org.ballerinalang.datamapper.utils.HttpClientRequest;
-import org.ballerinalang.datamapper.utils.HttpResponse;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextEdit;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.ballerinalang.datamapper.utils.DefaultValueGenerator.generateDefaultValues;
-
 /**
  * Automatic data mapping code action related utils.
  */
 class AIDataMapperCodeActionUtil {
-    private static final int HTTP_200_OK = 200;
-    private static final int HTTP_422_UN_PROCESSABLE_ENTITY = 422;
-    private static final int HTTP_500_INTERNAL_SERVER_ERROR = 500;
     private static final int MAXIMUM_CACHE_SIZE = 100;
     private static final int RIGHT_SYMBOL_INDEX = 1;
     private static final int LEFT_SYMBOL_INDEX = 0;
@@ -127,21 +115,22 @@ class AIDataMapperCodeActionUtil {
      * @return edits for the data mapper code action
      * @throws IOException throws if error occurred when getting generatedRecordMappingFunction
      */
-    public List<TextEdit> getAIDataMapperCodeActionEdits(DiagBasedPositionDetails positionDetails,
-                                                         CodeActionContext context, Diagnostic diagnostic)
+    public ArrayList getAIDataMapperCodeActionEdits(DiagBasedPositionDetails positionDetails,
+                                                  CodeActionContext context, Diagnostic diagnostic)
             throws IOException {
-        List<TextEdit> fEdits = new ArrayList<>();
+        ArrayList outputArray = new ArrayList();
+        JsonArray outputJson = new JsonArray();
 
         Optional<Document> srcFile = context.workspace().document(context.filePath());
         if (srcFile.isEmpty()) {
-            return fEdits;
+            return outputArray;
         }
 
         List<DiagnosticProperty<?>> props = diagnostic.properties();
 
         //To check if the left is a symbol
         if (props.get(LEFT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC) {
-            return fEdits;
+            return outputArray;
         }
 
         TypeDescKind leftSymbolType = ((TypeSymbol) props.get(LEFT_SYMBOL_INDEX).value()).typeKind();
@@ -150,7 +139,7 @@ class AIDataMapperCodeActionUtil {
                 props.get(LEFT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC ||
                 ((leftSymbolType != TypeDescKind.TYPE_REFERENCE) && (leftSymbolType != TypeDescKind.RECORD) &&
                         (leftSymbolType != TypeDescKind.UNION))) {
-            return fEdits;
+            return outputArray;
         } else {
 
             Symbol lftTypeSymbol;
@@ -183,12 +172,12 @@ class AIDataMapperCodeActionUtil {
                 // to get the symbol when type casting is done
                 Optional<Node> nodeAtCursor = findExpressionInTypeCastNode(newTextRange, syntaxTree);
                 if (nodeAtCursor.isEmpty()) {
-                    return fEdits;
+                    return outputArray;
                 }
                 symbolFromModel = semanticModel.symbol(nodeAtCursor.get());
 
                 if (symbolFromModel.isEmpty()) {
-                    return fEdits;
+                    return outputArray;
                 }
 
                 symbolAtCursor = symbolFromModel.get();
@@ -222,7 +211,6 @@ class AIDataMapperCodeActionUtil {
                         generatedFunctionName =
                                 String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, symbolAtCursorName);
                     }
-                    fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
                     break;
 
                 case "FUNCTION":
@@ -258,7 +246,7 @@ class AIDataMapperCodeActionUtil {
                     }
 
                     if (matchedNode == null) {
-                        return fEdits;
+                        return outputArray;
                     }
 
                     String functionCall = matchedNode.toString();
@@ -266,13 +254,11 @@ class AIDataMapperCodeActionUtil {
                         symbolAtCursorName = functionCall.trim();
                         generatedFunctionName =
                                 String.format("map%sTo%s(check %s)", foundTypeRight, foundTypeLeft, symbolAtCursorName);
-                        fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
                     } else if (foundErrorLeft && foundErrorRight) {
                         // get the information about the line positions
                         newTextRange = CommonUtil.toRange(matchedNode.lineRange());
                         generatedFunctionName =
                                 String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, functionCall);
-                        fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
                     } else if (foundErrorLeft) {
                         Collection<ChildNodeEntry> childEntries = matchedNode.childEntries();
                         for (ChildNodeEntry childEntry : childEntries) {
@@ -282,41 +268,35 @@ class AIDataMapperCodeActionUtil {
                             }
                         }
                         if (functionCall == null) {
-                            return fEdits;
+                            return outputArray;
                         }
                         symbolAtCursorName = functionCall.trim();
                         generatedFunctionName = String.format("map%sTo%s(%s)",
                                 foundTypeRight, foundTypeLeft, symbolAtCursorName);
-                        fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
                     } else {
                         symbolAtCursorName = functionCall.trim();
                         generatedFunctionName =
                                 String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, symbolAtCursorName);
-                        fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
                     }
                     break;
                 default:
-                    return fEdits;
+                    return outputArray;
             }
 
             // Insert function declaration at the bottom of the file
             String functionName = String.format("map%sTo%s", foundTypeRight, foundTypeLeft);
             boolean found = fileContentSymbols.stream().anyMatch(p -> p.getName().get().contains(functionName));
-            if (found) {
-                return fEdits;
-            } else {
-                // Get the last line of the file
+            if (!found) {
                 syntaxTree = context.workspace().syntaxTree(context.filePath()).get();
-                TextDocument fileContentTextDocument = syntaxTree.textDocument();
-                int numberOfLinesInFile = fileContentTextDocument.toString().split("\n").length;
-                Position startPosOfLastLine = new Position(numberOfLinesInFile + 2, 0);
-                Position endPosOfLastLine = new Position(numberOfLinesInFile + 2, 1);
-                Range newFunctionRange = new Range(startPosOfLastLine, endPosOfLastLine);
 
-                // Get the generated record mapping function
-                String mappingFromServer =
-                        getGeneratedRecordMapping(context, foundTypeLeft, foundTypeRight, lftTypeSymbol,
+                JsonArray schemas =
+                        getGeneratedRecordMapping(foundTypeLeft, foundTypeRight, lftTypeSymbol,
                                 rhsTypeSymbol, syntaxTree, semanticModel);
+                String url = LSClientConfigHolder.getInstance(context.languageServercontext())
+                        .getConfigAs(ClientExtendedConfigImpl.class).getDataMapper()
+                        .getUrl() + "/map/2.0.0";
+                outputArray.add(0, schemas);
+                outputArray.add(1, url);
 
                 // To handle the multi-module projects
                 String rightModule = null;
@@ -344,11 +324,17 @@ class AIDataMapperCodeActionUtil {
                     rhsSignature = SymbolUtil.getTypeDescriptor(symbolAtCursor).get().signature();
                 }
 
-                String generatedRecordMappingFunction = generateMappingFunction(mappingFromServer, foundTypeLeft,
-                        foundTypeRight, leftModule, rightModule, rhsSignature, syntaxTree);
-                fEdits.add(new TextEdit(newFunctionRange, generatedRecordMappingFunction));
-                return fEdits;
+                JsonObject backgroundInfo = new JsonObject();
+                backgroundInfo.addProperty("foundTypeLeft", foundTypeLeft);
+                backgroundInfo.addProperty("foundTypeRight", foundTypeRight);
+                backgroundInfo.addProperty("leftModule", leftModule);
+                backgroundInfo.addProperty("rightModule", rightModule);
+                backgroundInfo.addProperty("rhsSignature", rhsSignature);
+
+                outputArray.add(2, backgroundInfo);
+                outputArray.add(3, generatedFunctionName);
             }
+            return outputArray;
         }
     }
 
@@ -384,7 +370,6 @@ class AIDataMapperCodeActionUtil {
     /**
      * Given two record types, this returns a function with mapped schemas.
      *
-     * @param context
      * @param foundTypeLeft  {@link String}
      * @param foundTypeRight {@link String}
      * @param syntaxTree
@@ -392,12 +377,10 @@ class AIDataMapperCodeActionUtil {
      * @return function string with mapped schemas
      * @throws IOException throws if error occurred when getting mapped function
      */
-    private String getGeneratedRecordMapping(CodeActionContext context, String foundTypeLeft,
+    private JsonArray getGeneratedRecordMapping(String foundTypeLeft,
                                              String foundTypeRight,
                                              Symbol lftTypeSymbol, Symbol rhsTypeSymbol,
-                                             SyntaxTree syntaxTree, SemanticModel semanticModel)
-
-            throws IOException {
+                                             SyntaxTree syntaxTree, SemanticModel semanticModel) {
         JsonObject rightRecordJSON = new JsonObject();
         JsonObject leftRecordJSON = new JsonObject();
 
@@ -460,7 +443,7 @@ class AIDataMapperCodeActionUtil {
         JsonArray schemas = new JsonArray();
         schemas.add(leftRecordJSON);
         schemas.add(rightRecordJSON);
-        return getMapping(schemas, context);
+        return schemas;
     }
 
     private JsonObject insertRestFields(JsonObject rightSchema, String foundTypeRight) {
@@ -523,95 +506,6 @@ class AIDataMapperCodeActionUtil {
                     this.leftReadOnlyFields.add(field.getKey());
                 }
             }
-        }
-    }
-
-    /**
-     * To generate the spread field detail map.
-     *
-     * @param key          {@link String}
-     * @param schemaFields {@link List<RecordFieldSymbol>}
-     */
-    private void getSpreadFieldDetails(String key, Collection<RecordFieldSymbol> schemaFields) {
-        Iterator iterator = schemaFields.iterator();
-        while (iterator.hasNext()) {
-            RecordFieldSymbol attribute = (RecordFieldSymbol) iterator.next();
-            TypeSymbol attributeType = CommonUtil.getRawType(attribute.typeDescriptor());
-
-            if (!key.isEmpty()) {
-                if (!(key.charAt(key.length() - 1) == '.')) {
-                    key = key + ".";
-                }
-            }
-
-            if (attributeType.typeKind() == TypeDescKind.RECORD) {
-                Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeType).fieldDescriptors();
-                key = key + attribute.getName().get();
-                getSpreadFieldDetails(key, recordFields.values());
-            } else if (attributeType.typeKind() == TypeDescKind.INTERSECTION) {
-                // To get the fields of a readonly record type
-                List<TypeSymbol> memberTypeList = ((IntersectionTypeSymbol) attribute.typeDescriptor()).
-                        memberTypeDescriptors();
-                for (TypeSymbol attributeTypeReference : memberTypeList) {
-                    if (attributeTypeReference.typeKind() == TypeDescKind.TYPE_REFERENCE) {
-                        TypeSymbol attributeTypeRecord = ((TypeReferenceTypeSymbol) attributeTypeReference).
-                                typeDescriptor();
-                        if (attributeTypeRecord.typeKind() == TypeDescKind.RECORD) {
-                            Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeTypeRecord).
-                                    fieldDescriptors();
-                            key = key + attribute.getName().get();
-                            getSpreadFieldDetails(key, recordFields.values());
-                        }
-                    }
-                }
-            } else {
-                this.spreadFieldResponseMap.put(key + attribute.getName().get(), attributeType.typeKind().getName());
-                if (!iterator.hasNext()) {
-                    key = "";
-                }
-            }
-        }
-    }
-
-    private void getResponseKeys(Map<String, Object> leftSchemaMap, String keyName) {
-        for (Map.Entry<String, Object> field : leftSchemaMap.entrySet()) {
-            StringBuilder fieldKey = new StringBuilder();
-            Map treeMap = null;
-            if (!keyName.isEmpty()) {
-                fieldKey.append(keyName).append(".");
-            }
-            try {
-                treeMap = (Map) field.getValue();
-            } catch (Exception e) {
-                //ignore
-            }
-            fieldKey.append(field.getKey());
-            if (treeMap != null) {
-                getResponseKeys((Map<String, Object>) treeMap, fieldKey.toString());
-            } else {
-                this.responseFieldMap.put(fieldKey.toString(), field.getValue().toString());
-            }
-        }
-    }
-
-    /**
-     * For a give array of schemas, return a mapping function.
-     *
-     * @param schemas {@link JsonArray}
-     * @return mapped function
-     * @throws IOException throws if an error occurred in HTTP request
-     */
-    private String getMapping(JsonArray schemas, CodeActionContext context) throws IOException {
-        int hashCode = schemas.hashCode();
-        if (this.mappingCache.asMap().containsKey(hashCode)) {
-            return this.mappingCache.asMap().get(hashCode);
-        }
-        try {
-            String mappingFromServer = getMappingFromServer(schemas, context.languageServercontext());
-            this.mappingCache.put(hashCode, mappingFromServer);
-            return mappingFromServer;
-        } catch (IOException e) {
-            throw new IOException("Error connecting the AI service" + e.getMessage(), e);
         }
     }
 
@@ -732,189 +626,6 @@ class AIDataMapperCodeActionUtil {
     }
 
     /**
-     * Get the mapping from the Data Mapper service.
-     *
-     * @param dataToSend - payload to the service
-     * @return - response data from the Data Mapper service
-     * @throws IOException If an error occurs in the Data Mapper service
-     */
-    private String getMappingFromServer(JsonArray dataToSend,
-                                        LanguageServerContext serverContext) throws IOException {
-        try {
-            Map<String, String> headers = new HashMap<>();
-            headers.put("Content-Type", "application/json; utf-8");
-            headers.put("Accept", "application/json");
-            String url = LSClientConfigHolder.getInstance(serverContext)
-                    .getConfigAs(ClientExtendedConfigImpl.class).getDataMapper()
-                    .getUrl() + "/map/2.0.0";
-            HttpResponse response = HttpClientRequest.doPost(url, dataToSend.toString(), headers);
-            int responseCode = response.getResponseCode();
-            if (responseCode != HTTP_200_OK) {
-                if (responseCode == HTTP_422_UN_PROCESSABLE_ENTITY) {
-                    throw new IOException("Error: Un-processable data");
-                } else if (responseCode == HTTP_500_INTERNAL_SERVER_ERROR) {
-                    throw new IOException("Error: AI service error");
-                }
-            }
-            JsonParser parser = new JsonParser();
-            return parser.parse(response.getData()).getAsJsonObject().get("answer").toString();
-        } catch (IOException e) {
-            throw new IOException("Error connecting the AI service" + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Create the mapping function.
-     *
-     * @param mappingFromServer {@link String}
-     * @param foundTypeLeft     {@link String}
-     * @param foundTypeRight    {@link String}
-     * @param leftModule        {@link String}
-     * @param rightModule       {@link String}
-     * @param rhsSignature      {@link String}
-     * @param syntaxTree
-     * @return - Generated mapping Function
-     */
-    private String generateMappingFunction(String mappingFromServer, String foundTypeLeft,
-                                           String foundTypeRight, String leftModule, String rightModule,
-                                           String rhsSignature, SyntaxTree syntaxTree) {
-
-        String leftType = foundTypeLeft;
-        String rightType;
-        // To add the rhs signature to parameter of the mapping function
-        if (rhsSignature.isEmpty()) {
-            rightType = foundTypeRight;
-        } else {
-            rightType = rhsSignature;
-        }
-
-        mappingFromServer = mappingFromServer.replaceAll("\"", "");
-        mappingFromServer = mappingFromServer.replaceAll(",", ", ");
-        mappingFromServer = mappingFromServer.replaceAll(":", ": ");
-
-
-        // change the generated mapping function to be compatible with spread fields.
-        if (!this.spreadFieldMap.isEmpty()) {
-            for (Map.Entry<String, Map<String, RecordFieldSymbol>> field : this.spreadFieldMap.entrySet()) {
-                if (mappingFromServer.contains("." + field.getKey() + ".")) {
-                    getSpreadFieldDetails("", field.getValue().values());
-
-                    String commonString = foundTypeRight.toLowerCase() + "." + field.getKey() + ".";
-
-                    for (Map.Entry<String, String> spreadField : this.spreadFieldResponseMap.entrySet()) {
-                        String targetString = commonString + spreadField.getKey();
-                        String replaceString = "<" + spreadField.getValue() + "> " + foundTypeRight.toLowerCase() +
-                                "[\"" + spreadField.getKey() + "\"]";
-                        mappingFromServer = mappingFromServer.replace(targetString, replaceString);
-                    }
-                }
-                this.spreadFieldResponseMap.clear();
-            }
-            this.spreadFieldMap.clear();
-        }
-
-        // change the generated mapping function to be compatible with optional fields.
-        if (!this.isOptionalMap.isEmpty()) {
-            for (Map.Entry<String, String> field : this.isOptionalMap.entrySet()) {
-                if (mappingFromServer.contains(field.getKey() + ",") ||
-                        mappingFromServer.contains(field.getKey() + "}")) {
-
-                    String replacement = "";
-
-                    int recordFieldIndex = checkForOptionalRecordField(field.getKey());
-                    // check if there is a record field
-                    if (recordFieldIndex > 0) {
-                        String firstPrat = field.getKey().substring(0, recordFieldIndex - 1);
-                        String[] splitKey = (field.getKey().substring(recordFieldIndex - 1)).split("\\.");
-                        replacement = firstPrat;
-                        for (String key : splitKey) {
-                            if (!key.isEmpty()) {
-                                replacement = replacement + "?." + key;
-                            }
-                        }
-                    } else {
-                        // optional specific fields modification
-                        int i = field.getKey().lastIndexOf(".");
-                        String[] splitKey = {field.getKey().substring(0, i), field.getKey().substring(i)};
-                        replacement = splitKey[0] + "?" + splitKey[1];
-                    }
-                    mappingFromServer = mappingFromServer.replace(field.getKey(), "<" +
-                            field.getValue() + "> " + replacement);
-                }
-            }
-        }
-
-        // change the generated mapping function to be compatible with rest fields.
-        if (!this.restFieldMap.isEmpty()) {
-            for (Map.Entry<String, String> field : this.restFieldMap.entrySet()) {
-                if (mappingFromServer.contains(field.getKey() + ",") ||
-                        mappingFromServer.contains(field.getKey() + "}")) {
-                    int i = field.getKey().lastIndexOf(".");
-                    String[] splitKey = {field.getKey().substring(0, i), field.getKey().substring(i)};
-                    String replacement = splitKey[0] + "[\"" + splitKey[1].replace(".", "") + "\"]";
-                    mappingFromServer = mappingFromServer.replace(field.getKey(), "<" +
-                            field.getValue() + "> " + replacement);
-                }
-            }
-            this.restFieldMap.clear();
-        }
-
-        if (!this.leftReadOnlyFields.isEmpty()) {
-            for (String readOnlyField : this.leftReadOnlyFields) {
-                if (mappingFromServer.contains(readOnlyField + ":")) {
-                    String[] splitArray = mappingFromServer.split(readOnlyField + ":");
-                    int inputIndex = splitArray[1].indexOf(",");
-                    mappingFromServer = splitArray[0] + readOnlyField + ":" + splitArray[1].substring(0, inputIndex)
-                            + ".cloneReadOnly()" + splitArray[1].substring(inputIndex);
-                    int i = 0;
-                }
-            }
-            this.leftReadOnlyFields.clear();
-        }
-
-        //To generate the default values
-        try {
-            Map<String, Object> responseMap = new Gson().fromJson(
-                    new JsonParser().parse(mappingFromServer).getAsJsonObject(),
-                    new TypeToken<HashMap<String, Object>>() {
-                    }.getType());
-            getResponseKeys(responseMap, "");
-            HashSet<String> unionKeys = new HashSet<>(this.responseFieldMap.keySet());
-            unionKeys.addAll(this.leftFieldMap.keySet());
-            unionKeys.removeAll(this.responseFieldMap.keySet());
-            if (!unionKeys.isEmpty()) {
-                for (String key : unionKeys) {
-                    String defaultValue = generateDefaultValues(this.leftFieldMap.get(key)).toString();
-                    mappingFromServer = generateResponseWithDefaultValues(key, defaultValue, mappingFromServer);
-                }
-            }
-        } catch (Exception e) {
-            // Safe to ignore
-        }
-
-        this.leftFieldMap.clear();
-        this.responseFieldMap.clear();
-        this.optionalRightRecordFields.clear();
-        this.rightSpecificFieldList.clear();
-        this.isOptionalMap.clear();
-
-        if (leftModule != null) {
-            leftType = leftModule + ":" + foundTypeLeft;
-        }
-        if (rightModule != null) {
-            rightType = rightModule + ":" + foundTypeRight;
-        }
-
-        String mappingFunction = "\nfunction map" + foundTypeRight + "To" + foundTypeLeft + " (" + rightType + " " +
-                foundTypeRight.toLowerCase() + ") returns " + leftType + " {" +
-                "\n// Some record fields might be missing in the AI based mapping." +
-                "\n\t" + leftType + " " + foundTypeLeft.toLowerCase() + " = " + mappingFromServer + ";" +
-                "\n\treturn " + foundTypeLeft.toLowerCase() + ";\n}\n";
-
-        return mappingFunction;
-    }
-
-    /**
      * Properly type caste the symbols.
      *
      * @param lftTypeSymbol {@link Symbol}
@@ -946,51 +657,5 @@ class AIDataMapperCodeActionUtil {
         }
 
         return symbolArrayList;
-    }
-
-    private String generateResponseWithDefaultValues(String key, String defaultValue, String mappingFromServer) {
-        if (key.contains(".")) {
-            StringBuilder insertString = new StringBuilder();
-            String[] keyArray = key.split("\\.");
-            boolean foundKeyValue = false;
-            int insertLocation = 0;
-            for (String keyValue : keyArray) {
-                if (mappingFromServer.contains(keyValue)) {
-                    foundKeyValue = true;
-                    insertLocation = mappingFromServer.indexOf(keyValue) + keyValue.length() + 3;
-                } else {
-                    if (keyValue == keyArray[keyArray.length - 1]) {
-                        if (foundKeyValue) {
-                            if (defaultValue.isEmpty()) {
-                                insertString.append(keyValue).append(": ").append("\"\"");
-                            } else {
-                                insertString.append(keyValue).append(": ").append(defaultValue);
-                            }
-                            mappingFromServer = mappingFromServer.substring(0, insertLocation) + insertString +
-                                    ", " + mappingFromServer.substring(insertLocation);
-                        } else {
-                            int lastIndex = mappingFromServer.lastIndexOf("}");
-                            if (defaultValue.isEmpty()) {
-                                insertString.append(keyValue).append(": ").append("\"\"");
-                            } else {
-                                insertString.append(keyValue).append(": ").append(defaultValue);
-                            }
-                            mappingFromServer = mappingFromServer.substring(0, lastIndex) + ", " +
-                                    insertString + "}";
-                        }
-                    } else {
-                        insertString.append(keyValue).append(": {");
-                    }
-                }
-            }
-        } else {
-            int lastIndex = mappingFromServer.lastIndexOf("}");
-            if (defaultValue.isEmpty()) {
-                mappingFromServer = mappingFromServer.substring(0, lastIndex) + ", " + key + ": " + "\"\"" + "}";
-            } else {
-                mappingFromServer = mappingFromServer.substring(0, lastIndex) + ", " + key + ": " + defaultValue + "}";
-            }
-        }
-        return mappingFromServer;
     }
 }

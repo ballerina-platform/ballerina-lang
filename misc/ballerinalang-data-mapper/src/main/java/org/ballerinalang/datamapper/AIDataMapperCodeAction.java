@@ -26,18 +26,16 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
-import org.eclipse.lsp4j.TextDocumentEdit;
-import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
-import org.eclipse.lsp4j.WorkspaceEdit;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4j.Command;
+import org.eclipse.lsp4j.Range;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -105,13 +103,23 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
                 String uri = context.fileUri();
                 AIDataMapperCodeActionUtil dataMapperUtil = AIDataMapperCodeActionUtil.getInstance();
-                List<TextEdit> fEdits = dataMapperUtil.getAIDataMapperCodeActionEdits(positionDetails, context,
+                ArrayList outputArray = dataMapperUtil.getAIDataMapperCodeActionEdits(positionDetails, context,
                         diagnostic);
-                if (fEdits.isEmpty()) {
+                if (outputArray.isEmpty()) {
                     return Optional.empty();
                 }
-                action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                        new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), fEdits)))));
+
+
+                String commandTitle = "Generate mapping function";
+                String diagnosticMessage = diagnostic.message();
+                Range range = CommonUtil.toRange(diagnostic.location().lineRange());
+                CommandArgument posArg = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE, range);
+                CommandArgument uriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, uri);
+                CommandArgument jsontest = CommandArgument.from("JsonVal", outputArray);
+                List<Object> args = Arrays.asList(posArg, uriArg, jsontest);
+                action.setCommand(new Command(commandTitle, AIDataMapperExecutor.COMMAND, args));
+
+
                 action.setDiagnostics(new ArrayList<>());
                 return Optional.of(action);
             }
