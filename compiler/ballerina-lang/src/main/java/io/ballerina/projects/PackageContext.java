@@ -232,6 +232,10 @@ class PackageContext {
         return PackageCompilation.from(this, mergedOptions);
     }
 
+    PackageCompilation cachedCompilation() {
+        return packageCompilation;
+    }
+
     PackageResolution getResolution() {
         if (packageResolution == null) {
             packageResolution = PackageResolution.from(this, this.compilationOptions);

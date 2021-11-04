@@ -15,30 +15,21 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects;
-
-import io.ballerina.projects.plugins.CompilerPlugin;
+package io.ballerina.projects.plugins;
 
 /**
- * This is an abstract class that represents a Compiler Plugin.
+ * Represent a code generator task that accepts an analysis context and return no result.
  *
+ * @param <T> the type of the code generator context
  * @since 2.0.0
  */
-class CompilerPluginInfo {
+@FunctionalInterface
+public interface GeneratorTask<T> {
 
-    protected final CompilerPlugin compilerPlugin;
-    private final CompilerPluginKind kind;
-
-    protected CompilerPluginInfo(CompilerPlugin compilerPlugin, CompilerPluginKind kind) {
-        this.compilerPlugin = compilerPlugin;
-        this.kind = kind;
-    }
-
-    CompilerPlugin compilerPlugin() {
-        return compilerPlugin;
-    }
-
-    CompilerPluginKind kind() {
-        return kind;
-    }
+    /**
+     * Performs a code generation with the passed context.
+     *
+     * @param t code generator context
+     */
+    void generate(T t);
 }
