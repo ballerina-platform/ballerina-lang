@@ -11,7 +11,6 @@ import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
@@ -285,18 +284,18 @@ public class PackCommand implements BLauncherCmd {
     }
 
     private BuildOptions constructBuildOptions() {
-        return new BuildOptionsBuilder()
-                .codeCoverage(coverage)
-                .experimental(experimentalFlag)
-                .offline(offline)
-                .skipTests(skipTests)
-                .testReport(testReport)
-                .dumpBir(dumpBIR)
-                .dumpBirFile(dumpBIRFile)
-                .dumpGraph(dumpGraph)
-                .dumpRawGraphs(dumpRawGraphs)
-                .dumpBuildTime(dumpBuildTime)
-                .sticky(sticky)
+        return BuildOptions.builder()
+                .setCodeCoverage(coverage)
+                .setExperimental(experimentalFlag)
+                .setOffline(offline)
+                .setSkipTests(skipTests)
+                .setTestReport(testReport)
+                .setDumpBir(dumpBIR)
+                .setDumpBirFile(dumpBIRFile)
+                .setDumpGraph(dumpGraph)
+                .setDumpRawGraphs(dumpRawGraphs)
+                .setDumpBuildTime(dumpBuildTime)
+                .setSticky(sticky)
                 .build();
     }
 

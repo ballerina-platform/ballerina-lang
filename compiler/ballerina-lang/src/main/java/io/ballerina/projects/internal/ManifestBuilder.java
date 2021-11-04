@@ -19,7 +19,6 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
@@ -379,7 +378,7 @@ public class ManifestBuilder {
             return null;
         }
 
-        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
 
         Boolean skipTests =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.SKIP_TESTS.toString());
@@ -405,16 +404,16 @@ public class ManifestBuilder {
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.LIST_CONFLICTED_CLASSES.toString());
 
         return buildOptionsBuilder
-                .skipTests(skipTests)
-                .offline(offline)
-                .experimental(experimental)
-                .observabilityIncluded(observabilityIncluded)
-                .testReport(testReport)
-                .codeCoverage(codeCoverage)
-                .cloud(cloud)
-                .listConflictedClasses(listConflictedClasses)
-                .dumpBuildTime(dumpBuildTime)
-                .sticky(sticky)
+                .setSkipTests(skipTests)
+                .setOffline(offline)
+                .setExperimental(experimental)
+                .setObservabilityIncluded(observabilityIncluded)
+                .setTestReport(testReport)
+                .setCodeCoverage(codeCoverage)
+                .setCloud(cloud)
+                .setListConflictedClasses(listConflictedClasses)
+                .setDumpBuildTime(dumpBuildTime)
+                .setSticky(sticky)
                 .build();
     }
 

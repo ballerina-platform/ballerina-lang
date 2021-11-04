@@ -471,7 +471,7 @@ public class Package {
             this.packageManifest = manifestBuilder.packageManifest();
             BuildOptions newBuildOptions;
             if (manifestBuilder.buildOptions() == null) {
-                newBuildOptions = new BuildOptionsBuilder().build();
+                newBuildOptions = BuildOptions.builder().build();
             } else {
                 newBuildOptions = manifestBuilder.buildOptions();
             }

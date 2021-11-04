@@ -90,39 +90,43 @@ public class BuildOptions {
     public BuildOptions acceptTheirs(BuildOptions theirOptions) {
         BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
         if (theirOptions.skipTests != null) {
-            buildOptionsBuilder.skipTests(theirOptions.skipTests);
+            buildOptionsBuilder.setSkipTests(theirOptions.skipTests);
         } else {
-            buildOptionsBuilder.skipTests(this.skipTests);
+            buildOptionsBuilder.setSkipTests(this.skipTests);
         }
         if (theirOptions.codeCoverage != null) {
-            buildOptionsBuilder.codeCoverage(theirOptions.codeCoverage);
+            buildOptionsBuilder.setCodeCoverage(theirOptions.codeCoverage);
         } else {
-            buildOptionsBuilder.codeCoverage(this.codeCoverage);
+            buildOptionsBuilder.setCodeCoverage(this.codeCoverage);
         }
         if (theirOptions.testReport != null) {
-            buildOptionsBuilder.testReport(theirOptions.testReport);
+            buildOptionsBuilder.setTestReport(theirOptions.testReport);
         } else {
-            buildOptionsBuilder.testReport(this.testReport);
+            buildOptionsBuilder.setTestReport(this.testReport);
         }
         if (theirOptions.dumpBuildTime != null) {
-            buildOptionsBuilder.dumpBuildTime(theirOptions.dumpBuildTime);
+            buildOptionsBuilder.setDumpBuildTime(theirOptions.dumpBuildTime);
         } else {
-            buildOptionsBuilder.dumpBuildTime(this.dumpBuildTime);
+            buildOptionsBuilder.setDumpBuildTime(this.dumpBuildTime);
         }
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
-        buildOptionsBuilder.offline(compilationOptions.offlineBuild);
-        buildOptionsBuilder.experimental(compilationOptions.experimental);
-        buildOptionsBuilder.observabilityIncluded(compilationOptions.observabilityIncluded);
-        buildOptionsBuilder.dumpBir(compilationOptions.dumpBir);
-        buildOptionsBuilder.dumpBirFile(compilationOptions.dumpBirFile);
-        buildOptionsBuilder.dumpGraph(compilationOptions.dumpGraph);
-        buildOptionsBuilder.dumpRawGraphs(compilationOptions.dumpRawGraphs);
-        buildOptionsBuilder.cloud(compilationOptions.cloud);
-        buildOptionsBuilder.listConflictedClasses(compilationOptions.listConflictedClasses);
-        buildOptionsBuilder.sticky(compilationOptions.sticky);
+        buildOptionsBuilder.setOffline(compilationOptions.offlineBuild);
+        buildOptionsBuilder.setExperimental(compilationOptions.experimental);
+        buildOptionsBuilder.setObservabilityIncluded(compilationOptions.observabilityIncluded);
+        buildOptionsBuilder.setDumpBir(compilationOptions.dumpBir);
+        buildOptionsBuilder.setDumpBirFile(compilationOptions.dumpBirFile);
+        buildOptionsBuilder.setDumpGraph(compilationOptions.dumpGraph);
+        buildOptionsBuilder.setDumpRawGraphs(compilationOptions.dumpRawGraphs);
+        buildOptionsBuilder.setCloud(compilationOptions.cloud);
+        buildOptionsBuilder.setListConflictedClasses(compilationOptions.listConflictedClasses);
+        buildOptionsBuilder.setSticky(compilationOptions.sticky);
 
         return buildOptionsBuilder.build();
+    }
+
+    public static BuildOptionsBuilder builder() {
+        return new BuildOptionsBuilder();
     }
 
     private boolean toBooleanDefaultIfNull(Boolean bool) {
@@ -158,6 +162,99 @@ public class BuildOptions {
         @Override
         public String toString() {
             return name;
+        }
+    }
+
+    /**
+     * A builder for the {@code BuildOptions}.
+     *
+     * @since 2.0.0
+     */
+    public static class BuildOptionsBuilder {
+        private Boolean testReport;
+        private Boolean codeCoverage;
+        private Boolean dumpBuildTime;
+        private Boolean skipTests;
+        private final CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder;
+        
+
+        private BuildOptionsBuilder() {
+            compilationOptionsBuilder = CompilationOptions.builder();
+        }
+
+        public BuildOptionsBuilder setTestReport(Boolean value) {
+            testReport = value;
+            return this;
+        }
+
+        public BuildOptionsBuilder setCodeCoverage(Boolean value) {
+            codeCoverage = value;
+            return this;
+        }
+
+        public BuildOptionsBuilder setDumpBuildTime(Boolean value) {
+            dumpBuildTime = value;
+            return this;
+        }
+
+        public BuildOptionsBuilder setSkipTests(Boolean value) {
+            skipTests = value;
+            return this;
+        }
+
+        public BuildOptionsBuilder setSticky(Boolean value) {
+            compilationOptionsBuilder.setSticky(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setListConflictedClasses(Boolean value) {
+            compilationOptionsBuilder.setListConflictedClasses(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setOffline(Boolean value) {
+            compilationOptionsBuilder.setOffline(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setExperimental(Boolean value) {
+            compilationOptionsBuilder.setExperimental(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setObservabilityIncluded(Boolean value) {
+            compilationOptionsBuilder.setObservabilityIncluded(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setCloud(String value) {
+            compilationOptionsBuilder.setCloud(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setDumpBir(Boolean value) {
+            compilationOptionsBuilder.setDumpBir(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setDumpBirFile(Boolean value) {
+            compilationOptionsBuilder.setDumpBirFile(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setDumpGraph(Boolean value) {
+            compilationOptionsBuilder.setDumpGraph(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setDumpRawGraphs(Boolean value) {
+            compilationOptionsBuilder.setDumpRawGraphs(value);
+            return this;
+        }
+
+        public BuildOptions build() {
+            CompilationOptions compilationOptions = compilationOptionsBuilder.build();
+            return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions);
         }
     }
 }

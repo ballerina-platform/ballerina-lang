@@ -23,7 +23,6 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.CloudToml;
 import io.ballerina.projects.CompilerPluginToml;
 import io.ballerina.projects.DependenciesToml;
@@ -920,7 +919,8 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         Path projectRoot = projectKindAndProjectRootPair.getRight();
         try {
             Project project;
-            BuildOptions options = new BuildOptionsBuilder().offline(CommonUtil.COMPILE_OFFLINE).sticky(true).build();
+            BuildOptions options = BuildOptions.builder()
+                    .setOffline(CommonUtil.COMPILE_OFFLINE).setSticky(true).build();
             if (projectKind == ProjectKind.BUILD_PROJECT) {
                 project = BuildProject.load(projectRoot, options);
             } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
