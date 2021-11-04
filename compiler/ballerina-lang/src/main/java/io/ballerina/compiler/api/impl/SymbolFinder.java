@@ -737,6 +737,7 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         lookupNode(transactionNode.transactionBody);
+        lookupNode(transactionNode.onFailClause);
     }
 
     @Override
@@ -1530,12 +1531,9 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
-        super.visit(waitForAllExpr);
-    }
-
-    @Override
-    public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
-        super.visit(waitLiteral);
+        for (BLangWaitForAllExpr.BLangWaitKeyValue keyValuePair : waitForAllExpr.getKeyValuePairs()) {
+            lookupNode(keyValuePair);
+        }
     }
 
     @Override
@@ -1565,7 +1563,7 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitKeyValue waitKeyValue) {
-        super.visit(waitKeyValue);
+        lookupNode(waitKeyValue.valueExpr != null ? waitKeyValue.valueExpr : waitKeyValue.keyExpr);
     }
 
     @Override

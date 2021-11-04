@@ -48,11 +48,18 @@ public class PartialParserService implements ExtendedLanguageServerService {
     @JsonRequest
     public CompletableFuture<STResponse> getSTForSingleStatement(PartialSTRequest request) {
         return CompletableFuture.supplyAsync(() -> {
+            NodeList<StatementNode> statementNodes;
+
+            if (request.getStModification() != null) {
+                String newStatement = STModificationUtil.getModifiedStatement(
+                        request.getCodeSnippet(), request.getStModification());
+                statementNodes = NodeParser.parseStatements(newStatement);
+            } else {
+                statementNodes = NodeParser.parseStatements(request.getCodeSnippet());
+            }
+
+            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(statementNodes.get(0));
             STResponse response = new STResponse();
-            NodeList<StatementNode> s = NodeParser.parseStatements(request.getCodeSnippet());
-
-            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(s.get(0));
-
             response.setSyntaxTree(syntaxTreeJSON);
             return response;
         });
@@ -61,11 +68,9 @@ public class PartialParserService implements ExtendedLanguageServerService {
     @JsonRequest
     public CompletableFuture<STResponse> getSTForExpression(PartialSTRequest request) {
         return CompletableFuture.supplyAsync(() -> {
+            ExpressionNode expressionNode = NodeParser.parseExpression(request.getCodeSnippet());
+            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(expressionNode);
             STResponse response = new STResponse();
-            ExpressionNode s = NodeParser.parseExpression(request.getCodeSnippet());
-
-            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(s);
-
             response.setSyntaxTree(syntaxTreeJSON);
             return response;
         });

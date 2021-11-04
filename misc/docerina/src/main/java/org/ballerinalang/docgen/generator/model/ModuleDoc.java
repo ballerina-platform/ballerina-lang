@@ -35,6 +35,7 @@ public class ModuleDoc {
     public final Map<String, SyntaxTree> syntaxTreeMap;
     public final SemanticModel semanticModel;
     public final List<Path> resources;
+    public final boolean isDefault;
 
     /**
      * Constructor.
@@ -43,14 +44,16 @@ public class ModuleDoc {
      * @param resources       resources of this package.
      * @param syntaxTreeMap a hash map of bal file names and syntax trees.
      * @param semanticModel the semantic model
+     * @param isDefault whether this is the default module (not a sub-module)
      * @throws IOException on error.
      */
     public ModuleDoc(String moduleMd, List<Path> resources, Map<String, SyntaxTree> syntaxTreeMap,
-                     SemanticModel semanticModel) throws IOException {
+                     SemanticModel semanticModel, boolean isDefault) throws IOException {
         this.description = moduleMd;
         this.summary = BallerinaDocUtils.getSummary(moduleMd);
         this.resources = resources;
         this.syntaxTreeMap = syntaxTreeMap;
         this.semanticModel = semanticModel;
+        this.isDefault = isDefault;
     }
 }

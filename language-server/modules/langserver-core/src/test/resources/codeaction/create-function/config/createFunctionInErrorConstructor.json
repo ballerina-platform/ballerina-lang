@@ -1,0 +1,28 @@
+{
+  "line": 7,
+  "character": 33,
+  "expected": [
+    {
+      "title": "Create function 'getMessage(...)'",
+      "command": {
+        "title": "Create function 'getMessage(...)'",
+        "command": "CREATE_FUNC",
+        "arguments": [
+          {
+            "key": "node.range",
+            "value": {
+              "start": {
+                "line": 7,
+                "character": 28
+              },
+              "end": {
+                "line": 7,
+                "character": 40
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

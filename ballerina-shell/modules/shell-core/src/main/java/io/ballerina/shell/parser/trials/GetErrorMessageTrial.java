@@ -27,6 +27,7 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -51,7 +52,7 @@ public class GetErrorMessageTrial extends TreeParserTrial {
     }
 
     @Override
-    public Node parse(String source) throws ParserTrialFailedException {
+    public Collection<Node> parse(String source) throws ParserTrialFailedException {
         ExecutorService executor = Executors.newFixedThreadPool(1);
         Future<?> future = executor.submit(() -> processSource(source));
         executor.shutdown();

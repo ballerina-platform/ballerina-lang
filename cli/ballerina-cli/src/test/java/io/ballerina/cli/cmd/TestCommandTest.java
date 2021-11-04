@@ -20,6 +20,7 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.util.ProjectConstants;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -141,7 +142,7 @@ public class TestCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Build a valid ballerina project")
-    public void testBuildMultiModuleProject() throws IOException {
+    public void testBuildMultiModuleProject() {
         Path projectPath = this.testResources.resolve("validMultiModuleProjectWithTests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
@@ -175,6 +176,33 @@ public class TestCommandTest extends BaseCommandTest {
             FileFilter fileFilter = new WildcardFileFilter("java_pid*.hprof");
             Assert.assertTrue(Objects.requireNonNull(projectDir.listFiles(fileFilter)).length > 0);
         }
+    }
+
+    @Test(description = "Check test command is preserving bin jar in target directory")
+    public void testTestCommandPreservingBinJarInTargetDir() throws IOException {
+        Path projectPath = this.testResources.resolve("validMultiModuleProjectWithTests");
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+        // build the project
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
+        String md5BinJar = DigestUtils.md5Hex(
+                Files.newInputStream(projectPath.resolve("target").resolve("bin").resolve("winery.jar")));
+
+        // Run tests
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parse();
+        testCommand.execute();
+        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
+        Assert.assertEquals(md5BinJar, DigestUtils.md5Hex(
+                Files.newInputStream(projectPath.resolve("target").resolve("bin").resolve("winery.jar"))));
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("foo-winery-0.1.0.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("foo-winery-0.1.0-testable.jar").toFile().exists());
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

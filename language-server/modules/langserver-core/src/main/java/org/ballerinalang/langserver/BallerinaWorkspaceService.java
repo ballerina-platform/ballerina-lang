@@ -30,21 +30,23 @@ import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.DidChangeWatchedFilesContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
+import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.telemetry.TelemetryUtil;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
-import org.eclipse.lsp4j.FileEvent;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ResourceOperation;
@@ -56,7 +58,6 @@ import org.eclipse.lsp4j.services.WorkspaceService;
 
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -67,7 +68,6 @@ import java.util.stream.Collectors;
  * Workspace service implementation for Ballerina.
  */
 public class BallerinaWorkspaceService implements WorkspaceService {
-    
     private final BallerinaLanguageServer languageServer;
     private final LSClientConfigHolder configHolder;
     private LSClientCapabilities clientCapabilities;
@@ -104,22 +104,18 @@ public class BallerinaWorkspaceService implements WorkspaceService {
 
     @Override
     public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
-        // Looping through a set to avoid duplicated file events
-        for (FileEvent fileEvent : new HashSet<>(params.getChanges())) {
-            String uri = fileEvent.getUri();
-            Optional<Path> optFilePath = CommonUtil.getPathFromURI(uri);
-            if (optFilePath.isEmpty()) {
-                continue;
+        try {
+            List<Path> paths = this.workspaceManager.didChangeWatched(params);
+            DidChangeWatchedFilesContext context =
+                    ContextBuilder.buildDidChangeWatchedFilesContext(this.workspaceManager, this.serverContext);
+            DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
+            // project roots are the reloaded project roots. Hence we re-publish the diagnostics.
+            for (Path projectRoot : paths) {
+                diagnosticsHelper.schedulePublishDiagnostics(this.languageServer.getClient(), context, projectRoot);
             }
-            Path filePath = optFilePath.get();
-            try {
-                workspaceManager.didChangeWatched(filePath, fileEvent);
-            } catch (UserErrorException e) {
-                this.clientLogger.notifyUser("File Change Failed to Handle", e);
-            } catch (Throwable e) {
-                String msg = "Operation 'workspace/didChangeWatchedFiles' failed!";
-                this.clientLogger.logError(LSContextOperation.WS_WF_CHANGED, msg, e, null, (Position) null);
-            }
+        } catch (WorkspaceDocumentException e) {
+            String msg = "Operation 'workspace/didChangeWatchedFiles' failed!";
+            this.clientLogger.logError(LSContextOperation.WS_WF_CHANGED, msg, e, null, (Position) null);
         }
     }
 
