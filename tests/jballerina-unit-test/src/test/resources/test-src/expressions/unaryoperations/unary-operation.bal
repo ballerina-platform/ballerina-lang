@@ -218,6 +218,42 @@ function testUnaryOperationsWithNonBasicTypes() {
     test:assertEquals(a13, 16);
     test:assertEquals(a14, -16);
     test:assertEquals(a15, -17);
+
+    int:Signed8|int:Unsigned32 a16 = 12;
+    int a17 = -a16;
+
+    int:Unsigned8|int:Signed8 a18 = 10;
+    int a19 = +a18;
+
+    test:assertEquals(a17, -12);
+    test:assertEquals(a19, 10);
+}
+
+type Ints -2|-1|0|1|2;
+type Floats -2.0|-1.0|0.0|1.0|2.0;
+type Decimals -2.0d|-1.0d|0d|1.0d|2.0d;
+
+function testUnaryOperationsWithUserDefinedTypes() {
+    Ints a = -2;
+    Ints b = 1;
+    Floats c = -2;
+    Floats d = 0;
+    Decimals e = -2;
+    Decimals f = 1.0;
+
+    int g = -a;
+    int h = +b;
+    float i = -c;
+    float j = +d;
+    decimal k = -e;
+    decimal l = +f;
+
+    assertEquality(g, 2);
+    assertEquality(h, 1);
+    assertEquality(i, 2.0);
+    assertEquality(j, 0.0);
+    assertEquality(k, 2d);
+    assertEquality(l, 1.0d);
 }
 
 function testNullableUnaryExpressions() {
@@ -235,6 +271,36 @@ function testNullableUnaryExpressions() {
     assertEquality(a7, 30);
     assertEquality(a8, -5.0);
     assertEquality(a9, -11);
+
+    Ints? a = -2;
+    Ints? b = 1;
+    Floats? c = -2;
+    Floats? d = 0;
+    Decimals? e = -2;
+    Decimals? f = 1.0;
+
+    int? g = -a;
+    int? h = +b;
+    float? i = -c;
+    float? j = +d;
+    decimal? k = -e;
+    decimal? l = +f;
+
+    assertEquality(g, 2);
+    assertEquality(h, 1);
+    assertEquality(i, 2.0);
+    assertEquality(j, 0.0);
+    assertEquality(k, 2d);
+    assertEquality(l, 1.0d);
+
+    int:Signed8|int:Unsigned32? a16 = 12;
+    int? a17 = -a16;
+
+    int:Unsigned8|int:Signed8? a18 = 10;
+    int? a19 = +a18;
+
+    test:assertEquals(a17, -12);
+    test:assertEquals(a19, 10);
 }
 
 function assertEquality(any actual, any expected) {
