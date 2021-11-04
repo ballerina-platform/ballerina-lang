@@ -141,12 +141,12 @@ public class CliProviderNegativeTest {
                                                            diagnosticLog,
                                                            List.of(new CliProvider(ROOT_MODULE, args)));
         Map<VariableKey, ConfigValue> varKeyValueMap =  configResolver.resolveConfigs();
-        Assert.assertEquals(diagnosticLog.getWarningCount(), 2);
-        Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 2);
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(),
-                            "warning: [myorg.mod.z=27.5] unused command line argument");
+                            "error: [myorg.mod.z=27.5] unused command line argument");
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(1).toString(),
-                            "warning: [myorg.mod.y=apple] unused command line argument");
+                            "error: [myorg.mod.y=apple] unused command line argument");
         Assert.assertEquals(varKeyValueMap.get(x).getValue(), 123L);
     }
 

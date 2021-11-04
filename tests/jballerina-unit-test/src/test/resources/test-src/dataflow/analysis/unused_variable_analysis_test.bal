@@ -13,7 +13,7 @@
  // KIND, either express or implied.  See the License for the
  // specific language governing permissions and limitations
  // under the License.
-
+import ballerina/lang.value;
 function f1() {
     int i = 0; // unused `i`
 
@@ -343,4 +343,10 @@ function init() {
     int i = 1;
     int j = 2;
     int k = j + 1;
+}
+
+function f16() {
+    record {} logRecord = {};
+    string format = "";
+    string s = format == "JSON" ? logRecord.toJsonString() : value:toString(logRecord); // Warning should be only for `s`.
 }

@@ -31,6 +31,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -149,24 +150,20 @@ public class UnionTypeTest {
         }
     }
 
-    @Test(description = "Test union type with a function pointer accessing")
-    public void testUnionTypeWithFunctionPointerAccess() {
-        BRunUtil.invoke(result, "testUnionTypeWithFunctionPointerAccess");
+    @Test(dataProvider = "function-name-provider")
+    public void testUnionMemberTypes(String funcName) {
+        BRunUtil.invoke(result, funcName);
     }
 
-    @Test
-    public void testCastToImmutableUnion() {
-        BRunUtil.invoke(result, "testCastToImmutableUnion");
-    }
-
-    @Test(description = "Test union with integer subtypes")
-    public void testUnionWithIntegerSubTypes() {
-        BRunUtil.invoke(result, "testUnionWithIntegerSubTypes");
-    }
-
-    @Test(description = "Test union with string subtypes")
-    public void testUnionWithStringSubTypes() {
-        BRunUtil.invoke(result, "testUnionWithStringSubTypes");
+    @DataProvider(name = "function-name-provider")
+    public Object[] unionMemberTypesTests() {
+        return new String[]{
+                "testUnionTypeWithFunctionPointerAccess",
+                "testCastToImmutableUnion",
+                "testUnionWithIntegerSubTypes",
+                "testUnionWithStringSubTypes",
+                "testUnionWithDecimalFiniteTypes"
+        };
     }
 
     @AfterClass
