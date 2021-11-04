@@ -418,11 +418,12 @@ public class CommandUtil {
             } catch (CentralClientException ce) {
                 if (version == null) {
                     outStream = System.out;
-                    if (!ce.getMessage().contains("specified package is not a template")) {
-                        outStream.println("\nWarning: Unable to connect to the central, " + ce.getMessage());
+                    if (ce.getMessage().contains("nodename nor servname provided, or not known")) {
+                        outStream.println("\nWarning: Unable to connect to the central, " +
+                                "searching the module from the local cache.\n");
                         applyBalaTemplate(projectPath, balaCache, template);
                     } else {
-                        outStream.println(ce.getMessage());
+                        throw new CentralClientException(ce.getMessage());
                     }
                     CommandUtil.exitError(exitWhenFinish);
                 } else {
