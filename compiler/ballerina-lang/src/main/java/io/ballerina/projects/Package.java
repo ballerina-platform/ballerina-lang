@@ -244,7 +244,7 @@ public class Package {
         }
 
         // There are engaged code generators or there is no cached compilation. We have to compile anyway
-        CompilationOptions compOptions = new CompilationOptionsBuilder().withCodeGenerators(true).build();
+        CompilationOptions compOptions = CompilationOptions.builder().withCodeGenerators(true).build();
         // TODO We can avoid this compilation. Move CompilerPluginManagers out of the PackageCompilation
         // TODO How about PackageResolution
         CompilerPluginManager compilerPluginManager = this.getCompilation(compOptions).compilerPluginManager();
