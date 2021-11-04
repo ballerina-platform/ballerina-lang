@@ -816,6 +816,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     (BLangLiteral) TreeBuilder.createLiteralExpression() :
                     (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
             literal.setValue(((BLangLiteral) constantNode.expr).value);
+            literal.setOriginalValue(((BLangLiteral) constantNode.expr).originalValue);
             literal.setBType(constantNode.expr.getBType());
             literal.isConstant = true;
 

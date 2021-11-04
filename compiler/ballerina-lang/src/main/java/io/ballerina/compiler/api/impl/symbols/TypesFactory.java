@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
@@ -248,7 +249,7 @@ public class TypesFactory {
 
                 if (valueSpace.size() == 1) {
                     BLangExpression shape = valueSpace.iterator().next();
-                    return new BallerinaSingletonTypeSymbol(this.context, moduleID, shape, bType);
+                    return new BallerinaSingletonTypeSymbol(this.context, moduleID, (BLangLiteral) shape, bType);
                 }
 
                 return new BallerinaUnionTypeSymbol(this.context, moduleID, finiteType);
