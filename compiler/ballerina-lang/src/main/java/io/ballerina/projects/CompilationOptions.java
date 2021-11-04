@@ -203,14 +203,16 @@ public class CompilationOptions {
         private Boolean sticky;
         private Boolean dumpGraph;
         private Boolean dumpRawGraph;
+        private Boolean withCodeGenerators;
 
         public CompilationOptionsBuilder setOffline(Boolean value) {
             offline = value;
             return this;
         }
 
-        public void setSticky(Boolean value) {
+        public CompilationOptionsBuilder setSticky(Boolean value) {
             sticky = value;
+            return this;
         }
 
         CompilationOptionsBuilder setExperimental(Boolean value) {
@@ -253,10 +255,15 @@ public class CompilationOptions {
             return this;
         }
 
+        CompilationOptionsBuilder withCodeGenerators(Boolean value) {
+            withCodeGenerators = value;
+            return this;
+        }
+
         public CompilationOptions build() {
             return new CompilationOptions(offline, experimental, observabilityIncluded, dumpBir,
                     dumpBirFile, cloud, listConflictedClasses, sticky,
-                    dumpGraph, dumpRawGraph);
+                    dumpGraph, dumpRawGraph, withCodeGenerators);
         }
     }
 }
