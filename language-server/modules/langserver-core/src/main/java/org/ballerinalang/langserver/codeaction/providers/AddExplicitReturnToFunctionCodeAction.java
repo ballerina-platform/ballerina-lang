@@ -22,7 +22,6 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -31,13 +30,14 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static org.ballerinalang.util.diagnostic.DiagnosticWarningCode.FUNCTION_SHOULD_EXPLICITLY_RETURN_A_VALUE;
 
 /**
  * Code action to add an explicit return statement.
@@ -47,13 +47,12 @@ import java.util.Optional;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AddExplicitReturnToFunctionCodeAction extends AbstractCodeActionProvider {
     private static final String NAME = "Add Explicit Return Statement";
-    private static final String DIAG_CODE = "BCE20350";
 
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!diagnostic.diagnosticInfo().code().equals(DIAG_CODE)) {
+        if (!diagnostic.diagnosticInfo().code().equals(FUNCTION_SHOULD_EXPLICITLY_RETURN_A_VALUE.diagnosticId())) {
             return Collections.emptyList();
         }
 
@@ -66,7 +65,7 @@ public class AddExplicitReturnToFunctionCodeAction extends AbstractCodeActionPro
         FunctionBodyBlockNode functionBody = (FunctionBodyBlockNode) functionDefinition.get().functionBody();
         Token closeBraceToken = functionBody.closeBraceToken();
 
-        Range range = toRange(closeBraceToken.lineRange());
+        Range range = CommonUtil.toRange(closeBraceToken.lineRange());
         String newText = getNewText(functionDefinition.get());
         String uri = context.filePath().toUri().toString();
 
@@ -85,23 +84,6 @@ public class AddExplicitReturnToFunctionCodeAction extends AbstractCodeActionPro
     @Override
     public String getName() {
         return NAME;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int priority() {
-        return 999;
-    }
-
-    private Range toRange(LineRange lineRange) {
-        LinePosition sLine = lineRange.startLine();
-        LinePosition eLine = lineRange.endLine();
-        Position start = new Position(sLine.line(), sLine.offset());
-        Position end = new Position(eLine.line(), eLine.offset());
-
-        return new Range(start, end);
     }
 
     private Optional<FunctionDefinitionNode> getFunctionDefinition(NonTerminalNode node) {

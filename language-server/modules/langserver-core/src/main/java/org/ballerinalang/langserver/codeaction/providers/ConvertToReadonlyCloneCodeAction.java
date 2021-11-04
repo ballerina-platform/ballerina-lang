@@ -18,20 +18,20 @@ package org.ballerinalang.langserver.codeaction.providers;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD;
 
 /**
  * Code action to convert an expression e to e.cloneReadOnly().
@@ -41,14 +41,13 @@ import java.util.Optional;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ConvertToReadonlyCloneCodeAction extends AbstractCodeActionProvider {
     private static final String NAME = "Convert to Readonly Clone";
-    private static final String DIAG_CODE = "BCE4019";
     private static final String CLONE_READONLY_PREFIX = "cloneReadOnly";
 
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!diagnostic.diagnosticInfo().code().equals(DIAG_CODE)) {
+        if (!diagnostic.diagnosticInfo().code().equals(INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD.diagnosticId())) {
             return Collections.emptyList();
         }
 
@@ -57,7 +56,7 @@ public class ConvertToReadonlyCloneCodeAction extends AbstractCodeActionProvider
         if (typeDescriptor.isEmpty() || !isCloneReadonlyAvailable(typeDescriptor.get())) {
             return Collections.emptyList();
         }
-        Range range = toRange(diagnostic.location().lineRange());
+        Range range = CommonUtil.toRange(diagnostic.location().lineRange());
         String newText = getNewText(currentNode);
         String uri = context.filePath().toUri().toString();
 
@@ -78,28 +77,10 @@ public class ConvertToReadonlyCloneCodeAction extends AbstractCodeActionProvider
         return NAME;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int priority() {
-        return 999;
-    }
-
     private boolean isCloneReadonlyAvailable(TypeSymbol typeSymbol) {
         return typeSymbol.langLibMethods().stream()
                 .anyMatch(fSymbol -> fSymbol.getName().orElse("")
                         .equals(CLONE_READONLY_PREFIX));
-    }
-
-    private Range toRange(LineRange lineRange) {
-        LinePosition sLine = lineRange.startLine();
-        LinePosition eLine = lineRange.endLine();
-
-        Position start = new Position(sLine.line(), sLine.offset());
-        Position end = new Position(eLine.line(), eLine.offset());
-
-        return new Range(start, end);
     }
 
     private String getNewText(NonTerminalNode currentNode) {
