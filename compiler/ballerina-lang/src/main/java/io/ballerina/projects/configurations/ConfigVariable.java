@@ -38,11 +38,11 @@ public class ConfigVariable {
         this.description = description;
     }
 
-    public String getName() {
+    public String name() {
         return name;
     }
 
-    public BType getType() {
+    public BType type() {
         return type;
     }
 
@@ -50,7 +50,7 @@ public class ConfigVariable {
         return isRequired;
     }
 
-    public String getDescription() {
+    public String description() {
         return description;
     }
 

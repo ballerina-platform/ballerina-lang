@@ -35,15 +35,15 @@ public class ConfigModuleDetails {
         this.isCurrentPackage = isCurrentPackage;
     }
 
-    public String getOrgName() {
+    public String orgName() {
         return orgName;
     }
 
-    public String getPackageName() {
+    public String packageName() {
         return packageName;
     }
 
-    public String getModuleName() {
+    public String moduleName() {
         return moduleName;
     }
 
