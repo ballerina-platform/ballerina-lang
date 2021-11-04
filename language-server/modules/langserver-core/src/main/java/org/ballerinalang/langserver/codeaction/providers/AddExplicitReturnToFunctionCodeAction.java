@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -141,16 +142,16 @@ public class AddExplicitReturnToFunctionCodeAction extends AbstractCodeActionPro
         if (startLineRange.startLine().line() == closeBraceToken.lineRange().startLine().line()) {
             // Cursor is in the same line as the function start
             newText.append(CommonUtil.LINE_SEPARATOR)
-                    .append(String.join("", Collections.nCopies(startLineRange.startLine().offset() + 4, " ")))
+                    .append(StringUtils.repeat(" ", startLineRange.startLine().offset() + 4))
                     .append("return;")
                     .append(CommonUtil.LINE_SEPARATOR)
                     .append(Collections.nCopies(startLineRange.startLine().offset(), " "))
                     .append("}");
         } else {
-            newText.append("    ")
+            newText.append(StringUtils.repeat(" ", 4))
                     .append("return;")
                     .append(CommonUtil.LINE_SEPARATOR)
-                    .append(String.join("", Collections.nCopies(startLineRange.startLine().offset(), " ")))
+                    .append(StringUtils.repeat(" ", startLineRange.startLine().offset()))
                     .append("}");
         }
         
