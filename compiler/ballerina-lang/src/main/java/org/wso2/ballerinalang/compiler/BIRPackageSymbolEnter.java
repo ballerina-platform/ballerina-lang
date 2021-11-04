@@ -727,8 +727,28 @@ public class BIRPackageSymbolEnter {
         constantSymbol.value = readConstLiteralValue(dataInStream);
         constantSymbol.literalType = constantSymbol.value.type;
 
+        // Resolve semtype
+        SemType s = evaluateConst(constantSymbol);
+        constantSymbol.value.type.setSemtype(s);
+        semtypeEnv.addTypeDef(constantName, s);
+
         // Define constant.
         enclScope.define(constantSymbol.name, constantSymbol);
+    }
+
+    private SemType evaluateConst(BConstantSymbol constantSymbol) { // TODO use a common function for SymbolEnter
+        switch (constantSymbol.value.type.getKind()) {
+            case INT:
+                return SemTypes.intConst((long) constantSymbol.value.value);
+            case BOOLEAN:
+                return SemTypes.booleanConst((boolean) constantSymbol.value.value);
+            case STRING:
+                return  SemTypes.stringConst((String) constantSymbol.value.value);
+            case FLOAT:
+                return SemTypes.floatConst((double) constantSymbol.value.value);
+            default:
+                throw new AssertionError("Expression type not implemented for const semtype");
+        }
     }
 
     private BLangConstantValue readConstLiteralValue(DataInputStream dataInStream) throws IOException {

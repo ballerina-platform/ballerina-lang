@@ -506,22 +506,22 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (constant.associatedTypeDefinition != null) {
             semtype = resolveTypeDefn(semtypeEnv, modTable, constant.associatedTypeDefinition, 0);
         } else {
-            semtype = evaluateConst(constant);
+            semtype = evaluateConst(constant.symbol);
         }
         addSemtypeBType(constant.getTypeNode(), semtype);
         semtypeEnv.addTypeDef(constant.name.value, semtype);
     }
 
-    private SemType evaluateConst(BLangConstant constant) {
-        switch (constant.symbol.value.type.getKind()) {
+    private SemType evaluateConst(BConstantSymbol constantSymbol) {
+        switch (constantSymbol.value.type.getKind()) {
             case INT:
-                return SemTypes.intConst((long) constant.symbol.value.value);
+                return SemTypes.intConst((long) constantSymbol.value.value);
             case BOOLEAN:
-                return SemTypes.booleanConst((boolean) constant.symbol.value.value);
+                return SemTypes.booleanConst((boolean) constantSymbol.value.value);
             case STRING:
-                return  SemTypes.stringConst((String) constant.symbol.value.value);
+                return  SemTypes.stringConst((String) constantSymbol.value.value);
             case FLOAT:
-                return SemTypes.floatConst((double) constant.symbol.value.value);
+                return SemTypes.floatConst((double) constantSymbol.value.value);
             default:
                 throw new AssertionError("Expression type not implemented for const semtype");
         }
