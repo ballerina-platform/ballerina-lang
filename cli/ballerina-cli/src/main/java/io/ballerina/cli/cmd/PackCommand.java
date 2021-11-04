@@ -297,7 +297,8 @@ public class PackCommand implements BLauncherCmd {
     }
 
     private BuildOptions constructBuildOptions() {
-        return BuildOptions.builder()
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        buildOptionsBuilder
                 .setCodeCoverage(coverage)
                 .setExperimental(experimentalFlag)
                 .setOffline(offline)
@@ -308,8 +309,13 @@ public class PackCommand implements BLauncherCmd {
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setDumpBuildTime(dumpBuildTime)
-                .setSticky(sticky)
-                .build();
+                .setSticky(sticky);
+
+        if (targetDir != null) {
+            buildOptionsBuilder.targetDir(targetDir.toString());
+        }
+
+        return buildOptionsBuilder.build();
     }
 
     private boolean isProjectEmpty(Project project) {

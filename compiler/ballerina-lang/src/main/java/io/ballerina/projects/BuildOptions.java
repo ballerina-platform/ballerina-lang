@@ -186,6 +186,7 @@ public class BuildOptions {
         private Boolean codeCoverage;
         private Boolean dumpBuildTime;
         private Boolean skipTests;
+        private String targetPath;
         private final CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder;
         
 
@@ -263,9 +264,14 @@ public class BuildOptions {
             return this;
         }
 
+        public BuildOptionsBuilder targetDir(String path) {
+            targetPath = path;
+            return this;
+        }
+
         public BuildOptions build() {
             CompilationOptions compilationOptions = compilationOptionsBuilder.build();
-            return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions);
+            return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions, targetPath);
         }
     }
 }

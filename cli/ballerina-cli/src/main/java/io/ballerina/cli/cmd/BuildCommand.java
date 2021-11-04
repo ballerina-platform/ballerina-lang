@@ -380,7 +380,9 @@ public class BuildCommand implements BLauncherCmd {
     }
 
     private BuildOptions constructBuildOptions() {
-        return BuildOptions.builder()
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+
+        buildOptionsBuilder
                 .setCodeCoverage(coverage)
                 .setExperimental(experimentalFlag)
                 .setOffline(offline)
@@ -394,8 +396,13 @@ public class BuildCommand implements BLauncherCmd {
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setListConflictedClasses(listConflictedClasses)
                 .setDumpBuildTime(dumpBuildTime)
-                .setSticky(sticky)
-                .build();
+                .setSticky(sticky);
+
+        if (targetDir != null) {
+            buildOptionsBuilder.targetDir(targetDir.toString());
+        }
+
+        return buildOptionsBuilder.build();
     }
 
     @Override
