@@ -3466,6 +3466,28 @@ public class Types {
         return false;
     }
 
+    boolean isFloatLiteralValue(Location pos, String numericLiteral) {
+        double value = Double.parseDouble(String.valueOf(numericLiteral));
+        if (Double.isInfinite(value)) {
+            dlog.error(pos, DiagnosticErrorCode.FLOAT_TOO_LARGE, numericLiteral);
+            return false;
+        }
+
+        if (value == 0.0) {
+            for (int i = 0; i < numericLiteral.length(); i++) {
+                char character = numericLiteral.charAt(i);
+                if (character == 'p' || character == 'P' || character == 'e' || character == 'E') {
+                    break;
+                }
+                if (character >= '1' && character <= '9') {
+                    dlog.error(pos, DiagnosticErrorCode.FLOAT_TOO_SMALL, numericLiteral);
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     boolean isByteLiteralValue(Long longObject) {
 
         return (longObject.intValue() >= BBYTE_MIN_VALUE && longObject.intValue() <= BBYTE_MAX_VALUE);
