@@ -54,7 +54,7 @@ public class CreateBalaTask implements Task {
         Target target;
         Path balaPath;
         try {
-            target = new Target(project.sourceRoot());
+            target = new Target(project.targetDir());
             balaPath = target.getBalaPath();
         } catch (IOException | ProjectException e) {
             throw createLauncherException(e.getMessage());
@@ -79,8 +79,16 @@ public class CreateBalaTask implements Task {
             throw createLauncherException("BALA creation failed:" + e.getMessage());
         }
 
+        Path relativePathToExecutable;
+
+        try {
+            relativePathToExecutable = project.sourceRoot().relativize(emitResult.generatedArtifactPath());
+        } catch (IllegalArgumentException e) {
+            // For cases where a custom path is given
+            relativePathToExecutable = project.sourceRoot().resolve(emitResult.generatedArtifactPath());
+        }
+
         // Print the path of the BALA file
-        Path relativePathToExecutable = project.sourceRoot().relativize(emitResult.generatedArtifactPath());
         if (relativePathToExecutable.toString().contains("..") ||
                 relativePathToExecutable.toString().contains("." + File.separator)) {
             this.out.println("\t" + emitResult.generatedArtifactPath().toString());

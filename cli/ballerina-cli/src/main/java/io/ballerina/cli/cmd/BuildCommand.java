@@ -112,6 +112,31 @@ public class BuildCommand implements BLauncherCmd {
         this.output = output;
     }
 
+    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                        boolean skipCopyLibsFromDist, Path targetDir) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        this.targetDir = targetDir;
+    }
+
+    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                        boolean skipCopyLibsFromDist, Boolean skipTests, Boolean testReport, Boolean coverage,
+                        String coverageFormat, Path targetDir) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        this.skipTests = skipTests;
+        this.testReport = testReport;
+        this.coverage = coverage;
+        this.coverageFormat = coverageFormat;
+        this.targetDir = targetDir;
+    }
+
     @CommandLine.Option(names = {"--output", "-o"}, description = "Write the output to the given file. The provided " +
                                                                   "output file name may or may not contain the " +
                                                                   "'.jar' extension.")
@@ -189,6 +214,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
     private Boolean skipTestsTemp;
 
+    @CommandLine.Option(names = "--target-dir", description = "target directory path")
+    private Path targetDir;
+
     public void execute() {
         long start = 0;
         if (this.helpFlag) {
@@ -261,6 +289,7 @@ public class BuildCommand implements BLauncherCmd {
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
+
             try {
                 if (buildOptions.dumpBuildTime()) {
                     start = System.currentTimeMillis();
@@ -351,7 +380,9 @@ public class BuildCommand implements BLauncherCmd {
     }
 
     private BuildOptions constructBuildOptions() {
-        return BuildOptions.builder()
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+
+        buildOptionsBuilder
                 .setCodeCoverage(coverage)
                 .setExperimental(experimentalFlag)
                 .setOffline(offline)
@@ -365,8 +396,13 @@ public class BuildCommand implements BLauncherCmd {
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setListConflictedClasses(listConflictedClasses)
                 .setDumpBuildTime(dumpBuildTime)
-                .setSticky(sticky)
-                .build();
+                .setSticky(sticky);
+
+        if (targetDir != null) {
+            buildOptionsBuilder.targetDir(targetDir.toString());
+        }
+
+        return buildOptionsBuilder.build();
     }
 
     @Override

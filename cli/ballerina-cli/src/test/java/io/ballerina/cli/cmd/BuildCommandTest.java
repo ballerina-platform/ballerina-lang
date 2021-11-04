@@ -698,5 +698,41 @@ public class BuildCommandTest extends BaseCommandTest {
                 this.testResources.resolve("valid-bal-file").resolve("build-time.json").toFile().length() > 0);
     }
 
+    @Test (dependsOnMethods = "testBuildBalProjectFromADifferentDirectory")
+    public void testCustomTargetDir() {
+        Path projectPath = this.testResources.resolve("validApplicationProject");
+        Path customTargetDir = projectPath.resolve("customTargetDir");
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true,
+                customTargetDir);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("bin")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("build")));
+        Assert.assertFalse(Files.exists(customTargetDir.resolve("report")));
+    }
+
+    @Test (dependsOnMethods = "testCustomTargetDir")
+    public void testCustomTargetDirWithTests() {
+        Path projectPath = this.testResources.resolve("validProjectWithTests");
+        Path customTargetDir = projectPath.resolve("customTargetDir2");
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true,
+                false, true, false, null, customTargetDir);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("bin")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("build")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("report")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("rerun_test.json")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache").resolve("tests_cache").resolve("test_suit" +
+                ".json")));
+    }
 
 }

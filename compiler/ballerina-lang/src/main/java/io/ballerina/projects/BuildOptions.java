@@ -26,14 +26,16 @@ public class BuildOptions {
     private Boolean dumpBuildTime;
     private Boolean skipTests;
     private CompilationOptions compilationOptions;
+    private String targetDir;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
-                 CompilationOptions compilationOptions) {
+                 CompilationOptions compilationOptions, String targetPath) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
         this.skipTests = skipTests;
         this.compilationOptions = compilationOptions;
+        this.targetDir = targetPath;
     }
 
     public boolean testReport() {
@@ -109,6 +111,11 @@ public class BuildOptions {
         } else {
             buildOptionsBuilder.setDumpBuildTime(this.dumpBuildTime);
         }
+        if (theirOptions.targetDir != null) {
+            buildOptionsBuilder.targetDir(theirOptions.targetDir);
+        } else {
+            buildOptionsBuilder.targetDir(this.targetDir);
+        }
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
         buildOptionsBuilder.setOffline(compilationOptions.offlineBuild);
@@ -143,6 +150,10 @@ public class BuildOptions {
         return bool;
     }
 
+    public String getTargetPath() {
+        return targetDir;
+    }
+
     /**
      * Enum to represent build options.
      */
@@ -175,6 +186,7 @@ public class BuildOptions {
         private Boolean codeCoverage;
         private Boolean dumpBuildTime;
         private Boolean skipTests;
+        private String targetPath;
         private final CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder;
         
 
@@ -252,9 +264,14 @@ public class BuildOptions {
             return this;
         }
 
+        public BuildOptionsBuilder targetDir(String path) {
+            targetPath = path;
+            return this;
+        }
+
         public BuildOptions build() {
             CompilationOptions compilationOptions = compilationOptionsBuilder.build();
-            return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions);
+            return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions, targetPath);
         }
     }
 }

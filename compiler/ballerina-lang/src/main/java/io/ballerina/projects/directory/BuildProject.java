@@ -56,7 +56,6 @@ import java.util.Set;
 
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
-import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getDependenciesTomlContent;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
@@ -207,7 +206,7 @@ public class BuildProject extends Project {
     }
 
     public void save() {
-        Path buildFilePath = this.sourceRoot.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        Path buildFilePath = this.targetDir().resolve(BUILD_FILE);
         boolean shouldUpdate = this.currentPackage().getResolution().autoUpdate();
         // if build file does not exists
 

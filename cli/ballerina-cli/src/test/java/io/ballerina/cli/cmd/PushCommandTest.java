@@ -67,8 +67,8 @@ public class PushCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Push package with too many args")
-    public void testPushWithTooManyArgs() throws IOException {
+    @Test(description = "Push package with invalid path")
+    public void testPushWithInvalidPath() throws IOException {
         Path validBalProject = this.testResources.resolve(VALID_PROJECT);
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
         new CommandLine(pushCommand).parse("tests");
@@ -76,8 +76,44 @@ public class PushCommandTest extends BaseCommandTest {
 
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
-        Assert.assertTrue(actual.contains("ballerina: too many arguments"));
-        Assert.assertTrue(actual.contains("bal push "));
+        String expected = "ballerina: 'tests' does not match with the package version '0.1.0' in Ballerina.toml file." +
+                " Run 'bal pack' to recompile and generate the bala.";
+        Assert.assertTrue(actual.contains(expected));
+    }
+
+    @Test(description = "Push package with custom path")
+    public void testPushWithCustomPath() throws IOException {
+        Path validBalProject = Paths.get("build").resolve("validProjectWithTarget");
+
+        FileUtils.copyDirectory(
+                this.testResources.resolve("validProjectWithTarget").toFile(), validBalProject.toFile());
+        FileUtils.moveDirectory(
+                validBalProject.resolve("target-dir").toFile(), validBalProject.resolve("custom").toFile());
+
+        Path customTargetDirBalaPath = validBalProject.resolve("custom").resolve("bala")
+                .resolve("foo-winery-any-0.1.0.bala");
+        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false,
+                customTargetDirBalaPath);
+        String[] args = { "--repository=local" };
+        new CommandLine(pushCommand).parse(args);
+
+        Path mockRepo = Paths.get("build").resolve("ballerina-home");
+        PowerMockito.mockStatic(RepoUtils.class);
+        PowerMockito.when(RepoUtils.createAndGetHomeReposPath()).thenReturn(mockRepo);
+        pushCommand.execute();
+
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        String expected = "Successfully pushed " + customTargetDirBalaPath.toString() + " to 'local' repository.";
+        Assert.assertTrue(actual.contains(expected));
+
+        try {
+            ProjectFiles.validateBalaProjectPath(mockRepo.resolve("repositories").resolve("local").resolve("bala")
+                    .resolve("foo").resolve("winery").resolve("0.1.0").resolve("any"));
+        } catch (ProjectException e) {
+            Assert.fail(e.getMessage());
+        }
+
     }
 
     @Test(description = "Push package without bala directory")
