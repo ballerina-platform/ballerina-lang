@@ -20,8 +20,8 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.debugger.test.utils.DebugServerEventHolder;
 import org.ballerinalang.debugger.test.utils.DebugUtils;
-import org.ballerinalang.debugger.test.utils.client.connection.TestSocketStreamConnectionProvider;
-import org.ballerinalang.debugger.test.utils.client.connection.TestStreamConnectionProvider;
+import org.ballerinalang.debugger.test.utils.client.connection.SocketStreamConnectionProvider;
+import org.ballerinalang.debugger.test.utils.client.connection.StreamConnectionProvider;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.Utils;
@@ -48,9 +48,9 @@ import java.util.concurrent.Future;
 /**
  * Used to communicate with debug server.
  */
-public class TestDAPClientConnector {
+public class DAPClientConnector {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestDAPClientConnector.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DAPClientConnector.class);
 
     private final String balHome;
     private final Path projectPath;
@@ -60,7 +60,7 @@ public class TestDAPClientConnector {
     private DAPClient debugClient;
     private IDebugProtocolServer debugServer;
     private DAPRequestManager requestManager;
-    private TestStreamConnectionProvider streamConnectionProvider;
+    private StreamConnectionProvider streamConnectionProvider;
     private Future<Void> launcherFuture;
     private Capabilities initializeResult;
     private ConnectionState myConnectionState;
@@ -73,11 +73,11 @@ public class TestDAPClientConnector {
     private static final String CONFIG_BAL_HOME = "ballerina.home";
     private static final String CONFIG_IS_TEST_CMD = "debugTests";
 
-    public TestDAPClientConnector(String balHome, Path projectPath, Path entryFilePath, int port) {
+    public DAPClientConnector(String balHome, Path projectPath, Path entryFilePath, int port) {
         this(balHome, projectPath, entryFilePath, "localhost", port);
     }
 
-    public TestDAPClientConnector(String balHome, Path projectPath, Path entryFilePath, String host, int port) {
+    public DAPClientConnector(String balHome, Path projectPath, Path entryFilePath, String host, int port) {
         this.balHome = balHome;
         this.projectPath = projectPath;
         this.entryFilePath = entryFilePath;
@@ -136,11 +136,14 @@ public class TestDAPClientConnector {
                 debugClient.connect(requestManager);
                 myConnectionState = ConnectionState.CONNECTED;
                 return res;
-            });
+            }).get();
 
+        } catch (RuntimeException e) {
+            myConnectionState = ConnectionState.NOT_CONNECTED;
+            LOGGER.warn("Runtime error occurred when trying to initialize connection with the debug server.", e);
         } catch (Exception e) {
             myConnectionState = ConnectionState.NOT_CONNECTED;
-            LOGGER.warn("Error occurred when trying to initialize connection with the debug server.", e);
+            LOGGER.warn("Internal occurred when trying to initialize connection with the debug server.", e);
         }
     }
 
@@ -209,7 +212,7 @@ public class TestDAPClientConnector {
         return "Unknown";
     }
 
-    private TestStreamConnectionProvider createConnectionProvider(String balHome) {
+    private StreamConnectionProvider createConnectionProvider(String balHome) {
 
         List<String> processArgs = new ArrayList<>();
 
@@ -225,7 +228,8 @@ public class TestDAPClientConnector {
 
         processArgs.add(DebugUtils.JBAL_DEBUG_CMD_NAME);
         processArgs.add(Integer.toString(debugAdapterPort));
-        return new TestSocketStreamConnectionProvider(processArgs, projectPath.toString(), host, debugAdapterPort);
+        return new SocketStreamConnectionProvider(processArgs, projectPath.toString(), host, debugAdapterPort,
+                balHome);
     }
 
     private enum ConnectionState {
