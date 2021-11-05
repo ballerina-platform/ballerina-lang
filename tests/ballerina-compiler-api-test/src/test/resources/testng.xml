@@ -57,6 +57,10 @@
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsOfEnumsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.XMLRefsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.CyclicUnionRefsTest" />
+            <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInConditionalStmtTest" />
+            <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInRegCompoundStmtTest" />
+            <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInTransactionalStmtTest" />
+            <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInFailTrtryStmtTest" />
 
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByAnnotationTest" />
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByClassTest" />
