@@ -3474,12 +3474,12 @@ public class Types {
 
     boolean isSigned16LiteralValue(Long longObject) {
 
-        return (longObject.intValue() >= SIGNED16_MIN_VALUE && longObject.intValue() <= SIGNED16_MAX_VALUE);
+        return (longObject >= SIGNED16_MIN_VALUE && longObject <= SIGNED16_MAX_VALUE);
     }
 
     boolean isSigned8LiteralValue(Long longObject) {
 
-        return (longObject.intValue() >= SIGNED8_MIN_VALUE && longObject.intValue() <= SIGNED8_MAX_VALUE);
+        return (longObject >= SIGNED8_MIN_VALUE && longObject <= SIGNED8_MAX_VALUE);
     }
 
     boolean isUnsigned32LiteralValue(Long longObject) {
@@ -3489,12 +3489,12 @@ public class Types {
 
     boolean isUnsigned16LiteralValue(Long longObject) {
 
-        return (longObject.intValue() >= 0 && longObject.intValue() <= UNSIGNED16_MAX_VALUE);
+        return (longObject >= 0 && longObject <= UNSIGNED16_MAX_VALUE);
     }
 
     boolean isUnsigned8LiteralValue(Long longObject) {
 
-        return (longObject.intValue() >= 0 && longObject.intValue() <= UNSIGNED8_MAX_VALUE);
+        return (longObject >= 0 && longObject <= UNSIGNED8_MAX_VALUE);
     }
 
     boolean isCharLiteralValue(String literal) {

@@ -474,6 +474,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
 public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
+    public static final String INT_MIN_OVERFLOW_VAL = "-9223372036854775808";
     private BLangDiagnosticLog dlog;
     private SymbolTable symTable;
 
@@ -5856,23 +5857,35 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return null;
     }
 
+    private void logParseLongError(Node literal, String originalNodeValue, SyntaxKind sign, DiagnosticCode code1,
+                                   DiagnosticCode code2){
+        Location pos = getPosition(literal);
+        if (sign == SyntaxKind.MINUS_TOKEN) {
+            pos = new BLangDiagnosticLocation(pos.lineRange().filePath(),
+                    pos.lineRange().startLine().line(),
+                    pos.lineRange().endLine().line(),
+                    pos.lineRange().startLine().offset() - 1,
+                    pos.lineRange().endLine().offset());
+            dlog.error(pos, code1, originalNodeValue);
+        } else {
+            dlog.error(pos, code2, originalNodeValue);
+        }
+    }
+
     private Object parseLong(Node literal, String originalNodeValue,
                              String processedNodeValue, int radix, SyntaxKind sign,
                              DiagnosticCode code1, DiagnosticCode code2) {
+        // Since 9223372036854775808 is to overflow in Ballerina and -9223372036854775808 is a unary-expr where the
+        // expression is 9223372036854775808, -9223372036854775808 should also overflow even though it is within bounds
+        // for Java Long
+        if (originalNodeValue.equals(INT_MIN_OVERFLOW_VAL)) {
+            logParseLongError(literal, originalNodeValue, sign, code1, code2);
+            return originalNodeValue;
+        }
         try {
             return Long.parseLong(processedNodeValue, radix);
         } catch (Exception e) {
-            Location pos = getPosition(literal);
-            if (sign == SyntaxKind.MINUS_TOKEN) {
-                pos = new BLangDiagnosticLocation(pos.lineRange().filePath(),
-                                        pos.lineRange().startLine().line(),
-                                        pos.lineRange().endLine().line(),
-                                        pos.lineRange().startLine().offset() - 1,
-                                        pos.lineRange().endLine().offset());
-                dlog.error(pos, code1, originalNodeValue);
-            } else {
-                dlog.error(pos, code2, originalNodeValue);
-            }
+            logParseLongError(literal, originalNodeValue, sign, code1, code2);
         }
         return originalNodeValue;
     }

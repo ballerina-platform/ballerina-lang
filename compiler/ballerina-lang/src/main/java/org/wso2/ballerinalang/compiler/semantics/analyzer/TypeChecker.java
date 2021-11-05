@@ -797,6 +797,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType getIntLiteralType(Location location, BType expType, BType literalType,
                                     Object literalValue) {
+        // The iteralValue will be a string if it is not within the bounds of what is supported by Java Long,
+        // indicating that it is an overflown Ballerina int
+        if (literalValue.getClass().getSimpleName().equals("String")) {
+            resultType = symTable.semanticError;
+            return resultType;
+        }
 
         switch (expType.tag) {
             case TypeTags.INT:
