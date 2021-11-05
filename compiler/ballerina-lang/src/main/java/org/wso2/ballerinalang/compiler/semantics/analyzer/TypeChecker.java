@@ -467,16 +467,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private int targetMemberTypeTag(BFiniteType finiteType) {
-        for (int i = TypeTags.SIGNED32_INT; i <= TypeTags.UNSIGNED8_INT; i++) {
-            for (BLangExpression valueExpr : finiteType.getValueSpace()) {
-                if (valueExpr.getBType().tag == i) {
-                    return i;
-                }
-            }
-        }
-        for (int i = TypeTags.INT; i <= TypeTags.DECIMAL; i++) {
-            for (BLangExpression valueExpr : finiteType.getValueSpace()) {
+    private int getPreferredMemberTypeTag(BFiniteType finiteType) {
+        for (BLangExpression valueExpr : finiteType.getValueSpace()) {
+            for (int i = TypeTags.INT; i <= TypeTags.DECIMAL; i++) {
                 if (valueExpr.getBType().tag == i) {
                     return i;
                 }
@@ -538,7 +531,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     setLiteralValueForFiniteType(literalExpr, valueType);
                     return valueType;
                 }
-                int targetMemberTypeTag = targetMemberTypeTag(finiteType);
+                int targetMemberTypeTag = getPreferredMemberTypeTag(finiteType);
                 if ((targetMemberTypeTag == TypeTags.FLOAT || targetMemberTypeTag == TypeTags.DECIMAL) &&
                         literalAssignableToFiniteType(literalExpr, finiteType, targetMemberTypeTag)) {
                     BType valueType =
