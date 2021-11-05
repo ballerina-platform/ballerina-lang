@@ -1319,6 +1319,11 @@ public class TypeChecker {
             Field targetField = targetFieldEntry.getValue();
             Field sourceField = sourceFields.get(fieldName);
 
+            if (targetField.getFieldType().getTag() == TypeTags.NEVER_TAG && containsInvalidNeverField(sourceField,
+                    sourceRecordType)) {
+                return false;
+            }
+
             if (sourceField == null) {
                 if (!SymbolFlags.isFlagOn(targetField.getFlags(), SymbolFlags.OPTIONAL)) {
                     return false;
@@ -1388,6 +1393,32 @@ public class TypeChecker {
             }
         }
         return true;
+    }
+
+    private static boolean containsInvalidNeverField(Field sourceField, BRecordType sourceRecordType) {
+        if (sourceField != null) {
+            return !containsNeverType(sourceField.getFieldType());
+        }
+        if (sourceRecordType.isSealed()) {
+            return true;
+        }
+        return !containsNeverType(sourceRecordType.getRestFieldType());
+    }
+
+    private static boolean containsNeverType(Type fieldType) {
+        int fieldTag = fieldType.getTag();
+        if (fieldTag == TypeTags.NEVER_TAG) {
+            return true;
+        }
+        if (fieldTag == TypeTags.UNION_TAG) {
+            List<Type> memberTypes = ((BUnionType) fieldType).getOriginalMemberTypes();
+            for (Type member : memberTypes) {
+                if (member.getTag() == TypeTags.NEVER_TAG) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static boolean hasIncompatibleReadOnlyFlags(Field targetField, Field sourceField) {
