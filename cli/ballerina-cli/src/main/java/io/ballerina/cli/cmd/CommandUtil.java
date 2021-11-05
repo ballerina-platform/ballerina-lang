@@ -316,7 +316,7 @@ public class CommandUtil {
                     if (Files.exists(packageJsonPath)) {
                         Path balaToml = modulePath.resolve(ProjectConstants.BALLERINA_TOML);
                         Files.createFile(balaToml);
-                        writeBallerinaToml(balaToml, packageJson, projectPlatform, platform);
+                        writeBallerinaToml(balaToml, packageJson, platform);
                     }
                     // Copy docs
                     Path packageMDFilePath = balaPath.resolve("docs")
@@ -439,7 +439,7 @@ public class CommandUtil {
         }
     }
 
-    public static void writeBallerinaToml(Path balTomlPath, PackageJson packageJson, Path projectPlatform,
+    public static void writeBallerinaToml(Path balTomlPath, PackageJson packageJson,
                                           String platform)
             throws IOException {
 
@@ -464,7 +464,10 @@ public class CommandUtil {
             JsonArray platformLibraries = packageJson.getPlatformDependencies();
             for (Object dependencies : platformLibraries) {
                 JsonObject dependeciesObj = (JsonObject) dependencies;
-                Files.writeString(balTomlPath, "\npath = \"" + projectPlatform + "\"", StandardOpenOption.APPEND);
+                String libPath = dependeciesObj.get("path").getAsString();
+                Path libName = Optional.of(Paths.get(libPath).getFileName()).get();
+                Path libRelPath = Paths.get("libs", libName.toString());
+                Files.writeString(balTomlPath, "\npath = \"" + libRelPath + "\"", StandardOpenOption.APPEND);
 
                 if (dependeciesObj.get("artifactId") != null) {
                     String artifactId = dependeciesObj.get("artifactId").getAsString();
