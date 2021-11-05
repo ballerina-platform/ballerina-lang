@@ -6425,6 +6425,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BType expType = typeParamAnalyzer.getMatchingBoundType(expectedType, env);
             BType inferredType = checkExpr(arg, env, expType);
             typeParamAnalyzer.checkForTypeParamsInArg(pos, inferredType, this.env, expectedType);
+            types.checkType(arg.pos, inferredType, expectedType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
             return;
         }
         checkExpr(arg, env, expectedType);
