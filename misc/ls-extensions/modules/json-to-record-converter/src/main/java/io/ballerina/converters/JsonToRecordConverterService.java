@@ -45,7 +45,7 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
     @JsonRequest
     public CompletableFuture<JsonToRecordResponse> convert(JsonToRecordRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            JsonToRecordResponse response = new JsonToRecordResponse();
+            JsonToRecordResponse response;
             try {
                 String jsonString = request.getJsonString();
                 String recordName = request.getRecordName();

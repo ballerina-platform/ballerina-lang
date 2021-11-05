@@ -1,0 +1,73 @@
+{
+  "name": "Person",
+  "type": "record",
+  "isArray": false,
+  "isRequired": true,
+  "fields": [
+    {
+      "name": "address",
+      "type": "record",
+      "isArray": false,
+      "isRequired": true,
+      "fields": [
+        {
+          "name": "country",
+          "type": "string",
+          "isArray": false,
+          "isRequired": true,
+          "fields": []
+        },
+        {
+          "name": "city",
+          "type": "record",
+          "isArray": false,
+          "isRequired": true,
+          "fields": [
+            {
+              "name": "code",
+              "type": "string",
+              "isArray": false,
+              "isRequired": true,
+              "fields": []
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "isArray": false,
+              "isRequired": true,
+              "fields": []
+            }
+          ]
+        },
+        {
+          "name": "Lane",
+          "type": "string",
+          "isArray": false,
+          "isRequired": true,
+          "fields": []
+        }
+      ]
+    },
+    {
+      "name": "school",
+      "type": "string",
+      "isArray": false,
+      "isRequired": true,
+      "fields": []
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "isArray": false,
+      "isRequired": true,
+      "fields": []
+    },
+    {
+      "name": "age",
+      "type": "int",
+      "isArray": false,
+      "isRequired": true,
+      "fields": []
+    }
+  ]
+}

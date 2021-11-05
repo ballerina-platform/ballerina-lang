@@ -19,6 +19,10 @@ package io.ballerina.converters;
 
 import java.util.List;
 
+/**
+ * This is a model which represents Field for a give JSON.
+ *
+ */
 public class JsonToRecordField {
     private String name;
     private String type;

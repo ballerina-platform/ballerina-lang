@@ -1,0 +1,167 @@
+{
+  "name": "NewRecord",
+  "type": "record",
+  "isArray": false,
+  "isRequired": true,
+  "fields": [
+    {
+      "name": "books",
+      "type": "record",
+      "isArray": true,
+      "isRequired": true,
+      "fields": [
+        {
+          "name": "author",
+          "type": "record",
+          "isArray": false,
+          "isRequired": true,
+          "fields": [
+            {
+              "name": "country",
+              "type": "string",
+              "isArray": false,
+              "isRequired": true,
+              "fields": []
+            },
+            {
+              "name": "period",
+              "type": "string",
+              "isArray": false,
+              "isRequired": true,
+              "fields": []
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "isArray": false,
+              "isRequired": true,
+              "fields": []
+            }
+          ]
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "isArray": false,
+          "isRequired": true,
+          "fields": []
+        }
+      ]
+    },
+    {
+      "name": "address",
+      "type": "record",
+      "isArray": false,
+      "isRequired": true,
+      "fields": [
+        {
+          "name": "number",
+          "type": "string",
+          "isArray": false,
+          "isRequired": true,
+          "fields": []
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "isArray": false,
+          "isRequired": true,
+          "fields": []
+        },
+        {
+          "name": "street",
+          "type": "string",
+          "isArray": false,
+          "isRequired": true,
+          "fields": []
+        },
+        {
+          "name": "neighborhood",
+          "type": "string",
+          "isArray": false,
+          "isRequired": true,
+          "fields": []
+        },
+        {
+          "name": "state",
+          "type": "record",
+          "isArray": false,
+          "isRequired": true,
+          "fields": [
+            {
+              "name": "code",
+              "type": "string",
+              "isArray": false,
+              "isRequired": true,
+              "fields": []
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "isArray": false,
+              "isRequired": true,
+              "fields": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sports",
+      "type": "record",
+      "isArray": true,
+      "isRequired": true,
+      "fields": [
+        {
+          "name": "position",
+          "type": "string",
+          "isArray": false,
+          "isRequired": true,
+          "fields": []
+        },
+        {
+          "name": "sport",
+          "type": "string",
+          "isArray": false,
+          "isRequired": true,
+          "fields": []
+        }
+      ]
+    },
+    {
+      "name": "school",
+      "type": "string",
+      "isArray": false,
+      "isRequired": true,
+      "fields": []
+    },
+    {
+      "name": "year",
+      "type": "string",
+      "isArray": false,
+      "isRequired": true,
+      "fields": []
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "isArray": false,
+      "isRequired": true,
+      "fields": []
+    },
+    {
+      "name": "age",
+      "type": "int",
+      "isArray": false,
+      "isRequired": true,
+      "fields": []
+    },
+    {
+      "name": "honors",
+      "type": "boolean",
+      "isArray": false,
+      "isRequired": true,
+      "fields": []
+    }
+  ]
+}

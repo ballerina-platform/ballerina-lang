@@ -93,6 +93,15 @@ public class JsonToRecordConverterTests {
             .resolve("sample_6.json");
     private final Path sample6Bal = RES_DIR.resolve("ballerina")
             .resolve("sample_6.bal");
+    private final Path sample6FieldJson = RES_DIR.resolve("json")
+            .resolve("sample_6_field.json");
+
+    private final Path sample7Json = RES_DIR.resolve("json")
+            .resolve("sample_7.json");
+    private final Path sample7Bal = RES_DIR.resolve("ballerina")
+            .resolve("sample_7.bal");
+    private final Path sample7FieldsJson = RES_DIR.resolve("json")
+            .resolve("sample_7_field.json");
 
     private final Path crlfJson = RES_DIR.resolve("json")
             .resolve("crlf.json");
@@ -222,5 +231,28 @@ public class JsonToRecordConverterTests {
             String expectedCodeBlock = Files.readString(sample.getValue()).replaceAll("\\s+", "");
             Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
         }
+    }
+
+    @Test(description = "Test with sample json objects for fields")
+    public void testFieldForSamples() throws JsonToRecordConverterException, IOException, FormatterException {
+        String jsonFileContent = Files.readString(sample6Json);
+        JsonToRecordField generatedField = JsonToRecordConverter.convert(jsonFileContent, "",
+                true, false).getFields();
+        JsonObject genJsonObj = JsonParser.parseString(new Gson().toJson(generatedField)).getAsJsonObject();
+        JsonObject expectedJson = JsonParser.parseString(Files.readString(sample6FieldJson)).getAsJsonObject();
+        Assert.assertEquals(genJsonObj, expectedJson);
+    }
+
+    @Test(description = "Test with sample json for a closed record and objects for fields")
+    public void testFieldForClosedRecord() throws JsonToRecordConverterException, IOException, FormatterException {
+        String jsonFileContent = Files.readString(sample7Json);
+        JsonToRecordResponse response = JsonToRecordConverter.convert(jsonFileContent, "Person",
+                true, true);
+        String generatedCodeBlock = response.getCodeBlock().replaceAll("\\s+", "");
+        JsonObject genJsonObj = JsonParser.parseString(new Gson().toJson(response.getFields())).getAsJsonObject();
+        String expectedCodeBlock = Files.readString(sample7Bal).replaceAll("\\s+", "");
+        JsonObject expectedJson = JsonParser.parseString(Files.readString(sample7FieldsJson)).getAsJsonObject();
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        Assert.assertEquals(genJsonObj, expectedJson);
     }
 }

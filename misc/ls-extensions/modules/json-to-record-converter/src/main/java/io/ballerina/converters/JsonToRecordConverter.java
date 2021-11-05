@@ -52,7 +52,11 @@ import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import static io.ballerina.compiler.syntax.tree.NodeFactory.createBuiltinSimpleNameReferenceNode;
 import static io.ballerina.converters.util.ConverterUtils.convertOpenAPITypeToBallerina;
@@ -76,6 +80,9 @@ public class JsonToRecordConverter {
      * This method takes in a json string and returns the Ballerina code block.
      *
      * @param jsonString Json string for the schema
+     * @param recordName Name of the generated record
+     * @param isRecordTypeDesc To denote final record, a record type descriptor
+     * @param isClosed To denote the whether the response record is closed
      * @return {@link String} Ballerina code block
      * @throws IOException In case of Json parse error
      * @throws JsonToRecordConverterException In case of invalid schema
@@ -123,6 +130,9 @@ public class JsonToRecordConverter {
      * Generates Ballerina Record nodes for given OpenAPI model.
      *
      * @param openApi OpenAPI model
+     * @param typeDescField Type descriptor field
+     * @param isRecordTypeDescriptor To denote the record, a type descriptor
+     * @param isClosedRecord Denotes the record, a closed record
      * @return {@link ArrayList}  List of Record Nodes
      * @throws JsonToRecordConverterException In case of bad record fields
      */
@@ -243,6 +253,8 @@ public class JsonToRecordConverter {
      * @param required List of required parameters
      * @param recordFieldList Record field list to which the field will be added
      * @param field Schema entry of the field
+     * @param typeDescField Type descriptor field
+     * @param isRecordTypeDescriptor To denote the record, a type descriptor
      * @param typeDefinitionNodeList List of type definition nodes to be updated in case of object type fields
      * @throws JsonToRecordConverterException In case of bad schema entries
      */
@@ -273,12 +285,15 @@ public class JsonToRecordConverter {
      * @param schema OpenApi Schema
      * @param name Name of the field
      * @param typeDefinitionNodeList List of type definition nodes to be updated in case of object type fields
+     * @param typeDescField Type descriptor field
+     * @param isRecordTypeDescriptor To denote the record, a type descriptor
      * @return {@link TypeDescriptorNode} Type descriptor for record field
      * @throws JsonToRecordConverterException In case of invalid schema
      */
     private static TypeDescriptorNode extractOpenApiSchema(Schema<?> schema, String name,
                                                            List<NonTerminalNode> typeDefinitionNodeList,
-                                                           JsonToRecordField typeDescField, boolean isRecordTypeDescriptor)
+                                                           JsonToRecordField typeDescField,
+                                                           boolean isRecordTypeDescriptor)
             throws JsonToRecordConverterException {
 
         if (schema.getType() != null || schema.getProperties() != null) {
@@ -384,6 +399,7 @@ public class JsonToRecordConverter {
      * Parse and get the {@link OpenAPI} for the given json Schema String contract.
      *
      * @param schemaString     Json Schema as a string
+     * @param recordName Name of the record
      * @return {@link OpenAPI}  OpenAPI model
      * @throws JsonToRecordConverterException In case of invalid schema
      * @throws IOException In case of Json parse error
