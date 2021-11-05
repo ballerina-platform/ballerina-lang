@@ -35,15 +35,15 @@ public class ConfigModuleDetails {
         this.isCurrentPackage = isCurrentPackage;
     }
 
-    public String getOrgName() {
+    public String orgName() {
         return orgName;
     }
 
-    public String getPackageName() {
+    public String packageName() {
         return packageName;
     }
 
-    public String getModuleName() {
+    public String moduleName() {
         return moduleName;
     }
 
@@ -51,17 +51,4 @@ public class ConfigModuleDetails {
         return isCurrentPackage;
     }
 
-    public String toString() {
-        String val = "";
-        if (orgName != null) {
-            val = val.concat(orgName + ".");
-        }
-        if (packageName != null) {
-            val = val.concat(packageName + ".");
-        }
-        if (moduleName != null) {
-            val = val.concat(moduleName);
-        }
-        return val;
-    }
 }
