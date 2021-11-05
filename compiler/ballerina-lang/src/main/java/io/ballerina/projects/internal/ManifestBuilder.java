@@ -90,6 +90,7 @@ public class ManifestBuilder {
     private static final String EXPORT = "export";
     private static final String PLATFORM = "platform";
     private static final String SCOPE = "scope";
+    private static final String TEMPLATE = "template";
 
     private ManifestBuilder(TomlDocument ballerinaToml,
                             TomlDocument compilerPluginToml,
@@ -159,6 +160,7 @@ public class ManifestBuilder {
         String repository = "";
         String ballerinaVersion = "";
         String visibility = "";
+        boolean template = false;
 
         if (!tomlAstNode.entries().isEmpty()) {
             TomlTableNode pkgNode = (TomlTableNode) tomlAstNode.entries().get(PACKAGE);
@@ -170,6 +172,7 @@ public class ManifestBuilder {
                 repository = getStringValueFromTomlTableNode(pkgNode, REPOSITORY, "");
                 ballerinaVersion = getStringValueFromTomlTableNode(pkgNode, "distribution", "");
                 visibility = getStringValueFromTomlTableNode(pkgNode, "visibility", "");
+                template = getBooleanFromTemplateNode(pkgNode, TEMPLATE);
             }
         }
 
@@ -199,14 +202,15 @@ public class ManifestBuilder {
         }
 
         return PackageManifest.from(packageDescriptor, pluginDescriptor, platforms, localRepoDependencies, otherEntries,
-                diagnostics(), license, authors, keywords, exported, repository, ballerinaVersion, visibility);
+                diagnostics(), license, authors, keywords, exported, repository, ballerinaVersion, visibility,
+                template);
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
         // set defaults
         PackageOrg defaultOrg = PackageOrg.from(guessOrgName());
         PackageName defaultName = PackageName.from(guessPkgName(Optional.ofNullable(this.projectPath.getFileName())
-                                                                        .map(Path::toString).orElse("")));
+                .map(Path::toString).orElse("")));
         PackageVersion defaultVersion = PackageVersion.from(ProjectConstants.INTERNAL_VERSION);
         String org;
         String name;
@@ -432,6 +436,23 @@ public class ManifestBuilder {
             }
         }
         return null;
+    }
+
+    private boolean getBooleanFromTemplateNode(TomlTableNode tableNode, String key) {
+        TopLevelNode topLevelNode = tableNode.entries().get(key);
+        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
+            return false;
+        }
+
+        if (topLevelNode.kind() == TomlType.KEY_VALUE) {
+            TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
+            TomlValueNode value = keyValueNode.value();
+            if (value.kind() == TomlType.BOOLEAN) {
+                TomlBooleanValueNode tomlBooleanValueNode = (TomlBooleanValueNode) value;
+                return tomlBooleanValueNode.getValue();
+            }
+        }
+        return false;
     }
 
     private boolean getTrueFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
