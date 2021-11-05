@@ -148,7 +148,7 @@ public class BIRPackageSymbolEnter {
 
     private Map<String, BVarSymbol> globalVarMap = new HashMap<>();
 
-    public Env semtypeEnv = new Env();
+    public final Env semtypeEnv = new Env();
 
     public static BIRPackageSymbolEnter getInstance(CompilerContext context) {
         BIRPackageSymbolEnter packageReader = context.get(COMPILED_PACKAGE_SYMBOL_ENTER_KEY);
@@ -496,13 +496,18 @@ public class BIRPackageSymbolEnter {
         symbol.name = names.fromString(typeDefName);
         symbol.originalName = names.fromString(typeDefOrigName);
         SemType s = resolveTypeDefSemtype(type);
-        type.setSemtype(s);
-        semtypeEnv.addTypeDef(typeDefName, s);
+
         symbol.type = type;
         symbol.pkgID = this.env.pkgSymbol.pkgID;
         symbol.flags = flags;
         symbol.origin = toOrigin(origin);
         symbol.pos = pos;
+
+        // Add to semtype Env
+        //type.setSemtype(s);
+        if (s != null) {
+            semtypeEnv.addTypeDef(type.toString(), s);
+        }
 
         if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
             this.structureTypes.add((BStructureTypeSymbol) symbol);
@@ -729,8 +734,9 @@ public class BIRPackageSymbolEnter {
 
         // Resolve semtype
         SemType s = evaluateConst(constantSymbol);
-        constantSymbol.value.type.setSemtype(s);
-        semtypeEnv.addTypeDef(constantName, s);
+        if (s != null) {
+            //semtypeEnv.addTypeDef(constantName, s);
+        }
 
         // Define constant.
         enclScope.define(constantSymbol.name, constantSymbol);
@@ -745,7 +751,7 @@ public class BIRPackageSymbolEnter {
             case STRING:
                 return  SemTypes.stringConst((String) constantSymbol.value.value);
             case FLOAT:
-                return SemTypes.floatConst((double) constantSymbol.value.value);
+                return SemTypes.floatConst(Double.parseDouble((String) constantSymbol.value.value));
             default:
                 throw new AssertionError("Expression type not implemented for const semtype");
         }

@@ -47,6 +47,7 @@ import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.wso2.ballerinalang.compiler.BIRPackageSymbolEnter;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
@@ -237,6 +238,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BLangMissingNodesHelper missingNodesHelper;
     private PackageCache packageCache;
     private List<BLangNode> intersectionTypes;
+    private BIRPackageSymbolEnter birPackageSymbolEnter;
 
     private SymbolEnv env;
     private final boolean projectAPIInitiatedCompilation;
@@ -270,6 +272,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
         this.constResolver = ConstantValueResolver.getInstance(context);
+        this.birPackageSymbolEnter = BIRPackageSymbolEnter.getInstance(context);
 
         this.importedPackages = new ArrayList<>();
         this.unknownTypeRefs = new HashSet<>();
@@ -582,7 +585,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             default:
                 throw new AssertionError("not implemented");
         }
-
     }
 
     private SemType resolveSingletonType(BLangFiniteTypeNode td, Env semtypeEnv) {
@@ -645,9 +647,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private SemType resolveTypeDesc(BLangUserDefinedType td, Env semtypeEnv, Map<String, BLangNode> mod, int depth) {
-        String name = td.typeName.value;
-        if (td.getBType() != null && td.getBType().getSemtype() != null) {
-            return td.getBType().getSemtype();
+        String name = td.toString();
+        SemType s = birPackageSymbolEnter.semtypeEnv.getTypeNameSemTypeMap().get(name);
+        if (s != null) {
+            return s;
         }
 
         BLangNode moduleLevelDef = mod.get(name);
