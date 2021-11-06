@@ -20,9 +20,9 @@ package org.ballerinalang.configschemagenerator.util;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.configurations.ConfigModuleDetails;
 import io.ballerina.projects.configurations.ConfigVariable;
-import io.ballerina.projects.util.ProjectConstants;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
@@ -78,7 +78,7 @@ public class ConfigSchemaBuilder {
         root.add(PROPERTIES, rootNode);
         for (Map.Entry<ConfigModuleDetails, List<ConfigVariable>> configModuleDetails : configDetails.entrySet()) {
             List<ConfigVariable> configVariables = configModuleDetails.getValue();
-            if (isSingleFileProject(configModuleDetails)) {
+            if (ProjectKind.SINGLE_FILE_PROJECT.equals(configModuleDetails.getKey().projectKind())) {
                 // Set configurable variables at package level
                 setConfigVariables(configVariables, rootNode);
                 setRequiredConfigs(configVariables, root);
@@ -118,20 +118,6 @@ public class ConfigSchemaBuilder {
         }
 
         return root;
-    }
-
-    /**
-     * Check if given module details are for a single file project.
-     *
-     * @param configModuleDetails key entry for config details map
-     * @return boolean flag
-     */
-    private static boolean isSingleFileProject(Map.Entry<ConfigModuleDetails,
-            List<ConfigVariable>> configModuleDetails) {
-        ConfigModuleDetails moduleDetails = configModuleDetails.getKey();
-        return moduleDetails.orgName().equals(ProjectConstants.ANON_ORG) &&
-                moduleDetails.packageName().equals(ProjectConstants.DOT) &&
-                moduleDetails.moduleName().equals(ProjectConstants.DOT);
     }
 
     /**
