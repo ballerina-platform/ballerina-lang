@@ -65,7 +65,7 @@ public class DiagnosticsTest {
         List<Diagnostic> diagnostics = model.diagnostics(range);
 
         assertEquals(diagnostics.size(), 1);
-        assertDiagnostic(diagnostics.get(0), getExpectedErrors()[15]);
+        assertDiagnostic(diagnostics.get(0), getExpectedErrors()[16]);
     }
 
     @Test
@@ -104,6 +104,7 @@ public class DiagnosticsTest {
                 {"missing semicolon token", 18, 0},
                 {"invalid token 'string'", 21, 8},
                 {"missing identifier", 21, 15},
+                {"unknown type 'astring'", 26, 20},
 
                 // type_checking_errors.bal
                 {"incompatible types: expected 'int', found 'string'", 17, 12},
