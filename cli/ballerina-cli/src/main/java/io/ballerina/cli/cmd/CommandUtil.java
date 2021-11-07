@@ -301,13 +301,9 @@ public class CommandUtil {
             } catch (CentralClientException ce) {
                 if (version == null) {
                     outStream = System.out;
-                    if (ce.getMessage().contains("nodename nor servname provided, or not known")) {
-                        outStream.println("\nWarning: Unable to connect to the central, " +
-                                "searching the module from the local cache.\n");
-                        applyBalaTemplate(projectPath, balaCache, template);
-                    } else {
-                        throw new CentralClientException(ce.getMessage());
-                    }
+                    outStream.println("\nWarning: Unexpected error while pulling template from central, "
+                            + ce.getMessage());
+                    applyBalaTemplate(projectPath, balaCache, template);
                     CommandUtil.exitError(exitWhenFinish);
                 } else {
                     throw new CentralClientException(ce.getMessage());
