@@ -60,7 +60,6 @@ import io.ballerina.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerina.compiler.internal.parser.tree.STSpecificFieldNode;
 import io.ballerina.compiler.internal.parser.tree.STSyncSendActionNode;
 import io.ballerina.compiler.internal.parser.tree.STToken;
-import io.ballerina.compiler.internal.parser.tree.STTupleTypeDescriptorNode;
 import io.ballerina.compiler.internal.parser.tree.STTypeReferenceTypeDescNode;
 import io.ballerina.compiler.internal.parser.tree.STTypeTestExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STTypedBindingPatternNode;
@@ -15206,6 +15205,7 @@ public class BallerinaParser extends AbstractParser {
         STNode memberEnd;
         while (!isEndOfListConstructor(peek().kind)) {
             STNode expr = parseTypeDescOrExpr();
+            expr = getTypeDescFromExpr(expr);
             // Tuple type desc can contain rest descriptor which is not a regular type desc,
             // hence handle it here.
             if (peek().kind == SyntaxKind.ELLIPSIS_TOKEN && isDefiniteTypeDesc(expr.kind)) {
@@ -18121,14 +18121,6 @@ public class BallerinaParser extends AbstractParser {
         return typeDescList;
     }
 
-    private List<STNode> getTypeDescList(STNodeList nodeList) {
-        List<STNode> typeDescList = new ArrayList<>();
-        for (int i = 0; i < nodeList.size(); i++) {
-            typeDescList.add(getTypeDescFromExpr(nodeList.get(i)));
-        }
-        return typeDescList;
-    }
-
     /**
      * Create a type-desc out of an expression.
      *
@@ -18178,13 +18170,6 @@ public class BallerinaParser extends AbstractParser {
                 return expression;
             case UNARY_EXPRESSION:
                 return STNodeFactory.createSingletonTypeDescriptorNode(expression);
-            case TUPLE_TYPE_DESC:
-                STTupleTypeDescriptorNode tupleTypeDescriptorNode = (STTupleTypeDescriptorNode) expression;
-                STNode memberNodes =
-                        STNodeFactory.createNodeList(getTypeDescList((STNodeList) tupleTypeDescriptorNode
-                                .memberTypeDesc));
-                return STNodeFactory.createTupleTypeDescriptorNode(tupleTypeDescriptorNode.openBracketToken,
-                        memberNodes, tupleTypeDescriptorNode.closeBracketToken);
             case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
             default:
