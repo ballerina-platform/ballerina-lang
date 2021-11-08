@@ -49,7 +49,7 @@ public class ConfigSchemaGenTaskTest {
     private static final String BALLERINA_HOME_KEY = "ballerina.home";
 
     @Test(dataProvider = "project-data-provider")
-    public void testGeneratedSchema(String projectType, String projectName, boolean isSingleFileProject) {
+    public void testAgainstToml(String projectType, String projectName, boolean isSingleFileProject) {
         Path projectPath = RESOURCES_DIR.resolve(projectType).resolve(projectName);
         Project projectInstance = loadBuildProject(projectPath, isSingleFileProject);
         projectInstance.currentPackage().getCompilation();
@@ -60,12 +60,24 @@ public class ConfigSchemaGenTaskTest {
         tomlValidator.validate(configToml.toml());
         TomlTableNode tomlAstNode = configToml.toml().rootNode();
         if (!tomlAstNode.diagnostics().isEmpty()) {
-            String errorMsg = "";
+            String errorMsg = "Test failed for project " + projectPath + "\n";
             for (Diagnostic diagnostic : tomlAstNode.diagnostics()) {
                 errorMsg = errorMsg.concat(diagnostic.message() + "\n");
             }
             Assert.fail(errorMsg);
         }
+    }
+
+    @Test(dataProvider = "project-data-provider-for-schema-validation")
+    public void testAgainstExpectedSchema(String projectType, String projectName, boolean isSingleFileProject) {
+        Path projectPath = RESOURCES_DIR.resolve(projectType).resolve(projectName);
+        Project projectInstance = loadBuildProject(projectPath, isSingleFileProject);
+        projectInstance.currentPackage().getCompilation();
+        Path expectedSchemaPath = projectPath.resolve("expected-schema.json");
+        String errorMsg = "Test failed for project " + projectPath + "\nThe generated config-schema.json " +
+                "does not match the expected.";
+        Assert.assertEquals(readConfigJSONSchema(projectPath, isSingleFileProject),
+                readFileContent(expectedSchemaPath), errorMsg);
     }
 
     @DataProvider(name = "project-data-provider")
@@ -74,6 +86,11 @@ public class ConfigSchemaGenTaskTest {
                 {"DefaultModuleProjects", "ComplexTypeConfigs", false},
                 {"MultiModuleProjects", "SimpleTypeConfigs", false},
                 {"SingleFileProject1", "testconfig.bal", true}};
+    }
+
+    @DataProvider(name = "project-data-provider-for-schema-validation")
+    public Object[][] dpMethod2() {
+        return new Object[][]{{"DefaultModuleProjects", "ComplexTypeConfigs2", false}};
     }
 
     static Project loadBuildProject(Path projectPath, boolean isSingleFileProject) {
@@ -98,10 +115,9 @@ public class ConfigSchemaGenTaskTest {
         if (isSingleFileProject) {
             targetPath = path.getParent();
         } else {
-            targetPath = path.resolve(ProjectConstants.TARGET_DIR_NAME);
+            targetPath = path.resolve(ProjectConstants.TARGET_DIR_NAME).resolve(ProjectConstants.BIN_DIR_NAME);
         }
-        return readFileContent(targetPath.resolve(ProjectConstants.BIN_DIR_NAME).
-                resolve(CONFIG_SCHEMA));
+        return readFileContent(targetPath.resolve(CONFIG_SCHEMA));
     }
 
     /**

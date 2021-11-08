@@ -58,10 +58,10 @@ public class ConfigSchemaGenTask implements AnalysisTask<CompilationAnalysisCont
         if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
             path = project.sourceRoot().getParent();
         } else {
-            path = project.targetDir();
+            path = project.targetDir().resolve(ProjectConstants.BIN_DIR_NAME);
         }
-        Path configSchemaFile = path.resolve(ProjectConstants.BIN_DIR_NAME).resolve(CONFIG_SCHEMA);
-        if (!schema.isEmpty()) {
+        if (path != null && !schema.isEmpty()) {
+            Path configSchemaFile = path.resolve(CONFIG_SCHEMA);
             createIfNotExists(configSchemaFile);
             writeContent(configSchemaFile, schema);
         }
