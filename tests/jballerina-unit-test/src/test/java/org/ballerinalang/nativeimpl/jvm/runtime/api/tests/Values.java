@@ -41,7 +41,6 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BFunctionType;
-import io.ballerina.runtime.internal.types.BTypeIdSet;
 
 import java.util.Arrays;
 import java.util.HashMap;

@@ -46,9 +46,9 @@ public interface ObjectType extends StructureType, SelectivelyImmutableReference
     boolean isIsolated(String methodName);
 
     /**
-     * Provides copy of type ids of the object
+     * Provides copy of type ids of the object.
      *
-     * @return copy of type id set
+     * @return copy of type id set.
      */
     BTypeIdSet getTypeIdSet();
 
