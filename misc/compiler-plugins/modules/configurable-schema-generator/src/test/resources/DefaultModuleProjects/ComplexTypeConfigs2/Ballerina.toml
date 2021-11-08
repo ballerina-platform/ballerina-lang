@@ -1,6 +1,6 @@
 [package]
 org = "dilhashanazeer"
-name = "complexconfigs"
+name = "complexconfigs2"
 version = "0.1.0"
 
 [build-options]
