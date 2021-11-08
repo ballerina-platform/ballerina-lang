@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -211,5 +212,9 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     public boolean hasAnnotations() {
         return !annotations.isEmpty();
+    }
+
+    public BTypeIdSet getTypeIdSet() {
+        return new BTypeIdSet(new ArrayList<>(typeIdSet.ids));
     }
 }

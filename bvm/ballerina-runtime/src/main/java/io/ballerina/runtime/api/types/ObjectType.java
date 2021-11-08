@@ -17,6 +17,8 @@
  */
 package io.ballerina.runtime.api.types;
 
+import io.ballerina.runtime.internal.types.BTypeIdSet;
+
 /**
  * {@code BObjectType} represents a user defined object type in Ballerina.
  *
@@ -42,5 +44,12 @@ public interface ObjectType extends StructureType, SelectivelyImmutableReference
      * @return true if @{@link ObjectType} method is isolated otherwise false.
      */
     boolean isIsolated(String methodName);
+
+    /**
+     * Provides copy of type ids of the object
+     *
+     * @return copy of type id set
+     */
+    BTypeIdSet getTypeIdSet();
 
 }
