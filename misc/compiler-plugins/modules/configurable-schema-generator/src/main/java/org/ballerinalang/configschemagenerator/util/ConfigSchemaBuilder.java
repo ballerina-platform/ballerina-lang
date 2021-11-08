@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.configschemagenerator.util;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -25,6 +27,7 @@ import io.ballerina.projects.configurations.ConfigModuleDetails;
 import io.ballerina.projects.configurations.ConfigVariable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -51,6 +54,7 @@ import static org.wso2.ballerinalang.compiler.util.TypeTags.FLOAT;
 public class ConfigSchemaBuilder {
 
     static final String PROPERTIES = "properties";
+    static final String ADDITIONAL_PROPERTIES = "additionalProperties";
     static final String TYPE = "type";
 
     /**
@@ -60,7 +64,8 @@ public class ConfigSchemaBuilder {
      * @return config schema JSON content as String
      */
     public static String getConfigSchemaContent(Map<ConfigModuleDetails, List<ConfigVariable>> configDetails) {
-        return getRootNode(configDetails).toString();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(getRootNode(configDetails));
     }
 
     /**
@@ -76,6 +81,7 @@ public class ConfigSchemaBuilder {
         root.addProperty("$schema", "http://json-schema.org/draft-07/schema#");
         root.addProperty(TYPE, "object");
         root.add(PROPERTIES, rootNode);
+        root.addProperty(ADDITIONAL_PROPERTIES, false);
         for (Map.Entry<ConfigModuleDetails, List<ConfigVariable>> configModuleDetails : configDetails.entrySet()) {
             List<ConfigVariable> configVariables = configModuleDetails.getValue();
             if (ProjectKind.SINGLE_FILE_PROJECT.equals(configModuleDetails.getKey().projectKind())) {
@@ -196,6 +202,7 @@ public class ConfigSchemaBuilder {
                     if (TypeTags.UNION == subType.tag && subType instanceof BUnionType) {
                         generateUnionType(typeNode, (BUnionType) subType);
                     }
+
                 }
             }
         }
@@ -269,15 +276,25 @@ public class ConfigSchemaBuilder {
     private static void generateUnionType(JsonObject typeNode, BUnionType subType) {
         LinkedHashSet<BType> members = subType.getMemberTypes();
         JsonArray memberArray = new JsonArray();
+        boolean isEnum = false;
+
         for (BType member : members) {
             if (TypeTags.isSimpleBasicType(member.tag)) {
                 String typeVal = getSimpleType(member);
                 JsonObject memberObj = new JsonObject();
                 memberObj.addProperty(TYPE, typeVal);
                 memberArray.add(memberObj);
+            } else if (TypeTags.FINITE == member.tag && member instanceof BFiniteType) {
+                BFiniteType memberType = (BFiniteType) member;
+                memberArray.add(memberType.toString());
+                isEnum = true;
             }
         }
-        typeNode.add("anyOf", memberArray);
+        if (isEnum) {
+            typeNode.add("enum", memberArray);
+        } else {
+            typeNode.add("anyOf", memberArray);
+        }
     }
 
     /**
@@ -290,6 +307,7 @@ public class ConfigSchemaBuilder {
         JsonObject node = new JsonObject();
         node.addProperty(TYPE, "object");
         node.add(PROPERTIES, modVarNode);
+        node.addProperty(ADDITIONAL_PROPERTIES, false);
         return node;
     }
 
