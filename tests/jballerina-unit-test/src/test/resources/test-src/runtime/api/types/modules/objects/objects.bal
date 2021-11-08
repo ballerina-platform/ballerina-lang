@@ -35,6 +35,30 @@ public isolated service class Service {
     }
 }
 
+public distinct service class Iterable {
+    string name;
+
+    public function init(string name) {
+        self.name = name;
+    }
+
+    isolated resource function get name() returns string {
+        return self.name;
+    }
+}
+
+public distinct service class Collection  {
+    *Iterable;
+
+    public function init(string name) {
+        self.name = name;
+    }
+
+    isolated resource function get name() returns string {
+        return self.name;
+    }
+}
+
 public function getParameters(PublicClientObject obj, string name) returns [string, boolean, string][] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
@@ -50,3 +74,8 @@ public function getParamTypesString(function func) returns string = @java:Method
 public function getConstituentTypes(any value) returns string[] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
+
+public function getTypeIds(Collection collection) returns string[] = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+

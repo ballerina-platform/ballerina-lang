@@ -24,6 +24,7 @@ public function main() {
     testFunctionToString();
     testParamTypesString();
     testConstituentTypes();
+    testTypeIds();
 }
 
 function testConstituentTypes() {
@@ -32,6 +33,14 @@ function testConstituentTypes() {
     test:assertEquals(types.length(), 2);
     test:assertEquals(types[0], "int[]");
     test:assertEquals(types[1], "readonly");
+}
+
+function testTypeIds() {
+    objects:Collection collection = new("waruna");
+    string[] types = objects:getTypeIds(collection);
+    test:assertEquals(types.length(), 2);
+    test:assertEquals(types[0], "Iterable");
+    test:assertEquals(types[1], "Collection");
 }
 
 function testFunctionToString() {

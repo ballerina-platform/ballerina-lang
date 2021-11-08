@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -40,6 +41,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BFunctionType;
+import io.ballerina.runtime.internal.types.BTypeIdSet;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -130,6 +132,19 @@ public class Values {
         int index = 0;
         for (Type type : constituentTypes) {
             arrayValue.add(index, StringUtils.fromString(type.toString()));
+            index++;
+        }
+        return arrayValue;
+    }
+
+    public static BArray getTypeIds(BObject service) {
+        List<TypeId> typeIds = service.getType().getTypeIdSet().getIds();
+        int size = typeIds.size();
+        BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING,
+                size), size);
+        int index = 0;
+        for (TypeId typeId : typeIds) {
+            arrayValue.add(index, StringUtils.fromString(typeId.getName()));
             index++;
         }
         return arrayValue;
