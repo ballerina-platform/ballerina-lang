@@ -60,6 +60,8 @@ public class SemTypeTest {
         ignore(testFiles, "float-singleton2.bal");
         ignore(testFiles, "int-singleton.bal");
         ignore(testFiles, "function.bal");
+        ignore(testFiles, "error1.bal");
+        ignore(testFiles, "hard.bal");
         /*
         include(testFiles,
                 "test-src/simple-type/type-test.bal",

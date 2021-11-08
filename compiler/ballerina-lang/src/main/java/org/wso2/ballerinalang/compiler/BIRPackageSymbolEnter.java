@@ -495,7 +495,6 @@ public class BIRPackageSymbolEnter {
 
         symbol.name = names.fromString(typeDefName);
         symbol.originalName = names.fromString(typeDefOrigName);
-        SemType s = resolveTypeDefSemtype(type);
 
         symbol.type = type;
         symbol.pkgID = this.env.pkgSymbol.pkgID;
@@ -505,6 +504,8 @@ public class BIRPackageSymbolEnter {
 
         // Add to semtype Env
         //type.setSemtype(s);
+
+        SemType s = resolveTypeDefSemtype(type);
         if (s != null) {
             semtypeEnv.addTypeDef(type.toString(), s);
         }
@@ -733,10 +734,12 @@ public class BIRPackageSymbolEnter {
         constantSymbol.literalType = constantSymbol.value.type;
 
         // Resolve semtype
+        /*
         SemType s = evaluateConst(constantSymbol);
         if (s != null) {
-            //semtypeEnv.addTypeDef(constantName, s);
+            semtypeEnv.addTypeDef(constantName, s);
         }
+         */
 
         // Define constant.
         enclScope.define(constantSymbol.name, constantSymbol);
