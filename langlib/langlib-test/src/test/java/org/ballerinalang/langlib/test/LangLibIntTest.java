@@ -97,11 +97,6 @@ public class LangLibIntTest {
     }
 
     @Test
-    public void testToHexStringNonPositives() {
-        BRunUtil.invoke(compileResult, "testToHexStringNonPositives");
-    }
-
-    @Test
     public void testFromHexString() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFromHexString");
         assertEquals(((BInteger) returns[0]).intValue(), 11259205);
@@ -137,26 +132,15 @@ public class LangLibIntTest {
         assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
-    @Test
-    public void testLangLibCallOnIntSubTypes() {
-        BRunUtil.invoke(compileResult, "testLangLibCallOnIntSubTypes");
-    }
-
-    @Test
-    public void testLangLibCallOnFiniteType() {
-        BRunUtil.invoke(compileResult, "testLangLibCallOnFiniteType");
-    }
-
-    @Test(expectedExceptions = {RuntimeException.class}, dataProvider = "functionProvider",
-            expectedExceptionsMessageRegExp = ".*\\{ballerina\\/lang\\.int}NumberOverflow \\{\"message\":\"int range " +
-                    "overflow\"}.*")
-    public void testIntOverflow(String funcName) {
+    @Test(dataProvider = "functionProvider")
+    public void testIntFunctions(String funcName) {
         BRunUtil.invoke(compileResult, funcName);
     }
 
     @DataProvider
     public Object[] functionProvider() {
-        return new String[]{"testIntOverflow1", "testIntOverflow2"};
+        return new String[] {"testToHexStringNonPositives", "testLangLibCallOnIntSubTypes",
+                "testLangLibCallOnFiniteType", "testIntOverflow"};
     }
 
 }

@@ -49,9 +49,9 @@ function testToHexString() returns [string, string, string] {
 }
 
 function testToHexStringNonPositives() {
-    assertValueEquality("-2", (-2).toHexString());
-    assertValueEquality("0", (0).toHexString());
-    assertValueEquality("-400", (-1024).toHexString());
+    test:assertValueEqual("-2", (-2).toHexString());
+    test:assertValueEqual("0", (0).toHexString());
+    test:assertValueEqual("-400", (-1024).toHexString());
 }
 
 function testFromHexString() returns [int|error, int|error] {
@@ -107,22 +107,19 @@ function testLangLibCallOnFiniteType() {
     test:assertValueEqual("c", s);
 }
 
-function testIntOverflow1() {
+function testIntOverflow() {
     int a1 = -9223372036854775808;
-    int b1 = a1.abs(); 
-}
+    int|error result = trap a1.abs();
 
-function testIntOverflow2() {
-    int a2 = (-9223372036854775807 - 1).abs();
-}
+    test:assertValueEqual(true, result is error);
+    error err = <error>result;
+    test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
+    test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
 
-type AssertionError distinct error;
-const ASSERTION_ERROR_REASON = "AssertionError";
+    result = trap (-9223372036854775807 - 1).abs();
 
-function assertValueEquality(anydata expected, anydata actual) {
-    if expected == actual {
-        return;
-    }
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    test:assertValueEqual(true, result is error);
+    err = <error>result;
+    test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
+    test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
 }
