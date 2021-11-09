@@ -90,7 +90,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public ModuleContextDataHolder moduleContextDataHolder;
 
     // Semtype env
-    public final Env semtypeEnv;
+    public Env semtypeEnv;
 
     public BLangPackage() {
         this.compUnits = new ArrayList<>();
@@ -110,7 +110,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.testablePkgs = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.diagnostics = new TreeSet<>(new DiagnosticComparator());
-        this.semtypeEnv = new Env();
     }
 
     @Override

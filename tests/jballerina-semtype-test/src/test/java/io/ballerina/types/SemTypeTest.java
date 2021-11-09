@@ -158,6 +158,13 @@ public class SemTypeTest {
         List<TypeRel> subtypeRelations = new ArrayList<>();
         List<String> typeNameList = typeMap.keySet().stream()
                 .filter(n -> !n.startsWith("$anon"))
+                .filter(n -> !n.startsWith("string:"))
+                .filter(n -> !n.startsWith("int:"))
+                .filter(n -> !n.startsWith("ballerina/"))
+                .filter(n -> !n.startsWith("error<"))
+                .filter(n -> !n.equals("error"))
+                .filter(n -> !n.equals("xml"))
+                .filter(n -> !n.equals("string"))
                 .sorted(SemTypeTest::ballerinaStringCompare)
                 .collect(Collectors.toList());
         int size = typeNameList.size();

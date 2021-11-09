@@ -288,6 +288,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
+        pkgNode.semtypeEnv = birPackageSymbolEnter.semtypeEnv;
         dlog.setCurrentPackageId(pkgNode.packageID);
         populatePackageNode(pkgNode);
         defineNode(pkgNode, this.symTable.pkgEnvMap.get(symTable.langAnnotationModuleSymbol));
@@ -648,7 +649,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private SemType resolveTypeDesc(BLangUserDefinedType td, Env semtypeEnv, Map<String, BLangNode> mod, int depth) {
         String name = td.toString();
-        SemType s = birPackageSymbolEnter.semtypeEnv.getTypeNameSemTypeMap().get(name);
+        SemType s = semtypeEnv.getTypeNameSemTypeMap().get(name);
         if (s != null) {
             return s;
         }
