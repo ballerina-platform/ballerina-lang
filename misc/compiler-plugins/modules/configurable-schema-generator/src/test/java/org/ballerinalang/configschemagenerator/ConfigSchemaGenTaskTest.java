@@ -85,7 +85,7 @@ public class ConfigSchemaGenTaskTest {
         return new Object[][]{{"DefaultModuleProjects", "SimpleTypeConfigs", false},
                 {"DefaultModuleProjects", "ComplexTypeConfigs", false},
                 {"MultiModuleProjects", "SimpleTypeConfigs", false},
-                {"SingleFileProject1", "testconfig.bal", true}};
+                {"SingleFileProject", "testconfig.bal", true}};
     }
 
     @DataProvider(name = "project-data-provider-for-schema-validation")
