@@ -186,7 +186,7 @@ public class BasicTupleTest {
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 39);
+        Assert.assertEquals(resultNegative.getErrorCount(), 40);
         int i = 0;
         BAssertUtil.validateError(
                 resultNegative, i++, "tuple and expression size does not match", 18, 32);
@@ -304,6 +304,12 @@ public class BasicTupleTest {
                 "cannot be cast to 'json[]'", 202, 16);
         BAssertUtil.validateError(resultNegative, i, "incompatible types: expected 'json', " +
                 "found '[string,(int|xml),string...]'", 203, 16);
+    }
+
+    @Test(description = "Test ambiguous tuple assignment to unions of tuple types")
+    public void testAmbiguousTupleTupeNegative() {
+        int i = 39;
+        BAssertUtil.validateError(resultNegative, i, "ambiguous type '([1,hello]|[1])'", 208, 10);
     }
 
     @Test
