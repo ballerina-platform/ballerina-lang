@@ -141,6 +141,17 @@ function testTernaryAsArgument() {
     assertEquals(a[1], 255);
 }
 
+boolean bool = true;
+int e1 = 10;
+int e2 = 1;
+int t1 = (bool ? e1 : e2);
+int t2 = (!bool ? e1 : e2);
+
+function testTernaryInModuleLevel() {
+    assertEquals(10, t1);
+    assertEquals(1, t2);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquals(anydata expected, anydata actual) {
