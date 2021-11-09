@@ -61,12 +61,10 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.utils.ParserUtil;
 import org.eclipse.lsp4j.Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Visitor to discover the program structure.
@@ -79,11 +77,9 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
     public static final String ENDPOINTS_KEY = "endpoints";
     public static final String ACTION_INVOCATION_KEY = "actionInvocations";
 
-    private static final Logger logger = LoggerFactory.getLogger(PerformanceAnalyzerNodeVisitor.class);
-
-    private final HashMap<Integer, Object> variableMap;
-    private final HashMap<Integer, Integer> referenceMap;
-    private final HashMap<Integer, EndPointNode> endPointDeclarationMap;
+    private final HashMap<LineRange, Object> variableMap;
+    private final HashMap<LineRange, String> referenceMap;
+    private final HashMap<String, EndPointNode> endPointDeclarationMap;
 
     private final Node startNode;
     private final SemanticModel model;
@@ -113,9 +109,7 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
     @Override
     public void visit(ModulePartNode modulePartNode) {
 
-        if (!modulePartNode.members().isEmpty()) {
-            modulePartNode.members().forEach(moduleMemberDeclarationNode -> moduleMemberDeclarationNode.accept(this));
-        }
+        modulePartNode.members().forEach(moduleMemberDeclarationNode -> moduleMemberDeclarationNode.accept(this));
     }
 
     @Override
@@ -133,30 +127,25 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
 
         LineRange lineRange = moduleVariableDeclarationNode.typedBindingPattern().bindingPattern().
                 location().lineRange();
-        String ref = lineRange.filePath() + lineRange.startLine() + lineRange.endLine();
-        int hashCode = Objects.hashCode(ref);
+
         if (clientObject || isRecordObject(symbol.get())) {
             Optional<ExpressionNode> expressionNode = moduleVariableDeclarationNode.initializer();
 
             if (expressionNode.isPresent() && expressionNode.get().kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
-                this.registerVariableRef(getEndpointReference(symbol.get()), moduleVariableDeclarationNode);
+                this.registerVariableRef(lineRange, moduleVariableDeclarationNode);
             }
         } else if ((symbol.get().kind() == SymbolKind.VARIABLE) &&
                 (moduleVariableDeclarationNode.initializer().get().kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION)) {
 
-            this.registerVariableRef(hashCode, moduleVariableDeclarationNode);
+            this.registerVariableRef(lineRange, moduleVariableDeclarationNode);
         }
 
         if (moduleVariableDeclarationNode.typedBindingPattern().bindingPattern().kind() ==
                 SyntaxKind.CAPTURE_BINDING_PATTERN) {
 
-            Optional<Symbol> initSymbol = model.symbol(moduleVariableDeclarationNode.initializer().get());
-
             SyntaxKind initializerKind = moduleVariableDeclarationNode.initializer().get().kind();
-            if (initSymbol.isPresent() && initializerKind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-                putReference(hashCode, getEndpointReference(initSymbol.get()));
-            } else if (initializerKind == SyntaxKind.NUMERIC_LITERAL || initializerKind == SyntaxKind.STRING_LITERAL) {
-                this.registerVariableRef(hashCode, moduleVariableDeclarationNode);
+            if (initializerKind == SyntaxKind.NUMERIC_LITERAL || initializerKind == SyntaxKind.STRING_LITERAL) {
+                this.registerVariableRef(lineRange, moduleVariableDeclarationNode);
             }
         }
         moduleVariableDeclarationNode.typedBindingPattern().accept(this);
@@ -195,30 +184,25 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
 
         LineRange lineRange = variableDeclarationNode.typedBindingPattern().bindingPattern().
                 location().lineRange();
-        String ref = lineRange.filePath() + lineRange.startLine() + lineRange.endLine();
-        int hashCode = Objects.hashCode(ref);
+
         if (clientObject || isRecordObject(symbol.get())) {
             Optional<ExpressionNode> expressionNode = variableDeclarationNode.initializer();
 
             if (expressionNode.isPresent() && expressionNode.get().kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
-                this.registerVariableRef(getEndpointReference(symbol.get()), variableDeclarationNode);
+                this.registerVariableRef(lineRange, variableDeclarationNode);
             }
         } else if ((symbol.get().kind() == SymbolKind.VARIABLE) &&
                 (variableDeclarationNode.initializer().get().kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION)) {
-            this.registerVariableRef(hashCode,
+            this.registerVariableRef(lineRange,
                     variableDeclarationNode);
         }
 
         if (variableDeclarationNode.typedBindingPattern().bindingPattern().kind() ==
                 SyntaxKind.CAPTURE_BINDING_PATTERN) {
 
-            Optional<Symbol> initSymbol = model.symbol(variableDeclarationNode.initializer().get());
-
             SyntaxKind initializerKind = variableDeclarationNode.initializer().get().kind();
-            if (initSymbol.isPresent() && initializerKind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-                putReference(hashCode, getEndpointReference(initSymbol.get()));
-            } else if (initializerKind == SyntaxKind.NUMERIC_LITERAL || initializerKind == SyntaxKind.STRING_LITERAL) {
-                this.registerVariableRef(hashCode, variableDeclarationNode);
+            if (initializerKind == SyntaxKind.NUMERIC_LITERAL || initializerKind == SyntaxKind.STRING_LITERAL) {
+                this.registerVariableRef(lineRange, variableDeclarationNode);
             }
         }
 
@@ -326,8 +310,6 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
                 return;
             }
 
-            putReference(getEndpointReference(referenceSymbol.get()),
-                    getEndpointReference(expressionSymbol.get()));
         }
 
         assignmentStatementNode.varRef().accept(this);
@@ -340,34 +322,8 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
         this.currentNode = node;
     }
 
-    private Integer resolveReference(Integer key) {
+    private void registerVariableRef(LineRange key, Object value) {
 
-        Integer result = -1;
-        while (this.referenceMap.containsKey(key)) {
-            key = this.referenceMap.get(key);
-            result = key;
-        }
-
-        return result;
-    }
-
-    private void putReference(Integer key, Integer value) {
-
-        if (this.referenceMap.containsKey(key)) {
-            logger.error(("Replacing existing value=" +
-                    this.referenceMap.get(key) +
-                    " for key=" + key + " with value="
-                    + value + ". Report with project files").replaceAll("[\r\n]", ""));
-        }
-        this.referenceMap.put(key, value);
-    }
-
-    private void registerVariableRef(Integer key, Object value) {
-
-        if (this.variableMap.containsKey(key)) {
-            logger.error(("Replacing existing value=" + this.referenceMap.get(key) + " for key=" + key + " with value="
-                    + value + ". Report with project files").replaceAll("[\r\n]", ""));
-        }
         this.variableMap.put(key, value);
     }
 
@@ -388,9 +344,14 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
                 } else if (parameterKind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
                     Optional<Symbol> expressionSymbol = model.symbol(remoteMethodCallActionNode.expression());
                     if (expressionSymbol.isPresent()) {
-                        int hashCode = getEndpointReference(expressionSymbol.get());
+                        Optional<Location> location = expressionSymbol.get().getLocation();
+                        if (location.isEmpty()) {
+                            return;
+                        }
+                        LineRange lineRange = location.get().lineRange();
+
                         VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode)
-                                variableMap.get(hashCode);
+                                variableMap.get(lineRange);
                         if (variableDeclarationNode != null) {
                             if (variableDeclarationNode.initializer().isPresent()) {
                                 ExpressionNode token = variableDeclarationNode.initializer().get();
@@ -415,29 +376,19 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
 
         Optional<Symbol> symbol = model.symbol(document, actionExpPos);
         if (symbol.isPresent()) {
-            Integer endPointRef = getEndpointReference(symbol.get());
-            if (!this.variableMap.containsKey(endPointRef)) {
-                endPointRef = resolveReference(endPointRef);
+            Optional<Location> location = symbol.get().getLocation();
+            if (location.isEmpty()) {
+                return;
             }
+            LineRange lineRange = location.get().lineRange();
 
             if (withinRange) {
                 String pos = actionPos.filePath() + "/" + actionPos;
-                ActionInvocationNode actionNode = new ActionInvocationNode(endPointRef, actionName, actionPath, pos);
+                ActionInvocationNode actionNode = new ActionInvocationNode(getUUID(lineRange), actionName, actionPath, pos);
                 this.currentNode.setNextNode(actionNode);
                 this.setChildNode(actionNode);
             }
         }
-    }
-
-    private Integer getEndpointReference(Symbol symbol) {
-
-        Optional<Location> location = symbol.getLocation();
-        if (location.isEmpty()) {
-            return -1;
-        }
-        LineRange lineRange = location.get().lineRange();
-        String ref = lineRange.filePath() + lineRange.startLine() + lineRange.endLine();
-        return Objects.hashCode(ref);
     }
 
     private void resolveEndPoint(Symbol symbol, ExpressionNode expressionNode) {
@@ -473,12 +424,22 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
             return;
         }
 
+        LineRange lineRange = symbol.getLocation().get().lineRange();
         EndPointNode endpoint = new EndPointNode(typeSymbolModule.get().id().orgName() +
                 "/" + typeSymbolModule.get().id().moduleName(),
-                signature.substring(signature.
-                        lastIndexOf(":") + 1), url, symbol.getLocation().get().lineRange());
-        this.endPointDeclarationMap.put(getEndpointReference(symbol),
-                endpoint);
+                signature.substring(signature.lastIndexOf(":") + 1), url, lineRange);
+        this.endPointDeclarationMap.put(getUUID(lineRange), endpoint);
+    }
+
+    private String getUUID(LineRange lineRange) {
+
+        if (referenceMap.containsKey(lineRange)) {
+            return referenceMap.get(lineRange);
+        }
+
+        String uuid = UUID.randomUUID().toString();
+        referenceMap.put(lineRange, uuid);
+        return uuid;
     }
 
     private String findBaseUrl(SeparatedNodeList<FunctionArgumentNode> arguments) {
