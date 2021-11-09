@@ -5521,7 +5521,7 @@ public class BallerinaParser extends AbstractParser {
             case NOT_IS_KEYWORD:
                 return true;
             case QUESTION_MARK_TOKEN:
-                //TODO : Should fix properly #33259
+                // TODO : Should fix properly #33259
                 return getNextNextToken().kind != SyntaxKind.EQUAL_TOKEN && peek(3).kind != SyntaxKind.EQUAL_TOKEN;
             default:
                 return isBinaryOperator(tokenKind);
