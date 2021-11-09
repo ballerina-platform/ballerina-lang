@@ -27,8 +27,11 @@ import io.ballerina.shell.parser.TrialTreeParser;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 /**
- * Attempts to capture a empty expression.
+ * Attempts to capture an empty expression.
  * This could be a comment, white space, etc...
  * Puts in the module level and checks for empty module level entry.
  * Empty entries are converted to ().
@@ -45,12 +48,14 @@ public class EmptyExpressionTrial extends TreeParserTrial {
     }
 
     @Override
-    public Node parse(String source) throws ParserTrialFailedException {
+    public Collection<Node> parse(String source) throws ParserTrialFailedException {
         TextDocument document = TextDocuments.from(source);
         SyntaxTree tree = getSyntaxTree(document);
         ModulePartNode node = tree.rootNode();
+        Collection<Node> nodes = new ArrayList<>();
         assertIf(node.members().isEmpty(), "expected no members");
         assertIf(node.imports().isEmpty(), "expected no imports");
-        return EMPTY_NODE;
+        nodes.add(EMPTY_NODE);
+        return nodes;
     }
 }

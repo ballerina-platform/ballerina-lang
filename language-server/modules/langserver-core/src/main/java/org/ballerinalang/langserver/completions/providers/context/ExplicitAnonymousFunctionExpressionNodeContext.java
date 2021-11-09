@@ -79,8 +79,9 @@ public class ExplicitAnonymousFunctionExpressionNodeContext
         if (functionKeyword.isMissing()) {
             return false;
         }
+        Token openParenToken = node.functionSignature().openParenToken();
         int cursor = context.getCursorPositionInTree();
-
-        return cursor > functionKeyword.textRange().endOffset();
+        
+        return !openParenToken.isMissing() && openParenToken.textRange().endOffset() <= cursor;
     }
 }

@@ -72,6 +72,12 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                                 location(59, 17, 19),
                                 location(62, 23, 25))
                 },
+
+                {171, 25, location(174, 9, 19),
+                        List.of(location(174, 9, 19),
+                                location(171, 25, 35))
+                },
+
                 // Template literals
                 {76, 8, location(76, 8, 9),
                         List.of(location(76, 8, 9),

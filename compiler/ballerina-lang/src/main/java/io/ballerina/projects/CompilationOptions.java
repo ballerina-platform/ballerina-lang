@@ -33,11 +33,12 @@ public class CompilationOptions {
     Boolean sticky;
     Boolean dumpGraph;
     Boolean dumpRawGraphs;
+    Boolean withCodeGenerators;
 
     CompilationOptions(Boolean offlineBuild, Boolean experimental,
                        Boolean observabilityIncluded, Boolean dumpBir, Boolean dumpBirFile,
                        String cloud, Boolean listConflictedClasses, Boolean sticky,
-                       Boolean dumpGraph, Boolean dumpRawGraphs) {
+                       Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators) {
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
@@ -48,6 +49,7 @@ public class CompilationOptions {
         this.sticky = sticky;
         this.dumpGraph = dumpGraph;
         this.dumpRawGraphs = dumpRawGraphs;
+        this.withCodeGenerators = withCodeGenerators;
     }
 
     public boolean offlineBuild() {
@@ -88,6 +90,10 @@ public class CompilationOptions {
 
     public boolean listConflictedClasses() {
         return toBooleanDefaultIfNull(this.listConflictedClasses);
+    }
+
+    public boolean withCodeGenerators() {
+        return toBooleanDefaultIfNull(this.withCodeGenerators);
     }
 
     /**
@@ -147,6 +153,11 @@ public class CompilationOptions {
             compilationOptionsBuilder.sticky(theirOptions.sticky);
         } else {
             compilationOptionsBuilder.sticky(this.sticky);
+        }
+        if (theirOptions.withCodeGenerators != null) {
+            compilationOptionsBuilder.withCodeGenerators(theirOptions.withCodeGenerators);
+        } else {
+            compilationOptionsBuilder.withCodeGenerators(this.withCodeGenerators);
         }
         return compilationOptionsBuilder.build();
     }

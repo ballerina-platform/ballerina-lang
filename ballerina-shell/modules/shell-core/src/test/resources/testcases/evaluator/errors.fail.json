@@ -9,7 +9,11 @@
   },
   {
     "description": "Get result which is an error.",
-    "code": "int|error negResult = getAccountBalance(-1); negResult is error;",
+    "code": "int|error negResult = getAccountBalance(-1);"
+  },
+  {
+    "description": "Get result which is an error - get value.",
+    "code": "negResult is error;",
     "expr": "true"
   },
   {

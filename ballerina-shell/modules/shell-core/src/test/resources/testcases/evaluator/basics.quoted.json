@@ -13,7 +13,11 @@
   },
   {
     "description": "Use quoted typedef.",
-    "code": "'Person_\\{name\\&Ȧɢέ\\} person = {'first\\ name: \"Tom\", 'Ȧɢέ:25}; person",
+    "code": "'Person_\\{name\\&Ȧɢέ\\} person = {'first\\ name: \"Tom\", 'Ȧɢέ:25}"
+  },
+  {
+    "description": "Get quoted typedef - get value.",
+    "code": "person",
     "expr": "{\"first name\":\"Tom\",\"Ȧɢέ\":25}"
   },
   {
@@ -22,27 +26,47 @@
   },
   {
     "description": "Create variable named int.",
-    "code": "int 'int = 1; 'int",
+    "code": "int 'int = 1;"
+  },
+  {
+    "description": "Call variable named int - get value.",
+    "code": "'int",
     "expr": "1"
   },
   {
     "description": "Use quoted function.",
-    "code": "int i = 'function('int); i",
+    "code": "int i = 'function('int)"
+  },
+  {
+    "description": "Get quoted function - get value.",
+    "code": "i",
     "expr": "2"
   },
   {
     "description": "Define variable starting with digit.",
-    "code": "int '1PlusI = 1 + i; '1PlusI",
+    "code": "int '1PlusI = 1 + i;"
+  },
+  {
+    "description": "Get variable starting with digit.",
+    "code": "'1PlusI",
     "expr": "3"
   },
   {
     "description": "Use \\ to escape in quoted ids.",
-    "code": "int '\\{add\\#5\\} = 5 + i; '\\{add\\#5\\}",
+    "code": "int '\\{add\\#5\\} = 5 + i;"
+  },
+  {
+    "description": "Get variable output - get value",
+    "code": "'\\{add\\#5\\}",
     "expr": "7"
   },
   {
     "description": "Use unicode in name.",
-    "code": "string 'üňĩćőđę_ňāɱȇ = \"John doe\"; 'üňĩćőđę_ňāɱȇ",
+    "code": "string 'üňĩćőđę_ňāɱȇ = \"John doe\";"
+  },
+  {
+    "description": "Use unicode in name - get value.",
+    "code": "'üňĩćőđę_ňāɱȇ",
     "expr": "\"John doe\""
   },
   {
@@ -52,7 +76,11 @@
   },
   {
     "description": "Define variable using type.",
-    "code": "Person person2 = {'first\\ name: \"Tom\", 'Ȧɢέ:25}; person2.'Ȧɢέ",
+    "code": "Person person2 = {'first\\ name: \"Tom\", 'Ȧɢέ:25};"
+  },
+  {
+    "description": "Define variable using type - get value.",
+    "code": "person2.'Ȧɢέ",
     "expr": "25"
   },
   {
@@ -62,17 +90,29 @@
   },
   {
     "description": "Use unicode with escape in name.",
-    "code": "string 'unicode_\\u{2324} = \"Jane doe\"; 'unicode_\\u{2324}",
+    "code": "string 'unicode_\\u{2324} = \"Jane doe\";"
+  },
+  {
+    "description": "Get unicode with escape in name - get value.",
+    "code": "'unicode_\\u{2324}",
     "expr": "\"Jane doe\""
   },
   {
     "description": "Use unicode with escape in name.",
-    "code": "string 'unicode_\\u{2324}\\u{2324} = \"Jane doe\"; 'unicode_\\u{2324}\\u{2324}",
+    "code": "string 'unicode_\\u{2324}\\u{2324} = \"Jane doe\";"
+  },
+  {
+    "description": "Get unicode with escape in name - get value.",
+    "code": "'unicode_\\u{2324}\\u{2324}",
     "expr": "\"Jane doe\""
   },
   {
     "description": "Use unicode with escape in name.",
-    "code": "string 'unicode_\\u{2324}\\u{2324}_name = \"Jane doe\"; 'unicode_\\u{2324}\\u{2324}_name",
+    "code": "string 'unicode_\\u{2324}\\u{2324}_name = \"Jane doe\""
+  },
+  {
+    "description": "Use unicode with escape in name - get value.",
+    "code": "'unicode_\\u{2324}\\u{2324}_name",
     "expr": "\"Jane doe\""
   }
 ]

@@ -87,6 +87,12 @@ public class AssignmentToNarrowedVarsInLoopsTest {
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 468, 13);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 469, 13);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 487, 25);
+        BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 503, 17);
+        BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 524, 17);
+        BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 547, 21);
+        BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 568, 17);
+        BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 587, 17);
+        BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 609, 21);
 
         Assert.assertEquals(index, result.getErrorCount());
     }

@@ -220,12 +220,12 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(ObjectFieldNode node) {
-        Optional<Symbol> variableSymbol = this.getSymbolByName(node.fieldName().text());
-        Optional<TypeSymbol> typeSymbol = variableSymbol.flatMap(SymbolUtil::getTypeDescriptor);
-        if (typeSymbol.isEmpty()) {
+        Optional<Symbol> symbol =
+                this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.symbol(node.typeName()));
+        if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.TYPE) {
             return Optional.empty();
         }
-        return Optional.of(this.getRawContextType(typeSymbol.get()));
+        return Optional.of(this.getRawContextType((TypeSymbol) symbol.get()));
     }
 
     @Override
@@ -606,13 +606,14 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(RecordFieldWithDefaultValueNode node) {
-        Optional<Symbol> variableSymbol = this.getSymbolByName(node.fieldName().text());
-        Optional<TypeSymbol> typeSymbol = variableSymbol.flatMap(SymbolUtil::getTypeDescriptor);
-        if (typeSymbol.isEmpty()) {
+
+        Optional<Symbol> symbol =
+                this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.symbol(node.typeName()));
+        if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.TYPE) {
             return Optional.empty();
         }
 
-        return Optional.of(this.getRawContextType(typeSymbol.get()));
+        return Optional.of(this.getRawContextType((TypeSymbol) symbol.get()));
     }
 
     @Override

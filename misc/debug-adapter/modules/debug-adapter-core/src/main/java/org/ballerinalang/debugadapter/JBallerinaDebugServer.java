@@ -159,7 +159,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private static final String VALUE_UNKNOWN = "unknown";
     private static final String EVAL_ARGS_CONTEXT_VARIABLES = "variables";
     private static final String COMPILATION_ERROR_MESSAGE = "error: compilation contains errors";
-    private static final String PARENTHESIS = "()";
 
     public JBallerinaDebugServer() {
         context = new ExecutionContext(this);

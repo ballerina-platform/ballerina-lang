@@ -56,10 +56,10 @@ import java.util.Map;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
+import static io.ballerina.runtime.internal.ErrorUtils.createAmbiguousConversionError;
 import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
  * Extern function lang.values:cloneWithType.
@@ -67,8 +67,6 @@ import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMP
  * @since 2.0
  */
 public class CloneWithType {
-
-    private static final String AMBIGUOUS_TARGET = "ambiguous target type";
 
     public static Object cloneWithType(Object v, BTypedesc t) {
         Type describingType = t.getDescribingType();
@@ -314,12 +312,5 @@ public class CloneWithType {
             fieldNames = ValueCreator.createArrayValue(new BString[0]);
         }
         return ValueCreator.createTableValue(tableType, data, fieldNames);
-    }
-
-    private static BError createAmbiguousConversionError(Object inputValue, Type targetType) {
-        return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
-                                                                TypeChecker.getType(inputValue), targetType)
-                                   .concat(StringUtils.fromString(": ".concat(CloneWithType.AMBIGUOUS_TARGET))));
     }
 }
