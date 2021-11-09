@@ -1566,7 +1566,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BType referenceConstraintType = types.getReferredType(definedType);
-        boolean isIntersectionType = referenceConstraintType.tag == TypeTags.INTERSECTION && !isLabel;;
+        boolean isIntersectionType = referenceConstraintType.tag == TypeTags.INTERSECTION && !isLabel;
 
         BType effectiveDefinedType = isIntersectionType ? ((BIntersectionType) referenceConstraintType).effectiveType :
                 referenceConstraintType;
