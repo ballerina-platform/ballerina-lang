@@ -530,12 +530,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             } else if (expType.tag == TypeTags.UNION) {
                 Set<BType> memberTypes = ((BUnionType) expType).getMemberTypes();
-                BType intSubType = null;
+                Set<BType> intSubTypeMembers = new HashSet<>();
                 boolean intOrIntCompatibleTypeFound = false;
+
                 for (BType memType : memberTypes) {
                     if ((memType.tag != TypeTags.INT && TypeTags.isIntegerTypeTag(memType.tag)) ||
                             memType.tag == TypeTags.BYTE) {
-                        intSubType = memType;
+                        intSubTypeMembers.add(memType);
                     } else if (memType.tag == TypeTags.INT || memType.tag == TypeTags.JSON ||
                             memType.tag == TypeTags.ANYDATA || memType.tag == TypeTags.ANY) {
                         intOrIntCompatibleTypeFound = true;
@@ -544,8 +545,15 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (intOrIntCompatibleTypeFound) {
                     return setLiteralValueAndGetType(literalExpr, symTable.intType);
                 }
-                if (intSubType != null) {
-                    return setLiteralValueAndGetType(literalExpr, intSubType);
+                if (!intSubTypeMembers.isEmpty()) {
+                    BType compatibleIntSubType = null;
+                    for(BType intSubTypeMember : intSubTypeMembers) {
+                        compatibleIntSubType = setLiteralValueAndGetType(literalExpr, intSubTypeMember);
+                        if (compatibleIntSubType != symTable.semanticError) {
+                            return compatibleIntSubType;
+                        }
+                    }
+                    return compatibleIntSubType;
                 }
 
                 BType finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.intType);
