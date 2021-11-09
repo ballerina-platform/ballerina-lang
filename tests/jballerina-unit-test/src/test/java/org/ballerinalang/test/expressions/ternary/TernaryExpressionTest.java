@@ -370,6 +370,11 @@ public class TernaryExpressionTest {
         BRunUtil.invoke(compileResult, "testTernaryWithLangValueMethodCalls");
     }
 
+    @Test
+    public void testTernaryWithOtherOperators() {
+        BRunUtil.invoke(compileResult, "testTernaryWithOtherOperators");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;
