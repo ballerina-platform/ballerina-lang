@@ -1535,9 +1535,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         ((BTypeDefinitionSymbol) typeDefSymbol).referenceType = new BTypeReferenceType(definedType, typeSymbol,
                 typeDefSymbol.type.flags);
 
-
+        boolean isLabel = true;
         //todo remove after type ref introduced to runtime
         if (definedType.tsymbol.name == Names.EMPTY) {
+            isLabel = false;
             definedType.tsymbol.name = names.fromIdNode(typeDefinition.name);
             definedType.tsymbol.originalName = names.fromIdNode(typeDefinition.name);
             definedType.tsymbol.flags |= typeDefSymbol.flags;
@@ -1565,7 +1566,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BType referenceConstraintType = types.getReferredType(definedType);
-        boolean isIntersectionType = referenceConstraintType.tag == TypeTags.INTERSECTION;
+        boolean isIntersectionType = referenceConstraintType.tag == TypeTags.INTERSECTION && !isLabel;;
 
         BType effectiveDefinedType = isIntersectionType ? ((BIntersectionType) referenceConstraintType).effectiveType :
                 referenceConstraintType;
