@@ -66,7 +66,7 @@ public type StackFrame readonly & object {
    # Returns a string representing this StackFrame.
    # This must not contain any newline characters.
    # + return - a string
-   public function toString() returns string;
+   public isolated function toString() returns string;
 };
 
 # Returns an object representing the stack trace of the error.

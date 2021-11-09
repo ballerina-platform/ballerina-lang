@@ -162,3 +162,27 @@ function testErrorUnionDetailType() {
         test:assertValueEqual("WTC_68", detailRecord2.codeName);
     }
 }
+
+isolated function testStacktraceStrRepresentation() {
+    error err = error GenericError(GENERIC_ERROR, message = "Test union of errors with type test");
+    string[] ar = err.stackTrace().map(isolated function(errorLib:StackFrame elem) returns string {
+        return elem.toString();
+    });
+    assertEquality("[\"callableName: testStacktraceStrRepresentation  fileName: errorlib_test.bal lineNumber: 167\"]",
+    ar.toString());
+}
+
+
+isolated function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}

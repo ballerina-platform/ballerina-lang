@@ -128,6 +128,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.SIGNED
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED16_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED32_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED8_MAX_VALUE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.NEVER;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.isSimpleBasicType;
 
 /**
@@ -3004,8 +3005,9 @@ public class Types {
             BField rhsField = rhsFields.get(lhsField.name.value);
 
             // If LHS field is required, there should be a corresponding RHS field
+            // If LHS field is never typed, RHS rest field type should include never type
             if (rhsField == null) {
-                if (!Symbols.isOptional(lhsField.symbol)) {
+                if (!Symbols.isOptional(lhsField.symbol) || isInvalidNeverField(lhsField, rhsType)) {
                     return false;
                 }
                 continue;
@@ -3045,6 +3047,25 @@ public class Types {
             }
         }
         return true;
+    }
+
+    private boolean isInvalidNeverField(BField lhsField, BRecordType rhsType) {
+        if (lhsField.type.tag != NEVER || rhsType.sealed) {
+            return false;
+        }
+        switch (rhsType.restFieldType.tag) {
+            case TypeTags.UNION:
+                for (BType member : ((BUnionType) rhsType.restFieldType).getOriginalMemberTypes()) {
+                    if (member.tag == NEVER) {
+                        return false;
+                    }
+                }
+                return true;
+            case NEVER:
+                return false;
+            default:
+                return true;
+        }
     }
 
     private BAttachedFunction getMatchingInvokableType(List<BAttachedFunction> rhsFuncList, BAttachedFunction lhsFunc,

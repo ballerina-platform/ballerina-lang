@@ -4,12 +4,13 @@ NAME
 SYNOPSIS
        bal pack
        bal pack <ballerina-package-path>
+       bal pack [--target-dir] <target-directory-path>
        bal pack [--test-report] [--offline] [--experimental] [--dump-build-time]
                   <ballerina-package-path>
        bal pack [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
                  [--with-tests] [--list-conflicted-classes] <ballerina-package-path>
        bal pack [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
-                 [--list-conflicted-classes] [--debug]  [--test-report] [--code-coverage]
+                 [--list-conflicted-classes] [--debug] [--with-tests] [--test-report] [--code-coverage]
                  <ballerina-package-path>
 
 
@@ -46,6 +47,9 @@ OPTIONS
 
        --dump-build-time
             Calculate and dump build time.
+
+       --target-dir
+            Target directory path.
 
 
 EXAMPLES

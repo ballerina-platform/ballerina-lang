@@ -26,7 +26,6 @@ import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
@@ -215,13 +214,13 @@ public class TestCommand implements BLauncherCmd {
     }
 
     private BuildOptions constructBuildOptions() {
-        return new BuildOptionsBuilder()
-                .codeCoverage(coverage)
-                .experimental(experimentalFlag)
-                .offline(offline)
-                .skipTests(false)
-                .testReport(testReport)
-                .observabilityIncluded(observabilityIncluded)
+        return BuildOptions.builder()
+                .setCodeCoverage(coverage)
+                .setExperimental(experimentalFlag)
+                .setOffline(offline)
+                .setSkipTests(false)
+                .setTestReport(testReport)
+                .setObservabilityIncluded(observabilityIncluded)
                 .build();
     }
 

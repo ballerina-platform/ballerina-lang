@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.configurations;
 
+import io.ballerina.projects.ProjectKind;
+
 /**
  * Holder class for module details to map the configurable variables against.
  *
@@ -26,42 +28,29 @@ public class ConfigModuleDetails {
     String orgName;
     String packageName;
     String moduleName;
-    boolean isCurrentPackage;
+    ProjectKind projectKind;
 
-    public ConfigModuleDetails(String orgName, String packageName, String moduleName, boolean isCurrentPackage) {
+    public ConfigModuleDetails(String orgName, String packageName, String moduleName, ProjectKind projectKind) {
         this.orgName = orgName;
         this.packageName = packageName;
         this.moduleName = moduleName;
-        this.isCurrentPackage = isCurrentPackage;
+        this.projectKind = projectKind;
     }
 
-    public String getOrgName() {
+    public String orgName() {
         return orgName;
     }
 
-    public String getPackageName() {
+    public String packageName() {
         return packageName;
     }
 
-    public String getModuleName() {
+    public String moduleName() {
         return moduleName;
     }
 
-    public boolean isCurrentPackage() {
-        return isCurrentPackage;
+    public ProjectKind projectKind() {
+        return projectKind;
     }
 
-    public String toString() {
-        String val = "";
-        if (orgName != null) {
-            val = val.concat(orgName + ".");
-        }
-        if (packageName != null) {
-            val = val.concat(packageName + ".");
-        }
-        if (moduleName != null) {
-            val = val.concat(moduleName);
-        }
-        return val;
-    }
 }

@@ -103,6 +103,7 @@ dependencies {
     dist project(':central-client')
     dist project(':ballerina-cli')
     dist project(':ballerina-rt')
+    dist project(':ballerina-linter')
 
     dist project(':testerina:testerina-core')
     dist project(':formatter:formatter-core')
