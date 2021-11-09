@@ -160,6 +160,231 @@ function testElvisAsArgumentPositive() {
     assertEquals(a[1], 0);
 }
 
+int|() x1 = ();
+int|() y1 = 3000;
+string a1 = (x1 ?: y1).toBalString();
+
+int|() y2 = ();
+string a2 = (x1 ?: y2).toBalString();
+
+string y3 = "a";
+string a3 = (x1 ?: y3).toString();
+
+int|() x2 = 1;
+string a4 = (x2 ?: y3).toBalString();
+
+int:Signed8 y4 = 127;
+string a5 = (x2 ?: y4).toString();
+string a6 = (x1 ?: y4).toString();
+
+byte y5 = 255;
+string a7 = (x1 ?: y5).toString();
+
+int|() x3 = -9223372036854775807;
+string a8 = (x3 ?: y5).toString();
+
+float y6 = 123.12;
+string a9 = (x3 ?: y6).toString();
+string a10 = (x1 ?: y6).toString();
+
+decimal|() x4 = ();
+float y7 = -12.312;
+string a11 = (x4 ?: y7).toBalString();
+
+decimal|() x5 = 1.12321;
+string a12 = (x5 ?: y7).toString();
+
+string:Char|() x6 = ();
+string y8 = "b";
+string a13 = (x6 ?: y8).toString();
+
+string:Char|() x7 = "a";
+string a14 = (x7 ?: y8).toString();
+
+boolean? x8 = ();
+int[]|() y9 = [1, 3];
+string a15 = (x8 ?: y9).toBalString();
+
+boolean? x9 = true;
+string a16 = (x9 ?: y9).toBalString();
+
+function testElvisWithLangValueMethodCallsModuleLevel() {
+    assertEquals("3000", a1);
+    assertEquals("()", a2);
+    assertEquals("a", a3);
+    assertEquals("1", a4);
+    assertEquals("1", a5);
+    assertEquals("127", a6);
+    assertEquals("255", a7);
+    assertEquals("-9223372036854775807", a8);
+    assertEquals("-9223372036854775807", a9);
+    assertEquals("123.12", a10);
+    assertEquals("-12.312", a11);
+    assertEquals("1.12321", a12);
+    assertEquals("b", a13);
+    assertEquals("a", a14);
+    assertEquals("[1,3]", a15);
+    assertEquals("true", a16);
+}
+
+function testElvisWithLangValueMethodCalls() {
+    int|() x10 = ();
+    int|() y10 = 3000;
+    string b = (x10 ?: y10).toBalString();
+    assertEquals("3000", b);
+
+    y10 = ();
+    b = (x10 ?: y10).toBalString();
+    assertEquals("()", b);
+
+    string y11 = "a";
+    b = (x10 ?: y11).toString();
+    assertEquals("a", b);
+
+    x10 = 1;
+    b = (x10 ?: y11).toBalString();
+    assertEquals("1", b);
+
+    int:Signed8 y12 = 127;
+    b = (x10 ?: y12).toString();
+    assertEquals("1", b);
+
+    x10 = ();
+    b = (x10 ?: y12).toString();
+    assertEquals("127", b);
+
+    byte y13 = 255;
+    b = (x10 ?: y13).toString();
+    assertEquals("255", b);
+
+    x10 = -9223372036854775807;
+    b = (x10 ?: y13).toString();
+    assertEquals("-9223372036854775807", b);
+
+    float y14 = 123.12;
+    b = (x10 ?: y14).toString();
+    assertEquals("-9223372036854775807", b);
+
+    x10 = ();
+    b = (x10 ?: y14).toString();
+    assertEquals("123.12", b);
+
+    decimal|() x11 = ();
+    float y15 = -12.312;
+    b = (x11 ?: y15).toBalString();
+    assertEquals("-12.312", b);
+
+    x11 = 1.12321;
+    b = (x11 ?: y15).toString();
+    assertEquals("1.12321", b);
+
+    string:Char|() x12 = ();
+    string y16 = "b";
+    b = (x12 ?: y16).toString();
+    assertEquals("b", b);
+
+    x12 = "a";
+    b = (x12 ?: y16).toString();
+    assertEquals("a", b);
+
+    boolean? x13 = ();
+    int[]|() y17 = [1, 3];
+    b = (x13 ?: y17).toBalString();
+    assertEquals("[1,3]", b);
+
+    x13 = true;
+    b = (x13 ?: y17).toBalString();
+    assertEquals("true", b);
+}
+
+string? x14 = ();
+string? y18 = ();
+string:Char? z1 = "v";
+string? elvisOutput1 = x14 ?: y18 ?: z1;
+
+string? x15 = "a";
+string? elvisOutput2 = x15 ?: y18 ?: z1;
+
+string? x16 = ();
+string? y19 = "b";
+string? elvisOutput3 = x16 ?: y19 ?: z1;
+
+string? x17 = "a";
+string? elvisOutput4 = x17 ?: y19 ?: z1;
+string? elvisOutput5 = x17 ?: y19 ?: z1 ?: x14 ?: y19 ?: x15;
+string? elvisOutput6 = x16 ?: y18 ?: x14 ?: y18 ?: z1 ?: x15;
+
+int? x18 = ();
+byte? y20 = 255;
+() z2 = ();
+int? elvisOutput7 = x18 ?: y20 ?: z2;
+
+int? x19 = ();
+int:Unsigned8? y21 = 255;
+int:Signed8? z3 = -128;
+int? elvisOutput8 = x19 ?: y21 ?: z3;
+
+decimal? x20 = ();
+float? y22 = 1.213123;
+int:Signed8? z4 = -128;
+float|decimal|int:Signed8? elvisOutput9 = x20 ?: y22 ?: z4;
+
+function testNestedElvisWithoutParenthesisModuleLevel() {
+    assertEquals("v", elvisOutput1);
+    assertEquals("a", elvisOutput2);
+    assertEquals("b", elvisOutput3);
+    assertEquals("a", elvisOutput4);
+    assertEquals("a", elvisOutput5);
+    assertEquals("v", elvisOutput6);
+    assertEquals(255, elvisOutput7);
+    assertEquals(255, elvisOutput8);
+    assertEquals(1.213123, elvisOutput9);
+}
+
+function testNestedElvisWithoutParenthesis() {
+    string? x21 = ();
+    string? y23 = ();
+    string:Char? z5 = "v";
+    string? elvisOutput10 = x21 ?: y23 ?: z5;
+
+    string? x22 = "a";
+    string? elvisOutput11 = x22 ?: y23 ?: z5;
+
+    string? x23 = ();
+    string? y24 = "b";
+    string? elvisOutput12 = x23 ?: y24 ?: z5;
+
+    string? x24 = "a";
+    string? elvisOutput13 = x24 ?: y24 ?: z5;
+    string? elvisOutput14 = x24 ?: y24 ?: z5 ?: x21 ?: y24 ?: x22;
+    string? elvisOutput15 = x23 ?: y23 ?: x21 ?: y23 ?: z5 ?: x22;
+
+    int? x25 = ();
+    byte? y25 = 255;
+    () z6 = ();
+    int? elvisOutput16 = x25 ?: y25 ?: z6;
+
+    int? x26 = ();
+    int:Unsigned8? y26 = 255;
+    int:Signed8? z7 = -128;
+    int? elvisOutput17 = x26 ?: y26 ?: z7;
+
+    decimal? x27 = ();
+    float? y27 = 1.213123;
+    int:Signed8? z8 = -128;
+    float|decimal|int:Signed8? elvisOutput18 = x27 ?: y27 ?: z8;
+
+    assertEquals("v", elvisOutput10);
+    assertEquals("a", elvisOutput11);
+    assertEquals("b", elvisOutput12);
+    assertEquals("a", elvisOutput13);
+    assertEquals("a", elvisOutput14);
+    assertEquals("v", elvisOutput15);
+    assertEquals(255, elvisOutput16);
+    assertEquals(255, elvisOutput17);
+    assertEquals(1.213123, elvisOutput18);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquals(anydata expected, anydata actual) {
