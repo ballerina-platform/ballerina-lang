@@ -178,33 +178,22 @@ public class IdentifierUtils {
     }
 
     /**
-     * Replace the unicode patterns in identifiers into respective unicode characters.
-     *
-     * @param identifier  identifier string
-     * @return modified identifier with unicode character
-     */
-    public static String unescapeUnicodeCodepoints(String identifier) {
-        return unescapeUnicodeCodepoints(identifier, false);
-    }
-
-    /**
      * Unescapes a ballerina string.
      *
      * @param text ballerina string to unescape
      * @return unescaped ballerina string
      */
     public static String unescapeBallerina(String text) {
-        return unescapeJava(IdentifierUtils.unescapeUnicodeCodepoints(text, true));
+        return unescapeJava(IdentifierUtils.unescapeUnicodeCodepoints(text));
     }
 
     /**
      * Replace the unicode patterns in identifiers into respective unicode characters.
      *
      * @param identifier         identifier string
-     * @param isStringUnescaping whether to special case {@code \{5C}} when unescaping
      * @return modified identifier with unicode character
      */
-    private static String unescapeUnicodeCodepoints(String identifier, boolean isStringUnescaping) {
+    public static String unescapeUnicodeCodepoints(String identifier) {
         Matcher matcher = UNICODE_PATTERN.matcher(identifier);
         StringBuffer buffer = new StringBuffer(identifier.length());
         while (matcher.find()) {
@@ -218,7 +207,7 @@ public class IdentifierUtils {
             char[] chars = Character.toChars(codePoint);
             String ch = String.valueOf(chars);
 
-            if (isStringUnescaping && ch.equals("\\")) {
+            if (ch.equals("\\")) {
                 // Ballerina string unescaping is done in two stages.
                 // 1. unicode code point unescaping (doing separately as [2] does not support code points > 0xFFFF)
                 // 2. java unescaping
