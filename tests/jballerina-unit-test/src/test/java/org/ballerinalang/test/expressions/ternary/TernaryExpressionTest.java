@@ -360,6 +360,16 @@ public class TernaryExpressionTest {
         BRunUtil.invoke(compileResult, "testTernaryAsArgument");
     }
 
+    @Test
+    public void testTernaryWithLangValueMethodCallsModuleLevel() {
+        BRunUtil.invoke(compileResult, "testTernaryWithLangValueMethodCallsModuleLevel");
+    }
+
+    @Test
+    public void testTernaryWithLangValueMethodCalls() {
+        BRunUtil.invoke(compileResult, "testTernaryWithLangValueMethodCalls");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;
