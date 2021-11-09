@@ -35,13 +35,22 @@ import java.util.concurrent.TimeUnit;
 public class Sleep {
 
     private static final int CORE_THREAD_POOL_SIZE = 1;
+    private static final BigDecimal LONG_MAX = new BigDecimal(Long.MAX_VALUE);
 
     private static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(CORE_THREAD_POOL_SIZE);
 
     public static void sleep(Environment env, BDecimal delaySeconds) {
         Future balFuture = env.markAsync();
-        long delayMillis = (delaySeconds.decimalValue().multiply(new BigDecimal("1000.0"))).longValue();
-        executor.schedule(() -> balFuture.complete(null), delayMillis, TimeUnit.MILLISECONDS);
+        BigDecimal delayDecimal = delaySeconds.decimalValue();
+        long delay;
+        if(delayDecimal.compareTo(BigDecimal.ZERO) < 0) {
+            delay = 0;
+        } else if(delayDecimal.compareTo(LONG_MAX) > 0) {
+            delay = Long.MAX_VALUE;
+        } else {
+            delay = delayDecimal.longValue();
+        }
+        executor.schedule(() ->  balFuture.complete(null), delay, TimeUnit.SECONDS);
     }
 
     private Sleep() {

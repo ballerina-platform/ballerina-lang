@@ -50,6 +50,14 @@ function getCallStacktoStringTest() {
     assertEquality(21, lineNumber);
 }
 
+function testSleepDecimalValue() {
+    decimal delay = 2.0;
+    runtime:sleep(delay);
+
+    delay = -1321930131998892321.123;
+    runtime:sleep(delay);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
