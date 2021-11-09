@@ -114,8 +114,12 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 {"create_function_in_named_arg_context1.json", "create_function_in_named_arg_context1.bal"},
                 {"create_function_in_named_arg_context2.json", "create_function_in_named_arg_context2.bal"},
                 {"create_function_in_named_arg_context3.json", "create_function_in_named_arg_context3.bal"},
-                {"create_function_in_named_arg_context4.json", "create_function_in_named_arg_context4.bal"}
-
+                {"create_function_in_named_arg_context4.json", "create_function_in_named_arg_context4.bal"},
+                
+                // Error constructor
+                {"create_function_in_error_constructor1.json", "create_function_in_error_constructor1.bal"},
+                {"create_function_in_error_constructor2.json", "create_function_in_error_constructor2.bal"},
+                {"create_function_in_error_constructor3.json", "create_function_in_error_constructor3.bal"}
         };
     }
 

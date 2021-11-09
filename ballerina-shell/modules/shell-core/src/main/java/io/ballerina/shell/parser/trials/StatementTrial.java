@@ -19,52 +19,52 @@
 package io.ballerina.shell.parser.trials;
 
 import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
-import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
-import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.StatementNode;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.shell.parser.TrialTreeParser;
-import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextDocuments;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Attempts to parse source as a statement.
- * Puts in the main function statement level and checks for the the entry.
  * TODO: Improve performance.
  *
  * @since 2.0.0
  */
-public class StatementTrial extends DualTreeParserTrial {
+public class StatementTrial extends TreeParserTrial {
     public StatementTrial(TrialTreeParser parentParser) {
         super(parentParser);
     }
 
     @Override
-    public Node parseSource(String source) throws ParserTrialFailedException {
-        String sourceCode = String.format("function main(){%s}", source);
-        TextDocument document = TextDocuments.from(sourceCode);
-        SyntaxTree tree = getSyntaxTree(document);
-
-        ModulePartNode node = tree.rootNode();
-        NodeList<ModuleMemberDeclarationNode> moduleDclns = node.members();
-        assertIf(!moduleDclns.isEmpty(), "expected at least one member");
-        ModuleMemberDeclarationNode moduleDeclaration = moduleDclns.get(0);
-        FunctionDefinitionNode mainFunction = (FunctionDefinitionNode) moduleDeclaration;
-        FunctionBodyBlockNode mainFunctionBody = (FunctionBodyBlockNode) mainFunction.functionBody();
-
-        if (mainFunctionBody.namedWorkerDeclarator().isPresent()) {
-            return mainFunctionBody.namedWorkerDeclarator().get();
+    public Collection<Node> parse(String source) throws ParserTrialFailedException {
+        NodeList<StatementNode> statementNodes;
+        Collection<Node> finalNodes = new ArrayList<>();
+        try {
+            statementNodes = NodeParser.parseStatements(source);
+            for (StatementNode nodeInst : statementNodes) {
+                if (nodeInst.hasDiagnostics()) {
+                    throw new ParserTrialFailedException("Error occurred during parsing as a statement");
+                }
+            }
+        } catch (ParserTrialFailedException e) {
+            statementNodes = NodeParser.parseStatements(source + ';');
+            for (StatementNode nodeInst:statementNodes) {
+                if (nodeInst.hasDiagnostics()) {
+                    throw new ParserTrialFailedException("Error occurred during parsing as a statement");
+                }
+            }
         }
-        assertIf(!mainFunctionBody.statements().isEmpty(), "expected at least one statement");
-
-        StatementNode statementNode = mainFunctionBody.statements().get(0);
-        if (statementNode instanceof ExpressionStatementNode) {
-            return ((ExpressionStatementNode) statementNode).expression();
+        for (Node node : statementNodes) {
+            if (node.kind() == SyntaxKind.CALL_STATEMENT) {
+                node = ((ExpressionStatementNode) node).expression();
+            }
+            finalNodes.add(node);
         }
-        return statementNode;
+        return finalNodes;
     }
 }

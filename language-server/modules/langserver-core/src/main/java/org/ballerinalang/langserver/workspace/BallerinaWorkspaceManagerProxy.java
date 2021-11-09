@@ -89,7 +89,7 @@ public class BallerinaWorkspaceManagerProxy implements WorkspaceManagerProxy {
         }
 
         @Override
-        public void didClose(Path filePath, DidCloseTextDocumentParams params) throws WorkspaceDocumentException {
+        public void didClose(Path filePath, DidCloseTextDocumentParams params) {
             Optional<Project> project = project(filePath);
             if (project.isEmpty()) {
                 return;
