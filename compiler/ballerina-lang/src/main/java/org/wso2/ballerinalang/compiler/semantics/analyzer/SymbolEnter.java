@@ -648,7 +648,12 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private SemType resolveTypeDesc(BLangUserDefinedType td, Env semtypeEnv, Map<String, BLangNode> mod, int depth) {
-        String name = td.toString();
+        String name = "";
+        String pkgAlias = td.pkgAlias.getValue();
+        if (!Objects.equals(pkgAlias, "")) {
+            name = td.pkgAlias.getValue() + ":";
+        }
+        name += td.typeName.getValue();
         SemType s = semtypeEnv.getTypeNameSemTypeMap().get(name);
         if (s != null) {
             return s;
