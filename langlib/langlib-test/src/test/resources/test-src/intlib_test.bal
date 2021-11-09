@@ -107,6 +107,15 @@ function testLangLibCallOnFiniteType() {
     test:assertValueEqual("c", s);
 }
 
+function testIntOverflow1() {
+    int a1 = -9223372036854775808;
+    int b1 = a1.abs(); 
+}
+
+function testIntOverflow2() {
+    int a2 = (-9223372036854775807 - 1).abs();
+}
+
 type AssertionError distinct error;
 const ASSERTION_ERROR_REASON = "AssertionError";
 

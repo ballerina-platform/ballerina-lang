@@ -146,4 +146,17 @@ public class LangLibIntTest {
     public void testLangLibCallOnFiniteType() {
         BRunUtil.invoke(compileResult, "testLangLibCallOnFiniteType");
     }
+
+    @Test(expectedExceptions = {RuntimeException.class}, dataProvider = "functionProvider",
+            expectedExceptionsMessageRegExp = ".*\\{ballerina\\/lang\\.int}NumberOverflow \\{\"message\":\"int range " +
+                    "overflow\"}.*")
+    public void testIntOverflow(String funcName) {
+        BRunUtil.invoke(compileResult, funcName);
+    }
+
+    @DataProvider
+    public Object[] functionProvider() {
+        return new String[]{"testIntOverflow1", "testIntOverflow2"};
+    }
+
 }
