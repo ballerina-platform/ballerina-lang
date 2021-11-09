@@ -365,6 +365,16 @@ public class TernaryExpressionTest {
         BRunUtil.invoke(compileResult, "testIfAndThenExprBeingFieldAccess");
     }
 
+    @Test
+    public void testTernaryWithLangValueMethodCallsModuleLevel() {
+        BRunUtil.invoke(compileResult, "testTernaryWithLangValueMethodCallsModuleLevel");
+    }
+
+    @Test
+    public void testTernaryWithLangValueMethodCalls() {
+        BRunUtil.invoke(compileResult, "testTernaryWithLangValueMethodCalls");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;
