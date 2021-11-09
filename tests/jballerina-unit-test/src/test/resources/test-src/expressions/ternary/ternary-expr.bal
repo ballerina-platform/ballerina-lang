@@ -324,6 +324,21 @@ function testTernaryWithLangValueMethodCalls() {
     assertEquals("a", b48);
 }
 
+boolean cond2 = true;
+int i1 =10;
+byte j1 = 100;
+int k1 = (cond2? i1 : j1) * i1;
+int k2 = (cond2? i1 : j1) * j1;
+int k3 = (cond2? i1 : j1) / i1;
+int k4 = (cond2? j1 : i1) % i1;
+
+function testTernaryWithOtherOperators() {
+    assertEquals(100, k1);
+    assertEquals(1000, k2);
+    assertEquals(1, k3);
+    assertEquals(0, k4);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquals(anydata expected, anydata actual) {
