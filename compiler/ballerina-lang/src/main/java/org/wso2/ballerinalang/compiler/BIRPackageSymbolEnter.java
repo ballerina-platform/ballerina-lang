@@ -1160,13 +1160,7 @@ public class BIRPackageSymbolEnter {
 
                     Object poppedRefType = compositeStack.pop();
                     assert poppedRefType == typeReferenceType;
-                    if (pkg.equals(env.pkgSymbol.pkgID)) {
-                        return typeReferenceType;
-                    }
-
-                    SymbolEnv pkgenv = symTable.pkgEnvMap.get(packageCache.getSymbol(pkg));
-                    return symbolResolver.lookupSymbolInMainSpace(pkgenv, names.fromString(typeDefName)).type;
-
+                    return typeReferenceType;
                 case TypeTags.PARAMETERIZED_TYPE:
                     BParameterizedType type = new BParameterizedType(null, null, null, name, -1);
                     type.paramValueType = readTypeFromCp();
