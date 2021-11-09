@@ -1,11 +1,8 @@
-# Prints `Hello` with input string name.
-#
-# + name - the input sting name
-# + return - "Hello, " with the input string name
+import ballerina/module1;
+import lsproject.module1;
 
-public function hello(string name) returns string {
-    if !(name is "") {
-        return "Hello, " + name;
-    }
-    return "Hello, World!";
+public function main() {
+    
 }
+
+servi

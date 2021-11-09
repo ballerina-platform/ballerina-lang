@@ -24,7 +24,7 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.List;
 
 /**
- * Builder used to service template snippet completion item.
+ * Builder used to build service template snippet completion item.
  *
  * @since 2.0.0
  */

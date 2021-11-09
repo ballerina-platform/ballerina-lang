@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context.util;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
@@ -77,7 +78,7 @@ public class ServiceTemplateGenerator {
     private static final LanguageServerContext.Key<ServiceTemplateGenerator> SERVICE_TEMPLATE_GENERATOR_KEY =
             new LanguageServerContext.Key<>();
 
-    private Map<Pair<String, String>, List<ListenerMetaData>> moduleListenerMetaDataMap;
+    private final Map<Pair<String, String>, List<ListenerMetaData>> moduleListenerMetaDataMap;
 
     private boolean isInitialized;
 
@@ -123,25 +124,22 @@ public class ServiceTemplateGenerator {
      * Used to dynamically add new entries to the cache.
      *
      * @param moduleSymbol Module symbol.
-     * @param orgName      Organization name of the module symbol.
-     * @param moduleName   Module name of the module symbol.
-     * @param modulePrefix Module Prefix of the modules symbol.
      * @param shouldImport Whether import text should be added.
      * @param ctx          BallerinaCompletion context.
      * @return {@link List<LSCompletionItem>} Set of completion items corresponding to the listeners
      * in the given module.
      */
     public synchronized List<LSCompletionItem> generateAndPopulate(ModuleSymbol moduleSymbol,
-                                                                   String orgName,
-                                                                   String moduleName,
-                                                                   String modulePrefix,
                                                                    Boolean shouldImport,
                                                                    BallerinaCompletionContext ctx) {
+        ModuleID moduleId = moduleSymbol.id();
+        String moduleName = moduleId.moduleName();
+        String orgName = moduleId.orgName();
         Pair<String, String> moduleKey = Pair.of(moduleName, orgName);
         List<ListenerMetaData> items = new ArrayList<>();
         moduleSymbol.allSymbols().stream().filter(listenerPredicate())
                 .forEach(listener -> generateServiceSnippetMetaData(listener,
-                        orgName, moduleName, modulePrefix).ifPresent(items::add));
+                        orgName, moduleName, moduleId.modulePrefix()).ifPresent(items::add));
         if (!moduleListenerMetaDataMap.containsKey(moduleKey) && !items.isEmpty()) {
             moduleListenerMetaDataMap.put(moduleKey, items);
         }
@@ -190,8 +188,7 @@ public class ServiceTemplateGenerator {
             //Check if the module belongs to the current project. 
             //If it is not from the current project populate to the cache.
             if (!getModuleNamesOfCurrentProject(ctx).contains(moduleHash)) {
-                completionItems.addAll(generateAndPopulate(moduleSymbol, orgName, moduleName, modulePrefix,
-                        false, ctx));
+                completionItems.addAll(generateAndPopulate(moduleSymbol, false, ctx));
                 processedModuleList.add(moduleHash);
                 return;
             }
@@ -243,7 +240,7 @@ public class ServiceTemplateGenerator {
             }
             boolean shouldImport = !(project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT
                     || currentModule.get().equals(module));
-            String modulePrefix = shouldImport ? getModulePrefix(moduleName, ctx) : "";
+            String modulePrefix = shouldImport ? getModulePrefix(moduleName) : "";
             SemanticModel semanticModel = packageCompilation.getSemanticModel(module.moduleId());
             semanticModel.moduleSymbols().stream().filter(listenerPredicate())
                     .forEach(listener -> generateServiceSnippetMetaData(listener, orgName, moduleName, modulePrefix)
@@ -375,21 +372,11 @@ public class ServiceTemplateGenerator {
         }
 
         //Listener initialization snippet
+        //Snippet index 1 is provided for attachment point in service definition.
         Optional<MethodSymbol> initMethod = classSymbol.initMethod();
-        String listenerInitialization;
-        String symbolReference;
-        if (!modulePrefix.isEmpty()) {
-            symbolReference = modulePrefix + ":" + classSymbol.getName().get();
-        } else {
-            //Referring to a symbol in the current module. 
-            symbolReference = classSymbol.getName().get();
-        }
-        
-        //Snippet index 1 is provided for attachment point
         int snippetIndex = 2;
-        if (initMethod.isEmpty() || initMethod.get().typeDescriptor().params().isEmpty()) {
-            listenerInitialization = "new " + symbolReference + "()";
-        } else {
+        String listenerInitArgs = "";
+        if (initMethod.isPresent() && initMethod.get().typeDescriptor().params().isPresent()) {
             List<String> args = new ArrayList<>();
             List<ParameterSymbol> requiredParams = initMethod.get().typeDescriptor().params().get().stream()
                     .filter(parameterSymbol ->
@@ -399,19 +386,29 @@ public class ServiceTemplateGenerator {
                         CommonUtil.getDefaultValueForType(parameterSymbol.typeDescriptor()).orElse("") + "}");
                 snippetIndex += 1;
             }
-            listenerInitialization = "new " + symbolReference
-                    + "(" + String.join(",", args) + ")";
+            listenerInitArgs = String.join(",", args);
         }
 
-        return Optional.of(new ListenerMetaData(listenerInitialization,
+        String symbolName = classSymbol.getName().get();
+        return Optional.of(new ListenerMetaData(listenerInitArgs,
                 new ArrayList<>(serviceTypeSymbol.methods().values()),
-                symbolReference, snippetIndex, orgName, moduleName, modulePrefix));
+                symbolName, snippetIndex, orgName, moduleName, modulePrefix));
     }
 
     private LSCompletionItem generateServiceSnippet(ListenerMetaData serviceSnippet,
                                                     Boolean shouldImport,
                                                     BallerinaCompletionContext context) {
 
+        String symbolReference;
+        String modulePrefix = shouldImport ? getModulePrefix(serviceSnippet.moduleName, context) :
+                serviceSnippet.modulePrefix;
+        if (!modulePrefix.isEmpty()) {
+            symbolReference = modulePrefix + ":" + serviceSnippet.symbolName;
+        } else {
+            symbolReference = serviceSnippet.symbolName;
+        }
+
+        String listenerInitialization = "new " + symbolReference + "(" + serviceSnippet.listenerInitArgs + ")";
         int snippetIndex = serviceSnippet.currentSnippetIndex;
         List<String> methodSnippets = new ArrayList<>();
         List<TextEdit> additionalTextEdits = new ArrayList<>();
@@ -426,23 +423,32 @@ public class ServiceTemplateGenerator {
         }
 
         String snippet = SyntaxKind.SERVICE_KEYWORD.stringValue() + " ${1} " +
-                SyntaxKind.ON_KEYWORD.stringValue() + " " + serviceSnippet.listenerInitialization +
+                SyntaxKind.ON_KEYWORD.stringValue() + " " + listenerInitialization +
                 " {" + CommonUtil.LINE_SEPARATOR + (serviceSnippet.unimplementedMethods.isEmpty() ?
                 "    ${" + snippetIndex + "}" : String.join("", methodSnippets)) + CommonUtil.LINE_SEPARATOR + "}" +
                 CommonUtil.LINE_SEPARATOR;
 
-        String label = "service on " + serviceSnippet.symbolReference;
+        String label;
+        String filterText;
         String detail = ItemResolverConstants.SNIPPET_TYPE;
-        String filterText = String.join("_", Arrays.asList(ItemResolverConstants.SERVICE,
-                serviceSnippet.symbolReference.replace(":", "_")));
-
         if (shouldImport) {
-            String modulePrefix = getModulePrefix(serviceSnippet.moduleName);
+            label = "service on " + serviceSnippet.modulePrefix + ":" + serviceSnippet.symbolName;
+            filterText = String.join("_", Arrays.asList(ItemResolverConstants.SERVICE, serviceSnippet.modulePrefix,
+                    serviceSnippet.symbolName));
             if (serviceSnippet.modulePrefix.equals(modulePrefix)) {
                 modulePrefix = "";
             }
             additionalTextEdits.addAll(CommonUtil.getAutoImportTextEdits(serviceSnippet.orgName,
                     serviceSnippet.moduleName, modulePrefix, context));
+        } else {
+            label = "service on " + symbolReference;
+            if (!serviceSnippet.modulePrefix.equals(modulePrefix)) {
+                filterText = String.join("_", Arrays.asList(ItemResolverConstants.SERVICE, serviceSnippet.modulePrefix,
+                        symbolReference.replace(":", "_")));
+            } else {
+                filterText = String.join("_", Arrays.asList(ItemResolverConstants.SERVICE,
+                        symbolReference.replace(":", "_")));
+            }
         }
 
         return new StaticCompletionItem(context, ServiceTemplateCompletionItemBuilder.build(snippet, label, detail,
@@ -453,7 +459,8 @@ public class ServiceTemplateGenerator {
     private Pair<String, List<TextEdit>> generateMethodSnippet(MethodSymbol methodSymbol, int snippetIndex,
                                                                BallerinaCompletionContext context) {
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
-        String typeName = FunctionGenerator.processModuleIDsInText(importsAcceptor, methodSymbol.signature(), context);
+        String functionTypeDesc =
+                FunctionGenerator.processModuleIDsInText(importsAcceptor, methodSymbol.signature(), context);
         List<TextEdit> edits = new ArrayList<>(importsAcceptor.getNewImportTextEdits());
 
         String returnStmt = "";
@@ -463,7 +470,7 @@ public class ServiceTemplateGenerator {
                 Optional<String> defaultReturnValueForType = CommonUtil.getDefaultValueForType(returnTypeSymbol);
                 if (defaultReturnValueForType.isPresent()) {
                     String defaultReturnValue = defaultReturnValueForType.get();
-                    if (defaultReturnValue.equals(CommonKeys.PARANTHESES_KEY)) {
+                    if (CommonKeys.PARANTHESES_KEY.equals(defaultReturnValue)) {
                         returnStmt = "return;";
                     } else {
                         returnStmt = "return ${" + snippetIndex + ":" +
@@ -473,12 +480,12 @@ public class ServiceTemplateGenerator {
             }
         }
 
-        int padding = 4;
-        String paddingStr = StringUtils.repeat(" ", padding);
+        //Build the snippet
+        String paddingStr = StringUtils.repeat(" ", 4);
         StringBuilder functionSnippet = new StringBuilder();
         functionSnippet.append(CommonUtil.LINE_SEPARATOR)
                 .append(paddingStr)
-                .append(typeName)
+                .append(functionTypeDesc)
                 .append(" ")
                 .append(CommonKeys.OPEN_BRACE_KEY)
                 .append(CommonUtil.LINE_SEPARATOR)
@@ -496,9 +503,9 @@ public class ServiceTemplateGenerator {
      */
     private static class ListenerMetaData {
 
-        private String listenerInitialization;
+        private String listenerInitArgs;
         private List<MethodSymbol> unimplementedMethods;
-        private String symbolReference;
+        private String symbolName;
         private int currentSnippetIndex;
         private String moduleName;
         private String orgName;
@@ -511,9 +518,9 @@ public class ServiceTemplateGenerator {
                          String orgName,
                          String moduleName,
                          String modulePrefix) {
-            this.listenerInitialization = listenerInitialization;
+            this.listenerInitArgs = listenerInitialization;
             this.unimplementedMethods = unimplementedMethods;
-            this.symbolReference = symbolReference;
+            this.symbolName = symbolReference;
             this.currentSnippetIndex = currentSnippetIndex;
             this.orgName = orgName;
             this.moduleName = moduleName;
