@@ -161,7 +161,7 @@ public class ImmutableTypeCloner {
         }
     }
 
-    public static BType getImmutableType(Location pos, Types types, BType type, SymbolEnv env,
+    private static BType getImmutableType(Location pos, Types types, BType type, SymbolEnv env,
                                           PackageID pkgId,
                                           BSymbol owner, SymbolTable symTable,
                                           BLangAnonymousModelHelper anonymousModelHelper, Names names,

@@ -4326,9 +4326,18 @@ public class Types {
                     .collect(Collectors.toList());
             if (types.size() == 1) {
                 BType bType = types.get(0);
-                return ImmutableTypeCloner.getImmutableType(null, this, bType, env, env.enclPkg.packageID, null,
-                        symTable, anonymousModelHelper, names,
-                        new LinkedHashSet<>());
+
+                if (isInherentlyImmutableType(type) || Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+                    return type;
+                }
+
+                if (!isSelectivelyImmutableType(type, new HashSet<>())) {
+                    return symTable.semanticError;
+                }
+
+                return ImmutableTypeCloner.getEffectiveImmutableType(null, this,
+                                                                     (SelectivelyImmutableReferenceType) bType,
+                                                                     env, symTable, anonymousModelHelper, names);
             }
         }
 
