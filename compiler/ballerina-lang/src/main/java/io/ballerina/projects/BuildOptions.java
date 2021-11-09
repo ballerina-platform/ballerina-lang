@@ -158,11 +158,11 @@ public class BuildOptions {
      * Enum to represent build options.
      */
     public enum OptionName {
-        SKIP_TESTS("skipTests"),
+        WITH_TESTS("withTests"),
         TEST_REPORT("testReport"),
         CODE_COVERAGE("codeCoverage"),
-        DUMP_BUILD_TIME("dumpBuildTime")
-        ;
+        DUMP_BUILD_TIME("dumpBuildTime"),
+        TARGET_DIR("targetDir");
 
         private final String name;
 
