@@ -153,6 +153,7 @@ tasks.withType(Checkstyle) {
 }
 
 spotbugsMain {
+    maxHeapSize = '1g'
     it.effort "max"
     it.reportLevel "low"
     it.reports {
