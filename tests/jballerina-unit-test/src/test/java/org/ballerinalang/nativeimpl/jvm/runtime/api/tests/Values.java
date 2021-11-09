@@ -136,8 +136,8 @@ public class Values {
         return arrayValue;
     }
 
-    public static BArray getTypeIds(BObject service) {
-        List<TypeId> typeIds = service.getType().getTypeIdSet().getIds();
+    public static BArray getTypeIds(BObject bObject) {
+        List<TypeId> typeIds = bObject.getType().getTypeIdSet().getIds();
         int size = typeIds.size();
         BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING,
                 size), size);

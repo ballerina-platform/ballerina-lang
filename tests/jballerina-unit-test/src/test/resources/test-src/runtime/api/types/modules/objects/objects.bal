@@ -35,6 +35,10 @@ public isolated service class Service {
     }
 }
 
+public distinct class Common {
+
+}
+
 public distinct service class Iterable {
     string name;
 
@@ -49,6 +53,7 @@ public distinct service class Iterable {
 
 public distinct service class Collection  {
     *Iterable;
+    *Common;
 
     public function init(string name) {
         self.name = name;
@@ -56,6 +61,31 @@ public distinct service class Collection  {
 
     isolated resource function get name() returns string {
         return self.name;
+    }
+}
+
+public distinct class Fruit {
+    string color;
+
+    public function init(string color) {
+        self.color = color;
+    }
+
+    function getColor() returns string {
+        return self.color;
+    }
+}
+
+public distinct class Apple  {
+    *Fruit;
+    *Common;
+
+    public function init(string color) {
+        self.color = color;
+    }
+
+    function getColor() returns string {
+        return self.color;
     }
 }
 
@@ -75,7 +105,7 @@ public function getConstituentTypes(any value) returns string[] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
 
-public function getTypeIds(Collection collection) returns string[] = @java:Method {
+public function getTypeIds(Common common) returns string[] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
 

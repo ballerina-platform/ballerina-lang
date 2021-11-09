@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
+import io.ballerina.runtime.api.types.TypeIdSet;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 
@@ -214,7 +215,8 @@ public class BObjectType extends BStructureType implements ObjectType {
         return !annotations.isEmpty();
     }
 
-    public BTypeIdSet getTypeIdSet() {
+    @Override
+    public TypeIdSet getTypeIdSet() {
         return new BTypeIdSet(new ArrayList<>(typeIdSet.ids));
     }
 }
