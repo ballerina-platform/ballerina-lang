@@ -125,6 +125,7 @@ public class BuildOptions {
         buildOptionsBuilder.cloud(compilationOptions.cloud);
         buildOptionsBuilder.listConflictedClasses(compilationOptions.listConflictedClasses);
         buildOptionsBuilder.sticky(compilationOptions.sticky);
+buildOptionsBuilder.semType(compilationOptions.semtype());
 
         return buildOptionsBuilder.build();
     }
