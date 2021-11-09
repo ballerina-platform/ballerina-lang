@@ -4259,7 +4259,7 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if (types.isAssignable(lhsReturnType, rhsReturnType)) {
                 resultType = rhsReturnType;
             } else {
-                resultType = BUnionType.create(null, rhsReturnType, rhsReturnType);
+                resultType = BUnionType.create(null, lhsReturnType, rhsReturnType);
             }
         } else {
             resultType = expType;
