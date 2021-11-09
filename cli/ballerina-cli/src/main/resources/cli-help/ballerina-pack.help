@@ -4,11 +4,11 @@ NAME
 SYNOPSIS
        bal pack
        bal pack <ballerina-package-path>
-       bal pack [--test-report] [--offline] [--experimental] [--dump-build-time]
+       bal pack [--test-report] [--offline] [--experimental]
                   <ballerina-package-path>
-       bal pack [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
+       bal pack [--offline] [experimental] [--cloud] [--observability-included]
                  [--with-tests] [--list-conflicted-classes] <ballerina-package-path>
-       bal pack [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
+       bal pack [--offline] [experimental] [--cloud] [--observability-included]
                  [--list-conflicted-classes] [--debug]  [--test-report] [--code-coverage]
                  <ballerina-package-path>
 
@@ -43,9 +43,6 @@ OPTIONS
 
        --debug
            Run tests in remote debugging mode.
-
-       --dump-build-time
-            Calculate and dump build time.
 
 
 EXAMPLES

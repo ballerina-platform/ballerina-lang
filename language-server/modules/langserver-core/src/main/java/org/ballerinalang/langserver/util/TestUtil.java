@@ -47,6 +47,7 @@ import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.CompletionTriggerKind;
 import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
+import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
@@ -545,6 +546,16 @@ public class TestUtil {
             }
         }
         return true;
+    }
+
+    /**
+     * Send the workspace/didChangeWatchedFiles notification.
+     * 
+     * @param serviceEndpoint service endpoint
+     * @param params {@link DidChangeWatchedFilesParams} parameters for the change notification
+     */
+    public static void didChangeWatchedFiles(Endpoint serviceEndpoint, DidChangeWatchedFilesParams params) {
+        serviceEndpoint.notify("workspace/didChangeWatchedFiles", params);
     }
 
     /**
