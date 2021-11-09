@@ -51,10 +51,13 @@ function getCallStacktoStringTest() {
 }
 
 function testSleepDecimalValue() {
-    decimal delay = 2.0;
+    decimal delay = 2.5;
     runtime:sleep(delay);
 
     delay = -1321930131998892321.123;
+    runtime:sleep(delay);
+
+    delay = 0.0;
     runtime:sleep(delay);
 }
 

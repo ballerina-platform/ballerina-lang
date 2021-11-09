@@ -40,17 +40,18 @@ public class Sleep {
     private static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(CORE_THREAD_POOL_SIZE);
 
     public static void sleep(Environment env, BDecimal delaySeconds) {
+        BigDecimal delayDecimal = delaySeconds.decimalValue().multiply(new BigDecimal("1000.0"));
+        if (delayDecimal.compareTo(BigDecimal.ZERO) <= 0) {
+            return;
+        }
         Future balFuture = env.markAsync();
-        BigDecimal delayDecimal = delaySeconds.decimalValue();
         long delay;
-        if(delayDecimal.compareTo(BigDecimal.ZERO) < 0) {
-            delay = 0;
-        } else if(delayDecimal.compareTo(LONG_MAX) > 0) {
+        if (delayDecimal.compareTo(LONG_MAX) > 0) {
             delay = Long.MAX_VALUE;
         } else {
             delay = delayDecimal.longValue();
         }
-        executor.schedule(() ->  balFuture.complete(null), delay, TimeUnit.SECONDS);
+        executor.schedule(() -> balFuture.complete(null), delay, TimeUnit.MILLISECONDS);
     }
 
     private Sleep() {
