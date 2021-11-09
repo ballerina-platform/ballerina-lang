@@ -5921,7 +5921,7 @@ public class Desugar extends BLangNodeVisitor {
                 if (constSymbol.literalType.tag <= TypeTags.BOOLEAN || constSymbol.literalType.tag == TypeTags.NIL) {
                     BLangLiteral literal = ASTBuilderUtil.createLiteral(varRefExpr.pos, constSymbol.literalType,
                             constSymbol.value.value);
-                    result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.getBType()));
+                    result = addConversionExprIfRequired(literal, varRefExpr.getBType());
                     return;
                 }
             }
