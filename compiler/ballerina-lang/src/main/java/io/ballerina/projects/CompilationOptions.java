@@ -153,6 +153,8 @@ public class CompilationOptions {
         }
         if (theirOptions.semtype != null) {
             compilationOptionsBuilder.semtype(theirOptions.semtype);
+        } else {
+            compilationOptionsBuilder.semtype(this.semtype);
         }
         return compilationOptionsBuilder.build();
     }
