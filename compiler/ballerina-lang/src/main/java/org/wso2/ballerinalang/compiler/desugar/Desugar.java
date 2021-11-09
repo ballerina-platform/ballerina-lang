@@ -8883,7 +8883,10 @@ public class Desugar extends BLangNodeVisitor {
 
         types.setImplicitCastExpr(expr, rhsType, lhsType);
         if (expr.impConversionExpr != null) {
-            return expr;
+            BLangExpression expr2;
+            expr2 = expr.impConversionExpr;
+            expr.impConversionExpr = null;
+            return expr2;
         }
 
         if (lhsType.tag == TypeTags.JSON && rhsType.tag == TypeTags.NIL) {
