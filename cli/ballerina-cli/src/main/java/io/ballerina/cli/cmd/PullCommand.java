@@ -40,7 +40,6 @@ import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
-import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.projects.util.ProjectUtils.validateOrgName;
@@ -182,7 +181,7 @@ public class PullCommand implements BLauncherCmd {
             try {
                 Settings settings;
                 try {
-                    settings = readSettings();
+                    settings = RepoUtils.readSettings();
                     // Ignore Settings.toml diagnostics in the pull command
                 } catch (SettingsTomlException e) {
                     // Ignore 'Settings.toml' parsing errors and return empty Settings object

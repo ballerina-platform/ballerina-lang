@@ -37,15 +37,20 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.toml.semantic.TomlType;
+import io.ballerina.toml.semantic.ast.TomlTableNode;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
-import static io.ballerina.cli.utils.CentralUtils.readSettings;
+import static io.ballerina.projects.internal.ManifestBuilder.getStringValueFromTomlTableNode;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.JACOCO_XML_FORMAT;
 
@@ -62,6 +67,7 @@ public class BuildCommand implements BLauncherCmd {
     private final PrintStream errStream;
     private boolean exitWhenFinish;
     private boolean skipCopyLibsFromDist;
+    private Boolean skipTests;
 
     public BuildCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -69,6 +75,7 @@ public class BuildCommand implements BLauncherCmd {
         this.errStream = System.err;
         this.exitWhenFinish = true;
         this.skipCopyLibsFromDist = false;
+        this.skipTests = true;
     }
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean dumpBuildTime) {
@@ -135,8 +142,8 @@ public class BuildCommand implements BLauncherCmd {
                                                               "dependencies.")
     private Boolean offline;
 
-    @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
-    private Boolean skipTests;
+    @CommandLine.Option(names = {"--with-tests"}, description = "Run test compilation and execution.")
+    private Boolean withTests;
 
     @CommandLine.Parameters (arity = "0..1")
     private final Path projectPath;
@@ -145,7 +152,13 @@ public class BuildCommand implements BLauncherCmd {
     private boolean dumpBIR;
 
     @CommandLine.Option(names = "--dump-bir-file", hidden = true)
-    private String dumpBIRFile;
+    private Boolean dumpBIRFile;
+
+    @CommandLine.Option(names = "--dump-graph", hidden = true)
+    private boolean dumpGraph;
+
+    @CommandLine.Option(names = "--dump-raw-graphs", hidden = true)
+    private boolean dumpRawGraphs;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -156,7 +169,7 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
     private String debugPort;
 
-    private static final String buildCmd = "bal build [-o <output>] [--offline] [--skip-tests] [--taint-check]\n" +
+    private static final String buildCmd = "bal build [-o <output>] [--offline] [--with-tests] [--taint-check]\n" +
             "                    [<ballerina-file | package-path>]";
 
     @CommandLine.Option(names = "--test-report", description = "enable test report generation")
@@ -207,6 +220,15 @@ public class BuildCommand implements BLauncherCmd {
                         "and continuing the test run...\n");
             }
             coverage = false;
+        }
+
+        if (sticky == null) {
+            sticky = false;
+        }
+
+        // If withTests flag is not provided, we change the skipTests flag accordingly
+        if (withTests != null) {
+            this.skipTests = !withTests;
         }
 
         BuildOptions buildOptions = constructBuildOptions();
@@ -270,14 +292,67 @@ public class BuildCommand implements BLauncherCmd {
             }
         }
 
+        // Check `[package]` section is available when compile
         if (this.compile && project.currentPackage().ballerinaToml().get().tomlDocument().toml()
                 .getTable("package").isEmpty()) {
             CommandUtil.printError(this.errStream,
                     "'package' information not found in " + ProjectConstants.BALLERINA_TOML,
                     null,
-                    true);
+                    false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
+        }
+
+        // Check `[package]` org, name and version is available when compile
+        if (this.compile) {
+            TomlTableNode pkgNode = (TomlTableNode) project.currentPackage().ballerinaToml().get().tomlDocument().toml()
+                    .rootNode().entries().get("package");
+
+            if (pkgNode == null || pkgNode.kind() == TomlType.NONE) {
+                CommandUtil.printError(this.errStream,
+                                       "'package' information not found in " + ProjectConstants.BALLERINA_TOML,
+                                       null,
+                                       false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+
+            List<String> pkgErrors = new ArrayList<>();
+            if ("".equals(getStringValueFromTomlTableNode(pkgNode, "org", ""))) {
+                pkgErrors.add("'org'");
+            }
+            if ("".equals(getStringValueFromTomlTableNode(pkgNode, "name", ""))) {
+                pkgErrors.add("'name'");
+            }
+            if ("".equals(getStringValueFromTomlTableNode(pkgNode, "version", ""))) {
+                pkgErrors.add("'version'");
+            }
+
+            if (!pkgErrors.isEmpty()) {
+                String pkgErrorsString;
+                if (pkgErrors.size() == 1) {
+                    CommandUtil.printError(this.errStream,
+                                           "to build a package " + pkgErrors.get(0) +
+                                                   " field of the package is required in " +
+                                                   ProjectConstants.BALLERINA_TOML,
+                                           null,
+                                           false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                } else if (pkgErrors.size() == 2) {
+                    pkgErrorsString = pkgErrors.get(0) + " and " + pkgErrors.get(1);
+                } else {
+                    pkgErrorsString = pkgErrors.get(0) + ", " + pkgErrors.get(1) + " and " + pkgErrors.get(2);
+                }
+                CommandUtil.printError(this.errStream,
+                                       "to build a package " + pkgErrorsString +
+                                               " fields of the package are required in " +
+                                               ProjectConstants.BALLERINA_TOML,
+                                       null,
+                                       false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
         }
 
         // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
@@ -307,7 +382,7 @@ public class BuildCommand implements BLauncherCmd {
         }
         // Validate Settings.toml file
         try {
-            readSettings();
+            RepoUtils.readSettings();
         } catch (SettingsTomlException e) {
             this.outStream.println("warning: " + e.getMessage());
         }
@@ -357,6 +432,8 @@ public class BuildCommand implements BLauncherCmd {
                 .cloud(cloud)
                 .dumpBir(dumpBIR)
                 .dumpBirFile(dumpBIRFile)
+                .dumpGraph(dumpGraph)
+                .dumpRawGraphs(dumpRawGraphs)
                 .listConflictedClasses(listConflictedClasses)
                 .dumpBuildTime(dumpBuildTime)
                 .sticky(sticky)
@@ -384,7 +461,7 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal build [-o <output>] [--offline] [--skip-tests]\\n\" +\n" +
+        out.append("  bal build [-o <output>] [--offline] [--with-tests]\\n\" +\n" +
                 "            \"                    [<ballerina-file | package-path>]");
     }
 

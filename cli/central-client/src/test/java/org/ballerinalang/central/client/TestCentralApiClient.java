@@ -572,7 +572,7 @@ public class TestCentralApiClient extends CentralAPIClient {
     @Test(description = "Test search package resolution")
     public void testPackageResolution() throws IOException, CentralClientException {
         String resString = "{\"resolved\":" +
-                "[{\"orgName\":\"ballerina\", " +
+                "[{\"org\":\"ballerina\", " +
                 "\"name\":\"http\", " +
                 "\"version\":\"1.1.0\", " +
                 "\"dependencies\":[]}], " +
@@ -600,7 +600,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         PackageResolutionResponse packageResolutionResponse = this.resolveDependencies(
                 packageResolutionRequest, ANY_PLATFORM, TEST_BAL_VERSION, true);
         PackageResolutionResponse.Package pkg = packageResolutionResponse.resolved().get(0);
-        Assert.assertEquals(pkg.orgName(), "ballerina");
+        Assert.assertEquals(pkg.org(), "ballerina");
         Assert.assertEquals(pkg.name(), "http");
         Assert.assertEquals(pkg.version(), "1.1.0");
     }

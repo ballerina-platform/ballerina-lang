@@ -20,7 +20,6 @@ ballerina-http-1.1.0.jar                                                        
 metrics-core-3.1.0.jar                                                                              bundle         apache2
 ballerina-kubernetes-1.1.0.jar                                                                      jar            apache2
 ballerina-bir-1.1.0.jar                                                                             jar            apache2
-bcpkix-jdk15on-1.61.jar                                                                             bundle         bouncy
 decimal-1.1.0.jar                                                                                   jar            apache2
 ballerina-encoding-1.1.0.jar                                                                        jar            apache2
 reflect.jar                                                                                         jar            apache2
@@ -52,7 +51,6 @@ ballerina-socket-1.1.0.jar                                                      
 typedesc-1.1.0.jar                                                                                  jar            apache2
 jwt.jar                                                                                             jar            apache2
 woodstox-core-asl-4.2.0.jar                                                                         bundle         apache2
-bcprov-jdk15on-1.61.jar                                                                             bundle         bouncy
 broker-rest-runner-0.970.0.jar                                                                      bundle         apache2
 ballerina-jaeger-extension-1.1.0.jar                                                                jar            apache2
 value-1.1.0.jar                                                                                     jar            apache2
@@ -200,7 +198,6 @@ java.arrays.jar                                                                 
 xml-1.1.0.jar                                                                                       jar            apache2
 lang.string.jar                                                                                     jar            apache2
 netty-codec-4.1.39.Final.jar                                                                        bundle         apache2
-netty-tcnative-boringssl-static-2.0.25.Final.jar                                                    bundle         apache2
 axiom-dom-1.2.22.jar                                                                                bundle         apache2
 ballerina-system-1.1.0.jar                                                                          jar            apache2
 lang.float.jar                                                                                      jar            apache2

@@ -80,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -786,14 +787,13 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         find(fieldAccessExpr.expr);
+        addIfSameSymbol(fieldAccessExpr.symbol, fieldAccessExpr.field.pos);
+    }
 
-        if (fieldAccessExpr instanceof BLangNSPrefixedFieldBasedAccess) {
-            BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess =
-                    (BLangNSPrefixedFieldBasedAccess) fieldAccessExpr;
-            addIfSameSymbol(nsPrefixedFieldBasedAccess.nsSymbol, nsPrefixedFieldBasedAccess.nsPrefix.pos);
-        } else {
-            addIfSameSymbol(fieldAccessExpr.symbol, fieldAccessExpr.field.pos);
-        }
+    @Override
+    public void visit(BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
+        find(nsPrefixedFieldBasedAccess.expr);
+        addIfSameSymbol(nsPrefixedFieldBasedAccess.nsSymbol, nsPrefixedFieldBasedAccess.nsPrefix.pos);
     }
 
     @Override
@@ -1054,6 +1054,9 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangArrayType arrayType) {
         find(arrayType.elemtype);
+        for (BLangExpression size : arrayType.sizes) {
+            find(size);
+        }
     }
 
     @Override

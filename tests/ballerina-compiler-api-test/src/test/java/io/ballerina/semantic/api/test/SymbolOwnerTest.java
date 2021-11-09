@@ -26,6 +26,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.Optional;
@@ -51,15 +52,23 @@ public class SymbolOwnerTest {
         srcFile = getDocumentForSingleSource(project);
     }
 
-    @Test
-    public void testLangLibSymbols() {
-        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(19, 10));
+    @Test (dataProvider = "LangLibSymbolProvider")
+    public void testLangLibSymbols(int line, int column, String orgName, String moduleName) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
         assertTrue(symbol.isPresent());
 
         Optional<ModuleSymbol> module = symbol.get().getModule();
 
         assertTrue(module.isPresent());
-        assertEquals(module.get().id().orgName(), "ballerina");
-        assertEquals(module.get().id().moduleName(), "lang.value");
+        assertEquals(module.get().id().orgName(), orgName);
+        assertEquals(module.get().id().moduleName(), moduleName);
+    }
+
+    @DataProvider(name = "LangLibSymbolProvider")
+    public Object[][] getLangLibSymbols() {
+        return new Object[][]{
+                {20, 10, "ballerina", "lang.value"},
+                {22, 12, "ballerina", "lang.runtime"},
+        };
     }
 }

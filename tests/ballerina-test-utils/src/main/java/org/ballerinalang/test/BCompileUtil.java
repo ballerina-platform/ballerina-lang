@@ -71,7 +71,9 @@ public class BCompileUtil {
 
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
 
-        return ProjectLoader.loadProject(projectPath, buildOptions);
+        BuildOptions defaultOptions = new BuildOptionsBuilder().offline(true).dumpBirFile(true).build();
+        BuildOptions mergedOptions = buildOptions.acceptTheirs(defaultOptions);
+        return ProjectLoader.loadProject(projectPath, mergedOptions);
     }
 
     public static CompileResult compile(String sourceFilePath) {
@@ -152,7 +154,8 @@ public class BCompileUtil {
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
 
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
-        Project project = ProjectLoader.loadProject(projectPath, getTestProjectEnvironmentBuilder());
+        BuildOptions defaultOptions = new BuildOptionsBuilder().offline(true).dumpBirFile(true).build();
+        Project project = ProjectLoader.loadProject(projectPath, getTestProjectEnvironmentBuilder(), defaultOptions);
 
         if (isSingleFileProject(project)) {
             throw new RuntimeException("single file project is given for compilation at " + project.sourceRoot());

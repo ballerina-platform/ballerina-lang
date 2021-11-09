@@ -50,7 +50,7 @@ import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 import static org.ballerinalang.debugadapter.evaluation.engine.EvaluationTypeResolver.isPublicSymbol;
 import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR_REGEX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 
 /**
@@ -102,7 +102,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
             if (!resolvedImports.containsKey(modulePrefix.get())) {
                 throw createEvaluationException(IMPORT_RESOLVING_ERROR, modulePrefix.get());
             }
-            functionMatches = resolvedImports.get(modulePrefix.get()).functions().stream()
+            functionMatches = resolvedImports.get(modulePrefix.get()).getResolvedSymbol().functions().stream()
                     .filter(symbol -> symbol.getName().isPresent() &&
                             modifyName(symbol.getName().get()).equals(functionName))
                     .collect(Collectors.toList());
@@ -147,7 +147,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
         return new StringJoiner(".")
                 .add(encodeModuleName(moduleMeta.orgName()))
                 .add(encodeModuleName(moduleMeta.moduleName()))
-                .add(moduleMeta.version().split(MODULE_VERSION_SEPARATOR)[0])
+                .add(moduleMeta.version().split(MODULE_VERSION_SEPARATOR_REGEX)[0])
                 .add(className)
                 .toString();
     }

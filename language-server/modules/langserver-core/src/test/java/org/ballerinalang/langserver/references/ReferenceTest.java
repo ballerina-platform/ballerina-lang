@@ -41,6 +41,7 @@ import java.nio.file.Paths;
 /**
  * Test suit for testing find all references.
  */
+@Deprecated
 public class ReferenceTest {
     private Path configRoot;
     private Path sourceRoot;

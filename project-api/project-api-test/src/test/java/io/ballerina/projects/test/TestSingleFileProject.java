@@ -54,7 +54,7 @@ public class TestSingleFileProject {
         Path projectPath = RESOURCE_DIRECTORY.resolve("single_file").resolve("main.bal");
         SingleFileProject project = null;
         try {
-            project = SingleFileProject.load(projectPath);
+            project = TestUtils.loadSingleFileProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -75,7 +75,7 @@ public class TestSingleFileProject {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("util").resolve("file-util.bal");
         SingleFileProject project = null;
         try {
-            project = SingleFileProject.load(projectPath);
+            project = TestUtils.loadSingleFileProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -96,7 +96,7 @@ public class TestSingleFileProject {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("modules").resolve("services")
                 .resolve("svc.bal");
         try {
-            SingleFileProject.load(projectPath);
+            TestUtils.loadSingleFileProject(projectPath);
             Assert.fail("expected an invalid project exception");
         } catch (ProjectException e) {
             Assert.assertTrue(e.getMessage().contains("The source file '" + projectPath +
@@ -105,7 +105,7 @@ public class TestSingleFileProject {
 
         projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("main.bal");
         try {
-            SingleFileProject.load(projectPath);
+            TestUtils.loadSingleFileProject(projectPath);
             Assert.fail("expected an invalid project exception");
         } catch (ProjectException e) {
             Assert.assertTrue(e.getMessage().contains("The source file '" + projectPath +
@@ -124,7 +124,7 @@ public class TestSingleFileProject {
         }
 
         // Verify expected default buildOptions
-        Assert.assertFalse(project.buildOptions().skipTests());
+        Assert.assertTrue(project.buildOptions().skipTests());
         Assert.assertFalse(project.buildOptions().observabilityIncluded());
         Assert.assertFalse(project.buildOptions().codeCoverage());
         Assert.assertFalse(project.buildOptions().offlineBuild());
@@ -141,7 +141,7 @@ public class TestSingleFileProject {
                 .observabilityIncluded(true)
                 .build();
         try {
-            project = SingleFileProject.load(projectPath, buildOptions);
+            project = TestUtils.loadSingleFileProject(projectPath, buildOptions);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -150,7 +150,6 @@ public class TestSingleFileProject {
         Assert.assertTrue(project.buildOptions().skipTests());
         Assert.assertTrue(project.buildOptions().observabilityIncluded());
         Assert.assertFalse(project.buildOptions().codeCoverage());
-        Assert.assertFalse(project.buildOptions().offlineBuild());
         Assert.assertFalse(project.buildOptions().experimental());
         Assert.assertFalse(project.buildOptions().testReport());
     }
@@ -162,7 +161,7 @@ public class TestSingleFileProject {
         String newContent = "import ballerina/io;\n";
 
         // Load the project from document filepath
-        SingleFileProject singleFileProject = SingleFileProject.load(filePath);
+        SingleFileProject singleFileProject = TestUtils.loadSingleFileProject(filePath);
 
         // get the
         // document ID
@@ -209,7 +208,7 @@ public class TestSingleFileProject {
         // 2) Initialize the project instance
         SingleFileProject project = null;
         try {
-            project = SingleFileProject.load(projectPath);
+            project = TestUtils.loadSingleFileProject(projectPath);
         } catch (Exception e) {
             Assert.assertTrue(e.getMessage().contains("does not have read permissions"));
         }
@@ -223,7 +222,7 @@ public class TestSingleFileProject {
         Path filePath = RESOURCE_DIRECTORY.resolve("single_file").resolve("main_with_error.bal");
 
         // Load the project from document filepath
-        SingleFileProject project = SingleFileProject.load(filePath);
+        SingleFileProject project = TestUtils.loadSingleFileProject(filePath);
         // 2) Load the package
         Package currentPackage = project.currentPackage();
 

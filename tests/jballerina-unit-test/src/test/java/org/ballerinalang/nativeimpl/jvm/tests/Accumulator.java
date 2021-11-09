@@ -19,6 +19,7 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Future;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.values.BError;
@@ -45,7 +46,7 @@ public class Accumulator {
     private static void accumulateI(ObjectValue intFunction, long i, long to, Runtime runtime, Future future,
                                     long[] relay) {
 
-        runtime.invokeMethodAsync(intFunction, "invoke", null, null, new Callback() {
+        runtime.invokeMethodAsyncConcurrently(intFunction, "invoke", null, null, new Callback() {
             @Override
             public void notifySuccess(Object result) {
                 relay[0] += (long) result;
@@ -61,7 +62,7 @@ public class Accumulator {
                 assert error == null;
                 assert false;
             }
-        }, i, true);
+        }, null, PredefinedTypes.TYPE_NULL, i, true);
     }
 
 }

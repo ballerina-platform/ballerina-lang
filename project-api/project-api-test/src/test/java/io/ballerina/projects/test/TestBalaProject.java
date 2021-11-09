@@ -40,7 +40,6 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.repos.TempDirCompilationCache;
@@ -147,7 +146,7 @@ public class TestBalaProject {
         BuildProject project = null;
         try {
             BuildOptions buildOptions = new BuildOptionsBuilder().sticky(true).build();
-            project = BuildProject.load(projectPath, buildOptions);
+            project = TestUtils.loadBuildProject(projectPath, buildOptions);
         } catch (Exception e) {
             Assert.fail(e.getMessage(), e);
         }
@@ -187,14 +186,14 @@ public class TestBalaProject {
     @Test(expectedExceptions = UnsupportedOperationException.class)
     public void testGetDocumentIdFromPath() {
         Path balaPath = RESOURCE_DIRECTORY.resolve("balaloader").resolve("foo-winery-any-0.1.0.bala");
-        Project balaProject = ProjectLoader.loadProject(balaPath);
+        Project balaProject = TestUtils.loadProject(balaPath);
         balaProject.documentId(balaPath.resolve("modules").resolve("winery").resolve("main.bal"));
     }
 
     @Test
     public void testGetDocumentIdFromPathInExtractedBala() {
         Path balaPath = RESOURCE_DIRECTORY.resolve("balaloader").resolve("extracted-bala");
-        Project balaProject = ProjectLoader.loadProject(balaPath);
+        Project balaProject = TestUtils.loadProject(balaPath);
         DocumentId expectedDefaultDocId = balaProject.currentPackage().getDefaultModule()
                 .documentIds().stream().findFirst().get();
         DocumentId actualDefaultDocId = balaProject

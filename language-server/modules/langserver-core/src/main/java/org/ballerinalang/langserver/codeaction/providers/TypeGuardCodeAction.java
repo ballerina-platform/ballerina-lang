@@ -99,7 +99,7 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
         }
 
         // Add type guard code action
-        String commandTitle = CommandConstants.TYPE_GUARD_TITLE;
+        String commandTitle = String.format(CommandConstants.TYPE_GUARD_TITLE, varName.get());
         Range range = CommonUtil.toRange(matchedNode.lineRange());
         List<TextEdit> edits = CodeActionUtil.getTypeGuardCodeActionEdits(varName.get(), range, varTypeSymbol, context);
         if (edits.isEmpty()) {
@@ -154,9 +154,9 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
                 }
                 varTypeSymbol = optVariableSymbol.get().typeDescriptor();
                 SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
-                NonTerminalNode node = CommonUtil.findNode(optVariableSymbol.get(), syntaxTree);
-                if (node.kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
-                    varTypeNode = ((TypedBindingPatternNode) node).typeDescriptor();
+                Optional<NonTerminalNode> node = CommonUtil.findNode(optVariableSymbol.get(), syntaxTree);
+                if (node.isPresent() && node.get().kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
+                    varTypeNode = ((TypedBindingPatternNode) node.get()).typeDescriptor();
                 } else {
                     return Optional.empty();
                 }
