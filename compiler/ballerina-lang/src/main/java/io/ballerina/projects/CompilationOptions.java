@@ -152,7 +152,7 @@ public class CompilationOptions {
             compilationOptionsBuilder.sticky(this.sticky);
         }
         if (theirOptions.semtype != null) {
-            this.semtype = theirOptions.semtype;
+            compilationOptionsBuilder.semtype(theirOptions.semtype);
         }
         return compilationOptionsBuilder.build();
     }
