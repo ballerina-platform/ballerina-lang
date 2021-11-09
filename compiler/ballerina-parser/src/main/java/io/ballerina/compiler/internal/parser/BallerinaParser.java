@@ -101,6 +101,23 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Completely parses a given input a statement.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsStatement() {
+        STNodeList stmtNodeList = (STNodeList) parseAsStatements();
+        STNode stmt = stmtNodeList.get(0);
+
+        for (int i = 1; i < stmtNodeList.size(); i++) {
+            stmt = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(stmt, stmtNodeList.get(i),
+            DiagnosticErrorCode.ERROR_SYNTAX_ERROR);
+        }
+
+        return stmt;
+    }
+
+    /**
      * Completely parses a given input as statements.
      *
      * @return Parsed node
@@ -143,6 +160,100 @@ public class BallerinaParser extends AbstractParser {
 
         expr = invalidateRestAndAddToTrailingMinutiae(expr);
         return expr;
+    }
+
+    /**
+     * Completely parses a given input as an action or expression.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsActionOrExpression() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.FUNC_DEF);
+        startContext(ParserRuleContext.FUNC_BODY_BLOCK);
+        startContext(ParserRuleContext.VAR_DECL_STMT);
+        STNode actionOrExpr = parseActionOrExpression();
+
+        actionOrExpr = invalidateRestAndAddToTrailingMinutiae(actionOrExpr);
+        return actionOrExpr;
+    }
+
+    /**
+     * Completely parses a given input as a module member declaration.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsModuleMemberDeclaration() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        STNode topLevelNode = parseTopLevelNode();
+
+        if (topLevelNode == null) {
+            topLevelNode = createMissingSimpleVarDecl(true);
+        }
+
+        if (topLevelNode.kind == SyntaxKind.IMPORT_DECLARATION) {
+            STNode temp = topLevelNode;
+            topLevelNode = createMissingSimpleVarDecl(true);
+            topLevelNode = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(topLevelNode, temp);
+        }
+
+        topLevelNode = invalidateRestAndAddToTrailingMinutiae(topLevelNode);
+        return topLevelNode;
+    }
+
+    /**
+     * Completely parses a given input as an import declaration.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsImportDeclaration() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        STNode importDecl = parseImportDecl();
+
+        importDecl = invalidateRestAndAddToTrailingMinutiae(importDecl);
+        return importDecl;
+    }
+
+    /**
+     * Completely parses a given input as a type descriptor.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsTypeDescriptor() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.MODULE_TYPE_DEFINITION);
+        STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_DEF);
+
+        typeDesc = invalidateRestAndAddToTrailingMinutiae(typeDesc);
+        return typeDesc;
+    }
+
+    /**
+     * Completely parses a given input as a binding pattern.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsBindingPattern() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.VAR_DECL_STMT);
+        STNode bindingPattern = parseBindingPattern();
+
+        bindingPattern = invalidateRestAndAddToTrailingMinutiae(bindingPattern);
+        return bindingPattern;
+    }
+
+    /**
+     * Completely parses a given input as a function body block.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsFunctionBodyBlock() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.FUNC_DEF);
+        STNode funcBodyBlock = parseFunctionBodyBlock(false);
+
+        funcBodyBlock = invalidateRestAndAddToTrailingMinutiae(funcBodyBlock);
+        return funcBodyBlock;
     }
 
     /**
