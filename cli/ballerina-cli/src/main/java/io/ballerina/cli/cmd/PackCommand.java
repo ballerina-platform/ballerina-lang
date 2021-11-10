@@ -92,7 +92,7 @@ public class PackCommand implements BLauncherCmd {
             description = "hidden option for code coverage to include all classes")
     private String includes;
 
-    @CommandLine.Option(names = "--dump-build-time", description = "calculate and dump build time")
+    @CommandLine.Option(names = "--dump-build-time", hidden = true, description = "calculate and dump build time")
     private Boolean dumpBuildTime;
 
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")

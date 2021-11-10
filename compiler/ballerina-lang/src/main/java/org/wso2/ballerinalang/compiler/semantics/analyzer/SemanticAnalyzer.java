@@ -1634,6 +1634,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     void handleDeclaredVarInForeach(BLangVariable variable, BType rhsType, SymbolEnv blockEnv) {
+        if (rhsType.tag == TypeTags.INTERSECTION) {
+            rhsType = ((BIntersectionType) rhsType).effectiveType;
+        }
+
         switch (variable.getKind()) {
             case VARIABLE:
                 BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;

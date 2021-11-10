@@ -100,7 +100,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        edits.addAll(getTextEdits(positionDetails, typeName.get()));
+        edits.addAll(getTextEdits(expressionNode.get(), typeName.get()));
         String commandTitle = CommandConstants.ADD_TYPE_CAST_TITLE;
         return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
     }
@@ -150,19 +150,18 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
      * the assignment/var declaration, etc. This considers if additional parentheses requires to be added around
      * the RHS expression.
      *
-     * @param positionDetails  Diagnostic based postion details
-     * @param expectedTypeName Expected type name as a string
+     * @param expressionNode    Expression Node of the diagnostic position
+     * @param expectedTypeName  Expected type name as a string
      * @return Text edits to perform the cast
      */
-    private List<TextEdit> getTextEdits(DiagBasedPositionDetails positionDetails, String expectedTypeName) {
-        NonTerminalNode matchedNode = positionDetails.matchedNode();
-        Position startPosition = CommonUtil.toPosition(matchedNode.lineRange().startLine());
-        Position endPosition = CommonUtil.toPosition(matchedNode.lineRange().endLine());
+    private List<TextEdit> getTextEdits(ExpressionNode expressionNode, String expectedTypeName) {
+        Position startPosition = CommonUtil.toPosition(expressionNode.lineRange().startLine());
+        Position endPosition = CommonUtil.toPosition(expressionNode.lineRange().endLine());
 
         String editText = "<" + expectedTypeName + "> ";
 
         // If the expression is a binary expression, need to add parentheses around the expression
-        if (matchedNode.kind() == SyntaxKind.BINARY_EXPRESSION) {
+        if (expressionNode.kind() == SyntaxKind.BINARY_EXPRESSION) {
             editText = editText + CommonKeys.OPEN_PARENTHESES_KEY;
             TextEdit castWithParentheses = new TextEdit(new Range(startPosition, startPosition), editText);
             TextEdit closeParentheses = new TextEdit(new Range(endPosition, endPosition),

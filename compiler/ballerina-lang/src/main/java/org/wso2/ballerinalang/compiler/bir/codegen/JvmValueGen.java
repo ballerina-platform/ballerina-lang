@@ -25,7 +25,6 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.FieldNameHashComparator;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.TypeDefHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JFieldBIRFunction;
@@ -40,6 +39,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.values.JvmRecordGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -127,7 +127,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
 public class JvmValueGen {
 
     static final FieldNameHashComparator FIELD_NAME_HASH_COMPARATOR = new FieldNameHashComparator();
-    public static final TypeDefHashComparator TYPE_HASH_COMPARATOR = new TypeDefHashComparator();
     static final String ENCODED_RECORD_INIT =
             IdentifierUtils.encodeFunctionIdentifier(Names.INIT_FUNCTION_SUFFIX.value);
     private final BIRNode.BIRPackage module;
@@ -136,15 +135,18 @@ public class JvmValueGen {
     private final BType booleanType;
     private final JvmObjectGen jvmObjectGen;
     private final JvmRecordGen jvmRecordGen;
+    private final TypeHashVisitor typeHashVisitor;
 
 
-    JvmValueGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, MethodGen methodGen) {
+    JvmValueGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, MethodGen methodGen,
+                TypeHashVisitor typeHashVisitor) {
         this.module = module;
         this.jvmPackageGen = jvmPackageGen;
         this.methodGen = methodGen;
         this.booleanType = jvmPackageGen.symbolTable.booleanType;
         this.jvmRecordGen = new JvmRecordGen(jvmPackageGen.symbolTable);
         this.jvmObjectGen = new JvmObjectGen();
+        this.typeHashVisitor = typeHashVisitor;
     }
 
     static void injectDefaultParamInitsToAttachedFuncs(BIRNode.BIRPackage module, InitMethodGen initMethodGen,
@@ -207,7 +209,7 @@ public class JvmValueGen {
 
     void generateValueClasses(Map<String, byte[]> jarEntries, JvmConstantsGen jvmConstantsGen) {
         String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
-        module.typeDefs.parallelStream().forEach(optionalTypeDef -> {
+        module.typeDefs.forEach(optionalTypeDef -> {
             BType bType = optionalTypeDef.type;
             String className = getTypeValueClassName(packageName, optionalTypeDef.internalName.value);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(className);
@@ -348,7 +350,7 @@ public class JvmValueGen {
         } else {
             cw.visitSource(className, null);
         }
-        JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID);
+        JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor);
         JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen);
         LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className,
@@ -555,7 +557,7 @@ public class JvmValueGen {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.lineRange().filePath(), null);
 
-        JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID);
+        JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor);
         JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen);
         LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{B_OBJECT});

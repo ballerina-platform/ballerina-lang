@@ -9,29 +9,53 @@
   },
   {
     "description": "Null access.",
-    "code": "Person p1 = {name: \"Anne\", addr: ()}; p1?.age;"
+    "code": "Person p1 = {name: \"Anne\", addr: ()};"
+  },
+  {
+    "description": "Null access - get value.",
+    "code": "p1?.age;"
   },
   {
     "description": "Value access.",
-    "code": "p1 = {name: \"Anne\", age: 24, addr: ()}; p1?.age",
+    "code": "p1 = {name: \"Anne\", age: 24, addr: ()};"
+  },
+  {
+    "description": "Value access - get value.",
+    "code": "p1?.age",
     "expr": "24"
   },
   {
     "description": "Chained access.",
-    "code": "Person? p2 = getPerson(\"John\", 30); p2?.addr?.city;",
+    "code": "Person? p2 = getPerson(\"John\", 30);"
+  },
+  {
+    "description": "Chained access - get value.",
+    "code": "p2?.addr?.city;",
     "expr": "\"Santa Clara\""
   },
   {
     "description": "Chained null access.",
-    "code": "Person? p3 = getPerson(\"\", 0); p3?.addr?.city;"
+    "code": "Person? p3 = getPerson(\"\", 0);"
+  },
+  {
+    "description": "Chained null access - get value.",
+    "code": "p3?.addr?.city;"
   },
   {
     "description": "Chained access.",
-    "code": "p3 = {name: \"George\", age: 20, addr: ()}; p3?.addr?.city;"
+    "code": "p3 = {name: \"George\", age: 20, addr: ()};"
+  },
+  {
+    "description": "Chained access - get value.",
+    "code": "p3?.addr?.city;"
   },
   {
     "description": "Default value usage.",
-    "code": "string defaultCity = \"San Jose\"; p3?.addr?.city ?: defaultCity;",
+    "code": "string defaultCity = \"San Jose\";"
+  },
+  {
+    "description": "Default value usage - get value.",
+    "code": "p3?.addr?.city ?: defaultCity;",
     "expr": "\"San Jose\""
   }
 ]

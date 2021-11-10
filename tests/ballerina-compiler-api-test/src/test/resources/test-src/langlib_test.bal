@@ -69,4 +69,12 @@ function test() {
     'xml:Element xm2 = xml `<Greeting>Hola</Greeting>`;
 
     int[] & readonly iarr = [1, 2];
+
+    T1 t1 = 2;
+
+    T2 t2 = "a";
 }
+
+type T1 1|2|3;
+
+type T2 "a"|"b";

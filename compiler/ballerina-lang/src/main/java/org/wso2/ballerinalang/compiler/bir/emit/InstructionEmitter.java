@@ -108,6 +108,7 @@ class InstructionEmitter {
             case NEW_STRING_XML_QNAME:
                 return emitInsNewStringXMLQName((BIRNonTerminator.NewStringXMLQName) ins, tabs);
             case XML_LOAD_ALL:
+            case XML_SEQ_STORE:
                 return emitInsXMLAccess((BIRNonTerminator.XMLAccess) ins, tabs);
             case NEW_XML_TEXT:
                 return emitInsNewXMLText((BIRNonTerminator.NewXMLText) ins, tabs);
@@ -375,43 +376,143 @@ class InstructionEmitter {
     }
 
     private static String emitInsNewXMLElement(BIRNonTerminator.NewXMLElement ins, int tabs) {
-        // TODO fill this
-        return "";
+
+        String str = "";
+        str += emitTabs(tabs);
+        str += emitVarRef(ins.lhsOp);
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        str += "new xml:Element";
+        str += "(";
+        str += emitVarRef(ins.startTagOp);
+        str += ",";
+        str += emitVarRef(ins.defaultNsURIOp);
+        str += ")";
+        str += ";";
+        return str;
     }
 
     private static String emitInsNewXMLSequence(BIRNonTerminator.NewXMLSequence ins, int tabs) {
-        // TODO fill this
-        return "";
+
+        String str = "";
+        str += emitTabs(tabs);
+        str += emitVarRef(ins.lhsOp);
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        str += "new xml:Sequence";
+        str += "()";
+        str += ";";
+        return str;
     }
 
     private static String emitInsNewXMLQName(BIRNonTerminator.NewXMLQName ins, int tabs) {
-        // TODO fill this
-        return "";
+
+        String str = "";
+        str += emitTabs(tabs);
+        str += emitVarRef(ins.lhsOp);
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        str += "new xml:QName";
+        str += "(";
+        str += emitVarRef(ins.localnameOp);
+        str += ",";
+        str += "{";
+        str += emitVarRef(ins.nsURIOp);
+        str += "}";
+        str += ",";
+        str += emitVarRef(ins.prefixOp);
+        str += ")";
+        str += ";";
+        return str;
     }
 
     private static String emitInsNewStringXMLQName(BIRNonTerminator.NewStringXMLQName ins, int tabs) {
-        // TODO fill this
-        return "";
+
+        String str = "";
+        str += emitTabs(tabs);
+        str += emitVarRef(ins.lhsOp);
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        str += "new xml:StringQName";
+        str += "(";
+        str += emitVarRef(ins.stringQNameOP);
+        str += ")";
+        str += ";";
+        return str;
     }
 
     private static String emitInsXMLAccess(BIRNonTerminator.XMLAccess ins, int tabs) {
-        // TODO fill this
-        return "";
+
+        String str = "";
+        str += emitTabs(tabs);
+        str += emitVarRef(ins.lhsOp);
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        if (ins.kind == InstructionKind.XML_LOAD_ALL) {
+            str += "new xml:Load";
+        } else if (ins.kind == InstructionKind.XML_SEQ_STORE) {
+            str += "new xml:SequenceStore";
+        }
+        str += "(";
+        str += emitVarRef(ins.rhsOp);
+        str += ")";
+        str += ";";
+        return str;
     }
 
     private static String emitInsNewXMLText(BIRNonTerminator.NewXMLText ins, int tabs) {
-        // TODO fill this
-        return "";
+
+        String str = "";
+        str += emitTabs(tabs);
+        str += emitVarRef(ins.lhsOp);
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        str += "new xml:Text";
+        str += "(";
+        str += emitVarRef(ins.textOp);
+        str += ")";
+        str += ";";
+        return str;
     }
 
     private static String emitInsNewXMLComment(BIRNonTerminator.NewXMLComment ins, int tabs) {
-        // TODO fill this
-        return "";
+
+        String str = "";
+        str += emitTabs(tabs);
+        str += emitVarRef(ins.lhsOp);
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        str += "new xml:Comment";
+        str += "(";
+        str += emitVarRef(ins.textOp);
+        str += ")";
+        str += ";";
+        return str;
     }
 
     private static String emitInsNewXMLPI(BIRNonTerminator.NewXMLProcIns ins, int tabs) {
-        // TODO fill this
-        return "";
+
+        String str = "";
+        str += emitTabs(tabs);
+        str += emitVarRef(ins.lhsOp);
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        str += "new xml:ProcessingInstruction";
+        str += "(";
+        str += emitVarRef(ins.targetOp);
+        str += ",";
+        str += emitVarRef(ins.dataOp);
+        str += ")";
+        str += ";";
+        return str;
     }
 
     private static String emitInsUnaryOp(BIRNonTerminator.UnaryOP ins, int tabs) {

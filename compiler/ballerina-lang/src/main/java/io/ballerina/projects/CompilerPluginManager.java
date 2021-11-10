@@ -38,6 +38,7 @@ class CompilerPluginManager {
     private final List<CompilerPluginContextIml> compilerPluginContexts;
 
     private CodeAnalyzerManager codeAnalyzerManager;
+    private CodeGeneratorManager codeGeneratorManager;
     private CompilerLifecycleManager compilerLifecycleListenerManager;
     private CodeActionManager codeActionManager;
 
@@ -94,6 +95,15 @@ class CompilerPluginManager {
         return codeAnalyzerManager;
     }
 
+    CodeGeneratorManager getCodeGeneratorManager() {
+        if (codeGeneratorManager != null) {
+            return codeGeneratorManager;
+        }
+
+        codeGeneratorManager = CodeGeneratorManager.from(compilation, compilerPluginContexts);
+        return codeGeneratorManager;
+    }
+
     CodeActionManager getCodeActionManager() {
         if (codeActionManager != null) {
             return codeActionManager;
@@ -101,6 +111,14 @@ class CompilerPluginManager {
 
         codeActionManager = CodeActionManager.from(compilerPluginContexts);
         return codeActionManager;
+    }
+
+    int engagedCodeGeneratorCount() {
+        int count = 0;
+        for (CompilerPluginContextIml compilerPluginContext : compilerPluginContexts) {
+            count += compilerPluginContext.codeGenerators().size();
+        }
+        return count;
     }
 
     private static List<CompilerPluginInfo> loadEngagedCompilerPlugins(List<Package> dependencies) {
