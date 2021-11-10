@@ -1469,7 +1469,6 @@ public class TestBuildProject extends BaseTest {
 
     @Test(description = "test auto updating dependencies with old distribution version")
     public void testAutoUpdateWithOldDistVersion() throws IOException {
-        // When distribution is not matching always should update Dependencies.toml
         Path projectPath = RESOURCE_DIRECTORY.resolve("old_dist_version_project");
         // Delete build file and Dependencies.toml file if already exists
         Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
@@ -1492,7 +1491,10 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(initialBuildJson.lastUpdateTime() > 0, "invalid last_update_time in the build file");
         Assert.assertFalse(initialBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
 
-        // 2) Build project again
+        // 2) Build project again after setting un-matching dist version
+        // When distribution is not matching always should update Dependencies.toml, even build file has not expired
+        initialBuildJson.setDistributionVersion("slbeta0");
+        ProjectUtils.writeBuildFile(buildFile, initialBuildJson);
         Assert.assertTrue(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists());
         BuildProject projectSecondBuild = loadBuildProject(projectPath, buildOptions);
         projectSecondBuild.save();
