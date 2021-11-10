@@ -38,6 +38,7 @@ public class BLangObjectConstructorExpression extends BLangExpression {
     public BLangType referenceType;
     public boolean isClient;
     public boolean isService;
+    public boolean defined;
     public List<BLangLambdaFunction> langLambdaFunctionList;
 
     public BLangObjectConstructorExpression() {

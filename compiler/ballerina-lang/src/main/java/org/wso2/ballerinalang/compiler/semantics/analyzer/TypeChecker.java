@@ -3326,21 +3326,16 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangObjectConstructorExpression objectCtorExpression) {
         BLangClassDefinition classNode = objectCtorExpression.classNode;
-//        if (classNode.cloneRef != null) {
-//            classNode = (BLangClassDefinition) classNode.cloneRef;
-//            objectCtorExpression.classNode = classNode;
-//        }
-//        symbolEnter.defineClassDefinition(classNode, env);
+
         BLangClassDefinition originalClass = classNode.oceEnvData.originalClass;
-        if (originalClass.cloneRef != null) {
+        if (originalClass.cloneRef != null && !objectCtorExpression.defined) {
             classNode = (BLangClassDefinition) originalClass.cloneRef;
-            symbolEnter.defineClassDefinition(classNode, env);
+            if (!classNode.definitionCompleted) {
+                symbolEnter.defineClassDefinition(classNode, env);
+            }
+            objectCtorExpression.defined = true;
         }
-//        if (classNode.cloneRef != null) {
-//           classNode = (BLangClassDefinition) classNode.cloneRef;
-//           symbolEnter.defineClassDefinition(classNode, env);
-//           objectCtorExpression.classNode = classNode;
-//        }
+
         // TODO: check referenced type
         BObjectType objectType;
         if (objectCtorExpression.referenceType == null && objectCtorExpression.expectedType != null) {
@@ -3379,7 +3374,7 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             semanticAnalyzer.analyzeNode(classNode, typeDefEnv);
         }
-        dlog.restoreMute();
+        dlog.unmute();
         markConstructedObjectIsolatedness(actualObjectType);
 
         if (((BObjectTypeSymbol) actualType.tsymbol).initializerFunc != null) {

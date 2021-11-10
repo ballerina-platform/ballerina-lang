@@ -193,7 +193,6 @@ import static org.ballerinalang.model.elements.PackageID.XML;
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
-import static org.ballerinalang.model.tree.NodeKind.CLASS_DEFN;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.DEFAULTABLE_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER;
@@ -290,6 +289,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineFunctionsOfClassDef(env, classNode);
         setReadOnlynessOfClassDef(classNode, env);
         defineReadOnlyIncludedFieldsAndMethods(classNode, env);
+        classNode.definitionCompleted = true;
     }
 
     public void defineNode(BLangNode node, SymbolEnv env) {
@@ -499,16 +499,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private boolean isObjectCtor(BLangClassDefinition classDefinition) {
-//        if (classDefinition.isObjectContructorDecl) {
-//            return true;
-//        }
-        if (classDefinition.flagSet.contains(Flag.OBJECT_CTOR)) {
+        if (classDefinition.flagSet.contains(Flag.OBJECT_CTOR) &&
+            !classDefinition.flagSet.contains(Flag.SERVICE)) {
             return true;
         }
-//        if (classDefinition.flagSet.contains(Flag.OBJECT_CTOR) &&
-//                !classDefinition.flagSet.contains(Flag.SERVICE)) {
-//            return true;
-//        }
         return false;
     }
 
@@ -516,7 +510,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangNode node : typDefs) {
             if (node.getKind() == NodeKind.CLASS_DEFN) {
                 BLangClassDefinition classDefinition = (BLangClassDefinition) node;
-                if (classDefinition.flagSet.contains(Flag.OBJECT_CTOR)) {
+                if (isObjectCtor(classDefinition)) {
                     continue;
                 }
                 populateDistinctTypeIdsFromIncludedTypeReferences((BLangClassDefinition) node);
@@ -1195,14 +1189,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangNode typeDef : typeDefs) {
             if (isErrorIntersectionTypeCreatingNewType(typeDef, env)) {
                 populateUndefinedErrorIntersection((BLangTypeDefinition) typeDef, env);
-            }
-            if (isObjectCtor(typeDef)) {
                 continue;
             }
-
-//            if (typeDef.getKind() == CLASS_DEFN && ((BLangClassDefinition) typeDef).isObjectContructorDecl) {
+//            if (isObjectCtor(typeDef)) {
 //                continue;
 //            }
+
             defineNode(typeDef, env);
         }
 
@@ -2088,7 +2080,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             if ("/".equals(serviceNode.absoluteResourcePath.get(0).getValue())) {
                 serviceSymbol.setAbsResourcePath(Collections.emptyList());
             } else {
-                List<String> list = new ArrayList<>();
+                List<String> list = new ArrayList<>(serviceNode.absoluteResourcePath.size());
                 for (IdentifierNode identifierNode : serviceNode.absoluteResourcePath) {
                     list.add(identifierNode.getValue());
                 }
@@ -3776,7 +3768,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangNode typeDef : typeDefNodes) {
             if (typeDef.getKind() == NodeKind.CLASS_DEFN) {
                 BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;
-                if (classDefinition.flagSet.contains(Flag.OBJECT_CTOR)) {
+                if (isObjectCtor(classDefinition)) {
                     continue;
                 }
                 defineFieldsOfClassDef(classDefinition, pkgEnv);
@@ -3924,7 +3916,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangNode node : typeDefNodes) {
             if (node.getKind() == NodeKind.CLASS_DEFN) {
                 BLangClassDefinition classDef = (BLangClassDefinition) node;
-                if (classDef.flagSet.contains(Flag.OBJECT_CTOR)) {
+                if (isObjectCtor(classDef)) {
                     continue;
                 }
                 defineFunctionsOfClassDef(pkgEnv, classDef);
@@ -3990,7 +3982,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             BLangObjectTypeNode objTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
             SymbolEnv objMethodsEnv =
                     SymbolEnv.createObjectMethodsEnv(objTypeNode, (BObjectTypeSymbol) objTypeNode.symbol, pkgEnv);
-
 
             // Define the functions defined within the object
             defineObjectInitFunction(objTypeNode, objMethodsEnv);
@@ -4149,11 +4140,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (int i = 0; i < origSize; i++) {
             BLangNode typeDefOrClass = typeDefNodes.get(i);
             if (typeDefOrClass.getKind() == NodeKind.CLASS_DEFN) {
-                BLangClassDefinition classDef = (BLangClassDefinition) typeDefOrClass;
-//                if (classDef.isObjectContructorDecl) {
-//                    continue;
-//                }
-                setReadOnlynessOfClassDef((BLangClassDefinition) typeDefOrClass, pkgEnv);
+                BLangClassDefinition classDefinition = (BLangClassDefinition) typeDefOrClass;
+                if (isObjectCtor(classDefinition)) {
+                    continue;
+                }
+                setReadOnlynessOfClassDef(classDefinition, pkgEnv);
                 continue;
             } else if (typeDefOrClass.getKind() != NodeKind.TYPE_DEFINITION) {
                 continue;
@@ -4252,6 +4243,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
             defineReadOnlyIncludedFieldsAndMethods(classDefinition, pkgEnv);
+            classDefinition.definitionCompleted = true;
         }
     }
 
@@ -4795,7 +4787,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
 
                 BObjectType objectType = (BObjectType) referredType;
-                if (structureTypeNode.symbol.pkgID.equals(referredType.tsymbol.pkgID)) {
+                if (!structureTypeNode.symbol.pkgID.equals(referredType.tsymbol.pkgID)) {
                     for (BField field : objectType.fields.values()) {
                         if (!Symbols.isPublic(field.symbol)) {
                             dlog.error(typeRef.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_REFERENCE_NON_PUBLIC_MEMBERS,

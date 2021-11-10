@@ -69,7 +69,6 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     private SymbolFactory symbolFactory;
     private PackageID currentPackageId;
     private boolean isMute = false;
-    private boolean previousMuteState;
 
     private BLangDiagnosticLog(CompilerContext context) {
         context.put(DIAGNOSTIC_LOG_KEY, this);
@@ -169,7 +168,6 @@ public class BLangDiagnosticLog implements DiagnosticLog {
      * However it will continue to keep track of the number of errors.
      */
     public void mute() {
-        this.previousMuteState = this.isMute;
         this.isMute = true;
     }
 
@@ -177,15 +175,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
      * Unmute the logger. This will start reporting the diagnostic.
      */
     public void unmute() {
-        this.previousMuteState = this.isMute;
         this.isMute = false;
-    }
-
-    /**
-     * Restore previous must state.
-     */
-    public void restoreMute() {
-        this.isMute = this.previousMuteState;
     }
 
     @Override
