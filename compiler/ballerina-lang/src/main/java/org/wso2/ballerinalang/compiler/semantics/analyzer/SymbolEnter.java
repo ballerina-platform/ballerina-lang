@@ -546,7 +546,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (defn.semType == null) {
             defn.semType = s;
             defn.cycleDepth = -1;
-            semtypeEnv.addTypeDef(defn.name.value, s);
+            String name = "";
+            if (defn.symbol.pkgID.nameComps.size() > 1) {
+                name = defn.symbol.pkgID.nameComps.get(1).getValue() + ":";
+            }
+            name += defn.name.value;
+            semtypeEnv.addTypeDef(name, s);
             return s;
         } else {
             return s;
@@ -649,9 +654,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private SemType resolveTypeDesc(BLangUserDefinedType td, Env semtypeEnv, Map<String, BLangNode> mod, int depth) {
         String name = "";
-        String pkgAlias = td.pkgAlias.getValue();
-        if (!Objects.equals(pkgAlias, "")) {
-            name = td.pkgAlias.getValue() + ":";
+        if (td.symbol.pkgID.nameComps.size() > 1) {
+            name = td.symbol.pkgID.nameComps.get(1).getValue() + ":";
         }
         name += td.typeName.getValue();
         SemType s = semtypeEnv.getTypeNameSemTypeMap().get(name);

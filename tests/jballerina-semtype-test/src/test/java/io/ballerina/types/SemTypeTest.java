@@ -49,7 +49,7 @@ public class SemTypeTest {
 
     @DataProvider(name = "fileNameProvider")
     public Object[] fileNameProvider() {
-        File dataDir = resolvePath("test-src/data").toFile();
+        File dataDir = resolvePath("test-src/dt").toFile();
         List<String> testFiles = Arrays.stream(dataDir.listFiles())
                 .map(File::getAbsolutePath)
                 .filter(name -> name.endsWith(".bal"))
@@ -61,13 +61,19 @@ public class SemTypeTest {
         ignore(testFiles, "int-singleton.bal");
         ignore(testFiles, "function.bal");
 
+        /*
         include(testFiles,
                 "test-src/simple-type/type-test.bal",
                 "test-src/simple-type/list-type-test.bal",
                 "test-src/simple-type/map-type-test.bal",
                 "test-src/simple-type/int-singleton-altered.bal",
                 "test-src/simple-type/function-altered.bal",
-                "test-src/simple-type/float-altered.bal");
+                "test-src/simple-type/float-altered.bal",
+                "test-src/datax/face/main.bal");
+
+         */
+
+        include(testFiles, "test-src/datax/face/main.bal");
 
         return testFiles.toArray(new String[0]);
         //return new Object[]{"test-src/data/error2.bal"};
@@ -161,6 +167,7 @@ public class SemTypeTest {
                 .filter(n -> !n.equals("error"))
                 .filter(n -> !n.equals("xml"))
                 .filter(n -> !n.equals("string"))
+                .filter(n -> !n.contains(":"))
                 .sorted(SemTypeTest::ballerinaStringCompare)
                 .collect(Collectors.toList());
         int size = typeNameList.size();
