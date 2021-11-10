@@ -157,6 +157,13 @@ public abstract class BalaWriter {
         if (!platformLibs.isEmpty()) {
             packageJson.setPlatformDependencies(platformLibs.get());
         }
+
+        // Set icon in bala path ion the package.json
+        if (packageManifest.icon() != null && !packageManifest.icon().isEmpty()) {
+            Path iconPath = getIconPath(packageManifest.icon());
+            packageJson.setIcon(String.valueOf(Paths.get("docs").resolve(iconPath.getFileName())));
+        }
+
         // Remove fields with empty values from `package.json`
         Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Collection.class, new JsonCollectionsAdaptor())
                 .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
@@ -184,6 +191,14 @@ public abstract class BalaWriter {
             Path packageMdInBala = docsDirInBala.resolve(packageMdFileName);
             putZipEntry(balaOutputStream, packageMdInBala,
                     new FileInputStream(String.valueOf(packageMd)));
+        }
+
+        // If `icon` mentioned in the Ballerina.toml, add it to docs directory
+        String icon = this.packageContext.packageManifest().icon();
+        if (icon != null && !icon.isEmpty()) {
+            Path iconPath = getIconPath(icon);
+            Path iconInBala = docsDirInBala.resolve(iconPath.getFileName());
+            putZipEntry(balaOutputStream, iconInBala, new FileInputStream(String.valueOf(iconPath)));
         }
 
         // If `Module.md` of default module exists, create `docs/modules` directory & add `Module.md`
@@ -322,6 +337,14 @@ public abstract class BalaWriter {
                                                          List<ModuleDependency> moduleDependencies) {
         return new ModuleDependency(pkg.packageOrg().value(), pkg.packageName().value(),
                 pkg.packageVersion().toString(), module.moduleName().toString(), moduleDependencies);
+    }
+
+    private Path getIconPath(String icon) {
+        Path iconPath = Paths.get(icon);
+        if (!iconPath.isAbsolute()) {
+            iconPath = this.packageContext.project().sourceRoot().resolve(iconPath);
+        }
+        return iconPath;
     }
 
     protected void putZipEntry(ZipOutputStream balaOutputStream, Path fileName, InputStream in)
