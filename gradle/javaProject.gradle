@@ -84,6 +84,7 @@ dependencies {
         implementation 'org.hsqldb:hsqldb:2.4.1'
         implementation 'org.javassist:javassist:3.24.1-GA'
         implementation 'org.jvnet.mimepull:mimepull:1.9.11'
+        implementation 'jakarta.activation:jakarta.activation-api:1.2.2'
         implementation 'org.mockito:mockito-all:1.10.19'
         implementation 'org.mvel:mvel2:2.4.4.Final'
         implementation 'org.ow2.asm:asm:7.1'

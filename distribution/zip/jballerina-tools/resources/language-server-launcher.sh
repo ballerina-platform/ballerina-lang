@@ -142,12 +142,6 @@ else
   JAVA_DEBUG=""
 fi
 
-JDK_18=`$JAVA_HOME/bin/java -version 2>&1 | grep -e "1.8."`
-if [ "$JDK_18" = "" ]; then
-    >&2 echo "Error: Ballerina is supported only on JDK 1.8"
-    exit 1
-fi
-
 CLASSPATHS="$CLASSPATHS":"$CUSTOM_CLASSPATH"
 
 CLASSPATHS="$CLASSPATHS":"$BALLERINA_HOME"/bre/lib/*
