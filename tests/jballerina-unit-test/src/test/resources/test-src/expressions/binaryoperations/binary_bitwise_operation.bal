@@ -153,11 +153,11 @@ function testBitwiseOROperation() {
     int:Unsigned8 k = a | h;
     byte l = a | h;
 
-    assertEqual(g, 15);
-    assertEqual(i, 15);
-    assertEqual(j, 15);
-    assertEqual(k, 15);
-    assertEqual(l, 15);
+    assertEqual(g, 13);
+    assertEqual(i, 12);
+    assertEqual(j, 255);
+    assertEqual(k, 255);
+    assertEqual(l, 255);
 }
 
 function testBitwiseXOROperation() {
