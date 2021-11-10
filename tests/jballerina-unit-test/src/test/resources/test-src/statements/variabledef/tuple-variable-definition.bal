@@ -216,14 +216,14 @@ function testIgnoreVariable() returns [int, int] {
 type myErrorDetail record { int i; };
 
 function testTupleVariableWithErrorBP() {
-    [error<myErrorDetail>, [int, string]] [error(m, i = i, ...k), [l, n]] = [error("err", i = 1), [1, ""]];
+    [error<myErrorDetail>, [int, string]] [error(m, i = i, ...k), [p, n]] = [error("err", i = 1), [1, ""]];
     assertEquality(m, "err");
     assertEquality(i, 1);
-    assertEquality(l, 1);
+    assertEquality(p, 1);
     assertEquality(n, "");
 }
 
-function assertEquality(anydata expected, anydata actual) {
+function assertEquality(anydata actual, anydata expected) {
     if expected == actual {
         return;
     }
