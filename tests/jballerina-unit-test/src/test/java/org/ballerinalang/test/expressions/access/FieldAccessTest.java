@@ -209,8 +209,13 @@ public class FieldAccessTest {
     }
 
     @Test
-    public void testLaxFieldAccessDefinedInModuleLevelWithCheckExpr() {
-        BRunUtil.invoke(result, "testLaxFieldAccessDefinedInModuleLevelWithCheckExpr");
+    public void testLaxFieldAccessWithCheckOnVariableDefinedAtModuleLevel() {
+        BRunUtil.invoke(result, "testLaxFieldAccessWithCheckOnVariableDefinedAtModuleLevel");
+    }
+
+    @Test
+    public void negativeTestLaxFieldAccessWithCheckOnVariableDefinedAtModuleLevel() {
+        BRunUtil.invoke(result, "negativeTestLaxFieldAccessWithCheckOnVariableDefinedAtModuleLevel");
     }
 
     @Test(dataProvider = "mapJsonFieldAccessTypePositiveFunctions")
