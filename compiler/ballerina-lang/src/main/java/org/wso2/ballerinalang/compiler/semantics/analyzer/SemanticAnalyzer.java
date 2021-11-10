@@ -3532,10 +3532,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         boolean prevBreakFound = this.breakFound;
         SymbolEnv whileEnv = typeNarrower.evaluateTruth(whileNode.expr, whileNode.body, env);
         analyzeStmt(whileNode.body, whileEnv);
-        if (ConditionResolver.checkConstCondition(types, symTable, whileNode.expr) != symTable.trueType
-                || this.breakFound) {
-            this.notCompletedNormally = false;
-        }
+        this.notCompletedNormally =
+                ConditionResolver.checkConstCondition(types, symTable, whileNode.expr) == symTable.trueType
+                        && !this.breakFound;
         this.breakFound = prevBreakFound;
     }
 

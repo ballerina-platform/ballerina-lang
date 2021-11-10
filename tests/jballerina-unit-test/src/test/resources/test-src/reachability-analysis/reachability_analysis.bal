@@ -769,6 +769,72 @@ function testTerminatingAndNonTerminatingLoops() {
     assertEqual(res, false);
 }
 
+function testTypeNarrowingWithWhileNotCompletedNormally() returns int? {
+    int? a = 10;
+    if a is int {
+        while true {
+            if a == 10 {
+                return a;
+            }
+        }
+    }
+    () b = a;
+    return b;
+}
+
+function testTypeNarrowingWithWhileNotCompletedNormally2() returns int? {
+    int? a = 10;
+    if a is int {
+        while true {
+            return a;
+        }
+    }
+    () b = a;
+    return b;
+}
+
+function testTypeNarrowingWithWhileCompletedNormally() returns int? {
+    int? a = 10;
+    if a is int {
+        while true {
+            if a == 10 {
+                break;
+            }
+        }
+    }
+    int? b = a + 10;
+    return b;
+}
+
+function testTypeNarrowingWithWhileCompletedNormally2() returns int? {
+    int? a = 10;
+    if a is int {
+        int b = 1;
+        while b < 5 {
+            if a == 10 {
+                return;
+            }
+            b += 1;
+        }
+    }
+    int? b = a + 10;
+    return b;
+}
+
+function testTypeNarrowingWithDifferentWhileCompletionStatus() {
+    int? res = testTypeNarrowingWithWhileNotCompletedNormally();
+    assertEqual(res, 10);
+
+    res = testTypeNarrowingWithWhileNotCompletedNormally2();
+    assertEqual(res, 10);
+
+    res = testTypeNarrowingWithWhileCompletedNormally();
+    assertEqual(res, 20);
+
+    res = testTypeNarrowingWithWhileCompletedNormally2();
+    assertEqual(res, ());
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;
