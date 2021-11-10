@@ -113,7 +113,7 @@ public class ConfigSchemaGenTaskTest {
     private String readConfigJSONSchema(Path path, boolean isSingleFileProject) {
         Path targetPath;
         if (isSingleFileProject) {
-            targetPath = path.getParent();
+            targetPath = Paths.get(System.getProperty("user.dir"));
         } else {
             targetPath = path.resolve(ProjectConstants.TARGET_DIR_NAME).resolve(ProjectConstants.BIN_DIR_NAME);
         }
