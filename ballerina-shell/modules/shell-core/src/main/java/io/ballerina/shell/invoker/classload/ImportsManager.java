@@ -138,8 +138,11 @@ public class ImportsManager {
         QuotedImport quotedImport = this.imports.get(prefix);
         if (quotedImport == null) {
             return null;
+        } else if (quotedImport.getDefaultPrefix().equals(prefix)) {
+            return String.format("import %s;", quotedImport);
+        } else {
+            return String.format("import %s as %s;", quotedImport, prefix);
         }
-        return String.format("import %s as %s;", quotedImport, prefix);
     }
 
     /**

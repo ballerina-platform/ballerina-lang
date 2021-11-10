@@ -90,7 +90,7 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     public List<FunctionSymbol> langLibMethods() {
         if (this.langLibFunctions == null) {
             LangLibrary langLibrary = LangLibrary.getInstance(this.context);
-            List<FunctionSymbol> functions = langLibrary.getMethods(this.typeKind());
+            List<FunctionSymbol> functions = langLibrary.getMethods(this.getBType());
             this.langLibFunctions = filterLangLibMethods(functions, this.getBType());
         }
 
@@ -99,6 +99,12 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
 
     @Override
     public boolean assignableTo(TypeSymbol targetType) {
+        Types types = Types.getInstance(this.context);
+        return types.isAssignable(this.bType, getTargetBType(targetType));
+    }
+
+    @Override
+    public boolean subtypeOf(TypeSymbol targetType) {
         Types types = Types.getInstance(this.context);
         return types.isAssignable(this.bType, getTargetBType(targetType));
     }

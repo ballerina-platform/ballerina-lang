@@ -394,4 +394,13 @@ public class Utils {
         return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG;
     }
 
+    static boolean containsMapType(List<Type> memberTypes) {
+        for (Type type : memberTypes) {
+            if (isMappingType(getEffectiveType(type).getTag())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

@@ -45,7 +45,8 @@ import org.testng.annotations.Test;
 public class JSONTest {
 
     private CompileResult compileResult;
-    private static final String json1 = "{'name':{'fname':'Jack','lname':'Taylor'}, 'state':'CA', 'age':20}";
+    private static final String json1 = "{\"name\":{\"fname\":\"Jack\",\"lname\":\"Taylor\"}, \"state\":\"CA\"," +
+            " \"age\":20}";
 
     @BeforeClass
     public void setup() {
@@ -145,8 +146,8 @@ public class JSONTest {
 
         Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"supun\", \"address\":{\"street\":\"Palm Grove\"}, " +
-                "\"marks\":[78, 45, 87]}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"supun\", \"address\":{\"street\":\"Palm Grove\"}, "
+                + "\"marks\":[78, 45, 87]}");
     }
 
     @Test(description = "Get JSON from a malformed string")

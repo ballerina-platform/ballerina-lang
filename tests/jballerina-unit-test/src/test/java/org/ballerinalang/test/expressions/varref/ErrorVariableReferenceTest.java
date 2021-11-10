@@ -235,11 +235,11 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'string', found '(string|boolean)?'", 42, 43);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'any', found 'ballerina/lang.value:1.0.0:Cloneable'", 43, 22);
+                "incompatible types: expected 'any', found 'ballerina/lang.value:0.0.0:Cloneable'", 43, 22);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'ballerina/lang.value:1.0.0:Cloneable'", 43, 43);
+                "incompatible types: expected 'string', found 'ballerina/lang.value:0.0.0:Cloneable'", 43, 43);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'any', found 'ballerina/lang.value:1.0.0:Cloneable'", 43, 62);
+                "incompatible types: expected 'any', found 'ballerina/lang.value:0.0.0:Cloneable'", 43, 62);
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'boolean', found 'string'", 65, 18);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes +
@@ -253,9 +253,9 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                                   "incompatible types: expected 'map', found 'map<(error|string|int)>'", 124, 35);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'ballerina/lang.value:1.0.0:Cloneable'", 134, 19);
+                "incompatible types: expected 'string', found 'ballerina/lang.value:0.0.0:Cloneable'", 134, 19);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected '(anydata|readonly)', found " +
-                "'ballerina/lang.value:1.0.0:Cloneable'", 134, 38);
+                "'ballerina/lang.value:0.0.0:Cloneable'", 134, 38);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }

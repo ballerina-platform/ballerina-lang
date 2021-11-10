@@ -1,0 +1,45 @@
+[package]
+name = "winery"
+org = "foo"
+version = "0.1.0"
+license= ["Apache 2.0"]
+authors= ["jo", "pramodya"]
+keywords= ["toml", "ballerina"]
+repository= "https://github.com/ballerina-platform/ballerina-lang"
+
+[[platform.java11.dependency]]
+path = "../dummy-jars/toml4j.txt"
+artifactId = "toml4j"
+version = "0.7.2"
+groupId = "com.moandjiezana.toml"
+
+[[platform.java11.dependency]]
+path = "../dummy-jars/swagger.txt"
+artifactId = "swagger"
+version = "0.7.2"
+groupId = "swagger.io"
+
+[[dependency]]
+org = "abc.abc"
+name = "test-test"
+version = "1.0.0"
+repository = "local"
+
+[[dependency]]
+org = "xyz$"
+name = "sample&"
+version = "2.0.0"
+repository = "local"
+
+[[dependency]]
+org = "thisIsVeryLongPackageJustUsingItForTestingthisIsVeryLongPackageJustUsingItForTestingthisIsVeryLongPackageJustUsingItForTestingthisIsVeryLongPackageJustUsingItForTestingthisIsVeryLongPackageJustUsingItForTestingthisIsVeryLongPackageJustUsingItForTestingthisIsVeryLongPackageJustUsingItForTesting"
+name = "thisIsVeryLongOrganozayionJustUsingItForTestingthisIsVeryLongOrganozayionJustUsingItForTestingthisIsVeryLongOrganozayionJustUsingItForTestingthisIsVeryLongOrganozayionJustUsingItForTestingthisIsVeryLongOrganozayionJustUsingItForTestingthisIsVeryLongOrganozayionJustUsingItForTestingthisIsVeryLongOrganozayionJustUsingItForTesting"
+version = "3.0.0"
+repository = "local"
+
+[build-options]
+observabilityIncluded = true
+offline = true
+skipTests = false
+cloud = "k8s"
+taintCheck = true

@@ -51,6 +51,7 @@ public class TypeGuardTest {
                 "incompatible types: 'string' will not be matched to 'int'", 20, 27);
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 29, 13);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 33, 9);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'string' will not be matched to 'int'", 33, 13);
         BAssertUtil.validateError(negativeResult, i++,
@@ -233,6 +234,26 @@ public class TypeGuardTest {
                 "(int|string|boolean)'", 566, 17);
         Assert.assertEquals(negativeResult.getErrorCount(), i - 2);
         Assert.assertEquals(negativeResult.getWarnCount(), 2);
+    }
+
+    @Test
+    public void testTypeTestExprTypeNarrowingNegative() {
+        CompileResult negativeResult =
+                BCompileUtil.compile("test-src/statements/ifelse/type_test_type_narrowing_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'SomeRecord', found 'SomeRecord?'", 49, 17);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected '(SomeRecord|int)', found '(SomeRecord|int)?'", 52, 21);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected '()', found 'SomeRecord'", 62, 13);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected '(SomeRecord|int)', found '(SomeRecord|int)?'", 68, 13);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected '(int|string)', found '(int|string)?'", 105, 24);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected '(int|string)', found '(int|string)?'", 106, 24);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test
@@ -687,11 +708,31 @@ public class TypeGuardTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/type_guard_with_always_true_hint.bal");
 
         Assert.assertEquals(result.getHintCount(), 2);
+        Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateHint(result, 0, "unnecessary condition: expression will always evaluate to 'true'", 23, 8);
-        BAssertUtil.validateHint(result, 1, "unnecessary condition: expression will always evaluate to 'true'", 33, 8);
+        BAssertUtil.validateError(result, 1, "unreachable code", 26, 9);
+        BAssertUtil.validateHint(result, 2, "unnecessary condition: expression will always evaluate to 'true'", 33, 8);
+        BAssertUtil.validateError(result, 3, "unreachable code", 36, 9);
+    }
 
-        BRunUtil.invoke(result, "testTypeGuardRuntimeWithAlwaysTrueHint1");
-        BRunUtil.invoke(result, "testTypeGuardRuntimeWithAlwaysTrueHint2");
+    @Test
+    public void testIfElseWithTypeTest() {
+        BRunUtil.invoke(result, "testIfElseWithTypeTest");
+    }
+
+    @Test
+    public void testIfElseWithTypeTestMultipleVariables() {
+        BRunUtil.invoke(result, "testIfElseWithTypeTestMultipleVariables");
+    }
+
+    @Test
+    public void testIfElseWithTypeTestMultipleVariablesInMultipleBlocks() {
+        BRunUtil.invoke(result, "testIfElseWithTypeTestMultipleVariablesInMultipleBlocks");
+    }
+
+    @Test
+    public void testIfElseWithTypeTestMultipleVariablesInNestedBlocks() {
+        BRunUtil.invoke(result, "testIfElseWithTypeTestMultipleVariablesInNestedBlocks");
     }
 
     @AfterClass
