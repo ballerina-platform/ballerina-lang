@@ -36,6 +36,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticPropertyKey;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -65,9 +66,13 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             return Collections.emptyList();
         }
 
-
-        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(
-                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
+        Optional<Integer> propertyIndex =
+                positionDetails.getPropertyIndex(diagnostic.diagnosticInfo().code(),
+                        DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND);
+        if (propertyIndex.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(propertyIndex.get());
         if (typeSymbol.isEmpty()) {
             return Collections.emptyList();
         }

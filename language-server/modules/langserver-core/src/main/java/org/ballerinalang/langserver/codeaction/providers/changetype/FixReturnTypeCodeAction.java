@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticPropertyKey;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -67,8 +68,14 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        Optional<TypeSymbol> foundTypeSymbol = positionDetails.diagnosticProperty(
-                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
+        Optional<Integer> propertyIndex =
+                positionDetails.getPropertyIndex(diagnostic.diagnosticInfo().code(),
+                        DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND);
+        if (propertyIndex.isEmpty()) {
+            return Collections.emptyList();
+        }
+        
+        Optional<TypeSymbol> foundTypeSymbol = positionDetails.diagnosticProperty(propertyIndex.get());
         if (foundTypeSymbol.isEmpty()) {
             return Collections.emptyList();
         }

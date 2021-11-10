@@ -37,6 +37,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticPropertyKey;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -73,8 +74,14 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(
-                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED_SYMBOL_INDEX);
+        Optional<Integer> propertyIndex =
+                positionDetails.getPropertyIndex(diagnostic.diagnosticInfo().code(),
+                        DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED);
+        if (propertyIndex.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(propertyIndex.get());
         if (typeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
@@ -120,7 +127,7 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
             List<TextEdit> edits = new ArrayList<>();
             edits.add(new TextEdit(paramTypeRange.get(), type));
             String commandTitle = String.format(CommandConstants.CHANGE_PARAM_TYPE_TITLE, paramSymbol.getName().get(),
-                                                type);
+                    type);
             actions.add(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
         }
         return actions;

@@ -39,6 +39,7 @@ import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticPropertyKey;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -75,10 +76,21 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        Optional<TypeSymbol> lhsTypeSymbol = positionDetails.diagnosticProperty(
-                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED_SYMBOL_INDEX);
-        Optional<TypeSymbol> rhsTypeSymbol = positionDetails.diagnosticProperty(
-                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
+        String code = diagnostic.diagnosticInfo().code();
+        Optional<Integer> expectedPropertyIndex =
+                positionDetails.getPropertyIndex(code,
+                        DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED);
+        Optional<Integer> foundPropertyIndex =
+                positionDetails.getPropertyIndex(code,
+                        DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND);
+
+        if (expectedPropertyIndex.isEmpty() || foundPropertyIndex.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Optional<TypeSymbol> lhsTypeSymbol = positionDetails.diagnosticProperty(expectedPropertyIndex.get());
+        Optional<TypeSymbol> rhsTypeSymbol = positionDetails.diagnosticProperty(foundPropertyIndex.get());
+
         if (lhsTypeSymbol.isEmpty() || rhsTypeSymbol.isEmpty()) {
             return Collections.emptyList();
         }

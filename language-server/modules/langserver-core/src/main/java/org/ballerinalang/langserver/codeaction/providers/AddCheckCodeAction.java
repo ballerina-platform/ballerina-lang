@@ -30,6 +30,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticPropertyKey;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -56,7 +57,7 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
     }
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
             return Collections.emptyList();
@@ -67,8 +68,14 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
             return Collections.emptyList();
         }
 
-        Optional<TypeSymbol> foundType = positionDetails.diagnosticProperty(
-                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
+        Optional<Integer> propertyIndex =
+                positionDetails.getPropertyIndex(diagnostic.diagnosticInfo().code(),
+                        DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND);
+        if (propertyIndex.isEmpty()) {
+            return Collections.emptyList();
+        }
+        
+        Optional<TypeSymbol> foundType = positionDetails.diagnosticProperty(propertyIndex.get());
         if (foundType.isEmpty()) {
             return Collections.emptyList();
         }

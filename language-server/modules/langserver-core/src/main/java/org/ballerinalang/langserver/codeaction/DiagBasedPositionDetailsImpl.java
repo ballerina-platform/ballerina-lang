@@ -20,6 +20,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticPropertyKey;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +31,7 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class DiagBasedPositionDetailsImpl implements DiagBasedPositionDetails {
+
     private final NonTerminalNode matchedNode;
     private final Symbol matchedSymbol;
     private final Diagnostic diagnostic;
@@ -77,5 +79,29 @@ public class DiagBasedPositionDetailsImpl implements DiagBasedPositionDetails {
         DiagnosticProperty<?> diagnosticProperty = props.get(propertyIndex);
         // Nullable static API used for safety
         return Optional.ofNullable((T) diagnosticProperty.value());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<Integer> getPropertyIndex(String diagnosticCode, DiagnosticPropertyKey propertyName) {
+        switch (propertyName) {
+            case DIAG_PROP_INCOMPATIBLE_TYPES_FOUND:
+                if ("BCE2066".equals(diagnosticCode)) {
+                    return Optional.of(1);
+                } else if ("BCE2068".equals(diagnosticCode)) {
+                    return Optional.of(2);
+                }
+                break;
+            case DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED:
+                if ("BCE2066".equals(diagnosticCode) || "BCE2068".equals(diagnosticCode)) {
+                    return Optional.of(0);
+                }
+                break;
+            default:
+                return Optional.empty();
+        }
+        return Optional.empty();
     }
 }
