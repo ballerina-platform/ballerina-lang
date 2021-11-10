@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 5,
-    "character": 28
+    "line": 16,
+    "character": 54
   },
-  "source": "expression_context/source/function_call_expression_ctx_source2.bal",
+  "source": "expression_context/source/anon_func_expr_ctx_source13.bal",
   "items": [
     {
       "label": "start",
@@ -39,15 +39,6 @@
       "sortText": "T",
       "filterText": "from",
       "insertText": "from ${1:var} ${2:item} in ${3}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "S",
-      "filterText": "module1",
-      "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -143,6 +134,30 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "module1",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
         }
       ]
     },
@@ -322,7 +337,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "U",
+      "sortText": "DQ",
       "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
@@ -379,6 +394,15 @@
       "sortText": "U",
       "filterText": "false",
       "insertText": "false",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "null",
+      "insertText": "null",
       "insertTextFormat": "Snippet"
     },
     {
@@ -454,15 +478,22 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "R",
-      "insertText": "Thread",
+      "label": "main",
+      "kind": "Variable",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "F",
+      "filterText": "main",
+      "insertText": "main",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunction()",
+      "label": "main()",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -471,44 +502,17 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "G",
-      "filterText": "testFunction",
-      "insertText": "testFunction()",
+      "sortText": "BC",
+      "filterText": "main",
+      "insertText": "main()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunctionWithParams(int a, int b)",
-      "kind": "Function",
-      "detail": "int",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` b  \n  \n**Return** `int`   \n  \n"
-        }
-      },
-      "sortText": "AC",
-      "filterText": "testFunctionWithParams",
-      "insertText": "testFunctionWithParams(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "valueA",
+      "label": "strVal",
       "kind": "Variable",
-      "detail": "int",
-      "sortText": "AB",
-      "insertText": "valueA",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "valueB",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "AB",
-      "insertText": "valueB",
+      "detail": "string",
+      "sortText": "F",
+      "insertText": "strVal",
       "insertTextFormat": "Snippet"
     },
     {
@@ -520,6 +524,68 @@
       },
       "sortText": "Q",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testFunc",
+      "kind": "Variable",
+      "detail": "function (int i, string s) returns int",
+      "sortText": "AB",
+      "insertText": "testFunc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "anonFunc",
+      "kind": "Variable",
+      "detail": "function (int i, string s) returns int",
+      "sortText": "AB",
+      "insertText": "anonFunc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "intVal",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "F",
+      "insertText": "intVal",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "R",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "returnAnonFunc",
+      "kind": "Variable",
+      "detail": "function (int i, string s) returns int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `function (int i, string s) returns int`   \n  \n"
+        }
+      },
+      "sortText": "F",
+      "filterText": "returnAnonFunc",
+      "insertText": "returnAnonFunc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "returnAnonFunc()",
+      "kind": "Function",
+      "detail": "function (int i, string s) returns int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `function (int i, string s) returns int`   \n  \n"
+        }
+      },
+      "sortText": "AC",
+      "filterText": "returnAnonFunc",
+      "insertText": "returnAnonFunc()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -579,30 +645,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "null",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "U",
-      "filterText": "null",
-      "insertText": "null",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "a = ...",
+      "label": "function (..) {..}",
       "kind": "Snippet",
-      "detail": "a = 0",
-      "sortText": "AR",
-      "filterText": "a",
-      "insertText": "a = ${1:0}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "b = ...",
-      "kind": "Snippet",
-      "detail": "b = 0",
-      "sortText": "AR",
-      "filterText": "b",
-      "insertText": "b = ${1:0}",
+      "detail": "Snippet",
+      "sortText": "CP",
+      "filterText": "function",
+      "insertText": "function (int i, string s) returns int {\n    return 0;\n}",
       "insertTextFormat": "Snippet"
     }
   ]
