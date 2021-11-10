@@ -445,7 +445,7 @@
       "label": "FuncType1",
       "kind": "TypeParameter",
       "detail": "Function",
-      "sortText": "N",
+      "sortText": "AN",
       "insertText": "FuncType1",
       "insertTextFormat": "Snippet"
     }
