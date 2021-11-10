@@ -204,6 +204,11 @@ public class MatchStmtListMatchPatternTest {
     }
 
     @Test
+    public void testListMatchPattern31() {
+        BRunUtil.invoke(result, "testListMatchPattern31");
+    }
+
+    @Test
     public void testRestMatchPattern1() {
         BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest1");
     }
@@ -377,6 +382,10 @@ public class MatchStmtListMatchPatternTest {
                 40, 21);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'boolean', found 'json'",
                 40, 25);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int', found 'string'",
+                                  55, 21);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'string?', " +
+                                          "found 'int'", 58, 25);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 
