@@ -69,6 +69,25 @@ public class ParseModuleMemberDeclarationTest {
     }
 
     @Test
+    public void testWithImportDeclaration() {
+        ModuleMemberDeclarationNode moduleMemDeclNode =
+                NodeParser.parseModuleMemberDeclaration("import foobar/foo;");
+        Assert.assertEquals(moduleMemDeclNode.kind(), SyntaxKind.MODULE_VAR_DECL);
+        Assert.assertTrue(moduleMemDeclNode.hasDiagnostics());
+
+        Assert.assertEquals(moduleMemDeclNode.leadingInvalidTokens().size(), 0);
+        List<Token> tokens = moduleMemDeclNode.trailingInvalidTokens();
+        Assert.assertEquals(tokens.size(), 5);
+        Assert.assertEquals(tokens.get(0).kind(), SyntaxKind.IMPORT_KEYWORD);
+        Assert.assertEquals(tokens.get(1).kind(), SyntaxKind.IDENTIFIER_TOKEN);
+        Assert.assertEquals(tokens.get(2).kind(), SyntaxKind.SLASH_TOKEN);
+        Assert.assertEquals(tokens.get(3).kind(), SyntaxKind.IDENTIFIER_TOKEN);
+        Assert.assertEquals(tokens.get(4).kind(), SyntaxKind.SEMICOLON_TOKEN);
+        Assert.assertEquals(moduleMemDeclNode.toString(),
+                " MISSING[] MISSING[] MISSING[; INVALID[import]  INVALID[foobar] INVALID[/] INVALID[foo] INVALID[;]]");
+    }
+
+    @Test
     public void testWithModuleMemberRecovery() {
         ModuleMemberDeclarationNode moduleMemDeclNode = NodeParser.parseModuleMemberDeclaration("% type  0|1|2|3;;");
         Assert.assertEquals(moduleMemDeclNode.kind(), SyntaxKind.TYPE_DEFINITION);

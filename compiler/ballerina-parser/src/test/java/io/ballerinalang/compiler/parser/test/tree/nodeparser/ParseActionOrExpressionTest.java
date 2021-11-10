@@ -96,7 +96,7 @@ public class ParseActionOrExpressionTest {
         tokens = actionOrExprNode.trailingInvalidTokens();
         Assert.assertEquals(tokens.size(), 1);
         Assert.assertEquals(tokens.get(0).kind(), SyntaxKind.SEMICOLON_TOKEN);
-        Assert.assertEquals(actionOrExprNode.toString(), " INVALID[%]  INVALID[isolated] abc->method(arg1)");
+        Assert.assertEquals(actionOrExprNode.toString(), " INVALID[%]  INVALID[isolated] abc->method(arg1) INVALID[;]");
     }
 
     @Test
