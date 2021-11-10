@@ -32,6 +32,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.nio.file.Path;
+
 /**
  * Test class for log points related debug scenarios.
  */
@@ -47,8 +49,8 @@ public class LogPointTest extends BaseTestCase {
     }
 
     @Test
-    public void testConditionalBreakpointScenarios() throws BallerinaTestException {
-        String filePath = debugTestRunner.testEntryFilePath;
+    public void testLogPointScenarios() throws BallerinaTestException {
+        Path filePath = debugTestRunner.testEntryFilePath;
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 29));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 34, "y == 3", "LogPoint: 1"));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 44, "capital == \"London\"", null));
@@ -56,6 +58,9 @@ public class LogPointTest extends BaseTestCase {
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 48, "x == 5", null));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 52, "", "LogPoint: 3"));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 53, "x > 0", null));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 54, null, "LogPoint 4 => x: ${x}, " +
+                "employee: ${e1.name}, capital: ${countryCapitals[\"Sri Lanka\"]}"));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 55, null, null));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
@@ -87,6 +92,15 @@ public class LogPointTest extends BaseTestCase {
         Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(6));
         outputInfo = debugTestRunner.waitForLastDebugOutput(1000);
         Assert.assertEquals(outputInfo.getLeft(), "LogPoint: 3" + System.lineSeparator());
+        Assert.assertEquals(outputInfo.getRight().getCategory(), OutputEventArgumentsCategory.STDOUT);
+
+        // Tests logpoint template (with expression interpolations)
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(8));
+        outputInfo = debugTestRunner.waitForLastDebugOutput(1000);
+        Assert.assertEquals(outputInfo.getLeft(), "LogPoint 4 => x: 8, employee: \"John\", capital: \"Colombo\"" +
+                System.lineSeparator());
         Assert.assertEquals(outputInfo.getRight().getCategory(), OutputEventArgumentsCategory.STDOUT);
     }
 

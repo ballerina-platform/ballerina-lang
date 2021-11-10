@@ -1360,7 +1360,7 @@ public class BIRPackageSymbolEnter {
                     BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,
                                                                                   Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                                                                                   Names.EMPTY, env.pkgSymbol.pkgID,
-                                                                                  null, env.pkgSymbol.owner,
+                                                                                  null, env.pkgSymbol,
                                                                                   symTable.builtinPos, COMPILED_SOURCE);
                     int intersectionMemberCount = inputStream.readInt();
                     LinkedHashSet<BType> constituentTypes = new LinkedHashSet<>(intersectionMemberCount);
@@ -1674,6 +1674,8 @@ public class BIRPackageSymbolEnter {
                 attachedFuncSymbol.retType = attachedFuncType.retType;
                 BAttachedFunction attachedFunction = new BAttachedFunction(names.fromString(attachedFuncName),
                         attachedFuncSymbol, attachedFuncType, symTable.builtinPos);
+
+                setInvokableTypeSymbol(attachedFuncType);
 
                 objectSymbol.referencedFunctions.add(attachedFunction);
                 objectSymbol.attachedFuncs.add(attachedFunction);

@@ -126,6 +126,7 @@ test {
     systemProperty "ballerina.home", "$buildDir/"
     systemProperty "experimental", "true"
     systemProperty "ballerina.version", project.version
+    systemProperty "responseTimeThreshold", 2000
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

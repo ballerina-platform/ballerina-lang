@@ -87,7 +87,7 @@ function testConvertMapJsonWithDecimalToOpenRecord() {
         panic error("Invalid Response", detail = "Invalid type `error` recieved from cloneWithType");
     }
 
-    OpenRecord castedValue = <OpenRecord> checkpanic or;
+    OpenRecord castedValue = <OpenRecord> or;
     assert(castedValue["factor"], mp["factor"]);
     assert(castedValue["name"], mp["name"]);
 }
@@ -99,7 +99,7 @@ function testConvertMapJsonWithDecimalUnionTarget() {
         panic error("Invalid Response", detail = "Invalid type `error` recieved from cloneWithType");
     }
 
-    OpenRecordWithUnionTarget castedValue = <OpenRecordWithUnionTarget> checkpanic or;
+    OpenRecordWithUnionTarget castedValue = <OpenRecordWithUnionTarget> or;
     assert(castedValue["factor"], mp["factor"]);
     assert(castedValue["name"], mp["name"]);
 }

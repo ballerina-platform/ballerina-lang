@@ -108,6 +108,20 @@ public class MappingConstructorExpressionNodeContext extends
                 }
                 completionItems.addAll(this.getVariableCompletionsForFields(context, fields));
             }
+            if (recordTypeDesc.isEmpty()) {
+                /*
+                This means that we are within a mapping constructor for a map. Therefore we suggest the variables
+                Eg: 
+                function init() {
+                    int test = 12;
+                    map<string> myVar = {<cursor>};
+                }
+                 */
+                List<Symbol> variables = context.visibleSymbols(context.getCursorPosition()).stream()
+                        .filter(this.getVariableFilter())
+                        .collect(Collectors.toList());
+                completionItems.addAll(this.getCompletionItemList(variables, context));
+            }
         }
         this.sort(context, node, completionItems);
 
@@ -133,9 +147,9 @@ public class MappingConstructorExpressionNodeContext extends
         }
 
         int cursorPosInTree = context.getCursorPositionInTree();
-        int colonEnd = colon.textRange().endOffset();
+        int colonStart = colon.textRange().startOffset();
 
-        return cursorPosInTree > colonEnd;
+        return cursorPosInTree > colonStart;
     }
 
     private boolean withinComputedNameContext(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {
@@ -173,12 +187,11 @@ public class MappingConstructorExpressionNodeContext extends
 
     private List<LSCompletionItem> getVariableCompletionsForFields(BallerinaCompletionContext ctx,
                                                                    Map<String, RecordFieldSymbol> recFields) {
-        List<Symbol> visibleSymbols = ctx.visibleSymbols(ctx.getCursorPosition());
+        List<Symbol> visibleSymbols = ctx.visibleSymbols(ctx.getCursorPosition()).stream()
+                .filter(this.getVariableFilter())
+                .collect(Collectors.toList());
         List<LSCompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(symbol -> {
-            if (!(symbol instanceof VariableSymbol)) {
-                return;
-            }
             TypeSymbol typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
             String symbolName = symbol.getName().get();
             if (recFields.containsKey(symbolName)
@@ -233,5 +246,9 @@ public class MappingConstructorExpressionNodeContext extends
         });
 
         return fieldSymbols;
+    }
+
+    private Predicate<Symbol> getVariableFilter() {
+        return CommonUtil.getVariableFilterPredicate().or(symbol -> symbol.kind() == SymbolKind.CONSTANT);
     }
 }

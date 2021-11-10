@@ -483,7 +483,7 @@
       "label": "self.proxyClient",
       "kind": "Field",
       "detail": "module1:Client",
-      "sortText": "H",
+      "sortText": "AF",
       "insertText": "self.proxyClient",
       "insertTextFormat": "Snippet"
     },
@@ -579,6 +579,15 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "filterText": "null",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

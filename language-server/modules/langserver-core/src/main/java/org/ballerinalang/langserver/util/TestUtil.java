@@ -519,7 +519,7 @@ public class TestUtil {
     public static Endpoint initializeLanguageSever(BallerinaLanguageServer languageServer) {
         return initializeLanguageSever(languageServer, OutputStream.nullOutputStream());
     }
-    
+
     public static Endpoint initializeLanguageSever(BallerinaLanguageServer languageServer, OutputStream out) {
         InputStream in = new ByteArrayInputStream(new byte[1024]);
         Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(languageServer,
@@ -642,6 +642,7 @@ public class TestUtil {
                 new SignatureInformationCapabilities(Arrays.asList("markdown", "plaintext"));
         signatureHelpCapabilities.setSignatureInformation(sigInfoCapabilities);
         completionCapabilities.setCompletionItem(new CompletionItemCapabilities(true));
+        completionCapabilities.setContextSupport(true);
 
         textDocumentClientCapabilities.setCompletion(completionCapabilities);
         textDocumentClientCapabilities.setSignatureHelp(signatureHelpCapabilities);
@@ -666,8 +667,9 @@ public class TestUtil {
         capabilities.setWorkspace(workspaceCapabilities);
 
         Map<String, Object> initializationOptions = new HashMap<>();
-        initializationOptions.put(InitializationOptions.KEY_PULL_MODULE_SUPPORT, true);
-
+        initializationOptions.put(InitializationOptions.KEY_ENABLE_SEMANTIC_TOKENS, true);
+        initializationOptions.put(InitializationOptions.KEY_BALA_SCHEME_SUPPORT, true);
+        
         params.setCapabilities(capabilities);
         params.setInitializationOptions(GSON.toJsonTree(initializationOptions));
         return params;

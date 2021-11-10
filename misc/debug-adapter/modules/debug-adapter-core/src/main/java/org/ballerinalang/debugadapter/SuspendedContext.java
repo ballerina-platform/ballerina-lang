@@ -28,15 +28,16 @@ import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
-import org.ballerinalang.debugadapter.utils.PackageUtils;
 
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.DebugSourceType.DEPENDENCY;
 import static org.ballerinalang.debugadapter.DebugSourceType.PACKAGE;
 import static org.ballerinalang.debugadapter.DebugSourceType.SINGLE_FILE;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.getStackFrameSourcePath;
 
 /**
  * Context holder for debug suspended state related information.
@@ -149,7 +150,11 @@ public class SuspendedContext {
 
     private Optional<Path> getSourcePath(StackFrameProxyImpl frame) {
         try {
-            return PackageUtils.getSrcPathFromBreakpointLocation(frame.location(), project);
+            Optional<Map.Entry<Path, DebugSourceType>> pathAndType = getStackFrameSourcePath(frame.location(), project);
+            if (pathAndType.isEmpty()) {
+                return Optional.empty();
+            }
+            return Optional.ofNullable(pathAndType.get().getKey());
         } catch (InvalidStackFrameException | JdiProxyException e) {
             // Todo - How to handle InvalidStackFrameException?
             return Optional.empty();

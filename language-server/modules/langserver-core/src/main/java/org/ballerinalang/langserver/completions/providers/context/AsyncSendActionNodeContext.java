@@ -20,6 +20,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.List;
 
@@ -42,5 +43,11 @@ public class AsyncSendActionNodeContext extends RightArrowActionNodeContext<Asyn
         this.sort(context, node, completionItems);
         
         return completionItems;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, AsyncSendActionNode node, 
+                     List<LSCompletionItem> completionItems) {
+        SortingUtil.toDefaultSorting(context, completionItems);
     }
 }

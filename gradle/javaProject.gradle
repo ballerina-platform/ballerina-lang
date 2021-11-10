@@ -46,7 +46,6 @@ dependencies {
         implementation 'com.google.protobuf:protobuf-java:3.9.1'
         implementation 'com.google.code.findbugs:jsr305:3.0.2'
         implementation 'com.google.code.gson:gson:2.8.7'
-        implementation 'com.google.guava:guava:23.0'
         implementation 'com.moandjiezana.toml:toml4j:0.7.2'
         implementation 'com.sun.mail:javax.mail:1.6.2'
         implementation 'com.squareup.okhttp3:okhttp:3.14.0'
@@ -75,8 +74,7 @@ dependencies {
         implementation 'org.codehaus.woodstox:woodstox-core-asl:4.4.1'
         implementation 'org.codehaus.woodstox:stax2-api:4.2'
         implementation 'org.awaitility:awaitility:3.1.6'
-        implementation 'org.bouncycastle:bcprov-jdk15on:1.61'
-        implementation 'org.bouncycastle:bcpkix-jdk15on:1.61'
+
         implementation 'org.bytedeco.javacpp-presets:llvm-platform:6.0.1-1.4.2'
         implementation 'org.codehaus.plexus:plexus-utils:3.0.8'
         implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.12.0'
@@ -111,13 +109,12 @@ dependencies {
         implementation 'io.ballerina.messaging:broker-core:0.970.5'
         implementation 'io.ballerina.messaging:broker-amqp:0.970.5'
         implementation 'io.dropwizard.metrics:metrics-core:4.1.7'
-        implementation 'io.netty:netty-codec:4.1.39.Final'
-        implementation 'io.netty:netty-buffer:4.1.39.Final'
-        implementation 'io.netty:netty-common:4.1.39.Final'
-        implementation 'io.netty:netty-codec-http:4.1.61.Final'
-        implementation 'io.netty:netty-codec-http2:4.1.61.Final'
+        implementation 'io.netty:netty-codec:4.1.68.Final'
+        implementation 'io.netty:netty-buffer:4.1.68.Final'
+        implementation 'io.netty:netty-common:4.1.68.Final'
+        implementation 'io.netty:netty-codec-http:4.1.68.Final'
+        implementation 'io.netty:netty-codec-http2:4.1.68.Final'
         implementation 'io.netty:netty-handler:4.1.46.Final'
-        implementation 'io.netty:netty-tcnative-boringssl-static:2.0.25.Final'
         implementation 'io.netty:netty-transport:4.1.39.Final'
         implementation 'io.opentelemetry:opentelemetry-api:1.0.0'
         implementation 'io.opentelemetry:opentelemetry-sdk-trace:1.0.0'
@@ -153,7 +150,7 @@ tasks.withType(Checkstyle) {
 }
 
 spotbugsMain {
-    maxHeapSize = '1g'
+    jvmArgs '-Xmx2048m'
     it.effort "max"
     it.reportLevel "low"
     it.reports {

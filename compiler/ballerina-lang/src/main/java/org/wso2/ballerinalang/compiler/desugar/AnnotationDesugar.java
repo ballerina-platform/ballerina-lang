@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -88,6 +89,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -104,9 +106,13 @@ public class AnnotationDesugar {
     public static final String ANNOTATION_DATA = "$annotation_data";
     private static final String ANNOT_FUNC = "$annot_func$";
     public static final String BUILTIN_PKG_KEY = "ballerina" + "/" + "builtin";
+    public static final String LANG_ANNOT_PKG_KEY = "ballerina" + "/" + "lang.annotations";
     public static final String DEFAULTABLE_ANN = "DefaultableArgs";
     public static final String DEFAULTABLE_REC = "ArgsData";
     public static final String ARG_NAMES = "args";
+    public static final String SERVICE_INTROSPECTION_INFO_ANN = "IntrospectionDocConfig";
+    public static final String SERVICE_INTROSPECTION_INFO_REC = "ServiceIntrospectionDocConfig";
+    public static final String SERVICE_NAME = "name";
     private static final String DOT = ".";
     private static final String FIELD = "$field$";
     private static final String PARAM = "$param$";
@@ -166,6 +172,9 @@ public class AnnotationDesugar {
             }
 
             BLangClassDefinition classDefinition = (BLangClassDefinition) topLevelNode;
+            if (isServiceDeclaration(classDefinition)) {
+                addIntrospectionInfoAnnotation(classDefinition);
+            }
 
             PackageID pkgID = classDefinition.symbol.pkgID;
             BSymbol owner = classDefinition.symbol.owner;
@@ -189,6 +198,82 @@ public class AnnotationDesugar {
                 }
             }
         }
+    }
+
+    private boolean isServiceDeclaration(BLangClassDefinition serviceClass) {
+        return serviceClass.getFlags().contains(Flag.SERVICE) && serviceClass.isServiceDecl;
+    }
+
+    private void addIntrospectionInfoAnnotation(BLangClassDefinition serviceClass) {
+        Location position = serviceClass.pos;
+
+        // Create Annotation Attachment.
+        BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
+        final SymbolEnv pkgEnv = symTable.pkgEnvMap.get(serviceClass.symbol.getEnclosingSymbol());
+        BSymbol annSymbol = symResolver.lookupSymbolInAnnotationSpace(symTable.pkgEnvMap.get(symTable.rootPkgSymbol),
+                names.fromString(SERVICE_INTROSPECTION_INFO_ANN));
+        if (annSymbol instanceof BAnnotationSymbol) {
+            annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
+        }
+
+        BLangIdentifier identifierNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        annoAttachment.annotationName = identifierNode;
+        annoAttachment.annotationName.value = SERVICE_INTROSPECTION_INFO_ANN;
+        annoAttachment.pos = position;
+        annoAttachment.annotationName.pos = position;
+
+        // create record literal related to annotation node
+        BLangRecordLiteral literalNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+        annoAttachment.expr = literalNode;
+        BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        pkgAlias.setValue(LANG_ANNOT_PKG_KEY);
+        annoAttachment.pkgAlias = pkgAlias;
+        annoAttachment.attachPoints.add(AttachPoint.Point.SERVICE);
+        literalNode.pos = position;
+        BSymbol annTypeSymbol = symResolver.lookupSymbolInMainSpace(
+                pkgEnv, names.fromString(SERVICE_INTROSPECTION_INFO_REC));
+        BStructureTypeSymbol bStructSymbol = null;
+        if (annTypeSymbol instanceof BStructureTypeSymbol) {
+            bStructSymbol = (BStructureTypeSymbol) annTypeSymbol;
+            literalNode.setBType(bStructSymbol.type);
+        }
+
+        //Add Root Descriptor
+        BLangRecordLiteral.BLangRecordKeyValueField descriptorKeyValue = (BLangRecordLiteral.BLangRecordKeyValueField)
+                TreeBuilder.createRecordKeyValue();
+        literalNode.fields.add(descriptorKeyValue);
+
+        // create annotation field key for `name`
+        BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        keyLiteral.value = SERVICE_NAME;
+        keyLiteral.setBType(symTable.stringType);
+
+        // create annotation field value for `name`
+        BLangLiteral valueLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        valueLiteral.setBType(symTable.stringType);
+        valueLiteral.value = generateServiceHashCode(serviceClass);
+        valueLiteral.pos = position;
+
+        descriptorKeyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
+        BSymbol fieldSymbol = symResolver.resolveStructField(position, pkgEnv,
+                names.fromString(SERVICE_NAME), bStructSymbol);
+
+        if (fieldSymbol instanceof BVarSymbol) {
+            descriptorKeyValue.key.fieldSymbol = (BVarSymbol) fieldSymbol;
+        }
+        if (valueLiteral != null) {
+            descriptorKeyValue.valueExpr = valueLiteral;
+        }
+
+        // add generated annotation to the service definition
+        serviceClass.addAnnotationAttachment(annoAttachment);
+    }
+
+    private String generateServiceHashCode(BLangClassDefinition serviceClass) {
+        String serviceName = "service$" + serviceClass.name.getValue();
+        PackageID moduleId = serviceClass.symbol.pkgID;
+        LineRange lineRange = serviceClass.pos.lineRange();
+        return String.format("%d", Objects.hash(serviceName, moduleId, lineRange));
     }
 
     private BLangLambdaFunction defineAnnotations(BLangClassDefinition classDefinition, BLangPackage pkgNode,
@@ -280,7 +365,8 @@ public class AnnotationDesugar {
                 String identifier = function.attachedFunction ? function.symbol.name.value : function.name.value;
 
                 int index;
-                if (function.attachedFunction && Symbols.isFlagOn(function.receiver.getBType().flags, Flags.SERVICE)) {
+                if (function.attachedFunction
+                        && Symbols.isFlagOn(function.receiver.getBType().flags, Flags.OBJECT_CTOR)) {
                     addLambdaToGlobalAnnotMap(identifier, lambdaFunction, target);
                     index = calculateIndex(initFnBody.stmts, function.receiver.getBType().tsymbol);
                 } else {

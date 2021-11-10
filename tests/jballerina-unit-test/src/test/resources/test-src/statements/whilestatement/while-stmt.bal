@@ -88,8 +88,6 @@ function testWhileStmtWithDefaultValues() returns [int, string, float] {
 function testNestedWhileWithBreak1() returns string {
     string result = "";
     while (true) {
-        while (false) {
-        }
         result = result + "inner";
         break;
     }
@@ -101,8 +99,6 @@ function testNestedWhileWithBreak2() returns string {
     while (true) {
         while (true) {
             while (true) {
-                while (false) {
-                }
                 result = result + "level3";
                 break;
             }
