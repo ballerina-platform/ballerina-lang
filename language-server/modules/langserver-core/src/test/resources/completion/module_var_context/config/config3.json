@@ -9,7 +9,7 @@
       "label": "start",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "filterText": "start",
       "insertText": "start ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "wait",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "filterText": "wait",
       "insertText": "wait ",
       "insertTextFormat": "Snippet"
@@ -27,7 +27,7 @@
       "label": "flush",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "filterText": "flush",
       "insertText": "flush ",
       "insertTextFormat": "Snippet"
@@ -36,7 +36,7 @@
       "label": "from clause",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "R",
+      "sortText": "T",
       "filterText": "from",
       "insertText": "from ${1:var} ${2:item} in ${3}",
       "insertTextFormat": "Snippet"
@@ -301,7 +301,7 @@
       "label": "service",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "filterText": "service",
       "insertText": "service",
       "insertTextFormat": "Snippet"
@@ -310,7 +310,7 @@
       "label": "new",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "filterText": "new",
       "insertText": "new ",
       "insertTextFormat": "Snippet"
@@ -319,7 +319,7 @@
       "label": "isolated",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "filterText": "isolated",
       "insertText": "isolated ",
       "insertTextFormat": "Snippet"
@@ -328,7 +328,7 @@
       "label": "transactional",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "filterText": "transactional",
       "insertText": "transactional",
       "insertTextFormat": "Snippet"
@@ -337,7 +337,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
@@ -346,7 +346,7 @@
       "label": "let",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "filterText": "let",
       "insertText": "let",
       "insertTextFormat": "Snippet"
@@ -355,7 +355,7 @@
       "label": "typeof",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "filterText": "typeof",
       "insertText": "typeof ",
       "insertTextFormat": "Snippet"
@@ -364,7 +364,7 @@
       "label": "trap",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "filterText": "trap",
       "insertText": "trap",
       "insertTextFormat": "Snippet"
@@ -373,7 +373,7 @@
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "filterText": "client",
       "insertText": "client ",
       "insertTextFormat": "Snippet"
@@ -382,7 +382,7 @@
       "label": "true",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "filterText": "true",
       "insertText": "true",
       "insertTextFormat": "Snippet"
@@ -391,7 +391,7 @@
       "label": "false",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "filterText": "false",
       "insertText": "false",
       "insertTextFormat": "Snippet"
@@ -400,7 +400,7 @@
       "label": "check",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "filterText": "check",
       "insertText": "check ",
       "insertTextFormat": "Snippet"
@@ -409,7 +409,7 @@
       "label": "checkpanic",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "filterText": "checkpanic",
       "insertText": "checkpanic ",
       "insertTextFormat": "Snippet"
@@ -418,7 +418,7 @@
       "label": "is",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "filterText": "is",
       "insertText": "is",
       "insertTextFormat": "Snippet"
@@ -427,7 +427,7 @@
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "R",
+      "sortText": "T",
       "filterText": "error",
       "insertText": "error(\"${1}\")",
       "insertTextFormat": "Snippet"
@@ -436,7 +436,7 @@
       "label": "object constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "R",
+      "sortText": "T",
       "filterText": "object",
       "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
@@ -445,7 +445,7 @@
       "label": "base16",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "R",
+      "sortText": "T",
       "filterText": "base16",
       "insertText": "base16 `${1}`",
       "insertTextFormat": "Snippet"
@@ -454,7 +454,7 @@
       "label": "base64",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "R",
+      "sortText": "T",
       "filterText": "base64",
       "insertText": "base64 `${1}`",
       "insertTextFormat": "Snippet"
@@ -463,7 +463,7 @@
       "label": "from",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "filterText": "from",
       "insertText": "from ",
       "insertTextFormat": "Snippet"
@@ -480,7 +480,7 @@
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
-      "sortText": "P",
+      "sortText": "R",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
@@ -491,7 +491,7 @@
       "documentation": {
         "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "O",
+      "sortText": "Q",
       "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
@@ -555,7 +555,7 @@
       "label": "null",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
