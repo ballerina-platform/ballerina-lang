@@ -85,7 +85,7 @@ public class BallerinaWorkspaceManagerProxy implements WorkspaceManagerProxy {
         }
 
         public void open(Project project) {
-            this.sourceRootToProject.put(project.sourceRoot(), ProjectPair.from(project));
+            this.sourceRootToProject.put(project.sourceRoot(), ProjectPair.from(project.duplicate()));
         }
 
         @Override
