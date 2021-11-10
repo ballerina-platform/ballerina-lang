@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
+import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.InvalidTokenMinutiaeNode;
@@ -264,5 +265,66 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         }
 
         Assert.assertEquals(actualChildNodeKindList, expectedChildNodeKindList);
+    }
+
+    @Test
+    public void testAsTopLevelAPI() {
+        String text =
+                "type Student record {\n" +
+                "    string name;\n" +
+                "    int age;\n" +
+                "};";
+
+        TextDocument textDocument = TextDocuments.from(text);
+        SyntaxTree syntaxTree = SyntaxTree.asTopLevel(textDocument);
+        Node rootNode = syntaxTree.rootNode();
+        Assert.assertFalse(rootNode.hasDiagnostics());
+        Assert.assertEquals(rootNode.kind(), SyntaxKind.TYPE_DEFINITION);
+    }
+
+    @Test
+    public void testAsStatementAPI() {
+        String text =
+                "while(a < 10) {\n" +
+                "    a = a + 1;\n" +
+                "}";
+
+        TextDocument textDocument = TextDocuments.from(text);
+        SyntaxTree syntaxTree = SyntaxTree.asStatement(textDocument);
+        Node rootNode = syntaxTree.rootNode();
+        Assert.assertFalse(rootNode.hasDiagnostics());
+        Assert.assertEquals(rootNode.kind(), SyntaxKind.WHILE_STATEMENT);
+    }
+
+    @Test
+    public void testAsStatementsAPI() {
+        String text =
+                "int a = 0;\n" +
+                "while(a < 10) {\n" +
+                "    a = a + 1;\n" +
+                "}\n" +
+                "a = 20;";
+
+        TextDocument textDocument = TextDocuments.from(text);
+        SyntaxTree syntaxTree = SyntaxTree.asStatements(textDocument);
+        NonTerminalNode rootNode = syntaxTree.rootNode();
+        Assert.assertFalse(rootNode.hasDiagnostics());
+        Assert.assertEquals(rootNode.kind(), SyntaxKind.LIST);
+
+        ChildNodeList children = rootNode.children();
+        Assert.assertEquals(children.size(), 3);
+        Assert.assertEquals(children.get(0).kind(), SyntaxKind.LOCAL_VAR_DECL);
+        Assert.assertEquals(children.get(1).kind(), SyntaxKind.WHILE_STATEMENT);
+        Assert.assertEquals(children.get(2).kind(), SyntaxKind.ASSIGNMENT_STATEMENT);
+    }
+
+    @Test
+    public void testAsExpressionAPI() {
+        String text = "3 is int";
+        TextDocument textDocument = TextDocuments.from(text);
+        SyntaxTree syntaxTree = SyntaxTree.asExpression(textDocument);
+        Node rootNode = syntaxTree.rootNode();
+        Assert.assertFalse(rootNode.hasDiagnostics());
+        Assert.assertEquals(rootNode.kind(), SyntaxKind.TYPE_TEST_EXPRESSION);
     }
 }
