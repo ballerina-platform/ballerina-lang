@@ -170,7 +170,7 @@ public class PackageResolution {
                 try {
                     BuildJson buildJson = readBuildJson(buildFilePath);
                     // if distribution is not same, we anyway return sticky as false
-                    if (buildJson != null &&
+                    if (buildJson != null && buildJson.distributionVersion() != null &&
                             buildJson.distributionVersion().equals(RepoUtils.getBallerinaShortVersion()) &&
                             !buildJson.isExpiredLastUpdateTime()) {
                         this.autoUpdate = false;
