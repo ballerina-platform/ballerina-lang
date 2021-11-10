@@ -2,9 +2,8 @@ enum Color {
     RED, GREEN, BLUE
 }
 
-const float vari = 1.4;
-
-type Foo vari|1|2|"test1";
+const float FVAL = 1.4;
+type Foo FVAL|1|2|"test1";
 
 type Employee record {
     readonly string name;
