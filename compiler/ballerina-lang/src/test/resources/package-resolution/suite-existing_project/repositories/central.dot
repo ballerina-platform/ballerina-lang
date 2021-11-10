@@ -12,6 +12,10 @@ digraph central {
         "ballerina/protobuf:1.7.0" [other_modules = "protobuf.types.duration"]
     }
 
+    subgraph "ballerina/io:2.0.0-alpha.1" {
+    }
+    subgraph "ballerina/io:1.3.0-beta.1" {
+    }
     subgraph "ballerina/io:1.1.0" {
     }
     subgraph "ballerina/io:1.0.2" {
@@ -71,6 +75,12 @@ digraph central {
 
     subgraph "ballerinai/foo:0.1.0" {
     // this is added to avoid the exception thrown from the test framework
+    }
+
+    subgraph "ballerina/auth:2.1.0-alpha.1" {
+    }
+
+    subgraph "ballerina/auth:2.1.0-beta.1" {
     }
 }
 
