@@ -982,3 +982,44 @@ public function testUnreachableCodeWithTypeNarrowing13() {
         never _ = a; // unreachable code
     }
 }
+
+function testUnreachableCodeWithNonTerminatingLoop1() {
+    int a = 10;
+    while true {
+        if a == 10 {
+            return;
+        }
+    }
+    foo(); // unreachable code
+}
+
+function testUnreachableCodeWithNonTerminatingLoop2() {
+    int a = 10;
+    while true {
+        if a == 10 {
+            continue;
+        }
+    }
+    int _ = a; // unreachable code
+}
+
+function testReturnValueWithTerminatingLoop1() returns boolean? {
+    int a = 10;
+    while true {
+        if a == 10 {
+            break;
+        }
+    }
+    int _ = a;
+}
+
+function testReturnValueWithTerminatingLoop2() returns boolean? {
+    int a = 10;
+    while true {
+        if a == 10 {
+            break;
+        }
+        return true;
+    }
+    int _ = a;
+}

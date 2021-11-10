@@ -715,6 +715,60 @@ function getValueForToken2(boolean b) returns int? {
     return;
 }
 
+function testReachableCodeWithNonTerminatingLoop1() returns boolean? {
+    int a = 10;
+    while true {
+        if a == 10 {
+            return true;
+        }
+    }
+}
+
+function testReachableCodeWithNonTerminatingLoop2() returns boolean? {
+    int a = 10;
+    while true {
+        if a == 10 {
+            panic error("Error");
+        }
+    }
+}
+
+function testReachableCodeWithTerminatingLoop1() returns boolean? {
+    int a = 10;
+    while true {
+        if a == 10 {
+            break;
+        }
+    }
+    return true;
+}
+
+function testReachableCodeWithTerminatingLoop2() returns boolean? {
+    int a = 10;
+    while true {
+        if a == 10 {
+            break;
+        }
+        return true;
+    }
+    return false;
+}
+
+function testTerminatingAndNonTerminatingLoops() {
+    boolean? res = testReachableCodeWithNonTerminatingLoop1();
+    assertEqual(res, true);
+
+    boolean|error? res2 = trap testReachableCodeWithNonTerminatingLoop2();
+    assertEqual(res2 is error, true);
+    assertEqual((<error>res2).message(), "Error");
+
+    res = testReachableCodeWithTerminatingLoop1();
+    assertEqual(res, true);
+
+    res = testReachableCodeWithTerminatingLoop2();
+    assertEqual(res, false);
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;
