@@ -22,7 +22,7 @@ import java.io.OutputStream;
 /**
  * Declaration of stream connection provider functionality.
  */
-public interface TestStreamConnectionProvider {
+public interface StreamConnectionProvider {
 
     void start() throws IOException;
 
