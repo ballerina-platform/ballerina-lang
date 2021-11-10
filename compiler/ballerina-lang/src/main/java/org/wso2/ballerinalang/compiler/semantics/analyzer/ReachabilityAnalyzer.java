@@ -357,6 +357,8 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchStatement matchStatement) {
+        checkStatementExecutionValidity(matchStatement);
+
         if (!this.failureHandled) {
             this.failureHandled = matchStatement.onFailClause != null;
         }
@@ -582,6 +584,8 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             this.statementReturnsPanicsOrFails = prevStatementReturnsPanicsOrFails;
             this.continueAsLastStatement = prevContinueAsLastStatement;
             this.breakAsLastStatement = prevBreakAsLastStatement;
+        } else if (booleanConstCondition == symTable.trueType && !this.breakStmtFound) {
+            this.statementReturnsPanicsOrFails = true;
         }
         this.breakStmtFound = prevBreakStmtFound;
 
