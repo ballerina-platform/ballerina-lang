@@ -229,7 +229,14 @@ public class DiagnosticsHelper {
                     break;
             }
 
-            String fileURI = projectRoot.resolve(lineRange.filePath()).toUri().toString();
+            /*
+            If the project root is a directory, that means it is a build project and in the other case, a single 
+            file project. So we only append the file URI for the build project case.
+             */
+            String fileURI = (projectRoot.toFile().isDirectory()
+                    ? projectRoot.resolve(lineRange.filePath())
+                    : projectRoot)
+                    .toUri().toString();
             List<Diagnostic> clientDiagnostics = diagnosticsMap.computeIfAbsent(fileURI, s -> new ArrayList<>());
             clientDiagnostics.add(diagnostic);
         }
