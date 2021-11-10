@@ -161,8 +161,8 @@ public class BuildOptions {
         SKIP_TESTS("skipTests"),
         TEST_REPORT("testReport"),
         CODE_COVERAGE("codeCoverage"),
-        DUMP_BUILD_TIME("dumpBuildTime")
-        ;
+        DUMP_BUILD_TIME("dumpBuildTime"),
+        TARGET_DIR("targetDir");
 
         private final String name;
 

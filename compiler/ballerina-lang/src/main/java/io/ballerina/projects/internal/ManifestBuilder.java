@@ -405,7 +405,10 @@ public class ManifestBuilder {
         Boolean listConflictedClasses =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.LIST_CONFLICTED_CLASSES.toString());
 
-        return buildOptionsBuilder
+        String targetDir = getStringFromBuildOptionsTableNode(tableNode,
+                BuildOptions.OptionName.TARGET_DIR.toString());
+
+        buildOptionsBuilder
                 .setOffline(offline)
                 .setExperimental(experimental)
                 .setObservabilityIncluded(observabilityIncluded)
@@ -414,8 +417,13 @@ public class ManifestBuilder {
                 .setCloud(cloud)
                 .setListConflictedClasses(listConflictedClasses)
                 .setDumpBuildTime(dumpBuildTime)
-                .setSticky(sticky)
-                .build();
+                .setSticky(sticky);
+
+        if (targetDir != null) {
+            buildOptionsBuilder.targetDir(targetDir);
+        }
+
+        return buildOptionsBuilder.build();
     }
 
     private Boolean getBooleanFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
@@ -430,6 +438,23 @@ public class ManifestBuilder {
             if (value.kind() == TomlType.BOOLEAN) {
                 TomlBooleanValueNode tomlBooleanValueNode = (TomlBooleanValueNode) value;
                 return tomlBooleanValueNode.getValue();
+            }
+        }
+        return null;
+    }
+
+    private String getStringFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
+        TopLevelNode topLevelNode = tableNode.entries().get(key);
+        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
+            return null;
+        }
+
+        if (topLevelNode.kind() == TomlType.KEY_VALUE) {
+            TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
+            TomlValueNode value = keyValueNode.value();
+            if (value.kind() == TomlType.STRING) {
+                TomlStringValueNode tomlStringValueNode = (TomlStringValueNode) value;
+                return tomlStringValueNode.getValue();
             }
         }
         return null;
