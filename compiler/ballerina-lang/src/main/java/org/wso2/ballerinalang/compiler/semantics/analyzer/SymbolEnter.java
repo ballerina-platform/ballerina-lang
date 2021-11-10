@@ -281,10 +281,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void defineClassDefinition(BLangClassDefinition classNode, SymbolEnv env) {
-        if (classNode.symbol != null) {
-            return;
-        }
-        defineNode(classNode, env);
+//        if (classNode.symbol != null) {
+//            return;
+//        }
+//        defineNode(classNode, env);
         populateDistinctTypeIdsFromIncludedTypeReferences(classNode);
         defineFieldsOfClassDef(classNode, env);
         defineFunctionsOfClassDef(env, classNode);
@@ -1196,11 +1196,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (isErrorIntersectionTypeCreatingNewType(typeDef, env)) {
                 populateUndefinedErrorIntersection((BLangTypeDefinition) typeDef, env);
             }
-            if (typeDef.getKind() == CLASS_DEFN) {
-                BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;
-                if (classDefinition.flagSet.contains(Flag.OBJECT_CTOR)) {
-                    continue;
-                }
+            if (isObjectCtor(typeDef)) {
+                continue;
             }
 
 //            if (typeDef.getKind() == CLASS_DEFN && ((BLangClassDefinition) typeDef).isObjectContructorDecl) {
