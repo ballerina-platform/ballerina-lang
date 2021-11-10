@@ -3913,6 +3913,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 createMarkdownDocumentationAttachment(getDocumentationString(serviceDeclarationNode.metadata()));
 
         addToTop(anonClassDef);
+        anonClassDef.oceEnvData.originalClass = anonClassDef;
 
         BLangIdentifier identifier = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         BLangUserDefinedType userDefinedType = createUserDefinedType(pos, identifier, anonClassDef.name);

@@ -58,8 +58,8 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
     public List<BLangSimpleVarRef.BLangLocalVarRef> localVarRefs;
     public int precedence;
     public boolean isServiceDecl;
-    public boolean definitionCompleted;
 
+    public boolean definitionCompleted;
     public OCEDynamicEnvironmentData oceEnvData;
     public boolean isObjectContructorDecl = false;
     public BObjectType objectType = null;

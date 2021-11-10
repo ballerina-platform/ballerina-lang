@@ -284,6 +284,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 //            return;
 //        }
 //        defineNode(classNode, env);
+        if (classNode.definitionCompleted) {
+            return;
+        }
         populateDistinctTypeIdsFromIncludedTypeReferences(classNode);
         defineFieldsOfClassDef(classNode, env);
         defineFunctionsOfClassDef(env, classNode);
@@ -500,7 +503,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private boolean isObjectCtor(BLangClassDefinition classDefinition) {
         if (classDefinition.flagSet.contains(Flag.OBJECT_CTOR) &&
-            !classDefinition.flagSet.contains(Flag.SERVICE)) {
+                !classDefinition.flagSet.contains(Flag.CLASS)) {
             return true;
         }
         return false;
