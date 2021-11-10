@@ -528,7 +528,7 @@ public class BalaFiles {
             moduleName = ModuleName.from(pkgDesc.name());
         } else {
             String moduleNamePart = modDepEntry.getModuleName()
-                    .split(modDepEntry.getPackageName() + MODULE_NAME_SEPARATOR)[1];
+                    .split(modDepEntry.getPackageName() + MODULE_NAME_SEPARATOR, 2)[1];
             moduleName = ModuleName.from(pkgDesc.name(), moduleNamePart);
         }
         return ModuleDescriptor.from(moduleName, pkgDesc);
