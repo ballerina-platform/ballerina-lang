@@ -1023,3 +1023,13 @@ function testReturnValueWithTerminatingLoop2() returns boolean? {
     }
     int _ = a;
 }
+
+function testUnreachableStmt(any a) {
+    while true {
+        return;
+    }
+    match a { // unreachable code
+        1 => {
+        }
+    }
+}
