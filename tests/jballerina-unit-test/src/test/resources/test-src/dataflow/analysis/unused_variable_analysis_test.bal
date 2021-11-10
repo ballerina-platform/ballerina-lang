@@ -350,3 +350,25 @@ function f16() {
     string format = "";
     string s = format == "JSON" ? logRecord.toJsonString() : value:toString(logRecord); // Warning should be only for `s`.
 }
+
+function f17() {
+    foreach int i in 0 ... 9 { // OK to not use `i`.
+
+    }
+
+    int[] m = [];
+
+    foreach int j in 0 ..< 9 { // OK to not use `j`.
+        m = []; // Unused `m`.
+    }
+
+    int[] n = from int k in 0 ..< 8 select 0; // Unused `n`, OK to not use `k`.
+
+    int[] _ = from int l in 0 ... 8 select 0; // OK to not use `l`.
+
+    foreach int i in 0 ... 9 { // OK to not use `i`.
+        _ = i; // `i` is used anyway.
+    }
+
+    int[] _ = from int l in 0 ... 8 select l; // OK to not use `l`, `l` is used anyway.
+}
