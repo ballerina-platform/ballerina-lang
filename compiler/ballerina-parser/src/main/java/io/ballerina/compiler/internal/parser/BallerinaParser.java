@@ -106,14 +106,24 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     public STNode parseAsStatement() {
-        STNodeList stmtNodeList = (STNodeList) parseAsStatements();
-        STNode stmt = stmtNodeList.get(0);
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.FUNC_BODY_BLOCK);
+        STNode stmt = parseStatement();
 
-        for (int i = 1; i < stmtNodeList.size(); i++) {
-            stmt = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(stmt, stmtNodeList.get(i),
-            DiagnosticErrorCode.ERROR_SYNTAX_ERROR);
+        if (stmt == null || validateStatement(stmt)) {
+            stmt = createMissingSimpleVarDecl(false);
+            stmt = invalidateRestAndAddToTrailingMinutiae(stmt);
+            return stmt;
         }
 
+        if (stmt.kind == SyntaxKind.NAMED_WORKER_DECLARATION) {
+            addInvalidNodeToNextToken(stmt, DiagnosticErrorCode.ERROR_NAMED_WORKER_NOT_ALLOWED_HERE);
+            stmt = createMissingSimpleVarDecl(false);
+            stmt = invalidateRestAndAddToTrailingMinutiae(stmt);
+            return stmt;
+        }
+
+        stmt = invalidateRestAndAddToTrailingMinutiae(stmt);
         return stmt;
     }
 
@@ -4288,7 +4298,7 @@ public class BallerinaParser extends AbstractParser {
      * Invalidate top-level nodes which are allowed to be parsed as statements to improve the error messages.
      *
      * @param statement Statement to validate
-     * @return <code>true</code> if the statement is valid <code>false</code> otherwise
+     * @return <code>true</code> if the statement is not valid <code>false</code> otherwise
      */
     boolean validateStatement(STNode statement) {
         switch (statement.kind) {

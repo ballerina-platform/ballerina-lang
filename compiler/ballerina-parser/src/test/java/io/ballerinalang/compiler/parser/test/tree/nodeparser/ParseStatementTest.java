@@ -105,4 +105,38 @@ public class ParseStatementTest {
         Assert.assertEquals(stmtNode.toString(),
                 " INVALID[%]  INVALID[isolated] int a = 3;  INVALID[int]  INVALID[c] INVALID[;] INVALID[;]");
     }
+
+    @Test
+    public void testWithNamedWorker() {
+        StatementNode stmtNode = NodeParser.parseStatement("worker w1 { }");
+        Assert.assertEquals(stmtNode.kind(), SyntaxKind.LOCAL_VAR_DECL);
+        Assert.assertTrue(stmtNode.hasDiagnostics());
+
+        Assert.assertEquals(stmtNode.leadingInvalidTokens().size(), 0);
+        List<Token> tokens = stmtNode.trailingInvalidTokens();
+        Assert.assertEquals(tokens.get(0).kind(), SyntaxKind.WORKER_KEYWORD);
+        Assert.assertEquals(tokens.get(1).kind(), SyntaxKind.IDENTIFIER_TOKEN);
+        Assert.assertEquals(tokens.get(2).kind(), SyntaxKind.OPEN_BRACE_TOKEN);
+        Assert.assertEquals(tokens.get(3).kind(), SyntaxKind.CLOSE_BRACE_TOKEN);
+        Assert.assertEquals(stmtNode.toString(),
+                " MISSING[] MISSING[] MISSING[; INVALID[worker]  INVALID[w1]  INVALID[{]  INVALID[}]]");
+    }
+
+    @Test
+    public void testWithModuleConstDecl() {
+        StatementNode stmtNode = NodeParser.parseStatement("const pi = 3.142;");
+        Assert.assertEquals(stmtNode.kind(), SyntaxKind.LOCAL_VAR_DECL);
+        Assert.assertTrue(stmtNode.hasDiagnostics());
+
+        Assert.assertEquals(stmtNode.leadingInvalidTokens().size(), 0);
+        List<Token> tokens = stmtNode.trailingInvalidTokens();
+        Assert.assertEquals(tokens.size(), 5);
+        Assert.assertEquals(tokens.get(0).kind(), SyntaxKind.CONST_KEYWORD);
+        Assert.assertEquals(tokens.get(1).kind(), SyntaxKind.IDENTIFIER_TOKEN);
+        Assert.assertEquals(tokens.get(2).kind(), SyntaxKind.EQUAL_TOKEN);
+        Assert.assertEquals(tokens.get(3).kind(), SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN);
+        Assert.assertEquals(tokens.get(4).kind(), SyntaxKind.SEMICOLON_TOKEN);
+        Assert.assertEquals(stmtNode.toString(),
+                " MISSING[] MISSING[] MISSING[; INVALID[const]  INVALID[pi]  INVALID[=]  INVALID[3.142] INVALID[;]]");
+    }
 }
