@@ -175,7 +175,7 @@
       "label": "listener1",
       "kind": "Variable",
       "detail": "module1:Listener",
-      "sortText": "AEC",
+      "sortText": "AGC",
       "insertText": "listener1",
       "insertTextFormat": "Snippet"
     },
@@ -189,7 +189,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n"
         }
       },
-      "sortText": "ACA",
+      "sortText": "AEA",
       "filterText": "function1",
       "insertText": "function1()",
       "insertTextFormat": "Snippet"
@@ -204,7 +204,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n"
         }
       },
-      "sortText": "ACA",
+      "sortText": "AEA",
       "filterText": "function2",
       "insertText": "function2()",
       "insertTextFormat": "Snippet"
@@ -238,7 +238,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function4 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description"
         }
       },
-      "sortText": "ACA",
+      "sortText": "AEA",
       "filterText": "function4",
       "insertText": "function4(${1})",
       "insertTextFormat": "Snippet",
