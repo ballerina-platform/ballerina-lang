@@ -54,6 +54,7 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
                 response = JsonToRecordConverter.convert(jsonString, recordName, isRecordTypeDesc, isClosed);
             } catch (IOException | JsonToRecordConverterException | FormatterException e) {
                 response = new JsonToRecordResponse();
+                response.setCodeBlock("");
             }
             return response;
         });

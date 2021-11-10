@@ -1,4 +1,4 @@
-record {|
+type NewRecord record {|
     string name;
     boolean checked;
     string id;
@@ -10,4 +10,4 @@ record {|
         int width;
         int height;
     } dimensions;
-|}
+|};
