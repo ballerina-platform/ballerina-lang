@@ -497,6 +497,29 @@ function foo() returns json {
     return j;
 }
 
+function testJsonMapAccessNegative() {
+    map<map<json>> mapVal = {};
+    json|error result = mapVal.__.__;
+    assertTrue(result is error);
+    error err = <error>result;
+    assertEquals("{ballerina/lang.map}KeyNotFound", err.message());
+    assertEquals("key '__' not found in JSON mapping", <string>checkpanic err.detail()["message"]); 
+
+    mapVal = {a: {a : "aaa"}};
+    result = mapVal.b.a;
+    assertTrue(result is error);
+    err = <error>result;
+    assertEquals("{ballerina/lang.map}KeyNotFound", err.message());
+    assertEquals("key 'b' not found in JSON mapping", <string>checkpanic err.detail()["message"]);
+
+    json jsonVal = {};
+    result = jsonVal.b.a;
+    assertTrue(result is error);
+    err = <error>result;
+    assertEquals("{ballerina/lang.map}KeyNotFound", err.message());
+    assertEquals("key 'b' not found in JSON mapping", <string>checkpanic err.detail()["message"]);     
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(boolean actual) {
