@@ -584,7 +584,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             this.statementReturnsPanicsOrFails = prevStatementReturnsPanicsOrFails;
             this.continueAsLastStatement = prevContinueAsLastStatement;
             this.breakAsLastStatement = prevBreakAsLastStatement;
-        } else if (booleanConstCondition == symTable.trueType && !this.breakStmtFound) {
+        } else {
             this.statementReturnsPanicsOrFails = true;
         }
         this.breakStmtFound = prevBreakStmtFound;
