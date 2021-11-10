@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.types.TypeNode;
@@ -788,9 +789,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForeach foreach) {
-        populateUnusedVariableMapForMembers(this.unusedLocalVariables,
-                                            (BLangVariable) foreach.variableDefinitionNode.getVariable());
-        analyzeNode(foreach.collection, env);
+        BLangExpression collection = foreach.collection;
+
+        if (isNotRangeExpr(collection)) {
+            populateUnusedVariableMapForMembers(this.unusedLocalVariables,
+                                                (BLangVariable) foreach.variableDefinitionNode.getVariable());
+        }
+
+        analyzeNode(collection, env);
         analyzeNode(foreach.body, env);
         if (foreach.onFailClause != null) {
             analyzeNode(foreach.onFailClause, env);
@@ -1105,7 +1111,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVarRef varRefExpr) {
         this.unusedErrorVarsDeclaredWithVar.remove(varRefExpr.symbol);
 
-        if (isRead(varRefExpr)) {
+        if (isNotVariableReferenceLVExpr(varRefExpr)) {
             this.unusedLocalVariables.remove(varRefExpr.symbol);
         }
 
@@ -1223,9 +1229,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFromClause fromClause) {
-        populateUnusedVariableMapForMembers(this.unusedLocalVariables,
-                                            (BLangVariable) fromClause.variableDefinitionNode.getVariable());
-        analyzeNode(fromClause.collection, env);
+        BLangExpression collection = fromClause.collection;
+
+        if (isNotRangeExpr(collection)) {
+            populateUnusedVariableMapForMembers(this.unusedLocalVariables,
+                                                (BLangVariable) fromClause.variableDefinitionNode.getVariable());
+        }
+
+        analyzeNode(collection, env);
     }
 
     @Override
@@ -2352,24 +2363,22 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean isRead(BLangSimpleVarRef varRefExpr) {
+    private boolean isNotVariableReferenceLVExpr(BLangSimpleVarRef varRefExpr) {
         if (!varRefExpr.isLValue) {
             return true;
         }
 
         BLangNode parent = varRefExpr.parent;
+        return parent != null && parent.getKind() != NodeKind.ASSIGNMENT;
+    }
 
-        if (parent == null || parent.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR) {
-            return false;
+    private boolean isNotRangeExpr(BLangExpression collection) {
+        if (collection.getKind() != NodeKind.BINARY_EXPR) {
+            return true;
         }
 
-        BLangNode parentParent = parent.parent;
-
-        if (parentParent == null || parentParent.getKind() != NodeKind.ASSIGNMENT) {
-            return false;
-        }
-
-        return ((BLangIndexBasedAccess) parent).indexExpr == varRefExpr;
+        OperatorKind opKind = ((BLangBinaryExpr) collection).opKind;
+        return opKind != OperatorKind.HALF_OPEN_RANGE && opKind != OperatorKind.CLOSED_RANGE;
     }
 
     private enum InitStatus {

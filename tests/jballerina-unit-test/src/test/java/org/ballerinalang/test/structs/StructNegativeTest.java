@@ -40,9 +40,6 @@ public class StructNegativeTest {
 
         result2 = BCompileUtil.compile("test-src/structs/struct.bal");
         Assert.assertEquals(result2.getErrorCount(), 0);
-        Assert.assertEquals(result2.getWarnCount(), 2);
-        BAssertUtil.validateWarning(result2, 0, "unused variable 'person'", 132, 5);
-        BAssertUtil.validateWarning(result2, 1, "unused variable 'dpt'", 137, 5);
     }
 
     @Test

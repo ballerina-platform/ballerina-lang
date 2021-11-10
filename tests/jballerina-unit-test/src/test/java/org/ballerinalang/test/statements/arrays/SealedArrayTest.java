@@ -195,9 +195,7 @@ public class SealedArrayTest {
     @Test()
     public void testNegativeSealedArrays() {
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        Assert.assertEquals(resultNegative.getWarnCount(), 1);
-        BAssertUtil.validateWarning(resultNegative, 0, "unused variable 'sealedArray1'", 18, 5);
-        BAssertUtil.validateError(resultNegative, 1, "variable 'sealedArray1' is not initialized", 19, 5);
+        BAssertUtil.validateError(resultNegative, 0, "variable 'sealedArray1' is not initialized", 19, 5);
     }
 
     @Test
