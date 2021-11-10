@@ -212,3 +212,21 @@ function testIgnoreVariable() returns [int, int] {
     [string, [int, boolean]] [_, [b, _]] = ["Test", [24, true]];
     return [a, b];
 }
+
+type myErrorDetail record { int i; };
+
+function testTupleVariableWithErrorBP() {
+    [error<myErrorDetail>, [int, string]] [error(m, i = i, ...k), [l, n]] = [error("err", i = 1), [1, ""]];
+    assertEquality(m, "err");
+    assertEquality(i, 1);
+    assertEquality(l, 1);
+    assertEquality(n, "");
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("AssertionError", message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}
