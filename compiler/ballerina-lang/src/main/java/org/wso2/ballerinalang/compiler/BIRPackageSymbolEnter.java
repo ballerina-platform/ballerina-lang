@@ -87,6 +87,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -107,6 +108,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -568,8 +570,62 @@ public class BIRPackageSymbolEnter {
                 return PredefinedType.NIL;
             case TypeTags.BYTE:
                 return PredefinedType.BYTE;
+            case TypeTags.FINITE:
+                return resolveFiniteType((BFiniteType) type);
             default:
                 return null;
+        }
+    }
+
+    private SemType resolveFiniteType(BFiniteType td) {
+        if (Symbols.isFlagOn(td.flags, Flags.ANONYMOUS)) {
+            return null;
+        }
+        if (td.getValueSpace().size() > 1) {
+            return resolveFiniteTypeUnion(td);
+        }
+        return resolveSingletonType(td, 0);
+    }
+
+    private SemType resolveFiniteTypeUnion(BFiniteType td) {
+        List<SemType> types = new ArrayList<>();
+        for (int i = 0; i < td.getValueSpace().size(); i++) {
+            types.add(resolveSingletonType(td, i));
+        }
+
+        Iterator<SemType> iter = types.iterator();
+        SemType u = iter.next();
+        while (iter.hasNext()) {
+            u = SemTypes.union(u, iter.next());
+        }
+        return u;
+    }
+
+    private SemType resolveSingletonType(BFiniteType td, int index) {
+        List<BLangExpression> valSpace = new ArrayList<>(td.getValueSpace());
+        BLangLiteral literal = (BLangLiteral) valSpace.get(index);
+        Object litVal = literal.value;
+        switch (literal.getBType().getKind()) {
+            case FLOAT:
+                double value;
+                if (litVal instanceof Long) {
+                    value = ((Long) litVal).doubleValue();
+                } else if (litVal instanceof Double) {
+                    value = (double) litVal;
+                } else {
+                    value = Double.parseDouble((String) litVal);
+                }
+                return SemTypes.floatConst(value);
+            case INT:
+                return SemTypes.intConst((long) litVal);
+            case STRING:
+                return SemTypes.stringConst((String) litVal);
+            case BOOLEAN:
+                return SemTypes.booleanConst((Boolean) litVal);
+            case DECIMAL:
+                return SemTypes.decimalConst((String) litVal);
+            default:
+                throw new AssertionError("Finite type not implemented for: " + literal);
         }
     }
 
