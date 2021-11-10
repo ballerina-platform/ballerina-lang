@@ -791,7 +791,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangForeach foreach) {
         BLangExpression collection = foreach.collection;
 
-        if (!isRangeExpr(collection)) {
+        if (isNotRangeExpr(collection)) {
             populateUnusedVariableMapForMembers(this.unusedLocalVariables,
                                                 (BLangVariable) foreach.variableDefinitionNode.getVariable());
         }
@@ -1111,7 +1111,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVarRef varRefExpr) {
         this.unusedErrorVarsDeclaredWithVar.remove(varRefExpr.symbol);
 
-        if (isRead(varRefExpr)) {
+        if (isNotVariableReferenceLVExpr(varRefExpr)) {
             this.unusedLocalVariables.remove(varRefExpr.symbol);
         }
 
@@ -1231,7 +1231,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangFromClause fromClause) {
         BLangExpression collection = fromClause.collection;
 
-        if (!isRangeExpr(collection)) {
+        if (isNotRangeExpr(collection)) {
             populateUnusedVariableMapForMembers(this.unusedLocalVariables,
                                                 (BLangVariable) fromClause.variableDefinitionNode.getVariable());
         }
@@ -2363,33 +2363,22 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean isRead(BLangSimpleVarRef varRefExpr) {
+    private boolean isNotVariableReferenceLVExpr(BLangSimpleVarRef varRefExpr) {
         if (!varRefExpr.isLValue) {
             return true;
         }
 
         BLangNode parent = varRefExpr.parent;
-
-        if (parent == null || parent.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR) {
-            return false;
-        }
-
-        BLangNode parentParent = parent.parent;
-
-        if (parentParent == null || parentParent.getKind() != NodeKind.ASSIGNMENT) {
-            return false;
-        }
-
-        return ((BLangIndexBasedAccess) parent).indexExpr == varRefExpr;
+        return parent != null && parent.getKind() != NodeKind.ASSIGNMENT;
     }
 
-    private boolean isRangeExpr(BLangExpression collection) {
+    private boolean isNotRangeExpr(BLangExpression collection) {
         if (collection.getKind() != NodeKind.BINARY_EXPR) {
-            return false;
+            return true;
         }
 
         OperatorKind opKind = ((BLangBinaryExpr) collection).opKind;
-        return opKind == OperatorKind.HALF_OPEN_RANGE || opKind == OperatorKind.CLOSED_RANGE;
+        return opKind != OperatorKind.HALF_OPEN_RANGE && opKind != OperatorKind.CLOSED_RANGE;
     }
 
     private enum InitStatus {
