@@ -16,6 +16,7 @@
 
 type myRecord record {|
     int field\[ = 5;
+    never field\{?;
 |};
 
 function testDuplicateFieldWithEscapeSequence() {
@@ -30,6 +31,7 @@ function testDuplicateFieldWithEscapeSequence() {
 
     myRecord recVar1 = {};
     map<int> _ = {...recVar1, "field[": 543};
+    map<int> _ = {"field[": 543, ...recVar1};
 
     int field\( = 6;
     map<int> _ = {field\(, "field(": 34};

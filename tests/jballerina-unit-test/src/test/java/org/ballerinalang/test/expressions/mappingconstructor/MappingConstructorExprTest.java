@@ -397,14 +397,16 @@ public class MappingConstructorExprTest {
                 "test-src/expressions/mappingconstructor/mapping_constructor_code_analysis_negative.bal");
         int index = 0;
 
-        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a\\'", 22, 29);
-        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a\\'", 23, 31);
-        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a\\'", 25, 33);
+        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a\\'", 23, 29);
+        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a\\'", 24, 31);
         validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a\\'", 26, 33);
-        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a\\'", 28, 29);
-        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a{'", 29, 29);
-        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'field['", 32, 31);
-        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'field('", 35, 28);
+        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a\\'", 27, 33);
+        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a\\'", 29, 29);
+        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a{'", 30, 29);
+        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'field['", 33, 31);
+        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'field[' via " +
+                "spread operator '...recVar1'", 34, 37);
+        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'field('", 37, 28);
 
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
