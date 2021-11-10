@@ -78,7 +78,9 @@ public class ReachabilityAnalysisTest {
                 "testForeachCompletingNormally",
                 "testReachableCodeWithForeach",
                 "testReachableCodeWithUnaryConditionsInIf",
-                "testReachableCodeWithTypeNarrowing"
+                "testReachableCodeWithTypeNarrowing",
+                "testTerminatingAndNonTerminatingLoops",
+                "testTypeNarrowingWithDifferentWhileCompletionStatus"
         };
     }
 
@@ -137,6 +139,7 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 350, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 357, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 369, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 372, 5);
         validateHint(result, i++, ALWAYS_FALSE_CONDITION, 377, 8);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 378, 9);
         validateHint(result, i++, ALWAYS_FALSE_CONDITION, 387, 11);
@@ -252,9 +255,14 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 973, 19);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 982, 9);
         validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 982, 19);
-        Assert.assertEquals(result.getErrorCount(), i - 35 - 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 993, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1003, 5);
+        validateWarning(result, i++, "this function should explicitly return a value", 1006, 56);
+        validateWarning(result, i++, "this function should explicitly return a value", 1016, 56);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1031, 5);
+        Assert.assertEquals(result.getErrorCount(), i - 35 - 11);
         Assert.assertEquals(result.getHintCount(), 35);
-        Assert.assertEquals(result.getWarnCount(), 9);
+        Assert.assertEquals(result.getWarnCount(), 11);
     }
 
     @Test
@@ -292,6 +300,10 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, "incompatible types: expected 'int', found 'int?'", 264, 13);
         validateError(result, i++, "incompatible types: expected '20', found '10'", 272, 12);
         validateError(result, i++, "incompatible types: expected '10', found '10|20'", 274, 12);
+        validateError(result, i++, "incompatible types: expected 'int', found '()'", 286, 13);
+        validateError(result, i++, "incompatible types: expected 'int', found '()'", 296, 13);
+        validateError(result, i++, "incompatible types: expected '()', found 'int?'", 308, 12);
+        validateError(result, i++, "incompatible types: expected '()', found 'int?'", 322, 12);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }

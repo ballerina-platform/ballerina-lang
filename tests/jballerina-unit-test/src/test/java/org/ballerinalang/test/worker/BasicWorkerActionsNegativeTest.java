@@ -100,6 +100,7 @@ public class BasicWorkerActionsNegativeTest {
         BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 253, 13);
         BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 257, 13);
         BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 258, 13);
+        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 261, 9);
         BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 263, 17);
         BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 266, 17);
         BAssertUtil.validateError(resultNegative, index++, "undefined worker 'w1'", 271, 26);
@@ -113,6 +114,7 @@ public class BasicWorkerActionsNegativeTest {
         BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 299, 26);
         BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 303, 26);
         BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 304, 26);
+        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 307, 22);
         BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 309, 30);
         BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 312, 30);
         BAssertUtil.validateError(resultNegative, index++, "undefined worker 'w1'", 317, 39);
