@@ -514,10 +514,8 @@ public class Types {
         if (mappingMatchPattern.matchExpr == null) {
             return patternType;
         }
-        IntersectionContext intersectionContext = IntersectionContext.compilerInternalIntersectionContext();
-        intersectionContext.ignoreDefaultValues = true;
-        BType intersectionType = getTypeIntersection(intersectionContext, mappingMatchPattern.matchExpr.getBType(),
-                patternType, env);
+        BType intersectionType = getTypeIntersection(getMatchClauseIntersectionContextForMapping(),
+                mappingMatchPattern.matchExpr.getBType(), patternType, env);
         if (intersectionType == symTable.semanticError) {
             return symTable.noType;
         }
@@ -531,14 +529,18 @@ public class Types {
         if (varBindingPatternMatchPattern.matchExpr == null) {
             return mappingBindingPatternType;
         }
-        IntersectionContext intersectionContext = IntersectionContext.compilerInternalIntersectionContext();
-        intersectionContext.ignoreDefaultValues = true;
-        BType intersectionType = getTypeIntersection(intersectionContext,
+        BType intersectionType = getTypeIntersection(getMatchClauseIntersectionContextForMapping(),
                 varBindingPatternMatchPattern.matchExpr.getBType(), mappingBindingPatternType, env);
         if (intersectionType == symTable.semanticError) {
             return symTable.noType;
         }
         return intersectionType;
+    }
+
+    private IntersectionContext getMatchClauseIntersectionContextForMapping() {
+        IntersectionContext intersectionContext = IntersectionContext.compilerInternalIntersectionContext();
+        intersectionContext.ignoreDefaultValues = true;
+        return intersectionContext;
     }
 
     private boolean containsAnyType(BType type) {
