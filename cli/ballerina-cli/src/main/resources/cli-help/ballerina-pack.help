@@ -9,9 +9,6 @@ SYNOPSIS
                   <ballerina-package-path>
        bal pack [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
                  [--list-conflicted-classes] <ballerina-package-path>
-       bal pack [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
-                 [--list-conflicted-classes] [--debug] [--test-report] [--code-coverage]
-                 <ballerina-package-path>
 
 
 DESCRIPTION
@@ -28,16 +25,6 @@ OPTIONS
 
        --experimental
            Enable experimental language features.
-
-       --code-coverage
-           Enable code coverage. This will analyze the line coverage of the
-           source `.bal` files in the Ballerina package and add a section
-           to the testerina report with the code coverage details. This feature is not supported
-           with single BAL file executions.
-
-       --test-report
-           Generate an HTML report containing the test results. Defaults to 'true'
-           if code coverage is enabled.
 
        --debug
            Run tests in remote debugging mode.
