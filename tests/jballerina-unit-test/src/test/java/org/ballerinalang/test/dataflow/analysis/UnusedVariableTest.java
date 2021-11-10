@@ -40,8 +40,6 @@ public class UnusedVariableTest {
         validateWarning(result, i++, getUnusedVariableWarning("i"), 18, 5);
         validateWarning(result, i++, getUnusedVariableWarning("j"), 20, 5);
         validateWarning(result, i++, getUnusedVariableWarning("k"), 22, 5);
-        validateWarning(result, i++, getUnusedVariableWarning("arr"), 29, 5);
-        validateWarning(result, i++, getUnusedVariableWarning("o"), 37, 5);
         validateWarning(result, i++, getUnusedVariableWarning("i"), 43, 5);
         validateWarning(result, i++, getUnusedVariableWarning("a"), 51, 5);
         validateWarning(result, i++, getUnusedVariableWarning("a"), 55, 13);
@@ -66,8 +64,6 @@ public class UnusedVariableTest {
         validateWarning(result, i++, getUnusedVariableWarning("p"), 96, 9);
         validateWarning(result, i++, getUnusedVariableWarning("a"), 112, 5);
         validateWarning(result, i++, getUnusedVariableWarning("e"), 122, 7);
-        validateWarning(result, i++, getUnusedVariableWarning("arr"), 152, 5);
-        validateWarning(result, i++, getUnusedVariableWarning("o"), 157, 5);
         validateWarning(result, i++, getUnusedVariableWarning("i"), 163, 5);
         validateWarning(result, i++, getUnusedVariableWarning("a"), 171, 5);
         validateWarning(result, i++, getUnusedVariableWarning("i"), 183, 13);
@@ -100,7 +96,6 @@ public class UnusedVariableTest {
         validateWarning(result, i++, getUnusedVariableWarning("d"), 293, 9);
         validateWarning(result, i++, getUnusedVariableWarning("m"), 295, 9);
         validateWarning(result, i++, getUnusedVariableWarning("i"), 302, 9);
-        validateWarning(result, i++, getUnusedVariableWarning("a"), 306, 9);
         validateWarning(result, i++, getUnusedVariableWarning("j"), 312, 9);
         validateWarning(result, i++, getUnusedVariableWarning("j"), 321, 9);
         validateWarning(result, i++, getUnusedVariableWarning("x"), 332, 9);
@@ -109,6 +104,8 @@ public class UnusedVariableTest {
         validateWarning(result, i++, getUnusedVariableWarning("s"), 351, 5);
         validateWarning(result, i++, getUnusedVariableWarning("m"), 359, 5);
         validateWarning(result, i++, getUnusedVariableWarning("n"), 365, 5);
+        validateWarning(result, i++, getUnusedVariableWarning("h"), 385, 5);
+        validateWarning(result, i++, getUnusedVariableWarning("i"), 388, 5);
         Assert.assertEquals(result.getWarnCount(), i);
         Assert.assertEquals(result.getErrorCount(), 0);
     }

@@ -26,7 +26,7 @@ function f1() {
 function f2() {
     int l; // used `l`
     l = 0;
-    int[] arr = []; // unused `arr`
+    int[] arr = []; // used `arr`
     arr[l] = 1;
 
     int m = 0; // used `m`
@@ -34,7 +34,7 @@ function f2() {
 
     string n = "x"; // used `n`
 
-    record {int x;} o = {x: 12}; // unused `o`
+    record {int x;} o = {x: 12}; // used `o`
     o.x = 1;
     o[n] = 1;
 
@@ -149,12 +149,12 @@ function f9(int a, int b = 1, int... c) { // OK, warning only for local variable
 
 function f10() {
     var l = 0; // used `l`
-    var arr = <int[]> []; // unused `arr`
+    var arr = <int[]> []; // used `arr`
     arr[l] = 1;
 
     var n = "x"; // used `n`
 
-    var o = <record {int x;}> {x: 12}; // unused `o`
+    var o = <record {int x;}> {x: 12}; // used `o`
     o.x = 1;
     o[n] = 1;
 
@@ -371,4 +371,23 @@ function f17() {
     }
 
     int[] _ = from int l in 0 ... 8 select l; // OK to not use `l`, `l` is used anyway.
+}
+
+type Bar record { int i?; };
+
+function f18(Foo foo) {
+    Bar f = {i: 1}; // used
+    f.i = 2;
+
+    int[] g = [];  // used
+    g[0] = 1;
+
+    int h = 1; // unused
+    h = 2;
+
+    int[] i; // unused
+    i = [];
+
+    string[] j = foo.j; // used
+    j[0] = "str";
 }
