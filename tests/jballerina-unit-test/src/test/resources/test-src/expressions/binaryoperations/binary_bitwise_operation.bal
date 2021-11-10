@@ -145,6 +145,22 @@ function testBitwiseOROperation() {
 
     int:Unsigned16|int a13 = c | e;
     assertEqual(a13, 15);
+
+    int:Unsigned8 h = 255;
+    int g = a | f;
+    int i = a | e;
+    int j = a | h;
+    int:Unsigned8 k = a | f;
+    int:Unsigned8 l = a | e;
+    int:Unsigned8 m = a | h;
+
+    assertEqual(h, 15);
+    assertEqual(g, 15);
+    assertEqual(i, 15);
+    assertEqual(j, 15);
+    assertEqual(k, 15);
+    assertEqual(l, 15);
+    assertEqual(m, 15);
 }
 
 function testBitwiseXOROperation() {

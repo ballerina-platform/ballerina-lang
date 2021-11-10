@@ -93,5 +93,12 @@ public class BinaryBitwiseOperationTest {
                 55, 15);
         BAssertUtil.validateError(negativeResult, index, "operator '^' not defined for 'int' and 'float'",
                 57, 15);
+
+        BAssertUtil.validateError(negativeResult, index, "",
+                64, 15);
+        BAssertUtil.validateError(negativeResult, index, "",
+                65, 15);
+        BAssertUtil.validateError(negativeResult, index, "",
+                66, 15);
     }
 }

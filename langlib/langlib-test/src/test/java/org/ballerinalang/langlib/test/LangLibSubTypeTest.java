@@ -81,6 +81,7 @@ public class LangLibSubTypeTest {
         BRunUtil.invoke(compileResult, "testBitwiseXor");
         BRunUtil.invoke(compileResult, "testFiniteTypeAsIntSubType");
         BRunUtil.invoke(compileResult, "testLanglibFunctionsForUnionIntSubtypes");
+        BRunUtil.invoke(compileResult, "assignmentToIntUnsignedAndSignedUnionTest");
     }
 
     @Test
@@ -261,8 +262,18 @@ public class LangLibSubTypeTest {
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', found '1|2|3|R'", 343, 25);
         BAssertUtil.validateError(result, err++, "undefined function 'toHexString' in type '1|2|3|R'", 344, 17);
 
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned16', found 'int'", 348, 17);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned16', found 'int'", 349, 17);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned8', found 'int'", 350, 17);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned8', found 'int'", 351, 17);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned16', found 'int'", 352, 17);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned16', found 'int'", 353, 17);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned8', found 'int'", 354, 17);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned8', found 'int'", 355, 17);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned8', found 'int'", 356, 17);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned16', found 'int'", 357, 17);
+        BAssertUtil.validateError(result, err++, "Integer '-9223372036854775808' too small", 358, 17);
         Assert.assertEquals(result.getErrorCount(), err);
-
     }
 
     @Test

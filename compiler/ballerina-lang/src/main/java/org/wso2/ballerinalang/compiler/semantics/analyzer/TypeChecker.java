@@ -555,7 +555,6 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                     return compatibleIntSubType;
                 }
-
                 BType finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.intType);
                 if (finiteType != symTable.semanticError) {
                     BType setType = setLiteralValueAndGetType(literalExpr, finiteType);
