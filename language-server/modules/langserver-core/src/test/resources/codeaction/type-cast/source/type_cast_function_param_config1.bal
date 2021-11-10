@@ -1,5 +1,6 @@
 public function main() {
-    testFunction("sample");
+    int | string val = 10;
+    testFunction(val);
 }
 
 
