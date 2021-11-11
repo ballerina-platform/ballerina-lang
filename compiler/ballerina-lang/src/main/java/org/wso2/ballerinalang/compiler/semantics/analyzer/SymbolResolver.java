@@ -417,13 +417,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
     }
 
-    BSymbol createUnaryOperator(OperatorKind kind,
-                                     BType type,
-                                     BType retType) {
+    BSymbol createUnaryOperator(OperatorKind kind, BType type, BType retType) {
         List<BType> paramTypes = Lists.of(type);
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        return new BOperatorSymbol(names.fromString(kind.value()), null, opType, null, symTable.builtinPos,
-                VIRTUAL);
+        return new BOperatorSymbol(names.fromString(kind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
     }
 
     public BSymbol resolvePkgSymbol(Location pos, SymbolEnv env, Name pkgAlias) {
@@ -1898,26 +1895,23 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public BSymbol getUnaryArithmeticOpsForTypeSets(OperatorKind opKind, BType type) {
-        boolean validIntTypesExists;
+        boolean validNumericTypeExists;
         switch (opKind) {
             case ADD:
             case SUB:
-                validIntTypesExists = types.validNumericTypeExists(type);
+                validNumericTypeExists = types.validNumericTypeExists(type);
                 break;
             default:
                 return symTable.notFoundSymbol;
         }
-        if (validIntTypesExists) {
-            BType compatibleType;
-            if (type.isNullable()) {
-                compatibleType = types.findCompatibleType(types.getSafeType(type, true, false));
-                compatibleType = BUnionType.create(null, compatibleType, symTable.nilType);
-            } else {
-                compatibleType = types.findCompatibleType(type);
-            }
-            return createUnaryOperator(opKind, type, compatibleType);
+        if (!validNumericTypeExists) {
+            return symTable.notFoundSymbol;
         }
-        return symTable.notFoundSymbol;
+        if (type.isNullable()) {
+            BType compatibleType = types.findCompatibleType(types.getSafeType(type, true, false));
+            return createUnaryOperator(opKind, type, BUnionType.create(null, compatibleType, symTable.nilType));
+        }
+        return createUnaryOperator(opKind, type, types.findCompatibleType(type));
     }
 
     public BSymbol getBinaryBitwiseOpsForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType) {

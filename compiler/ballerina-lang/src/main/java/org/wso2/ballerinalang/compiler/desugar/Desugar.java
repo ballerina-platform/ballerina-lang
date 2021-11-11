@@ -7146,8 +7146,8 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        boolean isArithmeticOperation = symResolver.isArithmeticOperator(unaryExpr.operator);
-        if (isArithmeticOperation) {
+        OperatorKind opKind = unaryExpr.operator;
+        if (opKind == OperatorKind.ADD || opKind == OperatorKind.SUB) {
             createTypeCastExprForUnaryPlusAndMinus(unaryExpr);
         }
 
@@ -7156,10 +7156,12 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void createTypeCastExprForUnaryPlusAndMinus(BLangUnaryExpr unaryExpr) {
-        if ((TypeTags.isIntegerTypeTag(unaryExpr.expr.getBType().tag))) {
+        BLangExpression expr = unaryExpr.expr;
+        BType type = expr.getBType();
+        if (TypeTags.isIntegerTypeTag(type.tag)) {
             return;
         }
-        unaryExpr.expr = createTypeCastExpr(unaryExpr.expr, unaryExpr.getBType());
+        unaryExpr.expr = createTypeCastExpr(expr, type);
     }
 
     /**
