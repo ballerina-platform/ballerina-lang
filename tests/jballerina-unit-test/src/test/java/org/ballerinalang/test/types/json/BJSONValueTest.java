@@ -518,8 +518,8 @@ public class BJSONValueTest {
     }
 
     @Test
-    public void testJsonMapAccessNegative() {
-        BRunUtil.invoke(compileResult, "testJsonMapAccessNegative");
+    public void testJsonMapAccess() {
+        BRunUtil.invoke(compileResult, "testJsonMapAccess");
     }
 
     @Test
