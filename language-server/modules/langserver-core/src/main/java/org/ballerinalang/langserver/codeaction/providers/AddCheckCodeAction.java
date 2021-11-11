@@ -30,7 +30,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
-import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticPropertyKey;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -39,6 +38,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Code Action for error type handle.
@@ -49,6 +49,7 @@ import java.util.Optional;
 public class AddCheckCodeAction extends TypeCastCodeAction {
 
     public static final String NAME = "Add Check";
+    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
 
     public AddCheckCodeAction() {
         super();
@@ -59,7 +60,7 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
+        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
             return Collections.emptyList();
         }
 
@@ -67,8 +68,8 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
         if (matchedNode == null) {
             return Collections.emptyList();
         }
-        
-        Optional<TypeSymbol> foundType = positionDetails.diagnosticProperty(diagnostic.diagnosticInfo().code(),
+
+        Optional<TypeSymbol> foundType = diagnosticProperty(diagnostic.diagnosticInfo().code(), positionDetails,
                 DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND);
         if (foundType.isEmpty()) {
             return Collections.emptyList();

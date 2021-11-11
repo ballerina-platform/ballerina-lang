@@ -37,7 +37,6 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
-import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticPropertyKey;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -46,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Code Action for change parameter type.
@@ -56,6 +56,7 @@ import java.util.Optional;
 public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "Change Parameter Type";
+    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
 
     /**
      * {@inheritDoc}
@@ -64,7 +65,7 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
+        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
             return Collections.emptyList();
         }
 
@@ -73,8 +74,8 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
         if (localVarNode == null) {
             return Collections.emptyList();
         }
-        
-        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(diagnostic.diagnosticInfo().code(),
+
+        Optional<TypeSymbol> typeSymbol = diagnosticProperty(diagnostic.diagnosticInfo().code(), positionDetails,
                 DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED);
         if (typeSymbol.isEmpty()) {
             return Collections.emptyList();

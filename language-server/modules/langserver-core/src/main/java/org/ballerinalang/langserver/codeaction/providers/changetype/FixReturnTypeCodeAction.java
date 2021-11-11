@@ -31,7 +31,6 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
-import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticPropertyKey;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -41,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Code Action for incompatible return types.
@@ -51,6 +51,7 @@ import java.util.Optional;
 public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "Fix Return Type";
+    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
 
     /**
      * {@inheritDoc}
@@ -59,7 +60,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
+        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
             return Collections.emptyList();
         }
 
@@ -67,8 +68,8 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
         if (returnStatementNode == null) {
             return Collections.emptyList();
         }
-        
-        Optional<TypeSymbol> foundTypeSymbol = positionDetails.diagnosticProperty(diagnostic.diagnosticInfo().code(),
+
+        Optional<TypeSymbol> foundTypeSymbol = diagnosticProperty(diagnostic.diagnosticInfo().code(), positionDetails,
                 DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND);
         if (foundTypeSymbol.isEmpty()) {
             return Collections.emptyList();

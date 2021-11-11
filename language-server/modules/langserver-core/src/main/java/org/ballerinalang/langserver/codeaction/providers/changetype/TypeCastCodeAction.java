@@ -39,7 +39,6 @@ import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
-import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticPropertyKey;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -50,6 +49,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Code Action for incompatible types.
@@ -60,6 +60,7 @@ import java.util.Optional;
 public class TypeCastCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "Type Cast";
+    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
 
     /**
      * {@inheritDoc}
@@ -68,7 +69,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
+        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
             return Collections.emptyList();
         }
         Node matchedNode = getMatchedNode(positionDetails.matchedNode());
@@ -77,16 +78,16 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         }
 
         String code = diagnostic.diagnosticInfo().code();
-        Optional<TypeSymbol> lhsTypeSymbol = positionDetails.diagnosticProperty(code,
+        Optional<TypeSymbol> lhsTypeSymbol = diagnosticProperty(code, positionDetails,
                 DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED);
-        Optional<TypeSymbol> rhsTypeSymbol = positionDetails.diagnosticProperty(code,
+        Optional<TypeSymbol> rhsTypeSymbol = diagnosticProperty(code, positionDetails,
                 DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND);
 
         if (lhsTypeSymbol.isEmpty() || rhsTypeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
 
-        if (rhsTypeSymbol.isPresent() && rhsTypeSymbol.get().typeKind() == TypeDescKind.UNION) {
+        if (rhsTypeSymbol.get().typeKind() == TypeDescKind.UNION) {
             // If RHS is a union and has error member type; skip code-action
             if (CodeActionUtil.hasErrorMemberType((UnionTypeSymbol) rhsTypeSymbol.get())) {
                 return Collections.emptyList();
@@ -122,7 +123,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
     protected NonTerminalNode getMatchedNode(NonTerminalNode node) {
         List<SyntaxKind> syntaxKinds =
                 Arrays.asList(SyntaxKind.LOCAL_VAR_DECL, SyntaxKind.MODULE_VAR_DECL, SyntaxKind.ASSIGNMENT_STATEMENT,
-                        SyntaxKind.POSITIONAL_ARG, SyntaxKind.NAMED_ARG);
+                        SyntaxKind.POSITIONAL_ARG, SyntaxKind.NAMED_ARG, SyntaxKind.SPREAD_FIELD);
         while (node != null && !syntaxKinds.contains(node.kind())) {
             node = node.parent();
         }

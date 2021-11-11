@@ -26,9 +26,7 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public interface DiagBasedPositionDetails {
-    @Deprecated
     int DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED_SYMBOL_INDEX = 0;
-    @Deprecated
     int DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX = 1;
     int DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX = 0;
 
@@ -53,14 +51,4 @@ public interface DiagBasedPositionDetails {
      * @return Value of the property at given index
      */
     <T> Optional<T> diagnosticProperty(int propertyIndex);
-
-    /**
-     * Returns optional value of the diagnostic property.
-     * 
-     * @param diagnosticCode Diagnostic code.
-     * @param propertyName Name of the property.
-     * @return Value of the property.
-     */
-    <T> Optional<T> diagnosticProperty(String diagnosticCode, DiagnosticPropertyKey propertyName);
-
 }
