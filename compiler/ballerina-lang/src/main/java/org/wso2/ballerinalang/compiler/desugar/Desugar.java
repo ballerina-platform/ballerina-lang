@@ -7157,11 +7157,10 @@ public class Desugar extends BLangNodeVisitor {
 
     private void createTypeCastExprForUnaryPlusAndMinus(BLangUnaryExpr unaryExpr) {
         BLangExpression expr = unaryExpr.expr;
-        BType type = expr.getBType();
-        if (TypeTags.isIntegerTypeTag(type.tag)) {
+        if (TypeTags.isIntegerTypeTag(expr.getBType().tag)) {
             return;
         }
-        unaryExpr.expr = createTypeCastExpr(expr, type);
+        unaryExpr.expr = createTypeCastExpr(expr, unaryExpr.getBType());
     }
 
     /**
