@@ -200,6 +200,11 @@ public class ElvisExpressionTest {
         BRunUtil.invoke(compileResult, "testElvisAsArgumentPositive");
     }
 
+    @Test(description = "Test Elvis as a configurable variable.")
+    public void testElvisWithConfigurableVar() {
+        BRunUtil.invoke(compileResult, "testElvisWithConfigurableVar");
+    }
+
     @Test(description = "Negative test cases.")
     public void testElvisOperatorNegative() {
         Assert.assertEquals(negativeResult.getErrorCount(), 5);
