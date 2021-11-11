@@ -55,12 +55,12 @@ public interface DiagBasedPositionDetails {
     <T> Optional<T> diagnosticProperty(int propertyIndex);
 
     /**
-     * Returns property index given the code.
+     * Returns optional value of the diagnostic property.
      * 
      * @param diagnosticCode Diagnostic code.
      * @param propertyName Name of the property.
      * @return
      */
-    Optional<Integer> getPropertyIndex(String diagnosticCode, DiagnosticPropertyKey propertyName);
+    <T> Optional<T> diagnosticProperty(String diagnosticCode, DiagnosticPropertyKey propertyName);
 
 }

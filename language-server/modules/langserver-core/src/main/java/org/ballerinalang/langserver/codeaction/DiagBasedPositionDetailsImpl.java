@@ -85,7 +85,15 @@ public class DiagBasedPositionDetailsImpl implements DiagBasedPositionDetails {
      * {@inheritDoc}
      */
     @Override
-    public Optional<Integer> getPropertyIndex(String diagnosticCode, DiagnosticPropertyKey propertyName) {
+    public <T> Optional<T> diagnosticProperty(String diagnosticCode, DiagnosticPropertyKey propertyName) {
+        Optional<Integer> index = getPropertyIndex(diagnosticCode, propertyName);
+        if (index.isEmpty()) {
+            return Optional.empty();
+        }
+        return diagnosticProperty(index.get());
+    }
+
+    private Optional<Integer> getPropertyIndex(String diagnosticCode, DiagnosticPropertyKey propertyName) {
         switch (propertyName) {
             case DIAG_PROP_INCOMPATIBLE_TYPES_FOUND:
                 if ("BCE2066".equals(diagnosticCode)) {

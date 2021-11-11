@@ -77,19 +77,10 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         }
 
         String code = diagnostic.diagnosticInfo().code();
-        Optional<Integer> expectedPropertyIndex =
-                positionDetails.getPropertyIndex(code,
-                        DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED);
-        Optional<Integer> foundPropertyIndex =
-                positionDetails.getPropertyIndex(code,
-                        DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND);
-
-        if (expectedPropertyIndex.isEmpty() || foundPropertyIndex.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        Optional<TypeSymbol> lhsTypeSymbol = positionDetails.diagnosticProperty(expectedPropertyIndex.get());
-        Optional<TypeSymbol> rhsTypeSymbol = positionDetails.diagnosticProperty(foundPropertyIndex.get());
+        Optional<TypeSymbol> lhsTypeSymbol = positionDetails.diagnosticProperty(code,
+                DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED);
+        Optional<TypeSymbol> rhsTypeSymbol = positionDetails.diagnosticProperty(code,
+                DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND);
 
         if (lhsTypeSymbol.isEmpty() || rhsTypeSymbol.isEmpty()) {
             return Collections.emptyList();

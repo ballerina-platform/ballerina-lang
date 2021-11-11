@@ -73,15 +73,9 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
         if (localVarNode == null) {
             return Collections.emptyList();
         }
-
-        Optional<Integer> propertyIndex =
-                positionDetails.getPropertyIndex(diagnostic.diagnosticInfo().code(),
-                        DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED);
-        if (propertyIndex.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(propertyIndex.get());
+        
+        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(diagnostic.diagnosticInfo().code(),
+                DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED);
         if (typeSymbol.isEmpty()) {
             return Collections.emptyList();
         }

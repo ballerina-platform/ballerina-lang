@@ -65,14 +65,9 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
         if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
             return Collections.emptyList();
         }
-
-        Optional<Integer> propertyIndex =
-                positionDetails.getPropertyIndex(diagnostic.diagnosticInfo().code(),
-                        DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND);
-        if (propertyIndex.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(propertyIndex.get());
+        
+        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(diagnostic.diagnosticInfo().code(),
+                DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND);
         if (typeSymbol.isEmpty()) {
             return Collections.emptyList();
         }

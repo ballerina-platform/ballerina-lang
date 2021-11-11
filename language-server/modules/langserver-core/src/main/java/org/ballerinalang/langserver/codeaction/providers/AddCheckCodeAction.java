@@ -67,15 +67,9 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
         if (matchedNode == null) {
             return Collections.emptyList();
         }
-
-        Optional<Integer> propertyIndex =
-                positionDetails.getPropertyIndex(diagnostic.diagnosticInfo().code(),
-                        DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND);
-        if (propertyIndex.isEmpty()) {
-            return Collections.emptyList();
-        }
         
-        Optional<TypeSymbol> foundType = positionDetails.diagnosticProperty(propertyIndex.get());
+        Optional<TypeSymbol> foundType = positionDetails.diagnosticProperty(diagnostic.diagnosticInfo().code(),
+                DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND);
         if (foundType.isEmpty()) {
             return Collections.emptyList();
         }

@@ -67,15 +67,9 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
         if (returnStatementNode == null) {
             return Collections.emptyList();
         }
-
-        Optional<Integer> propertyIndex =
-                positionDetails.getPropertyIndex(diagnostic.diagnosticInfo().code(),
-                        DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND);
-        if (propertyIndex.isEmpty()) {
-            return Collections.emptyList();
-        }
         
-        Optional<TypeSymbol> foundTypeSymbol = positionDetails.diagnosticProperty(propertyIndex.get());
+        Optional<TypeSymbol> foundTypeSymbol = positionDetails.diagnosticProperty(diagnostic.diagnosticInfo().code(),
+                DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND);
         if (foundTypeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
