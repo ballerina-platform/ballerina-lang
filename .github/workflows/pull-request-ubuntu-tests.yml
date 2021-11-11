@@ -39,4 +39,4 @@ jobs:
 
             -   name: Run Unit Tests
                 run: |
-                    ./gradlew build -x :jballerina-integration-test:test -x :testerina-integration-test:test -x :ballerina-mysql:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+                    ./gradlew build -x :plugin-vscode:npmBuild -x :jballerina-integration-test:test -x :testerina-integration-test:test -x :ballerina-mysql:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
