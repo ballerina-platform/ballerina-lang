@@ -111,11 +111,12 @@ public class TableNegativeTest {
                 "is not found in table constraint type 'CustomerDetail'", 236, 35);
         validateError(compileResult, index++, "value expression of key specifier 'id' must be " +
                 "a constant expression", 243, 9);
-        validateError(compileResult, index++, "incompatible types: expected " +
-                "'table<record {| string name?; |}>', found 'table<record {| string name?; (int|boolean)...; |}>'", 260, 41);
+        validateError(compileResult, index++, "incompatible types: expected 'table<record {| string name?; |}>',"
+                + " found 'table<record {| string name?; (int|boolean)...; |}>'", 260, 41);
         validateError(compileResult, index++, "incompatible types: expected 'table<record {| string name?; |}>'," +
                 " found 'table<record {| string name?; int...; |}>'", 269, 41);
-        validateError(compileResult, index++, "incompatible types: expected 'table<record {| (string|int) name?; |}>'," +
-                " found 'table<record {| string name?; int...; |}>'", 270, 45);
+        validateError(compileResult, index++, "incompatible types: expected " +
+                        "'table<record {| (string|int) name?; |}>', found 'table<record {| string name?; int...; |}>'",
+                270, 45);
     }
 }
