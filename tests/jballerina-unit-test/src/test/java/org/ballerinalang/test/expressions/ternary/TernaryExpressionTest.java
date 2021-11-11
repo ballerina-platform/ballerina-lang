@@ -366,6 +366,11 @@ public class TernaryExpressionTest {
     }
 
     @Test
+    public void testTernaryWithConfigurableVar() {
+        BRunUtil.invoke(compileResult, "testTernaryWithConfigurableVar");
+    }
+
+    @Test
     public void testTernaryWithLangValueMethodCallsModuleLevel() {
         BRunUtil.invoke(compileResult, "testTernaryWithLangValueMethodCallsModuleLevel");
     }

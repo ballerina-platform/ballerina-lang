@@ -273,3 +273,51 @@ function testTypeNarrowingWithIfWithoutElseNotCompletedNormally11() {
     b = 10;
     10 d = b;
 }
+
+function testTypeNarrowingWithWhileNotCompletedNormally() {
+    int? a = 10;
+    if a is int {
+        while true {
+            if a == 10 {
+                return;
+            }
+        }
+    }
+    int _ = a;
+}
+
+function testTypeNarrowingWithWhileNotCompletedNormally2() {
+    int? a = 10;
+    if a is int {
+        while true {
+            return;
+        }
+    }
+    int _ = a;
+}
+
+function testTypeNarrowingWithWhileCompletedNormally() {
+    int? a = 10;
+    if a is int {
+        while true {
+            if a == 10 {
+                break;
+            }
+        }
+    }
+    () b = a;
+}
+
+function testTypeNarrowingWithWhileCompletedNormally2() returns int? {
+    int? a = 10;
+    if a is int {
+        int b = 1;
+        while b < 5 {
+            if a == 10 {
+                return;
+            }
+            b += 1;
+        }
+    }
+    () b = a;
+}

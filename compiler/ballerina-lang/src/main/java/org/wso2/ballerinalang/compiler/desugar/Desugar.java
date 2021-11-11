@@ -880,7 +880,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangStatementExpression stmtExpr = createStatementExpression(ifElse, resultVarRef);
         stmtExpr.setBType(configurableVar.getBType());
 
-        return rewriteExpr(stmtExpr);
+        //not rewriting the statement expression here, so that it will be desugared while visiting the init function
+        return stmtExpr;
     }
 
     private List<BLangExpression> getConfigurableLangLibInvocationParam(BLangSimpleVariable configurableVar) {

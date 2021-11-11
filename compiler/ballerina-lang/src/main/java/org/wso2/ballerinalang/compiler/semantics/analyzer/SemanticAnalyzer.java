@@ -298,6 +298,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
+        this.prevEnvs.clear();
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         pkgNode.accept(this);
         return pkgNode;
@@ -3532,10 +3533,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         boolean prevBreakFound = this.breakFound;
         SymbolEnv whileEnv = typeNarrower.evaluateTruth(whileNode.expr, whileNode.body, env);
         analyzeStmt(whileNode.body, whileEnv);
-        if (ConditionResolver.checkConstCondition(types, symTable, whileNode.expr) != symTable.trueType
-                || this.breakFound) {
-            this.notCompletedNormally = false;
-        }
+        this.notCompletedNormally =
+                ConditionResolver.checkConstCondition(types, symTable, whileNode.expr) == symTable.trueType
+                        && !this.breakFound;
         this.breakFound = prevBreakFound;
     }
 
@@ -3881,11 +3881,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         if (nodeKind == NodeKind.BLOCK || nodeKind == NodeKind.BLOCK_FUNCTION_BODY) {
             // If types have been narrowed following `if` statement without an `else`, prevEnvs would still
-            // have the block's env as its immediate prevEnv. It should be removed once analysis of the block
-            // is completed.
-            if (this.prevEnvs.peek() != null && this.prevEnvs.peek().node == node) {
-                this.prevEnvs.pop();
-            }
+            // have the block's env as its prevEnvs. It and any other unnecessary envs should be removed once
+            // analysis of the block is completed.
+            cleanUnnecessaryEnvs(node);
             return;
         }
         BLangIf ifNode = (BLangIf) node;
@@ -3901,6 +3899,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
             this.notCompletedNormally =
                     ConditionResolver.checkConstCondition(types, symTable, expr) == symTable.trueType;
+        }
+    }
+
+    private void cleanUnnecessaryEnvs(BLangNode node) {
+        int prevEnvCount = this.prevEnvs.size();
+        for (int j = prevEnvCount - 1; j > 0; j--) {
+            SymbolEnv env = this.prevEnvs.get(j);
+            if (env == null) {
+                return;
+            }
+            if (env.node == node) {
+                for (int i = j; i < prevEnvCount; i++) {
+                    this.prevEnvs.pop();
+                }
+                return;
+            }
         }
     }
 

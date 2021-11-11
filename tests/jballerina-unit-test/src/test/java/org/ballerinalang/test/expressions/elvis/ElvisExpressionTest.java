@@ -200,6 +200,11 @@ public class ElvisExpressionTest {
         BRunUtil.invoke(compileResult, "testElvisAsArgumentPositive");
     }
 
+    @Test(description = "Test Elvis as a configurable variable.")
+    public void testElvisWithConfigurableVar() {
+        BRunUtil.invoke(compileResult, "testElvisWithConfigurableVar");
+    }
+
     @Test(description = "Test Elvis with lang:value method calls in module level.")
     public void testElvisWithLangValueMethodCallsModuleLevel() {
         BRunUtil.invoke(compileResult, "testElvisWithLangValueMethodCallsModuleLevel");
