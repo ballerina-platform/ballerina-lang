@@ -8002,7 +8002,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangTypeTestExpr typeTestExpr) {
         BLangExpression expr = typeTestExpr.expr;
         if (types.isValueType(expr.getBType())) {
-            addConversionExprIfRequired(expr, symTable.anyType);
+            expr = addConversionExprIfRequired(expr, symTable.anyType);
         }
         if (typeTestExpr.isNegation) {
             BLangTypeTestExpr bLangTypeTestExpr = ASTBuilderUtil.createTypeTestExpr(typeTestExpr.pos,
