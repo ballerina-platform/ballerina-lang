@@ -1044,8 +1044,17 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangTableKeySpecifier keySpecifier = tableConstructorExpr.tableKeySpecifier;
         List<String> keySpecifierFieldNames = new ArrayList<>();
         Set<BField> allFieldSet = new LinkedHashSet<>();
+        List<BType> restFieldTypes = new ArrayList<>();
+
         for (BType memType : memTypes) {
-            allFieldSet.addAll(((BRecordType) memType).fields.values());
+            BRecordType member = (BRecordType) memType;
+            allFieldSet.addAll(member.fields.values());
+            if (!member.sealed) {
+                BType restFieldType = member.restFieldType;
+                if (isUniqueType(restFieldTypes, restFieldType)) {
+                    restFieldTypes.add(restFieldType);
+                }
+            }
         }
 
         Set<BField> commonFieldSet = new LinkedHashSet<>(allFieldSet);
@@ -1090,10 +1099,11 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        return createTableConstraintRecordType(allFieldSet, tableConstructorExpr.pos);
+        return createTableConstraintRecordType(allFieldSet, restFieldTypes, tableConstructorExpr.pos);
     }
 
-    private BRecordType createTableConstraintRecordType(Set<BField> allFieldSet, Location pos) {
+    private BRecordType createTableConstraintRecordType(Set<BField> allFieldSet, List<BType> restFieldTypes,
+                                                        Location pos) {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(pkgID, pos, VIRTUAL);
 
@@ -1112,8 +1122,15 @@ public class TypeChecker extends BLangNodeVisitor {
         recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env,
                                                                                            names, symTable);
         TypeDefBuilderHelper.addTypeDefinition(recordType, recordSymbol, recordTypeNode, env);
-        recordType.sealed = true;
-        recordType.restFieldType = symTable.noType;
+
+        if (restFieldTypes.isEmpty()) {
+            recordType.sealed = true;
+            recordType.restFieldType = symTable.noType;
+        } else if (restFieldTypes.size() == 1) {
+            recordType.restFieldType = restFieldTypes.get(0);
+        } else {
+            recordType.restFieldType = BUnionType.create(null, restFieldTypes.toArray(new BType[0]));
+        }
         return recordType;
     }
 
