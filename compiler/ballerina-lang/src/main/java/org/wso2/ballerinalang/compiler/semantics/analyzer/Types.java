@@ -3709,13 +3709,22 @@ public class Types {
                             if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
                                 return false;
                             }
+                            continue;
                         }
-                        if (!checkValidNumericTypesInUnion(memType, firstTypeInUnion.tag)) {
+                        if (!checkValidNumericTypesInUnion(memType, baseExprType.tag)) {
                             return false;
                         }
                     }
                 } else {
                     for (BType memType : memberTypes) {
+                        if (memType.tag == TypeTags.FINITE) {
+                            Set<BLangExpression> valSpace = ((BFiniteType) memType).getValueSpace();
+                            BType baseExprType = valSpace.iterator().next().getBType();
+                            if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
+                                return false;
+                            }
+                            continue;
+                        }
                         if (!checkValidNumericTypesInUnion(memType, firstTypeInUnion.tag)) {
                             return false;
                         }
