@@ -732,7 +732,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         Location pos = matchClause.pos;
         for (BVarSymbol symbol : matchClause.declaredVars.values()) {
             if (!isWildCardBindingPattern(symbol)) {
-                unusedLocalVariables.put(symbol, pos);
+                this.unusedLocalVariables.put(symbol, pos);
             }
         }
         analyzeNode(matchClause.matchGuard, env);
