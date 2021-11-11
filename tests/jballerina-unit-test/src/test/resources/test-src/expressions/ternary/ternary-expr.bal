@@ -141,6 +141,19 @@ function testTernaryAsArgument() {
     assertEquals(a[1], 255);
 }
 
+boolean bool = true;
+configurable string CONFIGURABLE_1 = bool ? "val1" : "val2";
+configurable int CONFIGURABLE_2 = bool ? 1 : 0;
+configurable string CONFIGURABLE_3 = bool ? !bool ? "val1" : "val2" : "val3";
+configurable int|string CONFIGURABLE_4 = bool ? 1 : "invalid";
+
+function testTernaryWithConfigurableVar() {
+    assertEquals(CONFIGURABLE_1, "val1");
+    assertEquals(CONFIGURABLE_2, 1);
+    assertEquals(CONFIGURABLE_3, "val2");
+    assertEquals(CONFIGURABLE_4, 1);
+}
+
 type Point record {|
     int x;
     int y;

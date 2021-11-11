@@ -160,6 +160,24 @@ function testElvisAsArgumentPositive() {
     assertEquals(a[1], 0);
 }
 
+int? nilVal = ();
+string? stringOrNilVal = "dummyStr";
+int? intOrNilVal = 1;
+
+configurable string CONFIGURABLE_1 = stringOrNilVal ?: "val2";
+configurable int CONFIGURABLE_2 = intOrNilVal ?: -1;
+
+//enable after #33655 is fixed
+//configurable int|string CONFIGURABLE_3 = nilVal ?: stringOrNilVal ?: "val2";
+configurable int|string CONFIGURABLE_4 = stringOrNilVal ?: -1;
+
+function testElvisWithConfigurableVar() {
+    assertEquals(CONFIGURABLE_1, "dummyStr");
+    assertEquals(CONFIGURABLE_2, 1);
+    //assertEquals(CONFIGURABLE_3, "dummyStr");
+    assertEquals(CONFIGURABLE_4, "dummyStr");
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquals(anydata expected, anydata actual) {

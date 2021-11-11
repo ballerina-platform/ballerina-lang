@@ -365,6 +365,11 @@ public class TernaryExpressionTest {
         BRunUtil.invoke(compileResult, "testIfAndThenExprBeingFieldAccess");
     }
 
+    @Test
+    public void testTernaryWithConfigurableVar() {
+        BRunUtil.invoke(compileResult, "testTernaryWithConfigurableVar");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;
