@@ -3,34 +3,8 @@
     "line": 3,
     "character": 14
   },
-  "source": "field_access_expression_context/source/foreach_stmt_ctx_source19.bal",
+  "source": "field_access_expression_context/source/foreach_stmt_ctx_source23.bal",
   "items": [
-    {
-      "label": "foreach",
-      "kind": "Snippet",
-      "detail": "foreach var item in expr",
-      "documentation": {
-        "left": "foreach statement for iterable variable - numStream"
-      },
-      "sortText": "BR",
-      "insertText": "foreach int item in numStream {\n\t${1}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 3,
-              "character": 4
-            },
-            "end": {
-              "line": 3,
-              "character": 14
-            }
-          },
-          "newText": ""
-        }
-      ]
-    },
     {
       "label": "filter(function () func)",
       "kind": "Function",
@@ -119,6 +93,25 @@
       }
     },
     {
+      "label": "map(function () func)",
+      "kind": "Function",
+      "detail": "stream<any|error, error?>",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nApplies a function to each member of a stream and returns a stream of the results.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `stream<any|error, error?>`   \n- new stream containing result of applying function `func` to each member of parameter `stm` in order  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "map",
+      "insertText": "map(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "close()",
       "kind": "Function",
       "detail": "error??",
@@ -181,25 +174,6 @@
       "filterText": "toString",
       "insertText": "toString()",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "map(function () func)",
-      "kind": "Function",
-      "detail": "stream<any|error, error?>",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nApplies a function to each member of a stream and returns a stream of the results.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `stream<any|error, error?>`   \n- new stream containing result of applying function `func` to each member of parameter `stm` in order  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "map",
-      "insertText": "map(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     }
   ]
 }
