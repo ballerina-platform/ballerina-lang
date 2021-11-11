@@ -53,26 +53,35 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
+import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.FileChangeType;
 import org.eclipse.lsp4j.FileEvent;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 
 /**
  * Contains a set of utility methods to manage projects.
@@ -92,6 +101,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             new LanguageServerContext.Key<>();
     private final LSClientLogger clientLogger;
     private final LanguageServerContext serverContext;
+    private final Set<Path> openedDocuments = new HashSet<>();
 
     private BallerinaWorkspaceManager(LanguageServerContext serverContext) {
         serverContext.put(WORKSPACE_MANAGER_KEY, this);
@@ -293,6 +303,9 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      */
     @Override
     public void didOpen(Path filePath, DidOpenTextDocumentParams params) throws WorkspaceDocumentException {
+        // Add the document to the opened documents set and the entry will only be removed via didClose.
+        // Hence we assume the safe concurrent access for a given document path
+        this.openedDocuments.add(filePath);
         ProjectPair projectPair = createOrGetProjectPair(filePath, LSContextOperation.TXT_DID_OPEN.getName());
 
         Project project = projectPair.project();
@@ -414,6 +427,65 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
+    @Override
+    public List<Path> didChangeWatched(DidChangeWatchedFilesParams params) throws WorkspaceDocumentException {
+        if (!LSClientConfigHolder.getInstance(serverContext).getConfig().isEnableFileWatcher()) {
+            return Collections.emptyList();
+        }
+        List<FileEvent> changes = params.getChanges();
+        if (changes.size() == 1) {
+            FileEvent fileEvent = changes.get(0);
+            String uri = fileEvent.getUri();
+            Optional<Path> pathFromURI = CommonUtil.getPathFromURI(uri);
+            if (pathFromURI.isEmpty()) {
+                return Collections.emptyList();
+            }
+            Path filePath = pathFromURI.get();
+            if (!this.openedDocuments.contains(filePath) || fileEvent.getType() == FileChangeType.Deleted) {
+                // If already opened in the cache, this will be captured via the textDocument/didChange event
+                this.didChangeWatched(filePath, fileEvent);
+            }
+            return Collections.emptyList();
+        }
+
+        Set<Path> reloadableProjects = new HashSet<>();
+        for (FileEvent fileEvent : changes) {
+            String uri = fileEvent.getUri();
+            Optional<Path> pathFromURI = CommonUtil.getPathFromURI(uri);
+
+            if (pathFromURI.isEmpty()) {
+                return Collections.emptyList();
+            }
+            Path filePath = pathFromURI.get();
+
+            try {
+                reloadableProjects.add(ProjectPaths.packageRoot(filePath));
+            } catch (ProjectException e) {
+                // ignore the project exception which can be thrown when path identification is failed
+            }
+        }
+
+        reloadableProjects.forEach(path -> {
+            Optional<ProjectPair> projectPair = this.projectPair(path);
+            if (projectPair.isEmpty()) {
+                return;
+            }
+            Lock lock = projectPair.get().lockAndGet();
+            try {
+                ProjectPair project = createProject(path, LSContextOperation.WS_WF_CHANGED.getName());
+                projectPair.get().setProject(project.project());
+            } catch (Throwable e) {
+                // Failed to reload the project
+                String message = "Failed to reload project: ["
+                        + projectPair.get().project().sourceRoot().toString() + "]";
+                clientLogger.logError(LSContextOperation.WS_WF_CHANGED, message, e, null, (Position) null);
+            } finally {
+                lock.unlock();
+            }
+        });
+        return new ArrayList<>(reloadableProjects);
+    }
+
     /**
      * Refresh the project corresponding to the provided file path. Can be used to reload dependencies and trigger
      * a recompile without document modifications. This is an internal API therefore, not available in the interface.
@@ -512,6 +584,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 reloadProject(projectPair, filePath, LSContextOperation.WS_WF_CHANGED.getName());
                 break;
             }
+            case Changed: {
+                if (!this.openedDocuments.contains(filePath)) {
+                    reloadProject(projectPair, filePath, LSContextOperation.WS_WF_CHANGED.getName());
+                }
+                break;
+            }
             case Deleted: {
                 Project project = projectPair.project();
                 if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
@@ -559,6 +637,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                     throw new WorkspaceDocumentException("Could not handle Ballerina.toml creation!", e);
                 }
                 break;
+            case Changed: {
+                if (!this.openedDocuments.contains(filePath)) {
+                    reloadProject(projectPair, filePath, LSContextOperation.WS_WF_CHANGED.getName());
+                }
+                break;
+            }
             case Deleted:
                 if (project.kind() == ProjectKind.BUILD_PROJECT) {
                     // This results down-grading a build-project into a single-file-project
@@ -597,6 +681,11 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                     throw new WorkspaceDocumentException("Could not handle Dependencies.toml creation!", e);
                 }
                 break;
+            case Changed:
+                if (!this.openedDocuments.contains(filePath)) {
+                    reloadProject(projectPair, filePath, LSContextOperation.WS_WF_CHANGED.getName());
+                }
+                break;
             case Deleted:
                 // When removing Dependencies.toml, we are just reloading the project due to api-limitations.
                 Lock lock = projectPair.lockAndGet();
@@ -627,6 +716,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                     throw new WorkspaceDocumentException("Could not handle Cloud.toml creation!", e);
                 }
                 break;
+            case Changed: {
+                if (!this.openedDocuments.contains(filePath)) {
+                    reloadProject(projectPair, filePath, LSContextOperation.WS_WF_CHANGED.getName());
+                }
+                break;
+            }
             case Deleted:
                 // When removing Cloud.toml, we are just reloading the project due to api-limitations.
                 Lock lock = projectPair.lockAndGet();
@@ -657,6 +752,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                     throw new WorkspaceDocumentException("Could not handle Compiler-plugin.toml creation!", e);
                 }
                 break;
+            case Changed: {
+                if (!this.openedDocuments.contains(filePath)) {
+                    reloadProject(projectPair, filePath, LSContextOperation.WS_WF_CHANGED.getName());
+                }
+                break;
+            }
             case Deleted:
                 // When removing Compiler-plugin.toml, we are just reloading the project due to api-limitations.
                 Lock lock = projectPair.lockAndGet();
@@ -876,10 +977,10 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      *
      * @param filePath {@link Path} of the document
      * @param params   {@link DidCloseTextDocumentParams}
-     * @throws WorkspaceDocumentException when project not found
      */
     @Override
-    public void didClose(Path filePath, DidCloseTextDocumentParams params) throws WorkspaceDocumentException {
+    public void didClose(Path filePath, DidCloseTextDocumentParams params) {
+        this.openedDocuments.remove(filePath);
         Optional<Project> project = project(filePath);
         if (project.isEmpty()) {
             return;
@@ -1097,5 +1198,28 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             // Clear dependent cache
             cache.clear();
         }
+    }
+
+    private Optional<Path> findProjectRoot(Path filePath) {
+        if (filePath != null) {
+            filePath = filePath.toAbsolutePath().normalize();
+            if (filePath.toFile().isDirectory()) {
+                if (hasBallerinaToml(filePath) || hasPackageJson(filePath)) {
+                    return Optional.of(filePath);
+                }
+            }
+            return findProjectRoot(filePath.getParent());
+        }
+        return Optional.empty();
+    }
+
+    private boolean hasBallerinaToml(Path filePath) {
+        Path absFilePath = filePath.toAbsolutePath().normalize();
+        return absFilePath.resolve(BALLERINA_TOML).toFile().exists();
+    }
+
+    private boolean hasPackageJson(Path filePath) {
+        Path absFilePath = filePath.toAbsolutePath().normalize();
+        return absFilePath.resolve(ProjectConstants.PACKAGE_JSON).toFile().exists();
     }
 }

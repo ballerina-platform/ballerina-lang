@@ -166,7 +166,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the absolute value of an int value.\n  \n**Params**  \n- `int` n: int value to be operated on  \n  \n**Return** `int`   \n- absolute value of parameter `n`  \n  \n"
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the absolute value of an int value.\n  \n**Params**  \n- `int` n: int value to be operated on  \n  \n**Return** `int`   \n- absolute value of parameter `n`  \n  \n"
         }
       },
       "sortText": "AA",
@@ -185,7 +185,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns sum of zero or more int values.\n  \n**Params**  \n- `int[]` ns: int values to sum  \n  \n**Return** `int`   \n- sum of all of parameter `ns`; 0 if parameter `ns` is empty  \n  \n"
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns sum of zero or more int values.\n  \n**Params**  \n- `int[]` ns: int values to sum  \n  \n**Return** `int`   \n- sum of all of parameter `ns`; 0 if parameter `ns` is empty  \n  \n"
         }
       },
       "sortText": "AA",
@@ -204,7 +204,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the maximum of one or more int values.\n  \n**Params**  \n- `int` n: first int value  \n- `int[]` ns: other int values  \n  \n**Return** `int`   \n- maximum value of value of parameter `x` and all of parameter `xs`  \n  \n"
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the maximum of one or more int values.\n  \n**Params**  \n- `int` n: first int value  \n- `int[]` ns: other int values  \n  \n**Return** `int`   \n- maximum value of value of parameter `x` and all of parameter `xs`  \n  \n"
         }
       },
       "sortText": "AA",
@@ -223,7 +223,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the minimum of one or more int values.\n  \n**Params**  \n- `int` n: first int value  \n- `int[]` ns: other int values  \n  \n**Return** `int`   \n- minimum value of parameter `n` and all of parameter `ns`  \n  \n"
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the minimum of one or more int values.\n  \n**Params**  \n- `int` n: first int value  \n- `int[]` ns: other int values  \n  \n**Return** `int`   \n- minimum value of parameter `n` and all of parameter `ns`  \n  \n"
         }
       },
       "sortText": "AA",
@@ -242,10 +242,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the integer of a string that represents in decimal.\n\nReturns error if parameter `s` is not the decimal representation of an integer.\nThe first character may be `+` or `-`.\nThis is the inverse of function `value:toString` applied to an `int`.\n  \n**Params**  \n- `string` s: string representation of a integer value  \n  \n**Return** `int|error`   \n- int representation of the argument or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the integer of a string that represents in decimal.\n\nReturns error if parameter `s` is not the decimal representation of an integer.\nThe first character may be `+` or `-`.\nThis is the inverse of function `value:toString` applied to an `int`.\n  \n**Params**  \n- `string` s: string representation of a integer value  \n  \n**Return** `int|error`   \n- int representation of the argument or error  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "E",
       "filterText": "fromString",
       "insertText": "fromString(${1})",
       "insertTextFormat": "Snippet",
@@ -261,10 +261,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns representation of an integer as hexdecimal string.\n\nThere is no `0x` prefix. Lowercase letters a-f are used.\nNegative numbers will have a `-` prefix. No sign for\nnon-negative numbers.\n  \n**Params**  \n- `int` n: int value  \n  \n**Return** `string`   \n- hexadecimal string representation of int value  \n  \n"
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns representation of an integer as hexdecimal string.\n\nThere is no `0x` prefix. Lowercase letters a-f are used.\nNegative numbers will have a `-` prefix. No sign for\nnon-negative numbers.\n  \n**Params**  \n- `int` n: int value  \n  \n**Return** `string`   \n- hexadecimal string representation of int value  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "E",
       "filterText": "toHexString",
       "insertText": "toHexString(${1})",
       "insertTextFormat": "Snippet",
@@ -280,10 +280,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the integer that a string value represents in hexadecimal.\n\nBoth uppercase A-F and lowercase a-f are allowed.\nIt may start with an optional `+` or `-` sign.\nNo `0x` or `0X` prefix is allowed.\nReturns an error if the parameter `s` is not in an allowed format.\n  \n**Params**  \n- `string` s: hexadecimal string representation of int value  \n  \n**Return** `int|error`   \n- int value or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the integer that a string value represents in hexadecimal.\n\nBoth uppercase A-F and lowercase a-f are allowed.\nIt may start with an optional `+` or `-` sign.\nNo `0x` or `0X` prefix is allowed.\nReturns an error if the parameter `s` is not in an allowed format.\n  \n**Params**  \n- `string` s: hexadecimal string representation of int value  \n  \n**Return** `int|error`   \n- int value or error  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "E",
       "filterText": "fromHexString",
       "insertText": "fromHexString(${1})",
       "insertTextFormat": "Snippet",

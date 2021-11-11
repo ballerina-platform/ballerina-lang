@@ -1,6 +1,6 @@
 {
-    "line": 34,
-    "character": 16,
+    "line": 69,
+    "character": 21,
     "expected": [
         {
             "title": "Add type cast to assignment",
@@ -8,28 +8,15 @@
                 {
                     "range": {
                         "start": {
-                            "line": 34,
-                            "character": 16
+                            "line": 69,
+                            "character": 19
                         },
                         "end": {
-                            "line": 34,
-                            "character": 16
+                            "line": 69,
+                            "character": 19
                         }
                     },
-                    "newText": "<int> ("
-                },
-                {
-                    "range": {
-                        "start": {
-                            "line": 34,
-                            "character": 31
-                        },
-                        "end": {
-                            "line": 34,
-                            "character": 31
-                        }
-                    },
-                    "newText": ")"
+                    "newText": "<int[]> "
                 }
             ]
         }
