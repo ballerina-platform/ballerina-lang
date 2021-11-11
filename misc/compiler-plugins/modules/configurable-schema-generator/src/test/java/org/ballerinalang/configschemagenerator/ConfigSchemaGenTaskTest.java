@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.configschemagenerator;
 
+import com.google.gson.JsonParser;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.TomlDocument;
@@ -76,8 +77,10 @@ public class ConfigSchemaGenTaskTest {
         Path expectedSchemaPath = projectPath.resolve("expected-schema.json");
         String errorMsg = "Test failed for project " + projectPath + "\nThe generated config-schema.json " +
                 "does not match the expected.";
-        Assert.assertEquals(readConfigJSONSchema(projectPath, isSingleFileProject),
-                readFileContent(expectedSchemaPath), errorMsg);
+        Assert.assertEquals(
+                JsonParser.parseString((readConfigJSONSchema(projectPath, isSingleFileProject))),
+                JsonParser.parseString(readFileContent(expectedSchemaPath)),
+                errorMsg);
     }
 
     @DataProvider(name = "project-data-provider")
