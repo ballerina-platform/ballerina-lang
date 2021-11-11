@@ -25,9 +25,15 @@ package io.ballerina.parsers;
 public class PartialSTRequest {
 
     private String codeSnippet;
+    private STModification stModification;
 
     public PartialSTRequest(String codeSnippet) {
         this.codeSnippet = codeSnippet;
+    }
+
+    public PartialSTRequest(String codeSnippet, STModification stModification) {
+        this.codeSnippet = codeSnippet;
+        this.stModification = stModification;
     }
 
     public String getCodeSnippet() {
@@ -36,5 +42,13 @@ public class PartialSTRequest {
 
     public void setCodeSnippet(String codeSnippet) {
         this.codeSnippet = codeSnippet;
+    }
+
+    public STModification getStModification() {
+        return stModification;
+    }
+
+    public void setStModification(STModification stModification) {
+        this.stModification = stModification;
     }
 }

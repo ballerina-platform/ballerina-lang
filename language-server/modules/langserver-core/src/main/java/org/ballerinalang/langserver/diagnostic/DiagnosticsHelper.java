@@ -21,6 +21,7 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.WorkspaceServiceContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Diagnostic;
@@ -81,20 +82,26 @@ public class DiagnosticsHelper {
      * @param context Document Service context.
      */
     public synchronized void schedulePublishDiagnostics(ExtendedLanguageClient client, DocumentServiceContext context) {
-        if (latestScheduled != null && !latestScheduled.isDone()) {
-            latestScheduled.completeExceptionally(new Throwable("Cancelled diagnostic publisher"));
-        }
+        WorkspaceManager workspaceManager = context.workspace();
+        Path projectRoot = workspaceManager.projectRoot(context.filePath());
+        compileAndSendDiagnostics(workspaceManager, projectRoot, client);
+    }
 
-        Executor delayedExecutor = CompletableFuture.delayedExecutor(DIAGNOSTIC_DELAY, TimeUnit.SECONDS);
-        CompletableFuture<Boolean> scheduledFuture = CompletableFuture.supplyAsync(() -> true, delayedExecutor);
-        latestScheduled = scheduledFuture;
-
-        scheduledFuture.thenApplyAsync((bool) -> {
-            WorkspaceManager workspace = context.workspace();
-            return workspace.waitAndGetPackageCompilation(context.filePath());
-        }).thenAccept(compilation -> {
-            compilation.ifPresent(packageCompilation -> compileAndSendDiagnostics(client, context, packageCompilation));
-        });
+    /**
+     * Schedule the diagnostics publishing for a project specified with the given project root.
+     * This particular diagnostics publishing API is used for publishing diagnostics through the workspace service.
+     * This is time consuming for the large projects and from the user experience point of
+     * view, we can publish the diagnostics after a delay. The default delay specified in {@link #DIAGNOSTIC_DELAY}
+     *
+     * @param client      Language client
+     * @param context     Workspace Service context
+     * @param projectRoot project root
+     */
+    public synchronized void schedulePublishDiagnostics(ExtendedLanguageClient client,
+                                                        WorkspaceServiceContext context,
+                                                        Path projectRoot) {
+        WorkspaceManager workspaceManager = context.workspace();
+        compileAndSendDiagnostics(workspaceManager, projectRoot, client);
     }
 
     /**
@@ -137,31 +144,22 @@ public class DiagnosticsHelper {
     }
 
     /**
-     * Compiles and publishes diagnostics for a source file.
+     * Compiles and publishes diagnostics for a project.
      *
-     * @param client  Language server client
-     * @param context LS context
+     * @param client      Language server client
+     * @param projectRoot project root
+     * @param compilation package compilation
      */
-    private synchronized void compileAndSendDiagnostics(ExtendedLanguageClient client, DocumentServiceContext context,
+    private synchronized void compileAndSendDiagnostics(ExtendedLanguageClient client, Path projectRoot,
                                                         PackageCompilation compilation) {
-        // Compile diagnostics
-        Optional<Project> project = context.workspace().project(context.filePath());
-        if (project.isEmpty()) {
-            return;
-        }
-        Path projectRoot = context.workspace().projectRoot(context.filePath());
-        if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            projectRoot = projectRoot.getParent();
-        }
         Map<String, List<Diagnostic>> diagnosticMap =
                 toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), projectRoot);
-
         // If the client is null, returns
         if (client == null) {
             return;
         }
         Map<String, List<Diagnostic>> lastProjectDiagnostics =
-                lastDiagnosticMap.getOrDefault(project.get().sourceRoot(), new HashMap<>());
+                lastDiagnosticMap.getOrDefault(projectRoot, new HashMap<>());
 
         // Clear old diagnostic entries of the project with an empty list
         lastProjectDiagnostics.forEach((key, value) -> {
@@ -174,7 +172,7 @@ public class DiagnosticsHelper {
         diagnosticMap.forEach((key, value) -> client.publishDiagnostics(new PublishDiagnosticsParams(key, value)));
 
         // Replace old diagnostic map associated with the project
-        lastDiagnosticMap.put(project.get().sourceRoot(), diagnosticMap);
+        lastDiagnosticMap.put(projectRoot, diagnosticMap);
     }
 
     public Map<String, List<Diagnostic>> getLatestDiagnostics(DocumentServiceContext context) {
@@ -231,10 +229,35 @@ public class DiagnosticsHelper {
                     break;
             }
 
-            String fileURI = projectRoot.resolve(lineRange.filePath()).toUri().toString();
+            /*
+            If the project root is a directory, that means it is a build project and in the other case, a single 
+            file project. So we only append the file URI for the build project case.
+             */
+            String fileURI = (projectRoot.toFile().isDirectory()
+                    ? projectRoot.resolve(lineRange.filePath())
+                    : projectRoot)
+                    .toUri().toString();
             List<Diagnostic> clientDiagnostics = diagnosticsMap.computeIfAbsent(fileURI, s -> new ArrayList<>());
             clientDiagnostics.add(diagnostic);
         }
         return diagnosticsMap;
+    }
+
+    private synchronized void compileAndSendDiagnostics(WorkspaceManager workspaceManager,
+                                                        Path projectRoot,
+                                                        ExtendedLanguageClient client) {
+        if (latestScheduled != null && !latestScheduled.isDone()) {
+            latestScheduled.completeExceptionally(new Throwable("Cancelled diagnostic publisher"));
+        }
+
+        Executor delayedExecutor = CompletableFuture.delayedExecutor(DIAGNOSTIC_DELAY, TimeUnit.SECONDS);
+        CompletableFuture<Boolean> scheduledFuture = CompletableFuture.supplyAsync(() -> true, delayedExecutor);
+        latestScheduled = scheduledFuture;
+
+        scheduledFuture
+                .thenApplyAsync((bool) -> workspaceManager.waitAndGetPackageCompilation(projectRoot))
+                .thenAccept(compilation ->
+                        compilation.ifPresent(pkgCompilation ->
+                                compileAndSendDiagnostics(client, projectRoot, pkgCompilation)));
     }
 }
