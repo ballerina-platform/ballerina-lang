@@ -34,7 +34,7 @@ public class FieldPair {
     Optional<Integer> index2;
 
 
-    public FieldPair(String name, SemType type1, SemType type2, Optional<Integer> index1, Optional<Integer> index2 ) {
+    public FieldPair(String name, SemType type1, SemType type2, Optional<Integer> index1, Optional<Integer> index2) {
         this.name = name;
         this.type1 = type1;
         this.type2 = type2;
