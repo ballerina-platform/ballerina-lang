@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  Represents path from root to leaf (ending with true)
+ *  Represents path from root to leaf (ending with true).
  *  bdd gets the Bdd for this path
  *
  * @since 3.0.0

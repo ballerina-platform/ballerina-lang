@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  Represents MappingAlternative record in core.bal
+ *  Represents MappingAlternative record in core.bal.
  *
  * @since 3.0.0
  */
