@@ -114,13 +114,12 @@ public abstract class MappingCommonOps extends CommonOps implements UniformTypeO
                 SemType d = Core.diff(fieldPair.type1, fieldPair.type2);
                 if (!Core.isEmpty(cx, d)) {
                     MappingAtomicType mt;
-                    Optional<Integer> i = pairing.itr.index1(fieldPair.name);
-                    if (i.isEmpty()) {
+                    if (fieldPair.index1.isEmpty()) {
                         // the posType came from the rest type
                         mt = insertField(pos, fieldPair.name, d);
                     } else {
                         SemType[] posTypes = Common.shallowCopyTypes(pos.types);
-                        posTypes[i.get()] = d;
+                        posTypes[fieldPair.index1.get()] = d;
                         mt = MappingAtomicType.from(pos.names, posTypes, pos.rest);
                     }
                     if (mappingInhabited(cx, mt, negList.next)) {
