@@ -1044,6 +1044,29 @@ function testFunctionWithReturnTypeAnyToReadonly() {
 
 function foo() returns readonly => 1;
 
+function testReadOnlyIntersectionWithNever() {
+    error? a = trap panicFn();
+
+    assertTrue(a is error);
+    assertEquality("err!", (<error> a).message());
+
+    record { never i?; int j; } & readonly b = {j: 1, "k": "str"};
+    assertEquality(2, b.length());
+    assertEquality(1, b.j);
+    assertEquality("str", b["k"]);
+    assertFalse(b.hasKey("i"));
+
+    record { never i?; int j; } c = {j: 21};
+    record {} d = c.cloneReadOnly();
+    assertEquality(1, d.length());
+    assertEquality(21, d["j"]);
+    assertFalse(d.hasKey("i"));
+}
+
+function panicFn() returns never & readonly {
+    panic error("err!");
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

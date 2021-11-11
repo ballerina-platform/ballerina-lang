@@ -72,7 +72,8 @@ public class SelectivelyImmutableTypeTest {
                 {"testReadOnlyCastConstructingReadOnlyValuesPropagation"},
                 {"testValidInitializationOfReadOnlyClassIntersectionWithReadOnly"},
                 {"testValidInitializationOfNonReadOnlyClassIntersectionWithReadOnly"},
-                {"testFunctionWithReturnTypeAnyToReadonly"}
+                {"testFunctionWithReturnTypeAnyToReadonly"},
+                {"testReadOnlyIntersectionWithNever"}
         };
     }
 
@@ -145,6 +146,11 @@ public class SelectivelyImmutableTypeTest {
                 "'NonReadOnlyClass'", 298, 35);
         validateError(result, index++, "incompatible types: expected '(NonReadOnlyClass & readonly)', found " +
                 "'NonReadOnlyClass'", 299, 38);
+
+        validateError(result, index++, "cannot define a variable of type 'never' or equivalent to type 'never'",
+                      303, 5);
+        validateError(result, index++, "incompatible types: expected 'never', found 'int'", 305, 52);
+
         assertEquals(result.getErrorCount(), index);
     }
 

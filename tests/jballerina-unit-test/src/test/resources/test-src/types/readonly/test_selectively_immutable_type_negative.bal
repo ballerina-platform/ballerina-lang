@@ -298,3 +298,9 @@ function testNonReadOnlyAssignmentToReadOnlyAndClassIntersection() {
     ReadOnlyClass & readonly r1 = nrc;
     NonReadOnlyClass & readonly r2 = nrc;
 }
+
+function testInvalidUsageOfReadOnlyIntersectionWithNever() {
+    never & readonly a;
+
+    record { never i?; int j; } & readonly b = {i: 1, j: 1, "k": "str"};
+}
