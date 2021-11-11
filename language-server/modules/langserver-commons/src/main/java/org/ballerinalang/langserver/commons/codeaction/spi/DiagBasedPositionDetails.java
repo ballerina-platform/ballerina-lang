@@ -59,7 +59,7 @@ public interface DiagBasedPositionDetails {
      * 
      * @param diagnosticCode Diagnostic code.
      * @param propertyName Name of the property.
-     * @return
+     * @return Value of the property.
      */
     <T> Optional<T> diagnosticProperty(String diagnosticCode, DiagnosticPropertyKey propertyName);
 
