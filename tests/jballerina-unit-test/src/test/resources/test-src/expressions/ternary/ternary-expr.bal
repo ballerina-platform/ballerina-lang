@@ -160,82 +160,79 @@ boolean cond = true;
 string b1 = (cond ? x1 : y1).toBalString();
 string b2 = (cond ? y1 : x1).toString();
 
-// Following lines should be uncommented after fixing 'ballerina-lang #33678'
-// int x2 = 123;
-// string y2 = "a";
-// string b3 = (cond ? x2 : y2).toBalString();
-// string b4 = (cond ? y2 : x2).toString();
-// string b5 = (cond ? (cond ? (cond ? y2 : x2) : x2) : x2).toString();
-// string b6 = (cond ? (cond ? x2 : (cond ? x2 : y2)) : (cond ? x2 : y2)).toString();
+int x2 = 123;
+string y2 = "a";
+string b3 = (cond ? x2 : y2).toBalString();
+string b4 = (cond ? y2 : x2).toString();
+string b5 = (cond ? (cond ? (cond ? y2 : x2) : x2) : x2).toString();
+string b6 = (cond ? (cond ? x2 : (cond ? x2 : y2)) : (cond ? x2 : y2)).toString();
 
-// int x3 = -9223372036854775807;
-// float y3 = 2.12;
-// string b7 = (cond ? x3 : y3).toBalString();
-// string b8 = (cond ? y3 : x3).toString();
+int x3 = -9223372036854775807;
+float y3 = 2.12;
+string b7 = (cond ? x3 : y3).toBalString();
+string b8 = (cond ? y3 : x3).toString();
 
-// decimal x4 = 123.12;
-// float y4 = 211.43;
-// string b9 = (cond ? x4 : y4).toBalString();
-// string b10 = (cond ? y4 : x4).toString();
+decimal x4 = 123.12;
+float y4 = 211.43;
+string b9 = (cond ? x4 : y4).toBalString();
+string b10 = (cond ? y4 : x4).toString();
 
-// int x5 = 123;
-// byte y5 = 250;
-// string b11 = (cond ? x5 : y5).toBalString();
-// string b12 = (cond ? y5 : x5).toString();
+int x5 = 123;
+byte y5 = 250;
+string b11 = (cond ? x5 : y5).toBalString();
+string b12 = (cond ? y5 : x5).toString();
 
-// int x6 = 123;
-// int:Signed16 y6 = -32000;
-// string b13 = (cond ? x6 : y6).toBalString();
-// string b14 = (cond ? y6 : x6).toString();
+int x6 = 123;
+int:Signed16 y6 = -32000;
+string b13 = (cond ? x6 : y6).toBalString();
+string b14 = (cond ? y6 : x6).toString();
 
-// int:Unsigned8 x7 = 223;
-// int:Signed8 y7 = -128;
-// string b15 = (cond ? x7 : y7).toBalString();
-// string b16 = (cond ? y7 : x7).toString();
-// string b17 = (cond ? (cond ? (cond ? y7 : x7) : x7) : x7).toBalString();
-// string b18 = (cond ? (cond ? x4 : (cond ? y1 : x3)) : (cond ? y7 : x7)).toString();
+int:Unsigned8 x7 = 223;
+int:Signed8 y7 = -128;
+string b15 = (cond ? x7 : y7).toBalString();
+string b16 = (cond ? y7 : x7).toString();
+string b17 = (cond ? (cond ? (cond ? y7 : x7) : x7) : x7).toBalString();
+string b18 = (cond ? (cond ? x4 : (cond ? y1 : x3)) : (cond ? y7 : x7)).toString();
 
-// string x8 = "abc";
-// string:Char y8 = "a";
-// string b19 = (cond ? x8 : y8).toString();
-// string b20 = (cond ? y8 : x8).toString();
-// string b21 = (cond ? (cond ? (cond ? y1 : x3) : y8) : x8).toBalString();
-// string b22 = (cond ? (cond ? x3 : (cond ? y6 : x7)) : (cond ? y8 : x8)).toString();
+string x8 = "abc";
+string:Char y8 = "a";
+string b19 = (cond ? x8 : y8).toString();
+string b20 = (cond ? y8 : x8).toString();
+string b21 = (cond ? (cond ? (cond ? y1 : x3) : y8) : x8).toBalString();
+string b22 = (cond ? (cond ? x3 : (cond ? y6 : x7)) : (cond ? y8 : x8)).toString();
 
-// int x9 = 123;
-// json y9 = "a";
-// string b23 = (cond ? x9 : y9).toBalString();
-// string b24 = (cond ? y9 : x9).toString();
+int x9 = 123;
+json y9 = "a";
+string b23 = (cond ? x9 : y9).toBalString();
+string b24 = (cond ? y9 : x9).toString();
 
 function testTernaryWithLangValueMethodCallsModuleLevel() {
     assertEquals("()", b1);
     assertEquals("3000", b2);
-
-    // Following lines should be uncommented after fixing 'ballerina-lang #33678'
-    // assertEquals("()", b1);
-    // assertEquals("3000", b2);
-    // assertEquals("123", b3);
-    // assertEquals("a", b4);
-    // assertEquals("a", b5);
-    // assertEquals("123", b6);
-    // assertEquals("-9223372036854775807", b7);
-    // assertEquals("2.12", b8);
-    // assertEquals("123.12d", b9);
-    // assertEquals("211.43", b10);
-    // assertEquals("123", b11);
-    // assertEquals("250", b12);
-    // assertEquals("123", b13);
-    // assertEquals("-32000", b14);
-    // assertEquals("223", b15);
-    // assertEquals("-128", b16);
-    // assertEquals("-128", b17);
-    // assertEquals("123.12", b18);
-    // assertEquals("abc", b19);
-    // assertEquals("a", b20);
-    // assertEquals("3000", b21);
-    // assertEquals("-9223372036854775807", b22);
-    // assertEquals("123", b23);
-    // assertEquals("a", b24);
+    assertEquals("()", b1);
+    assertEquals("3000", b2);
+    assertEquals("123", b3);
+    assertEquals("a", b4);
+    assertEquals("a", b5);
+    assertEquals("123", b6);
+    assertEquals("-9223372036854775807", b7);
+    assertEquals("2.12", b8);
+    assertEquals("123.12d", b9);
+    assertEquals("211.43", b10);
+    assertEquals("123", b11);
+    assertEquals("250", b12);
+    assertEquals("123", b13);
+    assertEquals("-32000", b14);
+    assertEquals("223", b15);
+    assertEquals("-128", b16);
+    assertEquals("-128", b17);
+    assertEquals("123.12", b18);
+    assertEquals("abc", b19);
+    assertEquals("a", b20);
+    assertEquals("3000", b21);
+    assertEquals("-9223372036854775807", b22);
+    assertEquals("123", b23);
+    assertEquals("a", b24);
 }
 
 function testTernaryWithLangValueMethodCalls() {
