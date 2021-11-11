@@ -47,3 +47,25 @@ function testIncompatibleUnaryOperations() {
     anydata x3 = ~12d;
     anydata x4 = !12d;
 }
+
+type A -2|-1|0|1|2;
+type B 0f|1f;
+
+function testStaticTypeOfUnaryExpr() {
+    A x = -2;
+    A _ = -x;
+
+    B y = 0f;
+    B _ = -y;
+}
+
+type C 0|1f;
+type D 0|1|"ABC";
+
+function testStaticTypeOfOperandContainsMixType() {
+    C x = 0;
+    int _ = -x;
+
+    D y = 0;
+    int _ = -y;
+}
