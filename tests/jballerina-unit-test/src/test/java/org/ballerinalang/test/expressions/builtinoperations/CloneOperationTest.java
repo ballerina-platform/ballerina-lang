@@ -523,4 +523,14 @@ public class CloneOperationTest {
         BValue[] results = BRunUtil.invoke(result, "testCloneMapWithError");
         Assert.assertTrue(((BBoolean) results[0]).booleanValue());
     }
+
+    @Test
+    public void testcloneRecordWithArrayField() {
+        BRunUtil.invoke(result, "cloneRecordWithArrayField");
+    }
+
+    @Test
+    public void testcloneArrayWithRecordElement() {
+        BRunUtil.invoke(result, "cloneArrayWithRecordElement");
+    }
 }

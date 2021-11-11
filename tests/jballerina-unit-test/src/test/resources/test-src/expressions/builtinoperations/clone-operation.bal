@@ -15,6 +15,7 @@
 // under the License.
 import ballerina/lang.'xml;
 import ballerina/lang.value;
+import ballerina/test;
 
 public type Person record {|
     int id;
@@ -334,6 +335,46 @@ public function cloneAnydata() returns [any, any, any] {
         y.salary = 400.5;
     }
     return [a, x, y];
+}
+
+type BddPath record {|
+    int[] pos = [];
+    int[] neg = [];
+|};
+
+public function cloneRecordWithArrayField() {
+    BddPath path = {};
+    BddPath clone = path.clone();
+
+    test:assertFalse(path.pos === path.neg);
+    test:assertFalse(clone.pos === clone.neg);
+    test:assertTrue(path.pos == path.neg);
+    test:assertTrue(clone.pos == clone.neg);
+
+    clone.pos.push(1);
+    clone.pos.push(2);
+    clone.pos.push(3);
+    test:assertEquals(clone.pos, [1, 2, 3]);
+    test:assertEquals(clone.neg, []);
+    test:assertFalse(clone.pos == clone.neg);
+}
+
+type Rec record {
+};
+
+public function cloneArrayWithRecordElement() {
+    Rec[] arr = [{}, {}];
+    Rec[] clone = arr.clone();
+
+    test:assertFalse(arr[0] === arr[1]);
+    test:assertFalse(clone[0] === clone[1]);
+    test:assertTrue(arr[0] == arr[1]);
+    test:assertTrue(clone[0] == clone[1]);
+
+    clone[1] = {"a": "A"};
+    test:assertEquals(clone[0], {});
+    test:assertEquals(clone[1], {"a": "A"});
+    test:assertFalse(clone[0] == clone[1]);
 }
 
 public function cloneFrozenAnydata() returns boolean {

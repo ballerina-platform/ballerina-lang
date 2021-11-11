@@ -1284,7 +1284,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 Arrays.equals(booleanValues, that.booleanValues) &&
                 Arrays.equals(byteValues, that.byteValues) &&
                 Arrays.equals(floatValues, that.floatValues) &&
-                Arrays.equals(bStringValues, that.bStringValues);
+                Arrays.equals(bStringValues, that.bStringValues) &&
+                typedesc.equals(that.typedesc);
     }
 
     @Override
