@@ -3944,8 +3944,7 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if (types.isAssignable(thenType, elseType)) {
                 resultType = elseType;
             } else {
-                dlog.error(ternaryExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, thenType, elseType);
-                resultType = symTable.semanticError;
+                resultType = BUnionType.create(null, thenType, elseType);
             }
         } else {
             resultType = expType;
@@ -4253,12 +4252,12 @@ public class TypeChecker extends BLangNodeVisitor {
         if (rhsReturnType == symTable.semanticError || lhsReturnType == symTable.semanticError) {
             resultType = symTable.semanticError;
         } else if (expType == symTable.noType) {
-            if (types.isSameType(rhsReturnType, lhsReturnType)) {
+            if (types.isAssignable(rhsReturnType, lhsReturnType)) {
                 resultType = lhsReturnType;
+            } else if (types.isAssignable(lhsReturnType, rhsReturnType)) {
+                resultType = rhsReturnType;
             } else {
-                dlog.error(elvisExpr.rhsExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, lhsReturnType,
-                        rhsReturnType);
-                resultType = symTable.semanticError;
+                resultType = BUnionType.create(null, lhsReturnType, rhsReturnType);
             }
         } else {
             resultType = expType;
