@@ -918,7 +918,7 @@ public class MethodGen {
                     startLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + localVar.insScope.id);
                 }
                 if (localVar.endBB != null) {
-                    endLabel = labelGen.getLabel(funcName + endBB.id.value + "beforeTerm");
+                    endLabel = labelGen.getLabel(funcName + localVar.endBB.id.value + "beforeTerm");
                 }
             }
             String metaVarName = localVar.metaVarName;
