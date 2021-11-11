@@ -3944,7 +3944,7 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if (types.isAssignable(thenType, elseType)) {
                 resultType = elseType;
             } else {
-                resultType = BUnionType.create(null, elseType, thenType);
+                resultType = BUnionType.create(null, thenType, elseType);
                 types.setImplicitCastExpr(ternaryExpr.thenExpr, thenType, resultType);
                 types.setImplicitCastExpr(ternaryExpr.elseExpr, elseType, resultType);
             }
