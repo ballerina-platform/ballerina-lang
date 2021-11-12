@@ -232,6 +232,12 @@ function testUnaryOperationsWithNonBasicTypes() {
 type Ints -2|-1|0|1|2;
 type Floats -2.0|-1.0|0.0|1.0|2.0;
 type Decimals -2.0d|-1.0d|0d|1.0d|2.0d;
+type IntType1 -2|-1|0|1|2;
+type IntType2 int:Unsigned8|int:Signed32;
+type IntType3 IntType1|IntType2;
+type IntType4 IntType1|byte;
+type FloatType1 -2.0f|-1.0f|0.0f|1.0f|2.0f;
+type FloatType2 FloatType1;
 
 function testUnaryOperationsWithUserDefinedTypes() {
     Ints a = -2;
@@ -248,12 +254,29 @@ function testUnaryOperationsWithUserDefinedTypes() {
     decimal k = -e;
     decimal l = +f;
 
+    IntType3 m = 1;
+    IntType3 n = 255;
+    IntType4 o = 127;
+    FloatType2 p = -2;
+    FloatType2 q = 1;
+
+    int r = -m;
+    int s = +n;
+    int t = -o;
+    float u = +p;
+    float v = -q;
+
     assertEquality(g, 2);
     assertEquality(h, 1);
     assertEquality(i, 2.0);
     assertEquality(j, 0.0);
     assertEquality(k, 2d);
     assertEquality(l, 1.0d);
+    assertEquality(r, -1);
+    assertEquality(s, 255);
+    assertEquality(t, -127);
+    assertEquality(u, -2.0);
+    assertEquality(v, -1.0);
 }
 
 function testNullableUnaryExpressions() {
