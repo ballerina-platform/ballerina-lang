@@ -36,6 +36,7 @@ public class TupleTypeTest extends AbstractTypesTest {
     @Test
     public void testLocalLevelTupleTypes() {
         testTopLevelNode("tuple-type/tuple_type_source_02.bal", "tuple-type/tuple_type_assert_02.json");
+        testTopLevelNode("tuple-type/tuple_type_source_07.bal", "tuple-type/tuple_type_assert_07.json");
     }
 
     @Test

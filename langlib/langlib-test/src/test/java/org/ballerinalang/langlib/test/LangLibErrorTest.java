@@ -20,8 +20,6 @@ package org.ballerinalang.langlib.test;
 
 
 import org.ballerinalang.core.model.types.TypeTags;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BRefType;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.BCompileUtil;
@@ -76,18 +74,13 @@ public class LangLibErrorTest {
     @Test
     public void testGetErrorStackTrace() {
         BValue[] returns = BRunUtil.invoke(compileResult, "getErrorStackTrace");
-        assertEquals(returns[0].getType().getTag(), TypeTags.OBJECT_TYPE_TAG);
-        BRefType<?>[] callStacks = ((BValueArray) ((BMap) returns[0]).get("callStack")).getValues();
-        assertEquals(callStacks[0].stringValue(), "{callableName:\"getError\", " +
-                "fileName:\"errorlib_test.bal\", lineNumber:45}");
-        assertEquals(callStacks[1].stringValue(), "{callableName:\"stack2\", " +
-                "fileName:\"errorlib_test.bal\", lineNumber:88}");
-        assertEquals(callStacks[2].stringValue(), "{callableName:\"stack1\", " +
-                "fileName:\"errorlib_test.bal\", lineNumber:84}");
-        assertEquals(callStacks[3].stringValue(), "{callableName:\"stack0\", " +
-                "fileName:\"errorlib_test.bal\", lineNumber:80}");
-        assertEquals(callStacks[4].stringValue(), "{callableName:\"getErrorStackTrace\", " +
-                "fileName:\"errorlib_test.bal\", lineNumber:92}");
+        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
+        String[] callStacks = ((BValueArray) returns[0]).getStringArray();
+        assertEquals(callStacks[0], "callableName: getError  fileName: errorlib_test.bal lineNumber: 45");
+        assertEquals(callStacks[1], "callableName: stack2  fileName: errorlib_test.bal lineNumber: 88");
+        assertEquals(callStacks[2], "callableName: stack1  fileName: errorlib_test.bal lineNumber: 84");
+        assertEquals(callStacks[3], "callableName: stack0  fileName: errorlib_test.bal lineNumber: 80");
+        assertEquals(callStacks[4], "callableName: getErrorStackTrace  fileName: errorlib_test.bal lineNumber: 92");
     }
 
     @Test
@@ -95,8 +88,11 @@ public class LangLibErrorTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testErrorStackTrace");
         assertEquals(returns[0].stringValue(), "5");
         assertEquals(returns[1].stringValue(),
-                "[\"getError:errorlib_test.bal\",\"stack2:errorlib_test.bal\",\"stack1:errorlib_test.bal\"," +
-                        "\"stack0:errorlib_test.bal\",\"testErrorStackTrace:errorlib_test.bal\"]");
+                "[\"callableName: getError  fileName: errorlib_test.bal lineNumber: 45\"," +
+                        "\"callableName: stack2  fileName: errorlib_test.bal lineNumber: 88\"," +
+                        "\"callableName: stack1  fileName: errorlib_test.bal lineNumber: 84\"," +
+                        "\"callableName: stack0  fileName: errorlib_test.bal lineNumber: 80\"," +
+                        "\"callableName: testErrorStackTrace  fileName: errorlib_test.bal lineNumber: 97\"]");
     }
 
     @Test
@@ -107,5 +103,10 @@ public class LangLibErrorTest {
     @Test
     public void testRetriableTest() {
         BRunUtil.invoke(compileResult, "testRetriableTest");
+    }
+
+    @Test
+    public void testStacktraceStrRepresentation() {
+        BRunUtil.invoke(compileResult, "testStacktraceStrRepresentation");
     }
 }

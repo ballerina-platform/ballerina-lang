@@ -77,7 +77,7 @@ function testInvalidIsolatedVariableAccessOutsideLock(boolean bool) {
         }
     }
 
-    var fn = isolated function() {
+    var _ = isolated function() {
         int[][] arr2 = b;
     };
 }

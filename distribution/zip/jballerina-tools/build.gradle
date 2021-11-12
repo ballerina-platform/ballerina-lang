@@ -103,6 +103,7 @@ dependencies {
     dist project(':central-client')
     dist project(':ballerina-cli')
     dist project(':ballerina-rt')
+    dist project(':ballerina-linter')
 
     dist project(':testerina:testerina-core')
     dist project(':formatter:formatter-core')
@@ -129,6 +130,7 @@ dependencies {
     langserverLib project(':language-server:language-server-core')
     langserverLib project(':ls-extensions:json-to-record-converter')
     langserverLib project(':ls-extensions:performance-analyzer-services')
+    langserverLib project(':ls-extensions:partial-parser')
 
     debugAdapterLib project(path: ':debug-adapter:debug-adapter-core', configuration: 'libs')
     debugAdapterLib project(':debug-adapter:debug-adapter-cli')

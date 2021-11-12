@@ -1490,7 +1490,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         // check for unresolved fields. This record may be referencing another record
-        if (!this.resolveRecordsUnresolvedDueToFields && typeNodeKind == NodeKind.RECORD_TYPE) {
+        if (hasTypeInclusions && !this.resolveRecordsUnresolvedDueToFields && typeNodeKind == NodeKind.RECORD_TYPE) {
             BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
             for (BLangSimpleVariable variable : structureTypeNode.fields) {
                 Scope scope = new Scope(structureTypeNode.symbol);
@@ -2747,11 +2747,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangRecordVariable.BLangRecordVariableKeyValue variable : recordVar.variableList) {
             // Infer the type of each variable in recordVariable from the given record type
             // so that symbol enter is done recursively
-            if (names.fromIdNode(variable.getKey()) == Names.IGNORE) {
-                dlog.error(recordVar.pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED);
-                continue;
-            }
-
             BLangVariable value = variable.getValue();
             if (value.getKind() == NodeKind.VARIABLE) {
                 // '_' is allowed in record variables. Not allowed if all variables are named as '_'

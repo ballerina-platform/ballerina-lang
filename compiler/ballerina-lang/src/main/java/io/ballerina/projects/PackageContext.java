@@ -217,19 +217,23 @@ class PackageContext {
     }
 
     PackageCompilation getPackageCompilation(CompilationOptions compilationOptions) {
-        CompilationOptions options = new CompilationOptionsBuilder()
-                .offline(this.compilationOptions.offlineBuild())
-                .experimental(this.compilationOptions.experimental())
-                .observabilityIncluded(this.compilationOptions.observabilityIncluded())
-                .dumpBir(this.compilationOptions.dumpBir())
-                .cloud(this.compilationOptions.getCloud())
-                .dumpBirFile(this.compilationOptions.dumpBirFile())
-                .dumpGraph(this.compilationOptions.dumpGraph())
-                .dumpRawGraphs(this.compilationOptions.dumpRawGraphs())
-                .listConflictedClasses(this.compilationOptions.listConflictedClasses())
+        CompilationOptions options = CompilationOptions.builder()
+                .setOffline(this.compilationOptions.offlineBuild())
+                .setExperimental(this.compilationOptions.experimental())
+                .setObservabilityIncluded(this.compilationOptions.observabilityIncluded())
+                .setDumpBir(this.compilationOptions.dumpBir())
+                .setCloud(this.compilationOptions.getCloud())
+                .setDumpBirFile(this.compilationOptions.dumpBirFile())
+                .setDumpGraph(this.compilationOptions.dumpGraph())
+                .setDumpRawGraphs(this.compilationOptions.dumpRawGraphs())
+                .setListConflictedClasses(this.compilationOptions.listConflictedClasses())
                 .build();
         CompilationOptions mergedOptions = options.acceptTheirs(compilationOptions);
         return PackageCompilation.from(this, mergedOptions);
+    }
+
+    PackageCompilation cachedCompilation() {
+        return packageCompilation;
     }
 
     PackageResolution getResolution() {
@@ -240,7 +244,8 @@ class PackageContext {
     }
 
     PackageResolution getResolution(CompilationOptions compilationOptions) {
-        return PackageResolution.from(this, compilationOptions);
+        packageResolution = PackageResolution.from(this, compilationOptions);
+        return packageResolution;
     }
 
     Collection<PackageDependency> packageDependencies() {
@@ -287,5 +292,18 @@ class PackageContext {
                 packageDependencies.add(moduleDependency.packageDependency());
             }
         }
+    }
+
+    PackageContext duplicate(Project project) {
+        Map<ModuleId, ModuleContext> duplicatedModuleContextMap = new HashMap<>();
+        for (ModuleId moduleId : this.moduleIds) {
+            ModuleContext moduleContext = this.moduleContext(moduleId);
+            duplicatedModuleContextMap.put(moduleId, moduleContext.duplicate(project));
+        }
+
+        return new PackageContext(project, this.packageId, this.packageManifest,
+                this.dependencyManifest, this.ballerinaTomlContext, this.dependenciesTomlContext,
+                this.cloudTomlContext, this.compilerPluginTomlContext, this.packageMdContext,
+                this.compilationOptions, duplicatedModuleContextMap, this.pkgDescDependencyGraph);
     }
 }

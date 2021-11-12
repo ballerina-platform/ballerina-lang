@@ -19,7 +19,6 @@ package io.ballerina.projects.test;
 
 import com.sun.management.UnixOperatingSystemMXBean;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
@@ -130,8 +129,8 @@ public class PackageResolutionTests extends BaseTest {
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_0");
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_2");
 
-        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder().experimental(true);
-        buildOptionsBuilder.sticky(false);
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder().setExperimental(true);
+        buildOptionsBuilder.setSticky(false);
         BuildOptions buildOptions = buildOptionsBuilder.build();
 
         Project loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
@@ -175,7 +174,26 @@ public class PackageResolutionTests extends BaseTest {
         Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
     }
 
-    @Test(dependsOnMethods = "testProjectSaveWithEmptyBuildFile", description = "tests project with corrupt build file")
+    @Test(dependsOnMethods = "testProjectSaveWithEmptyBuildFile", description = "tests project with empty build file")
+    public void testProjectSaveWithNewlineBuildFile() throws IOException {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath);
+        Path buildPath = loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.BUILD_FILE);
+
+        Files.deleteIfExists(buildPath);
+        Files.createFile(buildPath);
+        Files.write(buildPath, "\n".getBytes());
+
+        loadProject.save();
+
+        Assert.assertTrue(Files.exists(buildPath));
+        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
+        Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
+    }
+
+    @Test(dependsOnMethods = "testProjectSaveWithNewlineBuildFile",
+            description = "tests project with corrupt build file")
     public void testProjectSaveWithCorruptBuildFile() throws IOException {
         // Skip test in windows due to file permission setting issue
         if (isWindows()) {

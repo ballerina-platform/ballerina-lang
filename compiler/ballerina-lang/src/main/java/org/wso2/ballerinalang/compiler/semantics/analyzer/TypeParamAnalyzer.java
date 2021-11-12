@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -322,12 +321,13 @@ public class TypeParamAnalyzer {
                         while (constraint.tag == TypeTags.XML) {
                             constraint = ((BXMLType) constraint).constraint;
                         }
-                        findTypeParam(loc, ((BXMLType) expType).constraint, constraint, env,
-                                resolvedTypes, result);
+                        findTypeParam(loc, ((BXMLType) expType).constraint, constraint, env, resolvedTypes, result);
                         return;
                     case TypeTags.XML_TEXT:
-                        findTypeParam(loc, ((BXMLType) expType).constraint, actualType, env,
-                                resolvedTypes, result);
+                    case TypeTags.XML_ELEMENT:
+                    case TypeTags.XML_PI:
+                    case TypeTags.XML_COMMENT:
+                        findTypeParam(loc, ((BXMLType) expType).constraint, actualType, env, resolvedTypes, result);
                         return;
                     case TypeTags.UNION:
                         findTypeParamInUnion(loc, ((BXMLType) expType).constraint, (BUnionType) actualType, env,
@@ -441,7 +441,7 @@ public class TypeParamAnalyzer {
                                              BType boundType) {
 
         for (SymbolEnv.TypeParamEntry entry : env.typeParamsEntries) {
-            if (isSameTypeSymbolNameAndPkg(entry.typeParam.tsymbol, typeParamType.tsymbol)) {
+            if (entry.typeParam == typeParamType) {
                 return;
             }
         }
@@ -450,18 +450,6 @@ public class TypeParamAnalyzer {
             return;
         }
         env.typeParamsEntries.add(new SymbolEnv.TypeParamEntry(typeParamType, boundType));
-    }
-
-    private boolean isSameTypeSymbolNameAndPkg(BTypeSymbol source, BTypeSymbol target) {
-        if (source == null || target == null) {
-            return false;
-        }
-
-        if (source.name.getValue().isEmpty()) {
-            return false;
-        }
-
-        return source.pkgID.equals(target.pkgID) && source.name.equals(target.name);
     }
 
     private void findTypeParamInTuple(Location loc, BTupleType expType, BTupleType actualType,

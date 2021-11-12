@@ -21,7 +21,6 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
-import io.ballerina.cli.task.CreateBalaTask;
 import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
@@ -29,7 +28,6 @@ import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
@@ -37,8 +35,6 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.toml.semantic.TomlType;
-import io.ballerina.toml.semantic.ast.TomlTableNode;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -46,11 +42,8 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
-import static io.ballerina.projects.internal.ManifestBuilder.getStringValueFromTomlTableNode;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.JACOCO_XML_FORMAT;
 
@@ -96,16 +89,6 @@ public class BuildCommand implements BLauncherCmd {
     }
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                        boolean skipCopyLibsFromDist, boolean compile) {
-        this.projectPath = projectPath;
-        this.outStream = outStream;
-        this.errStream = errStream;
-        this.exitWhenFinish = exitWhenFinish;
-        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
-        this.compile = compile;
-    }
-
-    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                         boolean skipCopyLibsFromDist, Boolean skipTests, Boolean testReport, Boolean coverage,
                         String coverageFormat) {
         this.projectPath = projectPath;
@@ -129,10 +112,30 @@ public class BuildCommand implements BLauncherCmd {
         this.output = output;
     }
 
-    // TODO : Remove after Beta4
-    @CommandLine.Option(names = {"--compile", "-c"}, description = "Compile the source without generating " +
-                                                                   "executable(s).")
-    private boolean compile;
+    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                        boolean skipCopyLibsFromDist, Path targetDir) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        this.targetDir = targetDir;
+    }
+
+    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                        boolean skipCopyLibsFromDist, Boolean skipTests, Boolean testReport, Boolean coverage,
+                        String coverageFormat, Path targetDir) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        this.skipTests = skipTests;
+        this.testReport = testReport;
+        this.coverage = coverage;
+        this.coverageFormat = coverageFormat;
+        this.targetDir = targetDir;
+    }
 
     @CommandLine.Option(names = {"--output", "-o"}, description = "Write the output to the given file. The provided " +
                                                                   "output file name may or may not contain the " +
@@ -203,6 +206,17 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
     private Boolean sticky;
 
+    // TODO : Remove after Beta4
+    @CommandLine.Option(names = {"--compile", "-c"}, description = "Compile the source without generating " +
+            "executable(s).")
+    private boolean compile;
+
+    @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
+    private Boolean skipTestsTemp;
+
+    @CommandLine.Option(names = "--target-dir", description = "target directory path")
+    private Path targetDir;
+
     public void execute() {
         long start = 0;
         if (this.helpFlag) {
@@ -212,7 +226,16 @@ public class BuildCommand implements BLauncherCmd {
         }
 
         if (this.compile) {
-            this.outStream.println("warning: '-c compile' flag is deprecated. Please make use of 'bal pack' command");
+            this.outStream.println("error: '-c compile' flag has been removed. Please make use of 'bal pack' command");
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        if (this.skipTestsTemp != null) {
+            this.outStream.println("error : '--skip-tests' flag is deprecated. The build command skips test execution" +
+                    " by default. Please make use of --with-tests to execute tests");
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
         }
 
         // load project
@@ -240,12 +263,6 @@ public class BuildCommand implements BLauncherCmd {
 
         boolean isSingleFileBuild = false;
         if (FileUtils.hasExtension(this.projectPath)) {
-            if (this.compile) {
-                CommandUtil.printError(this.errStream,
-                        "'-c' or '--compile' can only be used with a Ballerina package.", null, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
             try {
                 if (buildOptions.dumpBuildTime()) {
                     start = System.currentTimeMillis();
@@ -272,6 +289,7 @@ public class BuildCommand implements BLauncherCmd {
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
+
             try {
                 if (buildOptions.dumpBuildTime()) {
                     start = System.currentTimeMillis();
@@ -288,73 +306,10 @@ public class BuildCommand implements BLauncherCmd {
             }
         }
 
-        if (!(this.compile && project.currentPackage().compilerPluginToml().isPresent())) {
-            if (isProjectEmpty(project)) {
+        if (isProjectEmpty(project)) {
+            if (project.currentPackage().compilerPluginToml().isPresent()) {
                 CommandUtil.printError(this.errStream, "package is empty. please add at least one .bal file.", null,
                         false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
-        }
-
-        // Check `[package]` section is available when compile
-        if (this.compile && project.currentPackage().ballerinaToml().get().tomlDocument().toml()
-                .getTable("package").isEmpty()) {
-            CommandUtil.printError(this.errStream,
-                    "'package' information not found in " + ProjectConstants.BALLERINA_TOML,
-                    null,
-                    false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
-        // Check `[package]` org, name and version is available when compile
-        if (this.compile) {
-            TomlTableNode pkgNode = (TomlTableNode) project.currentPackage().ballerinaToml().get().tomlDocument().toml()
-                    .rootNode().entries().get("package");
-
-            if (pkgNode == null || pkgNode.kind() == TomlType.NONE) {
-                CommandUtil.printError(this.errStream,
-                                       "'package' information not found in " + ProjectConstants.BALLERINA_TOML,
-                                       null,
-                                       false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
-
-            List<String> pkgErrors = new ArrayList<>();
-            if ("".equals(getStringValueFromTomlTableNode(pkgNode, "org", ""))) {
-                pkgErrors.add("'org'");
-            }
-            if ("".equals(getStringValueFromTomlTableNode(pkgNode, "name", ""))) {
-                pkgErrors.add("'name'");
-            }
-            if ("".equals(getStringValueFromTomlTableNode(pkgNode, "version", ""))) {
-                pkgErrors.add("'version'");
-            }
-
-            if (!pkgErrors.isEmpty()) {
-                String pkgErrorsString;
-                if (pkgErrors.size() == 1) {
-                    CommandUtil.printError(this.errStream,
-                                           "to build a package " + pkgErrors.get(0) +
-                                                   " field of the package is required in " +
-                                                   ProjectConstants.BALLERINA_TOML,
-                                           null,
-                                           false);
-                    CommandUtil.exitError(this.exitWhenFinish);
-                    return;
-                } else if (pkgErrors.size() == 2) {
-                    pkgErrorsString = pkgErrors.get(0) + " and " + pkgErrors.get(1);
-                } else {
-                    pkgErrorsString = pkgErrors.get(0) + ", " + pkgErrors.get(1) + " and " + pkgErrors.get(2);
-                }
-                CommandUtil.printError(this.errStream,
-                                       "to build a package " + pkgErrorsString +
-                                               " fields of the package are required in " +
-                                               ProjectConstants.BALLERINA_TOML,
-                                       null,
-                                       false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -403,10 +358,8 @@ public class BuildCommand implements BLauncherCmd {
                 // run tests (projects only)
                 .addTask(new RunTestsTask(outStream, errStream, includes, coverageFormat),
                         project.buildOptions().skipTests() || isSingleFileBuild)
-                // create the BALA if -c provided (build projects only)
-                .addTask(new CreateBalaTask(outStream), isSingleFileBuild || !this.compile)
                 // create the executable jar, skip if -c flag is provided
-                .addTask(new CreateExecutableTask(outStream, this.output), this.compile)
+                .addTask(new CreateExecutableTask(outStream, this.output))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 
@@ -427,22 +380,29 @@ public class BuildCommand implements BLauncherCmd {
     }
 
     private BuildOptions constructBuildOptions() {
-        return new BuildOptionsBuilder()
-                .codeCoverage(coverage)
-                .experimental(experimentalFlag)
-                .offline(offline)
-                .skipTests(skipTests)
-                .testReport(testReport)
-                .observabilityIncluded(observabilityIncluded)
-                .cloud(cloud)
-                .dumpBir(dumpBIR)
-                .dumpBirFile(dumpBIRFile)
-                .dumpGraph(dumpGraph)
-                .dumpRawGraphs(dumpRawGraphs)
-                .listConflictedClasses(listConflictedClasses)
-                .dumpBuildTime(dumpBuildTime)
-                .sticky(sticky)
-                .build();
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+
+        buildOptionsBuilder
+                .setCodeCoverage(coverage)
+                .setExperimental(experimentalFlag)
+                .setOffline(offline)
+                .setSkipTests(skipTests)
+                .setTestReport(testReport)
+                .setObservabilityIncluded(observabilityIncluded)
+                .setCloud(cloud)
+                .setDumpBir(dumpBIR)
+                .setDumpBirFile(dumpBIRFile)
+                .setDumpGraph(dumpGraph)
+                .setDumpRawGraphs(dumpRawGraphs)
+                .setListConflictedClasses(listConflictedClasses)
+                .setDumpBuildTime(dumpBuildTime)
+                .setSticky(sticky);
+
+        if (targetDir != null) {
+            buildOptionsBuilder.targetDir(targetDir.toString());
+        }
+
+        return buildOptionsBuilder.build();
     }
 
     @Override

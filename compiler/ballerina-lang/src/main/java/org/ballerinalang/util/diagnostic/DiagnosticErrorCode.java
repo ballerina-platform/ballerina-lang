@@ -161,9 +161,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE2118", "field.access.cannot.be.used.to.access.optional.fields"),
     UNDECLARED_FIELD_IN_RECORD("BCE2119", "undeclared.field.in.record"),
     INVALID_FIELD_ACCESS_IN_RECORD_TYPE("BCE2120", "invalid.field.access.in.record.type"),
-    UNDECLARED_AND_OPTIONAL_FIELDS_IN_UNION_OF_RECORDS("BCE2121", "undeclared.and.optional.fields.in.union.of.records"),
+    UNDECLARED_AND_NILABLE_FIELDS_IN_UNION_OF_RECORDS("BCE2121", "undeclared.and.nilable.fields.in.union.of.records"),
     UNDECLARED_FIELD_IN_UNION_OF_RECORDS("BCE2122", "undeclared.field.in.union.of.records"),
-    OPTIONAL_FIELD_IN_UNION_OF_RECORDS("BCE2123", "optional.field.in.union.of.records"),
+    NILABLE_FIELD_IN_UNION_OF_RECORDS("BCE2123", "nilable.field.in.union.of.records"),
     ALREADY_INITIALIZED_SYMBOL("BCE2124", "already.initialized.symbol"),
     ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED(
             "BCE2125", "array.length.greater.that.2147483637.not.yet.supported"),
@@ -296,7 +296,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CANNOT_UPDATE_READONLY_VALUE_OF_TYPE("BCE2551", "cannot.update.readonly.value.of.type"),
     CANNOT_UPDATE_READONLY_RECORD_FIELD("BCE2552", "cannot.update.readonly.record.field"),
     CANNOT_UPDATE_FINAL_OBJECT_FIELD("BCE2553", "cannot.update.final.object.field"),
-    UNDERSCORE_NOT_ALLOWED("BCE2554", "underscore.not.allowed"),
+
     OPERATION_DOES_NOT_SUPPORT_MEMBER_ACCESS("BCE2555", "operation.does.not.support.member.access"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("BCE2556", "operation.does.not.support.field.access"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS_FOR_ASSIGNMENT(
@@ -381,8 +381,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CANNOT_FIND_XML_NAMESPACE("BCE2627", "cannot.find.xml.namespace.prefix"),
     UNSUPPORTED_METHOD_INVOCATION_XML_NAV("BCE2628", "method.invocation.in.xml.navigation.expressions.not.supported"),
     DEPRECATED_XML_ATTRIBUTE_ACCESS("BCE2629", "deprecated.xml.attribute.access.expression"),
-    UNSUPPORTED_MEMBER_ACCESS_IN_XML_NAVIGATION("BCE2630", "member.access.within.xml.navigation.expression.not" +
-            ".supported"),
+    UNSUPPORTED_MEMBER_ACCESS_IN_XML_NAVIGATION("BCE2630",
+                                                "member.access.within.xml.navigation.expression.not.supported"),
 
     UNDEFINED_ANNOTATION("BCE2631", "undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("BCE2632", "annotation.not.allowed"),
@@ -401,13 +401,13 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     OPERATOR_NOT_SUPPORTED("BCE2642", "operator.not.supported"),
     OPERATOR_NOT_ALLOWED_VARIABLE("BCE2643", "operator.not.allowed.variable"),
     NEVER_TYPE_NOT_ALLOWED_FOR_REQUIRED_DEFAULTABLE_PARAMS("BCE2644",
-            "never.type.not.allowed.for.required.and.defaultable.params"),
+                                               "never.type.not.allowed.for.required.and.defaultable.params"),
     INVALID_CLIENT_REMOTE_METHOD_CALL("BCE2645", "invalid.client.remote.method.call"),
     NEVER_TYPED_VAR_DEF_NOT_ALLOWED("BCE2646", "never.typed.var.def.not.allowed"),
     NEVER_TYPED_OBJECT_FIELD_NOT_ALLOWED("BCE2647", "never.typed.object.field.not.allowed"),
 
     CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES("BCE2650",
-            "cannot.use.type.inclusion.with.more.than.one.open.record.with.different.rest.descriptor.types"),
+          "cannot.use.type.inclusion.with.more.than.one.open.record.with.different.rest.descriptor.types"),
     INVALID_METHOD_CALL_EXPR_ON_FIELD("BCE2651", "invalid.method.call.expr.on.field"),
     INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR("BCE2652", "incompatible.type.wait.future.expr"),
 
@@ -752,7 +752,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_LOOP("BCE4017", "invalid.assignment.to.narrowed.var.in.loop"),
 
     INVALID_NON_ISOLATED_CALL_IN_MATCH_GUARD("BCE4018", "invalid.non.isolated.call.in.match.guard"),
-    INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD("BCE4019", "invalid.call.with.mutable.args.in.match.guard")
+    INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD("BCE4019", "invalid.call.with.mutable.args.in.match.guard"),
+    ERROR_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND("BCE4020", "error.constructor.compatible.type.not.found")
     ;
 
     private String diagnosticId;

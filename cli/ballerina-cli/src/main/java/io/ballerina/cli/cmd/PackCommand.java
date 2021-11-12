@@ -11,7 +11,6 @@ import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
@@ -98,6 +97,9 @@ public class PackCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
     private Boolean sticky;
 
+    @CommandLine.Option(names = "--target-dir", description = "target directory path")
+    private Path targetDir;
+
     public PackCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
@@ -113,6 +115,16 @@ public class PackCommand implements BLauncherCmd {
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+    }
+
+    public PackCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                       boolean skipCopyLibsFromDist, Path targetDir) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        this.targetDir = targetDir;
     }
 
     @Override
@@ -162,12 +174,13 @@ public class PackCommand implements BLauncherCmd {
         }
 
 
-        // Check if package is empty
-        if (!project.currentPackage().compilerPluginToml().isPresent() && isProjectEmpty(project)) {
-            CommandUtil.printError(this.errStream, "package is empty. please add at least one .bal file.", null,
-                    false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
+        if (isProjectEmpty(project)) {
+            if (project.currentPackage().compilerPluginToml().isPresent()) {
+                CommandUtil.printError(this.errStream, "package is empty. please add at least one .bal file.", null,
+                        false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
         }
 
         // Check `[package]` section is available when compile
@@ -284,19 +297,25 @@ public class PackCommand implements BLauncherCmd {
     }
 
     private BuildOptions constructBuildOptions() {
-        return new BuildOptionsBuilder()
-                .codeCoverage(coverage)
-                .experimental(experimentalFlag)
-                .offline(offline)
-                .skipTests(skipTests)
-                .testReport(testReport)
-                .dumpBir(dumpBIR)
-                .dumpBirFile(dumpBIRFile)
-                .dumpGraph(dumpGraph)
-                .dumpRawGraphs(dumpRawGraphs)
-                .dumpBuildTime(dumpBuildTime)
-                .sticky(sticky)
-                .build();
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        buildOptionsBuilder
+                .setCodeCoverage(coverage)
+                .setExperimental(experimentalFlag)
+                .setOffline(offline)
+                .setSkipTests(skipTests)
+                .setTestReport(testReport)
+                .setDumpBir(dumpBIR)
+                .setDumpBirFile(dumpBIRFile)
+                .setDumpGraph(dumpGraph)
+                .setDumpRawGraphs(dumpRawGraphs)
+                .setDumpBuildTime(dumpBuildTime)
+                .setSticky(sticky);
+
+        if (targetDir != null) {
+            buildOptionsBuilder.targetDir(targetDir.toString());
+        }
+
+        return buildOptionsBuilder.build();
     }
 
     private boolean isProjectEmpty(Project project) {

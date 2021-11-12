@@ -45,7 +45,6 @@ public class ErrorUtils {
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
     private static final BString ERROR_CAUSE_FIELD = StringUtils.fromString("cause");
     private static final BString NULL_REF_EXCEPTION = StringUtils.fromString("NullReferenceException");
-    private static final BString INT_RANGE_OVERFLOW_ERROR = StringUtils.fromString(" int range overflow");
 
     /**
      * Create balleria error using java exception for interop.
@@ -103,12 +102,13 @@ public class ErrorUtils {
     }
 
     public static BError createIntOverflowError() {
-        throw createError(BallerinaErrorReasons.NUMBER_OVERFLOW, INT_RANGE_OVERFLOW_ERROR);
+        throw createError(BallerinaErrorReasons.NUMBER_OVERFLOW,
+                BLangExceptionHelper.getErrorDetails(RuntimeErrors.INT_RANGE_OVERFLOW_ERROR));
     }
 
     public static BError createTypeCastError(Object sourceVal, Type targetType) {
         throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
-                          BLangExceptionHelper.getErrorMessage(RuntimeErrors.TYPE_CAST_ERROR,
+                          BLangExceptionHelper.getErrorDetails(RuntimeErrors.TYPE_CAST_ERROR,
                                                                TypeChecker.getType(sourceVal), targetType));
 
     }
@@ -121,7 +121,7 @@ public class ErrorUtils {
 
     public static BError createBToJTypeCastError(Object sourceVal, String targetType) {
         throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
-                          BLangExceptionHelper.getErrorMessage(RuntimeErrors.J_TYPE_CAST_ERROR,
+                          BLangExceptionHelper.getErrorDetails(RuntimeErrors.J_TYPE_CAST_ERROR,
                                                                TypeChecker.getType(sourceVal), targetType));
     }
 
@@ -132,29 +132,30 @@ public class ErrorUtils {
 
     public static BError createNumericConversionError(Object inputValue, Type targetType) {
         throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                          BLangExceptionHelper.getErrorMessage(
+                          BLangExceptionHelper.getErrorDetails(
                                   RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                   TypeChecker.getType(inputValue), inputValue, targetType));
     }
 
     public static BError createNumericConversionError(Object inputValue, Type inputType, Type targetType) {
-        throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
-                RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION, inputType, inputValue, targetType));
+        throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                BLangExceptionHelper.getErrorDetails(RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
+                        inputType, inputValue, targetType));
     }
 
     public static BError createOperationNotSupportedError(Type lhsType, Type rhsType) {
-        throw createError(BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR, BLangExceptionHelper.getErrorMessage(
-                RuntimeErrors.UNSUPPORTED_COMPARISON_OPERATION, lhsType, rhsType));
+        throw createError(BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR,
+                BLangExceptionHelper.getErrorDetails(RuntimeErrors.UNSUPPORTED_COMPARISON_OPERATION, lhsType, rhsType));
     }
 
     public static BError createUnorderedTypesError(Object lhsValue, Object rhsValue) {
-        throw createError(BallerinaErrorReasons.UNORDERED_TYPES_ERROR, BLangExceptionHelper.getErrorMessage(
+        throw createError(BallerinaErrorReasons.UNORDERED_TYPES_ERROR, BLangExceptionHelper.getErrorDetails(
                 RuntimeErrors.UNORDERED_TYPES_IN_COMPARISON, lhsValue, rhsValue));
     }
 
     public static BError createConversionError(Object inputValue, Type targetType) {
         return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
+                BLangExceptionHelper.getErrorDetails(INCOMPATIBLE_CONVERT_OPERATION,
                         TypeChecker.getType(inputValue), targetType));
     }
 
@@ -162,5 +163,11 @@ public class ErrorUtils {
         return createError(VALUE_LANG_LIB_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
                 INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
                 .concat(StringUtils.fromString(": " + detailMessage)));
+    }
+
+    public static BError createAmbiguousConversionError(Object inputValue, Type targetType) {
+        return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
+                BLangExceptionHelper.getErrorDetails(RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION_AMBIGUOUS_TARGET,
+                        TypeChecker.getType(inputValue), targetType));
     }
 }

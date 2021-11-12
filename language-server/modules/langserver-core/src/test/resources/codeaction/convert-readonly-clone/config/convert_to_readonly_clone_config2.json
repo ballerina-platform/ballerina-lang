@@ -1,0 +1,24 @@
+{
+  "line": 5,
+  "character": 39,
+  "expected": [
+    {
+      "title": "Convert to Readonly Clone",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 31
+            },
+            "end": {
+              "line": 5,
+              "character": 54
+            }
+          },
+          "newText": "(let int test = 23 in {}).cloneReadOnly()"
+        }
+      ]
+    }
+  ]
+}

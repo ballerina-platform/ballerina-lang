@@ -35,7 +35,6 @@ import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.ballerinalang.langserver.extensions.AbstractExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
-import org.ballerinalang.langserver.task.BackgroundTaskService;
 import org.ballerinalang.langserver.util.LSClientUtil;
 import org.eclipse.lsp4j.CodeLensOptions;
 import org.eclipse.lsp4j.CompletionOptions;
@@ -316,7 +315,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         for (ExtendedLanguageServerService service : extendedServices) {
             service.shutdown();
         }
-        BackgroundTaskService.getInstance(serverContext).shutdown();
         return CompletableFuture.supplyAsync(Object::new);
     }
 

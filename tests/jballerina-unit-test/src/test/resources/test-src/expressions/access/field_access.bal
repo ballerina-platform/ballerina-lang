@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 type Employee record {
@@ -61,6 +63,45 @@ function testRecordFieldAccess3() returns boolean {
     string name = ep.name;
     string|int id = ep.id;
     return name == s1 && id == s2;
+}
+
+type EmployeeThree record {
+    string name?;
+    int id;
+};
+
+type PersonThree record {
+    string name?;
+    int age;
+};
+
+function testAccessOptionalFieldWithFieldAccess1() {
+    string s = "Anne";
+    EmployeeThree e = { name: s, id: 100 };
+    test:assertEquals(e.name, s);
+
+    PersonThree f = { age: 20};
+    test:assertEquals(f.name, ());
+}
+
+type EmployeeFour record {
+    string name;
+    int id;
+};
+
+type PersonFour record {
+    string name?;
+    string id?;
+    float salary;
+};
+
+function testAccessOptionalFieldWithFieldAccess2() {
+    string s1 = "John";
+    string s2 = "ASD123";
+    PersonFour e = { name: s1, id: s2, salary: 100.0 };
+    EmployeeFour|PersonFour ep = e;
+    test:assertEquals(ep.name, s1);
+    test:assertEquals(ep.id, s2);
 }
 
 int i = 12;
@@ -219,7 +260,7 @@ function assertKeyNotFoundError(json|error je, string key) returns boolean {
         var detailMessage = je.detail()["message"];
         string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
         return je.message() == "{ballerina/lang.map}KeyNotFound" &&
-                                detailMessageString == "Key '" + key + "' not found in JSON mapping";
+                                detailMessageString == "key '" + key + "' not found in JSON mapping";
     }
     return false;
 }
