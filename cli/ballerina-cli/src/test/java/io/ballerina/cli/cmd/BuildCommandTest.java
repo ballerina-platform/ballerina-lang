@@ -341,22 +341,6 @@ public class BuildCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Build a valid ballerina project")
-    public void testArtifactCreationWhenTestsFail() {
-        Path projectPath = this.testResources.resolve("validProjectWithFailingTests");
-        System.setProperty("user.dir", projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true,
-                false, false, false, null);
-        // non existing bal file
-        new CommandLine(buildCommand).parse();
-        try {
-            buildCommand.execute();
-            Assert.fail("exception expected");
-        } catch (BLauncherException e) {
-            Assert.assertFalse(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
-        }
-    }
-
-    @Test(description = "Build a valid ballerina project")
     public void testBuildMultiModuleProject() throws IOException {
         Path projectPath = this.testResources.resolve("validMultiModuleProject");
         System.setProperty("user.dir", projectPath.toString());
@@ -384,8 +368,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBuildProjectWithDefaultBuildOptions() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithBuildOptions");
         System.setProperty("user.dir", projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(
-                projectPath, printStream, printStream, false, true, null, null, null, null);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
         // non existing bal file
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
@@ -406,7 +389,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validProjectWithBuildOptions");
         System.setProperty("user.dir", projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(
-                projectPath, printStream, printStream, false, true, false, true, false, null);
+                projectPath, printStream, printStream, false, true);
         // non existing bal file
         new CommandLine(buildCommand).parse();
         try {
@@ -424,11 +407,11 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
-        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+
+        Assert.assertFalse(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
                 .resolve("foo-winery-0.1.0-testable.jar").toFile().exists());
-
-        Assert.assertTrue(
+        Assert.assertFalse(
                 projectPath.resolve("target").resolve("report").resolve("test_results.json").toFile().exists());
     }
 
@@ -437,7 +420,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
         System.setProperty("user.dir", this.testResources.resolve("valid-bal-file").toString());
         BuildCommand buildCommand = new BuildCommand(
-                projectPath, printStream, printStream, false, true, null, null, null, null);
+                projectPath, printStream, printStream, false, true);
         // non existing bal file
         new CommandLine(buildCommand).parse();
         try {
@@ -462,7 +445,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
         System.setProperty("user.dir", this.testResources.resolve("valid-bal-file").toString());
         BuildCommand buildCommand = new BuildCommand(
-                projectPath, printStream, printStream, false, true, false, true, true, null);
+                projectPath, printStream, printStream, false, true);
         // non existing bal file
         new CommandLine(buildCommand).parse();
         try {
@@ -656,19 +639,6 @@ public class BuildCommandTest extends BaseCommandTest {
     }
 
     @Test
-    public void testUnsupportedCoverageFormat() throws IOException {
-        Path projectPath = this.testResources.resolve("validProjectWithBuildOptions");
-        // Build project
-        BuildCommand buildCommand = new BuildCommand(
-                projectPath, printStream, printStream, false, true, null, null, true, "html");
-        new CommandLine(buildCommand).parse();
-        buildCommand.execute();
-        String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.contains("unsupported coverage report format 'html' found. Only 'xml' format is " +
-                "supported."));
-    }
-
-    @Test
     public void testDumpBuildTimeForPackage() throws IOException {
         Path projectPath = this.testResources.resolve("validApplicationProject");
         System.setProperty("user.dir", projectPath.toString());
@@ -722,16 +692,16 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true,
-                false, true, false, null, customTargetDir);
+                customTargetDir);
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
 
         Assert.assertTrue(Files.exists(customTargetDir.resolve("bin")));
         Assert.assertTrue(Files.exists(customTargetDir.resolve("cache")));
         Assert.assertTrue(Files.exists(customTargetDir.resolve("build")));
-        Assert.assertTrue(Files.exists(customTargetDir.resolve("report")));
-        Assert.assertTrue(Files.exists(customTargetDir.resolve("rerun_test.json")));
-        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache").resolve("tests_cache").resolve("test_suit" +
+        Assert.assertFalse(Files.exists(customTargetDir.resolve("report")));
+        Assert.assertFalse(Files.exists(customTargetDir.resolve("rerun_test.json")));
+        Assert.assertFalse(Files.exists(customTargetDir.resolve("cache").resolve("tests_cache").resolve("test_suit" +
                 ".json")));
     }
 

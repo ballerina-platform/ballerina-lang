@@ -2,7 +2,8 @@ cmdname,flags
 add, -t --template
 bal, -v -h --help --version add bindgen build clean dist doc encrypt format grpc help init new openapi pull push run search shell test update version
 bindgen, -cp -m -mvn -o --classpath --maven --modules --output --public
-build, -c -o --cloud --code-coverage --coverage-format --compile --debug --experimental --list-conflicted-classes --observability-included --offline --output --with-tests --sticky --test-report --dump-build-time
+build, -o --cloud --debug --experimental --list-conflicted-classes --observability-included --offline --output --sticky --dump-build-time --target-dir
+pack, -o --debug --list-conflicted-classes --observability-included --offline --output --sticky --dump-build-time --target-dir
 dist, list pull remove update use
 doc, -c -e -o --combine --exclude --output --experimental 
 encrypt, 
