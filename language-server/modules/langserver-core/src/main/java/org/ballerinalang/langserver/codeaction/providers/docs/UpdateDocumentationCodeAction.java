@@ -83,7 +83,7 @@ public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
                 !DiagnosticWarningCode.INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE.diagnosticId().equals(code) &&
                 !DiagnosticWarningCode.DUPLICATE_DOCUMENTED_ATTRIBUTE.diagnosticId().equals(code) &&
                 !DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT.diagnosticId().equals(code) &&
-                !DiagnosticErrorCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE.diagnosticId().equals(code)) {
+                !DiagnosticWarningCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE.diagnosticId().equals(code)) {
             return Collections.emptyList();
         }
         String docUri = context.fileUri();

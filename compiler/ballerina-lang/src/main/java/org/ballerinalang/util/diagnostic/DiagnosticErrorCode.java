@@ -597,9 +597,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     OVERLOADED_METHODS("BCE3915", "overloaded.method"),
     UNSUPPORTED_PRIMITIVE_TYPE("BCE3916", "unsupported.primitive.type.reason"),
     METHOD_SIGNATURE_DOES_NOT_MATCH("BCE3917", "method.signature.not.match"),
-    INVALID_DEPRECATION_DOCUMENTATION("BCE3918", "invalid.deprecation.documentation"),
-    DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE("BCE3919", "deprecation.documentation.should.available"),
-    DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED("BCE3920", "deprecated.parameters.documentation.not.allowed"),
     INVALID_ATTRIBUTE_REFERENCE("BCE3921", "invalid.attribute.reference"),
 
     ILLEGAL_FUNCTION_CHANGE_LIST_SIZE("BCE3922", "illegal.function.change.list.size"),

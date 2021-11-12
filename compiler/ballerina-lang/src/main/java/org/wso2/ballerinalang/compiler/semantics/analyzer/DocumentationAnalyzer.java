@@ -309,9 +309,9 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         }
 
         if (isDeprecationDocumentationAvailable && !isDeprecationAnnotationAvailable) {
-            dlog.error(deprecationDocumentation.pos, DiagnosticErrorCode.INVALID_DEPRECATION_DOCUMENTATION);
+            dlog.warning(deprecationDocumentation.pos, DiagnosticWarningCode.INVALID_DEPRECATION_DOCUMENTATION);
         } else if (!isDeprecationDocumentationAvailable && isDeprecationAnnotationAvailable) {
-            dlog.error(pos, DiagnosticErrorCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE);
+            dlog.warning(pos, DiagnosticWarningCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE);
         }
     }
 
@@ -324,7 +324,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         BLangMarkDownDeprecatedParametersDocumentation deprecatedParametersDocumentation =
                 documentation.getDeprecatedParametersDocumentation();
         if (deprecatedParametersDocumentation != null) {
-            dlog.error(location, DiagnosticErrorCode.DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED);
+            dlog.warning(location, DiagnosticWarningCode.DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED);
         }
     }
 
@@ -604,13 +604,13 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         String name = parameter.getName().value;
         if (!documentedDeprecatedParameterMap.containsKey(name)) {
             if (Symbols.isFlagOn(parameter.symbol.flags, Flags.DEPRECATED)) {
-                dlog.error(parameter.annAttachments.get(0).pos,
-                        DiagnosticErrorCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE);
+                dlog.warning(parameter.annAttachments.get(0).pos,
+                        DiagnosticWarningCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE);
             }
         } else {
             if (!Symbols.isFlagOn(parameter.symbol.flags, Flags.DEPRECATED)) {
-                dlog.error(documentedDeprecatedParameterMap.get(name).pos,
-                        DiagnosticErrorCode.INVALID_DEPRECATION_DOCUMENTATION);
+                dlog.warning(documentedDeprecatedParameterMap.get(name).pos,
+                        DiagnosticWarningCode.INVALID_DEPRECATION_DOCUMENTATION);
             }
             documentedDeprecatedParameterMap.remove(name);
         }
