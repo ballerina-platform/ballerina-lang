@@ -20,21 +20,6 @@
     "code": "Student & readonly student = { 'class: 12, details: immutableDetails, marks: { math: 80, physics: 85, chemistry: 75 } };"
   },
   {
-    "description": "Readonly status of student.",
-    "code": "student.isReadOnly()",
-    "expr": "true"
-  },
-  {
-    "description": "Readonly status of student details.",
-    "code": "student.details.isReadOnly()",
-    "expr": "true"
-  },
-  {
-    "description": "Readonly status of student marks.",
-    "code": "student.marks.isReadOnly()",
-    "expr": "true"
-  },
-  {
     "description": "Create anytype variable and clone it.",
     "code": "map<string|int> m1 = {stringVal: \"str\", intVal: 1}; map<string|int> m2 = m1.cloneReadOnly();"
   },
@@ -42,16 +27,6 @@
     "description": "Check reference eq of clone.",
     "code": "m1 === m2",
     "expr": "false"
-  },
-  {
-    "description": "Readonly state of anytype.",
-    "code": "m1.isReadOnly()",
-    "expr": "false"
-  },
-  {
-    "description": "Readonly state of clone.",
-    "code": "m2.isReadOnly()",
-    "expr": "true"
   },
   {
     "description": "Clone immutable and check ref eq.",
