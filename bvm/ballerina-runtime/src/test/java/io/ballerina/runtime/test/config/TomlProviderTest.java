@@ -41,8 +41,6 @@ import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvide
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
-import io.ballerina.runtime.internal.values.ArrayValueImpl;
-import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -610,7 +608,6 @@ public class TomlProviderTest {
 
     @DataProvider(name = "union-data-provider")
     public Object[][] unionDataProvider() {
-        ArrayType arrayType = TypeCreator.createArrayType(TYPE_INT, true);
         return new Object[][]{
                 // union variable with int value
                 {"intStringVar", TypeCreator.createUnionType(List.of(TYPE_INT, TYPE_FLOAT), true), 123456L},
