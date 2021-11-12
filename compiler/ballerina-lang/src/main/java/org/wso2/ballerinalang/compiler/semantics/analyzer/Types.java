@@ -3476,7 +3476,7 @@ public class Types {
             return true;
         }
 
-        var exponentIndicator = List.of('e', 'E', 'p', 'P');
+        List<Character> exponentIndicator = List.of('e', 'E', 'p', 'P');
         for (int i = 0; i < numericLiteral.length(); i++) {
             char character = numericLiteral.charAt(i);
             if (exponentIndicator.contains(character)) {
