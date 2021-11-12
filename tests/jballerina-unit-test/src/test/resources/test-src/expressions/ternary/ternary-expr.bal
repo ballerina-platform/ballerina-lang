@@ -349,11 +349,11 @@ function testTernaryWithOtherOperators() {
     assertEquals(0, k4);
 }
 
-boolean bool = true;
+boolean bool2 = true;
 int e1 = 10;
 int e2 = 1;
-int t1 = (bool ? e1 : e2);
-int t2 = (!bool ? e1 : e2);
+int t1 = (bool2 ? e1 : e2);
+int t2 = (!bool2 ? e1 : e2);
 
 function testTernaryInModuleLevel() {
     assertEquals(10, t1);
