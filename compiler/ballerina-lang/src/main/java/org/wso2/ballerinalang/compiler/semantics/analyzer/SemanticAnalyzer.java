@@ -520,12 +520,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             annotSymbols.add(annotationAttachment.annotationSymbol);
         });
 
-        if (typeDefinition.symbol instanceof BTypeDefinitionSymbol) {
-            ((BTypeDefinitionSymbol) typeDefinition.symbol).annAttachments.addAll(typeDefinition.annAttachments);
+        BSymbol typeDefSym = typeDefinition.symbol;
+        if (typeDefSym != null && typeDefSym.kind == SymbolKind.TYPE_DEF) {
+            ((BTypeDefinitionSymbol) typeDefSym).annAttachments.addAll(typeDefinition.annAttachments);
         }
 
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
-            ((BEnumSymbol) typeDefinition.symbol).addAnnotations(annotSymbols);
+            ((BEnumSymbol) typeDefSym).addAnnotations(annotSymbols);
             HashSet<String> enumElements = new HashSet<String>();
             BLangUnionTypeNode bLangUnionTypeNode = (BLangUnionTypeNode)  typeDefinition.typeNode;
             for (int j = bLangUnionTypeNode.memberTypeNodes.size() - 1; j >= 0; j--) {

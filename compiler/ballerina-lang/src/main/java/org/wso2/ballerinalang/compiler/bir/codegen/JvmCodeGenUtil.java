@@ -23,6 +23,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Handle;
@@ -42,6 +43,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -519,9 +521,10 @@ public class JvmCodeGenUtil {
     }
 
     public static String toNameString(BType t) {
-        if (t.tsymbol instanceof BStructureTypeSymbol &&
-                ((BStructureTypeSymbol) t.tsymbol).typeDefinitionSymbol != null) {
-            return IdentifierUtils.encodeNonFunctionIdentifier(((BStructureTypeSymbol) t.tsymbol)
+        BTypeSymbol typeSymbol = t.tsymbol;
+        if ((typeSymbol.kind == SymbolKind.RECORD || typeSymbol.kind == SymbolKind.OBJECT) &&
+                ((BStructureTypeSymbol) typeSymbol).typeDefinitionSymbol != null) {
+            return IdentifierUtils.encodeNonFunctionIdentifier(((BStructureTypeSymbol) typeSymbol)
                     .typeDefinitionSymbol.name.value);
         }
         return IdentifierUtils.encodeNonFunctionIdentifier(t.tsymbol.name.value);

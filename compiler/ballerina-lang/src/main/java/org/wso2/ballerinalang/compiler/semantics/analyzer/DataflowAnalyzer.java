@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -445,7 +444,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition typeDefinition) {
         SymbolEnv typeDefEnv;
         BSymbol symbol = typeDefinition.symbol;
-        if (typeDefinition.symbol instanceof BTypeDefinitionSymbol) {
+        if (typeDefinition.symbol.kind == SymbolKind.TYPE_DEF) {
             symbol = symbol.type.tsymbol;
         }
         typeDefEnv = SymbolEnv.createTypeEnv(typeDefinition.typeNode, symbol.scope, env);

@@ -200,7 +200,7 @@ public class SymbolFactory {
             return createTypeDefinition(symbol, name);
         }
 
-        if (symbol instanceof BTypeDefinitionSymbol) {
+        if (symbol.kind == SymbolKind.TYPE_DEF) {
             // create the typeDefs
             return createTypeDefinition(symbol, name);
         }
@@ -409,7 +409,7 @@ public class SymbolFactory {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
 
-        if (typeSymbol instanceof BTypeDefinitionSymbol) {
+        if (typeSymbol.kind == SymbolKind.TYPE_DEF) {
             for (BLangAnnotationAttachment annAttachment : ((BTypeDefinitionSymbol) typeSymbol).annAttachments) {
                 if (annAttachment.annotationSymbol == null) {
                     continue;

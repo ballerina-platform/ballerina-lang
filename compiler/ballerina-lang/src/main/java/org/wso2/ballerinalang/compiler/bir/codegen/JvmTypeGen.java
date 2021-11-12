@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -823,7 +824,8 @@ public class JvmTypeGen {
         PackageID pkgID = typeSymbol.pkgID;
         String typeOwner = JvmCodeGenUtil.getPackageName(pkgID) + MODULE_INIT_CLASS_NAME;
         String defName = "";
-        if (typeSymbol instanceof BStructureTypeSymbol && typeSymbol.name.value.isEmpty()) {
+        if ((typeSymbol.kind == SymbolKind.RECORD || typeSymbol.kind == SymbolKind.OBJECT)
+                && typeSymbol.name.value.isEmpty()) {
             defName = IdentifierUtils
                     .encodeNonFunctionIdentifier(((BStructureTypeSymbol) typeSymbol).typeDefinitionSymbol.name.value);
         }

@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.objectweb.asm.ClassTooLargeException;
 import org.objectweb.asm.ClassWriter;
@@ -59,7 +60,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
@@ -709,7 +709,7 @@ public class JvmPackageGen {
                 Name lookupKey = new Name(IdentifierUtils.decodeIdentifier(objectNewIns.objectName));
                 BSymbol typeSymbol = symbol.scope.lookup(lookupKey).symbol;
                 BObjectTypeSymbol objectTypeSymbol;
-                if (typeSymbol instanceof BTypeDefinitionSymbol) {
+                if (typeSymbol.kind == SymbolKind.TYPE_DEF) {
                     objectTypeSymbol = (BObjectTypeSymbol) typeSymbol.type.tsymbol;
                 } else {
                     //class symbols

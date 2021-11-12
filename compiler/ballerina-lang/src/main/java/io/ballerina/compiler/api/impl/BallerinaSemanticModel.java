@@ -41,7 +41,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -425,13 +424,13 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private boolean isInlineSingletonType(BSymbol symbol) {
-        // !(symbol instanceof BTypeDefinitionSymbol) is checked to exclude type defs
-        return !(symbol instanceof BTypeDefinitionSymbol) && symbol.type.tag == TypeTags.FINITE &&
+        // !(symbol.kind == SymbolKind.TYPE_DEF) is checked to exclude type defs
+        return !(symbol.kind == SymbolKind.TYPE_DEF) && symbol.type.tag == TypeTags.FINITE &&
                 ((BFiniteType) symbol.type).getValueSpace().size() == 1;
     }
 
     private boolean isTypeSymbol(BSymbol tSymbol) {
-        if (tSymbol instanceof BTypeDefinitionSymbol) {
+        if (tSymbol.kind == SymbolKind.TYPE_DEF) {
             return true;
         }
         return tSymbol instanceof BTypeSymbol && !Symbols.isTagOn(tSymbol, PACKAGE)
