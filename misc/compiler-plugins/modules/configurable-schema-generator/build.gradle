@@ -32,11 +32,12 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
     implementation project(':toml-parser')
+    implementation project(':ballerina-config-schema-builder')
     implementation 'com.google.code.gson:gson:2.8.7'
     testCompile 'org.testng:testng'
 }
 
-ext.moduleName = 'org.ballerinalang.configschemagenerator'
+ext.moduleName = 'org.ballerinalang.config.schema.generator'
 
 compileJava {
     doFirst {

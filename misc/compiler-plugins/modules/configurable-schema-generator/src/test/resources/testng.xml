@@ -22,7 +22,7 @@ under the License.
 <suite name="config-schema-generator-test-suite">
     <test name="config-schema-generator-test" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.ballerinalang.configschemagenerator.*" />
+            <package name="org.ballerinalang.config.schema.generator.*" />
         </packages>
     </test>
 </suite>
