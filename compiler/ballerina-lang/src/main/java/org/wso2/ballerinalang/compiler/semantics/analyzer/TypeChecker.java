@@ -508,13 +508,14 @@ public class TypeChecker extends BLangNodeVisitor {
             return intLiteralType;
         }
         int typeTag = getPreferredMemberTypeTag(finiteType);
-        for (int tag = TypeTags.FLOAT; tag <= TypeTags.DECIMAL; tag++) {
-            if (typeTag == tag && literalAssignableToFiniteType(literalExpr, finiteType, tag)) {
-                BType type = symTable.getTypeFromTag(tag);
-                setLiteralValueForFiniteType(literalExpr, type);
-                literalExpr.value = String.valueOf(literalValue);
-                return type;
-            }
+        if (typeTag == TypeTags.NONE) {
+            return symTable.intType;
+        }
+        if (literalAssignableToFiniteType(literalExpr, finiteType, typeTag)) {
+            BType type = symTable.getTypeFromTag(typeTag);
+            setLiteralValueForFiniteType(literalExpr, type);
+            literalExpr.value = String.valueOf(literalValue);
+            return type;
         }
         return symTable.intType;
     }
