@@ -547,12 +547,20 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 if (!intSubTypeMembers.isEmpty()) {
                     BType compatibleIntSubType = null;
+                    boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
+                    this.nonErrorLoggingCheck = true;
+                    int prevErrorCount = this.dlog.errorCount();
+                    this.dlog.resetErrorCount();
+                    this.dlog.mute();
                     for(BType intSubTypeMember : intSubTypeMembers) {
                         compatibleIntSubType = setLiteralValueAndGetType(literalExpr, intSubTypeMember);
                         if (compatibleIntSubType != symTable.semanticError) {
+                            unMuteErrorLog(prevNonErrorLoggingCheck, prevErrorCount);
                             return compatibleIntSubType;
                         }
                     }
+                    unMuteErrorLog(prevNonErrorLoggingCheck, prevErrorCount);
+                    dlog.error(literalExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType, literalType);
                     return compatibleIntSubType;
                 }
                 BType finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.intType);

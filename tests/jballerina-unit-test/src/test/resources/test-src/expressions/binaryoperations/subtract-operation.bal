@@ -2,12 +2,6 @@ function intSubtract(int a, int b) returns (int) {
     return a - b;
 }
 
-function overflowBySubtraction() {
-    int num1 = -9223372036854775808;
-    int num2 = 1;
-    int ans = num1 - num2;
-}
-
 function floatSubtract(float a, float b) returns (float) {
     return a - b;
 }

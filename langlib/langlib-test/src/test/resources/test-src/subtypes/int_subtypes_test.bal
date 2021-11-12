@@ -546,10 +546,6 @@ function testIntLeftShift() {
     int k = i1 << j;
     test:assertValueEqual(-4, k);
 
-    int i2 = -9223372036854775808;
-    k = i2 << j;
-    test:assertValueEqual(0, k);
-
     int i3 = 0;
     k = i3 << j;
     test:assertValueEqual(0, k);
@@ -692,10 +688,6 @@ function testIntRightShift() {
     int j = 3;
     int k = i1 >> j;
     test:assertValueEqual(1152921504606846975, k);
-
-    int i2 = -9223372036854775808;
-    k = i2 >> j;
-    test:assertValueEqual(-1152921504606846976, k);
 
     int i3 = 0;
     k = i3 >> j;
@@ -840,10 +832,6 @@ function testIntUnsignedRightShift() {
     int k = i1 >>> j;
     test:assertValueEqual(1152921504606846975, k);
 
-    int i2 = -9223372036854775808;
-    k = i2 >>> j;
-    test:assertValueEqual(1152921504606846976, k);
-
     int i3 = 0;
     k = i3 >>> j;
     test:assertValueEqual(0, k);
@@ -927,7 +915,6 @@ function testBitwiseAnd() {
     ints:Signed8 i = -100;
     ints:Signed16 j = 31267;
     ints:Signed32 k = -2137483647;
-    int l = -9223372036854775808;
 
     ints:Signed8 s81 = -1;
     int res = s81 & s81;
@@ -938,17 +925,11 @@ function testBitwiseAnd() {
     byte res2 = v1 & v2;
     test:assertValueEqual(128, res2);
 
-    int n = c & i;
-    test:assertValueEqual(139024, n);
-
     int o = j & b;
     test:assertValueEqual(30753, o);
 
     int p = k & a;
     test:assertValueEqual(1, p);
-
-    int q = b & l;
-    test:assertValueEqual(-9223372036854775808, q);
 
     int r = a & 1;
     test:assertValueEqual(1, r);
@@ -992,7 +973,7 @@ function testBitwiseOr() {
     ints:Signed8 i = -100;
     ints:Signed16 j = 31267;
     ints:Signed32 k = -2137483647;
-    int l = -9223372036854775808;
+    int l = -9223372036854775807;
 
     ints:Signed8 s81 = -1;
     int res = s81 | s81;
@@ -1060,7 +1041,7 @@ function testBitwiseXor() {
     ints:Signed8 i = -100;
     ints:Signed16 j = 31267;
     ints:Signed32 k = -2137483647;
-    int l = -9223372036854775808;
+    int l = -9223372036854775807;
 
     ints:Signed8 s81 = -1;
     int res = s81 ^ s81;
@@ -1084,7 +1065,7 @@ function testBitwiseXor() {
     test:assertValueEqual(-2137483648, p);
 
     int q = b ^ l;
-    test:assertValueEqual(9223372036854774241, q);
+    test:assertValueEqual(9223372036854774240, q);
 
     int r = a ^ 1;
     test:assertValueEqual(0, r);
@@ -1190,21 +1171,21 @@ public function testLanglibFunctionsForUnionIntSubtypes() {
     test:assertValueEqual("17", ints:toHexString(intVal7));
 }
 
-type IntType1 int:Signed8|int:Unsigned32;
-type IntType2 int:Signed16|int:Unsigned32;
-type IntType3 int:Signed8|int:Unsigned16;
-type IntType4 int:Signed8|int:Unsigned8;
-type IntType5 int:Signed16|int:Unsigned16;
-type IntType6 int:Signed32|int:Unsigned32;
+type IntUnionType1 int:Signed8|int:Unsigned32;
+type IntUnionType2 int:Signed16|int:Unsigned32;
+type IntUnionType3 int:Signed8|int:Unsigned16;
+type IntUnionType4 int:Signed8|int:Unsigned8;
+type IntUnionType5 int:Signed16|int:Unsigned16;
+type IntUnionType6 int:Signed32|int:Unsigned32;
 
-public function test assignmentToIntUnsignedAndSignedUnionTest() {
+function testAssignmentToIntUnsignedAndSignedUnion() {
     int:Signed8|int:Unsigned32 a1 = 235262;
     int:Signed8 x1 = -127;
     int:Signed8|int:Unsigned32 a2 = x1;
     int:Signed8|int:Unsigned32 a3 = -127;
-    IntType1 a4 = 235262;
-    IntType1 a5 = x1;
-    IntType1 a6 = -127;
+    IntUnionType1 a4 = 235262;
+    IntUnionType1 a5 = x1;
+    IntUnionType1 a6 = -127;
     int:Unsigned32|int:Signed8 a7 = 235262;
     int:Unsigned32|int:Signed8 a8 = -127;
     test:assertValueEqual(235262, a1);
@@ -1220,9 +1201,9 @@ public function test assignmentToIntUnsignedAndSignedUnionTest() {
     int:Signed16 x2 = -32768;
     int:Signed16|int:Unsigned32 a10 = x2;
     int:Signed16|int:Unsigned32 a11 = -32768;
-    IntType2 a12 = 4294967;
-    IntType2 a13 = x2;
-    IntType2 a14 = -32768;
+    IntUnionType2 a12 = 4294967;
+    IntUnionType2 a13 = x2;
+    IntUnionType2 a14 = -32768;
     int:Unsigned32|int:Signed16 a15 = 4294967;
     int:Unsigned32|int:Signed16 a16 = -32768;
     test:assertValueEqual(4294967, a9);
@@ -1238,9 +1219,9 @@ public function test assignmentToIntUnsignedAndSignedUnionTest() {
     int:Signed8 x3 = -127;
     int:Signed8|int:Unsigned16 a18 = x3;
     int:Signed8|int:Unsigned16 a19 = -127;
-    IntType3 a20 = 65500;
-    IntType3 a21 = x3;
-    IntType3 a22 = -127;
+    IntUnionType3 a20 = 65500;
+    IntUnionType3 a21 = x3;
+    IntUnionType3 a22 = -127;
     int:Unsigned16|int:Signed8 a23 = 65500;
     int:Unsigned16|int:Signed8 a24 = -127;
     test:assertValueEqual(65500, a17);
@@ -1256,9 +1237,9 @@ public function test assignmentToIntUnsignedAndSignedUnionTest() {
     int:Signed8 x4 = -127;
     int:Signed8|int:Unsigned8 a26 = x4;
     int:Signed8|int:Unsigned8 a27 = -127;
-    IntType4 a28 = 200;
-    IntType4 a29 = x4;
-    IntType4 a30 = -127;
+    IntUnionType4 a28 = 200;
+    IntUnionType4 a29 = x4;
+    IntUnionType4 a30 = -127;
     int:Unsigned8|int:Signed8 a31 = 200;
     int:Unsigned8|int:Signed8 a32 = -127;
     test:assertValueEqual(200, a25);
@@ -1274,9 +1255,9 @@ public function test assignmentToIntUnsignedAndSignedUnionTest() {
     int:Signed16 x5 = -32768;
     int:Signed16|int:Unsigned16 a34 = x5;
     int:Signed16|int:Unsigned16 a35 = -32768;
-    IntType5 a36 = 65500;
-    IntType5 a37 = x5;
-    IntType5 a38 = -32768;
+    IntUnionType5 a36 = 65500;
+    IntUnionType5 a37 = x5;
+    IntUnionType5 a38 = -32768;
     int:Unsigned16|int:Signed16 a39 = 65500;
     int:Unsigned16|int:Signed16 a40 = -32768;
     test:assertValueEqual(65500, a33);
@@ -1292,11 +1273,11 @@ public function test assignmentToIntUnsignedAndSignedUnionTest() {
     int:Signed32 x6 = -2147;
     int:Signed32|int:Unsigned32 a42 = x6;
     int:Signed32|int:Unsigned32 a43 = -2147;
-    IntType6 a44 = 4000967000;
-    IntType6 a45 = x6;
-    IntType6 a46 = -2147;
+    IntUnionType6 a44 = 4000967000;
+    IntUnionType6 a45 = x6;
+    IntUnionType6 a46 = -2147;
     int:Unsigned32|int:Signed32 a47 = 4000967000;
-    int:Unsigned32|int:Signed32 a48 = -2,147;
+    int:Unsigned32|int:Signed32 a48 = -2147;
     test:assertValueEqual(4000967000, a41);
     test:assertValueEqual(-2147, a42);
     test:assertValueEqual(-2147, a43);

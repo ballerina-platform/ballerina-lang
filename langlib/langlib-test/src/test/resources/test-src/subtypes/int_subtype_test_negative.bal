@@ -355,6 +355,5 @@ function testOutOfBoundValueAssignment(){
      int:Unsigned8 x8 = -9223372036854775808;
      int:Signed8 x9 = 9223372036854775808;
      int:Signed16 x10 = -9223372036854775809;
-     int x11 = -9223372036854775808;
 }
 // TODO : Add more test cases.

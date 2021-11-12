@@ -55,13 +55,6 @@ public class SubtractOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test two int subtract overflow expression", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
-                    "overflow\"\\}.*")
-    public void testIntOverflowBySubtraction() {
-        BRunUtil.invoke(result, "overflowBySubtraction");
-    }
-
     @Test(description = "Test two float subtract expression")
     public void testFloatAddExpr() {
         BValue[] args = { new BFloat(100.0f), new BFloat(200.0f)};
@@ -109,7 +102,7 @@ public class SubtractOperationTest {
 
     @Test(description = "Test subtract statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 12);
+        Assert.assertEquals(resultNegative.getErrorCount(), 13);
         BAssertUtil.validateError(resultNegative, 0, "operator '-' not defined for 'float' and 'string'", 4, 9);
         BAssertUtil.validateError(resultNegative, 1, "operator '-' not defined for 'json' and 'json'", 14, 10);
         BAssertUtil.validateError(resultNegative, 2, "operator '-' not defined for 'C' and 'string'", 28, 14);
@@ -123,6 +116,7 @@ public class SubtractOperationTest {
         BAssertUtil.validateError(resultNegative, 9, "operator '-' not defined for 'int' and 'float'", 41, 18);
         BAssertUtil.validateError(resultNegative, 10, "operator '-' not defined for 'C' and 'float'", 45, 14);
         BAssertUtil.validateError(resultNegative, 11, "operator '-' not defined for 'C' and 'float'", 46, 14);
+        BAssertUtil.validateError(resultNegative, 12, "Integer '-9223372036854775808' too small", 50, 16);
     }
 
     @Test(description = "Test subtraction of nullable values")
