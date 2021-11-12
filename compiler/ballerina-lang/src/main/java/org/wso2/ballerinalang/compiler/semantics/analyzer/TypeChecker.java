@@ -514,7 +514,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 setLiteralValueForFiniteType(literalExpr, type);
                 literalExpr.value = String.valueOf(literalValue);
                 if (type == symTable.floatType &&
-                                            !types.isFloatLiteralValue(literalExpr.pos, String.valueOf(literalValue))) {
+                                            !types.validateFloatLiteral(literalExpr.pos, String.valueOf(literalValue))) {
                     resultType = symTable.semanticError;
                     return resultType;
                 }
@@ -528,7 +528,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (TypeTags.isIntegerTypeTag(expType.tag) || expType.tag == TypeTags.BYTE) {
             return getIntLiteralType(expType, literalValue);
         } else if (expType.tag == TypeTags.FLOAT) {
-            if (!types.isFloatLiteralValue(literalExpr.pos, String.valueOf(literalValue))) {
+            if (!types.validateFloatLiteral(literalExpr.pos, String.valueOf(literalValue))) {
                 resultType = symTable.semanticError;
                 return resultType;
             }
@@ -544,7 +544,10 @@ public class TypeChecker extends BLangNodeVisitor {
             Set<BType> memberTypes = ((BUnionType) expType).getMemberTypes();
             for (BType memType : memberTypes) {
                 if (TypeTags.isIntegerTypeTag(memType.tag) || memType.tag == TypeTags.BYTE) {
-                    return getIntLiteralType(memType, literalValue);
+                    BType intLiteralType = getIntLiteralType(memType, literalValue);
+                    if (intLiteralType != symTable.noType) {
+                        return intLiteralType;
+                    }
                 } else if (memType.tag == TypeTags.JSON || memType.tag == TypeTags.ANYDATA ||
                            memType.tag == TypeTags.ANY) {
                     return symTable.intType;
@@ -578,7 +581,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType getTypeOfLiteralWithFloatDiscriminator(BLangLiteral literalExpr, Object literalValue, BType expType) {
         String numericLiteral = NumericLiteralSupport.stripDiscriminator(String.valueOf(literalValue));
-        if (!types.isFloatLiteralValue(literalExpr.pos, numericLiteral)) {
+        if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
             resultType = symTable.semanticError;
             return resultType;
         }
@@ -623,7 +626,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expType.tag == TypeTags.DECIMAL) {
             return symTable.decimalType;
         } else if (expType.tag == TypeTags.FLOAT) {
-            if (!types.isFloatLiteralValue(literalExpr.pos, numericLiteral)) {
+            if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
                 resultType = symTable.semanticError;
                 return resultType;
             }
@@ -642,7 +645,7 @@ public class TypeChecker extends BLangNodeVisitor {
             for (int tag = TypeTags.FLOAT; tag <= TypeTags.DECIMAL; tag++) {
                 BType unionMember =
                         getAndSetAssignableUnionMember(literalExpr, unionType, symTable.getTypeFromTag(tag));
-                if (unionMember == symTable.floatType && !types.isFloatLiteralValue(literalExpr.pos, numericLiteral)) {
+                if (unionMember == symTable.floatType && !types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
                     resultType = symTable.semanticError;
                     return resultType;
                 } else if (unionMember != symTable.noType) {
@@ -650,7 +653,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
         }
-        if (!types.isFloatLiteralValue(literalExpr.pos, numericLiteral)) {
+        if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
             resultType = symTable.semanticError;
             return resultType;
         }
@@ -659,7 +662,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType getTypeOfHexFloatingPointLiteral(BLangLiteral literalExpr, Object literalValue, BType expType) {
         String numericLiteral = String.valueOf(literalValue);
-        if (!types.isFloatLiteralValue(literalExpr.pos, numericLiteral)) {
+        if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
             resultType = symTable.semanticError;
             return resultType;
         }
@@ -887,7 +890,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             default:
         }
-        return symTable.intType;
+        return symTable.noType;
     }
 
     @Override

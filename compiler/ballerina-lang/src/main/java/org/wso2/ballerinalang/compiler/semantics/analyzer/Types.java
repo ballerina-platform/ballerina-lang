@@ -3467,7 +3467,7 @@ public class Types {
         return false;
     }
 
-    boolean isFloatLiteralValue(Location pos, String numericLiteral) {
+    boolean validateFloatLiteral(Location pos, String numericLiteral) {
         double value = Double.parseDouble(numericLiteral);
         if (Double.isInfinite(value)) {
             dlog.error(pos, DiagnosticErrorCode.FLOAT_TOO_LARGE, numericLiteral);
