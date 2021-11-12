@@ -3015,15 +3015,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     }
                 }
 
-                LinkedHashMap<String, BField> fieldsInRecordType = spreadExprRecordType.fields;
-                List<String> unescapedSpreadExprFieldNameList = new ArrayList<>();
-                
-                for (String key : fieldsInRecordType.keySet()) {
-                    unescapedSpreadExprFieldNameList.add(IdentifierUtils.unescapeJava(key));
-                }
+                LinkedHashMap<String, BField> fieldsInRecordType = getUnescapedFieldList(spreadExprRecordType.fields);
                 
                 for (Object fieldName : names) {
-                    if (!unescapedSpreadExprFieldNameList.contains(fieldName) && !isSpreadExprRecordTypeSealed) {
+                    if (!fieldsInRecordType.containsKey(fieldName) && !isSpreadExprRecordTypeSealed) {
                         this.dlog.error(spreadOpExpr.pos,
                                 DiagnosticErrorCode.SPREAD_FIELD_MAY_DULPICATE_ALREADY_SPECIFIED_KEYS,
                                 spreadOpExpr);
@@ -3031,30 +3026,30 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     }
                 }
 
-                for (BField bField : fieldsInRecordType.values()) {
-                    String unescapedSpreadExprFieldName = IdentifierUtils.unescapeJava(bField.name.value);
-                    if (names.contains(unescapedSpreadExprFieldName)) {
+                for (String fieldName : fieldsInRecordType.keySet()) {
+                    BField bField = fieldsInRecordType.get(fieldName);
+                    if (names.contains(fieldName)) {
                         if (bField.type.tag != TypeTags.NEVER) {
                             this.dlog.error(spreadOpExpr.pos,
                                             DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP,
-                                            recordLiteral.getBType().getKind().typeName(), unescapedSpreadExprFieldName,
+                                            recordLiteral.getBType().getKind().typeName(), fieldName,
                                             spreadOpField);
                         }
                         continue;
                     }
 
                     if (bField.type.tag == TypeTags.NEVER) {
-                        neverTypedKeys.add(unescapedSpreadExprFieldName);
+                        neverTypedKeys.add(fieldName);
                         continue;
                     }
 
-                    if (!neverTypedKeys.remove(unescapedSpreadExprFieldName) &&
+                    if (!neverTypedKeys.remove(fieldName) &&
                             inclusiveTypeSpreadField != null && isSpreadExprRecordTypeSealed) {
                         this.dlog.error(spreadOpExpr.pos,
                                         DiagnosticErrorCode.POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP,
                                         recordLiteral.expectedType.getKind().typeName(), bField.symbol, spreadOpField);
                     }
-                    names.add(unescapedSpreadExprFieldName);
+                    names.add(fieldName);
                 }
 
             } else {
@@ -3105,6 +3100,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (isInferredRecordForMapCET) {
             recordLiteral.expectedType = type;
         }
+    }
+
+    private LinkedHashMap<String, BField> getUnescapedFieldList(LinkedHashMap<String, BField> fieldMap) {
+        LinkedHashMap<String, BField> newMap = new LinkedHashMap<>();
+        for (String key : fieldMap.keySet()) {
+            newMap.put(IdentifierUtils.unescapeJava(key), fieldMap.get(key));
+        }
+
+        return newMap;
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {

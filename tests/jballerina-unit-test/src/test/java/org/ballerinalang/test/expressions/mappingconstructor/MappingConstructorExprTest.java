@@ -61,7 +61,8 @@ public class MappingConstructorExprTest {
                 { "testMappingConstuctorWithAnydataACET" },
                 { "testMappingConstuctorWithJsonACET" },
                 { "testNonAmbiguousMapUnionTarget" },
-                { "testTypeWithReadOnlyInUnionCET" }
+                { "testTypeWithReadOnlyInUnionCET" },
+                { "testFieldsWithEscapeSequences" }
         };
     }
 
@@ -394,7 +395,7 @@ public class MappingConstructorExprTest {
     @Test
     public void testDuplicateFieldWithEscapeSequence() {
         CompileResult compileResult = BCompileUtil.compile(
-                "test-src/expressions/mappingconstructor/mapping_constructor_code_analysis_negative.bal");
+                "test-src/expressions/mappingconstructor/mapping_constructor_duplicate_fields.bal");
         int index = 0;
 
         validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a\\'", 23, 29);
