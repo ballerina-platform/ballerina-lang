@@ -599,15 +599,22 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     }
 
     /**
-     * @return Updated syntax tree.
+     * Function to update syntax tree to handle global variables.
+     *
+     * @param execContext    ClassLoadContext.
+       endOffset of the symbol.
+     * @return Updated project instance.
      */
     public Project updateSyntaxTree(ClassLoadContext execContext) throws InvokerException {
+        // Read bal file and generate Syntax tree
         String balCode = getProjectDoc(execContext, EXECUTION_TEMPLATE_FILE);
         TextDocument document = TextDocuments.from(balCode);
         SyntaxTree syntaxTree = SyntaxTree.from(document);
 
         Project projectNew = getProject(execContext, EXECUTION_TEMPLATE_FILE);
         PackageCompilation compilationNew = compile(projectNew);
+
+        // Get the semantic model and get global variable references
         ModuleId moduleId = projectNew.currentPackage().getDefaultModule().moduleId();
         SemanticModel semanticModel = compilationNew.getSemanticModel(moduleId);
         List<Symbol> symbols = semanticModel.moduleSymbols().stream().filter(s -> s instanceof VariableSymbol).
@@ -620,6 +627,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             refs.put(symbol, semanticModel.references(symbol));
         }
 
+        // filter unnecessary functions
         List<TextRange> functionPositionFilterList = new ArrayList<>();
         TextRange functionTextRange;
         for (Symbol function : functions) {
@@ -635,39 +643,51 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         }
 
         HashMap<String, String> symbolTypes = new HashMap<>();
+        // to keep track of global variable positions and types.
+        Map<String, List<Integer>> variableRefs = new HashMap<>();
         for (Symbol symbol : symbols) {
             String symbolValue = symbol.getName().get();
-            String typeValue = ((VariableSymbol) symbol).typeDescriptor().signature();
-            symbolTypes.put(symbolValue, typeValue);
-            List<Location> locations = refs.get(symbol);
-            for (int i = 1; i < locations.size(); i++) {
+            if (!symbolValue.equals(CONTEXT_EXPR_VAR_NAME)) {
+                String typeValue = ((VariableSymbol) symbol).typeDescriptor().signature();
+                symbolTypes.put(symbolValue, typeValue);
+                List<Location> locations = refs.get(symbol);
+                List<Integer> positions = new ArrayList<>();
+                // here i = 1 used to ignore first occurrence of the variable
+                for (int i = 1; i < locations.size(); i++) {
+                    TextRange symbolTextRange = locations.get(i).textRange();
+                    int startOffset = symbolTextRange.startOffset();
+                    int endOffset = symbolTextRange.endOffset();
+                    // to get global variable positions
+                    positions.add(startOffset);
 
-                TextRange symbolTextRange = locations.get(i).textRange();
-
-                int startOffset = symbolTextRange.startOffset();
-                int endOffset = symbolTextRange.endOffset();
-
-                if (isSymbolPositionAllowed(functionPositionFilterList, startOffset, endOffset)) {
-                    nodeList.add(((ModulePartNode) syntaxTree.rootNode()).findNode(symbolTextRange).parent());
+                    if (isSymbolPositionAllowed(functionPositionFilterList, startOffset, endOffset)) {
+                        nodeList.add(((ModulePartNode) syntaxTree.rootNode()).findNode(symbolTextRange).parent());
+                    }
                 }
+                variableRefs.put(symbolValue, positions);
             }
         }
 
-        NodeRewriter nodeRewriter = new NodeRewriter(symbolTypes);
-        for (Node node:nodeList) {
-            List<Node> replacementNodes = nodeRewriter.accept(node);
-            for (Node replacementNode: replacementNodes) {
-                if (replacementNode != null) {
-                    syntaxTree = syntaxTree.replaceNode(node, replacementNode);
-                }
-            }
-        }
+        // Update generated syntax tree using NodeRewriter - NodeTransformer
+        NodeRewriter shellTreeModifier = new NodeRewriter(variableRefs, symbolTypes);
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
 
+        // Pass modulePart node to the NodeTransformer
+        syntaxTree = syntaxTree.modifyWith(shellTreeModifier.transform(modulePartNode));
+        // generate new project with updated syntax tree
         String newBalCode = syntaxTree.toSourceCode();
         Project customProject = getProject(newBalCode, true);
         return customProject;
     }
 
+    /**
+     * Validation function to validate symbol based on position.
+     *
+     * @param functionPositionFilterList    Filter list.
+     * @param startOffset                   startOffset of the symbol.
+     * @param endOffset                     endOffset of the symbol.
+     * @return Position is allowed or not.
+     */
     private boolean isSymbolPositionAllowed(List<TextRange> functionPositionFilterList,
                                             int startOffset,
                                             int endOffset) {
@@ -678,7 +698,6 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
                 break;
             }
         }
-
         return  isSymbolPositionAllowed;
     }
 }
