@@ -1078,6 +1078,47 @@ function testReadOnlyIntersectionWithNeverExplicitlyInType() {
     assertTrue(a.hasKey("x"));
 }
 
+type R1 record {
+    stream<int> a?;
+};
+
+function testReadOnlyIntersectionWithRecordThatHasAnOptionalNeverReadOnlyField() {
+    R1 & readonly a = {"b": 1};
+    assertEquality(1, a.length());
+    assertFalse(a.hasKey("a"));
+    assertTrue(a.hasKey("b"));
+
+    any b = a;
+    assertFalse(b is record {| never a?; |});
+    assertTrue(b is record {| never a?; int b; |});
+    assertTrue(b is record { never a?; });
+
+    record { never a?; } _ = a;
+}
+
+type R2 record {|
+    int a;
+    stream<int>...;
+|};
+
+function testReadOnlyIntersectionWithRecordThatHasANeverReadOnlyRestField() {
+    R2 & readonly a = {a: 1};
+    assertEquality(1, a.length());
+    assertTrue(a.hasKey("a"));
+
+    any b = a;
+    assertFalse(b is record {| never a?; |});
+    assertTrue(b is record {| int a?; int b?; |});
+    assertTrue(b is record {| int a?; |});
+    assertTrue(b is record {| int a?; never...; |});
+
+    // https://github.com/ballerina-platform/ballerina-lang/issues/33785
+    // record {| int a; |} _ = a;
+
+    record {| int a; never...; |} _ = a;
+    record { int a; } _ = a;
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
