@@ -73,6 +73,7 @@ function __stmts() returns any {
             {{/statement}}
 
             {{^statement}}
+                __updateVariables();
                 {{{exprVarName}}} = (
                     {{{code}}}
                 );
