@@ -141,7 +141,7 @@ public class TestBalaWriter {
             Assert.assertEquals(packageJson.getImplementationVendor(), "WSO2");
             Assert.assertEquals(packageJson.getLanguageSpecVersion(), RepoUtils.getBallerinaSpecVersion());
 
-            Assert.assertEquals(packageJson.getIcon(), "docs/sample.svg");
+            Assert.assertEquals(Paths.get(packageJson.getIcon()), Paths.get("docs/sample.svg"));
             Assert.assertTrue(balaExportPath.resolve(packageJson.getIcon()).toFile().exists());
         }
 
