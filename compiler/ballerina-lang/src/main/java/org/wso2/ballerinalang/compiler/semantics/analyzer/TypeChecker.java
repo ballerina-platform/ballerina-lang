@@ -1838,7 +1838,7 @@ public class TypeChecker extends BLangNodeVisitor {
         TypeDefBuilderHelper.createTypeDefinitionForTSymbol(recordType, recordSymbol, recordTypeNode, env);
 
         if (refType.tag == TypeTags.RECORD) {
-            BRecordType applicableRecordType = (BRecordType) applicableMappingType;
+            BRecordType applicableRecordType = (BRecordType) refType;
             BTypeSymbol applicableRecordTypeSymbol = applicableRecordType.tsymbol;
             BLangUserDefinedType origTypeRef = new BLangUserDefinedType(
                     ASTBuilderUtil.createIdentifier(

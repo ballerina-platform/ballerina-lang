@@ -17,23 +17,20 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
+import org.ballerinalang.model.types.ReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-
-import java.util.Optional;
 
 import static org.wso2.ballerinalang.compiler.util.TypeTags.TYPEREFDESC;
 
 /**
  * @since 2.0.0
  */
-public class BTypeReferenceType extends BType implements SelectivelyImmutableReferenceType {
+public class BTypeReferenceType extends BType implements ReferenceType {
 
     public BType referredType;
     public final String definitionName;
-    private BIntersectionType intersectionType = null;
 
     public BTypeReferenceType(BType referredType, BTypeSymbol tsymbol, long flags) {
         super(TYPEREFDESC, tsymbol, flags);
@@ -65,20 +62,5 @@ public class BTypeReferenceType extends BType implements SelectivelyImmutableRef
     @Override
     public boolean isNullable() {
         return this.referredType.isNullable();
-    }
-
-    @Override
-    public BIntersectionType getImmutableType() {
-        return null;
-    }
-
-    @Override
-    public Optional<BIntersectionType> getIntersectionType() {
-        return Optional.ofNullable(this.intersectionType);
-    }
-
-    @Override
-    public void setIntersectionType(BIntersectionType intersectionType) {
-        this.intersectionType = intersectionType;
     }
 }
