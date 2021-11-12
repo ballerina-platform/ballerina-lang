@@ -43,6 +43,7 @@ import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -407,7 +408,8 @@ public class BuildProject extends Project {
     }
 
     private static void writeBuildFile(Path buildFilePath) {
-        BuildJson buildJson = new BuildJson(System.currentTimeMillis(), System.currentTimeMillis());
+        BuildJson buildJson = new BuildJson(System.currentTimeMillis(), System.currentTimeMillis(),
+                RepoUtils.getBallerinaShortVersion());
         writeBuildFile(buildFilePath, buildJson);
     }
 
