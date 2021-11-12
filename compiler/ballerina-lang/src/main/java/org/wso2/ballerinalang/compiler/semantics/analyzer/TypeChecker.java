@@ -519,8 +519,8 @@ public class TypeChecker extends BLangNodeVisitor {
         return symTable.intType;
     }
 
-    private BType getTypeOfIntegerLiteral(BLangLiteral literalExpr, Object literalValue, BType expType) {
-        if (TypeTags.isIntegerTypeTag(expType.tag) || expType.tag == TypeTags.BYTE) {
+    private BType getIntegerLiteralType(BLangLiteral literalExpr, Object literalValue, BType expType) {
+        if (expType.tag == TypeTags.BYTE || TypeTags.isIntegerTypeTag(expType.tag)) {
             return getIntLiteralType(expType, literalValue);
         } else if (expType.tag == TypeTags.FLOAT) {
             literalExpr.value = ((Long) literalValue).doubleValue();
@@ -554,10 +554,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
 
-            BType finiteTypeMatchWithByteType =
-                                        getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.byteType);
-            if (finiteTypeMatchWithByteType != symTable.semanticError) {
-                finiteType = finiteTypeMatchWithByteType;
+            BType finiteTypeMatchingByte = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.byteType);
+            if (finiteTypeMatchingByte != symTable.semanticError) {
+                finiteType = finiteTypeMatchingByte;
                 BType setType = setLiteralValueAndGetType(literalExpr, finiteType);
                 if (literalExpr.isFiniteContext) {
                     // i.e., a match was found for a finite type
@@ -565,7 +564,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
 
-            return getFiniteTypeMatchWithFloatOrDecimalType(finiteType, memberTypes, literalExpr);
+            return getTypeMatchingFloatOrDecimal(finiteType, memberTypes, literalExpr);
         }
         return symTable.intType;
     }
@@ -680,7 +679,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (literalExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
             NodeKind kind = ((BLangNumericLiteral) literalExpr).kind;
             if (kind == NodeKind.INTEGER_LITERAL) {
-                return getTypeOfIntegerLiteral(literalExpr, literalValue, expType);
+                return getIntegerLiteralType(literalExpr, literalValue, expType);
             } else if (kind == NodeKind.DECIMAL_FLOATING_POINT_LITERAL) {
                 if (NumericLiteralSupport.isFloatDiscriminated(literalExpr.originalValue)) {
                     return getTypeOfLiteralWithFloatDiscriminator(literalExpr, literalValue, expType);
@@ -747,8 +746,8 @@ public class TypeChecker extends BLangNodeVisitor {
         return literalType;
     }
 
-    private BType getFiniteTypeMatchWithFloatOrDecimalType(BType finiteType, Set<BType> memberTypes,
-                                                           BLangLiteral literalExpr) {
+    private BType getTypeMatchingFloatOrDecimal(BType finiteType, Set<BType> memberTypes,
+                                                BLangLiteral literalExpr) {
         for (int tag = TypeTags.FLOAT; tag <= TypeTags.DECIMAL; tag++) {
             if (finiteType == symTable.semanticError) {
                 BType type = symTable.getTypeFromTag(tag);

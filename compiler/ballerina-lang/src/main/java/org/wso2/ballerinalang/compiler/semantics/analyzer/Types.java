@@ -112,7 +112,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
@@ -3477,13 +3476,17 @@ public class Types {
             return true;
         }
 
-        Pattern floatLiteral = Pattern.compile("[1-9]");
-        Pattern floatLiteralWithExpIndicator = Pattern.compile("([^1-9])(.*)([eEpP])");
-        if (floatLiteralWithExpIndicator.matcher(numericLiteral).find()) {
-            return true;
-        } else if (floatLiteral.matcher(numericLiteral).find()) {
-            dlog.error(pos, DiagnosticErrorCode.FLOAT_TOO_SMALL, numericLiteral);
-            return false;
+        var exponentIndicator = List.of('e', 'E', 'p', 'P');
+        for (int i = 0; i < numericLiteral.length(); i++) {
+            char character = numericLiteral.charAt(i);
+            if (exponentIndicator.contains(character)) {
+                break;
+            }
+            if (numericLiteral.charAt(i) >= '1' && numericLiteral.charAt(i) <= '9') {
+                dlog.error(pos, DiagnosticErrorCode.FLOAT_TOO_SMALL, numericLiteral);
+                return false;
+            }
+
         }
         return true;
     }
