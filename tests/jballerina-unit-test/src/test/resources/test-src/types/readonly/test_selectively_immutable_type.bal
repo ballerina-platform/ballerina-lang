@@ -1067,6 +1067,17 @@ function panicFn() returns never & readonly {
     panic error("err!");
 }
 
+type Grault record {
+    int|never x;
+};
+
+function testReadOnlyIntersectionWithNeverExplicitlyInType() {
+    Grault & readonly a = {x: 2};
+    assertEquality(1, a.length());
+    assertEquality(2, a.x);
+    assertTrue(a.hasKey("x"));
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

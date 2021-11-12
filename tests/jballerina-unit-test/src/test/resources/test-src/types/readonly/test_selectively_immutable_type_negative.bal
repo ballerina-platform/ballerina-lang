@@ -304,3 +304,11 @@ function testInvalidUsageOfReadOnlyIntersectionWithNever() {
 
     record { never i?; int j; } & readonly b = {i: 1, j: 1, "k": "str"};
 }
+
+type Grault record {
+    stream<int>|never x;
+};
+
+function testNeverReadOnlyIntersectionWithNeverExplicitlyInType() {
+    Grault & readonly y;
+}
