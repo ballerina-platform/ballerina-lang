@@ -866,6 +866,7 @@ class JvmObservabilityGen {
     /**
      * Swap the effective content of two basic blocks.
      *
+     * @param func The BIR function
      * @param firstBB The first BB of which content should end up in second BB
      * @param secondBB The second BB of which content should end up in first BB
      */
@@ -875,10 +876,7 @@ class JvmObservabilityGen {
         secondBB.instructions = firstBBInstructions;
         int firstBBIndex = func.basicBlocks.indexOf(firstBB);
         for (BIRNonTerminator ins : firstBBInstructions) {
-            BIRBasicBlock endBB = ins.lhsOp.variableDcl.endBB;
-            if (endBB != null && func.basicBlocks.indexOf(endBB) <= firstBBIndex) {
-                ins.lhsOp.variableDcl.endBB = secondBB;
-            }
+            resetEndBasicBlock(func, ins.lhsOp, secondBB, firstBBIndex);
         }
         swapBasicBlockTerminator(func, firstBB, secondBB);
     }
@@ -886,6 +884,7 @@ class JvmObservabilityGen {
     /**
      * Swap the terminators of two basic blocks.
      *
+     * @param func The BIR function
      * @param firstBB The first BB of which terminator should end up in second BB
      * @param secondBB The second BB of which terminator should end up in first BB
      */
@@ -895,10 +894,22 @@ class JvmObservabilityGen {
         secondBB.terminator = firstBBTerminator;
         int firstBBIndex = func.basicBlocks.indexOf(firstBB);
         if (firstBBTerminator.lhsOp != null) {
-            BIRBasicBlock endBB = firstBBTerminator.lhsOp.variableDcl.endBB;
-            if (endBB != null && func.basicBlocks.indexOf(endBB) <= firstBBIndex) {
-                firstBBTerminator.lhsOp.variableDcl.endBB = secondBB;
-            }
+            resetEndBasicBlock(func, firstBBTerminator.lhsOp, secondBB, firstBBIndex);
+        }
+    }
+
+    /**
+     * Reset endBBs of local variables after swap basic blocks content.
+     *
+     * @param func The BIR function
+     * @param lhsOp The lhs operand which holds the local variable
+     * @param newEndBB The new endBB of the local variable
+     * @param index The index of the old endBB
+     */
+    private void resetEndBasicBlock(BIRFunction func, BIROperand lhsOp, BIRBasicBlock newEndBB, int index) {
+        BIRBasicBlock endBB = lhsOp.variableDcl.endBB;
+        if (endBB != null && func.basicBlocks.indexOf(endBB) <= index) {
+            lhsOp.variableDcl.endBB = newEndBB;
         }
     }
 

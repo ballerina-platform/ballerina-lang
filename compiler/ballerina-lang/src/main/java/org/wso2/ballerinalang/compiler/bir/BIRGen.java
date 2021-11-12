@@ -1092,7 +1092,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.varDclsByBlock.get(astBlockStmt).forEach(birVariableDcl ->
                 birVariableDcl.endBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1)
         );
-        if (astBlockStmt.isLetExprStmt) {
+        if (astBlockStmt.isLetExpr) {
             breakBBForLetExprVariables(astBlockStmt.pos);
         }
         this.env.enclInnerOnFailEndBB = currentWithinOnFailEndBB;
