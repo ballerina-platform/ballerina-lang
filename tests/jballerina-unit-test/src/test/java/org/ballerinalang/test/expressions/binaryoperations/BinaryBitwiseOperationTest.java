@@ -93,13 +93,13 @@ public class BinaryBitwiseOperationTest {
                 55, 15);
         BAssertUtil.validateError(negativeResult, index, "operator '^' not defined for 'int' and 'float'",
                 57, 15);
-        BAssertUtil.validateError(negativeResult, index, "incompatible types: expected 'byte', found 'int:Unsigned32'",
-                63, 15);
-        BAssertUtil.validateError(negativeResult, index, "incompatible types: expected 'byte', found 'int:Unsigned16'",
-                64, 15);
-        BAssertUtil.validateError(negativeResult, index, "incompatible types: expected 'int:Unsigned8', found 'int:Unsigned32'",
-                65, 15);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'byte', found 'int:Unsigned32'",
+                63, 16);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'byte', found 'int:Unsigned16'",
+                64, 16);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'int:Unsigned8', found 'int:Unsigned32'",
+                65, 25);
         BAssertUtil.validateError(negativeResult, index, "incompatible types: expected 'int:Unsigned8', found 'int:Unsigned16'",
-                66, 15);
+                66, 25);
     }
 }

@@ -146,18 +146,18 @@ function testBitwiseOROperation() {
     int:Unsigned16|int a13 = c | e;
     assertEqual(a13, 15);
 
-    int:Unsigned8 h = 255;
-    int g = a | f;
-    int i = a | e;
-    int j = a | h;
-    int:Unsigned8 k = a | h;
-    byte l = a | h;
+    int:Unsigned8 n = 255;
+    int a14 = a | f;
+    int a15 = a | e;
+    int a16 = a | n;
+    int:Unsigned8 a17 = a | h;
+    byte a18 = a | n;
 
-    assertEqual(g, 13);
-    assertEqual(i, 12);
-    assertEqual(j, 255);
-    assertEqual(k, 255);
-    assertEqual(l, 255);
+    assertEqual(a14, 13);
+    assertEqual(a15, 12);
+    assertEqual(a16, 255);
+    assertEqual(a17, 12);
+    assertEqual(a18, 255);
 }
 
 function testBitwiseXOROperation() {
