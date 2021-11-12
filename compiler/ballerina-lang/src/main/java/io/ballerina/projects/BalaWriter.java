@@ -53,6 +53,7 @@ import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static io.ballerina.projects.util.ProjectConstants.BALA_DOCS_DIR;
 import static io.ballerina.projects.util.ProjectConstants.BALA_JSON;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
@@ -161,7 +162,7 @@ public abstract class BalaWriter {
         // Set icon in bala path ion the package.json
         if (packageManifest.icon() != null && !packageManifest.icon().isEmpty()) {
             Path iconPath = getIconPath(packageManifest.icon());
-            packageJson.setIcon(String.valueOf(Paths.get("docs").resolve(iconPath.getFileName())));
+            packageJson.setIcon(String.valueOf(Paths.get(BALA_DOCS_DIR).resolve(iconPath.getFileName())));
         }
 
         // Remove fields with empty values from `package.json`
@@ -184,7 +185,7 @@ public abstract class BalaWriter {
         final String moduleMdFileName = "Module.md";
 
         Path packageMd = packageSourceDir.resolve(packageMdFileName);
-        Path docsDirInBala = Paths.get("docs");
+        Path docsDirInBala = Paths.get(BALA_DOCS_DIR);
 
         // If `Package.md` exists, create the docs directory & add `Package.md`
         if (packageMd.toFile().exists()) {
