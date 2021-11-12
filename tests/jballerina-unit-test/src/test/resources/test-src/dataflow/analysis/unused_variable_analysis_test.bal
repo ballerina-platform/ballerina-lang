@@ -391,3 +391,18 @@ function f18(Foo foo) {
     string[] j = foo.j; // used
     j[0] = "str";
 }
+
+service / on new Listener(1234) {
+    resource function get foo/[string... s](int a, string b, float... c) { // Shouldn't log warnings for these.
+        json j = 1; // unused `j`
+    }
+
+    resource function get bar/[string s](int a, string b, float... c) { // Shouldn't log warnings for these.
+        int[] x = []; // used
+        x[0] = 1;
+
+        int[] y = x.clone();
+        int k = y[0]; // unused `k`
+        int _ = y[0];
+    }
+}

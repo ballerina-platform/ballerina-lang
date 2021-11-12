@@ -2307,6 +2307,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         long flags = symbol.flags;
 
+        SymbolKind kind = symbol.kind;
+        if (kind == SymbolKind.PATH_PARAMETER || kind == SymbolKind.PATH_REST_PARAMETER) {
+            return false;
+        }
+
         return !Symbols.isFlagOn(flags, Flags.REQUIRED_PARAM)
                 && !Symbols.isFlagOn(flags, Flags.DEFAULTABLE_PARAM)
                 && !Symbols.isFlagOn(flags, Flags.INCLUDED)
