@@ -385,6 +385,11 @@ public class TernaryExpressionTest {
         BRunUtil.invoke(compileResult, "testTernaryWithOtherOperators");
     }
 
+    @Test
+    public void testTernaryInModuleLevel() {
+        BRunUtil.invoke(compileResult, "testTernaryInModuleLevel");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

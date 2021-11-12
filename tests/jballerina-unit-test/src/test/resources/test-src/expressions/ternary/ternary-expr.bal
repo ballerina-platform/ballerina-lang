@@ -349,6 +349,17 @@ function testTernaryWithOtherOperators() {
     assertEquals(0, k4);
 }
 
+boolean bool2 = true;
+int e1 = 10;
+int e2 = 1;
+int t1 = (bool2 ? e1 : e2);
+int t2 = (!bool2 ? e1 : e2);
+
+function testTernaryInModuleLevel() {
+    assertEquals(10, t1);
+    assertEquals(1, t2);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquals(anydata expected, anydata actual) {
