@@ -1508,6 +1508,22 @@ public class TestBuildProject extends BaseTest {
         Assert.assertFalse(secondBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
         Assert.assertTrue(projectSecondBuild.currentPackage().getResolution().autoUpdate());
 
+        // 3) Build project again after setting dist version as null
+        initialBuildJson.setDistributionVersion(null);
+        ProjectUtils.writeBuildFile(buildFile, initialBuildJson);
+        Assert.assertTrue(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists());
+        BuildProject projectThirdBuild = loadBuildProject(projectPath, buildOptions);
+        projectThirdBuild.save();
+
+        Assert.assertTrue(buildFile.toFile().exists());
+        BuildJson thirdBuildJson = readBuildJson(buildFile);
+        Assert.assertTrue(thirdBuildJson.lastBuildTime() > secondBuildJson.lastBuildTime(),
+                "last_build_time has not updated for the second build");
+        assertTrue(thirdBuildJson.lastUpdateTime() > secondBuildJson.lastUpdateTime(),
+                "last_update_time has not updated for the second build");
+        Assert.assertFalse(thirdBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
+        Assert.assertTrue(projectThirdBuild.currentPackage().getResolution().autoUpdate());
+
         // Remove generated files
         Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
         Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
