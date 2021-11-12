@@ -32,32 +32,6 @@
       ]
     },
     {
-      "label": "foreach i",
-      "kind": "Snippet",
-      "detail": "foreach int i in 0...expr",
-      "documentation": {
-        "left": "foreach i statement for iterable variable - numStream"
-      },
-      "sortText": "BR",
-      "insertText": "foreach int i in ${1:0}...numStream.length() {\n\t${2}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 3,
-              "character": 4
-            },
-            "end": {
-              "line": 3,
-              "character": 14
-            }
-          },
-          "newText": ""
-        }
-      ]
-    },
-    {
       "label": "filter(function () func)",
       "kind": "Function",
       "detail": "stream<int, stream:CompletionType>",

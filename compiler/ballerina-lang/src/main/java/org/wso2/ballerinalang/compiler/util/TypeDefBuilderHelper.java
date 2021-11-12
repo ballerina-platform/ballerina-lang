@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -283,5 +284,19 @@ public class TypeDefBuilderHelper {
         errorType.detailType = userDefinedTypeNode;
 
         return errorType;
+    }
+
+    public static String getPackageAlias(SymbolEnv env, String compUnitName, PackageID typePkgId) {
+        for (BLangImportPackage importStmt : env.enclPkg.imports) {
+            if (!importStmt.compUnit.value.equals(compUnitName)) {
+                continue;
+            }
+
+            if (importStmt.symbol != null && typePkgId.equals(importStmt.symbol.pkgID)) {
+                return importStmt.alias.value;
+            }
+        }
+
+        return ""; // current module
     }
 }

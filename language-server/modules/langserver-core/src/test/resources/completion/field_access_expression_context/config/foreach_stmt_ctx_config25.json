@@ -1,0 +1,179 @@
+{
+  "position": {
+    "line": 3,
+    "character": 14
+  },
+  "source": "field_access_expression_context/source/foreach_stmt_ctx_source23.bal",
+  "items": [
+    {
+      "label": "filter(function () func)",
+      "kind": "Function",
+      "detail": "stream<int, error?>",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nSelects the members from a stream for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `stream<int, error?>`   \n- new stream only containing members of parameter `stm` for which function `func` evaluates to true  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "filter",
+      "insertText": "filter(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "next()",
+      "kind": "Function",
+      "detail": "record {| any|error value; |}|error?",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nReturns the next element in the stream wrapped in a record or () if the stream ends.\n  \n  \n  \n**Return** `record {| any|error value; |}|error?`   \n- If the stream has elements, return the element wrapped in a record with single field called `value`,  \notherwise returns ()  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "next",
+      "insertText": "next()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "reduce(function () func, any|error initial)",
+      "kind": "Function",
+      "detail": "any|error|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nCombines the members of a stream using a combining function.\n\nThe combining function takes the combined value so far and a member of the stream,\nand returns a new combined value.\n  \n**Params**  \n- `function ()` func: combining function  \n- `any|error` initial: initial value for the first argument of combining function `func`  \n  \n**Return** `any|error|error`   \n- result of combining the members of parameter `stm` using function `func`  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "reduce",
+      "insertText": "reduce(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "iterator()",
+      "kind": "Function",
+      "detail": "object {public isolated function next() returns record {| any|error value; |}|error?;}",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nReturns an iterator over a stream.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| any|error value; |}|error?;}`   \n- a new iterator object that will iterate over the members of parameter `stm`.  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "iterator",
+      "insertText": "iterator()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "forEach(function () func)",
+      "kind": "Function",
+      "detail": "error?",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nApplies a function to each member of a stream.\n\nThe function `func` is applied to each member of parameter `stm` stream in order.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `error?`   \n- () if the close completed successfully, otherwise an error  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "forEach",
+      "insertText": "forEach(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "map(function () func)",
+      "kind": "Function",
+      "detail": "stream<any|error, error?>",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nApplies a function to each member of a stream and returns a stream of the results.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `stream<any|error, error?>`   \n- new stream containing result of applying function `func` to each member of parameter `stm` in order  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "map",
+      "insertText": "map(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "close()",
+      "kind": "Function",
+      "detail": "error??",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nCloses a stream.\n\nThis releases any system resources being used by the stream.\nClosing a stream that has already been closed has no efffect and returns `()`.\n  \n  \n  \n**Return** `error??`   \n- () if the close completed successfully, otherwise an error  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "close",
+      "insertText": "close()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toBalString()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "toBalString",
+      "insertText": "toBalString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ensureType(typedesc<any> t)",
+      "kind": "Function",
+      "detail": "t|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it\nreturn - `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done(Defaultable)  \n  \n**Return** `t|error`   \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "ensureType",
+      "insertText": "ensureType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toString()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nPerforms a direct conversion of a value to a string.\n\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "toString",
+      "insertText": "toString()",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

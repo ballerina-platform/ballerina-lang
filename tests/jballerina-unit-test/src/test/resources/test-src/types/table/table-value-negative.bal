@@ -38,3 +38,12 @@ function testTableConstructExprWithDuplicateKeys() returns string {
 
     return tab2.toString();
 }
+
+const int idNum = 1;
+function testVariableNameFieldAsKeyField() {
+    table<record {readonly int idNum; string name;}> key (idNum) tb = table [
+        {idNum, name: "Jo"},
+        {idNum, name: "Chiran"},
+        {idNum: 2, name: "Amy"}
+    ];
+}

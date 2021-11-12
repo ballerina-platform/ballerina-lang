@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -1161,8 +1162,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         for (String fieldName : keySpecifierFieldNames) {
             for (BLangRecordLiteral recordLiteral : recordLiterals) {
-                BLangRecordKeyValueField recordKeyValueField = getRecordKeyValueField(recordLiteral, fieldName);
-                if (recordKeyValueField != null && isConstExpression(recordKeyValueField.getValue())) {
+                BLangExpression recordKeyValueField = getRecordKeyValueField(recordLiteral, fieldName);
+                if (recordKeyValueField != null && isConstExpression(recordKeyValueField)) {
                     continue;
                 }
 
@@ -1201,12 +1202,32 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private BLangRecordKeyValueField getRecordKeyValueField(BLangRecordLiteral recordLiteral,
+    private BLangExpression getRecordKeyValueField(BLangRecordLiteral recordLiteral,
                                                             String fieldName) {
         for (RecordLiteralNode.RecordField recordField : recordLiteral.fields) {
-            BLangRecordKeyValueField recordKeyValueField = (BLangRecordKeyValueField) recordField;
-            if (fieldName.equals(recordKeyValueField.key.toString())) {
-                return recordKeyValueField;
+            if (recordField.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField recordKeyValueField =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) recordField;
+                if (fieldName.equals(recordKeyValueField.key.toString())) {
+                    return recordKeyValueField.valueExpr;
+                }
+            } else if (recordField.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                if (fieldName.equals(((BLangRecordVarNameField) recordField).variableName.value)) {
+                    return (BLangRecordLiteral.BLangRecordVarNameField) recordField;
+                }
+            } else if (recordField.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
+                BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField =
+                        (BLangRecordLiteral.BLangRecordSpreadOperatorField) recordField;
+                BType spreadOpExprType = types.getReferredType(spreadOperatorField.expr.getBType());
+                if (spreadOpExprType.tag != TypeTags.RECORD) {
+                    continue;
+                }
+                BRecordType recordType = (BRecordType) spreadOpExprType;
+                for (BField recField : recordType.fields.values()) {
+                    if (fieldName.equals(recField.name.value)) {
+                        return recordLiteral;
+                    }
+                }
             }
         }
 
@@ -1738,7 +1759,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         PackageID pkgID = env.enclPkg.symbol.pkgID;
-        BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(pkgID, recordLiteral.pos, VIRTUAL);
+        Location pos = recordLiteral.pos;
+        BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(pkgID, pos, VIRTUAL);
 
         LinkedHashMap<String, BField> newFields = new LinkedHashMap<>();
 
@@ -1810,12 +1832,24 @@ public class TypeChecker extends BLangNodeVisitor {
         recordType.tsymbol = recordSymbol;
 
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(recordType, pkgID, symTable,
-                                                                                       recordLiteral.pos);
+                                                                                       pos);
         recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env,
                                                                                            names, symTable);
         TypeDefBuilderHelper.createTypeDefinitionForTSymbol(recordType, recordSymbol, recordTypeNode, env);
 
-        if (refType.tag == TypeTags.MAP) {
+        if (refType.tag == TypeTags.RECORD) {
+            BRecordType applicableRecordType = (BRecordType) applicableMappingType;
+            BTypeSymbol applicableRecordTypeSymbol = applicableRecordType.tsymbol;
+            BLangUserDefinedType origTypeRef = new BLangUserDefinedType(
+                    ASTBuilderUtil.createIdentifier(
+                            pos,
+                            TypeDefBuilderHelper.getPackageAlias(env, pos.lineRange().filePath(),
+                                                                 applicableRecordTypeSymbol.pkgID)),
+                    ASTBuilderUtil.createIdentifier(pos, applicableRecordTypeSymbol.name.value));
+            origTypeRef.pos = pos;
+            origTypeRef.setBType(applicableRecordType);
+            recordTypeNode.typeRefs.add(origTypeRef);
+        } else if (refType.tag == TypeTags.MAP) {
             recordLiteral.expectedType = applicableMappingType;
         }
 
