@@ -15,7 +15,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThe `Client.post()` function can be used to send HTTP POST requests to HTTP endpoints.\n  \n**Params**  \n- `string` path: Resource path  \n- `mod:RequestMessage` message: An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`  \n- `string` targetType: Specifies the target type(Defaultable)  \n  \n**Return** `mod:Response`   \n- The response for the request  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "BC",
       "filterText": "post",
       "insertText": "post(${1})",
       "insertTextFormat": "Snippet",
