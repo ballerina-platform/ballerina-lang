@@ -5862,7 +5862,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private void logParseLongError(Node literal, String originalNodeValue, SyntaxKind sign, DiagnosticCode code1,
-                                   DiagnosticCode code2){
+                                   DiagnosticCode code2) {
         Location pos = getPosition(literal);
         if (sign == SyntaxKind.MINUS_TOKEN) {
             pos = new BLangDiagnosticLocation(pos.lineRange().filePath(),

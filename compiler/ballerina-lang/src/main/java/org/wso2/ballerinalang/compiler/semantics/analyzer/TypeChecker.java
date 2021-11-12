@@ -552,7 +552,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     int prevErrorCount = this.dlog.errorCount();
                     this.dlog.resetErrorCount();
                     this.dlog.mute();
-                    for(BType intSubTypeMember : intSubTypeMembers) {
+                    for (BType intSubTypeMember : intSubTypeMembers) {
                         compatibleIntSubType = setLiteralValueAndGetType(literalExpr, intSubTypeMember);
                         if (compatibleIntSubType != symTable.semanticError) {
                             unMuteErrorLog(prevNonErrorLoggingCheck, prevErrorCount);
