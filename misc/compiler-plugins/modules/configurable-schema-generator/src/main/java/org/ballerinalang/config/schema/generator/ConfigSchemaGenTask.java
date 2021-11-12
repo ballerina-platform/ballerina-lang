@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.configschemagenerator;
+package org.ballerinalang.config.schema.generator;
 
 import io.ballerina.projects.ConfigReader;
 import io.ballerina.projects.Project;
@@ -24,7 +24,7 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.CompilationAnalysisContext;
 import io.ballerina.projects.util.ProjectConstants;
-import org.ballerinalang.configschemagenerator.util.ConfigSchemaBuilder;
+import org.ballerinalang.config.schema.builder.ConfigSchemaBuilder;
 
 import java.io.IOException;
 import java.nio.file.Files;

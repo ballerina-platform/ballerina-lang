@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.configschemagenerator.util;
+package org.ballerinalang.config.schema.builder;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
