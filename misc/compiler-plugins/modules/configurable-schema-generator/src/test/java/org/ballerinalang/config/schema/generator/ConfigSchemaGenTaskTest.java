@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.configschemagenerator;
+package org.ballerinalang.config.schema.generator;
 
 import com.google.gson.JsonParser;
 import io.ballerina.projects.BuildOptions;
@@ -39,7 +39,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static io.ballerina.projects.util.ProjectConstants.CONFIGURATION_TOML;
-import static org.ballerinalang.configschemagenerator.ConfigSchemaGenTask.CONFIG_SCHEMA;
 
 /**
  * Tests to verify config schema generation task.
@@ -120,7 +119,7 @@ public class ConfigSchemaGenTaskTest {
         } else {
             targetPath = path.resolve(ProjectConstants.TARGET_DIR_NAME).resolve(ProjectConstants.BIN_DIR_NAME);
         }
-        return readFileContent(targetPath.resolve(CONFIG_SCHEMA));
+        return readFileContent(targetPath.resolve(ConfigSchemaGenTask.CONFIG_SCHEMA));
     }
 
     /**
