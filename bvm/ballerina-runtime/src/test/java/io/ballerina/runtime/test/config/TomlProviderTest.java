@@ -634,13 +634,6 @@ public class TomlProviderTest {
                                                                 ValueCreator.createKeyFieldEntry(fromString("age"),
                                                                                                  14L),
                                                         })},
-                // union variable with array value
-                {"arrayUnionVar", TypeCreator.createUnionType(List.of(TYPE_INT, arrayType), true),
-                        new ArrayValueImpl(arrayType, 3, new ListInitialValueEntry.ExpressionEntry[]{
-                                new ListInitialValueEntry.ExpressionEntry(123L),
-                                new ListInitialValueEntry.ExpressionEntry(456L),
-                                new ListInitialValueEntry.ExpressionEntry(789L)
-                        })},
                 // anydata variable with float value
                 {"anyDataPrimitiveTypeVar", TYPE_ANYDATA, 9.87},
                 // anydata variable with map value
