@@ -58,7 +58,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -584,26 +583,13 @@ public class ImmutableTypeCloner {
         }
 
         BLangUserDefinedType origTypeRef = new BLangUserDefinedType(
-                ASTBuilderUtil.createIdentifier(pos, getPackageAlias(env, pos.lineRange().filePath(),
-                                                                     origStructureType.tsymbol.pkgID)),
+                ASTBuilderUtil.createIdentifier(pos,
+                                                TypeDefBuilderHelper.getPackageAlias(env, pos.lineRange().filePath(),
+                                                                                     origStructureType.tsymbol.pkgID)),
                 ASTBuilderUtil.createIdentifier(pos, origStructureType.tsymbol.name.value));
         origTypeRef.pos = pos;
         origTypeRef.setBType(origStructureType);
         immutableStructureTypeNode.typeRefs.add(origTypeRef);
-    }
-
-    private static String getPackageAlias(SymbolEnv env, String compUnitName, PackageID typePkgId) {
-        for (BLangImportPackage importStmt : env.enclPkg.imports) {
-            if (!importStmt.compUnit.value.equals(compUnitName)) {
-                continue;
-            }
-
-            if (importStmt.symbol != null && typePkgId.equals(importStmt.symbol.pkgID)) {
-                return importStmt.alias.value;
-            }
-        }
-
-        return ""; // current module
     }
 
     private static void setRestType(Types types, SymbolTable symTable, BLangAnonymousModelHelper anonymousModelHelper,

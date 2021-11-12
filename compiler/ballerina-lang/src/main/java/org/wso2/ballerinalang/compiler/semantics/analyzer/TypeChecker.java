@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -1737,7 +1738,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         PackageID pkgID = env.enclPkg.symbol.pkgID;
-        BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(pkgID, recordLiteral.pos, VIRTUAL);
+        Location pos = recordLiteral.pos;
+        BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(pkgID, pos, VIRTUAL);
 
         LinkedHashMap<String, BField> newFields = new LinkedHashMap<>();
 
@@ -1809,12 +1811,24 @@ public class TypeChecker extends BLangNodeVisitor {
         recordType.tsymbol = recordSymbol;
 
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(recordType, pkgID, symTable,
-                                                                                       recordLiteral.pos);
+                                                                                       pos);
         recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env,
                                                                                            names, symTable);
         TypeDefBuilderHelper.addTypeDefinition(recordType, recordSymbol, recordTypeNode, env);
 
-        if (applicableMappingType.tag == TypeTags.MAP) {
+        if (applicableMappingType.tag == TypeTags.RECORD) {
+            BRecordType applicableRecordType = (BRecordType) applicableMappingType;
+            BTypeSymbol applicableRecordTypeSymbol = applicableRecordType.tsymbol;
+            BLangUserDefinedType origTypeRef = new BLangUserDefinedType(
+                    ASTBuilderUtil.createIdentifier(
+                            pos,
+                            TypeDefBuilderHelper.getPackageAlias(env, pos.lineRange().filePath(),
+                                                                 applicableRecordTypeSymbol.pkgID)),
+                    ASTBuilderUtil.createIdentifier(pos, applicableRecordTypeSymbol.name.value));
+            origTypeRef.pos = pos;
+            origTypeRef.setBType(applicableRecordType);
+            recordTypeNode.typeRefs.add(origTypeRef);
+        } else if (applicableMappingType.tag == TypeTags.MAP) {
             recordLiteral.expectedType = applicableMappingType;
         }
 
