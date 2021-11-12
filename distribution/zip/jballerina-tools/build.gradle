@@ -150,8 +150,6 @@ dependencies {
     // ballerinax module cache
     balxBir project(path: ':ballerina-lang:jballerina.java', configuration: 'bir')
 
-    balDoc project(path: ':ballerina-observability', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-observability-internal', configuration: 'balDoc')
 //    balDoc project(path: ':ballerina-transactions', configuration: 'balDoc')
 
     // Lang Libs
@@ -183,8 +181,6 @@ dependencies {
     // testerina modules
     balDoc project(path: ':testerina:testerina-core', configuration: 'balDoc')
 
-    distributionBala project(path: ':ballerina-observability', configuration: 'distributionBala')
-    distributionBala project(path: ':ballerina-observability-internal', configuration: 'distributionBala')
 
     distributionBala project(path: ':ballerina-lang:annotations', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:internal', configuration: 'distributionBala')
