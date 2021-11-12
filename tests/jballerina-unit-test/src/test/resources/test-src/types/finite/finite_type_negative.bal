@@ -116,4 +116,5 @@ function testFiniteTypeWithNumericValues() {
     Foo f2 = 2;
     Foo2 f3 = 2;
     Foo4 f5 = 3;
+    "chiran" x = 5;
 }

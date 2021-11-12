@@ -3473,11 +3473,15 @@ public class Types {
             dlog.error(pos, DiagnosticErrorCode.FLOAT_TOO_LARGE, numericLiteral);
             return false;
         }
+        if (value != 0.0) {
+            return true;
+        }
 
         Pattern floatLiteral = Pattern.compile("[1-9]");
-        Pattern floatLiteralWithExpIndicator = Pattern.compile("([1-9])(.*)([eEpP])");
-        if (value == 0.0 && floatLiteral.matcher(numericLiteral).find() &&
-                floatLiteralWithExpIndicator.matcher(numericLiteral).find()) {
+        Pattern floatLiteralWithExpIndicator = Pattern.compile("([^1-9])(.*)([eEpP])");
+        if (floatLiteralWithExpIndicator.matcher(numericLiteral).find()) {
+            return true;
+        } else if (floatLiteral.matcher(numericLiteral).find()) {
             dlog.error(pos, DiagnosticErrorCode.FLOAT_TOO_SMALL, numericLiteral);
             return false;
         }

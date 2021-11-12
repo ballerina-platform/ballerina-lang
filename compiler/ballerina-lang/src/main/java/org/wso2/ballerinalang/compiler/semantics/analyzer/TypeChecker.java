@@ -523,10 +523,6 @@ public class TypeChecker extends BLangNodeVisitor {
         if (TypeTags.isIntegerTypeTag(expType.tag) || expType.tag == TypeTags.BYTE) {
             return getIntLiteralType(expType, literalValue);
         } else if (expType.tag == TypeTags.FLOAT) {
-            if (!types.validateFloatLiteral(literalExpr.pos, String.valueOf(literalValue))) {
-                resultType = symTable.semanticError;
-                return resultType;
-            }
             literalExpr.value = ((Long) literalValue).doubleValue();
             return symTable.floatType;
         } else if (expType.tag == TypeTags.DECIMAL) {

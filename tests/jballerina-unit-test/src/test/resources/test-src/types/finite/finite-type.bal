@@ -551,9 +551,13 @@ function testFiniteType() {
     Mat f1 = 1;
     Mat2 f2 = 1;
     Mat3 f3 = 1;
+    "chiran"|5.0f f4 = 5;
+    0x0.00p00 f5 = 0x0.00p00;
     assertEquality(f1 is 1f, true);
     assertEquality(f2 is 1, true);
     assertEquality(f3 is 1f, true);
+    assertEquality(f4 is 5.0f, true);
+    assertEquality(f5 is 0x0.00p00, true);
 }
 
 const ASSERTION_ERROR_REASON = "TypeAssertionError";
