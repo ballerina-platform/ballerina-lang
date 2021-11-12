@@ -2461,6 +2461,10 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case QUESTION_MARK_TOKEN:
+                if (precedence.isHigherThanOrEqual(TypePrecedence.ARRAY_OR_OPTIONAL)) {
+                    return typeDesc;
+                }
+
                 // If next token after a type descriptor is '?' then it is a possible optional type descriptor
                 boolean isPossibleOptionalType = true;
                 STToken nextNextToken = getNextNextToken();
@@ -2480,15 +2484,15 @@ public class BallerinaParser extends AbstractParser {
                     return typeDesc;
                 }
 
-                return parseComplexTypeDescriptorInternal(parseOptionalTypeDescriptor(typeDesc), context,
-                        isTypedBindingPattern, precedence);
+                STNode optionalTypeDes = parseOptionalTypeDescriptor(typeDesc);
+                return parseComplexTypeDescriptorInternal(optionalTypeDes, context, isTypedBindingPattern, precedence);
             case OPEN_BRACKET_TOKEN:
                 // If next token after a type descriptor is '[' then it is an array type descriptor
                 if (isTypedBindingPattern) {
                     return typeDesc;
                 }
 
-                if (precedence.isHigherThanOrEqual(TypePrecedence.ARRAY)) {
+                if (precedence.isHigherThanOrEqual(TypePrecedence.ARRAY_OR_OPTIONAL)) {
                     return typeDesc;
                 }
                 
