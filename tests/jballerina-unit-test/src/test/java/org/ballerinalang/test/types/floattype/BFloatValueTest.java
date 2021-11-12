@@ -163,15 +163,19 @@ public class BFloatValueTest {
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 2200.0, "Invalid float value returned.");
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test()
     public void testIntegerValue() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 6);
+        Assert.assertEquals(negativeResult.getErrorCount(), 10);
         BAssertUtil.validateError(negativeResult, 0, "leading zeros in numeric literals", 3, 9);
         BAssertUtil.validateError(negativeResult, 1, "float '999e9999999999' too large", 8, 15);
         BAssertUtil.validateError(negativeResult, 2, "float '999e-9999999999' too small", 9, 15);
         BAssertUtil.validateError(negativeResult, 3, "float '999e9999999999' too large", 10, 23);
         BAssertUtil.validateError(negativeResult, 4, "float '99.9E99999999' too large", 11, 27);
         BAssertUtil.validateError(negativeResult, 5, "float '99.9E-99999999' too small", 12, 27);
+        BAssertUtil.validateError(negativeResult, 6, "float '0x9999999p999999999999999999999999' too large", 15, 10);
+        BAssertUtil.validateError(negativeResult, 7, "float '0x9999999p-999999999999999999999999' too small", 17, 11);
+        BAssertUtil.validateError(negativeResult, 8, "float '9999999999e9999999999999999999f' too large", 19, 10);
+        BAssertUtil.validateError(negativeResult, 9, "float '9999999999e-9999999999999999999f' too small", 21, 11);
     }
 
     @Test(description = "Test float literal discrimination error")

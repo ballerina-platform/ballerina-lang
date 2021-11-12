@@ -513,11 +513,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 BType type = symTable.getTypeFromTag(tag);
                 setLiteralValueForFiniteType(literalExpr, type);
                 literalExpr.value = String.valueOf(literalValue);
-                if (type == symTable.floatType &&
-                                            !types.validateFloatLiteral(literalExpr.pos, String.valueOf(literalValue))) {
-                    resultType = symTable.semanticError;
-                    return resultType;
-                }
                 return type;
             }
         }
@@ -545,7 +540,7 @@ public class TypeChecker extends BLangNodeVisitor {
             for (BType memType : memberTypes) {
                 if (TypeTags.isIntegerTypeTag(memType.tag) || memType.tag == TypeTags.BYTE) {
                     BType intLiteralType = getIntLiteralType(memType, literalValue);
-                    if (intLiteralType != symTable.noType) {
+                    if (intLiteralType == memType) {
                         return intLiteralType;
                     }
                 } else if (memType.tag == TypeTags.JSON || memType.tag == TypeTags.ANYDATA ||
@@ -683,7 +678,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return symTable.floatType;
     }
 
-        private BType setLiteralValueAndGetType(BLangLiteral literalExpr, BType expType) {
+        public BType setLiteralValueAndGetType(BLangLiteral literalExpr, BType expType) {
         Object literalValue = literalExpr.value;
 
         if (literalExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
@@ -890,7 +885,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             default:
         }
-        return symTable.noType;
+        return symTable.intType;
     }
 
     @Override
