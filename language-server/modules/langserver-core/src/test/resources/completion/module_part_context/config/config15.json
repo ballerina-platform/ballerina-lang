@@ -1,10 +1,19 @@
 {
   "position": {
-    "line": 2,
-    "character": 7
+    "line": 34,
+    "character": 4
   },
-  "source": "class_def/source/source14.bal",
+  "source": "module_part_context/source/source14.bal",
   "items": [
+    {
+      "label": "import",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "B",
+      "filterText": "import",
+      "insertText": "import ",
+      "insertTextFormat": "Snippet"
+    },
     {
       "label": "type",
       "kind": "Keyword",
@@ -12,6 +21,15 @@
       "sortText": "B",
       "filterText": "type",
       "insertText": "type ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "public",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "B",
+      "filterText": "public",
+      "insertText": "public ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -240,6 +258,22 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "D",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Service",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "D",
+      "insertText": "Service",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -251,19 +285,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "D",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testClass",
+      "label": "Listener",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "D",
-      "insertText": "testClass",
+      "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
     {
@@ -407,15 +433,17 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
+      "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "test",
+      "filterText": "runtime",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -429,7 +457,31 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "value",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
         }
       ]
     },
@@ -438,6 +490,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
+      "filterText": "array",
       "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -461,6 +514,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
+      "filterText": "java",
       "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -480,11 +534,12 @@
       ]
     },
     {
-      "label": "ballerina/lang.value",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "value",
+      "filterText": "test",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -498,30 +553,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -636,6 +668,50 @@
       "sortText": "E",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service on module1:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "E",
+      "filterText": "service_module1_Listener",
+      "insertText": "service ${1} on new module1:Listener(${2:0}) {\n    ${3}\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "service on test:MockListener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "E",
+      "filterText": "service_test_MockListener",
+      "insertText": "service ${1} on new test:MockListener(${2:0}) {\n    ${3}\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "E",
+      "filterText": "service_Listener",
+      "insertText": "service ${1} on new Listener() {\n\n    remote function method1() {\n        ${2}\n    }\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     }
   ]
 }
