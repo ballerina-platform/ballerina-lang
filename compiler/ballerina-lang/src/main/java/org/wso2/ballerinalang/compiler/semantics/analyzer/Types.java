@@ -112,6 +112,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
@@ -3467,23 +3468,18 @@ public class Types {
     }
 
     boolean isFloatLiteralValue(Location pos, String numericLiteral) {
-        double value = Double.parseDouble(String.valueOf(numericLiteral));
+        double value = Double.parseDouble(numericLiteral);
         if (Double.isInfinite(value)) {
             dlog.error(pos, DiagnosticErrorCode.FLOAT_TOO_LARGE, numericLiteral);
             return false;
         }
 
-        if (value == 0.0) {
-            for (int i = 0; i < numericLiteral.length(); i++) {
-                char character = numericLiteral.charAt(i);
-                if (character == 'p' || character == 'P' || character == 'e' || character == 'E') {
-                    break;
-                }
-                if (character >= '1' && character <= '9') {
-                    dlog.error(pos, DiagnosticErrorCode.FLOAT_TOO_SMALL, numericLiteral);
-                    return false;
-                }
-            }
+        Pattern floatLiteral = Pattern.compile("[1-9]");
+        Pattern floatLiteralWithExpIndicator = Pattern.compile("([1-9])(.*)([eEpP])");
+        if (value == 0.0 && floatLiteral.matcher(numericLiteral).find() &&
+                floatLiteralWithExpIndicator.matcher(numericLiteral).find()) {
+            dlog.error(pos, DiagnosticErrorCode.FLOAT_TOO_SMALL, numericLiteral);
+            return false;
         }
         return true;
     }

@@ -5287,17 +5287,19 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         //TODO: Verify all types, only string type tested
         if (type == SyntaxKind.NUMERIC_LITERAL) {
             SyntaxKind literalTokenKind = ((BasicLiteralNode) literal).literalToken().kind();
+            NodeKind kind;
             if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN ||
                     literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
+                kind = NodeKind.INTEGER_LITERAL;
                 typeTag = TypeTags.INT;
                 value = getIntegerLiteral(literal, textValue, sign);
                 originalValue = textValue;
-                bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
                 if (literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN && withinByteRange(value)) {
                     typeTag = TypeTags.BYTE;
                 }
             } else if (literalTokenKind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN) {
                 //TODO: Check effect of mapping negative(-) numbers as unary-expr
+                kind = NodeKind.DECIMAL_FLOATING_POINT_LITERAL;
                 typeTag = NumericLiteralSupport.isDecimalDiscriminated(textValue) ? TypeTags.DECIMAL : TypeTags.FLOAT;
                 if (isFiniteType) {
                     value = textValue.replaceAll("[fd+]", "");
@@ -5306,14 +5308,20 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     value = textValue;
                     originalValue = textValue;
                 }
-                bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
-            } else if (literalTokenKind == SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN) {
+            } else {
                 //TODO: Check effect of mapping negative(-) numbers as unary-expr
+                kind = NodeKind.HEX_FLOATING_POINT_LITERAL;
                 typeTag = TypeTags.FLOAT;
                 value = getHexNodeValue(textValue);
                 originalValue = textValue;
-                bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
             }
+            BLangNumericLiteral numericLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
+            numericLiteral.kind = kind;
+            numericLiteral.pos = getPosition(literal);
+            numericLiteral.setBType(symTable.getTypeFromTag(typeTag));
+            numericLiteral.value = value;
+            numericLiteral.originalValue = originalValue;
+            return numericLiteral;
         } else if (type == SyntaxKind.BOOLEAN_LITERAL) {
             typeTag = TypeTags.BOOLEAN;
             value = Boolean.parseBoolean(textValue);
