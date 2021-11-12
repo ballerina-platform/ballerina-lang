@@ -100,7 +100,7 @@ public class GreaterLessThanOperationTest {
 
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 88);
+        Assert.assertEquals(resultNegative.getErrorCount(), 89);
         int index = 0;
         BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'json' and 'json'", 7, 12);
         BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'json' and 'json'", 16, 12);
@@ -190,6 +190,8 @@ public class GreaterLessThanOperationTest {
                 "and '1|2|3|4|5.23f[]'", 157, 18);
         BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for '1|2|3|4|5.23f[]' " +
                 "and '1|2|3|4|5.23f[]'", 158, 18);
+        BAssertUtil.validateError(resultNegative, index++, "incompatible types: expected 'OneOrTwo', found " +
+                "'int'", 167, 21);
         BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'OneOrTwo[]' and " +
                 "'OneOrTwo[]'", 169, 18);
         BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'OneOrTwo[]' and " +
