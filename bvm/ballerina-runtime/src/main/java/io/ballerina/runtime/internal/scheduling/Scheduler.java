@@ -494,7 +494,7 @@ public class Scheduler {
             //  1) All items are blocked.
             //  2) All others have finished
             // In this case we need to put it back in the runnable list.
-            if (group.scheduled.compareAndSet(false, true)) {
+            if (group.scheduled.compareAndSet(false, true) || group.items.size() == 1) {
                 runnableList.add(group);
             }
         }
