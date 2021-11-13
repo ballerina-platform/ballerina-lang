@@ -612,27 +612,26 @@ public class CommandUtil {
                 List<Path> modulesList = collectModules.collect(Collectors.toList());
                 for (Path module : modulesList) {
                     String moduleName = module.getFileName().toString();
-                    if (!moduleName.equals(packageName)) {
-                        Gson gson = new Gson();
-
-                        // no need to read package.json
-                        Path packageJsonPath = balaPath.resolve("package.json");
-                        try (InputStream inputStream = new FileInputStream(String.valueOf(packageJsonPath))) {
-                            Reader fileReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-                            PackageJson packageJson = gson.fromJson(fileReader, PackageJson.class);
-                            List<String> exportModules = packageJson.getExport();
-                            for (String exportModule : exportModules) {
-                                if (exportModule.equals(moduleName)) {
-                                    Files.walkFileTree(module, new FileUtils.Copy(module, moduleDirPath));
-                                }
+                    Gson gson = new Gson();
+                    Path packageJsonPath = balaPath.resolve("package.json");
+                    try (InputStream inputStream = new FileInputStream(String.valueOf(packageJsonPath))) {
+                        Reader fileReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+                        PackageJson packageJson = gson.fromJson(fileReader, PackageJson.class);
+                        List<String> exportModules = packageJson.getExport();
+                        for (String exportModule : exportModules) {
+                            if (exportModule.equals(moduleName)) {
+                                String splitModuleName = moduleName.split("\\.")[1];
+                                String concatModuleName = modulePath.getFileName().toString() + "." + splitModuleName;
+                                Path toModulePath = createDirectories(moduleDirPath.resolve(concatModuleName));
+                                Files.walkFileTree(module, new FileUtils.Copy(module, toModulePath));
                             }
-                        } catch (IOException e) {
-                            printError(errStream,
-                                    "Error while reading the package json file: " + e.getMessage(),
-                                    null,
-                                    false);
-                            getRuntime().exit(1);
                         }
+                    } catch (IOException e) {
+                        printError(errStream,
+                                "Error while reading the package json file: " + e.getMessage(),
+                                null,
+                                false);
+                        getRuntime().exit(1);
                     }
                 }
             }
