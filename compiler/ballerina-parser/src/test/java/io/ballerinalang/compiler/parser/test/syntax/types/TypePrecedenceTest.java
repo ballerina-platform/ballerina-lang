@@ -48,6 +48,13 @@ public class TypePrecedenceTest extends AbstractTypesTest {
     public void testPrecedenceWithOptionalType() {
         testFile("type-precedence/type_precedence_source_06.bal", "type-precedence/type_precedence_assert_06.json");
         testFile("type-precedence/type_precedence_source_07.bal", "type-precedence/type_precedence_assert_07.json");
+        testFile("type-precedence/type_precedence_source_08.bal", "type-precedence/type_precedence_assert_08.json");
+        testFile("type-precedence/type_precedence_source_09.bal", "type-precedence/type_precedence_assert_09.json");
+    }
+
+    @Test
+    public void testFunctionTypePrecedence() {
+        testFile("type-precedence/type_precedence_source_10.bal", "type-precedence/type_precedence_assert_10.json");
     }
 
     @Test

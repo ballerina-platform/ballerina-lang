@@ -9590,9 +9590,22 @@ public class BallerinaParser extends AbstractParser {
         STNode pipeToken = consume();
         STNode rightTypeDesc = parseTypeDescriptorInternal(new ArrayList<>(), context, isTypedBindingPattern, false,
                 TypePrecedence.UNION);
-        return createUnionTypeDesc(leftTypeDesc, pipeToken, rightTypeDesc);
+        return mergeLhsTypeAndRhsType(leftTypeDesc, pipeToken, rightTypeDesc);
     }
 
+    /**
+     * Creates a union type descriptor after validating lhs and rhs types.
+     * <p>
+     * <i>Note: Since type precedence and associativity are not taken into account here,
+     * this method should not be called directly when types are unknown.
+     * <br/>
+     * Call {@link #mergeLhsTypeAndRhsType(STNode, STNode, STNode)} instead</i>
+     *
+     * @param leftTypeDesc  lhs type
+     * @param pipeToken     pipe token
+     * @param rightTypeDesc rhs type
+     * @return a UnionTypeDescriptorNode
+     */
     private STNode createUnionTypeDesc(STNode leftTypeDesc, STNode pipeToken, STNode rightTypeDesc) {
         leftTypeDesc = validateForUsageOfVar(leftTypeDesc);
         rightTypeDesc = validateForUsageOfVar(rightTypeDesc);
@@ -11995,9 +12008,22 @@ public class BallerinaParser extends AbstractParser {
         STNode bitwiseAndToken = consume();
         STNode rightTypeDesc = parseTypeDescriptorInternal(new ArrayList<>(), context, isTypedBindingPattern, false,
                 TypePrecedence.INTERSECTION);
-        return createIntersectionTypeDesc(leftTypeDesc, bitwiseAndToken, rightTypeDesc);
+        return mergeLhsTypeAndRhsType(leftTypeDesc, bitwiseAndToken, rightTypeDesc);
     }
 
+    /**
+     * Creates an intersection type descriptor after validating lhs and rhs types.
+     * <p>
+     * <i>Note: Since type precedence and associativity are not taken into account here,
+     * this method should not be called directly when types are unknown.
+     * <br/>
+     * Call {@link #mergeLhsTypeAndRhsType(STNode, STNode, STNode)} instead</i>
+     *
+     * @param leftTypeDesc    lhs type
+     * @param bitwiseAndToken bitwise-and token
+     * @param rightTypeDesc   rhs type
+     * @return an IntersectionTypeDescriptorNode
+     */
     private STNode createIntersectionTypeDesc(STNode leftTypeDesc, STNode bitwiseAndToken, STNode rightTypeDesc) {
         leftTypeDesc = validateForUsageOfVar(leftTypeDesc);
         rightTypeDesc = validateForUsageOfVar(rightTypeDesc);
@@ -14818,12 +14844,7 @@ public class BallerinaParser extends AbstractParser {
         lhsType = getTypeDescFromExpr(lhsType);
         rhsType = getTypeDescFromExpr(rhsType);
 
-        STNode newTypeDesc;
-        if (separatorToken.kind == SyntaxKind.PIPE_TOKEN) {
-            newTypeDesc = createUnionTypeDesc(lhsType, separatorToken, rhsType);
-        } else {
-            newTypeDesc = createIntersectionTypeDesc(lhsType, separatorToken, rhsType);
-        }
+        STNode newTypeDesc = mergeLhsTypeAndRhsType(lhsType, separatorToken, rhsType);
 
         STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
                 ParserRuleContext.VARIABLE_NAME);
@@ -15076,37 +15097,22 @@ public class BallerinaParser extends AbstractParser {
         STNode typeDesc;
         switch (nextToken.kind) {
             case PIPE_TOKEN:
+            case BITWISE_AND_TOKEN:
                 STToken nextNextToken = peek(2);
                 if (nextNextToken.kind == SyntaxKind.EQUAL_TOKEN) {
                     return typeOrExpr;
                 }
 
-                STNode pipe = parsePipeToken();
+                STNode pipeOrAndToken = parseBinaryOperator();
                 STNode rhsTypeDescOrExpr = parseTypeDescOrExpr();
                 if (isExpression(rhsTypeDescOrExpr.kind)) {
-                    return STNodeFactory.createBinaryExpressionNode(SyntaxKind.BINARY_EXPRESSION, typeOrExpr, pipe,
-                            rhsTypeDescOrExpr);
+                    return STNodeFactory.createBinaryExpressionNode(SyntaxKind.BINARY_EXPRESSION, typeOrExpr,
+                            pipeOrAndToken, rhsTypeDescOrExpr);
                 }
 
                 typeDesc = getTypeDescFromExpr(typeOrExpr);
                 rhsTypeDescOrExpr = getTypeDescFromExpr(rhsTypeDescOrExpr);
-                return createUnionTypeDesc(typeDesc, pipe, rhsTypeDescOrExpr);
-            case BITWISE_AND_TOKEN:
-                nextNextToken = peek(2);
-                if (nextNextToken.kind == SyntaxKind.EQUAL_TOKEN) {
-                    return typeOrExpr;
-                }
-
-                STNode ampersand = parseBinaryOperator();
-                rhsTypeDescOrExpr = parseTypeDescOrExpr();
-                if (isExpression(rhsTypeDescOrExpr.kind)) {
-                    return STNodeFactory.createBinaryExpressionNode(SyntaxKind.BINARY_EXPRESSION, typeOrExpr, ampersand,
-                            rhsTypeDescOrExpr);
-                }
-
-                typeDesc = getTypeDescFromExpr(typeOrExpr);
-                rhsTypeDescOrExpr = getTypeDescFromExpr(rhsTypeDescOrExpr);
-                return createIntersectionTypeDesc(typeDesc, ampersand, rhsTypeDescOrExpr);
+                return mergeLhsTypeAndRhsType(typeDesc, pipeOrAndToken, rhsTypeDescOrExpr);
             case IDENTIFIER_TOKEN:
             case QUESTION_MARK_TOKEN:
                 // treat as type
@@ -16367,6 +16373,15 @@ public class BallerinaParser extends AbstractParser {
 
     }
 
+    /**
+     * Merges two types separated by <code>|</code> or <code>&</code> into one type, while taking precedence
+     * and associativity into account.
+     *
+     * @param lhsTypeDesc    lhs type
+     * @param pipeOrAndToken pipe or bitwise-and token
+     * @param rhsTypeDesc    rhs type
+     * @return a TypeDescriptorNode
+     */
     private STNode mergeLhsTypeAndRhsType(STNode lhsTypeDesc, STNode pipeOrAndToken, STNode rhsTypeDesc) {
         if (pipeOrAndToken.kind == SyntaxKind.PIPE_TOKEN) {
             return mergeLhsTypeAndRhsTypeWithUnion(lhsTypeDesc, pipeOrAndToken, rhsTypeDesc);
@@ -16493,12 +16508,12 @@ public class BallerinaParser extends AbstractParser {
         if (lhsTypeDesc.kind == SyntaxKind.UNION_TYPE_DESC) {
             STUnionTypeDescriptorNode unionTypeDesc = (STUnionTypeDescriptorNode) lhsTypeDesc;
             STNode middleTypeDesc = getArrayTypeDesc(openBracket, member, closeBracket, unionTypeDesc.rightTypeDesc);
-            lhsTypeDesc = createUnionTypeDesc(unionTypeDesc.leftTypeDesc, unionTypeDesc.pipeToken, middleTypeDesc);
+            lhsTypeDesc = mergeLhsTypeAndRhsType(unionTypeDesc.leftTypeDesc, unionTypeDesc.pipeToken, middleTypeDesc);
         } else if (lhsTypeDesc.kind == SyntaxKind.INTERSECTION_TYPE_DESC) {
             STIntersectionTypeDescriptorNode intersectionTypeDesc = (STIntersectionTypeDescriptorNode) lhsTypeDesc;
             STNode middleTypeDesc =
                     getArrayTypeDesc(openBracket, member, closeBracket, intersectionTypeDesc.rightTypeDesc);
-            lhsTypeDesc = createIntersectionTypeDesc(intersectionTypeDesc.leftTypeDesc,
+            lhsTypeDesc = mergeLhsTypeAndRhsType(intersectionTypeDesc.leftTypeDesc,
                     intersectionTypeDesc.bitwiseAndToken, middleTypeDesc);
         } else {
             lhsTypeDesc = createArrayTypeDesc(lhsTypeDesc, openBracket, member, closeBracket);
@@ -16511,11 +16526,11 @@ public class BallerinaParser extends AbstractParser {
         if (typeDescNode.kind == SyntaxKind.UNION_TYPE_DESC) {
             STUnionTypeDescriptorNode unionTypeDesc = (STUnionTypeDescriptorNode) typeDescNode;
             STNode middleTypeDesc = getOptionalTypeDesc(unionTypeDesc.rightTypeDesc, questionMarkToken);
-            typeDescNode = createUnionTypeDesc(unionTypeDesc.leftTypeDesc, unionTypeDesc.pipeToken, middleTypeDesc);
+            typeDescNode = mergeLhsTypeAndRhsType(unionTypeDesc.leftTypeDesc, unionTypeDesc.pipeToken, middleTypeDesc);
         } else if (typeDescNode.kind == SyntaxKind.INTERSECTION_TYPE_DESC) {
             STIntersectionTypeDescriptorNode intersectionTypeDesc = (STIntersectionTypeDescriptorNode) typeDescNode;
             STNode middleTypeDesc = getOptionalTypeDesc(intersectionTypeDesc.rightTypeDesc, questionMarkToken);
-            typeDescNode = createIntersectionTypeDesc(intersectionTypeDesc.leftTypeDesc,
+            typeDescNode = mergeLhsTypeAndRhsType(intersectionTypeDesc.leftTypeDesc,
                     intersectionTypeDesc.bitwiseAndToken, middleTypeDesc);
         } else {
             typeDescNode = createOptionalTypeDesc(typeDescNode, questionMarkToken);
@@ -18161,11 +18176,11 @@ public class BallerinaParser extends AbstractParser {
             case UNION_TYPE_DESC:
                 STUnionTypeDescriptorNode unionTypeDesc = (STUnionTypeDescriptorNode) typeDesc;
                 STNode newlhsType = mergeQualifiedNameWithTypeDesc(qualifiedName, unionTypeDesc.leftTypeDesc);
-                return createUnionTypeDesc(newlhsType, unionTypeDesc.pipeToken, unionTypeDesc.rightTypeDesc);
+                return mergeLhsTypeAndRhsType(newlhsType, unionTypeDesc.pipeToken, unionTypeDesc.rightTypeDesc);
             case INTERSECTION_TYPE_DESC:
                 STIntersectionTypeDescriptorNode intersectionTypeDesc = (STIntersectionTypeDescriptorNode) typeDesc;
                 newlhsType = mergeQualifiedNameWithTypeDesc(qualifiedName, intersectionTypeDesc.leftTypeDesc);
-                return createUnionTypeDesc(newlhsType, intersectionTypeDesc.bitwiseAndToken,
+                return mergeLhsTypeAndRhsType(newlhsType, intersectionTypeDesc.bitwiseAndToken,
                         intersectionTypeDesc.rightTypeDesc);
             case OPTIONAL_TYPE_DESC:
                 STOptionalTypeDescriptorNode optionalType = (STOptionalTypeDescriptorNode) typeDesc;
@@ -18223,13 +18238,10 @@ public class BallerinaParser extends AbstractParser {
                 STBinaryExpressionNode binaryExpr = (STBinaryExpressionNode) expression;
                 switch (binaryExpr.operator.kind) {
                     case PIPE_TOKEN:
+                    case BITWISE_AND_TOKEN:
                         STNode lhsTypeDesc = getTypeDescFromExpr(binaryExpr.lhsExpr);
                         STNode rhsTypeDesc = getTypeDescFromExpr(binaryExpr.rhsExpr);
-                        return createUnionTypeDesc(lhsTypeDesc, binaryExpr.operator, rhsTypeDesc);
-                    case BITWISE_AND_TOKEN:
-                        lhsTypeDesc = getTypeDescFromExpr(binaryExpr.lhsExpr);
-                        rhsTypeDesc = getTypeDescFromExpr(binaryExpr.rhsExpr);
-                        return createIntersectionTypeDesc(lhsTypeDesc, binaryExpr.operator, rhsTypeDesc);
+                        return mergeLhsTypeAndRhsType(lhsTypeDesc, binaryExpr.operator, rhsTypeDesc);
                     default:
                         break;
                 }
