@@ -507,7 +507,7 @@ public class BIRPackageSymbolEnter {
         }
 
         if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
-            if (!(symbol instanceof BClassSymbol)) {
+            if (!isClass) {
                 ((BStructureTypeSymbol) type.tsymbol).typeDefinitionSymbol = (BTypeDefinitionSymbol) symbol;
             }
             type.tsymbol.origin = toOrigin(origin);

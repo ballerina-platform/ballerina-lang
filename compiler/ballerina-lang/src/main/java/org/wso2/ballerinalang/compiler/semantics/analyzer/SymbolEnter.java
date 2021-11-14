@@ -1545,7 +1545,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             definedType.tsymbol.markdownDocumentation = typeDefSymbol.markdownDocumentation;
             definedType.tsymbol.pkgID = env.enclPkg.packageID;
-            if (definedType.tsymbol instanceof BErrorTypeSymbol) {
+            if (definedType.tsymbol.tag == SymTag.ERROR) {
                 definedType.tsymbol.owner = env.scope.owner;
             }
         }

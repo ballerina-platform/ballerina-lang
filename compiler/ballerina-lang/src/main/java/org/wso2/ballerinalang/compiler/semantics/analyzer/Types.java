@@ -2509,7 +2509,7 @@ public class Types {
                 case TypeTags.BOOLEAN:
                     return t.tag == s.tag
                             && ((TypeParamAnalyzer.isTypeParam(t) || TypeParamAnalyzer.isTypeParam(s)) ||
-                            (t instanceof BTypeReferenceType || s instanceof BTypeReferenceType));
+                            (t.tag == TypeTags.TYPEREFDESC || s.tag == TypeTags.TYPEREFDESC));
                 case TypeTags.ANY:
                 case TypeTags.ANYDATA:
                     return t.tag == s.tag && hasSameReadonlyFlag(s, t)
