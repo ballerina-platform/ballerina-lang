@@ -899,7 +899,7 @@ class JvmObservabilityGen {
     }
 
     /**
-     * Reset endBBs of local variables after swap basic blocks content.
+     * Reset endBBs of local variables after swapping basic blocks content.
      *
      * @param func The BIR function
      * @param lhsOp The lhs operand which holds the local variable
