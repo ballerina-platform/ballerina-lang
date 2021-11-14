@@ -672,6 +672,209 @@
               ]
             }
           ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "UNION_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "UNION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "INTERSECTION_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "Foo",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ],
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "BITWISE_AND_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "READONLY_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "READONLY_KEYWORD"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "OPTIONAL_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "ARRAY_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "OPTIONAL_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "INT_TYPE_DESC",
+                                      "children": [
+                                        {
+                                          "kind": "INT_KEYWORD"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "QUESTION_MARK_TOKEN"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "OPEN_BRACKET_TOKEN"
+                                },
+                                {
+                                  "kind": "ASTERISK_LITERAL",
+                                  "children": [
+                                    {
+                                      "kind": "ASTERISK_TOKEN"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "QUESTION_MARK_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PIPE_TOKEN"
+                    },
+                    {
+                      "kind": "INTERSECTION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "OPTIONAL_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "STRING_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "STRING_KEYWORD"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "QUESTION_MARK_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "BITWISE_AND_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "OPTIONAL_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "ARRAY_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "READONLY_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "READONLY_KEYWORD"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "OPEN_BRACKET_TOKEN"
+                                },
+                                {
+                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "QUESTION_MARK_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "custom4"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
         }
       ]
     },

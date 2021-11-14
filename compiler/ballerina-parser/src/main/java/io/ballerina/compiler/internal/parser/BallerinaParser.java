@@ -8126,8 +8126,7 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR);
         STNode questionMarkToken = parseQuestionMark();
         endContext();
-        typeDescriptorNode = validateForUsageOfVar(typeDescriptorNode);
-        return STNodeFactory.createOptionalTypeDescriptorNode(typeDescriptorNode, questionMarkToken);
+        return getOptionalTypeDesc(typeDescriptorNode, questionMarkToken);
     }
 
     /**
@@ -16506,6 +16505,28 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return lhsTypeDesc;
+    }
+
+    private STNode getOptionalTypeDesc(STNode typeDescNode, STNode questionMarkToken) {
+        if (typeDescNode.kind == SyntaxKind.UNION_TYPE_DESC) {
+            STUnionTypeDescriptorNode unionTypeDesc = (STUnionTypeDescriptorNode) typeDescNode;
+            STNode middleTypeDesc = getOptionalTypeDesc(unionTypeDesc.rightTypeDesc, questionMarkToken);
+            typeDescNode = createUnionTypeDesc(unionTypeDesc.leftTypeDesc, unionTypeDesc.pipeToken, middleTypeDesc);
+        } else if (typeDescNode.kind == SyntaxKind.INTERSECTION_TYPE_DESC) {
+            STIntersectionTypeDescriptorNode intersectionTypeDesc = (STIntersectionTypeDescriptorNode) typeDescNode;
+            STNode middleTypeDesc = getOptionalTypeDesc(intersectionTypeDesc.rightTypeDesc, questionMarkToken);
+            typeDescNode = createIntersectionTypeDesc(intersectionTypeDesc.leftTypeDesc,
+                    intersectionTypeDesc.bitwiseAndToken, middleTypeDesc);
+        } else {
+            typeDescNode = createOptionalTypeDesc(typeDescNode, questionMarkToken);
+        }
+
+        return typeDescNode;
+    }
+
+    private STNode createOptionalTypeDesc(STNode typeDescriptorNode, STNode questionMarkToken) {
+        typeDescriptorNode = validateForUsageOfVar(typeDescriptorNode);
+        return STNodeFactory.createOptionalTypeDescriptorNode(typeDescriptorNode, questionMarkToken);
     }
 
     /**
