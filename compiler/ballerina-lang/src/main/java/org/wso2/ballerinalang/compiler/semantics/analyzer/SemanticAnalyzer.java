@@ -1712,7 +1712,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 errorVariable.setBType(rhsType);
-                this.symbolEnter.validateErrorVariable(errorVariable, env);
+                this.symbolEnter.validateErrorVariable(errorVariable, blockEnv);
                 recursivelySetFinalFlag(errorVariable);
                 break;
         }
