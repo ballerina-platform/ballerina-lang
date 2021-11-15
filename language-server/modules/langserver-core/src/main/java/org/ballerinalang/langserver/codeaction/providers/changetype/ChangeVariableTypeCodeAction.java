@@ -67,9 +67,16 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             return Collections.emptyList();
         }
 
-        Optional<TypeSymbol> typeSymbol = diagnosticProperty(diagnostic.diagnosticInfo().code(), positionDetails,
-                DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND);
-        if (typeSymbol.isEmpty()) {
+        Optional<TypeSymbol> foundType;
+        if ("BCE2068".equals(diagnostic.diagnosticInfo().code())) {
+            foundType = positionDetails.diagnosticProperty(
+                    CodeActionUtil.getDiagPropertyFilterFunction(
+                            DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX));
+        } else {
+            foundType = positionDetails.diagnosticProperty(
+                    DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
+        }
+        if (foundType.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -89,7 +96,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
         Optional<String> typeNodeStr = getTypeNodeStr(typeNode.get());
         List<CodeAction> actions = new ArrayList<>();
         List<TextEdit> importEdits = new ArrayList<>();
-        List<String> types = CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context);
+        List<String> types = CodeActionUtil.getPossibleTypes(foundType.get(), importEdits, context);
         for (String type : types) {
             if (typeNodeStr.isPresent() && typeNodeStr.get().equals(type)) {
                 // Skip suggesting same type

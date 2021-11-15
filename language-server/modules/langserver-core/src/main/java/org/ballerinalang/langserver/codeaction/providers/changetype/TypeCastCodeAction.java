@@ -77,12 +77,18 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        String code = diagnostic.diagnosticInfo().code();
-        Optional<TypeSymbol> lhsTypeSymbol = diagnosticProperty(code, positionDetails,
-                DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED);
-        Optional<TypeSymbol> rhsTypeSymbol = diagnosticProperty(code, positionDetails,
-                DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND);
+        Optional<TypeSymbol> rhsTypeSymbol;
+        if ("BCE2068".equals(diagnostic.diagnosticInfo().code())) {
+            rhsTypeSymbol = positionDetails.diagnosticProperty(CodeActionUtil
+                    .getDiagPropertyFilterFunction(DiagBasedPositionDetails
+                            .DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX));
+        } else {
+            rhsTypeSymbol = positionDetails.diagnosticProperty(
+                    DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
+        }
 
+        Optional<TypeSymbol> lhsTypeSymbol = positionDetails.diagnosticProperty(
+                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED_SYMBOL_INDEX);
         if (lhsTypeSymbol.isEmpty() || rhsTypeSymbol.isEmpty()) {
             return Collections.emptyList();
         }

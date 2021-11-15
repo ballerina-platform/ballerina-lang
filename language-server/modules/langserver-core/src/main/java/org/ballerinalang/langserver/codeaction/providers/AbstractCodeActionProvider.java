@@ -34,7 +34,6 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Represents the common class for the default Ballerina Code Action Providers.
@@ -42,7 +41,6 @@ import java.util.Optional;
  * @since 1.1.1
  */
 public abstract class AbstractCodeActionProvider implements LSCodeActionProvider {
-
     protected List<CodeActionNodeType> codeActionNodeTypes;
     protected boolean isNodeTypeBased;
 
@@ -127,49 +125,4 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
         action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
         return action;
     }
-
-    /**
-     * Get a particular diagnostic property given the name.
-     * @param diagnosticCode Diagnostic property
-     * @param positionDetails Diagnostic position details.
-     * @param propertyName Property name.
-     * @return Value of the property.
-     */
-    public static <T> Optional<T> diagnosticProperty(String diagnosticCode, DiagBasedPositionDetails positionDetails,
-                                                     DiagnosticPropertyKey propertyName) {
-        Optional<Integer> index = getPropertyIndex(diagnosticCode, propertyName);
-        if (index.isEmpty()) {
-            return Optional.empty();
-        }
-        return positionDetails.diagnosticProperty(index.get());
-    }
-
-    private static Optional<Integer> getPropertyIndex(String diagnosticCode, DiagnosticPropertyKey propertyName) {
-        switch (propertyName) {
-            case DIAG_PROP_INCOMPATIBLE_TYPES_FOUND:
-                if ("BCE2066".equals(diagnosticCode)) {
-                    return Optional.of(1);
-                } else if ("BCE2068".equals(diagnosticCode)) {
-                    return Optional.of(2);
-                }
-                break;
-            case DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED:
-                if ("BCE2066".equals(diagnosticCode) || "BCE2068".equals(diagnosticCode)) {
-                    return Optional.of(0);
-                }
-                break;
-            default:
-                return Optional.empty();
-        }
-        return Optional.empty();
-    }
-
-    /**
-     * Diagnostic Property Names.
-     */
-    public enum DiagnosticPropertyKey {
-        DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED,
-        DIAG_PROP_INCOMPATIBLE_TYPES_FOUND
-    }
-
 }

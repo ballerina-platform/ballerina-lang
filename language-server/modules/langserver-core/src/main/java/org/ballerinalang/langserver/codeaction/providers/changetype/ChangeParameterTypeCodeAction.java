@@ -75,8 +75,8 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        Optional<TypeSymbol> typeSymbol = diagnosticProperty(diagnostic.diagnosticInfo().code(), positionDetails,
-                DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED);
+        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(
+                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED_SYMBOL_INDEX);
         if (typeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
@@ -122,7 +122,7 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
             List<TextEdit> edits = new ArrayList<>();
             edits.add(new TextEdit(paramTypeRange.get(), type));
             String commandTitle = String.format(CommandConstants.CHANGE_PARAM_TYPE_TITLE, paramSymbol.getName().get(),
-                    type);
+                                                type);
             actions.add(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
         }
         return actions;

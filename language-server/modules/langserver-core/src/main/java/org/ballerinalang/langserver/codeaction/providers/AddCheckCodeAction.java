@@ -63,14 +63,20 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
         if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
             return Collections.emptyList();
         }
-
         Node matchedNode = getMatchedNode(positionDetails.matchedNode());
         if (matchedNode == null) {
             return Collections.emptyList();
         }
 
-        Optional<TypeSymbol> foundType = diagnosticProperty(diagnostic.diagnosticInfo().code(), positionDetails,
-                DiagnosticPropertyKey.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND);
+        Optional<TypeSymbol> foundType;
+        if ("BCE2068".equals(diagnostic.diagnosticInfo().code())) {
+            foundType = positionDetails.diagnosticProperty(
+                    CodeActionUtil.getDiagPropertyFilterFunction(
+                            DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX));
+        } else {
+            foundType = positionDetails.diagnosticProperty(
+                    DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
+        }
         if (foundType.isEmpty()) {
             return Collections.emptyList();
         }
