@@ -39,6 +39,7 @@
             <class name="io.ballerina.semantic.api.test.TestSourcesTest" />
             <class name="io.ballerina.semantic.api.test.TypeAssignabilityTest" />
             <class name="io.ballerina.semantic.api.test.TypedescriptorTest" />
+            <class name="io.ballerina.semantic.api.test.typeof.TypeOfInCallStatementsTest" />
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfQueryExprTest" />
             <class name="io.ballerina.semantic.api.test.WorkspaceSymbolLookupTest" />
 
