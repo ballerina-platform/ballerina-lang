@@ -1,0 +1,96 @@
+{
+  "position": {
+    "line": 50,
+    "character": 31
+  },
+  "source": "action_node_context/source/remote_action_with_check_source2.bal",
+  "items": [
+    {
+      "label": "findByName(string name)",
+      "kind": "Function",
+      "detail": "Product|ProductError",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` name  \n  \n**Return** `Product|ProductError`   \n  \n"
+        }
+      },
+      "sortText": "AC",
+      "filterText": "findByName",
+      "insertText": "findByName(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "listAll()",
+      "kind": "Function",
+      "detail": "Product[]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `Product[]`   \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "listAll",
+      "insertText": "listAll()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "countByName(string name)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` name  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "countByName",
+      "insertText": "countByName(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "countBy(string name, string id, int page, int offset)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \nCount the products by given criteria.\nCriteria can be optional\n  \n**Params**  \n- `string` name: Name to search  \n- `string` id: id to be searched  \n- `int` page: Page number    \n- `int` offset: Offset number  \n  \n**Return** `int`   \n- Count   \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "countBy",
+      "insertText": "countBy(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "geVersion()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "geVersion",
+      "insertText": "geVersion()",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

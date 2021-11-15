@@ -759,7 +759,9 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         Optional<TypeSymbol> contextType = context.getContextType();
         String sortText = "";
         // First we sort the assignable items above others, and then sort by the rank
-        if (contextType.isPresent() && SortingUtil.isCompletionItemAssignable(completionItem, contextType.get())) {
+        if (contextType.isPresent() &&
+                (SortingUtil.isCompletionItemAssignable(completionItem, contextType.get()) ||
+                        SortingUtil.isCompletionItemAssignableWithCheck(completionItem, contextType.get()))) {
             sortText += SortingUtil.genSortText(1);
         } else {
             sortText += SortingUtil.genSortText(2);

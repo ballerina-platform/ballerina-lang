@@ -846,6 +846,7 @@ public class CodeActionUtil {
      */
     public static boolean hasErrorMemberType(UnionTypeSymbol unionTypeSymbol) {
         return unionTypeSymbol.memberTypeDescriptors().stream()
+                .map(CommonUtil::getRawType)
                 .anyMatch(member -> member.typeKind() == TypeDescKind.ERROR);
     }
 
