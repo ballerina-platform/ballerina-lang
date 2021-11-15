@@ -128,6 +128,20 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Completely parses a given input as a block statement.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsBlockStatement() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.FUNC_BODY_BLOCK);
+        STNode blockStmtNode = parseBlockNode();
+
+        blockStmtNode = invalidateRestAndAddToTrailingMinutiae(blockStmtNode);
+        return blockStmtNode;
+    }
+
+    /**
      * Completely parses a given input as statements.
      *
      * @return Parsed node
