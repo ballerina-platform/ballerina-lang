@@ -4107,6 +4107,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType rhsType;
 
         if (binaryExpr.expectedType.tag == TypeTags.FLOAT || binaryExpr.expectedType.tag == TypeTags.DECIMAL ||
+                                                             binaryExpr.expectedType.tag == TypeTags.BYTE ||
                 isOptionalFloatOrDecimal(binaryExpr.expectedType)) {
             rhsType = checkAndGetType(binaryExpr.rhsExpr, rhsExprEnv, binaryExpr);
         } else {
