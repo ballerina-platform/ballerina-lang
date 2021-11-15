@@ -107,6 +107,7 @@ public class BallerinaParser extends AbstractParser {
      */
     public STNode parseAsStatement() {
         startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.FUNC_DEF);
         startContext(ParserRuleContext.FUNC_BODY_BLOCK);
         STNode stmt = parseStatement();
 
@@ -134,7 +135,9 @@ public class BallerinaParser extends AbstractParser {
      */
     public STNode parseAsBlockStatement() {
         startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.FUNC_DEF);
         startContext(ParserRuleContext.FUNC_BODY_BLOCK);
+        startContext(ParserRuleContext.WHILE_BLOCK);
         STNode blockStmtNode = parseBlockNode();
 
         blockStmtNode = invalidateRestAndAddToTrailingMinutiae(blockStmtNode);
