@@ -197,13 +197,16 @@ function testWorkerWithByteVariable() {
   }
 }
 
-function testBitwiseAndOperator(byte a, byte b, int i, int j) returns [byte, int, int, int, int]{
+function testBitwiseAndOperator(byte a, byte b, int i, int j) returns [byte, byte, byte, byte, int, int, int, int]{
     byte b1 = a & b;
+    byte b2 = 0x7F & i;
+    byte b3 = i & 0x7F;
+    byte b4 = 10 & 10;
     int r1 = <int>(a & b);
     int r2 = <int>a & i;
     int r3 = i & j;
     int r4 = <int>a & i & <int>b & j;
-    return [b1, r1, r2, r3, r4];
+    return [b1, b2, b3, b4, r1, r2, r3, r4];
 }
 
 function testBitwiseOrOperator(byte a, byte b, int i, int j) returns [byte, int, int, int, int]{
