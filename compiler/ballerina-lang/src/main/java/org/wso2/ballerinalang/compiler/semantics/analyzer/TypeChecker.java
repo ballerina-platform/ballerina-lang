@@ -3337,7 +3337,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // TODO: check referenced type
         BObjectType objectType;
         if (objectCtorExpression.referenceType == null && objectCtorExpression.expectedType != null) {
-            BObjectType objectType = (BObjectType) objectCtorExpression.classNode.getBType();
+            objectType = (BObjectType) objectCtorExpression.classNode.getBType();
             if (types.getReferredType(objectCtorExpression.expectedType).tag == TypeTags.OBJECT) {
                 BObjectType expObjType = (BObjectType) types
                         .getReferredType(objectCtorExpression.expectedType);
