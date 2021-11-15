@@ -762,7 +762,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         if (contextType.isPresent() && SortingUtil.isCompletionItemAssignable(completionItem, contextType.get())) {
             // Rank directly assignable ones first
             sortText += SortingUtil.genSortText(1);
-        } else if (contextType.isPresent() && SortingUtil.isCompletionItemAssignableWithCheck(completionItem, contextType.get())) {
+        } else if (contextType.isPresent() &&
+                SortingUtil.isCompletionItemAssignableWithCheck(completionItem, contextType.get())) {
             // Then the items which can be made assignable using a check expression
             sortText += SortingUtil.genSortText(2);
         } else {
