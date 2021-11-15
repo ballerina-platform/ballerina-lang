@@ -41,7 +41,7 @@ public class BallerinaTomlCompletionExtension implements TomlCompletionExtension
     @Override
     public boolean validate(CompletionParams inputParams) {
         String uri = inputParams.getTextDocument().getUri();
-        Path fileNamePath = Paths.get(URI.create(uri)).getFileName();
+        Path fileNamePath = Paths.get(URI.create(uri).getPath()).getFileName();
         if (fileNamePath == null) {
             return false;
         }
