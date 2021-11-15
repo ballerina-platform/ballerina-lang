@@ -50,19 +50,24 @@ import java.util.Set;
  */
 public class LargeMethodOptimizer {
 
+    // splits are done only if the original function has more instructions than the below number
+    private static final int FUNCTION_INSTRUCTION_COUNT_THRESHOLD = 1;
+    // splits are done only if the newly created method will contain more instructions than the below number
+    private static final int SPLIT_INSTRUCTION_COUNT_THRESHOLD = 1;
+    // splits are done only if the newly created method will have less function arguments than the below number
+    private static final int MAX_SPLIT_FUNCTION_ARG_COUNT = 250;
+
     public LargeMethodOptimizer() {
     }
 
     public void splitLargeBIRFunctions(BIRPackage birPkg) {
-        int functionInstructionThreshold = 1;
-
         for (int funcNum = 0; funcNum < birPkg.functions.size(); funcNum++) {
             BIRFunction function = birPkg.functions.get(funcNum);
             int instructionCount = 0;
             for (BIRBasicBlock basicBlock : function.basicBlocks) {
                 instructionCount += basicBlock.instructions.size();
             }
-            if (instructionCount < functionInstructionThreshold) {
+            if (instructionCount < FUNCTION_INSTRUCTION_COUNT_THRESHOLD) {
                 continue;
             }
 
@@ -76,6 +81,133 @@ public class LargeMethodOptimizer {
         }
     }
 
+    /**
+     * Obtain a list of possible splits that can be done inside a function due to large no. of instructions.
+     *
+     * @param basicBlocks available basic block list of the function
+     * @param errorTableEntries available error table entries of the function
+     * @return a list of possible splits
+     */
+    private List<Split> getPossibleSplits(List<BIRBasicBlock> basicBlocks, List<BIRErrorEntry> errorTableEntries) {
+        List<Split> possibleSplits = new ArrayList<>();
+        List<BIRVariableDcl> newFuncArgs;
+        int splitEndBBIndex = basicBlocks.size() - 1; // goes from end to beginning
+        int splitEndInsIndex = basicBlocks.get(splitEndBBIndex).instructions.size() - 1;
+        int errTableEntryIndex = errorTableEntries.size() - 1;
+        boolean splitStarted = false;
+        boolean splitTypeArray = true; // will be used to mark the split caused from either NewArray or NewStructure
+        Set<BIRVariableDcl> neededOperandsVarDcl = new HashSet<>(); // that will need to be passed as function args
+        List<BIRVariableDcl> lhsOperandList = new ArrayList<>(); // that will need as localVars in the new function
+        BIROperand splitStartOperand = null;
+
+        for (int bbNum = basicBlocks.size() - 1; bbNum >= 0; bbNum--) {
+            BIRBasicBlock basicBlock = basicBlocks.get(bbNum);
+            BIRTerminator bbTerminator = basicBlock.terminator;
+            if (splitStarted) {
+                if (bbTerminator.lhsOp != null) {
+                    // as the varDcl is available inside the split no need to pass as function arg
+                    neededOperandsVarDcl.remove(bbTerminator.lhsOp.variableDcl);
+                    lhsOperandList.add(bbTerminator.lhsOp.variableDcl);
+                    if (bbTerminator.lhsOp.variableDcl.kind == VarKind.RETURN) {
+                        // if the return var is assigned value inside the split, it is not split
+                        splitStarted = false;
+                    }
+                }
+                // RHS operands varDcl will be needed to pass as function args if they won't be available inside split
+                BIROperand[] rhsOperands = bbTerminator.getRhsOperands();
+                for (BIROperand rhsOperand : rhsOperands) {
+                    if (needToPassVarDclAsArg(rhsOperand)) {
+                        neededOperandsVarDcl.add(rhsOperand.variableDcl);
+                    }
+                }
+            }
+            List<BIRNonTerminator> instructions = basicBlock.instructions;
+            for (int insNum = instructions.size() - 1; insNum >= 0; insNum--) {
+                BIRNonTerminator currIns = instructions.get(insNum);
+                if (splitStarted && (currIns.lhsOp.variableDcl.kind == VarKind.RETURN)) {
+                    // if the return var is assigned value inside the split, it is not split
+                    splitStarted = false;
+                }
+                if (splitStarted) {
+                    neededOperandsVarDcl.remove(currIns.lhsOp.variableDcl);
+                    BIROperand[] rhsOperands = currIns.getRhsOperands();
+                    lhsOperandList.add(currIns.lhsOp.variableDcl);
+                    for (BIROperand rhsOperand : rhsOperands) {
+                        if (needToPassVarDclAsArg(rhsOperand)) {
+                            neededOperandsVarDcl.add(rhsOperand.variableDcl);
+                        }
+                    }
+                    // now check for the termination of split, i.e. split start
+                    if (currIns.lhsOp == splitStartOperand) {
+                        if ((neededOperandsVarDcl.size() > MAX_SPLIT_FUNCTION_ARG_COUNT) ||
+                                (lhsOperandList.size() < SPLIT_INSTRUCTION_COUNT_THRESHOLD)) {
+                            splitStarted = false;
+                            continue;
+                        }
+                        newFuncArgs = new ArrayList<>();
+                        for (BIRVariableDcl funcArgVarDcl : neededOperandsVarDcl) {
+                            newFuncArgs.add(funcArgVarDcl);
+                        }
+                        // create necessary error table entries
+                        List<BIRErrorEntry> splitErrorTableEntries = new ArrayList<>();
+                        int trapBBNum;
+                        while (errTableEntryIndex >= 0) {
+                            trapBBNum = Integer.parseInt(
+                                    errorTableEntries.get(errTableEntryIndex).trapBB.toString().substring(2));
+                            if (trapBBNum <= getBbIdNum(basicBlocks, bbNum)) {
+                                break;
+                            } else if (trapBBNum < getBbIdNum(basicBlocks, splitEndBBIndex)) {
+                                splitErrorTableEntries.add(errorTableEntries.get(errTableEntryIndex));
+                            }
+                            errTableEntryIndex--;
+                        }
+                        Collections.reverse(splitErrorTableEntries);
+
+                        // splitTypeArray variable can be used here if that information is needed later
+                        possibleSplits.add(new Split(insNum, splitEndInsIndex, bbNum, splitEndBBIndex,
+                                lhsOperandList, newFuncArgs, splitErrorTableEntries));
+                        splitStarted = false;
+                    }
+                } else {
+                    if ((currIns.kind == InstructionKind.NEW_ARRAY) ||
+                            (currIns.kind == InstructionKind.NEW_STRUCTURE)) {
+                        // new split can be created from here
+                        if (currIns.kind == InstructionKind.NEW_ARRAY) {
+                            BIRNonTerminator.NewArray arrayIns = (BIRNonTerminator.NewArray) currIns;
+                            splitStartOperand = arrayIns.sizeOp;
+                            splitTypeArray = true;
+                        } else {
+                            BIRNonTerminator.NewStructure structureIns = (BIRNonTerminator.NewStructure) currIns;
+                            splitStartOperand = structureIns.rhsOp;
+                            splitTypeArray = false;
+                        }
+
+                        // if the split will have all the available instructions already in the function -
+                        // no need to make that split, avoids doing the same split repeatedly
+                        if ((bbNum == basicBlocks.size() - 2) && (!basicBlocks.get(0).instructions.isEmpty()) &&
+                                (basicBlocks.get(0).instructions.get(0).lhsOp == splitStartOperand)) {
+                            continue;
+                        }
+
+                        splitStarted = true;
+                        neededOperandsVarDcl = new HashSet<>();
+                        BIROperand[] initialRhsOperands = currIns.getRhsOperands();
+                        for (BIROperand rhsOperand : initialRhsOperands) {
+                            if (needToPassVarDclAsArg(rhsOperand)) {
+                                neededOperandsVarDcl.add(rhsOperand.variableDcl);
+                            }
+                        }
+                        lhsOperandList = new ArrayList<>();
+                        splitEndInsIndex = insNum;
+                        splitEndBBIndex = bbNum;
+                    }
+                }
+            }
+        }
+        Collections.reverse(possibleSplits);
+        return possibleSplits;
+    }
+
     private int getBbIdNum(List<BIRBasicBlock> bbList, int bbIndex) {
         try {
             return Integer.parseInt(bbList.get(bbIndex).toString().substring(2));
@@ -84,34 +216,44 @@ public class LargeMethodOptimizer {
         }
     }
 
+    private boolean needToPassVarDclAsArg(BIROperand rhsOp) {
+        return (!rhsOp.variableDcl.ignoreVariable) && (rhsOp.variableDcl.kind != VarKind.GLOBAL) &&
+                (rhsOp.variableDcl.kind != VarKind.CONSTANT);
+    }
+
+    /**
+     * Generate the given possible splits.
+     *
+     * @param birPkg available BIRPackage
+     * @param funcNum index of the ongoing function in the function list in birPkg
+     * @param possibleSplits list of possible splits
+     * @param newlyAddedFunctions list to add the newly created functions
+     */
     private void generateSplits(BIRPackage birPkg, int funcNum, List<Split> possibleSplits,
                                 List<BIRFunction> newlyAddedFunctions) {
-
-        int splitNum = 0; //nextsplit or the current split in
-
+        int splitNum = 0; // next split to be done or the ongoing split index
         BIRFunction function = birPkg.functions.get(funcNum);
         String funcName = function.name.toString();
         List<BIRBasicBlock> basicBlocks = function.basicBlocks;
         List<BIRBasicBlock> newBBList = new ArrayList<>();
-        int startInsNum = 0;
-        int bbNum = 0;
-        // newBBNum have last created BB number so always add 1 and use (for safety)
-        int newBBNum = getBbIdNum(basicBlocks, basicBlocks.size() - 1);
-        int newFuncNum = 0; // hence newFuncNum are as 1,2,3,..
+        int startInsNum = 0; // start instruction index
+        int bbNum = 0; // ongoing BB index
+        int newBBNum = getBbIdNum(basicBlocks, basicBlocks.size() - 1); // used for newly created BB's id
+        int newFuncNum = 0; // to number the splits made using a particular function
         BIRBasicBlock currentBB  = new BIRBasicBlock(new Name("bb" + getBbIdNum(basicBlocks, bbNum)));;
 
-        // i also want to check whether any splits are remaining and if no just fill the ins
         while (bbNum < basicBlocks.size()) {
-            // so at the loop beginning it is either the start of a new BB or after jumping from a BB
+            // it is either the start of a new BB or after split across BBs (say jump) now in the middle of a BB
+            // here variable currentBB is the BB where next instructions are going to be added
             if (startInsNum == 0) {
                 if (splitNum >= possibleSplits.size()) {
-                    // if there are no more splits just copy the rem BBs and break
+                    // if there are no more splits just copy the remaining BBs and break
                     for (; bbNum < basicBlocks.size(); bbNum++) {
                         newBBList.add(basicBlocks.get(bbNum));
                     }
                     break;
                 } else if (bbNum < possibleSplits.get(splitNum).startBBNum) {
-                    // can just copy the bbs till a bb where a split starts
+                    // can just copy the BBs till the BB where a split starts
                     for (; bbNum < possibleSplits.get(splitNum).startBBNum; bbNum++) {
                         newBBList.add(basicBlocks.get(bbNum));
                     }
@@ -119,9 +261,8 @@ public class LargeMethodOptimizer {
                     continue;
                 }
             } else if (splitNum >= possibleSplits.size()) {
-                //came from a jump - if there are no more splits can do the rem instructions in the bb and
-                // continue to next bb
-                // put remaning ins in the current BB
+                // came from a jump, so if there are no more splits can put the remaining instructions in the bb
+                // and continue to next bb
                 if (startInsNum < basicBlocks.get(bbNum).instructions.size()) {
                     currentBB.instructions.addAll(basicBlocks.get(bbNum).instructions.subList(startInsNum,
                             basicBlocks.get(bbNum).instructions.size()));
@@ -131,15 +272,12 @@ public class LargeMethodOptimizer {
                 startInsNum = 0;
                 bbNum += 1;
                 continue;
-                // do not need to create new BB because after BBs will be just copied
-
+                // do not need to create a new BB because hereafter BBs will be just copied
             }
 
-            // now there a split in the BB : either after a jump or from the beginning
-
-            //now handle the splits in the same BB
-            // here I get a list of splits starting from this BB and ends in this BB
-            // so after creating splits have to handle the last ins in the BB/ a jump to another BB
+            // now there is definitely a split starts form this BB, first will handle the splits inside the same BB
+            // here a list of splits starting from this BB and ends in this BB is obtained
+            // so after creating splits have to handle the last instructions in the BB or a jump to another BB
             List<Split> splitsInSameBBList = new ArrayList<>();
             while (splitNum < possibleSplits.size()) {
                 if (possibleSplits.get(splitNum).endBBNum == bbNum) {
@@ -149,9 +287,10 @@ public class LargeMethodOptimizer {
                     break;
                 }
             }
-            // so the next splitNum contains a split which may start from this BB or another BB, but do not end inThisBB
+            // so the next splitNum contains a split starts from this BB or another BB, but do not end in this BB
+
             if (!splitsInSameBBList.isEmpty()) {
-                // need to pass current unfinished BB
+                // current unfinished BB is passed to the function and a new one is returned from it
                 currentBB = generateSplitsInSameBB(birPkg, funcNum, bbNum, splitsInSameBBList,
                         newlyAddedFunctions, newBBNum, newBBList, newFuncNum, startInsNum, currentBB);
                 startInsNum = possibleSplits.get(splitNum - 1).lastIns + 1;
@@ -159,7 +298,7 @@ public class LargeMethodOptimizer {
                 newBBNum += splitsInSameBBList.size();
             }
 
-            // here i handle if splits are over or the next spilt is in another BB
+            // handle if splits are over or if the next spilt is in another BB
             if ((splitNum >= possibleSplits.size()) || (possibleSplits.get(splitNum).startBBNum > bbNum)) {
                 if (startInsNum < basicBlocks.get(bbNum).instructions.size()) {
                     currentBB.instructions.addAll(basicBlocks.get(bbNum).instructions.subList(startInsNum,
@@ -173,24 +312,20 @@ public class LargeMethodOptimizer {
                 continue;
             }
 
-            // now we have a split that go to another function
-            // now need to add ins then create a function and but next bbNum as its terminator
+            // now we have a split that go to another BB from this BB
+            // need to add remaining instructions then create a split function
             if (startInsNum < possibleSplits.get(splitNum).firstIns) {
                 currentBB.instructions.addAll(basicBlocks.get(bbNum).instructions.subList(startInsNum,
                         possibleSplits.get(splitNum).firstIns));
             }
-
-            // this BB terminator is a func call pointing to end BB of the split
-
             newFuncNum += 1;
             Name newFuncName = new Name("$split$" + funcName + "$" + newFuncNum);
             Split currSplit = possibleSplits.get(splitNum);
             splitNum += 1;
             BIRNonTerminator lastInstruction = basicBlocks.get(currSplit.endBBNum).instructions.get(currSplit.lastIns);
             BIROperand newCurrentBBTerminatorLhsOp = new BIROperand(lastInstruction.lhsOp.variableDcl);
-            BIRFunction newBIRFunc = createNewBIRFuncAcrossBB(birPkg, funcNum, newFuncName, currSplit, newBBNum);
+            BIRFunction newBIRFunc = createNewBIRFunctionAcrossBB(birPkg, funcNum, newFuncName, currSplit, newBBNum);
             newBBNum += 1;
-
             newlyAddedFunctions.add(newBIRFunc);
             function.errorTable.removeAll(currSplit.errorTableEntries);
             startInsNum = currSplit.lastIns + 1;
@@ -204,14 +339,25 @@ public class LargeMethodOptimizer {
                     birPkg.packageID, newFuncName, args, newCurrentBBTerminatorLhsOp, newBB, Collections.emptyList(),
                     Collections.emptySet(), lastInstruction.scope);
             newBBList.add(currentBB);
-
             currentBB = newBB;
             bbNum = currSplit.endBBNum;
         }
+
+        // newBBList is used as the original function's BB list
         function.basicBlocks = newBBList;
     }
 
-    private BIRFunction createNewBIRFuncAcrossBB(BIRPackage birPkg, int funcNum, Name funcName, Split currSplit,
+    /**
+     * Create a new BIR function which spans across available multiple BBs.
+     *
+     * @param birPkg available BIRPackage
+     * @param funcNum index of the ongoing parent function in the function list in birPkg
+     * @param funcName Name of the function to be created
+     * @param currSplit ongoing split details
+     * @param newBBNum last BB id num of the parent function
+     * @return newly created BIR function
+     */
+    private BIRFunction createNewBIRFunctionAcrossBB(BIRPackage birPkg, int funcNum, Name funcName, Split currSplit,
                                                  int newBBNum) {
         BIRFunction parentFunc = birPkg.functions.get(funcNum);
         List<BIRBasicBlock> parentFuncBBs = parentFunc.basicBlocks;
@@ -245,8 +391,7 @@ public class LargeMethodOptimizer {
         birFunc.localVars.addAll(new HashSet<>(currSplit.lhsVars));
         birFunc.errorTable.addAll(currSplit.errorTableEntries);
 
-        //creates bbs
-        // first bb
+        // creates BBs
         BIRBasicBlock entryBB = new BIRBasicBlock(new Name("bb0"));
         if (currSplit.firstIns < parentFuncBBs.get(currSplit.startBBNum).instructions.size()) {
             entryBB.instructions.addAll(parentFuncBBs.get(currSplit.startBBNum).instructions.subList(
@@ -255,12 +400,12 @@ public class LargeMethodOptimizer {
         entryBB.terminator = parentFuncBBs.get(currSplit.startBBNum).terminator;
         birFunc.basicBlocks.add(entryBB);
 
-        // copying bbs between first and last bb
+        // copying BBs between first and last bb
         for (int bbNum = currSplit.startBBNum + 1; bbNum < currSplit.endBBNum; bbNum++) {
             birFunc.basicBlocks.add(parentFuncBBs.get(bbNum));
         }
 
-        // now need to create last bb and return bb (exit bb)
+        // create last BB and the return BB (exit BB)
         BIRBasicBlock lastBB = new BIRBasicBlock(new Name("bb" + getBbIdNum(parentFuncBBs, currSplit.endBBNum)));
         if (0 <= currSplit.lastIns) {
             lastBB.instructions.addAll(parentFuncBBs.get(currSplit.endBBNum).instructions.subList(
@@ -268,7 +413,7 @@ public class LargeMethodOptimizer {
         }
         lastBB.instructions.get(currSplit.lastIns).lhsOp = new BIROperand(birFunc.returnVariable);
 
-        // newBBNum is used to create the return statement
+        // a new BB with id using newBBNum is used to include the return statement
         newBBNum += 1;
         BIRBasicBlock exitBB = new BIRBasicBlock(new Name("bb" + newBBNum));
         exitBB.terminator = new BIRTerminator.Return(null);
@@ -278,6 +423,21 @@ public class LargeMethodOptimizer {
         return birFunc;
     }
 
+    /**
+     * Generate the given splits inside the same BB.
+     *
+     * @param birPkg available BIRPackage
+     * @param funcNum index of the ongoing function in the function list in birPkg
+     * @param bbNum index of the ongoing BB in the BB list in the ongoing function in birPkg
+     * @param possibleSplits list of possible splits
+     * @param newlyAddedFunctions list to add the newly created functions
+     * @param newBBNum last BB id num of the parent function
+     * @param newBBList new BB list creating for the already available parent function
+     * @param newFuncNum number to distinguish the newly created functions
+     * @param startInsNum index of the start instruction in the BB instruction list
+     * @param currentBB BB at the start of the split
+     * @return the next BB that will be in the parent function
+     */
     private BIRBasicBlock generateSplitsInSameBB(BIRPackage birPkg, int funcNum, int bbNum, List<Split> possibleSplits,
                                                  List<BIRFunction> newlyAddedFunctions, int newBBNum,
                                                  List<BIRBasicBlock> newBBList, int newFuncNum, int startInsNum,
@@ -290,12 +450,11 @@ public class LargeMethodOptimizer {
             Name newFuncName = new Name("$split$" + funcName + "$" + newFuncNum);
             BIROperand currentBBTerminatorLhsOp =
                     new BIROperand(instructionList.get(possibleSplits.get(splitNum).lastIns).lhsOp.variableDcl);
-            newlyAddedFunctions.add(createNewBIRFunctionForSameBB(birPkg, funcNum, newFuncName,
+            newlyAddedFunctions.add(createNewBIRFunctionInBB(birPkg, funcNum, newFuncName,
                     instructionList.get(possibleSplits.get(splitNum).lastIns),
                     instructionList.subList(possibleSplits.get(splitNum).firstIns,
                             possibleSplits.get(splitNum).lastIns), possibleSplits.get(splitNum).lhsVars,
                     possibleSplits.get(splitNum).funcArgs));
-//            birPkg.functions.get(funcNum).localVars.removeAll(possibleSplits.get(splitNum).lhsVars); // cuz after opt
             currentBB.instructions.addAll(instructionList.subList(startInsNum, possibleSplits.get(splitNum).firstIns));
             startInsNum = possibleSplits.get(splitNum).lastIns + 1;
             newBBNum += 1;
@@ -311,179 +470,23 @@ public class LargeMethodOptimizer {
             newBBList.add(currentBB);
             currentBB = newBB;
         }
-        // need to handle the last created BB done outside the dunction
+        // need to handle the last created BB, this is done outside the function
         return currentBB;
     }
 
-    private boolean needToPassVarDclAsArg(BIROperand rhsOp) {
-        return (!rhsOp.variableDcl.ignoreVariable) && (rhsOp.variableDcl.kind != VarKind.GLOBAL) &&
-                (rhsOp.variableDcl.kind != VarKind.CONSTANT);
-    }
-
-    private List<Split> getPossibleSplits(List<BIRBasicBlock> basicBlocks, List<BIRErrorEntry> errorTableEntries) {
-        List<Split> possibleSplits = new ArrayList<>();
-        List<BIRVariableDcl> newFuncArgs;
-        int maxFuncArgs = 250;
-        int splitInstructionThreshold = 1;
-        int splitEndBBIndex = basicBlocks.size() - 1;
-        int splitEndInsIndex = basicBlocks.get(splitEndBBIndex).instructions.size() - 1;
-        int errTableEntryIndex = errorTableEntries.size() - 1; // goes from end to beginning
-        boolean splitStarted = false;
-        boolean splitTypeArray = true;
-        Set<BIRVariableDcl> neededOperandsVarDcl = new HashSet<>();
-        List<BIRVariableDcl> lhsOperandList = new ArrayList<>();
-        BIROperand splitStartOperand = null;
-
-        for (int bbNum = basicBlocks.size() - 1; bbNum >= 0; bbNum--) {
-            BIRBasicBlock basicBlock = basicBlocks.get(bbNum);
-            BIRTerminator bbTerminator = basicBlock.terminator;
-            if (splitStarted) {
-                if (bbTerminator.lhsOp != null) {
-                    neededOperandsVarDcl.remove(bbTerminator.lhsOp.variableDcl);
-                    lhsOperandList.add(bbTerminator.lhsOp.variableDcl);
-                    if (bbTerminator.lhsOp.variableDcl.kind == VarKind.RETURN) {
-                        splitStarted = false;
-                    }
-                }
-                BIROperand[] rhsOperands = bbTerminator.getRhsOperands();
-                for (BIROperand rhsOperand : rhsOperands) {
-                    if (needToPassVarDclAsArg(rhsOperand)) {
-                        neededOperandsVarDcl.add(rhsOperand.variableDcl);
-                    }
-                }
-            }
-            List<BIRNonTerminator> instructions = basicBlock.instructions;
-            for (int insNum = instructions.size() - 1; insNum >= 0; insNum--) {
-                BIRNonTerminator currIns = instructions.get(insNum);
-                if (splitStarted && (currIns.lhsOp.variableDcl.kind == VarKind.RETURN)) {
-                    // if the return var is assigned value inside split, it is not valid
-                    splitStarted = false;
-                }
-                if (splitStarted) {
-                    neededOperandsVarDcl.remove(currIns.lhsOp.variableDcl);
-                    BIROperand[] rhsOperands = currIns.getRhsOperands();
-                    lhsOperandList.add(currIns.lhsOp.variableDcl);
-                    for (BIROperand rhsOperand : rhsOperands) {
-                        if (needToPassVarDclAsArg(rhsOperand)) {
-                            neededOperandsVarDcl.add(rhsOperand.variableDcl);
-                        }
-                    }
-                    // now check for termination of split, ie: split start
-                    if (splitTypeArray) {
-                        if (currIns.lhsOp == splitStartOperand) {
-                            if ((neededOperandsVarDcl.size() > maxFuncArgs) ||
-                                    (lhsOperandList.size() < splitInstructionThreshold)) {
-                                splitStarted = false;
-                                continue;
-                            }
-                            newFuncArgs = new ArrayList<>();
-                            for (BIRVariableDcl funcArgVarDcl : neededOperandsVarDcl) {
-                                newFuncArgs.add(funcArgVarDcl);
-                            }
-                            // create necessary error table entries
-                            List<BIRErrorEntry> splitErrorTableEntries = new ArrayList<>();
-                            int trapBBNum;
-                            while (errTableEntryIndex >= 0) {
-                                trapBBNum = Integer.parseInt(
-                                        errorTableEntries.get(errTableEntryIndex).trapBB.toString().substring(2));
-                                if (trapBBNum <= getBbIdNum(basicBlocks, bbNum)) {
-                                    break;
-                                } else if (trapBBNum < getBbIdNum(basicBlocks, splitEndBBIndex)) {
-                                    splitErrorTableEntries.add(errorTableEntries.get(errTableEntryIndex));
-                                }
-                                errTableEntryIndex--;
-                            }
-                            Collections.reverse(splitErrorTableEntries);
-
-                            possibleSplits.add(new Split(insNum, splitEndInsIndex, bbNum, splitEndBBIndex,
-                                    lhsOperandList, newFuncArgs, splitErrorTableEntries));
-                            splitStarted = false;
-                        }
-
-                    } else {
-                        // write for new structure - both looks same remove this if cond
-                        // but if you need the type in split add it here
-                        if (currIns.lhsOp == splitStartOperand) {
-                            if ((neededOperandsVarDcl.size() > maxFuncArgs) ||
-                                    (lhsOperandList.size() < splitInstructionThreshold)) {
-                                splitStarted = false;
-                                continue;
-                            }
-                            newFuncArgs = new ArrayList<>();
-                            for (BIRVariableDcl funcArgVarDcl : neededOperandsVarDcl) {
-                                newFuncArgs.add(funcArgVarDcl);
-                            }
-                            // create necessary error table entries
-                            List<BIRErrorEntry> splitErrorTableEntries = new ArrayList<>();
-                            int trapBBNum;
-                            while (errTableEntryIndex >= 0) {
-                                trapBBNum = Integer.parseInt(
-                                        errorTableEntries.get(errTableEntryIndex).trapBB.toString().substring(2));
-                                if (trapBBNum <= getBbIdNum(basicBlocks, bbNum)) {
-                                    break;
-                                } else if (trapBBNum < getBbIdNum(basicBlocks, splitEndBBIndex)) {
-                                    splitErrorTableEntries.add(errorTableEntries.get(errTableEntryIndex));
-                                }
-                                errTableEntryIndex--;
-                            }
-                            Collections.reverse(splitErrorTableEntries);
-
-                            possibleSplits.add(new Split(insNum, splitEndInsIndex, bbNum, splitEndBBIndex,
-                                    lhsOperandList, newFuncArgs, splitErrorTableEntries));
-                            splitStarted = false;
-                        }
-                    }
-                } else {
-                    if (currIns.kind == InstructionKind.NEW_ARRAY) {
-                        BIRNonTerminator.NewArray arrayIns = (BIRNonTerminator.NewArray) currIns;
-                        splitStartOperand = arrayIns.sizeOp;
-                        if ((bbNum == basicBlocks.size() - 2) && (!basicBlocks.get(0).instructions.isEmpty()) &&
-                                (basicBlocks.get(0).instructions.get(0).lhsOp == splitStartOperand)) {
-                            continue;
-                        }
-                        splitStarted = true;
-                        splitTypeArray = true;
-                        neededOperandsVarDcl = new HashSet<>();
-                        BIROperand[] initialRhsOperands = currIns.getRhsOperands();
-                        for (BIROperand rhsOperand : initialRhsOperands) {
-                            if (needToPassVarDclAsArg(rhsOperand)) {
-                                neededOperandsVarDcl.add(rhsOperand.variableDcl);
-                            }
-                        }
-                        lhsOperandList = new ArrayList<>();
-                        splitEndInsIndex = insNum;
-                        splitEndBBIndex = bbNum;
-                    } else if (currIns.kind == InstructionKind.NEW_STRUCTURE) {
-                        BIRNonTerminator.NewStructure structureIns = (BIRNonTerminator.NewStructure) currIns;
-                        splitStartOperand = structureIns.rhsOp;
-                        if ((bbNum == basicBlocks.size() - 2) && (!basicBlocks.get(0).instructions.isEmpty()) &&
-                                (basicBlocks.get(0).instructions.get(0).lhsOp == splitStartOperand)) {
-                            continue;
-                        }
-                        splitStarted = true;
-                        splitTypeArray = false;
-                        neededOperandsVarDcl = new HashSet<>();
-                        BIROperand[] initialRhsOperands = currIns.getRhsOperands();
-                        for (BIROperand rhsOperand : initialRhsOperands) {
-                            if (needToPassVarDclAsArg(rhsOperand)) {
-                                neededOperandsVarDcl.add(rhsOperand.variableDcl);
-                            }
-                        }
-                        lhsOperandList = new ArrayList<>();
-                        splitEndInsIndex = insNum;
-                        splitEndBBIndex = bbNum;
-                    } else {
-                        continue;
-                    }
-                }
-
-            }
-        }
-        Collections.reverse(possibleSplits);
-        return possibleSplits;
-    }
-
-    private BIRFunction createNewBIRFunctionForSameBB(BIRPackage birPkg, int funcNum, Name funcName,
+    /**
+     * Create a new BIR function for a split which starts and ends in the same BB.
+     *
+     * @param birPkg available BIRPackage
+     * @param funcNum index of the ongoing function in the function list in birPkg
+     * @param funcName Name of the function to be created
+     * @param currentIns last instruction in the split
+     * @param collectedIns other instructions in the split
+     * @param lhsOperandList list of varDcl of the LHS operands
+     * @param funcArgs list of varDcl for the new function arguments
+     * @return newly created BIR function
+     */
+    private BIRFunction createNewBIRFunctionInBB(BIRPackage birPkg, int funcNum, Name funcName,
                                                       BIRNonTerminator currentIns, List<BIRNonTerminator> collectedIns,
                                                       List<BIRVariableDcl> lhsOperandList,
                                                       List<BIRVariableDcl> funcArgs) {
@@ -516,7 +519,7 @@ public class LargeMethodOptimizer {
         birFunc.localVars.addAll(functionParams);
         birFunc.localVars.addAll(new HashSet<>(lhsOperandList));
 
-        //creates 2 bbs
+        // creates 2 bbs
         BIRBasicBlock entryBB = new BIRBasicBlock(new Name("bb0"));
         entryBB.instructions.addAll(collectedIns);
         BIRNonTerminator lastInstruction = currentIns;
@@ -529,25 +532,25 @@ public class LargeMethodOptimizer {
         birFunc.basicBlocks.add(exitBB);
         return birFunc;
     }
+}
 
-    class Split {
-        int firstIns;
-        int lastIns;
-        int startBBNum;
-        int endBBNum;
-        List<BIRVariableDcl> lhsVars;
-        List<BIRVariableDcl> funcArgs;
-        List<BIRErrorEntry> errorTableEntries;
+class Split {
+    int firstIns;
+    int lastIns;
+    int startBBNum;
+    int endBBNum;
+    List<BIRVariableDcl> lhsVars;
+    List<BIRVariableDcl> funcArgs;
+    List<BIRErrorEntry> errorTableEntries;
 
-        public Split(int firstIns, int lastIns, int startBBNum, int endBBNum, List<BIRVariableDcl> lhsVars,
-                     List<BIRVariableDcl> funcArgs, List<BIRErrorEntry> errorTableEntries) {
-            this.firstIns = firstIns;
-            this.lastIns = lastIns;
-            this.startBBNum = startBBNum;
-            this.endBBNum = endBBNum;
-            this.lhsVars = lhsVars;
-            this.funcArgs = funcArgs;
-            this.errorTableEntries = errorTableEntries;
-        }
+    protected Split(int firstIns, int lastIns, int startBBNum, int endBBNum, List<BIRVariableDcl> lhsVars,
+                 List<BIRVariableDcl> funcArgs, List<BIRErrorEntry> errorTableEntries) {
+        this.firstIns = firstIns;
+        this.lastIns = lastIns;
+        this.startBBNum = startBBNum;
+        this.endBBNum = endBBNum;
+        this.lhsVars = lhsVars;
+        this.funcArgs = funcArgs;
+        this.errorTableEntries = errorTableEntries;
     }
 }
