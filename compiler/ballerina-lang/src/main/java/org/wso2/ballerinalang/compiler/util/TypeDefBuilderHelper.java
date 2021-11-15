@@ -213,6 +213,20 @@ public class TypeDefBuilderHelper {
         return typeDefinition;
     }
 
+    public static BLangTypeDefinition createTypeDefinitionForTSymbol(BType type, BSymbol symbol, BLangType typeNode,
+                                                                     SymbolEnv env) {
+        BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        typeDefinition.typeNode = typeNode;
+        typeDefinition.setBType(type);
+        typeDefinition.symbol = Symbols.createTypeDefinitionSymbol(symbol.flags,
+                    Names.fromString(symbol.name.value), symbol.pkgID, type, symbol.owner,
+                    symbol.pos, symbol.origin);
+        typeDefinition.name = createIdentifier(symbol.pos, symbol.name.value);
+        typeDefinition.pos = typeNode.getPosition();
+        env.enclPkg.addTypeDefinition(typeDefinition);
+        return typeDefinition;
+    }
+
     public static BLangClassDefinition createClassDef(Location pos, BObjectTypeSymbol classTSymbol,
                                                       SymbolEnv env) {
         BObjectType objType = (BObjectType) classTSymbol.type;

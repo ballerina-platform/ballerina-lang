@@ -18,6 +18,7 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.environment.ProjectEnvironment;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
@@ -98,6 +99,37 @@ public abstract class Project {
         CompilerContext compilerContext = this.projectEnvironmentContext().getService(CompilerContext.class);
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(PROJECT_DIR, this.sourceRoot().toAbsolutePath().toString());
+    }
+
+    /**
+     * Clears all caches of this project.
+     *
+     * The current content and the structure will be preserved. In-memory caches
+     * (i.e. package resolution caches, compilation caches)
+     * generated during project compilation will be discarded.
+     */
+    public void clearCaches() {
+        cloneProject(this);
+        CompilerContext compilerContext = this.projectEnvironmentContext()
+                .getService(CompilerContext.class);
+        PackageCache packageCache = PackageCache.getInstance(compilerContext);
+        packageCache.flush();
+    }
+
+    /**
+     * Creates a new Project instance which has the same structure as this Project.
+     *
+     * The new project will have the same structure and content as this. The caches of
+     * this project generated during project compilation will not be copied.
+     *
+     * @return The new Project instance.
+     */
+    public abstract Project duplicate();
+
+    protected Project cloneProject(Project project) {
+        Package clone = this.currentPackage.duplicate(project);
+        project.setCurrentPackage(clone);
+        return project;
     }
 
     public abstract DocumentId documentId(Path file);

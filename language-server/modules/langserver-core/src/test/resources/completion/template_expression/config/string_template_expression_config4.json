@@ -353,7 +353,7 @@
     {
       "label": "varIntTypeDef",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "IntTypeDef",
       "sortText": "AAB",
       "insertText": "varIntTypeDef",
       "insertTextFormat": "Snippet"
