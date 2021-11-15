@@ -1149,9 +1149,11 @@ public class TypeChecker {
         }
         unresolvedTypes.add(pair);
 
-        // Unsealed records are not equivalent to sealed records. But vice-versa is allowed.
+        // Unsealed records are not equivalent to sealed records, unless their rest field type is 'never'. But vice-versa
+        // is allowed.
         if (targetType.sealed && !sourceRecordType.sealed) {
-            return false;
+            return sourceRecordType.restFieldType != null &&
+                    sourceRecordType.restFieldType.getTag() == TypeTags.NEVER_TAG;
         }
 
         // If both are sealed (one is sealed means other is also sealed) check the rest field type

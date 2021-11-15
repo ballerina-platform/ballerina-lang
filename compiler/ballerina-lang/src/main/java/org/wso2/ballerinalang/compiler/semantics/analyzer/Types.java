@@ -1639,9 +1639,10 @@ public class Types {
     }
 
     public boolean checkRecordEquivalency(BRecordType rhsType, BRecordType lhsType, Set<TypePair> unresolvedTypes) {
-        // If the LHS record is closed and the RHS record is open, the records aren't equivalent
+        // If the LHS record is closed and the RHS record is open and the rest field type of RHS is not a 'never'
+        // type, the records aren't equivalent
         if (lhsType.sealed && !rhsType.sealed) {
-            return false;
+            return rhsType.restFieldType != null && rhsType.restFieldType.tag == TypeTags.NEVER;
         }
 
         // If both are open records, the rest field type of the RHS record should be assignable to the rest field
