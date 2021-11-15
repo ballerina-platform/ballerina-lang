@@ -28,6 +28,7 @@ import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -45,6 +46,12 @@ import static org.testng.Assert.assertTrue;
 public class LangLibTupleTest {
 
     private CompileResult compileResult, negativeResult;
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        negativeResult = null;
+    }
 
     @BeforeClass
     public void setup() {

@@ -31,6 +31,7 @@ import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -48,6 +49,11 @@ import static org.testng.Assert.assertTrue;
 public class LangLibRecordTest {
 
     private CompileResult compileResult;
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+    }
 
     @BeforeClass
     public void setup() {

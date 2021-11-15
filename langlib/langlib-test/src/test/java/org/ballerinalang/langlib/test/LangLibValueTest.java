@@ -48,6 +48,13 @@ public class LangLibValueTest {
 
     private CompileResult compileResult, file;
 
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        file = null;
+    }
+
     @BeforeClass
     public void setup() {
 
@@ -496,11 +503,5 @@ public class LangLibValueTest {
                 { "testEnsureTypeNegative" },
                 { "testEnsureTypeJsonToNestedRecordsWithErrors" }
         };
-    }
-
-    @AfterClass
-    public void tearDown() {
-        compileResult = null;
-        file = null;
     }
 }

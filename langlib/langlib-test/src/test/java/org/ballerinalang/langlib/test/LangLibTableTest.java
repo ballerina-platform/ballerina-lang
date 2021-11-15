@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -42,6 +43,12 @@ import static org.testng.Assert.assertEquals;
 public class LangLibTableTest {
 
     private CompileResult compileResult, negativeResult;
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        negativeResult = null;
+    }
 
     @BeforeClass
     public void setup() {

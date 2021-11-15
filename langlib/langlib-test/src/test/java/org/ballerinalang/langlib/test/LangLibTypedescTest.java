@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.test;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -33,6 +34,11 @@ public class LangLibTypedescTest {
 
     private CompileResult compileResult;
 
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+    }
+
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/typedesclib_test.bal");
@@ -42,5 +48,4 @@ public class LangLibTypedescTest {
     public void testGetTypeIds() {
         BRunUtil.invoke(compileResult, "testGeTypeIds");
     }
-
 }
