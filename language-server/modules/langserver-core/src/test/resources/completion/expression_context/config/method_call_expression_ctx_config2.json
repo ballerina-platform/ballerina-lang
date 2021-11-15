@@ -649,7 +649,7 @@
       "label": "function (..) {..}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "AS",
+      "sortText": "BS",
       "filterText": "function",
       "insertText": "function (int i) returns int {\n    return 0;\n}",
       "insertTextFormat": "Snippet"

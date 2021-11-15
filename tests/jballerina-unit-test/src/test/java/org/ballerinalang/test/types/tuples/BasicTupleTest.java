@@ -242,11 +242,11 @@ public class BasicTupleTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected '(string|boolean)', found '(string|boolean|int)'", 136, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'int', found 'S1|S2'", 154, 19);
+                "incompatible types: expected 'int', found 'FiniteOne'", 154, 19);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid list member access expression: value space '3|4|5' out of range", 155, 19);
+                "invalid list member access expression: value space 'FiniteTwo' out of range", 155, 19);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'int', found '0|1|2|S1'", 156, 19);
+                "incompatible types: expected 'int', found 'FiniteThree'", 156, 19);
         BAssertUtil.validateError(resultNegative, i++,
                                   "incompatible types: expected 'int', found 'FiniteFour'", 157, 19);
         BAssertUtil.validateError(resultNegative, i++,
