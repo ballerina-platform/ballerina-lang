@@ -45,8 +45,7 @@
                         "type": "string"
                     }
                 }
-            },
-            "required": ["name","org"]
+            }
         }
     }
 }

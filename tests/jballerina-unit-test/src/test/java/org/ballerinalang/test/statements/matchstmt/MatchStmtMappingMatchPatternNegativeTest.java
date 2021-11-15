@@ -56,13 +56,18 @@ public class MatchStmtMappingMatchPatternNegativeTest {
         BAssertUtil.validateWarning(warningResult, i++, unreachablePattern, 66, 26);
         BAssertUtil.validateWarning(warningResult, i++, unreachablePattern, 68, 24);
         BAssertUtil.validateWarning(warningResult, i++, unreachablePattern, 72, 9);
+        BAssertUtil.validateHint(warningResult, i++, "unnecessary condition: expression will always evaluate to " +
+                "'true'", 74, 30);
         BAssertUtil.validateWarning(warningResult, i++, unreachablePattern, 76, 9);
+        BAssertUtil.validateHint(warningResult, i++, "unnecessary condition: expression will always evaluate to " +
+                "'true'", 76, 30);
         BAssertUtil.validateWarning(warningResult, i++, unreachablePattern, 84, 9);
         BAssertUtil.validateWarning(warningResult, i++, unreachablePattern, 91, 9);
         BAssertUtil.validateWarning(warningResult, i++, unreachablePattern, 98, 9);
         BAssertUtil.validateWarning(warningResult, i++, patternNotMatched, 110, 9);
         BAssertUtil.validateWarning(warningResult, i++, patternNotMatched, 117, 9);
-        Assert.assertEquals(warningResult.getWarnCount(), i);
+        Assert.assertEquals(warningResult.getWarnCount(), i - 2);
+        Assert.assertEquals(warningResult.getHintCount(), 2);
     }
 
     @Test

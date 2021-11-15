@@ -1,0 +1,32 @@
+{
+  "position": {
+    "line": 3,
+    "character": 15
+  },
+  "source": "field_access_expression_context/source/projectls/defmodsource2.bal",
+  "items": [
+    {
+      "label": "PERSON_KW",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "BA",
+      "insertText": "PERSON_KW",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getName()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _lstest/projectls.lsmod1:0.1.0_  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "getName",
+      "insertText": "getName()",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

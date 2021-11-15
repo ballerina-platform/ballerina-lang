@@ -146,6 +146,7 @@ public class SymbolTable {
     public BUnionType pureType;
     public BUnionType errorOrNilType;
     public BFiniteType trueType;
+    public BFiniteType falseType;
     public BObjectType intRangeType;
     public BMapType mapAllType;
     public BArrayType arrayAllType;
@@ -273,6 +274,10 @@ public class SymbolTable {
         trueLiteral.setBType(this.booleanType);
         trueLiteral.value = Boolean.TRUE;
 
+        BLangLiteral falseLiteral = new BLangLiteral();
+        falseLiteral.setBType(this.booleanType);
+        falseLiteral.value = Boolean.FALSE;
+
         defineCyclicUnionBasedInternalTypes();
 
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
@@ -282,6 +287,14 @@ public class SymbolTable {
         this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<>() {{
             add(trueLiteral);
         }});
+
+        BTypeSymbol falseFiniteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
+                names.fromString("$anonType$FALSE"), rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
+                this.builtinPos, VIRTUAL);
+        this.falseType = new BFiniteType(falseFiniteTypeSymbol, new HashSet<>() {{
+            add(falseLiteral);
+        }});
+
         this.anyAndReadonly =
                 ImmutableTypeCloner.getImmutableIntersectionType((SelectivelyImmutableReferenceType) this.anyType,
                         this, names);

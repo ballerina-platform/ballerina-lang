@@ -56,7 +56,6 @@ import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
 import static io.ballerina.cli.utils.CentralUtils.authenticate;
 import static io.ballerina.cli.utils.CentralUtils.getBallerinaCentralCliTokenUrl;
 import static io.ballerina.cli.utils.CentralUtils.getCentralPackageURL;
-import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
@@ -149,7 +148,7 @@ public class PushCommand implements BLauncherCmd {
 
                     pushPackage(project);
                 } else {
-                    Settings settings = readSettings();
+                    Settings settings = RepoUtils.readSettings();
                     if (settings.diagnostics().hasErrors()) {
                         CommandUtil.printError(this.errStream, settings.getErrorMessage(), null, false);
                         CommandUtil.exitError(this.exitWhenFinish);
@@ -205,7 +204,7 @@ public class PushCommand implements BLauncherCmd {
     private void pushPackage(BuildProject project) {
         Path balaFilePath = validateBalaFile(project);
         pushBalaToCustomRepo(balaFilePath);
-        errStream.println("Successfully pushed " + userDir.relativize(balaFilePath)
+        outStream.println("Successfully pushed " + userDir.relativize(balaFilePath)
                 + " to '" + repositoryName + "' repository.");
     }
 

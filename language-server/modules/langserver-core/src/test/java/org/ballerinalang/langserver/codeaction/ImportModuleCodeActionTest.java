@@ -44,8 +44,9 @@ public class ImportModuleCodeActionTest extends AbstractCodeActionTest {
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"importModule1.json", "importModule.bal"},
-                {"importModule2.json", "importModule.bal"},
+                {"importModule1a.json", "importModule1.bal"},
+                {"importModule1b.json", "importModule1.bal"},
+                {"importModule2.json", "importModule2.bal"},
         };
     }
 }

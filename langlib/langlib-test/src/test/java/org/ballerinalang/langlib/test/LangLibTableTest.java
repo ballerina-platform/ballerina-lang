@@ -105,8 +105,12 @@ public class LangLibTableTest {
 
     @Test
     public void testHasKey() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testHasKey");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        BRunUtil.invoke(compileResult, "testHasKey");
+    }
+
+    @Test
+    public void testHashCollisionHandlingScenarios() {
+        BRunUtil.invoke(compileResult, "testHashCollisionHandlingScenarios");
     }
 
     @Test

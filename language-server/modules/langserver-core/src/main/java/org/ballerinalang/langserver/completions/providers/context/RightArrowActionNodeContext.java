@@ -27,7 +27,6 @@ import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
@@ -42,7 +41,7 @@ import java.util.stream.Collectors;
  * @param <T> Action node type
  * @since 2.0.0
  */
-public abstract class RightArrowActionNodeContext<T extends ActionNode> extends AbstractCompletionProvider<T> {
+public abstract class RightArrowActionNodeContext<T extends ActionNode> extends InvocationNodeContextProvider<T> {
 
     public RightArrowActionNodeContext(Class<T> attachmentPoint) {
         super(attachmentPoint);

@@ -30,7 +30,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 import static org.ballerinalang.debugger.test.utils.DebugTestRunner.DebugResumeKind;
 
@@ -50,8 +50,8 @@ public class MultiModuleRunDebugTest extends BaseTestCase {
 
     @Test
     public void testMultiModuleDebugScenarios() throws BallerinaTestException {
-        String filePath1 = Paths.get(debugTestRunner.testProjectPath, "utils.bal").toString();
-        String filePath2 = Paths.get(debugTestRunner.testProjectPath, "modules", "math", "add.bal").toString();
+        Path filePath1 = debugTestRunner.testProjectPath.resolve("utils.bal");
+        Path filePath2 = debugTestRunner.testProjectPath.resolve("modules").resolve("math").resolve("add.bal");
 
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 22));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 28));

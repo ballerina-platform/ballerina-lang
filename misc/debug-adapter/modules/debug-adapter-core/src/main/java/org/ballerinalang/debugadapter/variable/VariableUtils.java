@@ -24,9 +24,11 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
@@ -39,6 +41,9 @@ public class VariableUtils {
     public static final String FIELD_TYPE = "type";
     public static final String FIELD_TYPENAME = "typeName";
     public static final String FIELD_VALUE = "value";
+    public static final String FIELD_PACKAGE = "pkg";
+    public static final String FIELD_PKG_ORG = "org";
+    public static final String FIELD_PKG_NAME = "name";
     private static final String FIELD_CONSTRAINT = "constraint";
     private static final String METHOD_STRINGVALUE = "stringValue";
     public static final String UNKNOWN_VALUE = "unknown";
@@ -66,6 +71,36 @@ public class VariableUtils {
             return getStringFrom(typeNameRef);
         } catch (Exception e) {
             return UNKNOWN_VALUE;
+        }
+    }
+
+    /**
+     * Returns the source package org and name of a given ballerina runtime value type.
+     *
+     * @param bValue JDI value instance of the ballerina jvm variable.
+     * @return variable type in string form.
+     */
+    public static Map.Entry<String, String> getPackageOrgAndName(Value bValue) {
+        try {
+            if (!(bValue instanceof ObjectReference)) {
+                return null;
+            }
+            ObjectReference valueRef = (ObjectReference) bValue;
+            Field bTypeField = valueRef.referenceType().fieldByName(FIELD_TYPE);
+            Value bTypeRef = valueRef.getValue(bTypeField);
+            Field typePkgField = ((ObjectReference) bTypeRef).referenceType().fieldByName(FIELD_PACKAGE);
+            Value typePkgRef = ((ObjectReference) bTypeRef).getValue(typePkgField);
+
+            Field pkgOrgField = ((ObjectReference) typePkgRef).referenceType().fieldByName(FIELD_PKG_ORG);
+            Value pkgOrgRef = ((ObjectReference) typePkgRef).getValue(pkgOrgField);
+            String typePkgOrg = getStringFrom(pkgOrgRef);
+            Field pkgNameField = ((ObjectReference) typePkgRef).referenceType().fieldByName(FIELD_PKG_NAME);
+            Value pkgNameRef = ((ObjectReference) typePkgRef).getValue(pkgNameField);
+            String typePkgName = getStringFrom(pkgNameRef);
+
+            return new AbstractMap.SimpleEntry<>(typePkgOrg, typePkgName);
+        } catch (Exception e) {
+            return null;
         }
     }
 

@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.completions.providers;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
@@ -49,6 +50,7 @@ import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -73,6 +75,7 @@ import org.ballerinalang.langserver.completions.builder.WorkerCompletionItemBuil
 import org.ballerinalang.langserver.completions.builder.XMLNSCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SnippetBlock;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -85,6 +88,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -502,6 +506,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRUE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FALSE.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NIL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IS.get()));
@@ -517,7 +522,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
-        // TODO: anon function expressions, 
+        this.getAnonFunctionDefSnippet(context).ifPresent(completionItems::add);
         return completionItems;
     }
 
@@ -533,6 +538,14 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
 
     protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context, T node) {
         return this.expressionCompletions(context);
+    }
+    
+    protected List<LSCompletionItem> getTypeQualifierItems(BallerinaCompletionContext context) {
+        // Note: here we do not add the service type qualifier since it is being added via getTypeItems call.
+        return Arrays.asList(
+                new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()),
+                new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()),
+                new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
     }
 
     private List<LSCompletionItem> getBasicAndOtherTypeCompletions(BallerinaCompletionContext context) {
@@ -606,5 +619,127 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 }).forEach(completionItems::add);
 
         return completionItems;
+    }
+
+    /**
+     * Returns the completion items based on qualifiers of a given node.
+     * <p>
+     * Currently, isolated, transactional, client, service are considered qualifiers.
+     *
+     * @param node    node of which the qualifiers are checked.
+     * @param context completion context.
+     * @return
+     */
+    protected List<LSCompletionItem> getCompletionItemsOnQualifiers(Node node, BallerinaCompletionContext context) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node);
+        if (qualifiers.isEmpty()) {
+            return completionItems;
+        }
+        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
+        Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
+        switch (lastQualifier.kind()) {
+            case ISOLATED_KEYWORD:
+                if (qualKinds.contains(SyntaxKind.TRANSACTIONAL_KEYWORD)) {
+                    break;
+                }
+                //Objected type desc is added with type completion items in the following case.
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
+                if (qualKinds.contains(SyntaxKind.CLIENT_KEYWORD) ||
+                        qualKinds.contains(SyntaxKind.SERVICE_KEYWORD)) {
+                    break;
+                }
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SERVICE.get()));
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
+                break;
+            case TRANSACTIONAL_KEYWORD:
+                if (!qualKinds.contains(SyntaxKind.ISOLATED_KEYWORD)) {
+                    completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
+                }
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+                break;
+            case CLIENT_KEYWORD:
+            case SERVICE_KEYWORD:
+                if (!qualKinds.contains(SyntaxKind.ISOLATED_KEYWORD)) {
+                    completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
+                }
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
+                completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()));
+                break;
+            default:
+        }
+        return completionItems;
+    }
+
+    /**
+     * Check if the cursor is positioned immediately after a qualifier.
+     *
+     * @param context completion context.
+     * @param node    node.
+     * @return {@link Boolean}
+     */
+    protected boolean onSuggestionsAfterQualifiers(BallerinaCompletionContext context, Node node) {
+        int cursor = context.getCursorPositionInTree();
+        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node);
+        if (qualifiers.isEmpty()) {
+            return false;
+        }
+        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
+        return lastQualifier.textRange().endOffset() < cursor;
+    }
+
+    /**
+     * Get anonymous function definition snippet.
+     *
+     * @param context completion context.
+     * @return snippet completion item
+     */
+    protected Optional<SnippetCompletionItem> getAnonFunctionDefSnippet(BallerinaCompletionContext context) {
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+        Optional<TypeSymbol> typeSymbolAtCursor = context.getContextType();
+
+        if (typeSymbolAtCursor.isEmpty() || typeSymbolAtCursor.get().typeKind() != TypeDescKind.FUNCTION) {
+            return Optional.empty();
+        }
+        
+        TypeSymbol symbol = typeSymbolAtCursor.get();
+        FunctionTypeSymbol functionTypeSymbol = ((FunctionTypeSymbol) symbol);
+        Optional<TypeSymbol> returnTypeSymbol = functionTypeSymbol.returnTypeDescriptor();
+
+        if (returnTypeSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        List<String> args = new ArrayList<>();
+        int argIndex = 1;
+        Set<String> visibleSymbolNames = visibleSymbols
+                .stream()
+                .map(Symbol::getName)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
+                
+        if (functionTypeSymbol.params().isPresent()) {
+            // variable names
+            for (ParameterSymbol parameterSymbol : functionTypeSymbol.params().get()) {
+                String varName = "";
+                TypeSymbol parameterTypeSymbol = parameterSymbol.typeDescriptor();
+                varName = CommonUtil.generateParameterName(varName, argIndex, parameterTypeSymbol,
+                        visibleSymbolNames);
+                args.add(FunctionGenerator.getParameterTypeAsString(context, parameterTypeSymbol) + " " + varName);
+                visibleSymbolNames.add(varName);
+                argIndex++;
+            }
+        }
+        
+        String functionName = "";
+        String snippet = FunctionGenerator.generateFunction(context, false, functionName, args, 
+                returnTypeSymbol.get());
+        SnippetBlock snippetBlock = new SnippetBlock(ItemResolverConstants.ANON_FUNCTION, 
+                ItemResolverConstants.FUNCTION, snippet, ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET);
+        snippetBlock.setId(ItemResolverConstants.ANON_FUNCTION);
+        
+        return Optional.of(new SnippetCompletionItem(context, snippetBlock));
     }
 }

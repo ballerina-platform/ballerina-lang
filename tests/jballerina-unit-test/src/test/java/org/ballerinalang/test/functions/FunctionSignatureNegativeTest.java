@@ -70,7 +70,8 @@ public class FunctionSignatureNegativeTest {
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'float', found 'boolean[]'", 87, 28);
         BAssertUtil.validateError(result, i++, "incompatible types: expected" +
                 " '([float,boolean...]|record {| float f?; |})', found 'boolean[]'", 88, 31);
-        BAssertUtil.validateError(result, i++, "named arg followed by positional arg", 89, 45);
+        BAssertUtil.validateError(result, i++, "positional argument not allowed after named arguments", 89, 45);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to 'normalFunction()'", 89, 45);
         BAssertUtil.validateError(result, i++, "rest argument not allowed after named arguments", 90, 45);
         BAssertUtil.validateError(result, i++, "missing required parameter 'y' in call to " +
                 "'functionWithNoRestParam()'", 98, 5);
