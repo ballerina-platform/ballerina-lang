@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -1113,8 +1114,9 @@ public class ConstantPropagation extends BLangNodeVisitor {
 
             // If the var ref is a const-ref of value type, then replace the ref
             // from a simple literal
-            if (constSymbol.literalType.tag <= TypeTags.BOOLEAN || constSymbol.literalType.tag == TypeTags.NIL) {
-                BLangConstRef constRef = ASTBuilderUtil.createBLangConstRef(varRefExpr.pos, constSymbol.literalType,
+            BType literalType = types.getReferredType(constSymbol.literalType);
+            if (literalType.tag <= TypeTags.BOOLEAN || literalType.tag == TypeTags.NIL) {
+                BLangConstRef constRef = ASTBuilderUtil.createBLangConstRef(varRefExpr.pos, literalType,
                                                                             constSymbol.value.value);
                 constRef.variableName = varRefExpr.variableName;
                 constRef.symbol = constSymbol;

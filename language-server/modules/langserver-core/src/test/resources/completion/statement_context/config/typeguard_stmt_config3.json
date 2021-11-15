@@ -6,29 +6,6 @@
   "source": "statement_context/source/typeguard_stmt_source3.bal",
   "items": [
     {
-      "label": "typeguard",
-      "kind": "Snippet",
-      "detail": "Destructure the variable myVar with typeguard",
-      "sortText": "BR",
-      "insertText": "if myVar is string {\n\t${1}\n} else if myVar is int {\n\t${2}\n} else if myVar is boolean {\n\t${3}\n} else {\n\t${4}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 3,
-              "character": 8
-            },
-            "end": {
-              "line": 3,
-              "character": 14
-            }
-          },
-          "newText": ""
-        }
-      ]
-    },
-    {
       "label": "cloneReadOnly()",
       "kind": "Function",
       "detail": "value:CloneableType & readonly",
@@ -76,6 +53,29 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "typeguard",
+      "kind": "Snippet",
+      "detail": "Destructure the variable myVar with typeguard",
+      "sortText": "BR",
+      "insertText": "if myVar is string {\n\t${1}\n} else if myVar is int {\n\t${2}\n} else if myVar is boolean {\n\t${3}\n} else if myVar is myErr1 {\n\t${4}\n} else {\n\t${5}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 8
+            },
+            "end": {
+              "line": 3,
+              "character": 14
+            }
+          },
+          "newText": ""
+        }
+      ]
     }
   ]
 }

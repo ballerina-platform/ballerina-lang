@@ -51,13 +51,13 @@ public class MemberAccessTest {
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 33, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 34, 12);
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'a|b'", 35, 12);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'ALL_STRINGS'", 35, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 37, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 38, 12);
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'a|b'", 39, 12);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'ALL_STRINGS'", 39, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 41, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 42, 12);
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'a|b'", 43, 12);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'ALL_STRINGS'", 43, 12);
         validateError(negativeResult, i++, "invalid operation: type 'int[]?' does not support member access", 53, 9);
         validateError(negativeResult, i++, "invalid operation: type 'Employee[3]?' does not support " +
                 "member access", 54, 9);
@@ -109,8 +109,9 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'float', found 'string:Char'", 157, 17);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 158, 21);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 159, 21);
-        validateError(negativeResult, i++, "invalid operation: type 'foo|1' does not support member access", 169, 17);
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'foo|1'", 170, 20);
+        validateError(negativeResult, i++, "invalid operation: type 'StrOrInt' does not support member access",
+                169, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'StrOrInt'", 170, 20);
         validateError(negativeResult, i++, "invalid operation: type 'string' does not support member access for " +
                 "assignment", 175, 5);
         validateError(negativeResult, i++, "list index out of range: index: '5'", 182, 12);

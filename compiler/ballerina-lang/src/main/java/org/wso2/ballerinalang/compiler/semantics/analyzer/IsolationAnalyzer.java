@@ -70,6 +70,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -2328,7 +2329,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        BType varArgType = restArgsExpression.getBType();
+        BType varArgType = types.getReferredType(restArgsExpression.getBType());
         if (varArgType.tag == TypeTags.ARRAY) {
             handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, null, expectsIsolation,
                                                            ((BArrayType) varArgType).eType, pos);
@@ -2906,7 +2907,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return false;
             }
 
-            if (!invokedOnSelf && invocation.getBType().tag == TypeTags.NIL) {
+            if (!invokedOnSelf && types.getReferredType(invocation.getBType()).tag == TypeTags.NIL) {
                 return true;
             }
 
@@ -4004,6 +4005,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         @Override
         public void visit(BTypedescType bTypedescType) {
             visitType(bTypedescType.constraint);
+        }
+
+        @Override
+        public void visit(BTypeReferenceType bTypeReferenceType) {
+            visitType(bTypeReferenceType.referredType);
         }
 
         @Override

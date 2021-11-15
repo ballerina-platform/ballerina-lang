@@ -70,7 +70,7 @@ public class TableCastTest {
     @Test
     public void testNegativeCases() {
         Assert.assertEquals(negativeResult.getErrorCount(), 5);
-        BAssertUtil.validateError(negativeResult, 0, "incompatible types: 'table<(Person|Customer)> key<string>' " +
+        BAssertUtil.validateError(negativeResult, 0, "incompatible types: 'PersonTable1' " +
                 "cannot be cast to 'table<Person> key<int>'", 49, 34);
         BAssertUtil.validateError(negativeResult, 1, "invalid key constraint provided for member access. " +
                 "key constraint expected with type 'int'", 50, 12);
