@@ -39,8 +39,6 @@
             <class name="io.ballerina.semantic.api.test.TestSourcesTest" />
             <class name="io.ballerina.semantic.api.test.TypeAssignabilityTest" />
             <class name="io.ballerina.semantic.api.test.TypedescriptorTest" />
-            <class name="io.ballerina.semantic.api.test.typeof.TypeOfInCallStatementsTest" />
-            <class name="io.ballerina.semantic.api.test.typeof.TypeOfQueryExprTest" />
             <class name="io.ballerina.semantic.api.test.WorkspaceSymbolLookupTest" />
 
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsWithinTargetDocumentTest" />
@@ -161,6 +159,10 @@
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInQueryExprsTest" />
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInStatementsTest" />
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInWorkersTest" />
+
+            <!--Type Of-->
+            <class name="io.ballerina.semantic.api.test.typeof.TypeOfInCallStatementsTest" />
+            <class name="io.ballerina.semantic.api.test.typeof.TypeOfQueryExprTest" />
 
         </classes>
     </test>
