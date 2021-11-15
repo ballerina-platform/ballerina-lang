@@ -54,6 +54,9 @@ import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.MappingMatchPatternNode;
+import io.ballerina.compiler.syntax.tree.MatchClauseNode;
+import io.ballerina.compiler.syntax.tree.MatchStatementNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
@@ -212,7 +215,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     public Optional<TypeSymbol> transform(VariableDeclarationNode node) {
         return this.visit(node.typedBindingPattern().bindingPattern());
     }
-    
+
     @Override
     public Optional<TypeSymbol> transform(LetVariableDeclarationNode node) {
         return this.visit(node.typedBindingPattern().bindingPattern());
@@ -620,6 +623,23 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(MappingConstructorExpressionNode mappingConstructorExpressionNode) {
         return mappingConstructorExpressionNode.parent().apply(this);
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(MappingMatchPatternNode mappingMatchPatternNode) {
+        return mappingMatchPatternNode.parent().apply(this);
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(MatchClauseNode matchClauseNode) {
+        return matchClauseNode.parent().apply(this);
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(MatchStatementNode matchStatementNode) {
+        Optional<TypeSymbol> typeSymbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.typeOf(matchStatementNode.condition()));
+        return typeSymbol;
     }
 
     //    @Override
