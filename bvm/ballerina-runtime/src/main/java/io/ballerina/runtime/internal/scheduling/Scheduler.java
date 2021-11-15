@@ -42,6 +42,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -94,6 +95,8 @@ public class Scheduler {
         this.immortal = immortal;
         this.listenerRegistry = new ListenerRegistry();
         this.previousStrand = numThreads == 1 ? strandHolder.get().strand : null;
+        ItemGroup group = new ItemGroup();
+        objectGroup.set(group);
     }
 
     public static Strand getStrand() {
@@ -153,10 +156,12 @@ public class Scheduler {
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
         future.strand.strandGroup = parent.strandGroup;
+        parent.strandGroup.lock();
         parent.strandGroup.add(item);
         if (parent.strandGroup.scheduled.compareAndSet(false, true)) {
             runnableList.add(future.strand.strandGroup);
         }
+        parent.strandGroup.unlock();
         return future;
     }
 
@@ -169,16 +174,13 @@ public class Scheduler {
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
         ItemGroup group = objectGroup.get();
-        if (group == null) {
-            group = new ItemGroup(item);
-            objectGroup.set(group);
-        } else {
-            group.add(item);
-        }
+        group.lock();
+        group.add(item);
         future.strand.strandGroup = group;
         if (group.scheduled.compareAndSet(false, true)) {
             runnableList.add(group);
         }
+        group.unlock();
         return future;
     }
 
@@ -337,9 +339,12 @@ public class Scheduler {
                     strandHolder.get().strand = previousStrand;
                 }
                 postProcess(item, result, panic);
+                group.lock();
                 if (group.items.empty()) {
                     group.scheduled.set(false);
+
                 }
+                group.unlock();
             }
         }
     }
@@ -488,15 +493,16 @@ public class Scheduler {
         if (!item.getState().equals(State.RUNNABLE)) {
             ItemGroup group = item.future.strand.strandGroup;
             item.setState(State.RUNNABLE);
+            group.lock();
             group.add(item);
-
             // Group maybe not picked by any thread at the moment because,
             //  1) All items are blocked.
             //  2) All others have finished
             // In this case we need to put it back in the runnable list.
-            if (group.scheduled.compareAndSet(false, true) || group.items.size() == 1) {
+            if (group.scheduled.compareAndSet(false, true)) {
                 runnableList.add(group);
             }
+            group.unlock();
         }
     }
 
@@ -644,14 +650,17 @@ class ItemGroup {
      */
     AtomicBoolean scheduled = new AtomicBoolean(false);
 
+    private final ReentrantLock groupLock;
+
     public static final ItemGroup POISON_PILL = new ItemGroup();
 
     public ItemGroup(SchedulerItem item) {
         items.push(item);
+        this.groupLock = new ReentrantLock();
     }
 
-    private ItemGroup() {
-        items = null;
+    public ItemGroup() {
+        this.groupLock = new ReentrantLock();
     }
 
     public void add(SchedulerItem item) {
@@ -660,5 +669,13 @@ class ItemGroup {
 
     public SchedulerItem get() {
         return items.pop();
+    }
+
+    public void lock() {
+        this.groupLock.lock();
+    }
+
+    public void unlock() {
+        this.groupLock.unlock();
     }
 }
