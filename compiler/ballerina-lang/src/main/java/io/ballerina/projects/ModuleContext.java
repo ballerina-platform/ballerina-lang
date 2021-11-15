@@ -72,6 +72,8 @@ class ModuleContext {
     private final Collection<DocumentId> testSrcDocIds;
     private final MdDocumentContext moduleMdContext;
     private final Map<DocumentId, DocumentContext> testDocContextMap;
+    private final Collection<DocumentId> resourceIds;
+    private final Map<DocumentId, ResourceContext> resourceContextMap;
     private final Project project;
     private final CompilationCache compilationCache;
     private final List<ModuleDescriptor> moduleDescDependencies;
@@ -91,7 +93,8 @@ class ModuleContext {
                   Map<DocumentId, DocumentContext> srcDocContextMap,
                   Map<DocumentId, DocumentContext> testDocContextMap,
                   MdDocumentContext moduleMd,
-                  List<ModuleDescriptor> moduleDescDependencies) {
+                  List<ModuleDescriptor> moduleDescDependencies,
+                  Map<DocumentId, ResourceContext> resourceContextMap) {
         this.project = project;
         this.moduleId = moduleId;
         this.moduleDescriptor = moduleDescriptor;
@@ -102,6 +105,8 @@ class ModuleContext {
         this.testSrcDocIds = Collections.unmodifiableCollection(testDocContextMap.keySet());
         this.moduleMdContext = moduleMd;
         this.moduleDescDependencies = Collections.unmodifiableList(moduleDescDependencies);
+        this.resourceContextMap = resourceContextMap;
+        this.resourceIds = Collections.unmodifiableCollection(resourceContextMap.keySet());
 
         ProjectEnvironment projectEnvironment = project.projectEnvironmentContext();
         this.bootstrap = new Bootstrap(projectEnvironment.getService(PackageResolver.class));
@@ -119,10 +124,15 @@ class ModuleContext {
             testDocContextMap.put(testSrcDocConfig.documentId(), DocumentContext.from(testSrcDocConfig));
         }
 
+        Map<DocumentId, ResourceContext> resourceContextMap = new HashMap<>();
+        for (ResourceConfig resourceConfig : moduleConfig.resources()) {
+            resourceContextMap.put(resourceConfig.documentId(), ResourceContext.from(resourceConfig));
+        }
+
         return new ModuleContext(project, moduleConfig.moduleId(), moduleConfig.moduleDescriptor(),
                 moduleConfig.isDefaultModule(), srcDocContextMap, testDocContextMap,
                 moduleConfig.moduleMd().map(c ->MdDocumentContext.from(c)).orElse(null),
-                moduleConfig.dependencies());
+                moduleConfig.dependencies(), resourceContextMap);
     }
 
     ModuleId moduleId() {
@@ -145,12 +155,20 @@ class ModuleContext {
         return this.testSrcDocIds;
     }
 
+    Collection<DocumentId> resourceIds() {
+        return this.resourceIds;
+    }
+
     DocumentContext documentContext(DocumentId documentId) {
         if (this.srcDocIds.contains(documentId)) {
             return this.srcDocContextMap.get(documentId);
         } else {
             return this.testDocContextMap.get(documentId);
         }
+    }
+
+    ResourceContext resourceContext(DocumentId documentId) {
+        return this.resourceContextMap.get(documentId);
     }
 
     Project project() {

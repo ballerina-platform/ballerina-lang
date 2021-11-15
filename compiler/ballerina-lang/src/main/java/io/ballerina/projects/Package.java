@@ -550,10 +550,15 @@ public class Package {
                     testDocContextMap.put(documentId, oldModuleContext.documentContext(documentId));
                 }
 
+                Map<DocumentId, ResourceContext> resourceMap = new HashMap<>();
+                for (DocumentId documentId : oldModuleContext.resourceIds()) {
+                    resourceMap.put(documentId, oldModuleContext.resourceContext(documentId));
+                }
+
                 moduleContextSet.add(new ModuleContext(this.project, moduleId, moduleDescriptor,
                         oldModuleContext.isDefaultModule(), srcDocContextMap, testDocContextMap,
                         oldModuleContext.moduleMdContext().orElse(null),
-                        oldModuleContext.moduleDescDependencies()));
+                        oldModuleContext.moduleDescDependencies(), resourceMap));
             }
             updateModules(moduleContextSet);
         }

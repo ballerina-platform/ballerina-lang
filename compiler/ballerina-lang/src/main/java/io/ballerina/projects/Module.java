@@ -39,7 +39,9 @@ public class Module {
     private final Package packageInstance;
     private final Map<DocumentId, Document> srcDocs;
     private final Map<DocumentId, Document> testSrcDocs;
+    private final Map<DocumentId, Resource> resources;
     private final Function<DocumentId, Document> populateDocumentFunc;
+    private final Function<DocumentId, Resource> populateResourceFunc;
 
     private Optional<ModuleMd> moduleMd = null;
 
@@ -49,8 +51,11 @@ public class Module {
 
         this.srcDocs = new ConcurrentHashMap<>();
         this.testSrcDocs = new ConcurrentHashMap<>();
+        this.resources = new ConcurrentHashMap<>();
         this.populateDocumentFunc = documentId -> new Document(
                 this.moduleContext.documentContext(documentId), this);
+        this.populateResourceFunc = documentId -> new Resource(
+                this.moduleContext.resourceContext(documentId), this);
     }
 
     static Module from(ModuleContext moduleContext, Package packageInstance) {
@@ -81,6 +86,10 @@ public class Module {
         return this.moduleContext.testSrcDocumentIds();
     }
 
+    public Collection<DocumentId> resourceIds() {
+        return this.moduleContext.resourceIds();
+    }
+
     public Document document(DocumentId documentId) {
         // TODO Should we throw an error if the moduleId is not present
         if (documentIds().contains(documentId)) {
@@ -89,6 +98,12 @@ public class Module {
             return this.testSrcDocs.computeIfAbsent(documentId, this.populateDocumentFunc);
         }
     }
+
+    public Resource resource(DocumentId documentId) {
+        // TODO Should we throw an error if the moduleId is not present
+        return this.resources.computeIfAbsent(documentId, this.populateResourceFunc);
+    }
+
 
     public ModuleCompilation getCompilation() {
         return this.packageInstance.packageContext().getModuleCompilation(this.moduleContext);
@@ -158,6 +173,7 @@ public class Module {
         private Package packageInstance;
         private Project project;
         private MdDocumentContext moduleMdContext;
+        private final Map<DocumentId, ResourceContext> resourceMap;
 
 
         private Modifier(Module oldModule) {
@@ -170,6 +186,7 @@ public class Module {
             packageInstance = oldModule.packageInstance;
             project = oldModule.project();
             moduleMdContext = oldModule.moduleContext.moduleMdContext().orElse(null);
+            resourceMap = copyResources(oldModule);
         }
 
         Modifier updateDocument(DocumentContext newDocContext) {
@@ -178,6 +195,18 @@ public class Module {
             } else {
                 this.testDocContextMap.put(newDocContext.documentId(), newDocContext);
             }
+            return this;
+        }
+
+        /**
+         * Creates a copy of the existing module and adds a new resource to the new module.
+         *
+         * @param resourceConfig configurations to create the resource
+         * @return an instance of the Module.Modifier
+         */
+        public Modifier addResource(ResourceConfig resourceConfig) {
+            ResourceContext newResourceContext = ResourceContext.from(resourceConfig);
+            this.resourceMap.put(newResourceContext.documentId(), newResourceContext);
             return this;
         }
 
@@ -240,6 +269,15 @@ public class Module {
             return createNewModule(this.srcDocContextMap, this.testDocContextMap);
         }
 
+        private Map<DocumentId, ResourceContext> copyResources(Module oldModule) {
+            Map<DocumentId, ResourceContext> resourceContextMap = new HashMap<>();
+            for (DocumentId documentId : oldModule.moduleContext.resourceIds()) {
+                resourceContextMap.put(documentId, oldModule.moduleContext.resourceContext(documentId));
+            }
+            return resourceContextMap;
+        }
+
+
         private Map<DocumentId, DocumentContext> copySrcDocs(Module oldModule) {
             Map<DocumentId, DocumentContext> srcDocContextMap = new HashMap<>();
             for (DocumentId documentId : oldModule.moduleContext.srcDocumentIds()) {
@@ -261,7 +299,7 @@ public class Module {
             Set<ModuleContext> moduleContextSet = new HashSet<>();
             ModuleContext newModuleContext = new ModuleContext(this.project,
                     this.moduleId, this.moduleDescriptor, this.isDefaultModule, srcDocContextMap,
-                    testDocContextMap, this.moduleMdContext, this.dependencies);
+                    testDocContextMap, this.moduleMdContext, this.dependencies, this.resourceMap);
             moduleContextSet.add(newModuleContext);
 
             // add dependant modules including transitives
@@ -273,7 +311,7 @@ public class Module {
                 Modifier module = this.packageInstance.module(dependantId).modify();
                 moduleContextSet.add(new ModuleContext(this.project,
                         dependantId, module.moduleDescriptor, module.isDefaultModule, module.srcDocContextMap,
-                        module.testDocContextMap, module.moduleMdContext, module.dependencies));
+                        module.testDocContextMap, module.moduleMdContext, module.dependencies, this.resourceMap));
             }
 
             Package newPackage = this.packageInstance.modify().updateModules(moduleContextSet).apply();
