@@ -833,6 +833,7 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
         lookupNode(bLangNamedArgsExpression.expr);
+        setEnclosingNode(bLangNamedArgsExpression.name, bLangNamedArgsExpression.name.pos);
     }
 
     @Override
