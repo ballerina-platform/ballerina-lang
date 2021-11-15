@@ -304,7 +304,7 @@ public class JBallerinaBackend extends CompilerBackend {
         }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
-            ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile);
+            ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile, getResources(moduleContext));
             compilationCache.cachePlatformSpecificLibrary(this, jarFileName, byteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
@@ -321,7 +321,7 @@ public class JBallerinaBackend extends CompilerBackend {
         String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
         CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0));
         try {
-            ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile);
+            ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, getResources(moduleContext));
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
@@ -514,6 +514,17 @@ public class JBallerinaBackend extends CompilerBackend {
                     this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
         }
         return executableFilePath;
+    }
+
+    private Map<String, byte[]> getResources(ModuleContext moduleContext) {
+        Map<String, byte[]> resourceMap = new HashMap<>();
+        for (DocumentId documentId : moduleContext.resourceIds()) {
+            String resourceName = ProjectConstants.RESOURCE_DIR_NAME + "/"
+                    + moduleContext.moduleName().toString() + "/"
+                    + moduleContext.resourceContext(documentId).name();
+            resourceMap.put(resourceName, moduleContext.resourceContext(documentId).content());
+        }
+        return resourceMap;
     }
 
     private PlatformLibraryScope getPlatformLibraryScope(Map<String, Object> dependency) {

@@ -33,6 +33,7 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ResourceConfig;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.util.ProjectConstants;
 
@@ -192,7 +193,19 @@ public class PackageConfigCreator {
         DocumentConfig moduleMd = moduleData.moduleMd()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
 
-        return ModuleConfig.from(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies);
+        List<ResourceConfig> resources = getResourceConfigs(
+                moduleId, moduleData.resources(), moduleData.moduleDirectoryPath());
+        return ModuleConfig.from(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies, resources);
+    }
+
+    private static List<ResourceConfig> getResourceConfigs(ModuleId moduleId, List<Path> resources, Path modulePath) {
+        return resources.stream().map(resource ->
+                createResourceConfig(resource, modulePath, moduleId)).collect(Collectors.toList());
+    }
+
+    private static ResourceConfig createResourceConfig(Path path, Path modulePath, ModuleId moduleId) {
+        final DocumentId documentId = DocumentId.create(path.toString(), moduleId);
+        return ProvidedResourceConfig.from(documentId, path, modulePath);
     }
 
     private static List<DocumentConfig> getDocumentConfigs(ModuleId moduleId, List<DocumentData> documentData) {

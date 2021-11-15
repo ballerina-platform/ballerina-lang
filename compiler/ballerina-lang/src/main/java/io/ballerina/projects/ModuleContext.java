@@ -522,6 +522,7 @@ class ModuleContext {
             testDocContextMap.put(documentId, documentContext.duplicate());
         }
         return new ModuleContext(project, this.moduleId, this.moduleDescriptor, this.isDefaultModule,
-                srcDocContextMap, testDocContextMap, this.moduleMdContext().orElse(null), this.moduleDescDependencies);
+                srcDocContextMap, testDocContextMap, this.moduleMdContext().orElse(null),
+                this.moduleDescDependencies, this.resourceContextMap);
     }
 }
