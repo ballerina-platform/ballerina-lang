@@ -18,11 +18,13 @@ package org.ballerinalang.langserver.extensions.ballerina.packages;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.ballerina.projects.ConfigReader;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.configschemagenerator.util.ConfigSchemaBuilder;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -102,6 +104,34 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaPackage/components' failed!";
                 this.clientLogger.logError(PackageContext.PACKAGE_COMPONENTS, msg, e, null, (Position) null);
+            }
+            return response;
+        });
+    }
+
+    @JsonRequest
+    public CompletableFuture<PackageConfigSchemaResponse> configSchema(PackageConfigSchemaRequest request) {
+        return CompletableFuture.supplyAsync(() -> {
+            PackageConfigSchemaResponse response = new PackageConfigSchemaResponse();
+            try {
+                Optional<Path> filePath = CommonUtil.getPathFromURI(request.getDocumentIdentifier().getUri());
+                if (filePath.isEmpty()) {
+                    return response;
+                }
+                Optional<Project> project = this.workspaceManager.project(filePath.get());
+                if (project.isEmpty()) {
+                    return response;
+                }
+                Package currentPackage = project.get().currentPackage();
+                if (currentPackage == null) {
+                    return response;
+                }
+                response.setConfigSchema(ConfigSchemaBuilder.getConfigSchemaContent(
+                        ConfigReader.getConfigVariables(currentPackage)));
+            } catch (Throwable e) {
+                String msg = "Operation 'ballerinaPackage/configSchema' failed!";
+                this.clientLogger.logError(PackageContext.PACKAGE_CONFIG_SCHEMA, msg, e,
+                    request.getDocumentIdentifier(), (Position) null);
             }
             return response;
         });
