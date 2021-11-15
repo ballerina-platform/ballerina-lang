@@ -38,7 +38,6 @@ import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
@@ -108,7 +107,9 @@ public class BallerinaWorkspaceService implements WorkspaceService {
         try {
             List<Path> paths = this.workspaceManagerProxy.get().didChangeWatched(params);
             DidChangeWatchedFilesContext context =
-                    ContextBuilder.buildDidChangeWatchedFilesContext(this.workspaceManagerProxy.get(), this.serverContext);
+                    ContextBuilder.buildDidChangeWatchedFilesContext(
+                            this.workspaceManagerProxy.get(),
+                            this.serverContext);
             DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
             // project roots are the reloaded project roots. Hence we re-publish the diagnostics.
             for (Path projectRoot : paths) {

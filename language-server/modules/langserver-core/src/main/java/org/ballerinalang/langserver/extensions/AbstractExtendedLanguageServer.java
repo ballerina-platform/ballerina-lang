@@ -22,7 +22,6 @@ import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
 import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManagerProxy;
 import org.ballerinalang.langserver.workspace.WorkspaceManagerProxy;
 import org.eclipse.lsp4j.Position;

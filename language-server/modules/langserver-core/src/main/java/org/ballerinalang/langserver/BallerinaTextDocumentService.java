@@ -38,7 +38,6 @@ import org.ballerinalang.langserver.commons.RenameContext;
 import org.ballerinalang.langserver.commons.SemanticTokensContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
@@ -549,8 +548,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     this.workspaceManagerProxy.get(fileUri),
                     LSContextOperation.TXT_DID_CHANGE,
                     this.serverContext);
-            // Note: If the path does not exist, then return early and ignore
-            context.workspace().didChange(context.filePath(), params);
+            this.workspaceManagerProxy.didChange(params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() +
                     "' {fileUri: '" + fileUri + "'} updated");
             DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
@@ -572,7 +570,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     this.workspaceManagerProxy.get(fileUri),
                     LSContextOperation.TXT_DID_CLOSE,
                     this.serverContext);
-            context.workspace().didClose(context.filePath(), params);
+            this.workspaceManagerProxy.didClose(params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CLOSE.getName() +
                     "' {fileUri: '" + fileUri + "'} closed");
         } catch (Throwable e) {

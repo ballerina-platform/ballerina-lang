@@ -100,21 +100,17 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -128,6 +124,8 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
@@ -1086,43 +1084,15 @@ public class CommonUtil {
     }
 
     /**
-     * Node comparator to compare the nodes by position.
-     */
-    public static class BLangNodeComparator implements Comparator<BLangNode> {
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int compare(BLangNode node1, BLangNode node2) {
-            // TODO: Fix?
-            Location node1Loc = node1.getPosition();
-            Location node2Loc = node2.getPosition();
-            if (node1Loc == null || node2Loc == null) {
-                return -1;
-            }
-            return node1Loc.lineRange().startLine().line() - node2Loc.lineRange().startLine().line();
-        }
-    }
-
-    /**
      * Get the path from given string URI. Even if the given URI's scheme is expr, we convert it to file scheme and
      * provide a valid Path
      *
      * @param uri file uri
      * @return {@link Optional} Path from the URI
      */
-    public static Optional<Path> getPathFromURI(String uri){
+    public static Optional<Path> getPathFromURI(String uri) {
         URI fileUri = URI.create(uri);
-        if (fileUri.getScheme().equals(EXPR_SCHEME)) {
-            String newUri = fileUri.toString().replace(EXPR_SCHEME + ":", "file:");
-            try {
-                return Optional.of(Paths.get(new URL(newUri).toURI()));
-            } catch (URISyntaxException | MalformedURLException e) {
-                return Optional.empty();
-            }
-        }
-        return Optional.of(Paths.get(fileUri));
+        return Optional.of(Paths.get(fileUri.getPath()));
     }
 
     /**
