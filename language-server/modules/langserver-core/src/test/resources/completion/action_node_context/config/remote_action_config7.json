@@ -15,7 +15,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` name  \n  \n**Return** `Product`   \n  \n"
         }
       },
-      "sortText": "BC",
+      "sortText": "CC",
       "filterText": "findByName",
       "insertText": "findByName(${1})",
       "insertTextFormat": "Snippet",
@@ -34,7 +34,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `Product[]`   \n  \n"
         }
       },
-      "sortText": "BC",
+      "sortText": "CC",
       "filterText": "listAll",
       "insertText": "listAll()",
       "insertTextFormat": "Snippet"
@@ -49,7 +49,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` name  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "BC",
+      "sortText": "CC",
       "filterText": "countByName",
       "insertText": "countByName(${1})",
       "insertTextFormat": "Snippet",
