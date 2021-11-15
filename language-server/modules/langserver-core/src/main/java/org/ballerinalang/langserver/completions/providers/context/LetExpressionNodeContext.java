@@ -15,9 +15,13 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -73,6 +77,7 @@ public class LetExpressionNodeContext extends AbstractCompletionProvider<LetExpr
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, LetExpressionNode node) {
         int cursor = context.getCursorPositionInTree();
+
         SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations = node.letVarDeclarations();
 
         if (letVarDeclarations.isEmpty() || !letVarDeclarations.isEmpty()
@@ -80,8 +85,9 @@ public class LetExpressionNodeContext extends AbstractCompletionProvider<LetExpr
             return true;
         }
 
+        CompleteExpressionValidator validator = new CompleteExpressionValidator();
         return !letVarDeclarations.isEmpty() && node.inKeyword().isMissing()
-                && letVarDeclarations.get(letVarDeclarations.size() - 1).expression().textRange().endOffset() < cursor;
+                && letVarDeclarations.get(letVarDeclarations.size() - 1).expression().textRange().endOffset() <= cursor;
     }
 
     @Override
@@ -97,9 +103,25 @@ public class LetExpressionNodeContext extends AbstractCompletionProvider<LetExpr
         int cursor = context.getCursorPositionInTree();
 
         CompleteExpressionValidator validator = new CompleteExpressionValidator();
-        return node.inKeyword().isMissing()
-                && !letVarDecls.isEmpty()
-                && letVarDecls.get(letVarDecls.size() - 1).expression().apply(validator)
-                && letVarDecls.get(letVarDecls.size() - 1).textRange().endOffset() < cursor;
+        if (letVarDecls.isEmpty()) {
+            return false;
+        }
+        ExpressionNode expression = letVarDecls.get(letVarDecls.size() - 1).expression();
+        boolean completed = expression.apply(validator);
+        Node evalNode;
+        /*
+        Note:
+        Added the following to special case the binary expression's resolving in the parser
+        eg: let x = a i<cursor>
+        Parser resolves the above as a binary expression where the + is missing. In order to make the incomplete
+        expression capturing logic generic, we added the following special cased check.
+         */
+        if (expression.kind() == SyntaxKind.BINARY_EXPRESSION && completed
+                && ((BinaryExpressionNode) expression).operator().isMissing()) {
+            evalNode = ((BinaryExpressionNode) expression).lhsExpr();
+        } else {
+            evalNode = expression;
+        }
+        return node.inKeyword().isMissing() && completed && evalNode.textRange().endOffset() < cursor;
     }
 }
