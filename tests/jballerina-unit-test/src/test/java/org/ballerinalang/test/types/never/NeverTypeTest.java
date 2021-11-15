@@ -326,7 +326,8 @@ public class NeverTypeTest {
                 "testNeverRuntime11",
                 "testNeverRuntime12",
                 "testNeverWithAnyAndAnydataRuntime",
-                "testNeverFieldTypeCheck"
+                "testNeverFieldTypeCheck",
+                "testNeverRestFieldType"
         };
     }
 
