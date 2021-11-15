@@ -150,6 +150,11 @@ public class LSClientUtil {
                 Boolean.TRUE.equals(capabilities.getSynchronization().getDynamicRegistration());
     }
 
+    public static boolean isDynamicCompletionRegistrationSupported(TextDocumentClientCapabilities capabilities) {
+        return capabilities != null && capabilities.getSynchronization() != null &&
+                Boolean.TRUE.equals(capabilities.getCompletion().getDynamicRegistration());
+    }
+
     /**
      * Registers the provided set of commands at the LS Client.
      *

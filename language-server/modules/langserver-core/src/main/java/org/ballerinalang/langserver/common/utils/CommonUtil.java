@@ -153,6 +153,7 @@ public class CommonUtil {
     public static final String BALLERINA_CMD;
 
     public static final String URI_SCHEME_BALA = "bala";
+    public static final String URI_SCHEME_EXPR = "expr";
     public static final String URI_SCHEME_FILE = "file";
     public static final String LANGUAGE_ID_BALLERINA = "ballerina";
 
