@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -214,7 +215,21 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
 
         @Override
         public BIROperand[] getRhsOperands() {
-            return new BIROperand[]{rhsOp};
+            BIROperand[] operands = new BIROperand[2 * (initialValues.size()) + 1];
+            int i = 0;
+            operands[i++] = rhsOp;
+            for (BIRMappingConstructorEntry mappingEntry : initialValues) {
+                if (mappingEntry instanceof BIRMappingConstructorKeyValueEntry) {
+                    BIRMappingConstructorKeyValueEntry entry = (BIRMappingConstructorKeyValueEntry) mappingEntry;
+                    operands[i++] = entry.keyOp;
+                    operands[i++] = entry.valueOp;
+                } else {
+                    BIRMappingConstructorSpreadFieldEntry entry = (BIRMappingConstructorSpreadFieldEntry) mappingEntry;
+                    operands[i++] = entry.exprOp;
+                }
+            }
+            operands = Arrays.copyOf(operands, i);
+            return operands;
         }
     }
 
