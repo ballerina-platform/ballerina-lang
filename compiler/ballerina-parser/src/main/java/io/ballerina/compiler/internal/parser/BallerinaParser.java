@@ -5684,7 +5684,6 @@ public class BallerinaParser extends AbstractParser {
             case SYNC_SEND_TOKEN:
             case ANNOT_CHAINING_TOKEN:
             case OPTIONAL_CHAINING_TOKEN:
-            case QUESTION_MARK_TOKEN:
             case COLON_TOKEN:
             case DOT_LT_TOKEN:
             case SLASH_LT_TOKEN:
@@ -5692,6 +5691,9 @@ public class BallerinaParser extends AbstractParser {
             case SLASH_ASTERISK_TOKEN:
             case NOT_IS_KEYWORD:
                 return true;
+            case QUESTION_MARK_TOKEN:
+                // TODO : Should fix properly #33259
+                return getNextNextToken().kind != SyntaxKind.EQUAL_TOKEN && peek(3).kind != SyntaxKind.EQUAL_TOKEN;
             default:
                 return isBinaryOperator(tokenKind);
         }
@@ -8677,8 +8679,14 @@ public class BallerinaParser extends AbstractParser {
         // Validate the array length expression
         STNode lengthExpr = lengthExprs.get(0);
         switch (lengthExpr.kind) {
-            case ASTERISK_LITERAL:
             case SIMPLE_NAME_REFERENCE:
+                STSimpleNameReferenceNode nameRef = (STSimpleNameReferenceNode) lengthExpr;
+                if (nameRef.name.isMissing()) {
+                    return createArrayTypeDesc(memberTypeDesc, indexedExpr.openBracket, STNodeFactory.createEmptyNode(),
+                            indexedExpr.closeBracket);
+                }
+                break;
+            case ASTERISK_LITERAL:
             case QUALIFIED_NAME_REFERENCE:
                 break;
             case NUMERIC_LITERAL:
@@ -15368,6 +15376,7 @@ public class BallerinaParser extends AbstractParser {
         STNode memberEnd;
         while (!isEndOfListConstructor(peek().kind)) {
             STNode expr = parseTypeDescOrExpr();
+            expr = getTypeDescFromExpr(expr);
             // Tuple type desc can contain rest descriptor which is not a regular type desc,
             // hence handle it here.
             if (peek().kind == SyntaxKind.ELLIPSIS_TOKEN && isDefiniteTypeDesc(expr.kind)) {
