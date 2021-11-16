@@ -22,6 +22,16 @@ import io.ballerina.types.subtypedata.StringSubtype;
 
 import java.util.StringJoiner;
 
+import static io.ballerina.types.XmlPrimitive.XML_PRIMITIVE_COMMENT_RO;
+import static io.ballerina.types.XmlPrimitive.XML_PRIMITIVE_COMMENT_RW;
+import static io.ballerina.types.XmlPrimitive.XML_PRIMITIVE_ELEMENT_RO;
+import static io.ballerina.types.XmlPrimitive.XML_PRIMITIVE_ELEMENT_RW;
+import static io.ballerina.types.XmlPrimitive.XML_PRIMITIVE_PI_RO;
+import static io.ballerina.types.XmlPrimitive.XML_PRIMITIVE_PI_RW;
+import static io.ballerina.types.XmlPrimitive.XML_PRIMITIVE_TEXT;
+import static io.ballerina.types.subtypedata.XmlSubtype.xmlSequence;
+import static io.ballerina.types.subtypedata.XmlSubtype.xmlSingleton;
+
 /**
  * Contain predefined types used for constructing other types.
  *
@@ -72,6 +82,11 @@ public class PredefinedType {
                     | (1 << UniformTypeCode.UT_DECIMAL.code));
     public static final SemType BYTE = IntSubtype.intWidthUnsigned(8);
     public static final SemType STRING_CHAR = StringSubtype.stringChar();
+
+    public static final SemType XML_ELEMENT = xmlSingleton(XML_PRIMITIVE_ELEMENT_RO | XML_PRIMITIVE_ELEMENT_RW);
+    public static final SemType XML_COMMENT = xmlSingleton(XML_PRIMITIVE_COMMENT_RO | XML_PRIMITIVE_COMMENT_RW);
+    public static final SemType XML_TEXT = xmlSequence(xmlSingleton(XML_PRIMITIVE_TEXT));
+    public static final SemType XML_PI = xmlSingleton(XML_PRIMITIVE_PI_RO | XML_PRIMITIVE_PI_RW);
 
     private PredefinedType() {
     }
