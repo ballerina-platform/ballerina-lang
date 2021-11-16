@@ -37,6 +37,7 @@ import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -300,12 +301,6 @@ public class CommandUtil {
                     Files.createDirectories(projectPlatform);
                     Files.walkFileTree(platformLibPath, new FileUtils.Copy(platformLibPath, projectPlatform));
                 }
-                // Copy package.json and write it as Ballerina.toml
-                if (Files.exists(packageJsonPath)) {
-                    Path balaToml = modulePath.resolve(ProjectConstants.BALLERINA_TOML);
-                    Files.createFile(balaToml);
-                    writeBallerinaToml(balaToml, packageJson, projectPlatform, platform);
-                }
                 // Copy docs
                 Path packageMDFilePath = balaPath.resolve("docs")
                         .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
@@ -320,11 +315,18 @@ public class CommandUtil {
                     Files.copy(moduleMd, toModuleMd);
                 }
                 // Copy modules
-                Path sourceModulesDir = balaPath.resolve("modules").resolve(packageName);
-                if (Files.exists(sourceModulesDir)) {
-                    Files.walkFileTree(sourceModulesDir, new FileUtils.Copy(sourceModulesDir, modulePath));
+//                Path sourceModulesDir = balaPath.resolve("modules").resolve(packageName);
+//                if (Files.exists(sourceModulesDir)) {
+//                    Files.walkFileTree(sourceModulesDir, new FileUtils.Copy(sourceModulesDir, modulePath));
+//                }
+                extractModulesToProjectPath(balaPath, modulePath, packageName);
+
+                // Copy package.json and write it as Ballerina.toml
+                if (Files.exists(packageJsonPath)) {
+                    Path balaToml = modulePath.resolve(ProjectConstants.BALLERINA_TOML);
+                    Files.createFile(balaToml);
+                    writeBallerinaToml(balaToml, packageJson, projectPlatform, platform, modulePath);
                 }
-                findNonDefaultModules(balaPath, modulePath, packageName);
             } else {
                 Files.delete(modulePath);
                 throw new CentralClientException("unable to create the package: specified package is not a template");
@@ -415,17 +417,31 @@ public class CommandUtil {
     }
 
     public static void writeBallerinaToml(Path balTomlPath, PackageJson packageJson, Path projectPlatform,
-                                          String platform)
+                                          String platform, Path modulePath)
             throws IOException {
-
         Files.writeString(balTomlPath, "[package]", StandardOpenOption.APPEND);
         Files.writeString(balTomlPath, "\norg = \"" + packageJson.getOrganization() + "\"",
                 StandardOpenOption.APPEND);
-        Files.writeString(balTomlPath, "\nname = \"" + packageJson.getName() + "\"", StandardOpenOption.APPEND);
+        Files.writeString(balTomlPath, "\nname = \"" + modulePath.getFileName() + "\"", StandardOpenOption.APPEND);
         Files.writeString(balTomlPath, "\nversion = \"" + packageJson.getVersion() + "\"",
                 StandardOpenOption.APPEND);
-        Files.writeString(balTomlPath, "\nexport = [" + packageJson.getExport().toString().replace("[", "\"")
-                .replace("]", "\"") + "]", StandardOpenOption.APPEND);
+
+        Path modulesDirPath = modulePath.resolve("modules");
+        Files.writeString(balTomlPath, "\nexport = [", StandardOpenOption.APPEND);
+        File file = new File(String.valueOf(modulesDirPath));
+        File[] listFiles = file.listFiles();
+        String writeExportVal = "";
+        if (listFiles != null) {
+            for (File module : listFiles) {
+                if (module.isDirectory()) {
+                    String moduleFileName = module.getCanonicalFile().getName();
+                    writeExportVal = writeExportVal + "\"" + modulePath.getFileName() + "." + moduleFileName + "\", ";
+                }
+            }
+        }
+        String trimmedExportValue = writeExportVal.substring(0, writeExportVal.trim().length() - 1) + "]";
+        Files.writeString(balTomlPath, trimmedExportValue, StandardOpenOption.APPEND);
+
         Files.writeString(balTomlPath, "\nballerina_version = \"" + packageJson.getBallerinaVersion()
                 + "\"", StandardOpenOption.APPEND);
         Files.writeString(balTomlPath, "\nimplementation_vendor = \"" + packageJson.getImplementationVendor()
@@ -602,7 +618,7 @@ public class CommandUtil {
         return availableVersions;
     }
 
-    public static void findNonDefaultModules(Path balaPath, Path modulePath, String packageName) {
+    public static void extractModulesToProjectPath(Path balaPath, Path modulePath, String packageName) {
         Stream<Path> collectModules = null;
         Path moduleDirPath = modulePath.resolve("modules");
         try {
@@ -622,7 +638,7 @@ public class CommandUtil {
                             if (exportModule.equals(moduleName)) {
                                 String splitModuleName = moduleName.split("\\.")[1];
                                 String concatModuleName = modulePath.getFileName().toString() + "." + splitModuleName;
-                                Path toModulePath = createDirectories(moduleDirPath.resolve(concatModuleName));
+                                Path toModulePath = createDirectories(moduleDirPath.resolve(splitModuleName));
                                 Files.walkFileTree(module, new FileUtils.Copy(module, toModulePath));
                             }
                         }
