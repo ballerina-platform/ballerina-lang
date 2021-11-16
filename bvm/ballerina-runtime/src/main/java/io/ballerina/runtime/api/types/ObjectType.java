@@ -37,6 +37,7 @@ public interface ObjectType extends StructureType, SelectivelyImmutableReference
 
     /**
      * Provides given @{@link ObjectType} method is isolated.
+     * We can decide the object method isolation by using both isIsolated() and isIsolated(methodName).
      *
      * @param methodName method name
      * @return true if @{@link ObjectType} method is isolated otherwise false.
