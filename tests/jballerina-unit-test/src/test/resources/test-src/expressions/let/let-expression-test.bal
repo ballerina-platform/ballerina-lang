@@ -362,6 +362,11 @@ function testLetWithClass() {
     assert(6, foo2.m);
 }
 
+function testLetWithXMLTemplateExpression() {
+    xml x = xml `<Books>${xml `<Book>"${let int y = 5 in y}"</Book>`}</Books>`;
+    assert("<Book>\"5\"</Book>", (x[0]/*).toString());
+}
+
 //// Util functions
 
 function assert(anydata expected, anydata actual) {
