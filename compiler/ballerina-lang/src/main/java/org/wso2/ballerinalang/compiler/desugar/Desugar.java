@@ -8395,11 +8395,16 @@ public class Desugar extends BLangNodeVisitor {
         if (invokableNode.symbol.type.getReturnType().isNullable() && (funcBody.stmts.size() < 1
                 || funcBody.stmts.get(funcBody.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
             Location invPos = invokableNode.pos;
-            Location returnStmtPos = new BLangDiagnosticLocation(invPos.lineRange().filePath(),
-                    invPos.lineRange().endLine().line(),
-                    invPos.lineRange().endLine().line(),
-                    invPos.lineRange().startLine().offset(),
+            Location returnStmtPos;
+            if (invokableNode.name.value.contains(GENERATED_INIT_SUFFIX.value)) {
+                returnStmtPos = null;
+            } else {
+                returnStmtPos = new BLangDiagnosticLocation(invPos.lineRange().filePath(),
+                        invPos.lineRange().endLine().line(),
+                        invPos.lineRange().endLine().line(),
+                        invPos.lineRange().startLine().offset(),
                         invPos.lineRange().startLine().offset(), 0, 0);
+            }
             BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(returnStmtPos, symTable.nilType);
             funcBody.addStatement(returnStmt);
         }
