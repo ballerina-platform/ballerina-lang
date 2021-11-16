@@ -3635,6 +3635,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void validateServiceTypeImplementation(Location pos, BType implementedType, BType inferredServiceType) {
         if (!types.isAssignableIgnoreObjectTypeIds(implementedType, inferredServiceType)) {
+            if (inferredServiceType.tag == TypeTags.UNION
+                    && ((BUnionType) inferredServiceType).getMemberTypes().isEmpty()) {
+                return;
+            }
             dlog.error(pos, DiagnosticErrorCode.SERVICE_DOES_NOT_IMPLEMENT_REQUIRED_CONSTRUCTS, inferredServiceType);
         }
     }
@@ -3652,7 +3656,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BTypeIdSet typeIdSet = null;
             for (BType attachType : listenerTypes) {
                 BObjectType objectType = (BObjectType) attachType;
-                if (objectType.typeIdSet == null) {
+                // todo: distinct union is only allowed when all types have the same type-ids,
+                // we need to improve this here.
+                if (objectType.typeIdSet == null || objectType.typeIdSet.isEmpty()) {
                     continue;
                 }
                 if (typeIdSet == null) {
@@ -3710,7 +3716,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (func.funcName.value.equals("attach")) {
                 List<BType> paramTypes = func.type.paramTypes;
                 if (serviceType != null && serviceType != symTable.noType) {
-                    validateServiceTypeAgainstAttachMethod(serviceNode.inferredServiceType, paramTypes.get(0), attachExpr.pos);
+                    validateServiceTypeAgainstAttachMethod(serviceNode.inferredServiceType, paramTypes.get(0),
+                            attachExpr.pos);
                 }
                 validateServiceAttachpointAgainstAttachMethod(serviceNode, attachExpr, paramTypes.get(1));
             }
