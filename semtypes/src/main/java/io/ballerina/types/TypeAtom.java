@@ -34,4 +34,9 @@ public class TypeAtom implements Atom {
     public static TypeAtom createTypeAtom(long index, AtomicType atomicType) {
         return new TypeAtom(index, atomicType);
     }
+
+    @Override
+    public int getIndex() {
+        return (int) index;
+    }
 }

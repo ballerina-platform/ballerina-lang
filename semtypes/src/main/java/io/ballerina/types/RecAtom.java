@@ -36,4 +36,9 @@ public class RecAtom implements Atom {
         }
         return new RecAtom(index);
     }
+
+    @Override
+    public int getIndex() {
+        return index;
+    }
 }
