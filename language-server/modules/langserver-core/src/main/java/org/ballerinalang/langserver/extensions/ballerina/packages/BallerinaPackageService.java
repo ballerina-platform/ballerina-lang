@@ -24,7 +24,7 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.configschemagenerator.util.ConfigSchemaBuilder;
+import org.ballerinalang.config.schema.builder.ConfigSchemaBuilder;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
