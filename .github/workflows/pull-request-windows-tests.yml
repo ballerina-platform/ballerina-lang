@@ -41,4 +41,4 @@ jobs:
                 run: |
                     git submodule init
                     git submodule update
-                    ./gradlew.bat build --no-parallel -x :ballerina-packerina:test -x :ballerina-lang:test -x :ballerina-file:test -x :ballerina-socket:test -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :ballerina-mysql:test -x :plugin-vscode:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+                    ./gradlew.bat build --no-parallel -x :ballerina-packerina:test -x :ballerina-lang:test -x :ballerina-file:test -x :ballerina-socket:test -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :ballerina-mysql:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
