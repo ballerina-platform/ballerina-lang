@@ -26,18 +26,19 @@ package io.ballerina.types;
  * @since 3.0.0
  */
 public class XmlPrimitive {
-    public static int XML_PRIMITIVE_NEVER      = 1;
-    public static int XML_PRIMITIVE_TEXT       = 1 << 1;
-    public static int XML_PRIMITIVE_ELEMENT_RO = 1 << 2;
-    public static int XML_PRIMITIVE_PI_RO      = 1 << 3;
-    public static int XML_PRIMITIVE_COMMENT_RO = 1 << 4;
-    public static int XML_PRIMITIVE_ELEMENT_RW = 1 << 5;
-    public static int XML_PRIMITIVE_PI_RW      = 1 << 6;
-    public static int XML_PRIMITIVE_COMMENT_RW = 1 << 7;
+    public static final int XML_PRIMITIVE_NEVER      = 1;
+    public static final int XML_PRIMITIVE_TEXT       = 1 << 1;
+    public static final int XML_PRIMITIVE_ELEMENT_RO = 1 << 2;
+    public static final int XML_PRIMITIVE_PI_RO      = 1 << 3;
+    public static final int XML_PRIMITIVE_COMMENT_RO = 1 << 4;
+    public static final int XML_PRIMITIVE_ELEMENT_RW = 1 << 5;
+    public static final int XML_PRIMITIVE_PI_RW      = 1 << 6;
+    public static final int XML_PRIMITIVE_COMMENT_RW = 1 << 7;
 
-    public static int XML_PRIMITIVE_RO_SINGLETON = XML_PRIMITIVE_TEXT | XML_PRIMITIVE_ELEMENT_RO | XML_PRIMITIVE_PI_RO
-            | XML_PRIMITIVE_COMMENT_RO;
-    public static int XML_PRIMITIVE_RO_MASK = XML_PRIMITIVE_NEVER | XML_PRIMITIVE_RO_SINGLETON;
-    public static int XML_PRIMITIVE_RW_MASK = XML_PRIMITIVE_ELEMENT_RW | XML_PRIMITIVE_PI_RW | XML_PRIMITIVE_COMMENT_RW;
-    public static int XML_PRIMITIVE_SINGLETON = XML_PRIMITIVE_RO_SINGLETON | XML_PRIMITIVE_RW_MASK;
+    public static final int XML_PRIMITIVE_RO_SINGLETON = XML_PRIMITIVE_TEXT | XML_PRIMITIVE_ELEMENT_RO
+            | XML_PRIMITIVE_PI_RO | XML_PRIMITIVE_COMMENT_RO;
+    public final static int XML_PRIMITIVE_RO_MASK = XML_PRIMITIVE_NEVER | XML_PRIMITIVE_RO_SINGLETON;
+    public final static int XML_PRIMITIVE_RW_MASK = XML_PRIMITIVE_ELEMENT_RW | XML_PRIMITIVE_PI_RW
+            | XML_PRIMITIVE_COMMENT_RW;
+    public final static int XML_PRIMITIVE_SINGLETON = XML_PRIMITIVE_RO_SINGLETON | XML_PRIMITIVE_RW_MASK;
 }

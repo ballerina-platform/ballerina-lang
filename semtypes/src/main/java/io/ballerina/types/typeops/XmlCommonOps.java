@@ -19,8 +19,10 @@ package io.ballerina.types.typeops;
 
 import io.ballerina.types.Bdd;
 import io.ballerina.types.Context;
+import io.ballerina.types.RecAtom;
 import io.ballerina.types.SubtypeData;
 import io.ballerina.types.UniformTypeOps;
+import io.ballerina.types.XmlPrimitive;
 import io.ballerina.types.subtypedata.XmlSubtype;
 
 /**
@@ -29,6 +31,11 @@ import io.ballerina.types.subtypedata.XmlSubtype;
  * @since 3.0.0
  */
 public abstract class XmlCommonOps implements UniformTypeOps {
+
+    private static final XmlSubtype xmlRoTop = XmlSubtype.from(XmlPrimitive.XML_PRIMITIVE_RO_MASK,
+            BddCommonOps.bddAtom(RecAtom.createRecAtom(XmlPrimitive.XML_PRIMITIVE_RO_SINGLETON)));
+    private static final XmlSubtype xmlRwTop = XmlSubtype.from(XmlPrimitive.XML_PRIMITIVE_RW_MASK,
+            BddCommonOps.bddAtom(RecAtom.createRecAtom(XmlPrimitive.XML_PRIMITIVE_SINGLETON)));
 
     public SubtypeData commonUnion(boolean isRo, SubtypeData d1, SubtypeData d2) {
         XmlSubtype v1 = (XmlSubtype) d1;
@@ -39,7 +46,7 @@ public abstract class XmlCommonOps implements UniformTypeOps {
 
 
     public SubtypeData commonComplement(boolean isRo, SubtypeData d) {
-        XmlSubtype top = isRo ? XmlSubtype.xmlRoTop : XmlSubtype.xmlRwTop;
+        XmlSubtype top = isRo ? xmlRoTop : xmlRwTop;
         return diff(top, d);
     }
 

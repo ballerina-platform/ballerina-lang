@@ -29,7 +29,7 @@ import io.ballerina.types.subtypedata.XmlSubtype;
  *
  * @since 3.0.0
  */
-public class XmlRoOps extends XmlCommonOps{
+public class XmlRoOps extends XmlCommonOps {
     @Override
     public SubtypeData union(SubtypeData t1, SubtypeData t2) {
         return commonUnion(true, t1, t2);

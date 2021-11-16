@@ -41,11 +41,6 @@ public class XmlSubtype implements ProperSubtypeData {
     public int primitives;
     public Bdd sequence;
 
-    public final static XmlSubtype xmlRoTop = from(XmlPrimitive.XML_PRIMITIVE_RO_MASK,
-            BddCommonOps.bddAtom(RecAtom.createRecAtom(XmlPrimitive.XML_PRIMITIVE_RO_SINGLETON)));
-    public final static XmlSubtype xmlRwTop = from(XmlPrimitive.XML_PRIMITIVE_RW_MASK,
-            BddCommonOps.bddAtom(RecAtom.createRecAtom(XmlPrimitive.XML_PRIMITIVE_SINGLETON)));
-
     private XmlSubtype(int primitives, Bdd sequence) {
         this.primitives = primitives;
         this.sequence = sequence;
@@ -88,7 +83,7 @@ public class XmlSubtype implements ProperSubtypeData {
         return createXmlSubtype(roPart, primitives, sequence);
     }
 
-    public static ComplexSemType createXmlSemtype(SubtypeData ro, SubtypeData rw){
+    public static ComplexSemType createXmlSemtype(SubtypeData ro, SubtypeData rw) {
         if (ro instanceof AllOrNothingSubtype && ((AllOrNothingSubtype) ro).isNothingSubtype()) {
             return ComplexSemType.createComplexSemType(0, UniformSubtype.from(UniformTypeCode.UT_XML_RW, rw));
         } else if (rw instanceof AllOrNothingSubtype && ((AllOrNothingSubtype) rw).isNothingSubtype()) {
@@ -99,7 +94,7 @@ public class XmlSubtype implements ProperSubtypeData {
         }
     }
 
-    public static SubtypeData createXmlSubtype(boolean isRo, int primitives, Bdd sequence)  {
+    public static SubtypeData createXmlSubtype(boolean isRo, int primitives, Bdd sequence) {
         int mask = isRo ? XmlPrimitive.XML_PRIMITIVE_RO_MASK : XmlPrimitive.XML_PRIMITIVE_RW_MASK;
         int p = primitives & mask;
         if (sequence instanceof BddAllOrNothing && ((BddAllOrNothing) sequence).isAll() && p == mask) {
