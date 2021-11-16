@@ -50,7 +50,7 @@ dependencies {
     implementation project(':syntax-api-calls-gen')
     implementation project(':language-server:language-server-commons')
     implementation project(':toml-parser')
-    implementation project(':compiler-plugins:configurable-schema-generator')
+    implementation project(':ballerina-config-schema-builder')
 
     // Standard libs
     implementation project(':ballerina-lang:annotations')
