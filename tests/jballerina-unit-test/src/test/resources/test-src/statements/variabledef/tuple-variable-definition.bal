@@ -121,6 +121,7 @@ function testTupleVarDef4() {
     [int, record { boolean e; string f; }] [d, {e, ...f}] = [1, {e: true, f: "str"}];
     assertEquality(1, d);
     assertEquality(true, e);
+    assertEquality("str", f["f"]);
 }
 
 function testTupleVarDefWithArray1() returns [string, int[], boolean, float[]] {
