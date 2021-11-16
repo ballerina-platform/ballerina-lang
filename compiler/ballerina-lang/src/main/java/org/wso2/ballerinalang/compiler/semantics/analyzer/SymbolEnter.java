@@ -651,6 +651,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             return resolveIntSubtype(name);
         } else if (td.pkgAlias.value.equals("string") && name.equals("Char")) {
             return SemTypes.CHAR;
+        } else if (td.pkgAlias.value.equals("xml")) {
+            return resolveXmlSubtype(name);
         }
 
         BLangNode moduleLevelDef = mod.get(name);
@@ -688,16 +690,39 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    private SemType resolveXmlSubtype(String name) {
+        switch(name) {
+            case "Element":
+                return SemTypes.XELEMENT;
+            case "Comment":
+                return SemTypes.XCOMMENT;
+            case "Text":
+                return SemTypes.XTEXT;
+            default:
+                throw new IllegalStateException("Unknown XML subtype: " + name);
+        }
+    }
+
     private SemType resolveTypeDesc(BLangConstrainedType td, Env semtypeEnv, Map<String, BLangNode> mod,
                                     int depth, BLangTypeDefinition defn) {
         TypeKind typeKind = ((BLangBuiltInRefTypeNode) td.getType()).getTypeKind();
         switch (typeKind) {
             case MAP:
                 return resolveMapTypeDesc(td, semtypeEnv, mod, depth, defn);
+            case XML:
+                return resolveXmlTypeDesc(td, semtypeEnv, mod, depth, defn);
             case TYPEDESC:
             default:
                 throw new AssertionError("Unhandled type-kind: " + typeKind);
         }
+    }
+
+    private SemType resolveXmlTypeDesc(BLangConstrainedType td, Env semtypeEnv, Map<String, BLangNode> mod, int depth,
+                                       BLangTypeDefinition defn) {
+        if (td.defn != null) {
+            return td.defn.getSemType(semtypeEnv);
+        }
+        return resolveTypeDesc(semtypeEnv, mod, defn, depth + 1, td.constraint);
     }
 
     private SemType resolveMapTypeDesc(BLangConstrainedType td, Env semtypeEnv, Map<String, BLangNode> mod, int depth,
