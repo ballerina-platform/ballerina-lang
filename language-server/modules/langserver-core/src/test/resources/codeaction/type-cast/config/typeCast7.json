@@ -1,6 +1,6 @@
 {
-  "line": 55,
-  "character": 27,
+  "line": 74,
+  "character": 18,
   "expected": [
     {
       "title": "Add type cast to assignment",
@@ -8,15 +8,15 @@
         {
           "range": {
             "start": {
-              "line": 55,
-              "character": 13
+              "line": 74,
+              "character": 16
             },
             "end": {
-              "line": 55,
-              "character": 13
+              "line": 74,
+              "character": 16
             }
           },
-          "newText": "<xml:Text> "
+          "newText": "<int> "
         }
       ]
     }

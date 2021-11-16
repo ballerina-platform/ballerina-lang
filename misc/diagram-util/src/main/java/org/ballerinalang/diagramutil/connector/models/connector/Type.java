@@ -69,6 +69,8 @@ public class Type {
     @Expose
     public TypeInfo typeInfo;
     @Expose
+    public boolean defaultable;
+    @Expose
     public String defaultValue;
     @Expose
     public Map<String, String> displayAnnotation;
@@ -240,6 +242,7 @@ public class Type {
                 if (subType != null) {
                     subType.name = name;
                     subType.optional = field.isOptional();
+                    subType.defaultable = field.hasDefaultValue();
                     fields.add(subType);
                 }
             });

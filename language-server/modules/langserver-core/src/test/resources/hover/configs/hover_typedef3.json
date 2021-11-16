@@ -1,10 +1,10 @@
 {
-  "source": {
-    "file": "hover.bal"
-  },
   "position": {
     "line": 214,
     "character": 8
+  },
+  "source": {
+    "file": "hover.bal"
   },
   "expected": {
     "result": {
