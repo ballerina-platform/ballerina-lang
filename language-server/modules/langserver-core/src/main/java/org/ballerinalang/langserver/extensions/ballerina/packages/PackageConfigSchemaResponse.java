@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.packages;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 /**
  * Represents the ConfigSchemaGenerator response.
@@ -34,6 +34,6 @@ public class PackageConfigSchemaResponse {
     }
 
     public void setConfigSchema(String configSchema) {
-        this.configSchema = new Gson().fromJson(configSchema, JsonObject.class);
+        this.configSchema = JsonParser.parseString(configSchema).getAsJsonObject();
     }
 }
