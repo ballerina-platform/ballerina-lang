@@ -2355,6 +2355,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 BLangSimpleVariable parameter = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
                 parameter.name = userDefinedType.typeName;
                 parameter.pos = getPosition(child);
+                parameter.addFlag(Flag.REQUIRED_PARAM);
                 arrowFunction.params.add(parameter);
             }
 
