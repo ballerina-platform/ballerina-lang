@@ -38,6 +38,20 @@ public class ServiceDeclTest {
     }
 
     @Test()
+    public void testServiceDeclDistinctListenerArg() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/services/service_decl_distinct_listener_arg.bal");
+        BRunUtil.invoke(compileResult, "testServiceDecl");
+    }
+
+    @Test()
+    public void testServiceDeclWithTypeRefDistinctListenerArg() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/services/service_decl_with_type_ref_distinct_listener_arg.bal");
+        BRunUtil.invoke(compileResult, "testServiceDecl");
+    }
+
+    @Test()
     public void testServiceNameLiteral() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/service_decl_service_name_literal.bal");
         BRunUtil.invoke(compileResult, "testServiceName");
