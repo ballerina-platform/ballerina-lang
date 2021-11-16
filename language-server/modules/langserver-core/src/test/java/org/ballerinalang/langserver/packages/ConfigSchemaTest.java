@@ -33,9 +33,6 @@ import java.nio.file.Path;
  * Tests Package Config Schema API in Language Server.
  */
 public class ConfigSchemaTest {
-    private static final String PACKAGE_NAME = "packageName";
-    private static final String PATH = "path";
-    private static final String KIND = "kind";
     private static final JsonParser JSON_PARSER = new JsonParser();
 
     private Path resourceRoot;
