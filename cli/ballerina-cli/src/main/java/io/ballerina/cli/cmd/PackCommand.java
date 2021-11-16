@@ -98,6 +98,9 @@ public class PackCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
     private Boolean sticky;
 
+    @CommandLine.Option(names = "--generate-config-schema", hidden = true)
+    private Boolean configSchemaGen;
+
     public PackCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
@@ -296,6 +299,7 @@ public class PackCommand implements BLauncherCmd {
                 .dumpRawGraphs(dumpRawGraphs)
                 .dumpBuildTime(dumpBuildTime)
                 .sticky(sticky)
+                .setConfigSchemaGen(configSchemaGen);
                 .build();
     }
 
