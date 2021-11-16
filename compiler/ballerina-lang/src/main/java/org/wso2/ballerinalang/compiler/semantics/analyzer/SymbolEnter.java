@@ -4946,12 +4946,18 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void resolveAndSetFunctionTypeFromRHSLambda(BLangVariable variable, SymbolEnv env) {
         BLangFunction function = ((BLangLambdaFunction) variable.expr).function;
-        BInvokableType invokableType = (BInvokableType) symResolver.createInvokableType(function.getParameters(),
-                                                                                        function.restParam,
-                                                                                        function.returnTypeNode,
-                                                                                        Flags.asMask(variable.flagSet),
-                                                                                        env,
-                                                                                        function.pos);
+        BType resolvedInvokableType = symResolver.createInvokableType(function.getParameters(),
+                                                                      function.restParam,
+                                                                      function.returnTypeNode,
+                                                                      Flags.asMask(variable.flagSet),
+                                                                      env,
+                                                                      function.pos);
+
+        if (resolvedInvokableType.tag == TypeTags.NONE) {
+            return;
+        }
+
+        BInvokableType invokableType = (BInvokableType) resolvedInvokableType;
 
         if (function.flagSet.contains(Flag.ISOLATED)) {
             invokableType.flags |= Flags.ISOLATED;
