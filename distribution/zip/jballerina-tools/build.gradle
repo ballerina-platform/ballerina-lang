@@ -108,7 +108,6 @@ dependencies {
     dist project(':formatter:formatter-core')
     dist project(':formatter:formatter-cli')
     dist project(':ballerina-bindgen')
-    dist project('::ballerina-config-schema-builder')
     dist project(':maven-resolver')
     dist project(':diagram-util')
     dist project(':syntax-api-calls-gen')
