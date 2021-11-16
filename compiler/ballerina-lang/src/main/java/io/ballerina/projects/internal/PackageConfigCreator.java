@@ -195,7 +195,11 @@ public class PackageConfigCreator {
 
         List<ResourceConfig> resources = getResourceConfigs(
                 moduleId, moduleData.resources(), moduleData.moduleDirectoryPath());
-        return ModuleConfig.from(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies, resources);
+        List<ResourceConfig> testResources = getResourceConfigs(
+                moduleId, moduleData.testResources(), moduleData.moduleDirectoryPath()
+                        .resolve(ProjectConstants.TEST_DIR_NAME));
+        return ModuleConfig.from(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies, resources,
+                testResources);
     }
 
     private static List<ResourceConfig> getResourceConfigs(ModuleId moduleId, List<Path> resources, Path modulePath) {

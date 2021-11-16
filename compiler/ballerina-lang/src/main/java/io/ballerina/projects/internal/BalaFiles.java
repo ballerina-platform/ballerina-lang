@@ -172,7 +172,8 @@ public class BalaFiles {
         DocumentData moduleMd = loadDocument(moduleDocPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
         List<Path> resources = loadResources(modulePath);
 
-        return ModuleData.from(modulePath, moduleName, srcDocs, testSrcDocs, moduleMd, resources);
+        return ModuleData.from(modulePath, moduleName, srcDocs, testSrcDocs, moduleMd, resources,
+                Collections.emptyList());
     }
 
     private static List<ModuleData> loadOtherModules(String pkgName, Path packagePath) {

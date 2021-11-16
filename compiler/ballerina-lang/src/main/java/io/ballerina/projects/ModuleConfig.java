@@ -35,6 +35,7 @@ public class ModuleConfig {
     private final List<ModuleDescriptor> dependencies;
     private final DocumentConfig moduleMd;
     private final List<ResourceConfig> resources;
+    private List<ResourceConfig> testResources;
 
     private ModuleConfig(ModuleId moduleId,
                          ModuleDescriptor moduleDescriptor,
@@ -42,7 +43,8 @@ public class ModuleConfig {
                          List<DocumentConfig> testSrcDocs,
                          DocumentConfig moduleMd,
                          List<ModuleDescriptor> dependencies,
-                         List<ResourceConfig> resources) {
+                         List<ResourceConfig> resources,
+                         List<ResourceConfig> testResources) {
         this.moduleId = moduleId;
         this.moduleDescriptor = moduleDescriptor;
         this.srcDocs = srcDocs;
@@ -50,6 +52,7 @@ public class ModuleConfig {
         this.dependencies = dependencies;
         this.moduleMd = moduleMd;
         this.resources = resources;
+        this.testResources = testResources;
     }
 
     public static ModuleConfig from(ModuleId moduleId,
@@ -58,8 +61,8 @@ public class ModuleConfig {
                                     List<DocumentConfig> testSrcDocs,
                                     DocumentConfig moduleMd,
                                     List<ModuleDescriptor> dependencies) {
-        return new ModuleConfig(
-                moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies, Collections.emptyList());
+        return new ModuleConfig(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies,
+                Collections.emptyList(), Collections.emptyList());
     }
 
     public static ModuleConfig from(ModuleId moduleId,
@@ -68,9 +71,10 @@ public class ModuleConfig {
                                     List<DocumentConfig> testSrcDocs,
                                     DocumentConfig moduleMd,
                                     List<ModuleDescriptor> dependencies,
-                                    List<ResourceConfig> resources) {
+                                    List<ResourceConfig> resources,
+                                    List<ResourceConfig> testResources) {
         return new ModuleConfig(
-                moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies, resources);
+                moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies, resources, testResources);
     }
 
     public ModuleId moduleId() {
@@ -103,5 +107,9 @@ public class ModuleConfig {
 
     public List<ResourceConfig> resources() {
         return resources;
+    }
+
+    public List<ResourceConfig> testResources() {
+        return testResources;
     }
 }
