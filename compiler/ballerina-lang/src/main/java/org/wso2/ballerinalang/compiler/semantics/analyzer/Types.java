@@ -153,6 +153,7 @@ public class Types {
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private int recordCount = 0;
     private SymbolEnv env;
+    private boolean ignoreObjectTypeIds = false;
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -646,6 +647,13 @@ public class Types {
      */
     public boolean isAssignable(BType source, BType target) {
         return isAssignable(source, target, new HashSet<>());
+    }
+
+    public boolean isAssignableIgnoreObjectTypeIds(BType source, BType target) {
+        this.ignoreObjectTypeIds = true;
+        boolean result = isAssignable(source, target);
+        this.ignoreObjectTypeIds = false;
+        return result;
     }
 
     private boolean isAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
@@ -1576,7 +1584,7 @@ public class Types {
             }
         }
 
-        return lhsType.typeIdSet.isAssignableFrom(rhsType.typeIdSet);
+        return lhsType.typeIdSet.isAssignableFrom(rhsType.typeIdSet) || this.ignoreObjectTypeIds;
     }
 
     private int getObjectFuncCount(BObjectTypeSymbol sym) {
