@@ -19,6 +19,7 @@ package org.ballerinalang.config.schema.generator;
 
 import com.google.gson.JsonParser;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.directory.BuildProject;
@@ -97,7 +98,7 @@ public class ConfigSchemaGenTaskTest {
 
     static Project loadBuildProject(Path projectPath, boolean isSingleFileProject) {
         System.setProperty(BALLERINA_HOME_KEY, System.getenv(BALLERINA_HOME_KEY));
-        BuildOptions buildOptions = BuildOptions.builder().setOffline(true).build();
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
         if (isSingleFileProject) {
             return SingleFileProject.load(projectPath, buildOptions);
         } else {

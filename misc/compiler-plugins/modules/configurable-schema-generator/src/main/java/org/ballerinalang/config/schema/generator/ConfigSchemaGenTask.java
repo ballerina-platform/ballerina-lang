@@ -23,7 +23,6 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.CompilationAnalysisContext;
-import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.config.schema.builder.ConfigSchemaBuilder;
 
 import java.io.IOException;
@@ -59,7 +58,7 @@ public class ConfigSchemaGenTask implements AnalysisTask<CompilationAnalysisCont
         if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
             path = Paths.get(System.getProperty("user.dir"));
         } else {
-            path = project.targetDir().resolve(ProjectConstants.BIN_DIR_NAME);
+            path = project.sourceRoot();
         }
         if (path != null && !schema.isEmpty()) {
             Path configSchemaFile = path.resolve(CONFIG_SCHEMA);
