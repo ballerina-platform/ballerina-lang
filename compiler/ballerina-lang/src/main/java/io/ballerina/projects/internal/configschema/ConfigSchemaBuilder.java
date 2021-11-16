@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.config.schema.builder;
+package io.ballerina.projects.internal.configschema;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -29,7 +29,7 @@ import io.ballerina.projects.configurations.ConfigVariable;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.config.schema.builder.TypeConverter.PROPERTIES;
+import static io.ballerina.projects.internal.configschema.TypeConverter.PROPERTIES;
 
 /**
  * Util to build JSON schema for configurable variables.

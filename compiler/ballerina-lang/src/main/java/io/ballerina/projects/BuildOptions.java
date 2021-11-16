@@ -188,10 +188,7 @@ public class BuildOptions {
         private Boolean dumpBuildTime;
         private Boolean skipTests;
         private String targetPath;
-        private Boolean configSchemaGen;
-
         private final CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder;
-
 
         private BuildOptionsBuilder() {
             compilationOptionsBuilder = CompilationOptions.builder();
