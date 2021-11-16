@@ -93,6 +93,9 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-raw-graphs", hidden = true)
     private boolean dumpRawGraphs;
 
+    @CommandLine.Option(names = "--generate-config-schema", hidden = true)
+    private Boolean configSchemaGen;
+
     private static final String runCmd =
             "bal run [--debug <port>] <executable-jar> \n" +
             "    bal run [--experimental] [--offline]\n" +
@@ -227,6 +230,7 @@ public class RunCommand implements BLauncherCmd {
                 .setSticky(sticky)
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
+                .setConfigSchemaGen(configSchemaGen)
                 .build();
     }
 }
