@@ -2,18 +2,3 @@
 org = "sameera"
 name = "myproject"
 version = "0.1.0"
-
-[[platform.java11.dependency]]
-path = "/user/foo/libs/toml4j.jar"
-
-[[platform.java11.dependency]]
-path = "/user/foo/libs/bazz.jar"
-scope = "testOnly"
-
-[[platform.java11.dependency]]
-path = "/user/foo/libs/was.jar"
-scope = "testOnly"
-
-[[platform.java11.dependency]]
-path = "/user/foo/libs/abc.jar"
-scope = "testOnly"

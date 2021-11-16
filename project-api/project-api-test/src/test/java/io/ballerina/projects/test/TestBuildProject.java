@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.test;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.BallerinaToml;
@@ -47,6 +49,7 @@ import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.projects.ResourceConfig;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.util.ProjectConstants;
@@ -64,6 +67,9 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -71,8 +77,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.test.TestUtils.isWindows;
@@ -80,6 +90,7 @@ import static io.ballerina.projects.test.TestUtils.loadProject;
 import static io.ballerina.projects.test.TestUtils.readFileAsString;
 import static io.ballerina.projects.test.TestUtils.resetPermissions;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
+import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
@@ -1558,6 +1569,94 @@ public class TestBuildProject extends BaseTest {
         // Clean Dependencies.toml and build file if already exists
         Files.deleteIfExists(projectDirPath.resolve(DEPENDENCIES_TOML));
         Files.deleteIfExists(projectDirPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+    }
+
+    @Test
+    public void testAddResources() throws IOException {
+        // 1. load the project
+        Path projectPath = RESOURCE_DIRECTORY.resolve("test_proj_pkg_compilation_simple");
+        BuildOptions buildOptions = new BuildOptionsBuilder().skipTests(false).build();
+        BuildProject buildProject = loadBuildProject(projectPath, buildOptions);
+        Module defaultModule = buildProject.currentPackage().getDefaultModule();
+
+        // 2. Create and add a resource
+        DocumentId documentId = DocumentId.create("config/project-info.json", defaultModule.moduleId());
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("org", buildProject.currentPackage().descriptor().org().toString());
+        jsonObject.addProperty("name", buildProject.currentPackage().descriptor().name().toString());
+        jsonObject.addProperty("version", buildProject.currentPackage().descriptor().version().toString());
+        byte[] serialize = jsonObject.toString().getBytes();
+        ResourceConfig resourceConfig = ResourceConfig.from(documentId, "config/project-info.json", serialize);
+        // Should we throw an unsupported exception for SingleFileProject??
+        defaultModule.modify().addResource(resourceConfig).apply();
+
+        // 3. Compile and generate caches and executable
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        Path execPath = buildProject.sourceRoot().resolve(TARGET_DIR_NAME).resolve("temp.jar");
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, execPath);
+
+        // 4. Verify the existence of resources in thin jar, testable jar and executable jar
+        JarFile execJar = new JarFile(execPath.toString());
+        Map<ModuleId, List<Path>> moduleResources = new HashMap<>();
+        Map<ModuleId, List<Path>> testResources = new HashMap<>();
+
+        for (ModuleId moduleId : buildProject.currentPackage().moduleIds()) {
+            moduleResources.put(moduleId, getResources(buildProject.currentPackage().module(moduleId)));
+        }
+        for (ModuleId moduleId : buildProject.currentPackage().moduleIds()) {
+            testResources.put(moduleId, getTestResources(buildProject.currentPackage().module(moduleId)));
+        }
+
+        for (ModuleId moduleId : buildProject.currentPackage().moduleIds()) {
+            Module module = buildProject.currentPackage().module(moduleId);
+            Path moduleJarPath = buildProject.sourceRoot().resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME)
+                    .resolve(module.descriptor().org().toString())
+                    .resolve(module.descriptor().packageName().toString())
+                    .resolve(module.descriptor().version().toString()).resolve("java11")
+                    .resolve(module.descriptor().org().toString() + "-" + module.descriptor().name().toString() + "-"
+                            + module.descriptor().version().toString() + ".jar");
+            JarFile jar = new JarFile(moduleJarPath.toString());
+            for (Path path : moduleResources.get(moduleId)) {
+                Assert.assertNotNull(jar.getJarEntry(path.toString()));
+                Assert.assertNotNull(execJar.getJarEntry(path.toString()));
+            }
+
+            Path testableJarPath = buildProject.sourceRoot().resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME)
+                    .resolve(module.descriptor().org().toString())
+                    .resolve(module.descriptor().packageName().toString())
+                    .resolve(module.descriptor().version().toString()).resolve("java11")
+                    .resolve(module.descriptor().org().toString() + "-" + module.descriptor().name().toString() + "-"
+                            + module.descriptor().version().toString() + "-testable.jar");
+            if (Files.exists(testableJarPath)) {
+                JarFile testableJar = new JarFile(testableJarPath.toString());
+                for (Path path : moduleResources.get(moduleId)) {
+                    Assert.assertNotNull(testableJar.getJarEntry(path.toString()));
+                }
+                for (Path path : testResources.get(moduleId)) {
+                    Assert.assertNotNull(testableJar.getJarEntry(path.toString()));
+                }
+
+            }
+        }
+    }
+
+    private List<Path> getResources(Module module) {
+        List<Path> resources = new ArrayList<>();
+        for (DocumentId documentId : module.resourceIds()) {
+            resources.add(Paths.get(RESOURCE_DIR_NAME).resolve(module.moduleName().toString())
+                    .resolve(module.resource(documentId).name()));
+        }
+        return resources;
+    }
+
+    private List<Path> getTestResources(Module module) {
+        List<Path> resources = new ArrayList<>();
+        for (DocumentId documentId : module.testResourceIds()) {
+            resources.add(Paths.get(RESOURCE_DIR_NAME).resolve(module.moduleName().toString())
+                    .resolve(module.resource(documentId).name()));
+        }
+        return resources;
     }
 
     private static BuildProject loadBuildProject(Path projectPath) {
