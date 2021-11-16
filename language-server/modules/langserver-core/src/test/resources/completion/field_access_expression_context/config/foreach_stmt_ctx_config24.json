@@ -329,13 +329,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "forEach(function (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text item) returns () func)",
+      "label": "forEach(function () func)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nApplies a function to each item in an xml sequence.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text item) returns ()` func: a function to apply to each item in parameter `x`"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nApplies a function to each item in an xml sequence.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function ()` func: a function to apply to each item in parameter `x`"
         }
       },
       "sortText": "BD",
@@ -363,13 +363,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "filter(function (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text item) returns boolean func)",
+      "label": "filter(function () func)",
       "kind": "Function",
       "detail": "xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nSelects the items from an xml sequence for which a function returns true.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text item) returns boolean` func: a predicate to apply to each item to test whether it should be selected  \n  \n**Return** `xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>`   \n- new xml sequence containing items in parameter `x` for which function `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nSelects the items from an xml sequence for which a function returns true.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each item to test whether it should be selected  \n  \n**Return** `xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>`   \n- new xml sequence containing items in parameter `x` for which function `func` evaluates to true  \n  \n"
         }
       },
       "sortText": "BD",
@@ -384,11 +384,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {| xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text value; |}?;}",
+      "detail": "object {public isolated function next() returns record {| xml:ItemType value; |}?;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns an iterator over the xml items of an xml sequence.\n\n# Each item is represented by an xml singleton.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text value; |}?;}`   \n- iterator object  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns an iterator over the xml items of an xml sequence.\n\n# Each item is represented by an xml singleton.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| xml:ItemType value; |}?;}`   \n- iterator object  \n  \n"
         }
       },
       "sortText": "BD",
@@ -518,13 +518,13 @@
       }
     },
     {
-      "label": "map(function (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text item) returns xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text> func)",
+      "label": "map(function () func)",
       "kind": "Function",
-      "detail": "xml<xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>>",
+      "detail": "xml<xml:XmlType>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nApplies a function to each item in an xml sequence, and returns an xml sequence of the results.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text item) returns xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>` func: a function to apply to each child or parameter `item`  \n  \n**Return** `xml<xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>>`   \n- new xml value containing result of applying function `func` to each child or parameter `item`  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nApplies a function to each item in an xml sequence, and returns an xml sequence of the results.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function ()` func: a function to apply to each child or parameter `item`  \n  \n**Return** `xml<xml:XmlType>`   \n- new xml value containing result of applying function `func` to each child or parameter `item`  \n  \n"
         }
       },
       "sortText": "BD",

@@ -109,6 +109,7 @@ types:
             'type_tag_enum::type_tag_map': type_map
             'type_tag_enum::type_tag_stream': type_stream
             'type_tag_enum::type_tag_typedesc': type_typedesc
+            'type_tag_enum::type_tag_typerefdesc': type_typerefdesc
             'type_tag_enum::type_tag_parameterized_type': type_parameterized
             'type_tag_enum::type_tag_future': type_future
             'type_tag_enum::type_tag_object_or_service': type_object_or_service
@@ -255,6 +256,14 @@ types:
         type: s4
   type_typedesc:
     seq:
+      - id: constraint_type_cp_index
+        type: s4
+  type_typerefdesc:
+    seq:
+      - id: pkd_id_cp_index
+        type: s4
+      - id: name_cp_index
+        type: s4
       - id: constraint_type_cp_index
         type: s4
   type_parameterized:
@@ -539,8 +548,6 @@ types:
         type: s4
       - id: flags
         type: s8
-      - id: label
-        type: s1
       - id: origin
         type: s1
       - id: doc
@@ -549,6 +556,12 @@ types:
         type: annotation_attachments_content
       - id: type_cp_index
         type: s4
+      - id: has_reference_type
+        type: u1
+      - id: ref_type_cp_index
+        type: s4
+        if: has_reference_type != 0
+
   type_definition_body:
     seq:
       - id: attached_functions_count
@@ -1740,41 +1753,42 @@ enums:
     11: type_tag_anydata
     12: type_tag_record
     13: type_tag_typedesc
-    14: type_tag_stream
-    15: type_tag_map
-    16: type_tag_invokable
-    17: type_tag_any
-    18: type_tag_endpoint
-    19: type_tag_array
-    20: type_tag_union
-    21: type_tag_intersection
-    22: type_tag_package
-    23: type_tag_none
-    24: type_tag_void
-    25: type_tag_xmlns
-    26: type_tag_annotation
-    27: type_tag_semantic_error
-    28: type_tag_error
-    29: type_tag_iterator
-    30: type_tag_tuple
-    31: type_tag_future
-    32: type_tag_finite
-    33: type_tag_object_or_service
-    34: type_tag_byte_array
-    35: type_tag_function_pointer
-    36: type_tag_handle
-    37: type_tag_readonly
-    38: type_tag_signed32_int
-    39: type_tag_signed16_int
-    40: type_tag_signed8_int
-    41: type_tag_unsigned32_int
-    42: type_tag_unsigned16_int
-    43: type_tag_unsigned8_int
-    44: type_tag_char_string
-    45: type_tag_xml_element
-    46: type_tag_xml_pi
-    47: type_tag_xml_comment
-    48: type_tag_xml_text
-    49: type_tag_never
-    50: type_tag_null_set
-    51: type_tag_parameterized_type
+    14: type_tag_typerefdesc
+    15: type_tag_stream
+    16: type_tag_map
+    17: type_tag_invokable
+    18: type_tag_any
+    19: type_tag_endpoint
+    20: type_tag_array
+    21: type_tag_union
+    22: type_tag_intersection
+    23: type_tag_package
+    24: type_tag_none
+    25: type_tag_void
+    26: type_tag_xmlns
+    27: type_tag_annotation
+    28: type_tag_semantic_error
+    29: type_tag_error
+    30: type_tag_iterator
+    31: type_tag_tuple
+    32: type_tag_future
+    33: type_tag_finite
+    34: type_tag_object_or_service
+    35: type_tag_byte_array
+    36: type_tag_function_pointer
+    37: type_tag_handle
+    38: type_tag_readonly
+    39: type_tag_signed32_int
+    40: type_tag_signed16_int
+    41: type_tag_signed8_int
+    42: type_tag_unsigned32_int
+    43: type_tag_unsigned16_int
+    44: type_tag_unsigned8_int
+    45: type_tag_char_string
+    46: type_tag_xml_element
+    47: type_tag_xml_pi
+    48: type_tag_xml_comment
+    49: type_tag_xml_text
+    50: type_tag_never
+    51: type_tag_null_set
+    52: type_tag_parameterized_type

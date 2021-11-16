@@ -24,7 +24,6 @@ import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,15 +56,5 @@ public class BClassSymbol extends BObjectTypeSymbol implements Annotatable {
     @Override
     public List<? extends AnnotationSymbol> getAnnotations() {
         return this.annots;
-    }
-
-    @Override
-    public BClassSymbol createLabelSymbol() {
-        BClassSymbol copy = Symbols.createClassSymbol(flags, Names.EMPTY, pkgID, type, owner, pos, origin,
-                                                      isServiceDecl);
-        copy.attachedFuncs = attachedFuncs;
-        copy.initializerFunc = initializerFunc;
-        copy.isLabel = true;
-        return copy;
     }
 }

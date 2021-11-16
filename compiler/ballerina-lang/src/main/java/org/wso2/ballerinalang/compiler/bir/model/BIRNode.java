@@ -471,11 +471,11 @@ public abstract class BIRNode {
 
         public BType type;
 
-        public boolean isLabel;
-
         public boolean isBuiltin;
 
         public List<BType> referencedTypes;
+
+        public BType referenceType;
 
         public SymbolOrigin origin;
 
@@ -487,13 +487,12 @@ public abstract class BIRNode {
          */
         public int index;
 
-        public BIRTypeDefinition(Location pos, Name internalName, long flags, boolean isLabel, boolean isBuiltin,
+        public BIRTypeDefinition(Location pos, Name internalName, long flags, boolean isBuiltin,
                                  BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin, Name name,
                                  Name originalName) {
             super(pos);
             this.internalName = internalName;
             this.flags = flags;
-            this.isLabel = isLabel;
             this.isBuiltin = isBuiltin;
             this.type = type;
             this.attachedFuncs = attachedFuncs;
@@ -504,9 +503,9 @@ public abstract class BIRNode {
             this.annotAttachments = new ArrayList<>();
         }
 
-        public BIRTypeDefinition(Location pos, Name name, Name originalName, long flags, boolean isLabel,
-                                 boolean isBuiltin, BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin) {
-            this(pos, name, flags, isLabel, isBuiltin, type, attachedFuncs, origin, name, originalName);
+        public BIRTypeDefinition(Location pos, Name name, Name originalName, long flags, boolean isBuiltin,
+                                 BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin) {
+            this(pos, name, flags, isBuiltin, type, attachedFuncs, origin, name, originalName);
         }
 
         @Override

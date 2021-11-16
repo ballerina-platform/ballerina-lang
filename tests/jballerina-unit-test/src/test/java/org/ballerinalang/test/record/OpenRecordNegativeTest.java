@@ -51,9 +51,9 @@ public class OpenRecordNegativeTest {
         validateError(result, indx++, "unknown type 'Animal'", 22, 5);
         validateError(result, indx++, "incompatible types: expected '(anydata|json)', found 'Bar'", 31, 21);
         validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 49, 17);
-        validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 50, 17);
+        validateError(result, indx++, "incompatible types: expected 'anydata', found 'MyError'", 50, 17);
         validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 53, 15);
-        validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 54, 15);
+        validateError(result, indx++, "incompatible types: expected 'anydata', found 'MyError'", 54, 15);
         validateError(result, indx++,
                       "invalid operation: type 'Person' does not support optional field access for field 'firstName'",
                       59, 26);
