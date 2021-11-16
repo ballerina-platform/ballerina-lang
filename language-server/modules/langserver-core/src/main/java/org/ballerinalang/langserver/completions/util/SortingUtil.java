@@ -293,9 +293,12 @@ public class SortingUtil {
             return false;
         }
 
+        TypeSymbol rawTypeSymbol = CommonUtil.getRawType(typeSymbol);
         UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) optionalTypeSymbol.get();
         return CodeActionUtil.hasErrorMemberType(unionTypeSymbol) &&
-                unionTypeSymbol.memberTypeDescriptors().stream().anyMatch(type -> type.subtypeOf(typeSymbol));
+                unionTypeSymbol.memberTypeDescriptors().stream()
+                        .map(CommonUtil::getRawType)
+                        .anyMatch(type -> type.subtypeOf(rawTypeSymbol));
     }
 
     /**

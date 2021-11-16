@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 4,
-    "character": 24
+    "line": 50,
+    "character": 37
   },
-  "source": "expression_context/source/check_expression_ctx_source1.bal",
+  "source": "expression_context/source/check_expression_ctx_source7.bal",
   "items": [
     {
       "label": "start",
@@ -42,13 +42,100 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "module1",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "DO",
+      "sortText": "DR",
+      "filterText": "java",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/jballerina.java;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "DR",
+      "filterText": "value",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "DR",
+      "filterText": "runtime",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "DR",
       "filterText": "module1",
       "insertText": "module1",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
+        }
+      ]
     },
     {
       "label": "ballerina/lang.test",
@@ -95,54 +182,6 @@
             }
           },
           "newText": "import ballerina/lang.array;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/jballerina.java",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "DR",
-      "filterText": "java",
-      "insertText": "java",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/jballerina.java;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "DR",
-      "filterText": "runtime",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -358,6 +397,15 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "DQ",
+      "filterText": "null",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "check",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -430,52 +478,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "value2",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "DB",
-      "insertText": "value2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "DN",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "functionWithReturn()",
-      "kind": "Function",
-      "detail": "Record1",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \nThis is a test function\n  \n  \n  \n**Return** `Record1`   \n- Return Value Description  \n  \n"
-        }
-      },
-      "sortText": "DC",
-      "filterText": "functionWithReturn",
-      "insertText": "functionWithReturn()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testFunction()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "DC",
-      "filterText": "testFunction",
-      "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -487,19 +489,108 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Record1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "DM",
-      "insertText": "Record1",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "DN",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testVar",
+      "label": "Student",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "DK",
+      "insertText": "Student",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ProductError",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "DL",
+      "insertText": "ProductError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "perform(Product p)",
+      "kind": "Function",
+      "detail": "int|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `Product` p  \n  \n**Return** `int|error`   \n  \n"
+        }
+      },
+      "sortText": "DC",
+      "filterText": "perform",
+      "insertText": "perform(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "Product",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "DM",
+      "insertText": "Product",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "s",
       "kind": "Variable",
-      "detail": "typedesc<int>",
-      "sortText": "DB",
-      "insertText": "testVar",
+      "detail": "Student",
+      "sortText": "CB",
+      "insertText": "s",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "main()",
+      "kind": "Function",
+      "detail": "error?",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `error?`   \n  \n"
+        }
+      },
+      "sortText": "DC",
+      "filterText": "main",
+      "insertText": "main()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "prodClient",
+      "kind": "Variable",
+      "detail": "ProductClient",
+      "sortText": "AB",
+      "insertText": "prodClient",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "createRandomProduct()",
+      "kind": "Function",
+      "detail": "Product|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `Product|error`   \n  \n"
+        }
+      },
+      "sortText": "DC",
+      "filterText": "createRandomProduct",
+      "insertText": "createRandomProduct()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ProductClient",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "DK",
+      "insertText": "ProductClient",
       "insertTextFormat": "Snippet"
     },
     {
@@ -559,37 +650,22 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "DR",
-      "filterText": "value",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
+      "label": "new(string url)",
+      "kind": "Function",
+      "detail": "error?",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` url  \n  \n**Return** `error?`   \n  \n"
         }
-      ]
-    },
-    {
-      "label": "null",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "DQ",
-      "filterText": "null",
-      "insertText": "null",
-      "insertTextFormat": "Snippet"
+      },
+      "sortText": "AC",
+      "insertText": "new(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }
