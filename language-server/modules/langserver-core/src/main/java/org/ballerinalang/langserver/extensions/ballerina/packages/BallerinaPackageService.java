@@ -30,6 +30,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.ballerinalang.langserver.exception.UserErrorException;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
@@ -40,6 +41,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+
 /**
  * Implementation of Ballerina package extension for Language Server.
  *
@@ -116,19 +118,16 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
             try {
                 Optional<Path> filePath = CommonUtil.getPathFromURI(request.getDocumentIdentifier().getUri());
                 if (filePath.isEmpty()) {
-                    return response;
+                    throw new UserErrorException("File path not found.");
                 }
                 Optional<Project> project = this.workspaceManager.project(filePath.get());
                 if (project.isEmpty()) {
-                    return response;
+                    throw new UserErrorException("Project not found.");
                 }
                 Package currentPackage = project.get().currentPackage();
-                if (currentPackage == null) {
-                    return response;
-                }
                 response.setConfigSchema(ConfigSchemaBuilder.getConfigSchemaContent(
                         ConfigReader.getConfigVariables(currentPackage)));
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 String msg = "Operation 'ballerinaPackage/configSchema' failed!";
                 this.clientLogger.logError(PackageContext.PACKAGE_CONFIG_SCHEMA, msg, e,
                     request.getDocumentIdentifier(), (Position) null);
