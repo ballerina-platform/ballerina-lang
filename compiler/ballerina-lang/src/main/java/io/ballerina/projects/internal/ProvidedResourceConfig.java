@@ -20,6 +20,7 @@ package io.ballerina.projects.internal;
 
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ResourceConfig;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Files;
@@ -35,16 +36,13 @@ import java.nio.file.Path;
  *
  * @since 2.0.0
  */
-public class ProvidedResourceConfig extends io.ballerina.projects.ResourceConfig {
+public class ProvidedResourceConfig extends ResourceConfig {
 
     private ProvidedResourceConfig(DocumentId documentId, Path path, String name, byte[] content) {
         super(documentId, path, name, content);
     }
 
     public static ProvidedResourceConfig from(DocumentId documentId, Path resource, Path modulePath) {
-        if (Files.notExists(resource)) {
-            throw new ProjectException("provided resource path does not exist: " + resource);
-        }
         Path resourcePath = modulePath.resolve(ProjectConstants.RESOURCE_DIR_NAME).relativize(resource);
         return new ProvidedResourceConfig(documentId, resource, resourcePath.toString(), null);
     }
