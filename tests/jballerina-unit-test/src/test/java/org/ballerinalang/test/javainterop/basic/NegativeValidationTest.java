@@ -161,9 +161,11 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'No such Java method " +
-                        "'acceptIntReturnIntThrowsCheckedException' which throws checked exception found in class " +
-                        "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible ballerina " +
+                        "return type for the Java method 'acceptIntReturnIntThrowsCheckedException' which throws " +
+                        "checked exception found in class " +
+                        "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
+                        "expected 'int|error', found 'int''",
                 "method_sig_not_match1.bal", 3, 1);
     }
 
@@ -176,9 +178,11 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'No such Java method " +
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
+                        "'Incompatible ballerina return type for the Java method " +
                         "'acceptRecordAndRecordReturnWhichThrowsCheckedException' which throws checked exception " +
-                        "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
+                        "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
+                        "expected 'Employee|error', found 'Employee''",
                 "method_sig_not_match2.bal", 7, 1);
     }
 
@@ -191,9 +195,11 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'No such Java method " +
-                        "'acceptIntUnionReturnWhichThrowsCheckedException' which throws checked exception found in " +
-                        "class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
+                        "'Incompatible ballerina return type for the Java method " +
+                        "'acceptIntUnionReturnWhichThrowsCheckedException' which throws checked exception " +
+                        "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
+                        "expected '(int|string|float|boolean)|error', found '(int|string|float|boolean)''",
                 "method_sig_not_match3.bal", 3, 1);
     }
 
@@ -206,9 +212,11 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'No such Java method " +
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
+                        "'Incompatible ballerina return type for the Java method " +
                         "'acceptRefTypesAndReturnMapWhichThrowsCheckedException' which throws checked exception " +
-                        "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
+                        "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
+                        "expected 'map|error', found 'map''",
                 "method_sig_not_match4.bal", 14, 1);
     }
 
@@ -221,9 +229,11 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'No such Java method " +
-                        "'acceptStringErrorReturnWhichThrowsCheckedException' which throws checked exception found " +
-                        "in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
+                        "'Incompatible ballerina return type for the Java method " +
+                        "'acceptStringErrorReturnWhichThrowsCheckedException' which throws checked exception " +
+                        "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
+                        "expected '()|error', found '()''",
                 "method_sig_not_match5.bal", 3, 1);
     }
 
@@ -236,9 +246,11 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'No such Java method " +
-                        "'getArrayValueFromMapWhichThrowsCheckedException' which throws checked exception found in " +
-                        "class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
+                        "'Incompatible ballerina return type for the Java method " +
+                        "'getArrayValueFromMapWhichThrowsCheckedException' which throws checked exception " +
+                        "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
+                        "expected 'int[]|error', found 'int[]''",
                 "method_sig_not_match6.bal", 3, 1);
     }
 
