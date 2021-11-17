@@ -9,6 +9,7 @@
       "label": "display",
       "kind": "Property",
       "detail": "Annotation",
+      "sortText": "AR",
       "insertText": "display",
       "insertTextFormat": "Snippet"
     },
@@ -16,6 +17,7 @@
       "label": "MyAnnotationClass",
       "kind": "Property",
       "detail": "Annotation",
+      "sortText": "AR",
       "insertText": "MyAnnotationClass",
       "insertTextFormat": "Snippet"
     },
@@ -23,6 +25,7 @@
       "label": "deprecated",
       "kind": "Property",
       "detail": "Annotation",
+      "sortText": "AR",
       "insertText": "deprecated",
       "insertTextFormat": "Snippet"
     },
@@ -30,6 +33,8 @@
       "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "BR",
+      "filterText": "test",
       "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -52,6 +57,8 @@
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "BR",
+      "filterText": "array",
       "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -74,6 +81,8 @@
       "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "BR",
+      "filterText": "java",
       "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -96,6 +105,8 @@
       "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "BR",
+      "filterText": "value",
       "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -118,6 +129,8 @@
       "label": "ballerina/module1",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "BR",
+      "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -140,6 +153,8 @@
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "BR",
+      "filterText": "runtime",
       "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -157,104 +172,6 @@
           "newText": "import ballerina/lang.runtime;\n"
         }
       ]
-    },
-    {
-      "label": "boolean",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "boolean",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "decimal",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "decimal",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "float",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "float",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "future",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "future",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "int",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "int",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "map",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "object",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stream",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "stream",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "string",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "string",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "table",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "table",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "transaction",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "transaction",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "typedesc",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "typedesc",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "xml",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "xml",
-      "insertTextFormat": "Snippet"
     }
   ]
 }

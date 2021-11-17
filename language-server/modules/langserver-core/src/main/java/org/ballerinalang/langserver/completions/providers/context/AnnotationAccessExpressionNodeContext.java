@@ -37,12 +37,14 @@ import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.FieldAccessCompletionResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -77,47 +79,48 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
             return completionItems;
         }
         
-        return getAnnotationTags(context, typeSymbol);
+        return getAnnotationTags(context, node, typeSymbol);
     }
 
-    public List<LSCompletionItem> getAnnotationTags(BallerinaCompletionContext context, TypeSymbol typeSymbol) {
+    public List<LSCompletionItem> getAnnotationTags(BallerinaCompletionContext context, AnnotAccessExpressionNode node,
+                                                    TypeSymbol typeSymbol) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         TypeDescKind typeDescKind = ((TypeDescTypeSymbol) typeSymbol).typeParameter().get().typeKind();
         AttachPoint.Point attachPoint = getAttachPointForType(typeSymbol);
         List<LSCompletionItem> completionItems = new ArrayList<>();
+        boolean isTypeDescKindAnyOrAnyData = typeDescKind == TypeDescKind.ANY || typeDescKind == TypeDescKind.ANYDATA;
 
-        if (attachPoint == null && typeDescKind != TypeDescKind.ANY) {
+        if (attachPoint == null && !isTypeDescKindAnyOrAnyData) {
             return new ArrayList<>();
         }
 
         if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            NonTerminalNode symbolAtCursor = context.getNodeAtCursor();
-            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) symbolAtCursor;
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
 
             List<Symbol> moduleSymbols = getAnnotationContextEntries(context, qNameRef);
             moduleSymbols.stream()
-                    .filter(symbol -> typeDescKind == TypeDescKind.ANY || ((AnnotationSymbol) symbol).attachPoints()
+                    .filter(symbol -> isTypeDescKindAnyOrAnyData || ((AnnotationSymbol) symbol).attachPoints()
                             .stream()
                             .anyMatch(aPoint -> aPoint.name().equals(attachPoint.name())))
                     .forEach(annotation -> {
                         AnnotationSymbol symbol = (AnnotationSymbol) annotation;
                         completionItems.add(getAnnotationsCompletionItem(context, symbol));
                     });
-            return completionItems;
+        } else {
+            completionItems.addAll(this.getModuleCompletionItems(context));
+            List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+            visibleSymbols.stream()
+                    .filter(symbol -> symbol.kind() == ANNOTATION
+                            && (isTypeDescKindAnyOrAnyData || ((AnnotationSymbol) symbol).attachPoints()
+                            .stream()
+                            .anyMatch(aPoint -> aPoint.name().equals(attachPoint.name()))))
+                    .forEach(annotation -> {
+                        AnnotationSymbol symbol = (AnnotationSymbol) annotation;
+                        completionItems.add(getAnnotationsCompletionItem(context, symbol));
+                    });
         }
-
-        completionItems.addAll(this.getModuleCompletionItems(context));
-        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        visibleSymbols.stream()
-                .filter(symbol -> symbol.kind() == ANNOTATION 
-                        && (typeDescKind == TypeDescKind.ANY || ((AnnotationSymbol) symbol).attachPoints()
-                        .stream()
-                        .anyMatch(aPoint -> aPoint.name().equals(attachPoint.name()))))
-                .forEach(annotation -> {
-                    AnnotationSymbol symbol = (AnnotationSymbol) annotation;
-                    completionItems.add(getAnnotationsCompletionItem(context, symbol));
-                });
         
+        this.sort(context, node, completionItems);
         return completionItems;
     }
 
@@ -167,5 +170,23 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
         item.setKind(CompletionItemKind.Property);
 
         return new TypeCompletionItem(ctx, null, item);
+    }
+
+    @Override
+    protected List<LSCompletionItem> getPredeclaredLangLibCompletions(BallerinaCompletionContext context) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, AnnotAccessExpressionNode node, 
+                     List<LSCompletionItem> lsCItems) {
+        for (LSCompletionItem lsCItem : lsCItems) {
+            CompletionItem completionItem = lsCItem.getCompletionItem();
+            if (completionItem.getDetail() == ItemResolverConstants.ANNOTATION_TYPE) {
+                completionItem.setSortText(SortingUtil.genSortText(1) + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
+            } else {
+            completionItem.setSortText(SortingUtil.genSortText(2) + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
+            }
+        }
     }
 }
