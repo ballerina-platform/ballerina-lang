@@ -156,12 +156,7 @@ public class Scheduler {
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
         future.strand.strandGroup = parent.strandGroup;
-        parent.strandGroup.lock();
-        parent.strandGroup.add(item);
-        if (parent.strandGroup.scheduled.compareAndSet(false, true)) {
-            runnableList.add(future.strand.strandGroup);
-        }
-        parent.strandGroup.unlock();
+        addToRunnableList(item, parent.strandGroup);
         return future;
     }
 
@@ -173,14 +168,7 @@ public class Scheduler {
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
-        ItemGroup group = objectGroup.get();
-        group.lock();
-        group.add(item);
-        future.strand.strandGroup = group;
-        if (group.scheduled.compareAndSet(false, true)) {
-            runnableList.add(group);
-        }
-        group.unlock();
+        addToRunnableList(item, objectGroup.get());
         return future;
     }
 
@@ -314,7 +302,8 @@ public class Scheduler {
                 break;
             }
 
-            while (!group.items.empty()) {
+            boolean isItemsEmpty = group.items.isEmpty();
+            while (!isItemsEmpty) {
                 Object result = null;
                 Throwable panic = null;
 
@@ -340,9 +329,8 @@ public class Scheduler {
                 }
                 postProcess(item, result, panic);
                 group.lock();
-                if (group.items.empty()) {
+                if ((isItemsEmpty = group.items.empty())) {
                     group.scheduled.set(false);
-
                 }
                 group.unlock();
             }
@@ -493,17 +481,21 @@ public class Scheduler {
         if (!item.getState().equals(State.RUNNABLE)) {
             ItemGroup group = item.future.strand.strandGroup;
             item.setState(State.RUNNABLE);
-            group.lock();
-            group.add(item);
-            // Group maybe not picked by any thread at the moment because,
-            //  1) All items are blocked.
-            //  2) All others have finished
-            // In this case we need to put it back in the runnable list.
-            if (group.scheduled.compareAndSet(false, true)) {
-                runnableList.add(group);
-            }
-            group.unlock();
+            addToRunnableList(item, group);
         }
+    }
+
+    private void addToRunnableList(SchedulerItem item, ItemGroup group) {
+        group.lock();
+        group.add(item);
+        // Group maybe not picked by any thread at the moment because,
+        //  1) All items are blocked.
+        //  2) All others have finished
+        // In this case we need to put it back in the runnable list.
+        if (group.scheduled.compareAndSet(false, true)) {
+            runnableList.add(group);
+        }
+        group.unlock();
     }
 
     public FutureValue createFuture(Strand parent, Callback callback, Map<String, Object> properties,
@@ -650,17 +642,15 @@ class ItemGroup {
      */
     AtomicBoolean scheduled = new AtomicBoolean(false);
 
-    private final ReentrantLock groupLock;
+    private final ReentrantLock groupLock = new ReentrantLock();
 
     public static final ItemGroup POISON_PILL = new ItemGroup();
 
     public ItemGroup(SchedulerItem item) {
         items.push(item);
-        this.groupLock = new ReentrantLock();
     }
 
     public ItemGroup() {
-        this.groupLock = new ReentrantLock();
     }
 
     public void add(SchedulerItem item) {
