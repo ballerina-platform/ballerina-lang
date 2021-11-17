@@ -50,7 +50,8 @@ public class TypeIds {
     private static final Module BALLERINA_TYPEDESC_PKG_ID =
             new Module(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME, PACKAGE_VERSION);
 
-    private static final String TYPE_ID_TYPE_SIG = "record {| ModuleId moduleId; (string|int) localId; |}";
+    private static final String TYPE_ID_TYPE_SIG =
+            "record {| ballerina/lang.typedesc:0.0.0:ModuleId moduleId; (string|int) localId; |}";
     private static final String MODULE_ID_TYPE_SIG =
             "record {| string organization; string name; string[] platformParts; |}";
 

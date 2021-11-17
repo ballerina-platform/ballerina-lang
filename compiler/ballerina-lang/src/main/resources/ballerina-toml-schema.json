@@ -116,6 +116,9 @@
           "message": {
             "pattern": "invalid 'visibility' under [package]: 'visibility' can only have value 'private'"
           }
+        },
+        "icon": {
+          "type": "string"
         }
       }
     },

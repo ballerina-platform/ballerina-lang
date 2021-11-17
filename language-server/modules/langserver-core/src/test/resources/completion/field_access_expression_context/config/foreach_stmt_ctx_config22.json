@@ -58,13 +58,13 @@
       ]
     },
     {
-      "label": "reduce(function () func, any|error initial)",
+      "label": "reduce(function () func, array:Type1 initial)",
       "kind": "Function",
-      "detail": "any|error",
+      "detail": "array:Type1",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nCombines the members of an array using a combining function.\n\nThe combining function takes the combined value so far and a member of the array,\nand returns a new combined value.\n\nFor example\n```\nreduce([1, 2, 3], function (int total, int n) returns int { return total + n; }, 0)\n```\nis the same as `sum(1, 2, 3)`.\n  \n**Params**  \n- `function ()` func: combining function  \n- `any|error` initial: initial value for the first argument of combining parameter `func`  \n  \n**Return** `any|error`   \n- result of combining the members of parameter `arr` using parameter `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nCombines the members of an array using a combining function.\n\nThe combining function takes the combined value so far and a member of the array,\nand returns a new combined value.\n\nFor example\n```\nreduce([1, 2, 3], function (int total, int n) returns int { return total + n; }, 0)\n```\nis the same as `sum(1, 2, 3)`.\n  \n**Params**  \n- `function ()` func: combining function  \n- `array:Type1` initial: initial value for the first argument of combining parameter `func`  \n  \n**Return** `array:Type1`   \n- result of combining the members of parameter `arr` using parameter `func`  \n  \n"
         }
       },
       "sortText": "BD",
@@ -268,11 +268,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {| any|error value; |}?;}",
+      "detail": "object {public isolated function next() returns record {| array:Type value; |}?;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nReturns an iterator over an array.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| any|error value; |}?;}`   \n- a new iterator object that will iterate over the members of parameter `arr`.  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nReturns an iterator over an array.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| array:Type value; |}?;}`   \n- a new iterator object that will iterate over the members of parameter `arr`.  \n  \n"
         }
       },
       "sortText": "BD",
@@ -532,11 +532,11 @@
     {
       "label": "map(function () func)",
       "kind": "Function",
-      "detail": "(any|error)[]",
+      "detail": "array:Type1[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nApplies a function to each member of an array and returns an array of the results.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `(any|error)[]`   \n- new array containing result of applying parameter `func` to each member of parameter `arr` in order  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nApplies a function to each member of an array and returns an array of the results.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `array:Type1[]`   \n- new array containing result of applying parameter `func` to each member of parameter `arr` in order  \n  \n"
         }
       },
       "sortText": "BD",
