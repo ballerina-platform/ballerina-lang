@@ -44,7 +44,7 @@ public class ConfigSchemaTest {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    @Test(description = "Test package config schema API", dataProvider = "config-schema-data-provider", enabled = false)
+    @Test(description = "Test package config schema API", dataProvider = "config-schema-data-provider")
     public void packageConfigSchemaTestCase(String projectName, String assertFileName) throws IOException {
         Path sourcePath = this.resourceRoot.resolve("configs").resolve(projectName).resolve("main.bal");
         TestUtil.openDocument(serviceEndpoint, sourcePath);
