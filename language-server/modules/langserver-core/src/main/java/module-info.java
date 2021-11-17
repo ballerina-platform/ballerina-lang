@@ -35,5 +35,4 @@ module io.ballerina.language.server.core {
     requires com.google.gson;
     requires io.ballerina.syntaxapicallsgen;
     requires io.ballerina.central.client;
-    requires org.ballerinalang.config.schema.builder;
 }
