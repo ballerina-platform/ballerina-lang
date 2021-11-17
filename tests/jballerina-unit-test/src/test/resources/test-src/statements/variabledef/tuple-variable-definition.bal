@@ -110,6 +110,20 @@ function testTupleVarDef2() returns [string, int, int, boolean, string, float, b
     return [f.name, f.age, b.id, b.flag, fo.s, fo.f, fo.b, bo.b, bo.i];
 }
 
+function testTupleVarDef3() {
+    [int, record {boolean e; string f;}] [x, y] = [1, {e: true, f: "chiran"}];
+    assertEquality(1, x);
+    assertEquality(true, y.e);
+    assertEquality("chiran", y.f);
+}
+
+function testTupleVarDef4() {
+    [int, record { boolean e; string f; }] [d, {e, ...f}] = [1, {e: true, f: "str"}];
+    assertEquality(1, d);
+    assertEquality(true, e);
+    assertEquality("str", f["f"]);
+}
+
 function testTupleVarDefWithArray1() returns [string, int[], boolean, float[]] {
     [string, [int[], [boolean, float[]]]] [a, [b, [c, d]]] = ["Ballerina", [[123, 345], [true, [2.3, 4.5]]]];
 
@@ -223,10 +237,17 @@ function testTupleVariableWithErrorBP() {
     assertEquality(n, "");
 }
 
-function assertEquality(anydata actual, anydata expected) {
-    if expected == actual {
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any expected, any actual) {
+    if expected is anydata && actual is anydata && expected == actual {
         return;
     }
 
-    panic error("AssertionError", message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+    if expected === actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

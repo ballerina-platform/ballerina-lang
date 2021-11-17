@@ -518,6 +518,11 @@ public class BJSONValueTest {
     }
 
     @Test
+    public void testJsonMapAccess() {
+        BRunUtil.invoke(compileResult, "testJsonMapAccess");
+    }
+
+    @Test
     public void testIntArrayToJsonAssignment() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testIntArrayToJsonAssignment");
         Assert.assertTrue(returns[0] instanceof BNewArray);

@@ -23,6 +23,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Handle;
@@ -41,7 +42,10 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
@@ -241,6 +245,8 @@ public class JvmCodeGenUtil {
                     return GET_HANDLE_VALUE;
                 case JTypeTags.JTYPE:
                     return InteropMethodGen.getJTypeSignature((JType) bType);
+                case TypeTags.TYPEREFDESC:
+                    return getFieldTypeSignature(getReferredType(bType));
                 default:
                     throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
             }
@@ -404,6 +410,8 @@ public class JvmCodeGenUtil {
                 return GET_BOBJECT;
             case TypeTags.HANDLE:
                 return GET_HANDLE_VALUE;
+            case TypeTags.TYPEREFDESC:
+                return getArgTypeSignature(getReferredType(bType));
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
                                                          bType);
@@ -465,6 +473,8 @@ public class JvmCodeGenUtil {
                 return RETURN_FUNCTION_POINTER;
             case TypeTags.HANDLE:
                 return RETURN_HANDLE_VALUE;
+            case TypeTags.TYPEREFDESC:
+                return generateReturnType(getReferredType(bType));
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }
@@ -511,6 +521,12 @@ public class JvmCodeGenUtil {
     }
 
     public static String toNameString(BType t) {
+        BTypeSymbol typeSymbol = t.tsymbol;
+        if ((typeSymbol.kind == SymbolKind.RECORD || typeSymbol.kind == SymbolKind.OBJECT) &&
+                ((BStructureTypeSymbol) typeSymbol).typeDefinitionSymbol != null) {
+            return IdentifierUtils.encodeNonFunctionIdentifier(((BStructureTypeSymbol) typeSymbol)
+                    .typeDefinitionSymbol.name.value);
+        }
         return IdentifierUtils.encodeNonFunctionIdentifier(t.tsymbol.name.value);
     }
 
@@ -634,19 +650,30 @@ public class JvmCodeGenUtil {
             case TypeTags.NIL:
             case TypeTags.NEVER:
                 return true;
+            case TypeTags.TYPEREFDESC:
+                return isSimpleBasicType(getReferredType(bType));
             default:
                 return (TypeTags.isIntegerTypeTag(bType.tag)) || (TypeTags.isStringTypeTag(bType.tag));
         }
     }
 
+    public static BType getReferredType(BType type) {
+        BType constraint = type;
+        if (type.tag == TypeTags.TYPEREFDESC) {
+            constraint = getReferredType(((BTypeReferenceType) type).referredType);
+        }
+        return constraint;
+    }
+
     public static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv,
                                          JvmConstantsGen jvmConstantsGen) {
 
-        if (TypeTags.isIntegerTypeTag(bType.tag)) {
+        int typeTag = getReferredType(bType).tag;
+        if (TypeTags.isIntegerTypeTag(typeTag)) {
             long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong(String.valueOf(constVal));
             mv.visitLdcInsn(intValue);
             return;
-        } else if (TypeTags.isStringTypeTag(bType.tag)) {
+        } else if (TypeTags.isStringTypeTag(typeTag)) {
             String val = String.valueOf(constVal);
             String varName = jvmConstantsGen.getBStringConstantVar(val);
             String stringConstantsClass = jvmConstantsGen.getStringConstantsClass();
@@ -654,7 +681,7 @@ public class JvmCodeGenUtil {
             return;
         }
 
-        switch (bType.tag) {
+        switch (typeTag) {
             case TypeTags.BYTE:
                 int byteValue = ((Number) constVal).intValue();
                 mv.visitLdcInsn(byteValue);

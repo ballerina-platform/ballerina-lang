@@ -129,7 +129,7 @@ public class NegativeTypeTestExprTest {
                 "expression will always evaluate to 'false'", 246, 9);
         BAssertUtil.validateError(negativeResult, i++, "unreachable code", 247, 9);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'foo|bar' will not be matched to 'baz|2'", 255, 10);
+                "incompatible types: 'FooBar' will not be matched to 'BazTwo'", 255, 10);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: '(string|int)' will not be matched to '(float|boolean)'",
                 262, 9);
