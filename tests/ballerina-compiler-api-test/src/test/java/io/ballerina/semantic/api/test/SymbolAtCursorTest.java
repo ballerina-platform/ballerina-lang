@@ -39,7 +39,6 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.COMPILATION_ERROR;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
@@ -286,7 +285,7 @@ public class SymbolAtCursorTest {
                 throw new IllegalStateException("Unexpected symbol kind: " + symbolKind);
         }
 
-        assertEquals(type.typeKind(), FUNCTION);
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
     }
 
     @DataProvider(name = "VarPosProvider")
