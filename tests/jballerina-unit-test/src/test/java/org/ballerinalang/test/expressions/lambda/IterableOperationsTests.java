@@ -57,8 +57,9 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, index++, "undefined function 'forEach' in type 'int'", 6, 7);
         BAssertUtil.validateError(negative, index++, "undefined function 'map' in type 'string'", 8, 7);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 14, 5);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns" +
-                " (boolean)', found 'function (int,string) returns (boolean)'", 16, 14);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
+                "'function (ballerina/lang.array:0.0.0:Type) returns (boolean)', " +
+                "found 'function (int,string) returns (boolean)'", 16, 14);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'map<string>', found " +
                 "'map<[string,string]>'", 31, 21);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'any'", 35, 27);
@@ -73,23 +74,27 @@ public class IterableOperationsTests {
                 49, 35);
         BAssertUtil.validateError(negative, index++, "too many arguments in call to 'length()'", 55, 9);
         BAssertUtil.validateError(negative, index++, "missing required parameter 'func' in call to 'filter()'", 56, 5);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) " +
-                "returns ()', found 'int'", 58, 15);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
+                "'function (ballerina/lang.array:0.0.0:Type) returns ()', found 'int'", 58, 15);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected '[string,string,string]', found " +
                 "'string'", 63, 15);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error))" +
-                " returns ()', found 'function () returns ()'", 64, 15);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
+                "'function (ballerina/lang.array:0.0.0:Type) returns ()', found 'function () returns ()'", 64, 15);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 65, 5);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns " +
-                "(boolean)', found 'function (string) returns ([boolean,int])'", 65, 14);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
+                "'function (ballerina/lang.array:0.0.0:Type) returns (boolean)', " +
+                "found 'function (string) returns ([boolean,int])'", 65, 14);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 66, 5);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns " +
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
+                "'function (ballerina/lang.array:0.0.0:Type) returns " +
                 "(boolean)', found 'function (string) returns ()'", 66, 14);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 67, 5);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns " +
-                "(boolean)', found 'function (other) returns ()'", 67, 14);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
+                "'function (ballerina/lang.array:0.0.0:Type) returns (boolean)', " +
+                "found 'function (other) returns ()'", 67, 14);
         BAssertUtil.validateError(negative, index++, "unknown type 'person'", 67, 24);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) " +
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
+                "'function (ballerina/lang.array:0.0.0:Type) " +
                 "returns (boolean)', found 'function (string) returns (other)'", 68, 18);
         BAssertUtil.validateError(negative, index++, "unknown type 'person'", 68, 47);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'any[]'", 73, 15);

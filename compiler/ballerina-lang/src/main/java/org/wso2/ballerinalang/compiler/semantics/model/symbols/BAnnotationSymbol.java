@@ -24,7 +24,6 @@ import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.AttachPoints;
 
 import java.util.ArrayList;
@@ -41,7 +40,7 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getPackageIDStr
  */
 public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
 
-    public BTypeSymbol attachedType;
+    public BType attachedType;
     public Set<AttachPoint> points;
     public int maskedPoints;
     private List<BAnnotationSymbol> annots;
@@ -76,15 +75,6 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     public String bvmAlias() {
         String pkg = getPackageIDStringWithMajorVersion(pkgID);
         return !pkg.equals(".") ? pkg + ":" + this.name : this.name.toString();
-    }
-
-    @Override
-    public BAnnotationSymbol createLabelSymbol() {
-        BAnnotationSymbol copy = Symbols.createAnnotationSymbol(flags, points, Names.EMPTY, Names.EMPTY,
-                                                                pkgID, type, owner, pos, origin);
-        copy.attachedType = attachedType;
-        copy.isLabel = true;
-        return copy;
     }
 
     private int getMaskedPoints(Set<AttachPoint> attachPoints) {

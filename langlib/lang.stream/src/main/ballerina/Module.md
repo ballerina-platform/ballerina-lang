@@ -1,3 +1,3 @@
 ## Module Overview
 
-The `lang.stream` module corresponds to basic type stream.
+The `lang.stream` module corresponds to the `stream` basic type.
