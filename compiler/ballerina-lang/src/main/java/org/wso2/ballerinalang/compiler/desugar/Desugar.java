@@ -5249,8 +5249,8 @@ public class Desugar extends BLangNodeVisitor {
 
         // Note - {map<T>? $result$ = $iterator$.next(), $result}
         BLangSimpleVarRef resultReferenceInWhile = ASTBuilderUtil.createVariableRef(foreach.pos, resultSymbol);
-        BLangStatementExpression statementExpression = ASTBuilderUtil.createStatementExpression(resultVariableDefinition,
-                resultReferenceInWhile);
+        BLangStatementExpression statementExpression = ASTBuilderUtil.createStatementExpression(
+                resultVariableDefinition, resultReferenceInWhile);
         statementExpression.setBType(foreach.nillableResultType);
 
         // Note - $result != ()
