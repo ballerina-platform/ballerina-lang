@@ -98,7 +98,7 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(this.withCodeGenerators);
     }
 
-    public Boolean getConfigSchemaGen() {
+    public Boolean configSchemaGen() {
         return toBooleanDefaultIfNull(this.configSchemaGen);
     }
 
