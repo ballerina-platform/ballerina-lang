@@ -562,9 +562,8 @@ public class ExpressionTypeTestNew {
                 {273, 9, 273, 13, XML},
                 {274, 9, 274, 15, XML},
                 {275, 9, 275, 25, XML},
-                // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/33015
-//                {276, 9, 276, 25, XML},
-//                {276, 23, 276, 24, INT},
+                {276, 9, 276, 25, XML},
+                {276, 23, 276, 24, INT},
                 {277, 9, 277, 33, XML},
                 // Group expr
                 {282, 12, 282, 34, INT},

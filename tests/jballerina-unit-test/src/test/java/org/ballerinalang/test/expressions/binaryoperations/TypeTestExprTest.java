@@ -135,7 +135,7 @@ public class TypeTestExprTest {
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 246, 9);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'foo|bar' will not be matched to 'baz|2'", 255, 9);
+                "incompatible types: 'FooBar' will not be matched to 'BazTwo'", 255, 9);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: '(string|int)' will not be matched to '(float|boolean)'",
                 262, 9);

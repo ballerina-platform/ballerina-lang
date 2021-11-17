@@ -2355,6 +2355,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 BLangSimpleVariable parameter = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
                 parameter.name = userDefinedType.typeName;
                 parameter.pos = getPosition(child);
+                parameter.addFlag(Flag.REQUIRED_PARAM);
                 arrowFunction.params.add(parameter);
             }
 
@@ -2817,6 +2818,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             case LIST_BINDING_PATTERN:
                 initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), initializer,
                         qualifierList);
+                initializer.ifPresent(initializerNode -> variable.pos = getPosition(bindingPattern, initializerNode));
                 return createTupleVariableDef(variable);
             case ERROR_BINDING_PATTERN:
                 initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), initializer,
