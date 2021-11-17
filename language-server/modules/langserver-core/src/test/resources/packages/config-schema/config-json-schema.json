@@ -2,12 +2,23 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "properties": {
-        "irushi": {
+        "wso2": {
             "type": "object",
             "properties": {
                 "project_config_schema": {
                     "type": "object",
                     "properties": {
+                        "url": {
+                            "type": "string",
+                            "description": ""
+                        },
+                        "ports": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            },
+                            "description": ""
+                        },
                         "users": {
                             "type": "object",
                             "properties": {
@@ -46,17 +57,6 @@
                                 "admin",
                                 "users"
                             ]
-                        },
-                        "url": {
-                            "type": "string",
-                            "description": ""
-                        },
-                        "ports": {
-                            "type": "array",
-                            "items": {
-                                "type": "integer"
-                            },
-                            "description": ""
                         }
                     },
                     "additionalProperties": false,
