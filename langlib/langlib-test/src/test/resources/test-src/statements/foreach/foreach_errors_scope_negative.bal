@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,16 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function missingSemiColon() {
-    int y = 20
+function testForeachScopeWithErrorBinding() {
+    error[] a = [];
+
+    foreach var error(c) in a {
+    }
+    
+    int m = c; // undefined symbol
 }
-
-function reservedWordUse() {
-    int string = 30;
-}
-
-int y = 10;
-
-var fn1 = function (astring s) {
-    int z = y + 1;
-};
