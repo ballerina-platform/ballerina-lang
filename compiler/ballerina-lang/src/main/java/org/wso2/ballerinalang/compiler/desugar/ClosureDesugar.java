@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -38,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -1004,7 +1006,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
     public void rewriteInvocationExpr(BLangInvocation invocation) {
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(invocation.pos);
         invocation.requiredArgs = rewriteExprs(invocation.requiredArgs);
-        BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) invocation.symbol.type.tsymbol;
+        BInvokableTypeSymbol invokableTypeSymbol;
+        BType type = invocation.symbol.type;
+        if (type.getKind() == TypeKind.TYPEREFDESC) {
+            invokableTypeSymbol = (BInvokableTypeSymbol) ((BTypeReferenceType) type).referredType.tsymbol;
+        } else {
+            invokableTypeSymbol = (BInvokableTypeSymbol) type.tsymbol;
+        }
         if (invokableTypeSymbol == null) {
             result = invocation;
             return;

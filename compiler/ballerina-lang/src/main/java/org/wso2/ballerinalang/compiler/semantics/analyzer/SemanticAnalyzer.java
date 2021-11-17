@@ -501,14 +501,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition typeDefinition) {
         analyzeDef(typeDefinition.typeNode, env);
 
-        if (typeDefinition.typeNode.getBType().tag == TypeTags.INVOKABLE) {
-            BInvokableTypeSymbol symbol = (BInvokableTypeSymbol) typeDefinition.symbol;
-            BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) symbol.type.tsymbol;
-            symbol.params = tsymbol.params;
-            symbol.restParam = tsymbol.restParam;
-            symbol.returnType = tsymbol.returnType;
-        }
-
         final List<BAnnotationSymbol> annotSymbols = new ArrayList<>();
 
         typeDefinition.annAttachments.forEach(annotationAttachment -> {
