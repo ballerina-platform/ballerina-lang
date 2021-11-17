@@ -40,6 +40,17 @@ public class ResourceConfig {
         this.content = content;
     }
 
+    /**
+     * Create a resource configuration to be added to a module.
+     *
+     * @param documentId documentId to uniquely identify a resource
+     * @param name       proposed filename of the resource.
+     *                   The name can be a file name or a relative path with UNIX separators
+     *                   (e.g. config/default.conf).
+     * @param content    resource content as a byte array
+     *
+     * @return ResourceConfig instance
+     */
     public static ResourceConfig from(DocumentId documentId, String name, byte[] content) {
         return new ResourceConfig(documentId, null, name, content);
     }

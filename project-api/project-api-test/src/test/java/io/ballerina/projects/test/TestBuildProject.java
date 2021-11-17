@@ -17,7 +17,6 @@
  */
 package io.ballerina.projects.test;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -67,9 +66,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -77,11 +73,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
@@ -92,6 +85,7 @@ import static io.ballerina.projects.test.TestUtils.resetPermissions;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
+import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
@@ -1574,7 +1568,7 @@ public class TestBuildProject extends BaseTest {
     @Test
     public void testAddResources() throws IOException {
         // 1. load the project
-        Path projectPath = RESOURCE_DIRECTORY.resolve("test_proj_pkg_compilation_simple");
+        Path projectPath = RESOURCE_DIRECTORY.resolve("test_proj_with_resources");
         BuildOptions buildOptions = new BuildOptionsBuilder().skipTests(false).build();
         BuildProject buildProject = loadBuildProject(projectPath, buildOptions);
         Module defaultModule = buildProject.currentPackage().getDefaultModule();
@@ -1598,15 +1592,6 @@ public class TestBuildProject extends BaseTest {
 
         // 4. Verify the existence of resources in thin jar, testable jar and executable jar
         JarFile execJar = new JarFile(execPath.toString());
-        Map<ModuleId, List<Path>> moduleResources = new HashMap<>();
-        Map<ModuleId, List<Path>> testResources = new HashMap<>();
-
-        for (ModuleId moduleId : buildProject.currentPackage().moduleIds()) {
-            moduleResources.put(moduleId, getResources(buildProject.currentPackage().module(moduleId)));
-        }
-        for (ModuleId moduleId : buildProject.currentPackage().moduleIds()) {
-            testResources.put(moduleId, getTestResources(buildProject.currentPackage().module(moduleId)));
-        }
 
         for (ModuleId moduleId : buildProject.currentPackage().moduleIds()) {
             Module module = buildProject.currentPackage().module(moduleId);
@@ -1617,9 +1602,9 @@ public class TestBuildProject extends BaseTest {
                     .resolve(module.descriptor().org().toString() + "-" + module.descriptor().name().toString() + "-"
                             + module.descriptor().version().toString() + ".jar");
             JarFile jar = new JarFile(moduleJarPath.toString());
-            for (Path path : moduleResources.get(moduleId)) {
-                Assert.assertNotNull(jar.getJarEntry(path.toString()));
-                Assert.assertNotNull(execJar.getJarEntry(path.toString()));
+            for (String name : getResources(buildProject.currentPackage().module(moduleId))) {
+                Assert.assertNotNull(jar.getJarEntry(name));
+                Assert.assertNotNull(execJar.getJarEntry(name));
             }
 
             Path testableJarPath = buildProject.sourceRoot().resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME)
@@ -1630,31 +1615,63 @@ public class TestBuildProject extends BaseTest {
                             + module.descriptor().version().toString() + "-testable.jar");
             if (Files.exists(testableJarPath)) {
                 JarFile testableJar = new JarFile(testableJarPath.toString());
-                for (Path path : moduleResources.get(moduleId)) {
-                    Assert.assertNotNull(testableJar.getJarEntry(path.toString()));
+                for (String name : getResources(buildProject.currentPackage().module(moduleId))) {
+                    Assert.assertNotNull(testableJar.getJarEntry(name));
                 }
-                for (Path path : testResources.get(moduleId)) {
-                    Assert.assertNotNull(testableJar.getJarEntry(path.toString()));
+                for (String name : getTestResources(buildProject.currentPackage().module(moduleId))) {
+                    Assert.assertNotNull(testableJar.getJarEntry(name));
                 }
 
             }
         }
+
+        // Assert resources of dependencies
+        for (ResolvedPackageDependency resolvedPackageDependency :
+                buildProject.currentPackage().getResolution().dependencyGraph().toTopologicallySortedList()) {
+            Package depPackage = resolvedPackageDependency.packageInstance();
+            for (ModuleId moduleId : depPackage.moduleIds()) {
+                for (String name : getResources(depPackage.module(moduleId))) {
+                    Assert.assertNotNull(execJar.getJarEntry(name));
+                }
+            }
+
+        }
+
+        Path balaPath = buildProject.sourceRoot().resolve(TARGET_DIR_NAME);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
+        JarFile bala = new JarFile(balaPath.resolve("sameera-myproject-any-0.1.0.bala").toString());
+
+        for (ModuleId moduleId : buildProject.currentPackage().moduleIds()) {
+            for (String name : getResourcesInBala(buildProject.currentPackage().module(moduleId))) {
+                Assert.assertNotNull(bala.getJarEntry(name));
+            }
+        }
     }
 
-    private List<Path> getResources(Module module) {
-        List<Path> resources = new ArrayList<>();
+    private List<String> getResources(Module module) {
+        List<String> resources = new ArrayList<>();
         for (DocumentId documentId : module.resourceIds()) {
-            resources.add(Paths.get(RESOURCE_DIR_NAME).resolve(module.moduleName().toString())
-                    .resolve(module.resource(documentId).name()));
+            String name = RESOURCE_DIR_NAME + "/" + module.moduleName() + "/" + module.resource(documentId).name();
+            resources.add(name);
         }
         return resources;
     }
 
-    private List<Path> getTestResources(Module module) {
-        List<Path> resources = new ArrayList<>();
+    private List<String> getResourcesInBala(Module module) {
+        List<String> resources = new ArrayList<>();
+        for (DocumentId documentId : module.resourceIds()) {
+            String name = MODULES_ROOT + "/" + module.moduleName() + "/" + RESOURCE_DIR_NAME + "/" +
+                    module.resource(documentId).name();
+            resources.add(name);
+        }
+        return resources;
+    }
+
+    private List<String> getTestResources(Module module) {
+        List<String> resources = new ArrayList<>();
         for (DocumentId documentId : module.testResourceIds()) {
-            resources.add(Paths.get(RESOURCE_DIR_NAME).resolve(module.moduleName().toString())
-                    .resolve(module.resource(documentId).name()));
+            String name = RESOURCE_DIR_NAME + "/" + module.moduleName() + "/" + module.resource(documentId).name();
+            resources.add(name);
         }
         return resources;
     }
