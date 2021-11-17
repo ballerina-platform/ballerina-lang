@@ -249,8 +249,8 @@ public class Scheduler {
                 this.mainBlockSem.release();
                 break;
             }
-
-            while (!group.items.empty()) {
+            boolean isItemsEmpty = group.items.isEmpty();
+            while (!isItemsEmpty) {
                 Object result = null;
                 Throwable panic = null;
 
@@ -276,7 +276,11 @@ public class Scheduler {
                 }
 
                 postProcess(item, result, panic);
-                unScheduleGroup(group);
+                group.lock();
+                if ((isItemsEmpty = group.items.empty())) {
+                    group.scheduled.set(false);
+                }
+                group.unlock();
             }
         }
     }
@@ -421,14 +425,6 @@ public class Scheduler {
             item.setState(State.RUNNABLE);
             addToRunnableList(item, group);
         }
-    }
-
-    private void unScheduleGroup(ItemGroup group) {
-        group.lock();
-        if (group.items.empty()) {
-            group.scheduled.set(false);
-        }
-        group.unlock();
     }
 
     private void addToRunnableList(SchedulerItem item, ItemGroup group) {
