@@ -96,8 +96,7 @@ public class ConfigSchemaGenTaskTest {
     }
 
     static Project loadBuildProject(Path projectPath, boolean isSingleFileProject) {
-        System.setProperty(BALLERINA_HOME_KEY, System.getenv(BALLERINA_HOME_KEY));
-        BuildOptions buildOptions = BuildOptions.builder().setOffline(true).build();
+        BuildOptions buildOptions = BuildOptions.builder().setOffline(true).setConfigSchemaGen(true).build();
         if (isSingleFileProject) {
             return SingleFileProject.load(projectPath, buildOptions);
         } else {

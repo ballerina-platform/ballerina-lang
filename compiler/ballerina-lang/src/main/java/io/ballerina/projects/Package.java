@@ -141,7 +141,7 @@ public class Package {
         return this.packageContext.getPackageCompilation();
     }
 
-    public PackageCompilation getCompilation(CompilationOptions compilationOptions) {
+    PackageCompilation getCompilation(CompilationOptions compilationOptions) {
         return this.packageContext.getPackageCompilation(compilationOptions);
     }
 

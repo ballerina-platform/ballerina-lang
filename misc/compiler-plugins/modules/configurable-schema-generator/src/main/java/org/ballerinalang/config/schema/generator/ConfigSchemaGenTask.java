@@ -21,10 +21,10 @@ import io.ballerina.projects.ConfigReader;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.internal.configschema.ConfigSchemaBuilder;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.CompilationAnalysisContext;
 import io.ballerina.projects.util.ProjectConstants;
-import org.ballerinalang.config.schema.builder.ConfigSchemaBuilder;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -43,9 +43,11 @@ public class ConfigSchemaGenTask implements AnalysisTask<CompilationAnalysisCont
 
     @Override
     public void perform(CompilationAnalysisContext compilationAnalysisContext) {
-        String schema = ConfigSchemaBuilder.getConfigSchemaContent(ConfigReader.getConfigVariables(
-                compilationAnalysisContext.currentPackage()));
-        writeConfigJSONSchema(schema, compilationAnalysisContext.currentPackage().project());
+        if (compilationAnalysisContext.currentPackage().compilationOptions().configSchemaGen()) {
+            String schema = ConfigSchemaBuilder.getConfigSchemaContent(ConfigReader.getConfigVariables(
+                    compilationAnalysisContext.currentPackage()));
+            writeConfigJSONSchema(schema, compilationAnalysisContext.currentPackage().project());
+        }
     }
 
     /**

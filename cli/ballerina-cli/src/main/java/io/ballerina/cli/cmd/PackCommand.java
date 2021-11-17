@@ -81,6 +81,9 @@ public class PackCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
 
+    @CommandLine.Option(names = "--generate-config-schema", hidden = true)
+    private Boolean configSchemaGen;
+
     public PackCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
@@ -257,7 +260,8 @@ public class PackCommand implements BLauncherCmd {
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setDumpBuildTime(dumpBuildTime)
-                .setSticky(sticky);
+                .setSticky(sticky)
+                .setConfigSchemaGen(configSchemaGen);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

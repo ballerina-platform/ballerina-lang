@@ -137,6 +137,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
     private String debugPort;
 
+    @CommandLine.Option(names = "--generate-config-schema", hidden = true)
+    private Boolean configSchemaGen;
+
     private static final String buildCmd = "bal build [-o <output>] [--offline] [--taint-check]\n" +
             "                    [<ballerina-file | package-path>]";
 
@@ -304,7 +307,8 @@ public class BuildCommand implements BLauncherCmd {
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setListConflictedClasses(listConflictedClasses)
                 .setDumpBuildTime(dumpBuildTime)
-                .setSticky(sticky);
+                .setSticky(sticky)
+                .setConfigSchemaGen(configSchemaGen);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

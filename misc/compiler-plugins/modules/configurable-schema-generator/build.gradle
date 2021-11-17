@@ -16,23 +16,15 @@
  */
 
 apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/repositories.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 description = 'Ballerina Configurable Schema generator'
 
-def extractedDist = "$buildDir/extractedDistribution/jballerina-tools-${project.version}"
-
-configurations {
-    jballerinaTools
-}
-
 dependencies {
-    jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
     implementation project(':toml-parser')
-    implementation project(':ballerina-config-schema-builder')
     implementation 'com.google.code.gson:gson:2.8.7'
     testCompile 'org.testng:testng'
 }
@@ -48,15 +40,7 @@ compileJava {
     }
 }
 
-task extractDistribution(type: Copy) {
-    dependsOn ':jballerina-tools:build'
-    from zipTree(configurations.jballerinaTools.asPath)
-    into "$buildDir/extractedDistribution"
-}
-
 test {
-    dependsOn extractDistribution
-    environment "ballerina.home", "${extractedDist}"
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
