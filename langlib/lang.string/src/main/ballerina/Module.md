@@ -1,3 +1,3 @@
 ## Module Overview
 
-The `lang.string` module corresponds to basic type string.
+The `lang.string` module corresponds to the `string` basic type.
