@@ -3718,9 +3718,7 @@ public class Types {
                 } else {
                     for (BType memType : memberTypes) {
                         if (memType.tag == TypeTags.FINITE) {
-                            Set<BLangExpression> valSpace = ((BFiniteType) memType).getValueSpace();
-                            BType baseExprType = valSpace.iterator().next().getBType();
-                            if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
+                            if (!checkValueSpaceHasSameType((BFiniteType) memType, firstTypeInUnion)) {
                                 return false;
                             }
                             continue;
