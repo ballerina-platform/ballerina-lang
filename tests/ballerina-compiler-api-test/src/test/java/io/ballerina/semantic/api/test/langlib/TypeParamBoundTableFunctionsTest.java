@@ -134,7 +134,11 @@ public class TypeParamBoundTableFunctionsTest {
 
         TypeSymbol mapFnRetType = mapFnType.returnTypeDescriptor().get();
         assertEquals(mapFnRetType.typeKind(), TypeDescKind.TABLE);
-        assertEquals(((TableTypeSymbol) mapFnRetType).rowTypeParameter().typeKind(), TypeDescKind.UNION);
+
+        TypeSymbol rowTypeParameterSymbol = ((TableTypeSymbol) mapFnRetType).rowTypeParameter();
+        assertEquals(rowTypeParameterSymbol.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) rowTypeParameterSymbol).typeDescriptor().typeKind(),
+                TypeDescKind.UNION);
     }
 
     @Test
@@ -191,10 +195,13 @@ public class TypeParamBoundTableFunctionsTest {
 //        assertEquals(fnType.params().get().get(0).typeDescriptor().typeKind(), TypeDescKind.INT);
 //        assertEquals(fnType.returnTypeDescriptor().get().typeKind(), TypeDescKind.UNION);
 
-        assertEquals(params.get(2).typeDescriptor().typeKind(), TypeDescKind.UNION);
+        TypeSymbol paramTypeSymbol = params.get(2).typeDescriptor();
+        assertEquals(paramTypeSymbol.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) paramTypeSymbol).typeDescriptor().typeKind(), TypeDescKind.UNION);
 
         TypeSymbol pushFnRetType = reduceFnType.returnTypeDescriptor().get();
-        assertEquals(pushFnRetType.typeKind(), TypeDescKind.UNION);
+        assertEquals(pushFnRetType.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) pushFnRetType).typeDescriptor().typeKind(), TypeDescKind.UNION);
     }
 
     @Test
