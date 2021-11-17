@@ -43,7 +43,7 @@ public class ConfigSchemaGenTask implements AnalysisTask<CompilationAnalysisCont
 
     @Override
     public void perform(CompilationAnalysisContext compilationAnalysisContext) {
-        if (compilationAnalysisContext.currentPackage().compilationOptions().getConfigSchemaGen()) {
+        if (compilationAnalysisContext.currentPackage().compilationOptions().configSchemaGen()) {
             String schema = ConfigSchemaBuilder.getConfigSchemaContent(ConfigReader.getConfigVariables(
                     compilationAnalysisContext.currentPackage()));
             writeConfigJSONSchema(schema, compilationAnalysisContext.currentPackage().project());
