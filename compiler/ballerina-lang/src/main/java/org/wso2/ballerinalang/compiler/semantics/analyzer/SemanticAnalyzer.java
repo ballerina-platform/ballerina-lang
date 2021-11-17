@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -3580,6 +3581,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
+        inferServiceTypeFromListeners(serviceNode);
         addCheckExprToServiceVariable(serviceNode);
         analyzeDef(serviceNode.serviceVariable, env);
         if (serviceNode.serviceNameLiteral != null) {
@@ -3589,6 +3591,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         serviceNode.setBType(serviceNode.serviceClass.getBType());
         BType serviceType = serviceNode.serviceClass.getBType();
         BServiceSymbol serviceSymbol = (BServiceSymbol) serviceNode.symbol;
+        validateServiceTypeImplementation(serviceNode.pos, serviceType, serviceNode.inferredServiceType);
 
         for (BLangExpression attachExpr : serviceNode.attachedExprs) {
             final BType exprType = typeChecker.checkExpr(attachExpr, env);
@@ -3630,6 +3633,72 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private void validateServiceTypeImplementation(Location pos, BType implementedType, BType inferredServiceType) {
+        if (!types.isAssignableIgnoreObjectTypeIds(implementedType, inferredServiceType)) {
+            if (inferredServiceType.tag == TypeTags.UNION
+                    && ((BUnionType) inferredServiceType).getMemberTypes().isEmpty()) {
+                return;
+            }
+            dlog.error(pos, DiagnosticErrorCode.SERVICE_DOES_NOT_IMPLEMENT_REQUIRED_CONSTRUCTS, inferredServiceType);
+        }
+    }
+
+    private void inferServiceTypeFromListeners(BLangService serviceNode) {
+        LinkedHashSet<BType> listenerTypes = new LinkedHashSet<>();
+        for (BLangExpression attachExpr : serviceNode.attachedExprs) {
+            BType type = typeChecker.checkExpr(attachExpr, env);
+            flatMapAndGetObjectTypes(listenerTypes, type);
+        }
+        BType inferred;
+        if (listenerTypes.size() == 1) {
+            inferred = listenerTypes.iterator().next();
+        } else {
+            BTypeIdSet typeIdSet = null;
+            for (BType attachType : listenerTypes) {
+                BObjectType objectType = (BObjectType) attachType;
+                // todo: distinct union is only allowed when all types have the same type-ids,
+                // we need to improve this here.
+                if (objectType.typeIdSet == null || objectType.typeIdSet.isEmpty()) {
+                    continue;
+                }
+                if (typeIdSet == null) {
+                    typeIdSet = objectType.typeIdSet;
+                } else if (!(typeIdSet.isAssignableFrom(objectType.typeIdSet)
+                        && objectType.typeIdSet.isAssignableFrom(typeIdSet))) {
+                    dlog.error(serviceNode.attachedExprs.get(0).pos,
+                            DiagnosticErrorCode.CANNOT_INFER_SERVICE_TYPES_FROM_LISTENERS);
+                }
+            }
+            inferred = BUnionType.create(null, listenerTypes);
+        }
+
+        serviceNode.inferredServiceType = inferred;
+    }
+
+    private void flatMapAndGetObjectTypes(Set<BType> result, BType type) {
+        if (!types.checkListenerCompatibilityAtServiceDecl(type)) {
+            return;
+        }
+        if (type.tag == TypeTags.OBJECT) {
+            BObjectType objectType = (BObjectType) type;
+            BObjectTypeSymbol tsymbol = (BObjectTypeSymbol) objectType.tsymbol;
+            for (BAttachedFunction func : tsymbol.attachedFuncs) {
+                if (func.funcName.value.equals("attach")) {
+                    BType firstParam = func.type.paramTypes.get(0);
+                    result.add(firstParam);
+                    return;
+                }
+            }
+        } else if (type.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                flatMapAndGetObjectTypes(result, memberType);
+            }
+        } else if (type.tag == TypeTags.INTERSECTION) {
+            BType effectiveType = ((BIntersectionType) type).effectiveType;
+            flatMapAndGetObjectTypes(result, effectiveType);
+        }
+    }
+
     private void addCheckExprToServiceVariable(BLangService serviceNode) {
         BLangFunction initFunction = serviceNode.serviceClass.initFunction;
         if (initFunction != null && initFunction.returnTypeNode != null
@@ -3647,7 +3716,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (func.funcName.value.equals("attach")) {
                 List<BType> paramTypes = func.type.paramTypes;
                 if (serviceType != null && serviceType != symTable.noType) {
-                    validateServiceTypeAgainstAttachMethod(serviceNode.getBType(), paramTypes.get(0), attachExpr.pos);
+                    validateServiceTypeAgainstAttachMethod(serviceNode.inferredServiceType, paramTypes.get(0),
+                            attachExpr.pos);
                 }
                 validateServiceAttachpointAgainstAttachMethod(serviceNode, attachExpr, paramTypes.get(1));
             }
