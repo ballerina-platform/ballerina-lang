@@ -60,7 +60,7 @@ public class LangLibNegativeTest {
                 58, 14);
         BAssertUtil.validateError(negativeResult, err++, "undefined function 'toXML' in type 'int'",
                 63, 19);;
-        BAssertUtil.validateError(negativeResult, err++, "undefined function 'toHexString' in type '12|foo'", 78, 18);
+        BAssertUtil.validateError(negativeResult, err++, "undefined function 'toHexString' in type 'Ints'", 78, 18);
         Assert.assertEquals(negativeResult.getErrorCount(), err);
     }
 }

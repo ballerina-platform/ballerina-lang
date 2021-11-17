@@ -16,7 +16,7 @@
 
 package org.ballerinalang.debugger.test.utils;
 
-import org.ballerinalang.debugger.test.utils.client.TestDAPClientConnector;
+import org.ballerinalang.debugger.test.utils.client.DAPClientConnector;
 
 import java.util.TimerTask;
 
@@ -25,10 +25,10 @@ import java.util.TimerTask;
  */
 public class DebugTerminationListener extends TimerTask {
 
-    TestDAPClientConnector connector;
+    DAPClientConnector connector;
     private boolean terminationFound;
 
-    public DebugTerminationListener(TestDAPClientConnector connector) {
+    public DebugTerminationListener(DAPClientConnector connector) {
         this.connector = connector;
         this.terminationFound = false;
     }

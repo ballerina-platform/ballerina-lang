@@ -54,6 +54,7 @@ dependencies {
     compilerPluginJar project(':project-api-test-artifact:diagnostic-utils-lib')
     compilerPluginJar project(':project-api-test-artifact:function-node-analyzer-compiler-plugin')
     compilerPluginJar project(':project-api-test-artifact:bad-sad-compiler-plugin')
+    compilerPluginJar project(':project-api-test-artifact:init-function-codegen-compiler-plugin')
     compilerPluginJar project(':compiler-plugins:package-semantic-analyzer')
 
     testRuntime project(":ballerina-lang-test")

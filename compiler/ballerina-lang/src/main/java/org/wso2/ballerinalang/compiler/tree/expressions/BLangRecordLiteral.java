@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -233,10 +234,10 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         public BAttachedFunction initializer;
         public TreeMap<Integer, BVarSymbol> enclMapSymbols;
 
-        public BLangStructLiteral(Location pos, BType structType, List<RecordField> fields) {
+        public BLangStructLiteral(Location pos, BType structType, BTypeSymbol typeSymbol, List<RecordField> fields) {
             super(pos);
             this.setBType(structType);
-            this.initializer = ((BRecordTypeSymbol) structType.tsymbol).initializerFunc;
+            this.initializer = ((BRecordTypeSymbol) typeSymbol).initializerFunc;
             this.fields = fields;
         }
 
