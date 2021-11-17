@@ -3,31 +3,115 @@
   "character": 21,
   "expected": {
     "title": "Generate mapping function",
-    "edits": [
-      {"range":{
-        "start":{
-          "line":34,
-          "character":21
+    "kind": "quickfix",
+    "diagnostics": [],
+    "command": {
+      "title": "Generate mapping function",
+      "command": "GENERATE_MAPPING",
+      "arguments": [
+        {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 34,
+              "character": 21
+            },
+            "end": {
+              "line": 34,
+              "character": 25
+            }
+          }
         },
-        "end":{
-          "line":34,
-          "character":25
-        }
-      },
-        "newText":"mapStudentToContact(john)"
-      },
-      {"range":{
-        "start":{
-          "line":38,
-          "character":0
+        {
+          "key": "doc.uri",
+          "value": "file:///home/user/IdeaProjects/ballerina-lang/misc/ballerinalang-data-mapper/build/resources/test/codeaction/source/dataMapper14.bal"
         },
-        "end":{
-          "line":38,
-          "character":1
+        {
+          "key": "ProcessedData",
+          "value": {
+            "checkMap": true,
+            "schemas": [
+              {
+                "schema": "Contact",
+                "id": "id",
+                "type": "object",
+                "properties": {
+                  "number": {
+                    "id": "id",
+                    "type": "int",
+                    "readonly": false
+                  },
+                  "address": {
+                    "id": "id",
+                    "type": "map",
+                    "readonly": true
+                  }
+                }
+              },
+              {
+                "schema": "Student",
+                "id": "id",
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "id": "id",
+                    "type": "string",
+                    "optional": false,
+                    "signature": "string"
+                  },
+                  "age": {
+                    "id": "id",
+                    "type": "int",
+                    "optional": false,
+                    "signature": "int"
+                  },
+                  "contact": {
+                    "id": "id",
+                    "type": "ballerina_type",
+                    "properties": {
+                      "number": {
+                        "id": "id",
+                        "type": "int",
+                        "optional": false,
+                        "signature": "int"
+                      },
+                      "address": {
+                        "id": "id",
+                        "type": "map",
+                        "optional": false,
+                        "signature": "map<string>"
+                      }
+                    }
+                  }
+                }
+              }
+            ],
+            "url": "http://127.0.0.1:8080/map/2.0.0",
+            "backgroundInfo": {
+              "foundTypeLeft": "Contact",
+              "foundTypeRight": "Student",
+              "rhsSignature": ""
+            },
+            "functionName": "mapStudentToContact(john)",
+            "isOptionalMap": {},
+            "leftFieldMap": {
+              "number": "int",
+              "address": "map"
+            },
+            "spreadFieldMap": {},
+            "restFieldMap": {},
+            "leftReadOnlyFields": [
+              "address"
+            ],
+            "rightSpecificFieldList": [
+              "name",
+              "age",
+              "contact"
+            ],
+            "optionalRightRecordFields": []
+          }
         }
-      },
-        "newText":"\nfunction mapStudentToContact (Student student) returns Contact {\n// Some record fields might be missing in the AI based mapping.\n\tContact contact = {address: student.contact.address.cloneReadOnly(), number: student.contact.number};\n\treturn contact;\n}\n"
-      }
-    ]
+      ]
+    }
   }
 }

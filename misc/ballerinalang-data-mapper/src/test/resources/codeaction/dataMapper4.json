@@ -3,31 +3,176 @@
   "character": 18,
   "expected": {
     "title": "Generate mapping function",
-    "edits": [
-      {"range":{
-        "start":{
-          "line":58,
-          "character":18
+    "kind": "quickfix",
+    "diagnostics": [],
+    "command": {
+      "title": "Generate mapping function",
+      "command": "GENERATE_MAPPING",
+      "arguments": [
+        {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 58,
+              "character": 18
+            },
+            "end": {
+              "line": 58,
+              "character": 19
+            }
+          }
         },
-        "end":{
-          "line":58,
-          "character":19
-        }
-      },
-        "newText":"mapSupplierToUser(s)"
-      },
-      {"range":{
-        "start":{
-          "line":63,
-          "character":0
+        {
+          "key": "doc.uri",
+          "value": "file:///home/user/IdeaProjects/ballerina-lang/misc/ballerinalang-data-mapper/build/resources/test/codeaction/source/dataMapper4.bal"
         },
-        "end":{
-          "line":63,
-          "character":1
+        {
+          "key": "ProcessedData",
+          "value": {
+            "checkMap": true,
+            "schemas": [
+              {
+                "schema": "User",
+                "id": "id",
+                "type": "object",
+                "properties": {
+                  "user": {
+                    "id": "id",
+                    "type": "ballerina_type",
+                    "properties": {
+                      "name": {
+                        "id": "id",
+                        "type": "string",
+                        "readonly": false
+                      },
+                      "age": {
+                        "id": "id",
+                        "type": "int",
+                        "readonly": false
+                      },
+                      "id": {
+                        "id": "id",
+                        "type": "int",
+                        "readonly": false
+                      }
+                    }
+                  },
+                  "email": {
+                    "id": "id",
+                    "type": "string",
+                    "readonly": false
+                  },
+                  "ID": {
+                    "id": "id",
+                    "type": "int",
+                    "readonly": false
+                  }
+                }
+              },
+              {
+                "schema": "Supplier",
+                "id": "id",
+                "type": "object",
+                "properties": {
+                  "supplier_details": {
+                    "id": "id",
+                    "type": "ballerina_type",
+                    "properties": {
+                      "name": {
+                        "id": "id",
+                        "type": "string",
+                        "optional": false,
+                        "signature": "string"
+                      },
+                      "age": {
+                        "id": "id",
+                        "type": "int",
+                        "optional": false,
+                        "signature": "int"
+                      },
+                      "id": {
+                        "id": "id",
+                        "type": "int",
+                        "optional": false,
+                        "signature": "int"
+                      }
+                    }
+                  },
+                  "title": {
+                    "id": "id",
+                    "type": "string",
+                    "optional": false,
+                    "signature": "string"
+                  },
+                  "food": {
+                    "id": "id",
+                    "type": "string",
+                    "optional": false,
+                    "signature": "string"
+                  },
+                  "email": {
+                    "id": "id",
+                    "type": "string",
+                    "optional": false,
+                    "signature": "string"
+                  },
+                  "id": {
+                    "id": "id",
+                    "type": "int",
+                    "optional": false,
+                    "signature": "int"
+                  },
+                  "supplier_address": {
+                    "id": "id",
+                    "type": "ballerina_type",
+                    "properties": {
+                      "city": {
+                        "id": "id",
+                        "type": "string",
+                        "optional": false,
+                        "signature": "string"
+                      },
+                      "country": {
+                        "id": "id",
+                        "type": "string",
+                        "optional": false,
+                        "signature": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            ],
+            "url": "http://127.0.0.1:8080/map/2.0.0",
+            "backgroundInfo": {
+              "foundTypeLeft": "User",
+              "foundTypeRight": "Supplier",
+              "rhsSignature": ""
+            },
+            "functionName": "mapSupplierToUser(s)",
+            "isOptionalMap": {},
+            "leftFieldMap": {
+              "user.age": "int",
+              "user.id": "int",
+              "user.name": "string",
+              "ID": "int",
+              "email": "string"
+            },
+            "spreadFieldMap": {},
+            "restFieldMap": {},
+            "leftReadOnlyFields": [],
+            "rightSpecificFieldList": [
+              "supplier_details",
+              "title",
+              "food",
+              "email",
+              "id",
+              "supplier_address"
+            ],
+            "optionalRightRecordFields": []
+          }
         }
-      },
-        "newText":"\nfunction mapSupplierToUser (Supplier supplier) returns User {\n// Some record fields might be missing in the AI based mapping.\n\tUser user = {ID: supplier.supplier_details.id, email: supplier.email, user: {age: supplier.supplier_details.age, id: supplier.id, name: supplier.supplier_details.name}};\n\treturn user;\n}\n"
-      }
-    ]
+      ]
+    }
   }
 }

@@ -2,32 +2,120 @@
   "line": 73,
   "character": 23,
   "expected": {
-    "title": "Generate mapping function",
-    "edits": [
-      {"range":{
-        "start":{
-          "line":73,
-          "character":23
+    "title":"Generate mapping function",
+    "kind":"quickfix",
+    "diagnostics":[
+
+    ],
+    "command":{
+      "title":"Generate mapping function",
+      "command":"GENERATE_MAPPING",
+      "arguments":[
+        {
+          "key":"node.range",
+          "value":{
+            "start":{
+              "line":73,
+              "character":23
+            },
+            "end":{
+              "line":73,
+              "character":29
+            }
+          }
         },
-        "end":{
-          "line":73,
-          "character":29
-        }
-      },
-        "newText":"mapHomeToBoardingPlace(home_1)"
-      },
-      {"range":{
-        "start":{
-          "line":77,
-          "character":0
+        {
+          "key":"doc.uri",
+          "value":"file:///home/user/IdeaProjects/ballerina-lang/misc/ballerinalang-data-mapper/build/resources/test/codeaction/source/dataMapper3.bal"
         },
-        "end":{
-          "line":77,
-          "character":1
+        {
+          "key":"ProcessedData",
+          "value":{
+            "checkMap":true,
+            "schemas":[
+              {
+                "schema":"BoardingPlace",
+                "id":"id",
+                "type":"object",
+                "properties":{
+                  "num":{
+                    "id":"id",
+                    "type":"int",
+                    "readonly":false
+                  },
+                  "lane":{
+                    "id":"id",
+                    "type":"string",
+                    "readonly":false
+                  },
+                  "country":{
+                    "id":"id",
+                    "type":"string",
+                    "readonly":false
+                  }
+                }
+              },
+              {
+                "schema":"Home",
+                "id":"id",
+                "type":"object",
+                "properties":{
+                  "number":{
+                    "id":"id",
+                    "type":"int",
+                    "optional":false,
+                    "signature":"int"
+                  },
+                  "lane":{
+                    "id":"id",
+                    "type":"string",
+                    "optional":false,
+                    "signature":"string"
+                  },
+                  "birth_country":{
+                    "id":"id",
+                    "type":"string",
+                    "optional":false,
+                    "signature":"string"
+                  }
+                }
+              }
+            ],
+            "url":"http://127.0.0.1:8080/map/2.0.0",
+            "backgroundInfo":{
+              "foundTypeLeft":"BoardingPlace",
+              "foundTypeRight":"Home",
+              "rhsSignature":""
+            },
+            "functionName":"mapHomeToBoardingPlace(home_1)",
+            "isOptionalMap":{
+
+            },
+            "leftFieldMap":{
+              "country":"string",
+              "num":"int",
+              "lane":"string"
+            },
+            "spreadFieldMap":{
+
+            },
+            "restFieldMap":{
+
+            },
+            "leftReadOnlyFields":[
+
+            ],
+            "rightSpecificFieldList":[
+              "number",
+              "lane",
+              "birth_country"
+            ],
+            "optionalRightRecordFields":[
+
+            ]
+          }
         }
-      },
-        "newText":"\nfunction mapHomeToBoardingPlace (Home home) returns BoardingPlace {\n// Some record fields might be missing in the AI based mapping.\n\tBoardingPlace boardingplace = {country: home.birth_country, lane: home.lane, num: 0};\n\treturn boardingplace;\n}\n"
-      }
-    ]
+      ]
+    }
   }
 }

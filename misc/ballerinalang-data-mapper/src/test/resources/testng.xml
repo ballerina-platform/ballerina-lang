@@ -20,7 +20,7 @@ entered into with WSO2 governing the purchase of this software and any
             </run>
         </groups>
         <packages>
-            <package name="org.ballerinalang.datamapper.codeaction.*"/>
+            <package name="org.ballerinalang.datamapper.*"/>
         </packages>
     </test>
 </suite>

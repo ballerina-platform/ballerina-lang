@@ -3,31 +3,129 @@
   "character": 28,
   "expected": {
     "title": "Generate mapping function",
-    "edits": [
-      {"range":{
-        "start":{
-          "line":18,
-          "character":28
+    "kind": "quickfix",
+    "diagnostics": [],
+    "command": {
+      "title": "Generate mapping function",
+      "command": "GENERATE_MAPPING",
+      "arguments": [
+        {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 18,
+              "character": 28
+            },
+            "end": {
+              "line": 18,
+              "character": 47
+            }
+          }
         },
-        "end":{
-          "line":18,
-          "character":47
-        }
-      },
-        "newText":"mapPersonToGrades(check module2:getPerson())"
-      },
-      {"range":{
-        "start":{
-          "line":22,
-          "character":0
+        {
+          "key": "doc.uri",
+          "value": "file:///home/user/IdeaProjects/ballerina-lang/misc/ballerinalang-data-mapper/build/resources/test/codeaction/source/datamapper-module-test/defaultDataMapper4.bal"
         },
-        "end":{
-          "line":22,
-          "character":1
+        {
+          "key": "ProcessedData",
+          "value": {
+            "checkMap": true,
+            "schemas": [
+              {
+                "schema": "Grades",
+                "id": "id",
+                "type": "object",
+                "properties": {
+                  "maths": {
+                    "id": "id",
+                    "type": "int",
+                    "readonly": false
+                  },
+                  "physics": {
+                    "id": "id",
+                    "type": "int",
+                    "readonly": false
+                  },
+                  "chemistry": {
+                    "id": "id",
+                    "type": "int",
+                    "readonly": false
+                  }
+                }
+              },
+              {
+                "schema": "Person",
+                "id": "id",
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "id": "id",
+                    "type": "string",
+                    "optional": false,
+                    "signature": "string"
+                  },
+                  "age": {
+                    "id": "id",
+                    "type": "int",
+                    "optional": false,
+                    "signature": "int"
+                  },
+                  "grades": {
+                    "id": "id",
+                    "type": "ballerina_type",
+                    "properties": {
+                      "maths": {
+                        "id": "id",
+                        "type": "int",
+                        "optional": false,
+                        "signature": "int"
+                      },
+                      "physics": {
+                        "id": "id",
+                        "type": "int",
+                        "optional": false,
+                        "signature": "int"
+                      },
+                      "chemistry": {
+                        "id": "id",
+                        "type": "int",
+                        "optional": false,
+                        "signature": "int"
+                      }
+                    }
+                  },
+                  "city": {
+                    "id": "id",
+                    "type": "string",
+                    "optional": false,
+                    "signature": "string"
+                  }
+                }
+              }
+            ],
+            "url": "http://127.0.0.1:8080/map/2.0.0",
+            "backgroundInfo": {
+              "foundTypeLeft": "Grades",
+              "foundTypeRight": "Person",
+              "leftModule": "module1",
+              "rightModule": "module2",
+              "rhsSignature": ""
+            },
+            "functionName": "mapPersonToGrades(check module2:getPerson())",
+            "isOptionalMap": {},
+            "leftFieldMap": {
+              "chemistry": "int",
+              "maths": "int",
+              "physics": "int"
+            },
+            "spreadFieldMap": {},
+            "restFieldMap": {},
+            "leftReadOnlyFields": [],
+            "rightSpecificFieldList": [],
+            "optionalRightRecordFields": []
+          }
         }
-      },
-        "newText":"\nfunction mapPersonToGrades (module2:Person person) returns module1:Grades {\n// Some record fields might be missing in the AI based mapping.\n\tmodule1:Grades grades = {maths: student.grades.maths, chemistry: student.grades.chemistry, physics: student.grades.physics};\n\treturn grades;\n}\n"
-      }
-    ]
+      ]
+    }
   }
 }
