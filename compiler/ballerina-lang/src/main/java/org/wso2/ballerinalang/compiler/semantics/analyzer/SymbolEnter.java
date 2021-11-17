@@ -1789,7 +1789,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private boolean isErrorIntersection(BType definedType) {
-        BType type = types.getReferredType(definedType != null && definedType);
+        BType type = types.getReferredType(definedType);
         if (type.tag == TypeTags.INTERSECTION) {
             BIntersectionType intersectionType = (BIntersectionType) type;
             return intersectionType.effectiveType.tag == TypeTags.ERROR;
