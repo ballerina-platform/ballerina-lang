@@ -20,6 +20,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -32,6 +33,13 @@ public class ErrorBindingPatternTest {
     private CompileResult result, restPatternResult, resultNegative;
     private String patternNotMatched = "pattern will not be matched";
 
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        restPatternResult = null;
+        resultNegative = null;
+    }
+
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/matchstmt/varbindingpatternmatchpattern" +
@@ -40,6 +48,16 @@ public class ErrorBindingPatternTest {
                 "/error_binding_pattern_with_rest_binding_pattern.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/varbindingpatternmatchpattern" +
                 "/error_binding_pattern_negative.bal");
+    }
+
+    @Test
+    public void testNegativeSemantics() {
+        CompileResult buildError = BCompileUtil.compile("test-src/statements/matchstmt/" +
+                "varbindingpatternmatchpattern/error_type_ref_negative.bal");
+        int i = -1;
+        BAssertUtil.validateError(buildError, ++i, "invalid error binding pattern with type 'other'", 18, 11);
+        BAssertUtil.validateError(buildError, ++i, "unknown type 'myError'", 18, 17);
+        Assert.assertEquals(buildError.getErrorCount(), i + 1);
     }
 
     @Test
