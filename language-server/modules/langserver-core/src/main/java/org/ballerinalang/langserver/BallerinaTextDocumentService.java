@@ -50,7 +50,7 @@ import org.ballerinalang.langserver.util.definition.DefinitionUtil;
 import org.ballerinalang.langserver.util.documentsymbol.DocumentSymbolUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.rename.RenameUtil;
-import org.ballerinalang.langserver.workspace.WorkspaceManagerProxy;
+import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManagerProxy;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
@@ -111,12 +111,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     private final BallerinaLanguageServer languageServer;
     private LSClientCapabilities clientCapabilities;
-    private final WorkspaceManagerProxy workspaceManagerProxy;
+    private final BallerinaWorkspaceManagerProxy workspaceManagerProxy;
     private final LanguageServerContext serverContext;
     private final LSClientLogger clientLogger;
 
     BallerinaTextDocumentService(BallerinaLanguageServer languageServer,
-                                 WorkspaceManagerProxy workspaceManagerProxy,
+                                 BallerinaWorkspaceManagerProxy workspaceManagerProxy,
                                  LanguageServerContext serverContext) {
         this.workspaceManagerProxy = workspaceManagerProxy;
         this.languageServer = languageServer;

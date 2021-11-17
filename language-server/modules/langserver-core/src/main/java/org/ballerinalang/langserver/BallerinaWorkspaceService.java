@@ -43,7 +43,7 @@ import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.telemetry.TelemetryUtil;
-import org.ballerinalang.langserver.workspace.WorkspaceManagerProxy;
+import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManagerProxy;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
@@ -71,11 +71,12 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     private final BallerinaLanguageServer languageServer;
     private final LSClientConfigHolder configHolder;
     private LSClientCapabilities clientCapabilities;
-    private final WorkspaceManagerProxy workspaceManagerProxy;
+    private final BallerinaWorkspaceManagerProxy workspaceManagerProxy;
     private final LanguageServerContext serverContext;
     private final LSClientLogger clientLogger;
 
-    BallerinaWorkspaceService(BallerinaLanguageServer languageServer, WorkspaceManagerProxy workspaceManagerProxy,
+    BallerinaWorkspaceService(BallerinaLanguageServer languageServer,
+                              BallerinaWorkspaceManagerProxy workspaceManagerProxy,
                               LanguageServerContext serverContext) {
         this.languageServer = languageServer;
         this.workspaceManagerProxy = workspaceManagerProxy;

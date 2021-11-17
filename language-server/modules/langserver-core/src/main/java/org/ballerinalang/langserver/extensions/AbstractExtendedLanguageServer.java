@@ -22,8 +22,8 @@ import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.ballerinalang.langserver.workspace.BallerinaBallerinaWorkspaceManagerProxyImpl;
 import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManagerProxy;
-import org.ballerinalang.langserver.workspace.WorkspaceManagerProxy;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.json.JsonRpcMethod;
@@ -49,10 +49,10 @@ public abstract class AbstractExtendedLanguageServer implements LanguageServer, 
     private Map<String, JsonRpcMethod> supportedMethods;
     private final Multimap<String, Endpoint> extensionServices = LinkedListMultimap.create();
     protected final LanguageServerContext serverContext;
-    protected WorkspaceManagerProxy workspaceManagerProxy;
+    protected BallerinaWorkspaceManagerProxy workspaceManagerProxy;
 
     public AbstractExtendedLanguageServer(LanguageServerContext serverContext) {
-        this.workspaceManagerProxy = new BallerinaWorkspaceManagerProxy(serverContext);
+        this.workspaceManagerProxy = new BallerinaBallerinaWorkspaceManagerProxyImpl(serverContext);
         this.serverContext = serverContext;
         ServiceLoader<ExtendedLanguageServerService> serviceLoader = ServiceLoader.load(
                 ExtendedLanguageServerService.class);
@@ -73,7 +73,7 @@ public abstract class AbstractExtendedLanguageServer implements LanguageServer, 
             Map<String, JsonRpcMethod> extensions = new LinkedHashMap<>();
             for (ExtendedLanguageServerService ext : this.extendedServices) {
                 if (ext != null) {
-                    ext.init(this, this.workspaceManagerProxy.get(), serverContext);
+                    ext.init(this, this.workspaceManagerProxy, serverContext);
                     Map<String, JsonRpcMethod> supportedExtensions = ext.supportedMethods();
                     for (Map.Entry<String, JsonRpcMethod> entry : supportedExtensions.entrySet()) {
                         if (supportedMethods.containsKey(entry.getKey())) {

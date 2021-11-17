@@ -13,13 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.workspace;
-
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.eclipse.lsp4j.DidChangeTextDocumentParams;
-import org.eclipse.lsp4j.DidCloseTextDocumentParams;
-import org.eclipse.lsp4j.DidOpenTextDocumentParams;
+package org.ballerinalang.langserver.commons.workspace;
 
 /**
  * A proxy implementation for the workspace manager.
@@ -44,28 +38,4 @@ public interface WorkspaceManagerProxy {
      * @return {@link WorkspaceManager}
      */
     WorkspaceManager get(String fileUri);
-
-    /**
-     * Handle the document open event.
-     *
-     * @param params {@link DidOpenTextDocumentParams}
-     * @throws WorkspaceDocumentException on failure
-     */
-    void didOpen(DidOpenTextDocumentParams params) throws WorkspaceDocumentException;
-
-    /**
-     * Handle the document change event.
-     *
-     * @param params {@link DidChangeTextDocumentParams}
-     * @throws WorkspaceDocumentException on failure
-     */
-    void didChange(DidChangeTextDocumentParams params) throws WorkspaceDocumentException;
-
-    /**
-     * Handle the document close event.
-     *
-     * @param params {@link DidCloseTextDocumentParams}
-     * @throws WorkspaceDocumentException on failure
-     */
-    void didClose(DidCloseTextDocumentParams params) throws WorkspaceDocumentException;
 }
