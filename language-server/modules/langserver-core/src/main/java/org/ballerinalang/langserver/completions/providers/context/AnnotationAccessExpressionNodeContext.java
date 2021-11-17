@@ -125,7 +125,9 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
     }
 
     public static AttachPoint.Point getAttachPointForType(TypeSymbol typeSymbol) {
-
+        if (((TypeDescTypeSymbol) typeSymbol).typeParameter().isEmpty()) {
+            return null;
+        }
         TypeSymbol symbol = ((TypeDescTypeSymbol) typeSymbol).typeParameter().get();
         switch (symbol.typeKind()) {
             case TYPEDESC:
@@ -182,10 +184,12 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
                      List<LSCompletionItem> lsCItems) {
         for (LSCompletionItem lsCItem : lsCItems) {
             CompletionItem completionItem = lsCItem.getCompletionItem();
-            if (completionItem.getDetail() == ItemResolverConstants.ANNOTATION_TYPE) {
-                completionItem.setSortText(SortingUtil.genSortText(1) + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
+            if (completionItem.getDetail().equals(ItemResolverConstants.ANNOTATION_TYPE)) {
+                completionItem.setSortText(SortingUtil.genSortText(1) 
+                        + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
             } else {
-            completionItem.setSortText(SortingUtil.genSortText(2) + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
+            completionItem.setSortText(SortingUtil.genSortText(2) 
+                    + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
             }
         }
     }
