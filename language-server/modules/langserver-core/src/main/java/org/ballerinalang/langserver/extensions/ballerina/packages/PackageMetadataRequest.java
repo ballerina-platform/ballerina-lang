@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.extensions.ballerina.packages;
 
 import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 
 /**
  * Package metadata API request.
@@ -28,8 +29,7 @@ public class PackageMetadataRequest {
         return documentIdentifier;
     }
 
-    public void setDocumentIdentifier(TextDocumentIdentifier documentIdentifier) {
-        this.documentIdentifier = documentIdentifier == null ? null :
-                new TextDocumentIdentifier(documentIdentifier.getUri());
+    public void setDocumentIdentifier(@NonNull TextDocumentIdentifier documentIdentifier) {
+        this.documentIdentifier = new TextDocumentIdentifier(documentIdentifier.getUri());
     }
 }
