@@ -49,7 +49,8 @@ public class ListenerBalaTest {
     @Test(description = "Test no cyclic reference is identified when a custom listener " +
             "with service reference is used")
     public void testNoCycleIdentifiedWhenCustomListenerWithServiceReference() {
-        CompileResult result = BCompileUtil.compile("test-src/bala/test_bala/listener/custom_listener_with_service.bal");
+        CompileResult result = BCompileUtil.compile("test-src/bala/test_bala/" +
+                "listener/custom_listener_with_service.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
     }
 }
