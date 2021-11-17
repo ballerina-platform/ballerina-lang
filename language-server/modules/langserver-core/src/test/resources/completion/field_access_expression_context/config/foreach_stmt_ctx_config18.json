@@ -77,13 +77,13 @@
       }
     },
     {
-      "label": "reduce(function () func, table:Type initial)",
+      "label": "reduce(function (table:Type accum, table:MapType val) returns table:Type func, table:Type initial)",
       "kind": "Function",
       "detail": "table:Type",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nCombines the members of a table using a combining function.\n\nThe combining function takes the combined value so far and a member of the table,\nand returns a new combined value.\n  \n**Params**  \n- `function ()` func: combining function  \n- `table:Type` initial: initial value for the first argument of combining function `func`  \n  \n**Return** `table:Type`   \n- result of combining the members of parameter `t` using function `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nCombines the members of a table using a combining function.\n\nThe combining function takes the combined value so far and a member of the table,\nand returns a new combined value.\n  \n**Params**  \n- `function (table:Type accum, table:MapType val) returns table:Type` func: combining function  \n- `table:Type` initial: initial value for the first argument of combining function `func`  \n  \n**Return** `table:Type`   \n- result of combining the members of parameter `t` using function `func`  \n  \n"
         }
       },
       "sortText": "BD",
@@ -96,13 +96,13 @@
       }
     },
     {
-      "label": "forEach(function () func)",
+      "label": "forEach(function (table:MapType val) returns () func)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nApplies a function to each member of a table.\n\nThe function `func` is applied to each member of parameter `t`.\n  \n**Params**  \n- `function ()` func: a function to apply to each member"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nApplies a function to each member of a table.\n\nThe function `func` is applied to each member of parameter `t`.\n  \n**Params**  \n- `function (table:MapType val) returns ()` func: a function to apply to each member"
         }
       },
       "sortText": "BD",
@@ -337,13 +337,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "map(function () func)",
+      "label": "map(function (table:MapType val) returns table:Type func)",
       "kind": "Function",
       "detail": "table<table:Type>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nApplies a function each member of a table and returns a table of the result.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `table<table:Type>`   \n- new table containing result of applying function `func` to each member  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nApplies a function each member of a table and returns a table of the result.\n  \n**Params**  \n- `function (table:MapType val) returns table:Type` func: a function to apply to each member  \n  \n**Return** `table<table:Type>`   \n- new table containing result of applying function `func` to each member  \n  \n"
         }
       },
       "sortText": "BD",

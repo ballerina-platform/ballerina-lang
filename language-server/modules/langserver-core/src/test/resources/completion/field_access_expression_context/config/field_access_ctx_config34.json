@@ -6,13 +6,13 @@
   "source": "field_access_expression_context/source/field_access_ctx_source28.bal",
   "items": [
     {
-      "label": "reduce(function () func, array:Type1 initial)",
+      "label": "reduce(function (array:Type1 accum, array:Type val) returns array:Type1 func, array:Type1 initial)",
       "kind": "Function",
       "detail": "array:Type1",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nCombines the members of an array using a combining function.\n\nThe combining function takes the combined value so far and a member of the array,\nand returns a new combined value.\n\nFor example\n```\nreduce([1, 2, 3], function (int total, int n) returns int { return total + n; }, 0)\n```\nis the same as `sum(1, 2, 3)`.\n  \n**Params**  \n- `function ()` func: combining function  \n- `array:Type1` initial: initial value for the first argument of combining parameter `func`  \n  \n**Return** `array:Type1`   \n- result of combining the members of parameter `arr` using parameter `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nCombines the members of an array using a combining function.\n\nThe combining function takes the combined value so far and a member of the array,\nand returns a new combined value.\n\nFor example\n```\nreduce([1, 2, 3], function (int total, int n) returns int { return total + n; }, 0)\n```\nis the same as `sum(1, 2, 3)`.\n  \n**Params**  \n- `function (array:Type1 accum, array:Type val) returns array:Type1` func: combining function  \n- `array:Type1` initial: initial value for the first argument of combining parameter `func`  \n  \n**Return** `array:Type1`   \n- result of combining the members of parameter `arr` using parameter `func`  \n  \n"
         }
       },
       "sortText": "BD",
@@ -25,13 +25,13 @@
       }
     },
     {
-      "label": "forEach(function () func)",
+      "label": "forEach(function (array:Type val) returns () func)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nApplies a function to each member of an array.\n\nThe parameter `func` is applied to each member of parameter `arr` in order.\n  \n**Params**  \n- `function ()` func: a function to apply to each member"
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nApplies a function to each member of an array.\n\nThe parameter `func` is applied to each member of parameter `arr` in order.\n  \n**Params**  \n- `function (array:Type val) returns ()` func: a function to apply to each member"
         }
       },
       "sortText": "BD",
@@ -74,13 +74,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "sort(array:SortDirection direction, function ()? key)",
+      "label": "sort(array:SortDirection direction, function (array:Type val) returns array:OrderedType? key)",
       "kind": "Function",
       "detail": "array:Type1[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nSorts an array.\n\nIf the member type of the array is not ordered, then the parameter `key` function\nmust be specified.\nSorting works the same as with the parameter `sort` clause of query expressions.\n  \n**Params**  \n- `array:SortDirection` direction: direction in which to sort(Defaultable)  \n- `function ()?` key: function that returns a key to use to sort the members(Defaultable)  \n  \n**Return** `array:Type1[]`   \n- a new array consisting of the members of parameter `arr` in sorted order  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nSorts an array.\n\nIf the member type of the array is not ordered, then the parameter `key` function\nmust be specified.\nSorting works the same as with the parameter `sort` clause of query expressions.\n  \n**Params**  \n- `array:SortDirection` direction: direction in which to sort(Defaultable)  \n- `function (array:Type val) returns array:OrderedType?` key: function that returns a key to use to sort the members(Defaultable)  \n  \n**Return** `array:Type1[]`   \n- a new array consisting of the members of parameter `arr` in sorted order  \n  \n"
         }
       },
       "sortText": "BD",
@@ -161,13 +161,13 @@
       }
     },
     {
-      "label": "filter(function () func)",
+      "label": "filter(function (array:Type val) returns boolean func)",
       "kind": "Function",
       "detail": "array:Type1[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nSelects the members from an array for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `array:Type1[]`   \n- new array only containing members of parameter `arr` for which parameter `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nSelects the members from an array for which a function returns true.\n  \n**Params**  \n- `function (array:Type val) returns boolean` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `array:Type1[]`   \n- new array only containing members of parameter `arr` for which parameter `func` evaluates to true  \n  \n"
         }
       },
       "sortText": "BD",
@@ -297,13 +297,13 @@
       }
     },
     {
-      "label": "map(function () func)",
+      "label": "map(function (array:Type val) returns array:Type1 func)",
       "kind": "Function",
       "detail": "array:Type1[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nApplies a function to each member of an array and returns an array of the results.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `array:Type1[]`   \n- new array containing result of applying parameter `func` to each member of parameter `arr` in order  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nApplies a function to each member of an array and returns an array of the results.\n  \n**Params**  \n- `function (array:Type val) returns array:Type1` func: a function to apply to each member  \n  \n**Return** `array:Type1[]`   \n- new array containing result of applying parameter `func` to each member of parameter `arr` in order  \n  \n"
         }
       },
       "sortText": "BD",
