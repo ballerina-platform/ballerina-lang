@@ -362,10 +362,12 @@ public class BallerinaSemanticModel implements SemanticModel {
                     typesFactory.getTypeDescriptor(symbolAtCursor.type, symbolAtCursor));
         }
 
-//        if (isTypeSymbol(symbolAtCursor) && isInLineErrorType((BTypeSymbol) symbolAtCursor)) {
-//            return Optional.ofNullable(
-//                    typesFactory.getTypeDescriptor(symbolAtCursor.type, (BTypeSymbol) symbolAtCursor));
-//        }
+        if (isTypeSymbol(symbolAtCursor) &&
+                symbolAtCursor.type.tag == TypeTags.ERROR &&
+                Symbols.isFlagOn(symbolAtCursor.type.flags, Flags.ANONYMOUS)) {
+            return Optional.ofNullable(
+                    typesFactory.getTypeDescriptor(symbolAtCursor.type, symbolAtCursor));
+        }
 
         return Optional.ofNullable(symbolFactory.getBCompiledSymbol(symbolAtCursor,
                                                                     symbolAtCursor.getOriginalName().getValue()));
