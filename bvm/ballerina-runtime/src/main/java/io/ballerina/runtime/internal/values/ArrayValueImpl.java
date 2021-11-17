@@ -1277,15 +1277,15 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
 
         ArrayValueImpl that = (ArrayValueImpl) o;
-        return arrayType.equals(that.arrayType) &&
+        return typedesc.equals(that.typedesc) &&
+                arrayType.equals(that.arrayType) &&
                 elementType.equals(that.elementType) &&
                 Arrays.equals(refValues, that.refValues) &&
                 Arrays.equals(intValues, that.intValues) &&
                 Arrays.equals(booleanValues, that.booleanValues) &&
                 Arrays.equals(byteValues, that.byteValues) &&
                 Arrays.equals(floatValues, that.floatValues) &&
-                Arrays.equals(bStringValues, that.bStringValues) &&
-                typedesc.equals(that.typedesc);
+                Arrays.equals(bStringValues, that.bStringValues);
     }
 
     @Override
