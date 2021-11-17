@@ -31,6 +31,7 @@
             <Class name="io.ballerina.types.subtypedata.FloatSubtype"/>
             <Class name="io.ballerina.types.subtypedata.StringSubtype"/>
             <Class name="io.ballerina.types.subtypedata.DecimalSubtype"/>
+            <Class name="io.ballerina.types.subtypedata.XmlSubtype"/>
             <Class name="io.ballerina.types.typeops.BddCommonOps"/>
             <Class name="io.ballerina.types.typeops.CommonOps"/>
             <Class name="io.ballerina.types.typeops.ErrorOps"/>
@@ -45,7 +46,7 @@
             <Class name="io.ballerina.types.typeops.BooleanOps"/>
             <Class name="io.ballerina.types.Context"/>
             <Class name="io.ballerina.types.typeops.DecimalOps"/>
-
+            <Class name="io.ballerina.types.typeops.XmlCommonOps"/>
             <Class name="io.ballerina.types.Common"/>
         </Or>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
