@@ -19,6 +19,8 @@ package org.ballerinalang.langserver.extensions.ballerina.packages;
 
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 
+import javax.annotation.Nonnull;
+
 /**
  * Request format for ConfigSchemaGenerator endpoint.
  *
@@ -32,8 +34,7 @@ public class PackageConfigSchemaRequest {
         return documentIdentifier;
     }
 
-    public void setDocumentIdentifier(TextDocumentIdentifier documentIdentifier) {
-        this.documentIdentifier = documentIdentifier == null ? null :
-                new TextDocumentIdentifier(documentIdentifier.getUri());
+    public void setDocumentIdentifier(@Nonnull TextDocumentIdentifier documentIdentifier) {
+        this.documentIdentifier = new TextDocumentIdentifier(documentIdentifier.getUri());
     }
 }
