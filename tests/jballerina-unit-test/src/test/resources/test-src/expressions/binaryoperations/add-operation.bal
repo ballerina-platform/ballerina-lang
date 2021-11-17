@@ -140,8 +140,8 @@ function testAdditionWithTypes() {
     test:assertEquals(a20 + a19, xml `abdefabc`);
 
     IntType3 a21 = 1;
-    IntType3 a22 = 255;
-    IntType4 a23 = 127;
+    int|IntType3 a22 = 255;
+    IntType4|int a23 = 127;
 
     test:assertEquals(a21 + a21, 2);
     test:assertEquals(a21 + a22, 256);
@@ -151,8 +151,8 @@ function testAdditionWithTypes() {
 
     FloatType2 a24 = -2;
     FloatType2 a25 = 1;
-    FloatType3 a26 = 1.25;
-    FloatType3 a27 = 2.5;
+    FloatType3|float a26 = 1.25;
+    float|FloatType3 a27 = 2.5;
 
     test:assertEquals(a24 + a24, -4.0);
     test:assertEquals(a24 + a25, -1.0);
@@ -166,8 +166,8 @@ function testAdditionWithTypes() {
     test:assertEquals(a27 + a27, 5.0);
 
     DecimalType1 a28 = 1.25;
-    DecimalType3 a29 = 2;
-    DecimalType3 a30 = 3;
+    decimal|DecimalType3 a29 = 2;
+    DecimalType3|decimal a30 = 3;
 
     test:assertEquals(a28 + a28, 2.5d);
     test:assertEquals(a28 + a29, 3.25d);

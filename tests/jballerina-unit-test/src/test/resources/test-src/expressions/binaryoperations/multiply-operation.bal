@@ -80,8 +80,8 @@ function testMultiplicationWithTypes() {
     assertEqual(a10 * a11, 210d);
 
     IntType3 a21 = 1;
-    IntType3 a22 = 2;
-    IntType4 a23 = 3;
+    IntType3|int a22 = 2;
+    int|IntType4 a23 = 3;
 
     test:assertEquals(a21 * a21, 1);
     test:assertEquals(a21 * a22, 2);
@@ -91,8 +91,8 @@ function testMultiplicationWithTypes() {
 
     FloatType2 a24 = -2;
     FloatType2 a25 = 1;
-    FloatType3 a26 = 1.25;
-    FloatType3 a27 = 2.5;
+    FloatType3|float a26 = 1.25;
+    float|FloatType3 a27 = 2.5;
 
     test:assertEquals(a24 * a24, 4.0);
     test:assertEquals(a24 * a25, -2.0);
@@ -106,8 +106,8 @@ function testMultiplicationWithTypes() {
     test:assertEquals(a27 * a27, 6.25);
 
     DecimalType1 a28 = 1.25;
-    DecimalType3 a29 = 2;
-    DecimalType3 a30 = 3;
+    DecimalType3|decimal a29 = 2;
+    decimal|DecimalType3 a30 = 3;
 
     test:assertEquals(a28 * a28, 1.5625d);
     test:assertEquals(a28 * a29, 2.5d);

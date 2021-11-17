@@ -62,10 +62,22 @@ function testStaticTypeOfUnaryExpr() {
 type C 0|1f;
 type D 0|1|"ABC";
 
+const decimal E = 1.25;
+type F 3.45d|1.25d|45.6d;
+type G "Me";
+type des G|decimal|2.0d|2.0d;
+type DecimalType1 E|des|F|G;
+
 function testStaticTypeOfOperandContainsMixType() {
     C x = 0;
     int _ = -x;
 
     D y = 0;
     int _ = -y;
+
+    decimal|DecimalType1 a = 25346.45d;
+    decimal|string _ = +a;
+
+    DecimalType1 b = 1.25;
+    decimal|string _ = -b;
 }

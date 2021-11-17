@@ -78,8 +78,8 @@ function testSubtractionWithTypes() {
     assertEqual(a10 - a11, 5d);
 
     IntType3 a21 = 1;
-    IntType3 a22 = 255;
-    IntType4 a23 = 127;
+    int|IntType3 a22 = 255;
+    IntType4|int a23 = 127;
 
     assertEqual(a21 - a21, 0);
     assertEqual(a21 - a22, -254);
@@ -89,8 +89,8 @@ function testSubtractionWithTypes() {
 
     FloatType2 a24 = -2;
     FloatType2 a25 = 1;
-    FloatType3 a26 = 1.25;
-    FloatType3 a27 = 2.5;
+    FloatType3|float a26 = 1.25;
+    float|FloatType3 a27 = 2.5;
 
     assertEqual(a24 - a24, 0.0);
     assertEqual(a24 - a25, -3.0);
@@ -104,8 +104,8 @@ function testSubtractionWithTypes() {
     assertEqual(a27 - a27, 0.0);
 
     DecimalType1 a28 = 1.25;
-    DecimalType3 a29 = 2;
-    DecimalType3 a30 = 3;
+    decimal|DecimalType3 a29 = 2;
+    DecimalType3|decimal a30 = 3;
 
     assertEqual(a28 - a28, 0d);
     assertEqual(a28 - a29, -0.75d);

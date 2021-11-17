@@ -256,9 +256,9 @@ function testUnaryOperationsWithUserDefinedTypes() {
 
     IntType3 m = 1;
     IntType3 n = 255;
-    IntType4 o = 127;
+    int|IntType4 o = 127;
     FloatType2 p = -2;
-    FloatType2 q = 1;
+    float|FloatType2 q = 1;
 
     int r = -m;
     int s = +n;
