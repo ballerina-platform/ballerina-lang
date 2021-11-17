@@ -74,8 +74,8 @@ public class Runtime {
      * @param args       Ballerina function arguments.
      * @return {@link FutureValue} containing return value for executing this method.
      * <p>
-     * This method needs to be called if and only if both object.getType().isIsolated() and
-     * object.getType().isIsolated(methodName) returns true.
+     * This method needs to be called if object.getType().isIsolated() or
+     * object.getType().isIsolated(methodName) returns false.
      */
     public BFuture invokeMethodAsyncSequentially(BObject object, String methodName, String strandName,
                                                  StrandMetadata metadata,
@@ -110,8 +110,8 @@ public class Runtime {
      * @param args       Ballerina function arguments.
      * @return {@link FutureValue} containing return value for executing this method.
      * <p>
-     * This method needs to be called if and only if both object.getType().isIsolated() and
-     * object.getType().isIsolated(methodName) returns false.
+     * This method needs to be called if both object.getType().isIsolated() and
+     * object.getType().isIsolated(methodName) returns true.
      */
     public BFuture invokeMethodAsyncConcurrently(BObject object, String methodName, String strandName,
                                                  StrandMetadata metadata,
@@ -194,7 +194,7 @@ public class Runtime {
      * for the mutable state with given arguments, use @invokeMethodAsyncConcurrently
      * otherwise @invokeMethodAsyncSequentially .
      * <p>
-     * We can decide the object method isolation if and only if both object.getType().isIsolated() and
+     * We can decide the object method isolation if both object.getType().isIsolated() and
      * object.getType().isIsolated(methodName) returns true.
      */
     @Deprecated
