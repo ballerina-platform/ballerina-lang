@@ -22,7 +22,6 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.CloudToml;
-import io.ballerina.projects.CompilationOptions;
 import io.ballerina.projects.CompilerPluginToml;
 import io.ballerina.projects.DependenciesToml;
 import io.ballerina.projects.DependencyGraph;
@@ -1330,44 +1329,6 @@ public class TestBuildProject extends BaseTest {
         // Load the project from document filepath
         Project buildProject = TestUtils.loadProject(filePath);
         buildProject.documentId(filePath); // get the document ID
-    }
-
-    @Test(description = "test passing compilation options to package compilation", enabled = false)
-    public void testPassCompilationOptionsToPackageCompilation() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
-
-        // 1) Initialize the project instance
-        BuildOptions options = BuildOptions.builder().setExperimental(true).build();
-        BuildProject project = loadBuildProject(projectPath, options);
-
-        Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
-        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-            Assert.assertTrue(project.currentPackage().module(moduleId).moduleName().toString().contains("myproject"));
-        }
-        project.currentPackage().getCompilation();
-        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
-
-        // 2) Pass compilations option 'offline' to the package compilation
-        CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder = CompilationOptions.builder();
-        compilationOptionsBuilder.setOffline(true);
-        project.currentPackage().getCompilation(compilationOptionsBuilder.build());
-        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
-
-        // 3) Get compilation again and check compilation options
-        BallerinaToml newBallerinaToml = project.currentPackage().ballerinaToml().get()
-                .modify().withContent("" +
-                                       "[package]\n" +
-                                       "org = \"sameera\"\n" +
-                                       "name = \"yourproject\"\n" +
-                                       "version = \"0.2.0\"\n").apply();
-        Package newPackage = newBallerinaToml.packageInstance();
-        Assert.assertEquals(newPackage.packageName().toString(), "yourproject");
-
-        project.currentPackage().getCompilation();
-        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
-
-        newPackage.getCompilation();
-        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
     }
 
     @Test(description = "test auto updating dependencies using build file")
