@@ -103,20 +103,19 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
                 String uri = context.fileUri();
                 AIDataMapperCodeActionUtil dataMapperUtil = AIDataMapperCodeActionUtil.getInstance();
-                ArrayList outputArray = dataMapperUtil.getAIDataMapperCodeActionEdits(positionDetails, context,
+                ProcessedData outputObject = dataMapperUtil.getAIDataMapperCodeActionEdits(positionDetails, context,
                         diagnostic);
-                if (outputArray.isEmpty()) {
+                if (!outputObject.checkMap) {
                     return Optional.empty();
                 }
 
 
                 String commandTitle = "Generate mapping function";
-                String diagnosticMessage = diagnostic.message();
                 Range range = CommonUtil.toRange(diagnostic.location().lineRange());
                 CommandArgument posArg = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE, range);
                 CommandArgument uriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, uri);
-                CommandArgument jsontest = CommandArgument.from("JsonVal", outputArray);
-                List<Object> args = Arrays.asList(posArg, uriArg, jsontest);
+                CommandArgument prosData = CommandArgument.from("ProcessedData", outputObject);
+                List<Object> args = Arrays.asList(posArg, uriArg, prosData);
                 action.setCommand(new Command(commandTitle, AIDataMapperExecutor.COMMAND, args));
 
 

@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.ballerinalang.datamapper;
 
 import com.google.common.cache.Cache;
@@ -46,14 +62,14 @@ public class AIDataMapperExecutorUtil {
     private static final int HTTP_422_UN_PROCESSABLE_ENTITY = 422;
     private static final int HTTP_500_INTERNAL_SERVER_ERROR = 500;
     private static final int MAXIMUM_CACHE_SIZE = 100;
-    private Cache<Integer, String> mappingCache =
+    private final Cache<Integer, String> mappingCache =
             CacheBuilder.newBuilder().maximumSize(MAXIMUM_CACHE_SIZE).build();
     private HashMap<String, Map<String, RecordFieldSymbol>> spreadFieldMap = new HashMap<>();
     private HashMap<String, String> isOptionalMap = new HashMap<>();
     private HashMap<String, String> leftFieldMap = new HashMap<>();
-    private HashMap<String, String> responseFieldMap = new HashMap<>();
+    private final HashMap<String, String> responseFieldMap = new HashMap<>();
     private HashMap<String, String> restFieldMap = new HashMap<>();
-    private HashMap<String, String> spreadFieldResponseMap = new HashMap<>();
+    private final HashMap<String, String> spreadFieldResponseMap = new HashMap<>();
     private ArrayList<String> leftReadOnlyFields = new ArrayList<>();
     private ArrayList<String> rightSpecificFieldList = new ArrayList<>();
     private ArrayList<String> optionalRightRecordFields = new ArrayList<>();
@@ -61,13 +77,22 @@ public class AIDataMapperExecutorUtil {
     public AIDataMapperExecutorUtil() {
     }
 
-    public List<TextEdit> generateMappingEdits(ExecuteCommandContext context, JsonArray parameters, Path filePath,
+    public List<TextEdit> generateMappingEdits(ExecuteCommandContext context, JsonObject parameters, Path filePath,
                                                Range range) throws IOException {
         List<TextEdit> fEdits = new ArrayList<>();
 
-        fEdits.add(new TextEdit(range, parameters.get(3).getAsString()));
-        JsonArray schemas = (JsonArray) parameters.get(0);
-        String url = parameters.get(1).getAsString();
+        fEdits.add(new TextEdit(range, parameters.get("functionName").getAsString()));
+        JsonArray schemas = (JsonArray) parameters.get("schemas");
+        String url = parameters.get("url").getAsString();
+        JsonElement test = parameters.get("isOptionalMap");
+        isOptionalMap = new Gson().fromJson(parameters.get("isOptionalMap").toString(), HashMap.class);
+        leftFieldMap = new Gson().fromJson(parameters.get("leftFieldMap").toString(), HashMap.class);
+        spreadFieldMap = new Gson().fromJson(parameters.get("spreadFieldMap").toString(), HashMap.class);
+        restFieldMap = new Gson().fromJson(parameters.get("restFieldMap").toString(), HashMap.class);
+        leftReadOnlyFields = convert(parameters.get("leftReadOnlyFields"));
+        rightSpecificFieldList = convert(parameters.get("rightSpecificFieldList"));
+        optionalRightRecordFields = convert(parameters.get("optionalRightRecordFields"));
+
         SyntaxTree syntaxTree = context.workspace().syntaxTree(filePath).orElseThrow();
 
         // Get the last line of the file
@@ -81,9 +106,9 @@ public class AIDataMapperExecutorUtil {
         String mappingFromServer = getMapping(schemas, url);
 
         //Read property values
-        JsonElement backgroudObject = parameters.get(2);
+        JsonElement backgroundObject = parameters.get("backgroundInfo");
         String generatedRecordMappingFunction = generateMappingFunction(mappingFromServer,
-                (JsonObject) backgroudObject);
+                (JsonObject) backgroundObject);
         fEdits.add(new TextEdit(newFunctionRange, generatedRecordMappingFunction));
         return fEdits;
     }
@@ -420,5 +445,14 @@ public class AIDataMapperExecutorUtil {
                 this.responseFieldMap.put(fieldKey.toString(), field.getValue().toString());
             }
         }
+    }
+
+    private ArrayList<String> convert(JsonElement jObject) {
+        ArrayList<String> list = new ArrayList<>();
+        JsonArray jArr = new Gson().fromJson(String.valueOf(jObject), JsonArray.class);
+        for (int i = 0, l = jArr.size(); i < l; i++) {
+            list.add(jArr.get(i).getAsString());
+        }
+        return list;
     }
 }

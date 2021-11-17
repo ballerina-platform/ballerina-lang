@@ -15,8 +15,6 @@
  */
 package org.ballerinalang.datamapper;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -71,20 +69,15 @@ import java.util.Set;
  * Automatic data mapping code action related utils.
  */
 class AIDataMapperCodeActionUtil {
-    private static final int MAXIMUM_CACHE_SIZE = 100;
     private static final int RIGHT_SYMBOL_INDEX = 1;
     private static final int LEFT_SYMBOL_INDEX = 0;
-    private Cache<Integer, String> mappingCache =
-            CacheBuilder.newBuilder().maximumSize(MAXIMUM_CACHE_SIZE).build();
-    private HashMap<String, String> isOptionalMap = new HashMap<>();
-    private HashMap<String, String> leftFieldMap = new HashMap<>();
-    private HashMap<String, String> responseFieldMap = new HashMap<>();
+    private final HashMap<String, String> isOptionalMap = new HashMap<>();
+    private final HashMap<String, String> leftFieldMap = new HashMap<>();
     private HashMap<String, String> restFieldMap = new HashMap<>();
     private HashMap<String, Map<String, RecordFieldSymbol>> spreadFieldMap = new HashMap<>();
-    private HashMap<String, String> spreadFieldResponseMap = new HashMap<>();
-    private ArrayList<String> leftReadOnlyFields = new ArrayList<>();
+    private final ArrayList<String> leftReadOnlyFields = new ArrayList<>();
     private ArrayList<String> rightSpecificFieldList = new ArrayList<>();
-    private ArrayList<String> optionalRightRecordFields = new ArrayList<>();
+    private final ArrayList<String> optionalRightRecordFields = new ArrayList<>();
 
     private static final String SCHEMA = "schema";
     private static final String ID = "id";
@@ -115,22 +108,23 @@ class AIDataMapperCodeActionUtil {
      * @return edits for the data mapper code action
      * @throws IOException throws if error occurred when getting generatedRecordMappingFunction
      */
-    public ArrayList getAIDataMapperCodeActionEdits(DiagBasedPositionDetails positionDetails,
-                                                  CodeActionContext context, Diagnostic diagnostic)
+    public ProcessedData getAIDataMapperCodeActionEdits(DiagBasedPositionDetails positionDetails,
+                                                        CodeActionContext context, Diagnostic diagnostic)
             throws IOException {
-        ArrayList outputArray = new ArrayList();
-        JsonArray outputJson = new JsonArray();
+        ProcessedData returnData = new ProcessedData(false);
+        leftReadOnlyFields.clear();
+        rightSpecificFieldList.clear();
+        optionalRightRecordFields.clear();
 
         Optional<Document> srcFile = context.workspace().document(context.filePath());
         if (srcFile.isEmpty()) {
-            return outputArray;
+            return returnData;
         }
-
         List<DiagnosticProperty<?>> props = diagnostic.properties();
 
         //To check if the left is a symbol
         if (props.get(LEFT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC) {
-            return outputArray;
+            return returnData;
         }
 
         TypeDescKind leftSymbolType = ((TypeSymbol) props.get(LEFT_SYMBOL_INDEX).value()).typeKind();
@@ -139,7 +133,7 @@ class AIDataMapperCodeActionUtil {
                 props.get(LEFT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC ||
                 ((leftSymbolType != TypeDescKind.TYPE_REFERENCE) && (leftSymbolType != TypeDescKind.RECORD) &&
                         (leftSymbolType != TypeDescKind.UNION))) {
-            return outputArray;
+            return returnData;
         } else {
 
             Symbol lftTypeSymbol;
@@ -172,12 +166,12 @@ class AIDataMapperCodeActionUtil {
                 // to get the symbol when type casting is done
                 Optional<Node> nodeAtCursor = findExpressionInTypeCastNode(newTextRange, syntaxTree);
                 if (nodeAtCursor.isEmpty()) {
-                    return outputArray;
+                    return returnData;
                 }
                 symbolFromModel = semanticModel.symbol(nodeAtCursor.get());
 
                 if (symbolFromModel.isEmpty()) {
-                    return outputArray;
+                    return returnData;
                 }
 
                 symbolAtCursor = symbolFromModel.get();
@@ -246,7 +240,7 @@ class AIDataMapperCodeActionUtil {
                     }
 
                     if (matchedNode == null) {
-                        return outputArray;
+                        return returnData;
                     }
 
                     String functionCall = matchedNode.toString();
@@ -268,7 +262,7 @@ class AIDataMapperCodeActionUtil {
                             }
                         }
                         if (functionCall == null) {
-                            return outputArray;
+                            return returnData;
                         }
                         symbolAtCursorName = functionCall.trim();
                         generatedFunctionName = String.format("map%sTo%s(%s)",
@@ -280,7 +274,7 @@ class AIDataMapperCodeActionUtil {
                     }
                     break;
                 default:
-                    return outputArray;
+                    return returnData;
             }
 
             // Insert function declaration at the bottom of the file
@@ -295,8 +289,8 @@ class AIDataMapperCodeActionUtil {
                 String url = LSClientConfigHolder.getInstance(context.languageServercontext())
                         .getConfigAs(ClientExtendedConfigImpl.class).getDataMapper()
                         .getUrl() + "/map/2.0.0";
-                outputArray.add(0, schemas);
-                outputArray.add(1, url);
+                returnData.setSchemas(schemas);
+                returnData.setUrl(url);
 
                 // To handle the multi-module projects
                 String rightModule = null;
@@ -331,10 +325,18 @@ class AIDataMapperCodeActionUtil {
                 backgroundInfo.addProperty("rightModule", rightModule);
                 backgroundInfo.addProperty("rhsSignature", rhsSignature);
 
-                outputArray.add(2, backgroundInfo);
-                outputArray.add(3, generatedFunctionName);
+                returnData.checkMap = true;
+                returnData.setFunctionName(generatedFunctionName);
+                returnData.setBackgroundInfo(backgroundInfo);
+                returnData.isOptionalMap = isOptionalMap;
+                returnData.leftFieldMap = leftFieldMap;
+                returnData.spreadFieldMap = spreadFieldMap;
+                returnData.restFieldMap = restFieldMap;
+                returnData.leftReadOnlyFields = leftReadOnlyFields;
+                returnData.rightSpecificFieldList = rightSpecificFieldList;
+                returnData.optionalRightRecordFields = optionalRightRecordFields;
             }
-            return outputArray;
+            return returnData;
         }
     }
 
@@ -657,5 +659,42 @@ class AIDataMapperCodeActionUtil {
         }
 
         return symbolArrayList;
+    }
+}
+
+
+class ProcessedData {
+    boolean checkMap;
+    JsonArray schemas;
+    String url;
+    JsonObject backgroundInfo;
+    String functionName;
+    HashMap<String, String> isOptionalMap = new HashMap<>();
+    HashMap<String, String> leftFieldMap = new HashMap<>();
+    HashMap<String, Map<String, RecordFieldSymbol>> spreadFieldMap = new HashMap<>();
+    HashMap<String, String> restFieldMap = new HashMap<>();
+    ArrayList<String> leftReadOnlyFields = new ArrayList<>();
+    ArrayList<String> rightSpecificFieldList = new ArrayList<>();
+    ArrayList<String> optionalRightRecordFields = new ArrayList<>();
+
+
+    public ProcessedData(boolean check) {
+        this.checkMap = check;
+    }
+
+    public void setSchemas(JsonArray schemas){
+        this.schemas = schemas;
+    }
+
+    public void setUrl(String url){
+        this.url = url;
+    }
+
+    public void setBackgroundInfo(JsonObject backgroundInfo){
+        this.backgroundInfo = backgroundInfo;
+    }
+
+    public void setFunctionName(String functionName){
+        this.functionName = functionName;
     }
 }
