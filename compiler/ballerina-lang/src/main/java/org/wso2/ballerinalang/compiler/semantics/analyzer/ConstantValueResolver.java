@@ -60,7 +60,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
@@ -544,7 +543,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangRecordLiteral.BLangMapLiteral createMapExpression(Object value, BType type, Location pos) {
         BLangRecordLiteral recordLiteral = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
-        for (String key : ((HashMap<String,Object>) value).keySet()) {
+        for (String key : ((HashMap<String, Object>) value).keySet()) {
             BLangRecordLiteral.BLangRecordKeyValueField recordKeyValueField;
             recordKeyValueField = createBLangRecordKeyValue(createConstantLiteralExpression(key, null, null),
                     createExpression(((BLangConstantValue) ((HashMap) value).get(key)).value,
