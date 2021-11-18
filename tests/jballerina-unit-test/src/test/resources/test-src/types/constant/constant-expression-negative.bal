@@ -29,3 +29,22 @@ const int CI5  = *(5 + 10); // expression is not a constant expression
 const string CS1 = +("hello" + "world"); // operator '+' not defined for 'string'
 
 const boolean CB1 = !(10); // operator '!' not defined for 'int'
+
+const int CI6 = 1 + 2;
+const float CF1 = 1.0 + 2.0;
+const decimal CD1 = 1.0 + 2.0;
+// const byte CBT1 = 1; // Uncomment after fixing #33889
+// const byte CBT2 = 2;
+// const byte CBT3 = CBT1 + CBT2;
+const boolean CB2 = !true;
+const string CS2 = "1" + "2";
+
+function userDefinedTypeTests() {
+    CI6 ci6 = 4; //
+    CF1 cf1 = 4.0; //
+    CD1 cd1 = 4.0; //
+//  CBT3 cbt3 = 4; //
+    CB2 cb2 = true; //
+    CS2 cs2 = "4"; //
+}
+

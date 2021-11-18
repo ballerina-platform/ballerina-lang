@@ -56,6 +56,12 @@ public class ConstantExpressionTest {
         BAssertUtil.validateError(compileResult1, i++, "missing identifier", 27, 18);
         BAssertUtil.validateError(compileResult1, i++, "operator '+' not defined for 'string'", 29, 20);
         BAssertUtil.validateError(compileResult1, i++, "operator '!' not defined for 'int'", 31, 21);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3', found 'int'", 43, 15);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3.0f', found 'float'", 44, 15);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3.0d', found 'float'", 45, 15);
+//        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3', found 'int'", 46, 15); // Activate this after fixing #33889
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'false', found 'boolean'", 47, 15);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '12', found 'string'", 48, 15);
         Assert.assertEquals(compileResult1.getErrorCount(), i);
     }
 
@@ -143,6 +149,11 @@ public class ConstantExpressionTest {
     @Test
     public void getConstUnaryExpressions() {
         BRunUtil.invoke(compileResult, "testConstUnaryExpressions");
+    }
+
+    @Test
+    public void testTypesOfConstants() {
+        BRunUtil.invoke(compileResult, "testTypesOfConstants");
     }
 
     @AfterClass
