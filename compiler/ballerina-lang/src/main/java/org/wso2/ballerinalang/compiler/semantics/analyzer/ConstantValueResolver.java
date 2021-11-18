@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -33,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -59,6 +61,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
  * @since 0.990.4
@@ -481,14 +484,58 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private void updateSymbolType(BLangConstant constant) {
-        if (constant.symbol.kind == SymbolKind.CONSTANT && constant.symbol.type.getKind() != TypeKind.FINITE) {
+        if (constant.symbol.kind == SymbolKind.CONSTANT && constant.symbol.type.getKind() != TypeKind.FINITE &&
+                constant.symbol.value != null) {
             BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
                     Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY, constant.symbol.pkgID, null,
-                    constant.symbol.owner, constant.symbol.pos, SOURCE);
-
+                    constant.symbol.owner, constant.symbol.pos, VIRTUAL);
             BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
-            //finiteType.addValue(constant.symbol.value);
-            constant.symbol.type = finiteType;
+            BLangExpression expr;
+            if (constant.symbol.type.getKind() == TypeKind.MAP) {
+                expr = createExpression(constant.symbol.value.value, constant.symbol.type, constant.symbol.pos);
+            } else {
+                expr = createExpression(constant.symbol.value.value, constant.symbol.type, constant.symbol.pos);
+            }
+            if (expr != null) {
+                finiteType.addValue(expr);
+                constant.symbol.type = finiteType;
+            }
         }
+    }
+
+    private BLangExpression createExpression(Object value, BType type, Location pos) {
+        switch (type.getKind()) {
+            case INT:
+            case BYTE:
+            case FLOAT:
+            case DECIMAL:
+                return createConstantNumericLiteralExpression(value, type, pos);
+            case STRING:
+            case NIL:
+            case BOOLEAN:
+                return createConstantLiteralExpression(value, type, pos);
+            case MAP:
+                return null;
+            default:
+                return null;
+        }
+    }
+
+    private BLangNumericLiteral createConstantNumericLiteralExpression(Object value, BType type, Location pos) {
+        BLangNumericLiteral literal = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
+        literal.value = value;
+        literal.isConstant = true;
+        literal.setBType(type);
+        literal.pos = pos;
+        return literal;
+    }
+
+    private BLangLiteral createConstantLiteralExpression(Object value, BType type, Location pos) {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.value = value;
+        literal.isConstant = true;
+        literal.setBType(type);
+        literal.pos = pos;
+        return literal;
     }
 }
