@@ -490,11 +490,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                     constant.symbol.owner, constant.symbol.pos, VIRTUAL);
             BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
             BLangExpression expr;
-            if (constant.symbol.type.getKind() == TypeKind.MAP) {
-                expr = createExpression(constant.symbol.value.value, constant.symbol.type, constant.symbol.pos);
-            } else {
-                expr = createExpression(constant.symbol.value.value, constant.symbol.type, constant.symbol.pos);
-            }
+            expr = createExpression(constant.symbol.value.value, constant.symbol.type, constant.symbol.pos);
             if (expr != null) {
                 finiteType.addValue(expr);
                 constant.symbol.type = finiteType;
