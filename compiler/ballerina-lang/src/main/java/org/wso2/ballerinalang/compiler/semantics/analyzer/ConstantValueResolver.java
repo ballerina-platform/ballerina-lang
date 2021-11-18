@@ -515,6 +515,9 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             case BOOLEAN:
                 return createConstantLiteralExpression(value, type, pos);
             case MAP:
+                if (value != null) {
+                    return createMapExpression(value, type, pos);
+                }
                 return null;
             default:
                 return null;
@@ -537,5 +540,31 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         literal.setBType(type);
         literal.pos = pos;
         return literal;
+    }
+
+    private BLangRecordLiteral.BLangMapLiteral createMapExpression(Object value, BType type, Location pos) {
+        BLangRecordLiteral recordLiteral = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+        for (String key : ((HashMap<String,Object>) value).keySet()) {
+            BLangRecordLiteral.BLangRecordKeyValueField recordKeyValueField;
+            recordKeyValueField = createBLangRecordKeyValue(createConstantLiteralExpression(key, null, null),
+                    createExpression(((BLangConstantValue) ((HashMap) value).get(key)).value,
+                            ((BLangConstantValue) ((HashMap) value).get(key)).type, null));
+            recordLiteral.fields.add(recordKeyValueField);
+        }
+        return createMapLiteralNode(pos, type, recordLiteral.fields);
+    }
+
+    private BLangRecordLiteral.BLangRecordKeyValueField createBLangRecordKeyValue(BLangExpression key,
+                                                                                  BLangExpression value) {
+        final BLangRecordLiteral.BLangRecordKeyValueField recordKeyValue =
+                (BLangRecordLiteral.BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
+        recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(key);
+        recordKeyValue.valueExpr = value;
+        return recordKeyValue;
+    }
+
+    public BLangRecordLiteral.BLangMapLiteral createMapLiteralNode(Location pos, BType mapType,
+                                                                   List<RecordLiteralNode.RecordField> fields) {
+        return new BLangRecordLiteral.BLangMapLiteral(pos, mapType, fields);
     }
 }
