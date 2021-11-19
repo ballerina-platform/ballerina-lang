@@ -16,7 +16,6 @@
 
 package org.ballerinalang.datamapper;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.CommandUtil;

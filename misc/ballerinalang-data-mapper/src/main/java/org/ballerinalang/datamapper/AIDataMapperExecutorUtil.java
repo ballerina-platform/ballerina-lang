@@ -82,34 +82,36 @@ public class AIDataMapperExecutorUtil {
         List<TextEdit> fEdits = new ArrayList<>();
 
         fEdits.add(new TextEdit(range, parameters.get("functionName").getAsString()));
-        JsonArray schemas = (JsonArray) parameters.get("schemas");
-        String url = parameters.get("url").getAsString();
-        JsonElement test = parameters.get("isOptionalMap");
-        isOptionalMap = new Gson().fromJson(parameters.get("isOptionalMap").toString(), HashMap.class);
-        leftFieldMap = new Gson().fromJson(parameters.get("leftFieldMap").toString(), HashMap.class);
-        spreadFieldMap = new Gson().fromJson(parameters.get("spreadFieldMap").toString(), HashMap.class);
-        restFieldMap = new Gson().fromJson(parameters.get("restFieldMap").toString(), HashMap.class);
-        leftReadOnlyFields = convert(parameters.get("leftReadOnlyFields"));
-        rightSpecificFieldList = convert(parameters.get("rightSpecificFieldList"));
-        optionalRightRecordFields = convert(parameters.get("optionalRightRecordFields"));
+        boolean foundFunction = parameters.get("foundFunction").getAsBoolean();
+        if (!foundFunction) {
+            JsonArray schemas = (JsonArray) parameters.get("schemas");
+            String url = parameters.get("url").getAsString();
+            isOptionalMap = new Gson().fromJson(parameters.get("isOptionalMap").toString(), HashMap.class);
+            leftFieldMap = new Gson().fromJson(parameters.get("leftFieldMap").toString(), HashMap.class);
+            spreadFieldMap = new Gson().fromJson(parameters.get("spreadFieldMap").toString(), HashMap.class);
+            restFieldMap = new Gson().fromJson(parameters.get("restFieldMap").toString(), HashMap.class);
+            leftReadOnlyFields = convert(parameters.get("leftReadOnlyFields"));
+            rightSpecificFieldList = convert(parameters.get("rightSpecificFieldList"));
+            optionalRightRecordFields = convert(parameters.get("optionalRightRecordFields"));
 
-        SyntaxTree syntaxTree = context.workspace().syntaxTree(filePath).orElseThrow();
+            SyntaxTree syntaxTree = context.workspace().syntaxTree(filePath).orElseThrow();
 
-        // Get the last line of the file
-        TextDocument fileContentTextDocument = syntaxTree.textDocument();
-        int numberOfLinesInFile = fileContentTextDocument.toString().split("\n").length;
-        Position startPosOfLastLine = new Position(numberOfLinesInFile + 2, 0);
-        Position endPosOfLastLine = new Position(numberOfLinesInFile + 2, 1);
-        Range newFunctionRange = new Range(startPosOfLastLine, endPosOfLastLine);
+            // Get the last line of the file
+            TextDocument fileContentTextDocument = syntaxTree.textDocument();
+            int numberOfLinesInFile = fileContentTextDocument.toString().split("\n").length;
+            Position startPosOfLastLine = new Position(numberOfLinesInFile + 2, 0);
+            Position endPosOfLastLine = new Position(numberOfLinesInFile + 2, 1);
+            Range newFunctionRange = new Range(startPosOfLastLine, endPosOfLastLine);
 
-        // Get the generated record mapping function
-        String mappingFromServer = getMapping(schemas, url);
+            // Get the generated record mapping function
+            String mappingFromServer = getMapping(schemas, url);
 
-        //Read property values
-        JsonElement backgroundObject = parameters.get("backgroundInfo");
-        String generatedRecordMappingFunction = generateMappingFunction(mappingFromServer,
-                (JsonObject) backgroundObject);
-        fEdits.add(new TextEdit(newFunctionRange, generatedRecordMappingFunction));
+            //Read property values
+            JsonElement backgroundObject = parameters.get("backgroundInfo");
+            String generatedRecordMappingFunction = generateMappingFunction(mappingFromServer,
+                    (JsonObject) backgroundObject);
+            fEdits.add(new TextEdit(newFunctionRange, generatedRecordMappingFunction));
+        }
         return fEdits;
     }
 

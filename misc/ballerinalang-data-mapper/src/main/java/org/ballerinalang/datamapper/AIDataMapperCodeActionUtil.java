@@ -250,7 +250,6 @@ class AIDataMapperCodeActionUtil {
                                 String.format("map%sTo%s(check %s)", foundTypeRight, foundTypeLeft, symbolAtCursorName);
                     } else if (foundErrorLeft && foundErrorRight) {
                         // get the information about the line positions
-                        newTextRange = CommonUtil.toRange(matchedNode.lineRange());
                         generatedFunctionName =
                                 String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, functionCall);
                     } else if (foundErrorLeft) {
@@ -335,6 +334,10 @@ class AIDataMapperCodeActionUtil {
                 returnData.leftReadOnlyFields = leftReadOnlyFields;
                 returnData.rightSpecificFieldList = rightSpecificFieldList;
                 returnData.optionalRightRecordFields = optionalRightRecordFields;
+            } else {
+                returnData.checkMap = true;
+                returnData.setFunctionName(generatedFunctionName);
+                returnData.foundFunction = true;
             }
             return returnData;
         }
@@ -380,9 +383,9 @@ class AIDataMapperCodeActionUtil {
      * @throws IOException throws if error occurred when getting mapped function
      */
     private JsonArray getGeneratedRecordMapping(String foundTypeLeft,
-                                             String foundTypeRight,
-                                             Symbol lftTypeSymbol, Symbol rhsTypeSymbol,
-                                             SyntaxTree syntaxTree, SemanticModel semanticModel) {
+                                                String foundTypeRight,
+                                                Symbol lftTypeSymbol, Symbol rhsTypeSymbol,
+                                                SyntaxTree syntaxTree, SemanticModel semanticModel) {
         JsonObject rightRecordJSON = new JsonObject();
         JsonObject leftRecordJSON = new JsonObject();
 
@@ -667,6 +670,7 @@ class ProcessedData {
     boolean checkMap;
     JsonArray schemas;
     String url;
+    Boolean foundFunction = false;
     JsonObject backgroundInfo;
     String functionName;
     HashMap<String, String> isOptionalMap = new HashMap<>();
@@ -682,19 +686,19 @@ class ProcessedData {
         this.checkMap = check;
     }
 
-    public void setSchemas(JsonArray schemas){
+    public void setSchemas(JsonArray schemas) {
         this.schemas = schemas;
     }
 
-    public void setUrl(String url){
+    public void setUrl(String url) {
         this.url = url;
     }
 
-    public void setBackgroundInfo(JsonObject backgroundInfo){
+    public void setBackgroundInfo(JsonObject backgroundInfo) {
         this.backgroundInfo = backgroundInfo;
     }
 
-    public void setFunctionName(String functionName){
+    public void setFunctionName(String functionName) {
         this.functionName = functionName;
     }
 }
