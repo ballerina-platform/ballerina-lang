@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 2,
-    "character": 8
+    "line": 7,
+    "character": 5
   },
-  "source": "class_def/source/source15.bal",
+  "source": "module_part_context/source/lsproject/modules/module2/module2.bal",
   "items": [
     {
       "label": "import",
@@ -258,17 +258,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "D",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
@@ -277,11 +266,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testClass",
-      "kind": "Interface",
-      "detail": "Class",
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
       "sortText": "D",
-      "insertText": "testClass",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -430,12 +422,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "filterText": "test",
-      "insertText": "test",
+      "filterText": "runtime",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -449,7 +441,31 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "value",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
         }
       ]
     },
@@ -502,12 +518,12 @@
       ]
     },
     {
-      "label": "ballerina/lang.value",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "filterText": "value",
-      "insertText": "value",
+      "filterText": "test",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -521,31 +537,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "runtime",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -662,6 +654,30 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "lsproject.module3",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "",
+      "insertText": "module3",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import lsproject.module3;\n"
+        }
+      ]
+    },
+    {
       "label": "service on module1:Listener",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -692,6 +708,78 @@
             }
           },
           "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on module3:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "E",
+      "filterText": "service_module3_Listener",
+      "insertText": "service ${1} on new module3:Listener() {\n\n    remote function method1() {\n        ${2}\n    }\n\n    function method2() returns string|error {\n        return ${3:\"\"};\n    }\n\n    function method3($CompilationError$|int arg1) returns $CompilationError$ {\n        ${4}\n    }\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import lsproject.module3;\n"
+        }
+      ]
+    },
+    {
+      "label": "lsproject.module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "module11",
+      "insertText": "module11",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import lsproject.module1 as module11 ;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on module1:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "E",
+      "filterText": "service_module1_Listener",
+      "insertText": "service ${1} on new module11:Listener() {\n\n    remote function method1() {\n        ${2}\n    }\n\n    function method2() returns string|error {\n        return ${3:\"\"};\n    }\n\n    function method3($CompilationError$|int arg1) returns $CompilationError$ {\n        ${4}\n    }\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import lsproject.module1 as module11 ;\n"
         }
       ]
     }
