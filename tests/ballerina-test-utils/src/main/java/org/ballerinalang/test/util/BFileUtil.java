@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.util;
 
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifierutil.IdentifierUtils;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.util.Names;

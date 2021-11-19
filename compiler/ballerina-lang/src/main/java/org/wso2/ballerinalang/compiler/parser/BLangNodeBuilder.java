@@ -223,7 +223,7 @@ import io.ballerina.compiler.syntax.tree.XMLSimpleNameNode;
 import io.ballerina.compiler.syntax.tree.XMLStartTagNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifierutil.IdentifierUtils;
 import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;

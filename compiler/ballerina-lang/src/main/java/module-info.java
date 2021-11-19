@@ -14,6 +14,7 @@ module io.ballerina.lang {
     requires io.ballerina.toml;
     requires io.ballerina.central.client;
     requires java.semver;
+    requires io.ballerina.identifierutil;
     exports io.ballerina.compiler.api;
     exports io.ballerina.compiler.api.symbols;
     exports io.ballerina.compiler.api.symbols.resourcepath;

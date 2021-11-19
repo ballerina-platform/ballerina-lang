@@ -17,6 +17,7 @@ module io.ballerina.runtime {
     requires java.transaction;
     requires java.naming;
     requires org.apache.commons.lang3;
+    requires io.ballerina.identifierutil;
 
     // API exports
     exports io.ballerina.runtime.api;

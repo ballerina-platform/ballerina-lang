@@ -20,7 +20,7 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.eclipse.lsp4j.debug.Variable;
 
-import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
+import static io.ballerina.identifierutil.IdentifierUtils.decodeIdentifier;
 
 /**
  * Base implementation for ballerina variable types with child variables.

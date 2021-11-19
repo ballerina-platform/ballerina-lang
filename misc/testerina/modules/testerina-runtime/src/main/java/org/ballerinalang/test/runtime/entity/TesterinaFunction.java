@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.runtime.entity;
 
+import io.ballerina.identifierutil.IdentifierUtils;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;

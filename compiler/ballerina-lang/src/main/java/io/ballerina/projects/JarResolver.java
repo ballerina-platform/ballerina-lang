@@ -35,9 +35,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static io.ballerina.identifierutil.IdentifierUtils.encodeNonFunctionIdentifier;
 import static io.ballerina.projects.util.ProjectConstants.ANON_ORG;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
-import static io.ballerina.runtime.api.utils.IdentifierUtils.encodeNonFunctionIdentifier;
 
 // TODO move this class to a separate Java package. e.g. io.ballerina.projects.platform.jballerina
 //    todo that, we would have to move PackageContext class into an internal package.

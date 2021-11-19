@@ -120,6 +120,7 @@ include(':project-api-test-artifact:bad-sad-compiler-plugin')
 include(':project-api-test-artifact:logging-file-appender-plugin')
 include(':project-api-test-artifact:init-function-codegen-compiler-plugin')
 include(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen')
+include(':identifier-util')
 
 //include(':ballerina-libs')
 include(':bir-spec')
@@ -224,6 +225,7 @@ project(':testerina:report-tools').projectDir = file('misc/testerina/modules/rep
 project(':testerina-integration-test').projectDir = file('tests/testerina-integration-test')
 project(':jballerina-debugger-integration-test').projectDir = file('tests/jballerina-debugger-integration-test')
 project(':bir-spec').projectDir = file('docs/bir-spec')
+project(':identifier-util').projectDir = file('misc/identifier-util')
 
 project(':debug-adapter:debug-adapter-core').projectDir = file('misc/debug-adapter/modules/debug-adapter-core')
 project(':debug-adapter:debug-adapter-cli').projectDir = file('misc/debug-adapter/modules/debug-adapter-cli')

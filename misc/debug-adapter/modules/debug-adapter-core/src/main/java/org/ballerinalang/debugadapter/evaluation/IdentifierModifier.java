@@ -20,9 +20,9 @@ import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TreeModifier;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifierutil.IdentifierUtils;
 
-import static io.ballerina.runtime.api.utils.IdentifierUtils.unescapeUnicodeCodepoints;
+import static io.ballerina.identifierutil.IdentifierUtils.unescapeUnicodeCodepoints;
 
 /**
  * Identifier specific expression modifier implementation.
