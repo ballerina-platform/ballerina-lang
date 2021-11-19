@@ -14,10 +14,6 @@
       }
     },
     {
-      "key": "doc.uri",
-      "value": "file:///home/user/IdeaProjects/ballerina-lang/misc/ballerinalang-data-mapper/build/resources/test/codeaction/source/dataMapper12.bal"
-    },
-    {
       "key": "ProcessedData",
       "value": {
         "checkMap": true,
