@@ -12,6 +12,10 @@ plugins {
 apply from: "$rootDir/gradle/repositories.gradle"
 
 allprojects {
+    tasks.withType(JavaCompile).configureEach {
+        options.fork = true
+    }
+
     group = project.group
     version = project.version
 
@@ -127,4 +131,3 @@ task createCodeCoverageReport(type: JacocoReport) {
 
 copyBallerinaClassFiles.dependsOn copyExecFilesAndJavaClassFiles 
 createCodeCoverageReport.dependsOn copyBallerinaClassFiles 
-
