@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
-import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.eclipse.lsp4j.Range;
@@ -53,10 +52,9 @@ public class AIDataMapperExecutor implements LSCommandExecutor {
      * @param context
      */
     @Override
-    public Object execute(ExecuteCommandContext context) throws LSCommandExecutorException {
+    public Object execute(ExecuteCommandContext context) {
         String uri = null;
         Range range = null;
-//        JsonArray parameters = null;
         JsonObject parameters = null;
         for (CommandArgument arg : context.getArguments()) {
             switch (arg.key()) {
@@ -85,7 +83,6 @@ public class AIDataMapperExecutor implements LSCommandExecutor {
                     null), fEdits);
             return CommandUtil.applyWorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)), client);
         } catch (IOException e) {
-            // ignore
             return null;
         }
     }

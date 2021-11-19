@@ -79,9 +79,9 @@ public class AIDataMapperExecutorUtil {
 
     public List<TextEdit> generateMappingEdits(ExecuteCommandContext context, JsonObject parameters, Path filePath,
                                                Range range) throws IOException {
-        List<TextEdit> fEdits = new ArrayList<>();
+        List<TextEdit> textEdits = new ArrayList<>();
 
-        fEdits.add(new TextEdit(range, parameters.get("functionName").getAsString()));
+        textEdits.add(new TextEdit(range, parameters.get("functionName").getAsString()));
         boolean foundFunction = parameters.get("foundFunction").getAsBoolean();
         if (!foundFunction) {
             JsonArray schemas = (JsonArray) parameters.get("schemas");
@@ -110,9 +110,9 @@ public class AIDataMapperExecutorUtil {
             JsonElement backgroundObject = parameters.get("backgroundInfo");
             String generatedRecordMappingFunction = generateMappingFunction(mappingFromServer,
                     (JsonObject) backgroundObject);
-            fEdits.add(new TextEdit(newFunctionRange, generatedRecordMappingFunction));
+            textEdits.add(new TextEdit(newFunctionRange, generatedRecordMappingFunction));
         }
-        return fEdits;
+        return textEdits;
     }
 
     /**
@@ -132,7 +132,7 @@ public class AIDataMapperExecutorUtil {
             this.mappingCache.put(hashCode, mappingFromServer);
             return mappingFromServer;
         } catch (IOException e) {
-            throw new IOException("Error connecting the AI service" + e.getMessage(), e);
+            throw new IOException("Error connecting the AI service - " + e);
         }
     }
 
