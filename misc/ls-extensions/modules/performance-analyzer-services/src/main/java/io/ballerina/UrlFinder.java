@@ -44,41 +44,41 @@ public class UrlFinder extends NodeVisitor {
     @Override
     public void visit(NamedArgumentNode namedArgumentNode) {
 
-        visitSyntaxNode(namedArgumentNode);
+        namedArgumentNode.expression().accept(this);
 
     }
 
     @Override
     public void visit(PositionalArgumentNode positionalArgumentNode) {
 
-        visitSyntaxNode(positionalArgumentNode);
+        positionalArgumentNode.expression().accept(this);
 
     }
 
     @Override
     public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
 
-        visitSyntaxNode(simpleNameReferenceNode);
+        simpleNameReferenceNode.name().accept(this);
 
     }
 
     @Override
     public void visit(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
 
-        visitSyntaxNode(qualifiedNameReferenceNode);
+        qualifiedNameReferenceNode.identifier().accept(this);
 
     }
 
     @Override
     public void visit(BasicLiteralNode basicLiteralNode) {
 
-        visitSyntaxNode(basicLiteralNode);
+        basicLiteralNode.literalToken().accept(this);
     }
 
     @Override
     public void visit(ParenthesizedArgList parenthesizedArgList) {
 
-        visitSyntaxNode(parenthesizedArgList);
+        parenthesizedArgList.arguments().forEach(functionArgumentNode -> functionArgumentNode.accept(this));
 
     }
 
