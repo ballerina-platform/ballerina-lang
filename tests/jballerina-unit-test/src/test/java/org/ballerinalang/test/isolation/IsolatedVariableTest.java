@@ -133,7 +133,6 @@ public class IsolatedVariableTest {
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 308, 16);
         validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 308, 16);
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 314, 13);
-        validateWarning(result, i++, "unused variable 'y'", 319, 5);
         validateWarning(result, i++, "unused variable 'z'", 320, 5);
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 323, 9);
         validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 324, 13);
@@ -144,7 +143,6 @@ public class IsolatedVariableTest {
         validateError(result, i++, ERROR_INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK, 343, 17);
         validateWarning(result, i++, "unused variable 'k'", 350, 17);
         validateError(result, i++, ERROR_INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK, 354, 9);
-        validateWarning(result, i++, "unused variable 'item'", 357, 13);
         validateWarning(result, i++, "unused variable 'e'", 359, 7);
         validateError(result, i++, ERROR_INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK, 360, 9);
         validateWarning(result, i++, "unused variable 'e'", 367, 7);
@@ -152,8 +150,8 @@ public class IsolatedVariableTest {
         validateWarning(result, i++, "unused variable 'e'", 373, 7);
         validateError(result, i++, ERROR_INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK, 374, 9);
         validateError(result, i++, ERROR_INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK, 374, 11);
-        Assert.assertEquals(result.getErrorCount(), i - 15);
-        Assert.assertEquals(result.getWarnCount(), 15);
+        Assert.assertEquals(result.getErrorCount(), i - 13);
+        Assert.assertEquals(result.getWarnCount(), 13);
     }
 
     @Test
@@ -161,7 +159,7 @@ public class IsolatedVariableTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/isolated-variables/isolated_variables.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
 
-        Assert.assertEquals(compileResult.getWarnCount(), 12);
+        Assert.assertEquals(compileResult.getWarnCount(), 10);
         for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
             Assert.assertTrue(diagnostic.message().startsWith("unused variable"));
         }

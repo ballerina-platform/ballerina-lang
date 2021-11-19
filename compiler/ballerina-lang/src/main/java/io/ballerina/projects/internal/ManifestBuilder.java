@@ -19,7 +19,6 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
@@ -91,6 +90,7 @@ public class ManifestBuilder {
     private static final String EXPORT = "export";
     private static final String PLATFORM = "platform";
     private static final String SCOPE = "scope";
+    private static final String TEMPLATE = "template";
 
     private ManifestBuilder(TomlDocument ballerinaToml,
                             TomlDocument compilerPluginToml,
@@ -160,6 +160,7 @@ public class ManifestBuilder {
         String repository = "";
         String ballerinaVersion = "";
         String visibility = "";
+        boolean template = false;
 
         if (!tomlAstNode.entries().isEmpty()) {
             TomlTableNode pkgNode = (TomlTableNode) tomlAstNode.entries().get(PACKAGE);
@@ -171,6 +172,7 @@ public class ManifestBuilder {
                 repository = getStringValueFromTomlTableNode(pkgNode, REPOSITORY, "");
                 ballerinaVersion = getStringValueFromTomlTableNode(pkgNode, "distribution", "");
                 visibility = getStringValueFromTomlTableNode(pkgNode, "visibility", "");
+                template = getBooleanFromTemplateNode(pkgNode, TEMPLATE);
             }
         }
 
@@ -200,14 +202,15 @@ public class ManifestBuilder {
         }
 
         return PackageManifest.from(packageDescriptor, pluginDescriptor, platforms, localRepoDependencies, otherEntries,
-                diagnostics(), license, authors, keywords, exported, repository, ballerinaVersion, visibility);
+                diagnostics(), license, authors, keywords, exported, repository, ballerinaVersion, visibility,
+                template);
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
         // set defaults
         PackageOrg defaultOrg = PackageOrg.from(guessOrgName());
         PackageName defaultName = PackageName.from(guessPkgName(Optional.ofNullable(this.projectPath.getFileName())
-                                                                        .map(Path::toString).orElse("")));
+                .map(Path::toString).orElse("")));
         PackageVersion defaultVersion = PackageVersion.from(ProjectConstants.INTERNAL_VERSION);
         String org;
         String name;
@@ -379,10 +382,8 @@ public class ManifestBuilder {
             return null;
         }
 
-        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
 
-        Boolean skipTests =
-                getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.SKIP_TESTS.toString());
         Boolean offline = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OFFLINE.toString());
         Boolean experimental =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.EXPERIMENTAL.toString());
@@ -404,18 +405,25 @@ public class ManifestBuilder {
         Boolean listConflictedClasses =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.LIST_CONFLICTED_CLASSES.toString());
 
-        return buildOptionsBuilder
-                .skipTests(skipTests)
-                .offline(offline)
-                .experimental(experimental)
-                .observabilityIncluded(observabilityIncluded)
-                .testReport(testReport)
-                .codeCoverage(codeCoverage)
-                .cloud(cloud)
-                .listConflictedClasses(listConflictedClasses)
-                .dumpBuildTime(dumpBuildTime)
-                .sticky(sticky)
-                .build();
+        String targetDir = getStringFromBuildOptionsTableNode(tableNode,
+                BuildOptions.OptionName.TARGET_DIR.toString());
+
+        buildOptionsBuilder
+                .setOffline(offline)
+                .setExperimental(experimental)
+                .setObservabilityIncluded(observabilityIncluded)
+                .setTestReport(testReport)
+                .setCodeCoverage(codeCoverage)
+                .setCloud(cloud)
+                .setListConflictedClasses(listConflictedClasses)
+                .setDumpBuildTime(dumpBuildTime)
+                .setSticky(sticky);
+
+        if (targetDir != null) {
+            buildOptionsBuilder.targetDir(targetDir);
+        }
+
+        return buildOptionsBuilder.build();
     }
 
     private Boolean getBooleanFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
@@ -433,6 +441,40 @@ public class ManifestBuilder {
             }
         }
         return null;
+    }
+
+    private String getStringFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
+        TopLevelNode topLevelNode = tableNode.entries().get(key);
+        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
+            return null;
+        }
+
+        if (topLevelNode.kind() == TomlType.KEY_VALUE) {
+            TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
+            TomlValueNode value = keyValueNode.value();
+            if (value.kind() == TomlType.STRING) {
+                TomlStringValueNode tomlStringValueNode = (TomlStringValueNode) value;
+                return tomlStringValueNode.getValue();
+            }
+        }
+        return null;
+    }
+
+    private boolean getBooleanFromTemplateNode(TomlTableNode tableNode, String key) {
+        TopLevelNode topLevelNode = tableNode.entries().get(key);
+        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
+            return false;
+        }
+
+        if (topLevelNode.kind() == TomlType.KEY_VALUE) {
+            TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
+            TomlValueNode value = keyValueNode.value();
+            if (value.kind() == TomlType.BOOLEAN) {
+                TomlBooleanValueNode tomlBooleanValueNode = (TomlBooleanValueNode) value;
+                return tomlBooleanValueNode.getValue();
+            }
+        }
+        return false;
     }
 
     private boolean getTrueFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {

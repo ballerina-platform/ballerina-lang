@@ -29,23 +29,29 @@ public class ConfigVariable {
     String name;
     BType type;
     boolean isRequired;
+    String description;
 
-    public ConfigVariable(String name, BType type, boolean isRequired) {
+    public ConfigVariable(String name, BType type, boolean isRequired, String description) {
         this.name = name;
         this.type = type;
         this.isRequired = isRequired;
+        this.description = description;
     }
 
-    public String getName() {
+    public String name() {
         return name;
     }
 
-    public BType getType() {
+    public BType type() {
         return type;
     }
 
     public boolean isRequired() {
         return isRequired;
+    }
+
+    public String description() {
+        return description;
     }
 
 }

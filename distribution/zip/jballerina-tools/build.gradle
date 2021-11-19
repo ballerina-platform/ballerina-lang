@@ -103,6 +103,7 @@ dependencies {
     dist project(':central-client')
     dist project(':ballerina-cli')
     dist project(':ballerina-rt')
+    dist project(':ballerina-linter')
 
     dist project(':testerina:testerina-core')
     dist project(':formatter:formatter-core')
@@ -120,6 +121,7 @@ dependencies {
     dist project(':ballerina-shell:shell-core')
     dist project(':ballerina-shell:shell-cli')
     dist project(':compiler-plugins:package-semantic-analyzer')
+    dist project(':compiler-plugins:configurable-schema-generator')
 
     datamapperLib project(':ballerinalang-data-mapper')
 

@@ -1321,7 +1321,7 @@ public class BIRPackageSymbolEnter {
                     errorType.flags = flags;
                     errorSymbol.type = errorType;
                     errorSymbol.pkgID = pkgId;
-                    errorSymbol.name = names.fromString(errorName);
+                    errorSymbol.originalName = errorSymbol.name = names.fromString(errorName);
                     Object poppedErrorType = compositeStack.pop();
                     assert poppedErrorType == errorType;
                     if (!env.pkgSymbol.pkgID.equals(PackageID.ANNOTATIONS)

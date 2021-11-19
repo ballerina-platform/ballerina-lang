@@ -17,6 +17,16 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.MappingFieldNode;
+import io.ballerina.compiler.syntax.tree.MetadataNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.configurations.ConfigModuleDetails;
 import io.ballerina.projects.configurations.ConfigVariable;
 import org.ballerinalang.model.elements.PackageID;
@@ -32,6 +42,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Util class to read configurable variables defined in a package.
@@ -50,7 +62,7 @@ public class ConfigReader {
     public static Map<ConfigModuleDetails, List<ConfigVariable>> getConfigVariables(Package packageInstance) {
         Map<ConfigModuleDetails, List<ConfigVariable>> configDetails = new HashMap<>();
         for (Module module : packageInstance.modules()) {
-            getConfigs(module.moduleName(), module.moduleContext().bLangPackage(), configDetails);
+            getConfigs(module, module.moduleContext().bLangPackage(), configDetails);
         }
         return configDetails;
     }
@@ -58,11 +70,11 @@ public class ConfigReader {
     /**
      * Update provided map with the configurable variable details for the given module.
      *
-     * @param moduleName ModuleName to retrieve module details
+     * @param module Module to retrieve module details
      * @param bLangPackage to retrieve configurable variable details
      * @param configDetails Map to store the configurable variables against module
      */
-    private static void getConfigs(ModuleName moduleName,
+    private static void getConfigs(Module module,
                                    BLangPackage bLangPackage, Map<ConfigModuleDetails,
             List<ConfigVariable>> configDetails) {
         List<ConfigVariable> configVariables = new ArrayList<>();
@@ -74,14 +86,17 @@ public class ConfigReader {
                     Flags.CONFIGURABLE)) {
                 if (symbol instanceof BVarSymbol) {
                     BVarSymbol varSymbol = (BVarSymbol) symbol;
-                    configVariables.add(new ConfigVariable(
-                            varSymbol.name.value, varSymbol.type, Symbols.isFlagOn(varSymbol.flags, Flags.REQUIRED)));
+                    // Get description
+                    String description = getDescription(varSymbol, module);
+                    configVariables.add(new ConfigVariable(varSymbol.name.value, varSymbol.type,
+                            Symbols.isFlagOn(varSymbol.flags, Flags.REQUIRED), description));
                 }
             }
         }
         if (!configVariables.isEmpty()) {
             // Add configurable variable details for the current package
-            configDetails.put(getConfigModuleDetails(moduleName, currentPkgId, true), configVariables);
+            configDetails.put(getConfigModuleDetails(module.moduleName(), currentPkgId,
+                    module.project().kind()), configVariables);
         }
     }
 
@@ -90,15 +105,90 @@ public class ConfigReader {
      *
      * @param moduleName to retrieve module details
      * @param packageID to retrieve package details
-     * @param isCurrentPackage flag to denote current package or not
+     * @param projectKind to retrieve information about the type of project
      * @return module details stored in object ConfigModuleDetails
      */
     private static ConfigModuleDetails getConfigModuleDetails(ModuleName moduleName, PackageID packageID,
-                                                              boolean isCurrentPackage) {
+                                                              ProjectKind projectKind) {
         String orgName = packageID.getOrgName().getValue();
         String packageName = packageID.getPkgName().getValue();
         String moduleNameVal = moduleName.isDefaultModuleName() ? moduleName.toString() : moduleName.moduleNamePart();
-        return new ConfigModuleDetails(orgName, packageName, moduleNameVal, isCurrentPackage);
+        return new ConfigModuleDetails(orgName, packageName, moduleNameVal, projectKind);
+    }
+
+    /**
+     * Get configurable variable description as String.
+     *
+     * @param symbol to get position details
+     * @param module to retrieve module details
+     * @return configurable variable description
+     */
+    private static String getDescription(BVarSymbol symbol, Module module) {
+        Map<Document, SyntaxTree> syntaxTreeMap = getSyntaxTreeMap(module);
+        Node variableNode = getVariableNode(symbol.getPosition().lineRange().startLine().line(), syntaxTreeMap);
+        if (variableNode != null) {
+            Optional<MetadataNode> optionalMetadataNode =
+                    ((ModuleVariableDeclarationNode) variableNode).metadata();
+            if (optionalMetadataNode.isPresent()) {
+                NodeList<AnnotationNode> annotations = optionalMetadataNode.get().annotations();
+                for (AnnotationNode annotation : annotations) {
+                    if (annotation.annotReference().toString().trim().equals("display") &&
+                            annotation.annotValue().isPresent()) {
+                        for (MappingFieldNode fieldNode : annotation.annotValue().get().fields()) {
+                            if (((SpecificFieldNode) fieldNode).fieldName().toString().trim()
+                                    .equals("description")) {
+                                if (((SpecificFieldNode) fieldNode).valueExpr().isPresent()) {
+                                    return ((SpecificFieldNode) fieldNode).valueExpr().get().toString().trim();
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+        return "";
+    }
+
+    /**
+     * Get Syntax tree node for the configurable variable in given position.
+     *
+     * @param position position of configurable BVarSymbol
+     * @param syntaxTreeMap Syntax tree map for the specific module
+     * @return Relevant syntax tree node for the variable
+     */
+    private static Node getVariableNode(int position, Map<Document, SyntaxTree> syntaxTreeMap) {
+        for (Map.Entry<Document, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
+            if (syntaxTreeEntry.getValue().containsModulePart()) {
+                ModulePartNode modulePartNode = syntaxTreeMap.get(syntaxTreeEntry.getKey()).rootNode();
+                List<Node> filteredVarNodes = modulePartNode.members().stream()
+                        .filter(node -> node.kind() == SyntaxKind.MODULE_VAR_DECL &&
+                                node instanceof ModuleVariableDeclarationNode)
+                        .collect(Collectors.toList());
+                for (Node node : filteredVarNodes) {
+                    if (node.location().lineRange().startLine().line() <= position &&
+                            node.location().lineRange().endLine().line() >= position) {
+                        return node;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get syntax tree map for given module.
+     *
+     * @param module to get module details
+     * @return map of SyntaxTree against Document in module
+     */
+    private static Map<Document, SyntaxTree> getSyntaxTreeMap(Module module) {
+        Map<Document, SyntaxTree> syntaxTreeMap = new HashMap<>();
+        module.documentIds().forEach(documentId -> {
+            Document document = module.document(documentId);
+            syntaxTreeMap.put(document, document.syntaxTree());
+        });
+        return syntaxTreeMap;
     }
 
 }

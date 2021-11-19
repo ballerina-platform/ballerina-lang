@@ -284,9 +284,9 @@ public class MatchStructuredPatternsTest {
         BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 'c'", 87, 9);
         BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 'd'", 87, 9);
         BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 'x'", 88, 9);
+        BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 91, 5);
         BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 'age'", 92, 9);
         BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 'name'", 92, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 92, 35);
         BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 'a'", 93, 9);
         BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 'b'", 93, 9);
         BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 'c'", 93, 9);

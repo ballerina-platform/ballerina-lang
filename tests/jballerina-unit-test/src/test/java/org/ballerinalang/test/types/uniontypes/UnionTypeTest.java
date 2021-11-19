@@ -131,9 +131,9 @@ public class UnionTypeTest {
         BAssertUtil.validateError(negativeResult, i++, "ambiguous type '(ClosedBar|OpenBar)'", 44, 28);
         BAssertUtil.validateError(negativeResult, i++, "incompatible mapping constructor expression for type '" +
                 "(ClosedFoo|Foo2)'", 47, 25);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int:Signed8', found 'int'",
-                54, 31);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int:Signed8', found 'int'",
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(int:Signed8|object { })'," +
+                        " found 'int'", 54, 31);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'SomeTypes', found 'int'",
                 55, 20);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(string:Char|int)', " +
                         "found 'string'", 56, 26);

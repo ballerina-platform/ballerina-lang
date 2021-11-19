@@ -18,7 +18,6 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.TomlDocument;
@@ -200,7 +199,7 @@ public class ProjectFiles {
                 .from(ballerinaToml, pluginToml, projectDirPath);
         BuildOptions defaultBuildOptions = manifestBuilder.buildOptions();
         if (defaultBuildOptions == null) {
-            defaultBuildOptions = new BuildOptionsBuilder().build();
+            defaultBuildOptions = BuildOptions.builder().build();
         }
         return defaultBuildOptions.acceptTheirs(theirOptions);
     }

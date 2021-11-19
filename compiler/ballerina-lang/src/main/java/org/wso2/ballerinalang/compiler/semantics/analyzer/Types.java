@@ -128,6 +128,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.SIGNED
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED16_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED32_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED8_MAX_VALUE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.NEVER;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.isSimpleBasicType;
 
 /**
@@ -152,6 +153,7 @@ public class Types {
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private int recordCount = 0;
     private SymbolEnv env;
+    private boolean ignoreObjectTypeIds = false;
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -645,6 +647,13 @@ public class Types {
      */
     public boolean isAssignable(BType source, BType target) {
         return isAssignable(source, target, new HashSet<>());
+    }
+
+    public boolean isAssignableIgnoreObjectTypeIds(BType source, BType target) {
+        this.ignoreObjectTypeIds = true;
+        boolean result = isAssignable(source, target);
+        this.ignoreObjectTypeIds = false;
+        return result;
     }
 
     private boolean isAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
@@ -1575,7 +1584,7 @@ public class Types {
             }
         }
 
-        return lhsType.typeIdSet.isAssignableFrom(rhsType.typeIdSet);
+        return lhsType.typeIdSet.isAssignableFrom(rhsType.typeIdSet) || this.ignoreObjectTypeIds;
     }
 
     private int getObjectFuncCount(BObjectTypeSymbol sym) {
@@ -3004,8 +3013,9 @@ public class Types {
             BField rhsField = rhsFields.get(lhsField.name.value);
 
             // If LHS field is required, there should be a corresponding RHS field
+            // If LHS field is never typed, RHS rest field type should include never type
             if (rhsField == null) {
-                if (!Symbols.isOptional(lhsField.symbol)) {
+                if (!Symbols.isOptional(lhsField.symbol) || isInvalidNeverField(lhsField, rhsType)) {
                     return false;
                 }
                 continue;
@@ -3045,6 +3055,25 @@ public class Types {
             }
         }
         return true;
+    }
+
+    private boolean isInvalidNeverField(BField lhsField, BRecordType rhsType) {
+        if (lhsField.type.tag != NEVER || rhsType.sealed) {
+            return false;
+        }
+        switch (rhsType.restFieldType.tag) {
+            case TypeTags.UNION:
+                for (BType member : ((BUnionType) rhsType.restFieldType).getOriginalMemberTypes()) {
+                    if (member.tag == NEVER) {
+                        return false;
+                    }
+                }
+                return true;
+            case NEVER:
+                return false;
+            default:
+                return true;
+        }
     }
 
     private BAttachedFunction getMatchingInvokableType(List<BAttachedFunction> rhsFuncList, BAttachedFunction lhsFunc,
@@ -3464,6 +3493,31 @@ public class Types {
                 return baseValue.equals(candidateValue);
         }
         return false;
+    }
+
+    boolean validateFloatLiteral(Location pos, String numericLiteral) {
+        double value = Double.parseDouble(numericLiteral);
+        if (Double.isInfinite(value)) {
+            dlog.error(pos, DiagnosticErrorCode.FLOAT_TOO_LARGE, numericLiteral);
+            return false;
+        }
+        if (value != 0.0) {
+            return true;
+        }
+
+        List<Character> exponentIndicator = List.of('e', 'E', 'p', 'P');
+        for (int i = 0; i < numericLiteral.length(); i++) {
+            char character = numericLiteral.charAt(i);
+            if (exponentIndicator.contains(character)) {
+                break;
+            }
+            if (numericLiteral.charAt(i) >= '1' && numericLiteral.charAt(i) <= '9') {
+                dlog.error(pos, DiagnosticErrorCode.FLOAT_TOO_SMALL, numericLiteral);
+                return false;
+            }
+
+        }
+        return true;
     }
 
     boolean isByteLiteralValue(Long longObject) {
@@ -4305,9 +4359,18 @@ public class Types {
                     .collect(Collectors.toList());
             if (types.size() == 1) {
                 BType bType = types.get(0);
-                return ImmutableTypeCloner.getImmutableType(null, this, bType, env, env.enclPkg.packageID, null,
-                        symTable, anonymousModelHelper, names,
-                        new LinkedHashSet<>());
+
+                if (isInherentlyImmutableType(type) || Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+                    return type;
+                }
+
+                if (!isSelectivelyImmutableType(type, new HashSet<>())) {
+                    return symTable.semanticError;
+                }
+
+                return ImmutableTypeCloner.getEffectiveImmutableType(null, this,
+                                                                     (SelectivelyImmutableReferenceType) bType,
+                                                                     env, symTable, anonymousModelHelper, names);
             }
         }
 

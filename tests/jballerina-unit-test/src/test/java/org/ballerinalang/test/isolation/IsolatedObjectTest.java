@@ -251,7 +251,6 @@ public class IsolatedObjectTest {
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 667, 20);
         validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 667, 20);
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 673, 17);
-        validateWarning(result, i++, "unused variable 'y'", 682, 9);
         validateWarning(result, i++, "unused variable 'z'", 683, 9);
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 686, 13);
         validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 687, 17);
@@ -282,8 +281,8 @@ public class IsolatedObjectTest {
         validateWarning(result, i++, "unused variable 'item2'", 822, 29);
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 822, 62);
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 822, 71);
-        Assert.assertEquals(result.getErrorCount(), i - 20);
-        Assert.assertEquals(result.getWarnCount(), 20);
+        Assert.assertEquals(result.getErrorCount(), i - 19);
+        Assert.assertEquals(result.getWarnCount(), 19);
     }
 
     @Test
@@ -291,7 +290,7 @@ public class IsolatedObjectTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/isolated-objects/isolated_objects.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
 
-        Assert.assertEquals(compileResult.getWarnCount(), 17);
+        Assert.assertEquals(compileResult.getWarnCount(), 15);
         for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
             Assert.assertTrue(diagnostic.message().startsWith("unused variable"));
         }

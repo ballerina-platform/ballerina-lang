@@ -51,8 +51,7 @@
   },
   {
     "description": "Define readonly selectively immutable variable.",
-    "code": "map<int> & readonly marksRo = { math: 80, physics: 85, chemistry: 75 }; marksRo.isReadOnly()",
-    "expr": "true"
+    "code": "map<int> & readonly marksRo = { math: 80, physics: 85, chemistry: 75 };"
   },
   {
     "description": "Use never type in a statement.",

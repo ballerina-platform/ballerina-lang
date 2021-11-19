@@ -170,6 +170,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_ARRAY_LENGTH("BCE2126", "invalid.array.length"),
     CANNOT_RESOLVE_CONST("BCE2127", "cannot.resolve.const"),
     ALREADY_INITIALIZED_SYMBOL_WITH_ANOTHER("BCE2128", "already.initialized.symbol.with.another"),
+    FLOAT_TOO_LARGE("BCE2129", "float.too.large"),
+    FLOAT_TOO_SMALL("BCE2130", "float.too.small"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
@@ -597,9 +599,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     OVERLOADED_METHODS("BCE3915", "overloaded.method"),
     UNSUPPORTED_PRIMITIVE_TYPE("BCE3916", "unsupported.primitive.type.reason"),
     METHOD_SIGNATURE_DOES_NOT_MATCH("BCE3917", "method.signature.not.match"),
-    INVALID_DEPRECATION_DOCUMENTATION("BCE3918", "invalid.deprecation.documentation"),
-    DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE("BCE3919", "deprecation.documentation.should.available"),
-    DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED("BCE3920", "deprecated.parameters.documentation.not.allowed"),
     INVALID_ATTRIBUTE_REFERENCE("BCE3921", "invalid.attribute.reference"),
 
     ILLEGAL_FUNCTION_CHANGE_LIST_SIZE("BCE3922", "illegal.function.change.list.size"),
@@ -753,7 +752,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     INVALID_NON_ISOLATED_CALL_IN_MATCH_GUARD("BCE4018", "invalid.non.isolated.call.in.match.guard"),
     INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD("BCE4019", "invalid.call.with.mutable.args.in.match.guard"),
-    ERROR_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND("BCE4020", "error.constructor.compatible.type.not.found")
+    ERROR_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND("BCE4020", "error.constructor.compatible.type.not.found"),
+    CANNOT_INFER_SERVICE_TYPES_FROM_LISTENERS("BCE4021", "cannot.infer.service.type.from.listeners"),
+    SERVICE_DOES_NOT_IMPLEMENT_REQUIRED_CONSTRUCTS("BCE4022", "service.decl.does.not.implement.required.constructs")
     ;
 
     private String diagnosticId;
