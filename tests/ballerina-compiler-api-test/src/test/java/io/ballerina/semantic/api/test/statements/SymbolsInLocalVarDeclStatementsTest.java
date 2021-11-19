@@ -89,7 +89,7 @@ public class SymbolsInLocalVarDeclStatementsTest {
                 {17, 14, "integer", TypeDescKind.INT, false, true},
                 {19, 11, "str", TypeDescKind.STRING, false, false},
                 {22, 17, "person", TypeDescKind.TYPE_REFERENCE, true, true},
-                {25, 14, "foo", TypeDescKind.INT, true, true},
+//                {25, 14, "foo", TypeDescKind.INT, true, true},    // TODO: Fix #33117
                 {27, 27, "intVar", TypeDescKind.INT, false, false},
                 {27, 50, "otherVal", TypeDescKind.ARRAY, false, false},
                 {29, 29, "a1", TypeDescKind.STRING, false, false},
