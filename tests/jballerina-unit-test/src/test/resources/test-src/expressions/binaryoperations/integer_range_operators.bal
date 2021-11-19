@@ -194,6 +194,61 @@ function testClosedIntRangeOnIntSubTypes() {
     assertEquality(arr[2], -4);
     assertEquality(arr[3], -3);
     assertEquality(arr[4], -2);
+
+    byte startValue11 = 7;
+    byte endValue11 = 10;
+    arrIndex = 0;
+    arr.removeAll();
+    foreach var val in startValue11 ... endValue11 {
+        arr[arrIndex] = val;
+        arrIndex += 1;
+    }
+    assertEquality(arr.length(), 4);
+    assertEquality(arr[0], 7);
+    assertEquality(arr[1], 8);
+    assertEquality(arr[2], 9);
+    assertEquality(arr[3], 10);
+
+    int startValue12 = 7;
+    byte endValue12 = 10;
+    arrIndex = 0;
+    arr.removeAll();
+    foreach var val in startValue12 ... endValue12 {
+        arr[arrIndex] = val;
+        arrIndex += 1;
+    }
+    assertEquality(arr.length(), 4);
+    assertEquality(arr[0], 7);
+    assertEquality(arr[1], 8);
+    assertEquality(arr[2], 9);
+    assertEquality(arr[3], 10);
+
+    int:Signed16|int:Unsigned32 startValue13 = 7;
+    int:Signed16|int:Unsigned32 endValue13 = 10;
+    arrIndex = 0;
+    arr.removeAll();
+    foreach var val in startValue13 ... endValue13 {
+        arr[arrIndex] = val;
+        arrIndex += 1;
+    }
+    assertEquality(arr.length(), 4);
+    assertEquality(arr[0], 7);
+    assertEquality(arr[1], 8);
+    assertEquality(arr[2], 9);
+    assertEquality(arr[3], 10);
+
+    Ints startValue14 = 4;
+    Ints endValue14 = 6;
+    arrIndex = 0;
+    arr.removeAll();
+    foreach var val in startValue14 ... endValue14 {
+        arr[arrIndex] = val;
+        arrIndex += 1;
+    }
+    assertEquality(arr.length(), 3);
+    assertEquality(arr[0], 4);
+    assertEquality(arr[1], 5);
+    assertEquality(arr[2], 6);
 }
 
 function testHalfOpenIntRangeOnIntSubTypes() {
@@ -254,6 +309,104 @@ function testHalfOpenIntRangeOnIntSubTypes() {
     assertEquality(arr[0], -12);
     assertEquality(arr[1], -11);
     assertEquality(arr[2], -10);
+
+    byte startValue5 = 7;
+    byte endValue5 = 10;
+    arrIndex = 0;
+    arr.removeAll();
+    foreach var val in startValue5 ..< endValue5 {
+        arr[arrIndex] = val;
+        arrIndex += 1;
+    }
+    assertEquality(arr.length(), 3);
+    assertEquality(arr[0], 7);
+    assertEquality(arr[1], 8);
+    assertEquality(arr[2], 9);
+
+    int startValue6 = 7;
+    byte endValue6 = 10;
+    arrIndex = 0;
+    arr.removeAll();
+    foreach var val in startValue6 ..< endValue6 {
+        arr[arrIndex] = val;
+        arrIndex += 1;
+    }
+    assertEquality(arr.length(), 3);
+    assertEquality(arr[0], 7);
+    assertEquality(arr[1], 8);
+    assertEquality(arr[2], 9);
+
+    int:Signed16|int:Unsigned32 startValue7 = 7;
+    int:Signed16|int:Unsigned32 endValue7 = 10;
+    arrIndex = 0;
+    arr.removeAll();
+    foreach var val in startValue7 ..< endValue7 {
+        arr[arrIndex] = val;
+        arrIndex += 1;
+    }
+    assertEquality(arr.length(), 3);
+    assertEquality(arr[0], 7);
+    assertEquality(arr[1], 8);
+    assertEquality(arr[2], 9);
+
+    Ints startValue8 = 4;
+    Ints endValue8 = 6;
+    arrIndex = 0;
+    arr.removeAll();
+    foreach var val in startValue8 ..< endValue8 {
+        arr[arrIndex] = val;
+        arrIndex += 1;
+    }
+    assertEquality(arr.length(), 2);
+    assertEquality(arr[0], 4);
+    assertEquality(arr[1], 5);
+}
+
+type Ints 2|4|6;
+
+function testIntRangeWithHexInt() {
+    int[] arr = [];
+    int arrIndex = 0;
+
+    foreach var val in 0x3 ... 0x5 {
+        arr[arrIndex] = val;
+        arrIndex += 1;
+    }
+    assertEquality(arr.length(), 3);
+    assertEquality(arr[0], 3);
+    assertEquality(arr[1], 4);
+    assertEquality(arr[2], 5);
+
+    arrIndex = 0;
+    arr.removeAll();
+    foreach var val in 3 ... 0x5 {
+        arr[arrIndex] = val;
+        arrIndex += 1;
+    }
+    assertEquality(arr.length(), 3);
+    assertEquality(arr[0], 3);
+    assertEquality(arr[1], 4);
+    assertEquality(arr[2], 5);
+
+    arrIndex = 0;
+    arr.removeAll();
+    foreach var val in 0x3 ..< 0x5 {
+        arr[arrIndex] = val;
+        arrIndex += 1;
+    }
+    assertEquality(arr.length(), 2);
+    assertEquality(arr[0], 3);
+    assertEquality(arr[1], 4);
+
+    arrIndex = 0;
+    arr.removeAll();
+    foreach var val in 0x3 ..< 5 {
+        arr[arrIndex] = val;
+        arrIndex += 1;
+    }
+    assertEquality(arr.length(), 2);
+    assertEquality(arr[0], 3);
+    assertEquality(arr[1], 4);
 }
 
 type AssertionError distinct error;

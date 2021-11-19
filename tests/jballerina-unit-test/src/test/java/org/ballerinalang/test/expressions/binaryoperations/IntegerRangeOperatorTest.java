@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
 /**
  * Class to test the functionality of integer range operators.
  */
-
 public class IntegerRangeOperatorTest {
 
     private CompileResult result;
@@ -188,6 +187,11 @@ public class IntegerRangeOperatorTest {
         BRunUtil.invoke(result, "testHalfOpenIntRangeOnIntSubTypes");
     }
 
+    @Test(description = "Test int range with hex integers")
+    public void testIntRangeWithHexInt() {
+        BRunUtil.invoke(result, "testIntRangeWithHexInt");
+    }
+
     @Test(description = "Test integer range operators with errors")
     public void testSubtractStmtNegativeCases() {
         Assert.assertEquals(negativeResult.getErrorCount(), 8);
@@ -200,5 +204,4 @@ public class IntegerRangeOperatorTest {
         BAssertUtil.validateError(negativeResult, 6, "operator '..<' not defined for 'float' and 'float'", 15, 26);
         BAssertUtil.validateError(negativeResult, 7, "operator '..<' not defined for 'int' and 'float'", 16, 25);
     }
-
 }
