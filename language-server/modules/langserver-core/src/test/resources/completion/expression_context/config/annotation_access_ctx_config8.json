@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 3,
-    "character": 9
+    "line": 18,
+    "character": 8
   },
-  "source": "expression_context/source/annotation_access_ctx_source3.bal",
+  "source": "expression_context/source/annotation_access_ctx_source8.bal",
   "items": [
     {
       "label": "deprecated",
@@ -14,19 +14,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "display",
+      "label": "MyAnnotation",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "AR",
-      "insertText": "display",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "a1",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "a1",
+      "insertText": "MyAnnotation",
       "insertTextFormat": "Snippet"
     },
     {

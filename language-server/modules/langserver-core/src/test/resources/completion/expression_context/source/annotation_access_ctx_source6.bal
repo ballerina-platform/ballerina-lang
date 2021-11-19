@@ -1,10 +1,10 @@
 import ballerina/module1;
 
-function getTDesc() returns typedesc<function()> {
-    typedesc<function()> td = typeof testFunction;
+function getTDesc() returns typedesc<function ()> {
+    typedesc<function ()> td = typeof testFunction;
 
     td.@module1:
-    
+
     return td;
 }
 
@@ -13,7 +13,7 @@ function testFunction() {
 }
 
 type AnnotationType record {
-    string foo;  
+    string foo;
     int bar?;
 };
 

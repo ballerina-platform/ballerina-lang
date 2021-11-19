@@ -1,18 +1,10 @@
 {
   "position": {
-    "line": 3,
-    "character": 9
+    "line": 16,
+    "character": 37
   },
-  "source": "expression_context/source/annotation_access_ctx_source3.bal",
+  "source": "expression_context/source/annotation_access_ctx_source11.bal",
   "items": [
-    {
-      "label": "deprecated",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "deprecated",
-      "insertTextFormat": "Snippet"
-    },
     {
       "label": "display",
       "kind": "Property",
@@ -22,11 +14,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "a1",
+      "label": "MyAnnotationClass",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "AR",
-      "insertText": "a1",
+      "insertText": "MyAnnotationClass",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "deprecated",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "deprecated",
       "insertTextFormat": "Snippet"
     },
     {
@@ -172,6 +172,70 @@
           "newText": "import ballerina/lang.runtime;\n"
         }
       ]
+    },
+    {
+      "label": "typeParam",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "typeParam",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MyAnnotationReturn",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "MyAnnotationReturn",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "tainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "tainted",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "builtinSubtype",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "builtinSubtype",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "untainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "untainted",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "strand",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "strand",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "isolatedParam",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "isolatedParam",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MyAnnotationService",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "MyAnnotationService",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
