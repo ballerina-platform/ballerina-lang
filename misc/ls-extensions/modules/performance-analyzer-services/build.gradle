@@ -46,6 +46,8 @@ dependencies {
     testCompile project(':language-server:language-server-core')
     testCompile 'com.google.code.gson:gson:2.8.8'
     testCompile (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
+    testCompile (group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.28.0')
+    testCompile (group: 'net.javacrumbs.json-unit', name: 'json-unit-json-path', version: '2.28.0')
 
 }
 
