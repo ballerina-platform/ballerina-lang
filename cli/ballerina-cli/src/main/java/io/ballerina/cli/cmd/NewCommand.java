@@ -52,6 +52,7 @@ public class NewCommand implements BLauncherCmd {
     private Path userDir;
     private PrintStream errStream;
     private boolean exitWhenFinish;
+    Path customHomeCache;
     Path homeCache = RepoUtils.createAndGetHomeReposPath();
     Path balaCache = homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
             .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
@@ -86,7 +87,7 @@ public class NewCommand implements BLauncherCmd {
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         CommandUtil.initJarFs();
-        this.homeCache = homeCache;
+        this.customHomeCache = homeCache;
     }
 
     @Override

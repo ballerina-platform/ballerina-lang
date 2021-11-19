@@ -68,6 +68,7 @@ import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static java.lang.Runtime.getRuntime;
 import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.list;
 import static java.nio.file.Files.write;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.ANY_PLATFORM;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
@@ -274,14 +275,12 @@ public class CommandUtil {
         if (version == null) {
             Path balaToPkgPath = balaCache.resolve(orgName).resolve(packageName);
             List<PackageVersion> packageVersions = getPackageVersions(balaToPkgPath);
-
             if (packageVersions.size() == 1) {
                 version = String.valueOf(packageVersions.get(0));
             } else {
                 version = String.valueOf(findLatest(packageVersions));
             }
         }
-
         Path balaPath = balaCache.resolve(
                 ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
         //First we will check for a bala that match any platform
@@ -315,12 +314,14 @@ public class CommandUtil {
                     Files.copy(moduleMd, toModuleMd);
                 }
                 // Copy modules
-//                Path sourceModulesDir = balaPath.resolve("modules").resolve(packageName);
-//                if (Files.exists(sourceModulesDir)) {
-//                    Files.walkFileTree(sourceModulesDir, new FileUtils.Copy(sourceModulesDir, modulePath));
-//                }
-                extractModulesToProjectPath(balaPath, modulePath, packageName);
-
+                if (list(balaPath.resolve("modules")).count() > 1) {
+                    extractModulesToProjectPath(balaPath, modulePath, packageName);
+                } else {
+                    Path sourceModulesDir = balaPath.resolve("modules").resolve(packageName);
+                    if (Files.exists(sourceModulesDir)) {
+                        Files.walkFileTree(sourceModulesDir, new FileUtils.Copy(sourceModulesDir, modulePath));
+                    }
+                }
                 // Copy package.json and write it as Ballerina.toml
                 if (Files.exists(packageJsonPath)) {
                     Path balaToml = modulePath.resolve(ProjectConstants.BALLERINA_TOML);
@@ -384,7 +385,6 @@ public class CommandUtil {
             throw createLauncherException(
                     "unexpected error occurred while creating package repository in bala cache: " + e.getMessage());
         }
-
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
             try {
                 Settings settings;
@@ -427,20 +427,24 @@ public class CommandUtil {
                 StandardOpenOption.APPEND);
 
         Path modulesDirPath = modulePath.resolve("modules");
-        Files.writeString(balTomlPath, "\nexport = [", StandardOpenOption.APPEND);
         File file = new File(String.valueOf(modulesDirPath));
         File[] listFiles = file.listFiles();
         String writeExportVal = "";
         if (listFiles != null) {
+            Files.writeString(balTomlPath, "\nexport = [", StandardOpenOption.APPEND);
             for (File module : listFiles) {
                 if (module.isDirectory()) {
                     String moduleFileName = module.getCanonicalFile().getName();
-                    writeExportVal = writeExportVal + "\"" + modulePath.getFileName() + "." + moduleFileName + "\", ";
+                    writeExportVal = writeExportVal + "\"" + modulePath.getFileName() + "." + moduleFileName
+                            + "\", ";
                 }
             }
+            if (writeExportVal.length() > 0 && writeExportVal
+                    .charAt(writeExportVal.length() - 2) == ',') {
+                writeExportVal = writeExportVal.substring(0, writeExportVal.length() - 2);
+            }
+            Files.writeString(balTomlPath, writeExportVal + "]", StandardOpenOption.APPEND);
         }
-        String trimmedExportValue = writeExportVal.substring(0, writeExportVal.trim().length() - 1) + "]";
-        Files.writeString(balTomlPath, trimmedExportValue, StandardOpenOption.APPEND);
 
         Files.writeString(balTomlPath, "\nballerina_version = \"" + packageJson.getBallerinaVersion()
                 + "\"", StandardOpenOption.APPEND);
@@ -590,7 +594,7 @@ public class CommandUtil {
 
     public static List<PackageVersion> getPackageVersions(Path balaPackagePath) {
         List<Path> versions = new ArrayList<>();
-        Stream<Path> collectVersions = null;
+        Stream<Path> collectVersions;
         try {
             collectVersions = Files.list(balaPackagePath);
         } catch (IOException e) {
@@ -619,10 +623,9 @@ public class CommandUtil {
     }
 
     public static void extractModulesToProjectPath(Path balaPath, Path modulePath, String packageName) {
-        Stream<Path> collectModules = null;
+        Stream<Path> collectModules;
         Path moduleDirPath = modulePath.resolve("modules");
         try {
-            Files.createDirectories(moduleDirPath);
             if (Files.list(balaPath.resolve("modules")) != null) {
                 collectModules = Files.list(balaPath.resolve("modules"));
                 List<Path> modulesList = collectModules.collect(Collectors.toList());
@@ -633,13 +636,15 @@ public class CommandUtil {
                     try (InputStream inputStream = new FileInputStream(String.valueOf(packageJsonPath))) {
                         Reader fileReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
                         PackageJson packageJson = gson.fromJson(fileReader, PackageJson.class);
-                        List<String> exportModules = packageJson.getExport();
-                        for (String exportModule : exportModules) {
-                            if (exportModule.equals(moduleName)) {
-                                String splitModuleName = moduleName.split("\\.")[1];
-                                String concatModuleName = modulePath.getFileName().toString() + "." + splitModuleName;
-                                Path toModulePath = createDirectories(moduleDirPath.resolve(splitModuleName));
-                                Files.walkFileTree(module, new FileUtils.Copy(module, toModulePath));
+                        if (packageJson.getExport() != null) {
+                            List<String> exportModules = packageJson.getExport();
+                            Files.createDirectories(moduleDirPath);
+                            for (String exportModule : exportModules) {
+                                if (exportModule.equals(moduleName)) {
+                                    String splitModuleName = moduleName.split("\\.")[1];
+                                    Path toModulePath = createDirectories(moduleDirPath.resolve(splitModuleName));
+                                    Files.walkFileTree(module, new FileUtils.Copy(module, toModulePath));
+                                }
                             }
                         }
                     } catch (IOException e) {

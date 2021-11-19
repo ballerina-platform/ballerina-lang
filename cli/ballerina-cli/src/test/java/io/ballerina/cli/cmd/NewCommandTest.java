@@ -247,7 +247,7 @@ public class NewCommandTest extends BaseCommandTest {
     @Test(description = "Test new command with central template in the local cache")
     public void testNewCommandWithTemplateInLocalCache() throws IOException {
         // Test if no arguments was passed in
-        String templateArg = "admin/Sample:0.1.5";
+        String templateArg = "parkavik/Hello:0.1.2";
         String[] args = {"sample_pull_local", "-t", templateArg};
         NewCommand newCommand = new NewCommand(tmpDir, printStream, false, homeCache);
         new CommandLine(newCommand).parseArgs(args);
@@ -260,11 +260,11 @@ public class NewCommandTest extends BaseCommandTest {
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedTomlContent = "[package]\n" +
-                "org = \"admin\"\n" +
-                "name = \"Sample\"\n" +
-                "version = \"0.1.5\"\n" +
-                "export = [\"Sample\"]\n" +
-                "ballerina_version = \"slbeta4\"\n" +
+                "org = \"parkavik\"\n" +
+                "name = \"sample_pull_local\"\n" +
+                "version = \"0.1.2\"\n" +
+                "export = [\"sample_pull_local.module2\", \"sample_pull_local.module1\"]\n" +
+                "ballerina_version = \"slbeta3\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
                 "language_spec_version = \"2021R1\"\n" +
                 "template = true";
@@ -292,9 +292,8 @@ public class NewCommandTest extends BaseCommandTest {
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedTomlContent = "[package]\n" +
                 "org = \"parkavik\"\n" +
-                "name = \"Sample\"\n" +
+                "name = \"sample_pull_WO_Module_Version\"\n" +
                 "version = \"1.0.1\"\n" +
-                "export = [\"Sample\"]\n" +
                 "ballerina_version = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
                 "language_spec_version = \"2021R1\"\n" +
@@ -323,9 +322,8 @@ public class NewCommandTest extends BaseCommandTest {
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedTomlContent = "[package]\n" +
                 "org = \"parkavik\"\n" +
-                "name = \"Sample\"\n" +
+                "name = \"sample_pull\"\n" +
                 "version = \"1.0.0\"\n" +
-                "export = [\"Sample\"]\n" +
                 "ballerina_version = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
                 "language_spec_version = \"2021R1\"\n" +
@@ -367,9 +365,8 @@ public class NewCommandTest extends BaseCommandTest {
 
         String expectedTomlPkgContent = "[package]\n" +
                 "org = \"admin\"\n" +
-                "name = \"lib_project\"\n" +
+                "name = \"sample_pull_libs\"\n" +
                 "version = \"0.1.0\"\n" +
-                "export = [\"lib_project\"]\n" +
                 "ballerina_version = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
                 "language_spec_version = \"2021R1\"\n" +
