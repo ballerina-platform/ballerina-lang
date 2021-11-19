@@ -384,7 +384,8 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
 
             if (withinRange) {
                 String pos = actionPos.filePath() + "/" + actionPos;
-                ActionInvocationNode actionNode = new ActionInvocationNode(getUUID(lineRange), actionName, actionPath, pos);
+                ActionInvocationNode actionNode = new ActionInvocationNode(getUUID(lineRange),
+                        actionName, actionPath, pos);
                 this.currentNode.setNextNode(actionNode);
                 this.setChildNode(actionNode);
             }
