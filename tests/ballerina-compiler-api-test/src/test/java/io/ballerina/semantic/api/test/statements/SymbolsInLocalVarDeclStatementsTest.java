@@ -65,9 +65,8 @@ public class SymbolsInLocalVarDeclStatementsTest {
         // check annotations (metadata)
         List<AnnotationSymbol> fieldAnnots = symbol.annotations();
         if (isAnnotated) {
-            // TODO: Uncomment after Fixing #33117
-//            assertEquals(fieldAnnots.size(), 1);
-//            assertEquals(fieldAnnots.get(0).getName().get(), "annot");
+            assertEquals(fieldAnnots.size(), 1);
+            assertEquals(fieldAnnots.get(0).getName().get(), "annot");
         } else {
             assertEquals(fieldAnnots.size(), 0);
         }
