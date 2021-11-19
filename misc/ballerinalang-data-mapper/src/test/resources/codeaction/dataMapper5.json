@@ -1,0 +1,51 @@
+{
+  "line": 53,
+  "character": 25,
+  "expected": {
+    "title": "Generate mapping function",
+    "kind": "quickfix",
+    "diagnostics": [
+    ],
+    "command": {
+      "title": "Generate mapping function",
+      "command": "GENERATE_MAPPING",
+      "arguments": [
+        {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 53,
+              "character": 25
+            },
+            "end": {
+              "line": 53,
+              "character": 29
+            }
+          }
+        },
+        {
+          "key": "doc.uri",
+          "value": "file:///home/user/IdeaProjects/ballerina-lang/misc/ballerinalang-data-mapper/build/resources/test/codeaction/source/dataMapper5.bal"
+        },
+        {
+          "key": "ProcessedData",
+          "value": {
+            "checkMap": true,
+            "foundFunction": true,
+            "functionName": "mapStudentToGrades(Amal)",
+            "isOptionalMap": {},
+            "leftFieldMap": {},
+            "spreadFieldMap": {},
+            "restFieldMap": {},
+            "leftReadOnlyFields": [],
+            "rightSpecificFieldList": [],
+            "optionalRightRecordFields": []
+          }
+        }
+      ]
+    }
+  }
+}
+
+
+

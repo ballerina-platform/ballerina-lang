@@ -98,6 +98,7 @@ public class CodeActionTest {
                 {"dataMapper2.json", "dataMapper2.bal"},
                 {"dataMapper3.json", "dataMapper3.bal"},
                 {"dataMapper4.json", "dataMapper4.bal"},
+                {"dataMapper5.json", "dataMapper5.bal"},
                 {"dataMapper6.json", "dataMapper6.bal"},
                 {"dataMapper7.json", "dataMapper7.bal"},
                 {"dataMapper8.json", "dataMapper8.bal"},

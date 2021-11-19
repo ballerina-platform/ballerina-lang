@@ -1,154 +1,144 @@
 {
-  "arguments": [
-    {
-      "key": "node.range",
-      "value": {
-        "start": {
-          "line": 40,
-          "character": 26
-        },
-        "end": {
-          "line": 40,
-          "character": 31
-        }
-      }
-    },
-    {
-      "key": "doc.uri",
-      "value": "file:///home/user/IdeaProjects/ballerina-lang/misc/ballerinalang-data-mapper/build/resources/test/codeaction/source/dataMapper1.bal"
-    },
-    {
-      "key": "ProcessedData",
-      "value": {
-        "checkMap": true,
-        "schemas": [
-          {
-            "schema": "Grades",
-            "id": "id",
-            "type": "object",
-            "properties": {
-              "maths": {
-                "id": "id",
-                "type": "int",
-                "readonly": false
-              },
-              "physics": {
-                "id": "id",
-                "type": "int",
-                "readonly": false
-              },
-              "chemistry": {
-                "id": "id",
-                "type": "int",
-                "readonly": false
-              }
+  "line": 40,
+  "character": 26,
+  "expected": {
+    "title":"Generate mapping function",
+    "kind":"quickfix",
+    "diagnostics":[
+
+    ],
+    "command":{
+      "title":"Generate mapping function",
+      "command":"GENERATE_MAPPING",
+      "arguments": [
+        {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 40,
+              "character": 26
+            },
+            "end": {
+              "line": 40,
+              "character": 31
             }
-          },
-          {
-            "schema": "Student",
-            "id": "id",
-            "type": "object",
-            "properties": {
-              "name": {
+          }
+        },
+        {
+          "key": "doc.uri",
+          "value": "file:///home/user/IdeaProjects/ballerina-lang/misc/ballerinalang-data-mapper/build/resources/test/codeaction/source/dataMapper1.bal"
+        },
+        {
+          "key": "ProcessedData",
+          "value": {
+            "checkMap": true,
+            "foundFunction": false,
+            "schemas": [
+              {
+                "schema": "Grades",
                 "id": "id",
-                "type": "string",
-                "optional": false,
-                "signature": "string"
-              },
-              "age": {
-                "id": "id",
-                "type": "int",
-                "optional": false,
-                "signature": "int"
-              },
-              "grades": {
-                "id": "id",
-                "type": "ballerina_type",
+                "type": "object",
                 "properties": {
                   "maths": {
                     "id": "id",
                     "type": "int",
-                    "optional": false,
-                    "signature": "int"
+                    "readonly": false
                   },
                   "physics": {
                     "id": "id",
                     "type": "int",
-                    "optional": false,
-                    "signature": "int"
+                    "readonly": false
                   },
                   "chemistry": {
                     "id": "id",
                     "type": "int",
-                    "optional": false,
-                    "signature": "int"
+                    "readonly": false
                   }
                 }
               },
-              "city": {
-                "id": "id",
-                "type": "string",
-                "optional": false,
-                "signature": "string"
-              }
-            }
-          }
-        ],
-        "url": "http://127.0.0.1:8080/map/2.0.0",
-        "backgroundInfo": {
-          "foundTypeLeft": "Grades",
-          "foundTypeRight": "Student",
-          "rhsSignature": ""
-        },
-        "functionName": "mapStudentToGrades(Kamal)",
-        "isOptionalMap": {
-        },
-        "leftFieldMap": {
-          "chemistry": "int",
-          "maths": "int",
-          "physics": "int"
-        },
-        "spreadFieldMap": {
-        },
-        "restFieldMap": {
-        },
-        "leftReadOnlyFields": [
-        ],
-        "rightSpecificFieldList": [
-          "name",
-          "age",
-          "grades",
-          "city"
-        ],
-        "optionalRightRecordFields": [
-        ]
-      }
-    }
-  ],
-  "expected": {
-    "result": {
-      "edit": {
-        "documentChanges": [
-          {
-            "edits": [
               {
-                "range": {
-                  "start": {
-                    "line": 7,
-                    "character": 1
+                "schema": "Student",
+                "id": "id",
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "id": "id",
+                    "type": "string",
+                    "optional": false,
+                    "signature": "string"
                   },
-                  "end": {
-                    "line": 7,
-                    "character": 1
+                  "age": {
+                    "id": "id",
+                    "type": "int",
+                    "optional": false,
+                    "signature": "int"
+                  },
+                  "grades": {
+                    "id": "id",
+                    "type": "ballerina_type",
+                    "properties": {
+                      "maths": {
+                        "id": "id",
+                        "type": "int",
+                        "optional": false,
+                        "signature": "int"
+                      },
+                      "physics": {
+                        "id": "id",
+                        "type": "int",
+                        "optional": false,
+                        "signature": "int"
+                      },
+                      "chemistry": {
+                        "id": "id",
+                        "type": "int",
+                        "optional": false,
+                        "signature": "int"
+                      }
+                    }
+                  },
+                  "city": {
+                    "id": "id",
+                    "type": "string",
+                    "optional": false,
+                    "signature": "string"
                   }
-                },
-                "newText": "\n\nfunction addTwoIntegers(int a, float c, boolean b) {\n    \n}\n"
+                }
               }
+            ],
+            "url": "http://127.0.0.1:8080/map/2.0.0",
+            "backgroundInfo": {
+              "foundTypeLeft": "Grades",
+              "foundTypeRight": "Student",
+              "rhsSignature": ""
+            },
+            "functionName": "mapStudentToGrades(Kamal)",
+            "isOptionalMap": {
+            },
+            "leftFieldMap": {
+              "chemistry": "int",
+              "maths": "int",
+              "physics": "int"
+            },
+            "spreadFieldMap": {
+            },
+            "restFieldMap": {
+            },
+            "leftReadOnlyFields": [
+            ],
+            "rightSpecificFieldList": [
+              "name",
+              "age",
+              "grades",
+              "city"
+            ],
+            "optionalRightRecordFields": [
             ]
           }
-        ]
-      }
-    },
-    "jsonrpc": "2.0"
+        }
+      ]
+    }
   }
 }
+
+

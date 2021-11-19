@@ -30,6 +30,7 @@
           "key": "ProcessedData",
           "value": {
             "checkMap": true,
+            "foundFunction": false,
             "schemas": [
               {
                 "schema": "Contact",
