@@ -1,0 +1,145 @@
+{
+  "arguments": [
+    {
+      "key": "node.range",
+      "value": {
+        "start": {
+          "line": 37,
+          "character": 19
+        },
+        "end": {
+          "line": 37,
+          "character": 24
+        }
+      }
+    },
+    {
+      "key": "doc.uri",
+      "value": "file:///home/user/IdeaProjects/ballerina-lang/misc/ballerinalang-data-mapper/build/resources/test/codeaction/source/dataMapper11.bal"
+    },
+    {
+      "key": "ProcessedData",
+      "value": {
+        "checkMap": true,
+        "foundFunction": false,
+        "schemas": [
+          {
+            "schema": "Grades",
+            "id": "id",
+            "type": "object",
+            "properties": {
+              "maths": {
+                "id": "id",
+                "type": "int",
+                "readonly": false
+              },
+              "physics": {
+                "id": "id",
+                "type": "int",
+                "readonly": false
+              },
+              "history": {
+                "id": "id",
+                "type": "int",
+                "readonly": false
+              }
+            }
+          },
+          {
+            "schema": "Mark",
+            "id": "id",
+            "type": "object",
+            "properties": {
+              "maths": {
+                "id": "id",
+                "type": "int",
+                "optional": false,
+                "signature": "int"
+              },
+              "physics": {
+                "id": "id",
+                "type": "int",
+                "optional": false,
+                "signature": "int"
+              },
+              "chemistry": {
+                "id": "id",
+                "type": "int",
+                "optional": false,
+                "signature": "int"
+              },
+              "history": {
+                "id": "id",
+                "type": "int",
+                "optional": false
+              }
+            }
+          }
+        ],
+        "url": "http://127.0.0.1:8080/map/2.0.0",
+        "backgroundInfo": {
+          "foundTypeLeft": "Grades",
+          "foundTypeRight": "Mark",
+          "rhsSignature": ""
+        },
+        "functionName": "mapMarkToGrades(marks)",
+        "isOptionalMap": {},
+        "leftFieldMap": {
+          "maths": "int",
+          "physics": "int",
+          "history": "int"
+        },
+        "spreadFieldMap": {},
+        "restFieldMap": {
+          "mark.history": "int"
+        },
+        "leftReadOnlyFields": [],
+        "rightSpecificFieldList": [
+          "maths",
+          "physics",
+          "chemistry"
+        ],
+        "optionalRightRecordFields": []
+      }
+    }
+  ],
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 37,
+                    "character": 19
+                  },
+                  "end": {
+                    "line": 37,
+                    "character": 24
+                  }
+                },
+                "newText": "mapMarkToGrades(marks)"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 41,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 41,
+                    "character": 1
+                  }
+                },
+                "newText": "\nfunction mapMarkToGrades (Mark mark) returns Grades {\n// Some record fields might be missing in the AI based mapping.\n\tGrades grades = {history: <int> mark[\"history\"], maths: mark.maths, physics: mark.physics};\n\treturn grades;\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

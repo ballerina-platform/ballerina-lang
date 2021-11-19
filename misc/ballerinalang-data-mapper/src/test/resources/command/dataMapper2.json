@@ -1,0 +1,181 @@
+{
+  "arguments": [
+    {
+      "key": "node.range",
+      "value": {
+        "start": {
+          "line": 57,
+          "character": 30
+        },
+        "end": {
+          "line": 57,
+          "character": 36
+        }
+      }
+    },
+    {
+      "key": "doc.uri",
+      "value": "file:///home/user/IdeaProjects/ballerina-lang/misc/ballerinalang-data-mapper/build/resources/test/codeaction/source/dataMapper2.bal"
+    },
+    {
+      "key": "ProcessedData",
+      "value": {
+        "checkMap": true,
+        "foundFunction": false,
+        "schemas": [
+          {
+            "schema": "Address",
+            "id": "id",
+            "type": "object",
+            "properties": {
+              "city": {
+                "id": "id",
+                "type": "string",
+                "readonly": false
+              },
+              "country": {
+                "id": "id",
+                "type": "array",
+                "readonly": false
+              }
+            }
+          },
+          {
+            "schema": "Applicant",
+            "id": "id",
+            "type": "object",
+            "properties": {
+              "applying_student": {
+                "id": "id",
+                "type": "ballerina_type",
+                "properties": {
+                  "name": {
+                    "id": "id",
+                    "type": "string",
+                    "optional": false,
+                    "signature": "string"
+                  },
+                  "age": {
+                    "id": "id",
+                    "type": "int",
+                    "optional": false,
+                    "signature": "int"
+                  },
+                  "grades": {
+                    "id": "id",
+                    "type": "ballerina_type",
+                    "properties": {
+                      "maths": {
+                        "id": "id",
+                        "type": "int",
+                        "optional": false,
+                        "signature": "int"
+                      },
+                      "physics": {
+                        "id": "id",
+                        "type": "int",
+                        "optional": false,
+                        "signature": "int"
+                      },
+                      "chemistry": {
+                        "id": "id",
+                        "type": "int",
+                        "optional": false,
+                        "signature": "int"
+                      }
+                    }
+                  },
+                  "city": {
+                    "id": "id",
+                    "type": "string",
+                    "optional": false,
+                    "signature": "string"
+                  }
+                }
+              },
+              "school": {
+                "id": "id",
+                "type": "string",
+                "optional": false,
+                "signature": "string"
+              },
+              "country": {
+                "id": "id",
+                "type": "string",
+                "optional": false,
+                "signature": "string"
+              }
+            }
+          }
+        ],
+        "url": "http://127.0.0.1:8080/map/2.0.0",
+        "backgroundInfo": {
+          "foundTypeLeft": "Address",
+          "foundTypeRight": "Applicant",
+          "rhsSignature": ""
+        },
+        "functionName": "mapApplicantToAddress(appl_1)",
+        "isOptionalMap": {
+        },
+        "leftFieldMap": {
+          "country": "array",
+          "city": "string"
+        },
+        "spreadFieldMap": {
+        },
+        "restFieldMap": {
+        },
+        "leftReadOnlyFields": [
+        ],
+        "rightSpecificFieldList": [
+          "applying_student",
+          "school",
+          "country"
+        ],
+        "optionalRightRecordFields": [
+        ]
+      }
+    }
+  ],
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 57,
+                    "character": 30
+                  },
+                  "end": {
+                    "line": 57,
+                    "character": 36
+                  }
+                },
+                "newText": "mapApplicantToAddress(appl_1)"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 62,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 62,
+                    "character": 1
+                  }
+                },
+                "newText": "\nfunction mapApplicantToAddress (Applicant applicant) returns Address {\n// Some record fields might be missing in the AI based mapping.\n\tAddress address \u003d {city: applicant.applying_student.city, country: []};\n\treturn address;\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}
+
+

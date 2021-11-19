@@ -1,0 +1,147 @@
+{
+  "arguments": [
+    {
+      "key": "node.range",
+      "value": {
+        "start": {
+          "line": 35,
+          "character": 20
+        },
+        "end": {
+          "line": 35,
+          "character": 24
+        }
+      }
+    },
+    {
+      "key": "doc.uri",
+      "value": "file:///home/user/IdeaProjects/ballerina-lang/misc/ballerinalang-data-mapper/build/resources/test/codeaction/source/dataMapper12.bal"
+    },
+    {
+      "key": "ProcessedData",
+      "value": {
+        "checkMap": true,
+        "foundFunction": false,
+        "schemas": [
+          {
+            "schema": "Person",
+            "id": "id",
+            "type": "object",
+            "properties": {
+              "name": {
+                "id": "id",
+                "type": "string",
+                "readonly": false
+              },
+              "age": {
+                "id": "id",
+                "type": "int",
+                "readonly": false
+              },
+              "address": {
+                "id": "id",
+                "type": "map",
+                "readonly": true
+              }
+            }
+          },
+          {
+            "schema": "Student",
+            "id": "id",
+            "type": "object",
+            "properties": {
+              "id": {
+                "id": "id",
+                "type": "int",
+                "optional": false,
+                "signature": "int"
+              },
+              "name": {
+                "id": "id",
+                "type": "string",
+                "optional": false,
+                "signature": "string"
+              },
+              "age": {
+                "id": "id",
+                "type": "int",
+                "optional": false,
+                "signature": "int"
+              },
+              "address": {
+                "id": "id",
+                "type": "map",
+                "optional": false,
+                "signature": "map<string>"
+              }
+            }
+          }
+        ],
+        "url": "http://127.0.0.1:8080/map/2.0.0",
+        "backgroundInfo": {
+          "foundTypeLeft": "Person",
+          "foundTypeRight": "Student",
+          "rhsSignature": ""
+        },
+        "functionName": "mapStudentToPerson(john)",
+        "isOptionalMap": {},
+        "leftFieldMap": {
+          "address": "map",
+          "name": "string",
+          "age": "int"
+        },
+        "spreadFieldMap": {},
+        "restFieldMap": {},
+        "leftReadOnlyFields": [
+          "address"
+        ],
+        "rightSpecificFieldList": [
+          "id",
+          "name",
+          "age",
+          "address"
+        ],
+        "optionalRightRecordFields": []
+      }
+    }
+  ],
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 35,
+                    "character": 20
+                  },
+                  "end": {
+                    "line": 35,
+                    "character": 24
+                  }
+                },
+                "newText": "mapStudentToPerson(john)"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 39,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 39,
+                    "character": 1
+                  }
+                },
+                "newText": "\nfunction mapStudentToPerson (Student student) returns Person {\n// Some record fields might be missing in the AI based mapping.\n\tPerson person = {address: student.address.cloneReadOnly(), age: student.age, name: student.name};\n\treturn person;\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

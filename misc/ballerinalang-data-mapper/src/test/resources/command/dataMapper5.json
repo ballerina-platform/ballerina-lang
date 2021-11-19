@@ -1,0 +1,62 @@
+{
+  "arguments": [
+    {
+      "key": "node.range",
+      "value": {
+        "start": {
+          "line": 53,
+          "character": 25
+        },
+        "end": {
+          "line": 53,
+          "character": 29
+        }
+      }
+    },
+    {
+      "key": "doc.uri",
+      "value": "file:///home/user/IdeaProjects/ballerina-lang/misc/ballerinalang-data-mapper/build/resources/test/codeaction/source/dataMapper5.bal"
+    },
+    {
+      "key": "ProcessedData",
+      "value": {
+        "checkMap": true,
+        "foundFunction": true,
+        "functionName": "mapStudentToGrades(Amal)",
+        "isOptionalMap": {},
+        "leftFieldMap": {},
+        "spreadFieldMap": {},
+        "restFieldMap": {},
+        "leftReadOnlyFields": [],
+        "rightSpecificFieldList": [],
+        "optionalRightRecordFields": []
+      }
+    }
+  ],
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 53,
+                    "character": 25
+                  },
+                  "end": {
+                    "line": 53,
+                    "character": 29
+                  }
+                },
+                "newText": "mapStudentToGrades(Amal)"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}
