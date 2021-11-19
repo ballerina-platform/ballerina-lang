@@ -105,8 +105,9 @@ public class LargeMethodOptimizer {
         boolean splitStarted = false;
         boolean splitTypeArray = true; // will be used to mark the split caused from either NewArray or NewStructure
         Set<BIRVariableDcl> neededOperandsVarDcl = new HashSet<>(); // that will need to be passed as function args
-        List<BIRVariableDcl> lhsOperandList = new ArrayList<>(); // that will need as localVars in the new function
+        Set<BIRVariableDcl> lhsOperandList = new HashSet<>(); // that will need as localVars in the new function
         BIROperand splitStartOperand = null;
+        int splitInsCount = 0; // including terminator instructions
 
         for (int bbNum = basicBlocks.size() - 1; bbNum >= 0; bbNum--) {
             BIRBasicBlock basicBlock = basicBlocks.get(bbNum);
@@ -114,17 +115,22 @@ public class LargeMethodOptimizer {
             if (splitStarted) {
                 if (bbTerminator.lhsOp != null) {
                     // as the varDcl is available inside the split no need to pass as function arg
-                    neededOperandsVarDcl.remove(bbTerminator.lhsOp.variableDcl);
-                    lhsOperandList.add(bbTerminator.lhsOp.variableDcl);
+                    if (needToPassLhsVarDclAsArg(bbTerminator.lhsOp)) {
+                        neededOperandsVarDcl.add(bbTerminator.lhsOp.variableDcl);
+                    } else {
+                        neededOperandsVarDcl.remove(bbTerminator.lhsOp.variableDcl);
+                        lhsOperandList.add(bbTerminator.lhsOp.variableDcl);
+                    }
                     if (bbTerminator.lhsOp.variableDcl.kind == VarKind.RETURN) {
                         // if the return var is assigned value inside the split, it is not split
                         splitStarted = false;
                     }
                 }
+                splitInsCount++;
                 // RHS operands varDcl will be needed to pass as function args if they won't be available inside split
                 BIROperand[] rhsOperands = bbTerminator.getRhsOperands();
                 for (BIROperand rhsOperand : rhsOperands) {
-                    if (needToPassVarDclAsArg(rhsOperand)) {
+                    if (needToPassRhsVarDclAsArg(rhsOperand)) {
                         neededOperandsVarDcl.add(rhsOperand.variableDcl);
                     }
                 }
@@ -137,18 +143,23 @@ public class LargeMethodOptimizer {
                     splitStarted = false;
                 }
                 if (splitStarted) {
-                    neededOperandsVarDcl.remove(currIns.lhsOp.variableDcl);
+                    if (needToPassLhsVarDclAsArg(currIns.lhsOp)) {
+                        neededOperandsVarDcl.add(currIns.lhsOp.variableDcl);
+                    } else {
+                        neededOperandsVarDcl.remove(currIns.lhsOp.variableDcl);
+                        lhsOperandList.add(currIns.lhsOp.variableDcl);
+                    }
                     BIROperand[] rhsOperands = currIns.getRhsOperands();
-                    lhsOperandList.add(currIns.lhsOp.variableDcl);
                     for (BIROperand rhsOperand : rhsOperands) {
-                        if (needToPassVarDclAsArg(rhsOperand)) {
+                        if (needToPassRhsVarDclAsArg(rhsOperand)) {
                             neededOperandsVarDcl.add(rhsOperand.variableDcl);
                         }
                     }
+                    splitInsCount++;
                     // now check for the termination of split, i.e. split start
                     if (currIns.lhsOp == splitStartOperand) {
                         if ((neededOperandsVarDcl.size() > MAX_SPLIT_FUNCTION_ARG_COUNT) ||
-                                (lhsOperandList.size() < SPLIT_INSTRUCTION_COUNT_THRESHOLD)) {
+                                (splitInsCount < SPLIT_INSTRUCTION_COUNT_THRESHOLD)) {
                             splitStarted = false;
                             continue;
                         }
@@ -172,7 +183,7 @@ public class LargeMethodOptimizer {
                         Collections.reverse(splitErrorTableEntries);
 
                         // check where the new method needs to be further split
-                        boolean splitAgain = lhsOperandList.size() >= FUNCTION_INSTRUCTION_COUNT_THRESHOLD;
+                        boolean splitAgain = splitInsCount >= FUNCTION_INSTRUCTION_COUNT_THRESHOLD;
 
                         // splitTypeArray variable can be used here if that information is needed later
                         possibleSplits.add(new Split(insNum, splitEndInsIndex, bbNum, splitEndBBIndex,
@@ -204,11 +215,12 @@ public class LargeMethodOptimizer {
                         neededOperandsVarDcl = new HashSet<>();
                         BIROperand[] initialRhsOperands = currIns.getRhsOperands();
                         for (BIROperand rhsOperand : initialRhsOperands) {
-                            if (needToPassVarDclAsArg(rhsOperand)) {
+                            if (needToPassRhsVarDclAsArg(rhsOperand)) {
                                 neededOperandsVarDcl.add(rhsOperand.variableDcl);
                             }
                         }
-                        lhsOperandList = new ArrayList<>();
+                        lhsOperandList = new HashSet<>();
+                        splitInsCount = 1;
                         splitEndInsIndex = insNum;
                         splitEndBBIndex = bbNum;
                     }
@@ -227,9 +239,14 @@ public class LargeMethodOptimizer {
         }
     }
 
-    private boolean needToPassVarDclAsArg(BIROperand rhsOp) {
+    private boolean needToPassRhsVarDclAsArg(BIROperand rhsOp) {
         return (!rhsOp.variableDcl.ignoreVariable) && (rhsOp.variableDcl.kind != VarKind.GLOBAL) &&
                 (rhsOp.variableDcl.kind != VarKind.CONSTANT);
+    }
+
+    private boolean needToPassLhsVarDclAsArg(BIROperand lhsOp) {
+        return (!lhsOp.variableDcl.ignoreVariable) && ((lhsOp.variableDcl.kind == VarKind.SELF) ||
+                (lhsOp.variableDcl.kind == VarKind.LOCAL));
     }
 
     /**
@@ -398,7 +415,7 @@ public class LargeMethodOptimizer {
                 VarScope.FUNCTION, VarKind.RETURN, null);
         birFunc.localVars.add(0, birFunc.returnVariable);
         birFunc.localVars.addAll(functionParams);
-        birFunc.localVars.addAll(new HashSet<>(currSplit.lhsVars));
+        birFunc.localVars.addAll(currSplit.lhsVars);
         birFunc.errorTable.addAll(currSplit.errorTableEntries);
 
         // creates BBs
@@ -495,13 +512,13 @@ public class LargeMethodOptimizer {
      * @param funcName Name of the function to be created
      * @param currentIns last instruction in the split
      * @param collectedIns other instructions in the split
-     * @param lhsOperandList list of varDcl of the LHS operands
+     * @param lhsOperandList set of varDcl of the LHS operands
      * @param funcArgs list of varDcl for the new function arguments
      * @return newly created BIR function
      */
     private BIRFunction createNewBIRFunctionInBB(BIRFunction parentFunc, Name funcName, BIRNonTerminator currentIns,
                                                  List<BIRNonTerminator> collectedIns,
-                                                 List<BIRVariableDcl> lhsOperandList, List<BIRVariableDcl> funcArgs) {
+                                                 Set<BIRVariableDcl> lhsOperandList, List<BIRVariableDcl> funcArgs) {
         BType retType = currentIns.lhsOp.variableDcl.type;
         List<BType> paramTypes = new ArrayList<>();
 
@@ -528,7 +545,7 @@ public class LargeMethodOptimizer {
                 VarScope.FUNCTION, VarKind.RETURN, null);
         birFunc.localVars.add(0, birFunc.returnVariable);
         birFunc.localVars.addAll(functionParams);
-        birFunc.localVars.addAll(new HashSet<>(lhsOperandList));
+        birFunc.localVars.addAll(lhsOperandList);
 
         // creates 2 bbs
         BIRBasicBlock entryBB = new BIRBasicBlock(new Name("bb0"));
@@ -551,11 +568,11 @@ class Split {
     int startBBNum;
     int endBBNum;
     boolean splitFurther;
-    List<BIRVariableDcl> lhsVars;
+    Set<BIRVariableDcl> lhsVars;
     List<BIRVariableDcl> funcArgs;
     List<BIRErrorEntry> errorTableEntries;
 
-    protected Split(int firstIns, int lastIns, int startBBNum, int endBBNum, List<BIRVariableDcl> lhsVars,
+    protected Split(int firstIns, int lastIns, int startBBNum, int endBBNum, Set<BIRVariableDcl> lhsVars,
                  List<BIRVariableDcl> funcArgs, List<BIRErrorEntry> errorTableEntries, boolean splitFurther) {
         this.firstIns = firstIns;
         this.lastIns = lastIns;
