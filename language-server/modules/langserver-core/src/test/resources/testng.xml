@@ -41,7 +41,7 @@ under the License.
             <package name="org.ballerinalang.langserver.formatting.*"/>
             <package name="org.ballerinalang.langserver.extensions.document.*"/>
             <package name="org.ballerinalang.langserver.codeaction.*"/>
-            <package name="org.ballerinalang.langserver.command.*"/>
+<!--            <package name="org.ballerinalang.langserver.command.*"/>-->
         </packages>
     </test>
 </suite>
