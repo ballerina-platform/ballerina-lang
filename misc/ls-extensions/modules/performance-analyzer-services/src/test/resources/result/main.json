@@ -1,10 +1,10 @@
 {
   "actionInvocations": {
     "nextNode": {
-      "endPointRef": -522835079,
+      "endPointRef": "${json-unit.ignore}",
       "name": "get",
       "nextNode": {
-        "endPointRef": -522835079,
+        "endPointRef": "${json-unit.ignore}",
         "name": "get",
         "nextNode": null,
         "path": "/jokes/random",

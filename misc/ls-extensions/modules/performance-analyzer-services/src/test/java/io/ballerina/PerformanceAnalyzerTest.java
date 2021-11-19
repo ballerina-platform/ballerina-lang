@@ -18,8 +18,10 @@
 
 package io.ballerina;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.javacrumbs.jsonunit.core.Option;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -35,6 +37,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 
 /**
  * Tests for Performance Analyzer.
@@ -59,10 +63,14 @@ public class PerformanceAnalyzerTest {
 
         CompletableFuture<?> result = serviceEndpoint.request(PERFORMANCE_ANALYZE, request);
         JsonObject json = (JsonObject) result.get();
+        JsonObject actionInvocations = json.getAsJsonObject("actionInvocations");
 
         BufferedReader br = new BufferedReader(new FileReader(resultJson.toAbsolutePath().toString()));
         JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
-        Assert.assertEquals(json, expected);
+        JsonObject expectedActionInvocations = expected.getAsJsonObject("actionInvocations");
+
+        assertThatJson(actionInvocations.toString()).isEqualTo(expectedActionInvocations.toString());
+        validateEndpoints(json, expected);
     }
 
     @Test(description = "Test performance analyzer")
@@ -80,9 +88,36 @@ public class PerformanceAnalyzerTest {
 
         CompletableFuture<?> result = serviceEndpoint.request(PERFORMANCE_ANALYZE, request);
         JsonObject json = (JsonObject) result.get();
+        JsonObject actionInvocations = json.getAsJsonObject("actionInvocations");
 
         BufferedReader br = new BufferedReader(new FileReader(resultJson.toAbsolutePath().toString()));
         JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
-        Assert.assertEquals(json, expected);
+        JsonObject expectedActionInvocations = expected.getAsJsonObject("actionInvocations");
+
+        assertThatJson(actionInvocations.toString()).isEqualTo(expectedActionInvocations.toString());
+        validateEndpoints(json, expected);
+    }
+
+    private void validateEndpoints(JsonObject json, JsonObject expected) {
+
+        JsonObject endpoints = json.getAsJsonObject("endpoints");
+        JsonObject expectedEndpoints = expected.getAsJsonObject("endpoints");
+
+        Assert.assertEquals(endpoints.size(), expectedEndpoints.size());
+        String[] endpointsKeys = endpoints.keySet().toArray(new String[endpoints.size()]);
+        String[] expectedEndpointsKeys = expectedEndpoints.keySet().toArray(new String[expectedEndpoints.size()]);
+
+        JsonArray endpointsArr = new JsonArray();
+        JsonArray expectedEndpointsArr = new JsonArray();
+        for (int i = 0; i < expectedEndpointsKeys.length; i++) {
+            JsonObject endpoint = endpoints.getAsJsonObject(endpointsKeys[i]);
+            endpointsArr.add(endpoint);
+            JsonObject expectedEndpoint = expectedEndpoints.getAsJsonObject(expectedEndpointsKeys[i]);
+            expectedEndpointsArr.add(expectedEndpoint);
+
+        }
+        assertThatJson(endpointsArr.toString())
+                .when(Option.IGNORING_ARRAY_ORDER)
+                .isEqualTo(expectedEndpointsArr.toString());
     }
 }
