@@ -37,6 +37,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -132,10 +133,7 @@ public class Scheduler {
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
         future.strand.strandGroup = parent.strandGroup;
-        parent.strandGroup.add(item);
-        if (parent.strandGroup.scheduled.compareAndSet(false, true)) {
-            runnableList.add(future.strand.strandGroup);
-        }
+        addToRunnableList(item, parent.strandGroup);
         return future;
     }
 
@@ -251,8 +249,8 @@ public class Scheduler {
                 this.mainBlockSem.release();
                 break;
             }
-
-            while (!group.items.empty()) {
+            boolean isItemsEmpty = group.items.isEmpty();
+            while (!isItemsEmpty) {
                 Object result = null;
                 Throwable panic = null;
 
@@ -278,8 +276,12 @@ public class Scheduler {
                 }
 
                 postProcess(item, result, panic);
+                group.lock();
+                if ((isItemsEmpty = group.items.empty())) {
+                    group.scheduled.set(false);
+                }
+                group.unlock();
             }
-            group.scheduled.set(false);
         }
     }
 
@@ -421,16 +423,21 @@ public class Scheduler {
         if (!item.getState().equals(State.RUNNABLE)) {
             ItemGroup group = item.future.strand.strandGroup;
             item.setState(State.RUNNABLE);
-            group.add(item);
-
-            // Group maybe not picked by any thread at the moment because,
-            //  1) All items are blocked.
-            //  2) All others have finished
-            // In this case we need to put it back in the runnable list.
-            if (group.scheduled.compareAndSet(false, true)) {
-                runnableList.add(group);
-            }
+            addToRunnableList(item, group);
         }
+    }
+
+    private void addToRunnableList(SchedulerItem item, ItemGroup group) {
+        group.lock();
+        group.add(item);
+        // Group maybe not picked by any thread at the moment because,
+        //  1) All items are blocked.
+        //  2) All others have finished
+        // In this case we need to put it back in the runnable list.
+        if (group.scheduled.compareAndSet(false, true)) {
+            runnableList.add(group);
+        }
+        group.unlock();
     }
 
     private FutureValue createFuture(Strand parent, CallableUnitCallback callback, Map<String, Object> properties,
@@ -509,12 +516,14 @@ class ItemGroup {
      * Keep the list of items that should run on same thread.
      * Using a stack to get advantage of the locality.
      */
-    Stack<SchedulerItem> items = new Stack();
+    Stack<SchedulerItem> items = new Stack<>();
 
     /**
      * Indicates this item is already in runnable list/executing or not.
      */
     AtomicBoolean scheduled = new AtomicBoolean(false);
+
+    private final ReentrantLock groupLock = new ReentrantLock();
 
     public static final ItemGroup POISON_PILL = new ItemGroup();
 
@@ -532,5 +541,13 @@ class ItemGroup {
 
     public SchedulerItem get() {
         return items.pop();
+    }
+
+    public void lock() {
+        this.groupLock.lock();
+    }
+
+    public void unlock() {
+        this.groupLock.unlock();
     }
 }
