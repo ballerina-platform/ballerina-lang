@@ -93,9 +93,30 @@ public class ProjectPathsTest {
                 .resolve("modules").resolve("mod1").resolve("mod1.bal")), balaProjectPath);
     }
 
+    @Test
+    public void testPackageRootWithDirectory() {
+        // test package root of build project
+        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath), buildProjectPath);
+        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
+                .resolve("tests")), buildProjectPath);
+        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
+                .resolve("modules").resolve("module1")), buildProjectPath);
+        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
+                .resolve("modules").resolve("module1").resolve("tests")), buildProjectPath);
+        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
+                .resolve("modules")), buildProjectPath);
+
+        // test package root of bala project
+        Assert.assertEquals(ProjectPaths.packageRoot(balaProjectPath), balaProjectPath);
+        Assert.assertEquals(ProjectPaths.packageRoot(balaProjectPath
+                .resolve("modules").resolve("mod1")), balaProjectPath);
+        Assert.assertEquals(ProjectPaths.packageRoot(balaProjectPath
+                .resolve("modules")), balaProjectPath);
+    }
+
     @Test(expectedExceptions = ProjectException.class)
     public void testPackageRootNegative() {
-        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath), buildProjectPath);
+        Assert.assertEquals(ProjectPaths.packageRoot(Paths.get("/tmp")), buildProjectPath);
     }
 
     @Test(expectedExceptions = ProjectException.class)
@@ -121,7 +142,7 @@ public class ProjectPathsTest {
 
     @Test(expectedExceptions = ProjectException.class)
     public void testPackageRootNegative6() {
-        ProjectPaths.packageRoot(balaProjectPath);
+        ProjectPaths.packageRoot(tempDir);
     }
 
     @Test

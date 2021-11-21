@@ -109,7 +109,7 @@ public class DivisionOperationTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\" int range " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
                     "overflow\"\\}.*")
     public void testIntOverflowByDivision() {
         BRunUtil.invoke(result, "overflowByDivision");
@@ -128,8 +128,13 @@ public class DivisionOperationTest {
         };
     }
 
-    @Test(description = "Test contextually expected type of numeric literals in addition")
+    @Test(description = "Test contextually expected type of numeric literals in division")
     public void testContextuallyExpectedTypeOfNumericLiteralInDivision() {
         BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInDivision");
+    }
+
+    @Test(description = "Test division of nullable values")
+    public void testDivisionNullable() {
+        BRunUtil.invoke(result, "testDivisionNullable");
     }
 }

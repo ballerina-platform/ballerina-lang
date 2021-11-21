@@ -10,7 +10,7 @@ public function main(string... args) {
         year: 2020
     };
     
-    car.year = "2020";
+    car.year = 2020.5;
 }
 
 function foo() returns float {
@@ -51,4 +51,30 @@ function getInt() returns int? {
 function checkNilCast() {
     int? val = getInt();
     () nil = val;
+}
+
+xml:Text x = xml `Hello <br /> World`;
+
+function checkCast() {
+    int|string a = 10;
+    string b = a;
+}
+
+function checkCast2() {
+    any a = 10;
+    string b = a;
+}
+
+function checkCast3() {
+    any[] anyArr = [1,"hello"];
+    int[] intArr = anyArr;
+}
+
+function checkCastInNamedArg() {
+   string | int arg = 10;
+   func1(arg1 = arg);
+}
+
+public function func1(int arg1) {
+
 }

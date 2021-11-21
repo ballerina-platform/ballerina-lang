@@ -119,7 +119,8 @@ public class ConditionResolver {
                 if (!types.isSingletonType(type)) {
                     return symTable.semanticError;
                 }
-                return checkConstCondition(types, symTable, ((BFiniteType) type).getValueSpace().iterator().next());
+                return checkConstCondition(types, symTable, ((BFiniteType) types.getReferredType(type))
+                        .getValueSpace().iterator().next());
             default:
                 return symTable.semanticError;
         }

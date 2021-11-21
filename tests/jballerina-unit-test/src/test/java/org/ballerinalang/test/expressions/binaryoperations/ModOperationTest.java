@@ -122,4 +122,9 @@ public class ModOperationTest {
         BAssertUtil.validateError(resultNegative, 8, "operator '%' not defined for 'C' and 'float'", 45, 14);
         BAssertUtil.validateError(resultNegative, 9, "operator '%' not defined for 'C' and 'float'", 46, 14);
     }
+
+    @Test(description = "Test mod of nullable values")
+    public void testModNullable() {
+        BRunUtil.invoke(result, "testModNullable");
+    }
 }

@@ -59,16 +59,16 @@ import java.util.concurrent.TimeUnit;
  */
 public class DAPRequestManager {
 
-    private final TestDAPClientConnector clientConnector;
+    private final DAPClientConnector clientConnector;
     private final IDebugProtocolServer server;
 
-    public DAPRequestManager(TestDAPClientConnector clientConnector, DAPClient client, IDebugProtocolServer server,
+    public DAPRequestManager(DAPClientConnector clientConnector, DAPClient client, IDebugProtocolServer server,
                              Capabilities serverCapabilities) {
         this.clientConnector = clientConnector;
         this.server = server;
     }
 
-    public TestDAPClientConnector getClientConnector() {
+    public DAPClientConnector getClientConnector() {
         return clientConnector;
     }
 

@@ -19,6 +19,7 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -226,9 +227,19 @@ public class CodeActionUtil {
             RecordTypeSymbol recordLiteral = (RecordTypeSymbol) typeDescriptor;
             types.add((recordLiteral.fieldDescriptors().size() > 0) ? rType : "record {}");
 
-            // JSON
-            types.add("json");
+            // A record can be an open record or a closed record:
+            //      record {| int field1; anydata...; |}
+            //      record {| int field1; |}
+            RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDescriptor;
 
+            // JSON - Record fields and rest type descriptor should be json subtypes
+            boolean jsonSubType = recordTypeSymbol.fieldDescriptors().values().stream()
+                    .allMatch(recordFieldSymbol -> isJsonMemberType(recordFieldSymbol.typeDescriptor())) &&
+                    recordTypeSymbol.restTypeDescriptor().map(CodeActionUtil::isJsonMemberType).orElse(true);
+            if (jsonSubType) {
+                types.add("json");
+            }
+            
             // Map
             TypeSymbol prevType = null;
             boolean isConstrainedMap = true;
@@ -316,6 +327,34 @@ public class CodeActionUtil {
 
         importEdits.addAll(importsAcceptor.getNewImportTextEdits());
         return types;
+    }
+
+    /**
+     * Check if the provided type symbol is a valid subtype of JSON.
+     *
+     * @param typeSymbol Type symbol
+     * @return True is type is a valid json member type
+     */
+    public static boolean isJsonMemberType(TypeSymbol typeSymbol) {
+        // type json = () | boolean | int | float | decimal | string | json[] | map<json>;
+        switch (typeSymbol.typeKind()) {
+            case NIL:
+            case BOOLEAN:
+            case INT:
+            case FLOAT:
+            case DECIMAL:
+            case STRING:
+            case JSON:
+                return true;
+            case ARRAY:
+                ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeSymbol;
+                return isJsonMemberType(arrayTypeSymbol.memberTypeDescriptor());
+            case MAP:
+                MapTypeSymbol mapTypeSymbol = (MapTypeSymbol) typeSymbol;
+                return isJsonMemberType(mapTypeSymbol.typeParam());
+            default:
+                return false;
+        }
     }
 
     /**
@@ -497,9 +536,9 @@ public class CodeActionUtil {
         if (node.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
             return ((AssignmentStatementNode) node).expression();
         } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
-            return ((ModuleVariableDeclarationNode) node).typedBindingPattern().typeDescriptor();
+            return ((ModuleVariableDeclarationNode) node).typedBindingPattern().bindingPattern();
         } else if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
-            return ((VariableDeclarationNode) node).typedBindingPattern().typeDescriptor();
+            return ((VariableDeclarationNode) node).typedBindingPattern().bindingPattern();
         }
         return node;
     }

@@ -5,37 +5,65 @@
   },
   {
     "description": "Array length.",
-    "code": "int[] intArray = [1, 2, 3]; intArray.length();",
+    "code": "int[] intArray = [1, 2, 3];"
+  },
+  {
+    "description": "Array length - get value.",
+    "code": "intArray.length();",
     "expr": "3"
   },
   {
     "description": "Json array length.",
-    "code": "json[] jsonArray = [ {\"name\": \"John\", \"age\": 31}, {\"name\": \"Neal\", \"age\": 22} ]; jsonArray.length();",
+    "code": "json[] jsonArray = [ {\"name\": \"John\", \"age\": 31}, {\"name\": \"Neal\", \"age\": 22} ];"
+  },
+  {
+    "description": "Json array length - get value.",
+    "code": "jsonArray.length();",
     "expr": "2"
   },
   {
     "description": "Map length.",
-    "code": "map<int> strMap = {}; strMap[\"A\"] = 1; strMap[\"B\"] = 2; strMap[\"C\"] = 3; strMap.length();",
+    "code": "map<int> strMap = {}; strMap[\"A\"] = 1; strMap[\"B\"] = 2; strMap[\"C\"] = 3;"
+  },
+  {
+    "description": "Map length - get value.",
+    "code": "strMap.length();",
     "expr": "3"
   },
   {
     "description": "String length.",
-    "code": " string myStr = \"My name is Peter Parker\"; myStr.length();",
+    "code": " string myStr = \"My name is Peter Parker\";"
+  },
+  {
+    "description": "String length - get value.",
+    "code": "myStr.length();",
     "expr": "23"
   },
   {
     "description": "XML length.",
-    "code": " xml x1 = xml `<book> <name>Sherlock Holmes</name> <author>Sir Arthur Conan Doyle</author> <!--Price: $10--> </book>`; (x1/<*>).length();",
+    "code": " xml x1 = xml `<book> <name>Sherlock Holmes</name> <author>Sir Arthur Conan Doyle</author> <!--Price: $10--> </book>`;"
+  },
+  {
+    "description": "XML length - get value.",
+    "code": "(x1/<*>).length();",
     "expr": "2"
   },
   {
     "description": "Tuple length.",
-    "code": "[int, string] tupleVar = [10, \"John\"];   tupleVar.length();",
+    "code": "[int, string] tupleVar = [10, \"John\"];"
+  },
+  {
+    "description": "Tuple length - get value.",
+    "code": "tupleVar.length();",
     "expr": "2"
   },
   {
     "description": "Record length.",
-    "code": "Student stu = {id: 1, fname: \"John\", lname: \"Doe\", age: 17}; stu.length();",
+    "code": "Student stu = {id: 1, fname: \"John\", lname: \"Doe\", age: 17};"
+  },
+  {
+    "description": "Record length - get value.",
+    "code": "stu.length();",
     "expr": "4"
   }
 ]

@@ -33,7 +33,7 @@ function testLiteralAsKeyValue() {
     error? err = trap tbl.add({k: 12, value: 20});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"A value found for key '12'"};
+        map<string> msg = {"message":"a value found for key '12'"};
         assertEqual(msg, err.detail());
     }
 }
@@ -57,7 +57,7 @@ function testStringTemplateExprAsKeyValue() {
     error? err = trap tbl.add({k: string `ABC`, value: 20});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"A value found for key 'ABC'"};
+        map<string> msg = {"message":"a value found for key 'ABC'"};
         assertEqual(msg, err.detail());
     }
 }
@@ -81,7 +81,7 @@ function testXmlTemplateExprAsKeyValue() {
     error? err = trap tbl.add({k: xml `ABC`, value: 20});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"A value found for key 'ABC'"};
+        map<string> msg = {"message":"a value found for key 'ABC'"};
         assertEqual(msg, err.detail());
     }
 }
@@ -105,7 +105,7 @@ function testListConstructorExprAsKeyValue() {
     error? err = trap tbl.add({k: [13 , 14], value: 20});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"A value found for key '[13,14]'"};
+        map<string> msg = {"message":"a value found for key '[13,14]'"};
         assertEqual(msg, err.detail());
     }
 }
@@ -132,7 +132,7 @@ function testTableConstructorExprAsKeyValue() {
     error? err = trap tbl.add({k: table key(k) [{k: 13, value: 25}], value: 25});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"A value found for key '[{\"k\":13,\"value\":25}]'"};
+        map<string> msg = {"message":"a value found for key '[{\"k\":13,\"value\":25}]'"};
         assertEqual(msg, err.detail());
     }
 }
@@ -157,7 +157,7 @@ function testMappingConstructorExprAsKeyValue() {
     error? err = trap tbl.add({k: {"A": "z", "B": 12, "C": [23.5, 65.3]}, value: 25});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"A value found for key '{\"A\":\"z\",\"B\":12,\"C\":[23.5,65.3]}'"};
+        map<string> msg = {"message":"a value found for key '{\"A\":\"z\",\"B\":12,\"C\":[23.5,65.3]}'"};
         assertEqual(msg, err.detail());
     }
 }
@@ -179,7 +179,7 @@ function testConstRefExprAsKeyValue() {
     error? err = trap tbl.add({k: ONE, value: 17});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"A value found for key '1'"};
+        map<string> msg = {"message":"a value found for key '1'"};
         assertEqual(msg, err.detail());
     }
 }
@@ -198,7 +198,7 @@ function testTypeCastExprAsKeyValue() {
     error? err = trap tbl.add({k: <int>2.5, value: 25});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"A value found for key '2'"};
+        map<string> msg = {"message":"a value found for key '2'"};
         assertEqual(msg, err.detail());
     }
 }
@@ -217,7 +217,7 @@ function testUnaryExprAsKeyValue() {
     error? err = trap tbl.add({k: +2, value: 25});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"A value found for key '2'"};
+        map<string> msg = {"message":"a value found for key '2'"};
         assertEqual(msg, err.detail());
     }
 }
@@ -236,7 +236,7 @@ function testMultiplicativeExprAsKeyValue() {
     error? err = trap tbl.add({k: 20, value: 25});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"A value found for key '20'"};
+        map<string> msg = {"message":"a value found for key '20'"};
         assertEqual(msg, err.detail());
     }
 }
@@ -255,7 +255,7 @@ function testAdditiveExprAsKeyValue() {
     error? err = trap tbl.add({k: 12, value: 25});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"A value found for key '12'"};
+        map<string> msg = {"message":"a value found for key '12'"};
         assertEqual(msg, err.detail());
     }
 }
@@ -274,7 +274,7 @@ function testShiftExprAsKeyValue() {
     error? err = trap tbl.add({k: 0x2, value: 25});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"A value found for key '2'"};
+        map<string> msg = {"message":"a value found for key '2'"};
         assertEqual(msg, err.detail());
     }
 }
@@ -299,7 +299,7 @@ function testRelationalExprAsKeyValue() {
     error? err = trap tbl.add({k: 5 > 12, m: 30.5, value: 25});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"A value found for key '[false,30.5]'"};
+        map<string> msg = {"message":"a value found for key '[false,30.5]'"};
         assertEqual(msg, err.detail());
     }
 }
@@ -319,7 +319,7 @@ function testIsExprAsKeyValue() {
     error? err = trap tbl.add({k: false, m: 30.5, value: 25});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"A value found for key '[false,30.5]'"};
+        map<string> msg = {"message":"a value found for key '[false,30.5]'"};
         assertEqual(msg, err.detail());
     }
 }
@@ -340,7 +340,7 @@ function testEqualityExprAsKeyValue() {
     error? err = trap tbl.add({k: 20 != 20, m: 30.5, value: 25});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"A value found for key '[false,30.5]'"};
+        map<string> msg = {"message":"a value found for key '[false,30.5]'"};
         assertEqual(msg, err.detail());
     }
 }
@@ -359,7 +359,7 @@ function testBinaryBitwiseExprAsKeyValue() {
     error? err = trap tbl.add({k: 10 | 100, value: 17});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"A value found for key '110'"};
+        map<string> msg = {"message":"a value found for key '110'"};
         assertEqual(msg, err.detail());
     }
 }
@@ -380,7 +380,7 @@ function testLogicalExprAsKeyValue() {
     error? err = trap tbl.add({k: a && b, m: 30.5, value: 25});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"A value found for key '[false,30.5]'"};
+        map<string> msg = {"message":"a value found for key '[false,30.5]'"};
         assertEqual(msg, err.detail());
     }
 }
@@ -400,7 +400,7 @@ function testConditionalExprAsKeyValue() {
     error? err = trap tbl.add({k: a is float ? 20 : 40, value: 17});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"A value found for key '40'"};
+        map<string> msg = {"message":"a value found for key '40'"};
         assertEqual(msg, err.detail());
     }
 }
@@ -420,7 +420,7 @@ function testGroupExprAsKeyValue() {
     error? err = trap tbl.add({k: (a is float ? 20 : 40), value: 17});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"A value found for key '40'"};
+        map<string> msg = {"message":"a value found for key '40'"};
         assertEqual(msg, err.detail());
     }
 }
@@ -443,7 +443,7 @@ function testKeyCollision() {
     error? err = trap tbl.add({k: table [{a: 1}], value: 17});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"A value found for key '[{\"a\":1}]'"};
+        map<string> msg = {"message":"a value found for key '[{\"a\":1}]'"};
         assertEqual(msg, err.detail());
     }
 }

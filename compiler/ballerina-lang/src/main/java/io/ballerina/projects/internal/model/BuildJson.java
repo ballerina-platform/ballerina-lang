@@ -35,11 +35,16 @@ public class BuildJson {
     @SerializedName(SERIALIZED_NAME_LAST_UPDATE_TIME)
     private long lastUpdateTime;
 
+    public static final String SERIALIZED_NAME_DISTRIBUTION_VERSION = "distribution_version";
+    @SerializedName(SERIALIZED_NAME_DISTRIBUTION_VERSION)
+    private String distributionVersion;
+
     private static final long ONE_DAY = 24 * 60 * 60 * 1000;
 
-    public BuildJson(long lastBuildTime, long lastUpdateTime) {
+    public BuildJson(long lastBuildTime, long lastUpdateTime, String distributionVersion) {
         this.lastBuildTime = lastBuildTime;
         this.lastUpdateTime = lastUpdateTime;
+        this.distributionVersion = distributionVersion;
     }
 
     public long lastBuildTime() {
@@ -56,6 +61,14 @@ public class BuildJson {
 
     public void setLastUpdateTime(long lastUpdateTime) {
         this.lastUpdateTime = lastUpdateTime;
+    }
+
+    public String distributionVersion() {
+        return distributionVersion;
+    }
+
+    public void setDistributionVersion(String distributionVersion) {
+        this.distributionVersion = distributionVersion;
     }
 
     public boolean isExpiredLastUpdateTime() {

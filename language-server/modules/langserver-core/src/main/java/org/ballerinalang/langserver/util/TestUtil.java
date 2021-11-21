@@ -47,6 +47,7 @@ import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.CompletionTriggerKind;
 import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
+import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
@@ -501,13 +502,7 @@ public class TestUtil {
      * @return {@link Endpoint}     Service Endpoint
      */
     public static Endpoint initializeLanguageSever() {
-        BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
-        Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(languageServer,
-                ExtendedLanguageClient.class, System.in, OutputStream.nullOutputStream());
-        ExtendedLanguageClient client = launcher.getRemoteProxy();
-        languageServer.connect(client);
-
-        return initializeLanguageSever(languageServer);
+        return initializeLanguageSever(new BallerinaLanguageServer());
     }
 
     /**
@@ -521,17 +516,11 @@ public class TestUtil {
     }
 
     public static Endpoint initializeLanguageSever(BallerinaLanguageServer languageServer, OutputStream out) {
-        InputStream in = new ByteArrayInputStream(new byte[1024]);
-        Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(languageServer,
-                ExtendedLanguageClient.class, in, out);
-        ExtendedLanguageClient client = launcher.getRemoteProxy();
-        languageServer.connect(client);
-
-        Endpoint endpoint = ServiceEndpoints.toEndpoint(languageServer);
-        endpoint.request("initialize", getInitializeParams());
-        endpoint.request("initialized", new InitializedParams());
-
-        return endpoint;
+        return newLanguageServer()
+                .withLanguageServer(languageServer)
+                .withInputStream(new ByteArrayInputStream(new byte[1024]))
+                .withOutputStream(out)
+                .build();
     }
 
     /**
@@ -557,6 +546,16 @@ public class TestUtil {
             }
         }
         return true;
+    }
+
+    /**
+     * Send the workspace/didChangeWatchedFiles notification.
+     * 
+     * @param serviceEndpoint service endpoint
+     * @param params {@link DidChangeWatchedFilesParams} parameters for the change notification
+     */
+    public static void didChangeWatchedFiles(Endpoint serviceEndpoint, DidChangeWatchedFilesParams params) {
+        serviceEndpoint.notify("workspace/didChangeWatchedFiles", params);
     }
 
     /**
@@ -627,54 +626,6 @@ public class TestUtil {
         return completionParams;
     }
 
-    /**
-     * Creates an InitializeParams instance.
-     *
-     * @return {@link InitializeParams} Params for Language Server initialization
-     */
-    private static InitializeParams getInitializeParams() {
-        InitializeParams params = new InitializeParams();
-        ClientCapabilities capabilities = new ClientCapabilities();
-        TextDocumentClientCapabilities textDocumentClientCapabilities = new TextDocumentClientCapabilities();
-        CompletionCapabilities completionCapabilities = new CompletionCapabilities();
-        SignatureHelpCapabilities signatureHelpCapabilities = new SignatureHelpCapabilities();
-        SignatureInformationCapabilities sigInfoCapabilities =
-                new SignatureInformationCapabilities(Arrays.asList("markdown", "plaintext"));
-        signatureHelpCapabilities.setSignatureInformation(sigInfoCapabilities);
-        completionCapabilities.setCompletionItem(new CompletionItemCapabilities(true));
-        completionCapabilities.setContextSupport(true);
-
-        textDocumentClientCapabilities.setCompletion(completionCapabilities);
-        textDocumentClientCapabilities.setSignatureHelp(signatureHelpCapabilities);
-        FoldingRangeCapabilities foldingRangeCapabilities = new FoldingRangeCapabilities();
-        foldingRangeCapabilities.setLineFoldingOnly(true);
-        textDocumentClientCapabilities.setFoldingRange(foldingRangeCapabilities);
-        RenameCapabilities renameCapabilities = new RenameCapabilities();
-        renameCapabilities.setPrepareSupport(true);
-        renameCapabilities.setHonorsChangeAnnotations(true);
-        textDocumentClientCapabilities.setRename(renameCapabilities);
-        textDocumentClientCapabilities.setSemanticTokens(new SemanticTokensCapabilities(true));
-
-        DocumentSymbolCapabilities documentSymbolCapabilities = new DocumentSymbolCapabilities();
-        documentSymbolCapabilities.setHierarchicalDocumentSymbolSupport(true);
-        documentSymbolCapabilities.setTagSupport(new SymbolTagSupportCapabilities(Arrays.asList(SymbolTag.Deprecated)));
-        textDocumentClientCapabilities.setDocumentSymbol(documentSymbolCapabilities);
-        capabilities.setTextDocument(textDocumentClientCapabilities);
-
-        WorkspaceClientCapabilities workspaceCapabilities = new WorkspaceClientCapabilities();
-        workspaceCapabilities.setExecuteCommand(new ExecuteCommandCapabilities(true));
-
-        capabilities.setWorkspace(workspaceCapabilities);
-
-        Map<String, Object> initializationOptions = new HashMap<>();
-        initializationOptions.put(InitializationOptions.KEY_ENABLE_SEMANTIC_TOKENS, true);
-        initializationOptions.put(InitializationOptions.KEY_BALA_SCHEME_SUPPORT, true);
-        
-        params.setCapabilities(capabilities);
-        params.setInitializationOptions(GSON.toJsonTree(initializationOptions));
-        return params;
-    }
-
     public static String getResponseString(CompletableFuture<?> completableFuture) {
         ResponseMessage jsonrpcResponse = new ResponseMessage();
         try {
@@ -719,5 +670,112 @@ public class TestUtil {
         DiagnosticResult diagnosticResult = project.get().currentPackage().getCompilation().diagnosticResult();
         diagnostics.addAll(diagnosticResult.diagnostics());
         return diagnostics;
+    }
+    
+    public static LanguageServerBuilder newLanguageServer() {
+        return new LanguageServerBuilder();
+    }
+
+    /**
+     * A builder to build a language server with different options.
+     */
+    public static class LanguageServerBuilder {
+
+        private BallerinaLanguageServer languageServer;
+        private InputStream inputStream;
+        private OutputStream outputStream;
+        private InitializeParams initializeParams;
+        private final Map<String, Object> initOptions = new HashMap<>();
+
+        public LanguageServerBuilder withLanguageServer(BallerinaLanguageServer languageServer) {
+            this.languageServer = languageServer;
+            return this;
+        }
+
+        public LanguageServerBuilder withInputStream(InputStream inputStream) {
+            this.inputStream = inputStream;
+            return this;
+        }
+
+        public LanguageServerBuilder withOutputStream(OutputStream outputStream) {
+            this.outputStream = outputStream;
+            return this;
+        }
+
+        public LanguageServerBuilder withInitOption(String key, Object value) {
+            this.initOptions.put(key, value);
+            return this;
+        }
+
+        public Endpoint build() {
+            if (languageServer == null) {
+                languageServer = new BallerinaLanguageServer();
+            }
+
+            if (inputStream == null) {
+                inputStream = new ByteArrayInputStream(new byte[1024]);
+            }
+
+            if (outputStream == null) {
+                outputStream = OutputStream.nullOutputStream();
+            }
+
+            Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(this.languageServer,
+                    ExtendedLanguageClient.class, inputStream, outputStream);
+            ExtendedLanguageClient client = launcher.getRemoteProxy();
+            languageServer.connect(client);
+            
+            if (initializeParams == null) {
+                initializeParams = new InitializeParams();
+                ClientCapabilities capabilities = new ClientCapabilities();
+                TextDocumentClientCapabilities textDocumentClientCapabilities = new TextDocumentClientCapabilities();
+                CompletionCapabilities completionCapabilities = new CompletionCapabilities();
+                SignatureHelpCapabilities signatureHelpCapabilities = new SignatureHelpCapabilities();
+                SignatureInformationCapabilities sigInfoCapabilities =
+                        new SignatureInformationCapabilities(Arrays.asList("markdown", "plaintext"));
+                signatureHelpCapabilities.setSignatureInformation(sigInfoCapabilities);
+                completionCapabilities.setCompletionItem(new CompletionItemCapabilities(true));
+                completionCapabilities.setContextSupport(true);
+
+                textDocumentClientCapabilities.setCompletion(completionCapabilities);
+                textDocumentClientCapabilities.setSignatureHelp(signatureHelpCapabilities);
+                FoldingRangeCapabilities foldingRangeCapabilities = new FoldingRangeCapabilities();
+                foldingRangeCapabilities.setLineFoldingOnly(true);
+                textDocumentClientCapabilities.setFoldingRange(foldingRangeCapabilities);
+                RenameCapabilities renameCapabilities = new RenameCapabilities();
+                renameCapabilities.setPrepareSupport(true);
+                renameCapabilities.setHonorsChangeAnnotations(true);
+                textDocumentClientCapabilities.setRename(renameCapabilities);
+                textDocumentClientCapabilities.setSemanticTokens(new SemanticTokensCapabilities(true));
+
+                DocumentSymbolCapabilities documentSymbolCapabilities = new DocumentSymbolCapabilities();
+                documentSymbolCapabilities.setHierarchicalDocumentSymbolSupport(true);
+                documentSymbolCapabilities.setTagSupport(
+                        new SymbolTagSupportCapabilities(Arrays.asList(SymbolTag.Deprecated)));
+                textDocumentClientCapabilities.setDocumentSymbol(documentSymbolCapabilities);
+                capabilities.setTextDocument(textDocumentClientCapabilities);
+
+                WorkspaceClientCapabilities workspaceCapabilities = new WorkspaceClientCapabilities();
+                workspaceCapabilities.setExecuteCommand(new ExecuteCommandCapabilities(true));
+
+                capabilities.setWorkspace(workspaceCapabilities);
+
+                initializeParams.setCapabilities(capabilities);
+            }
+
+            Map<String, Object> initializationOptions = new HashMap<>();
+            initializationOptions.put(InitializationOptions.KEY_ENABLE_SEMANTIC_TOKENS, true);
+            initializationOptions.put(InitializationOptions.KEY_BALA_SCHEME_SUPPORT, true);
+            if (!initOptions.isEmpty()) {
+                initializationOptions.putAll(initOptions);
+            }
+            initializeParams.setInitializationOptions(GSON.toJsonTree(initializationOptions));
+            
+            Endpoint endpoint = ServiceEndpoints.toEndpoint(languageServer);
+            endpoint.request("initialize", initializeParams);
+            endpoint.request("initialized", new InitializedParams());
+
+            return endpoint;
+        }
     }
 }
