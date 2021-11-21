@@ -462,6 +462,17 @@ public class ValueCreator {
     /**
      * Create attribute map with an XML.
      *
+     * @param qNameStr Qualified name string
+     * @param prefix   Namespace prefix
+     * @return XML qualified name
+     */
+    public static BXmlQName createXmlQName(BString qNameStr, String prefix) {
+        return new XmlQName(qNameStr.getValue(), prefix);
+    }
+
+    /**
+     * Create attribute map with an XML.
+     *
      * @param localName Local part of the qualified name
      * @param uri       Namespace URI
      * @param prefix    Namespace prefix

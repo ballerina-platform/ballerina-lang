@@ -24,6 +24,9 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
 import io.ballerina.runtime.internal.XmlFactory;
 
+import javax.xml.XMLConstants;
+import java.util.Map;
+
 /**
  * Create XML element from tag name and children sequence.
  *
@@ -39,14 +42,47 @@ import io.ballerina.runtime.internal.XmlFactory;
 //        isPublic = true
 //)
 public class CreateElement {
+    private static final String XML = "xml";
+    private static final String XML_NS_URI_PREFIX = "{" + XMLConstants.XML_NS_URI + "}";
+    private static final String XMLNS_NS_URI_PREFIX = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}";
 
     public static BXml createElement(BString name, BMap<BString, BString> attributes, BXml children) {
-        BXmlQName xmlqName = ValueCreator.createXmlQName(name);
+        String prefix = getPrefix(name.getValue(), attributes);
+        BXmlQName xmlqName;
+        if (prefix == "") {
+            xmlqName = ValueCreator.createXmlQName(name);
+        } else {
+            xmlqName = ValueCreator.createXmlQName(name, prefix);
+        }
         String temp = null;
         BXml xmlElement = XmlFactory.createXMLElement(xmlqName, temp);
         xmlElement.setAttributes(attributes);
         xmlElement.setChildren(getChildren(children));
         return xmlElement;
+    }
+
+    private static String getPrefix(String name, BMap<BString, BString> attributes) {
+        int parenEndIndex = name.indexOf('}');
+        if (name.startsWith("{") && parenEndIndex < 0) {
+            return "";
+        }
+        String uri = name.substring(1, parenEndIndex);
+        for (Map.Entry<BString, BString> entry : attributes.entrySet()) {
+            if (entry.getValue().getValue().equals(uri)) {
+                String key = entry.getKey().getValue();
+                if (key.startsWith(XMLNS_NS_URI_PREFIX)) {
+                    String prefix = key.substring(key.indexOf('}') + 1);
+                    if (prefix.equals(XML)) {
+                        return "";
+                    }
+                    return prefix;
+                } else if (key.startsWith(XML_NS_URI_PREFIX)) {
+                    // If `xml` namespace URI is used, we need to add `xml` namespace prefix to prefixMap
+                    return XML;
+                }
+            }
+        }
+        return "";
     }
 
     private static BXml getChildren(BXml children) {
