@@ -52,6 +52,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.ExternalVariableReferenceFinder;
 import org.ballerinalang.debugadapter.evaluation.engine.ModuleLevelDefinitionFinder;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.utils.FileUtils;
 import org.ballerinalang.debugadapter.evaluation.utils.VariableUtils;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
@@ -181,7 +182,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
      */
     private String generateEvaluationSnippet() throws EvaluationException {
         // Generates top level declarations snippet
-        String moduleDeclarations = extractModuleDefinitions(context.getModule(), false);
+        String moduleDeclarations = extractModuleDefinitions(context.getModule(), false, false);
 
         // Generates function signature (parameter definitions) for the snippet function template.
         processSnippetFunctionParameters();
@@ -308,7 +309,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         File mainBalFile = File.createTempFile(MAIN_FILE_PREFIX, BAL_FILE_EXT, tempProjectDir.toFile());
         mainBalFile.deleteOnExit();
 
-        writeToFile(mainBalFile, content);
+        FileUtils.writeToFile(mainBalFile, content);
     }
 
     /**
@@ -327,7 +328,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         balTomlContent.add(String.format("name = \"%s\"", EVALUATION_PACKAGE_NAME));
         balTomlContent.add(String.format("version = \"%s\"", EVALUATION_PACKAGE_VERSION));
 
-        writeToFile(balTomlFile, balTomlContent.toString());
+        FileUtils.writeToFile(balTomlFile, balTomlContent.toString());
     }
 
     /**
@@ -425,28 +426,31 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
 
         File moduleMainFile = Files.createTempFile(filePath, MAIN_FILE_PREFIX, BAL_FILE_EXT).toFile();
         moduleMainFile.deleteOnExit();
-        String moduleDefinitions = extractModuleDefinitions(module, true);
-        writeToFile(moduleMainFile, moduleDefinitions);
+        String moduleDefinitions = extractModuleDefinitions(module, true, true);
+        FileUtils.writeToFile(moduleMainFile, moduleDefinitions);
     }
 
-    private String extractModuleDefinitions(Module module, boolean shouldIncludeImports) {
+    private String extractModuleDefinitions(Module module, boolean includeImports, boolean includeGlobalDeclarations) {
         ModuleLevelDefinitionFinder moduleDefinitionFinder = new ModuleLevelDefinitionFinder(context);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.FUNCTION_DEFINITION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.TYPE_DEFINITION);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_VAR_DECL);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.LISTENER_DECLARATION);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CONST_DECLARATION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.ANNOTATION_DECLARATION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.ENUM_DECLARATION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CLASS_DEFINITION);
 
-        if (shouldIncludeImports) {
+        if (includeGlobalDeclarations) {
+            moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CONST_DECLARATION);
+            moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_VAR_DECL);
+        }
+
+        if (includeImports) {
             moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.IMPORT_DECLARATION);
         }
 
         List<NonTerminalNode> declarationList = moduleDefinitionFinder.getModuleDeclarations(module);
-        if (shouldIncludeImports) {
+        if (includeImports) {
             declarationList = convertImports(declarationList);
         }
 
@@ -594,48 +598,8 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         return bVar.computeValue();
     }
 
-    /**
-     * Helper method to write a string source to a file.
-     *
-     * @param content Content to write to the file.
-     * @throws EvaluationException If writing was unsuccessful.
-     */
-    private void writeToFile(File file, String content) throws EvaluationException {
-        try (FileWriter fileWriter = new FileWriter(file, Charset.defaultCharset())) {
-            fileWriter.write(content);
-        } catch (Exception e) {
-            throw createEvaluationException(String.format("error occurred while writing to a temp file at: '%s'",
-                    file.getPath()));
-        }
-    }
-
-    /**
-     * Delete the given directory along with all files and sub directories.
-     *
-     * @param directoryPath Directory to delete.
-     */
-    private boolean deleteDirectory(Path directoryPath) {
-        try {
-            File directory = new File(String.valueOf(directoryPath));
-            if (directory.isDirectory()) {
-                File[] files = directory.listFiles();
-                if (files != null) {
-                    for (File f : files) {
-                        boolean success = deleteDirectory(f.toPath());
-                        if (!success) {
-                            return false;
-                        }
-                    }
-                }
-            }
-            return directory.delete();
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
     private void dispose() {
         // Todo - anything else to be disposed?
-        deleteDirectory(this.tempProjectDir);
+        FileUtils.deleteDirectory(this.tempProjectDir);
     }
 }
