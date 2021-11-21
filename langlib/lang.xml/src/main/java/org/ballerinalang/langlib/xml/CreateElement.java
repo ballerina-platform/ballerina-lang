@@ -24,8 +24,9 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
 import io.ballerina.runtime.internal.XmlFactory;
 
-import javax.xml.XMLConstants;
 import java.util.Map;
+
+import javax.xml.XMLConstants;
 
 /**
  * Create XML element from tag name and children sequence.
@@ -63,22 +64,21 @@ public class CreateElement {
 
     private static String getPrefix(String name, BMap<BString, BString> attributes) {
         int parenEndIndex = name.indexOf('}');
-        if (name.startsWith("{") && parenEndIndex < 0) {
-            return "";
-        }
-        String uri = name.substring(1, parenEndIndex);
-        for (Map.Entry<BString, BString> entry : attributes.entrySet()) {
-            if (entry.getValue().getValue().equals(uri)) {
-                String key = entry.getKey().getValue();
-                if (key.startsWith(XMLNS_NS_URI_PREFIX)) {
-                    String prefix = key.substring(key.indexOf('}') + 1);
-                    if (prefix.equals(XML)) {
-                        return "";
+        if (name.startsWith("{") && parenEndIndex > 0) {
+            String uri = name.substring(1, parenEndIndex);
+            for (Map.Entry<BString, BString> entry : attributes.entrySet()) {
+                if (entry.getValue().getValue().equals(uri)) {
+                    String key = entry.getKey().getValue();
+                    if (key.startsWith(XMLNS_NS_URI_PREFIX)) {
+                        String prefix = key.substring(key.indexOf('}') + 1);
+                        if (prefix.equals(XML)) {
+                            return "";
+                        }
+                        return prefix;
+                    } else if (key.startsWith(XML_NS_URI_PREFIX)) {
+                        // If `xml` namespace URI is used, we need to add `xml` namespace prefix to prefixMap
+                        return XML;
                     }
-                    return prefix;
-                } else if (key.startsWith(XML_NS_URI_PREFIX)) {
-                    // If `xml` namespace URI is used, we need to add `xml` namespace prefix to prefixMap
-                    return XML;
                 }
             }
         }
