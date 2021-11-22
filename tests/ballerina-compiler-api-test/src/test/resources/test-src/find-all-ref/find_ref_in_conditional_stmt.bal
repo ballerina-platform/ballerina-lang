@@ -1,4 +1,4 @@
-// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,22 +14,39 @@
 // specific language governing permissions and limitations
 // under the License.
 
-enum Colour {
-    RED, GREEN, BLUE
+function testConditioanlStmt() {
+    func(1);
+
+    int a = bar();
+
+    ARecord aRecord = {a: 2};
+
+    if b.length() == 1 {
+        func(2);
+    }
+
+    if bar() > 2 {
+        b = b + "B";
+    } else if bar() < 2 {
+        func(1);
+    } else {
+        func(2);
+    }
+
+    if aRecord.a > 2 {
+        aRecord.a = 3;
+    }
 }
 
-const VAN_CONST = "van";
+string b = "B";
 
-enum Vehicle {
-    CAR = "toyota",
-    VAN = VAN_CONST,
-    BUS = "bus"
+function func(int x) {
 }
 
-type Vehicle2 Vehicle;
-
-function test() returns Colour {
-    Colour clr = RED;
-    Vehicle2 vehicle = VAN;
-    return RED;
+function bar() returns int {
+    return 3;
 }
+
+type ARecord record {|
+    int a;
+|};

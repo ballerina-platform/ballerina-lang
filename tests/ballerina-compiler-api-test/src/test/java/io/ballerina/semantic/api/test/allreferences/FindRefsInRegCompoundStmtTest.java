@@ -24,39 +24,40 @@ import org.testng.annotations.Test;
 import java.util.List;
 
 /**
- * Test cases for the find all references API related to enum contexts.
+ * Test cases for the find all references API related to regular compound statement contexts.
  *
  * @since 2.0.0
  */
 @Test
-public class FindRefsOfEnumsTest extends FindAllReferencesTest {
+public class FindRefsInRegCompoundStmtTest extends FindAllReferencesTest {
 
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
         return new Object[][]{
-                {16, 5, location(16, 5, 11),
-                        List.of(location(16, 5, 11),
-                                location(30, 24, 30),
-                                location(31, 4, 10))
+                {18, 10, location(50, 9, 13),
+                        List.of(location(18, 10, 14),
+                                location(19, 16, 20),
+                                location(50, 9, 13))
                 },
-                {17, 4, location(17, 4, 7),
-                        List.of(location(17, 4, 7),
-                                location(31, 17, 20),
-                                location(33, 11, 14))
+                {25, 16, location(25, 16, 17),
+                        List.of(location(25, 16, 17),
+                                location(26, 16, 17))
                 },
-                {20, 6, location(20, 6, 15),
-                        List.of(location(20, 6, 15),
-                                location(24, 10, 19))
+                {33, 8, location(54, 9, 13),
+                        List.of(location(33, 8, 12),
+                                location(38, 8, 12),
+                                location(46, 8, 12),
+                                location(54, 9, 13))
                 },
-                {22, 5, location(22, 5, 12),
-                        List.of(location(22, 5, 12),
-                                location(28, 14, 21))
+                {43, 8, location(43, 8, 12),
+                        List.of(location(43, 8, 12),
+                                location(45, 8, 12))
                 },
         };
     }
 
     @Override
     public String getTestSourcePath() {
-        return "test-src/find-all-ref/find_ref_of_enums.bal";
+        return "test-src/find-all-ref/find_ref_in_reg_compound_stmt.bal";
     }
 }
