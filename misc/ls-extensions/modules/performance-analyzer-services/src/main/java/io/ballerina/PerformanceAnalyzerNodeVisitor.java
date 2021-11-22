@@ -73,9 +73,9 @@ import java.util.UUID;
  */
 public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
 
-    public static final long DEFAULT_LOOP_SIZE = 2;
-    public static final String ENDPOINTS_KEY = "endpoints";
-    public static final String ACTION_INVOCATION_KEY = "actionInvocations";
+    private static final long DEFAULT_LOOP_SIZE = 2;
+    static final String ENDPOINTS_KEY = "endpoints";
+    static final String ACTION_INVOCATION_KEY = "actionInvocations";
 
     private final HashMap<LineRange, Object> variableMap;
     private final HashMap<LineRange, String> referenceMap;
@@ -156,14 +156,11 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
     public void visit(FunctionDefinitionNode functionDefinitionNode) {
 
         LineRange lineRange = functionDefinitionNode.lineRange();
-        if (functionDefinitionNode.syntaxTree().filePath().equals(file)
+        withinRange = functionDefinitionNode.syntaxTree().filePath().equals(file)
                 && range.getStart().getLine() == lineRange.startLine().line()
                 && range.getStart().getCharacter() == lineRange.startLine().offset()
                 && range.getEnd().getLine() == lineRange.endLine().line()
-                && range.getEnd().getCharacter() == lineRange.endLine().offset()
-        ) {
-            withinRange = true;
-        }
+                && range.getEnd().getCharacter() == lineRange.endLine().offset();
 
         functionDefinitionNode.functionBody().accept(this);
         withinRange = false;
@@ -173,7 +170,7 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
     public void visit(VariableDeclarationNode variableDeclarationNode) {
 
         Optional<Symbol> symbol = model.symbol(variableDeclarationNode);
-        if (symbol.isEmpty() || variableDeclarationNode.initializer().isEmpty()) {
+        if (variableDeclarationNode.initializer().isEmpty() || symbol.isEmpty()) {
             return;
         }
 
@@ -463,7 +460,7 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
                 return extractURL(url);
             }
         }
-        return null;
+        return "";
     }
 
     private String extractURL(String arg) {
@@ -488,21 +485,21 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
 
     private boolean isRecordObject(Symbol symbol) {
 
-        return getTypeKind(symbol) == TypeDescKind.RECORD;
-    }
-
-    private TypeDescKind getTypeKind(Symbol symbol) {
-
         if (symbol.kind() != SymbolKind.VARIABLE) {
-            return null;
+            return false;
         }
 
         TypeSymbol typeSymbol = ((VariableSymbol) symbol).typeDescriptor();
         TypeDescKind kind = typeSymbol.typeKind();
 
         if (kind == null) {
-            return null;
+            return false;
         }
+
+        return getTypeKind(kind, typeSymbol) == TypeDescKind.RECORD;
+    }
+
+    private TypeDescKind getTypeKind(TypeDescKind kind, TypeSymbol typeSymbol) {
 
         if (kind == TypeDescKind.TYPE_REFERENCE) {
             return ((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor().typeKind();

@@ -90,7 +90,7 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = request.getDocumentIdentifier().getUri();
             JsonObject data = EndpointsFinder.getEndpoints(fileUri, this.workspaceManager, request.getRange());
-            if (data == null) {
+            if (data.entrySet().isEmpty()) {
                 JsonObject obj = new JsonObject();
                 obj.addProperty("type", ERROR);
                 obj.addProperty("message", ENDPOINT_RESOLVE_ERROR);
@@ -132,7 +132,7 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
             String fileUri = request.getDocumentIdentifier().getUri();
             JsonObject data = EndpointsFinder.getEndpoints(fileUri, this.workspaceManager, request.getRange());
 
-            if (data == null) {
+            if (data.entrySet().isEmpty()) {
                 JsonObject obj = new JsonObject();
                 obj.addProperty("type", ERROR);
                 obj.addProperty("message", ENDPOINT_RESOLVE_ERROR);

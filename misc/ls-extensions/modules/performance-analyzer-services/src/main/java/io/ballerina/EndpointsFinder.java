@@ -61,16 +61,17 @@ public class EndpointsFinder {
 
         Path path = Path.of(fileUri);
         String file = StringUtils.substringAfterLast(fileUri, File.separator);
+        JsonObject json = new JsonObject();
         try {
             Optional<SemanticModel> semanticModel = workspaceManager.semanticModel(path);
             Optional<Module> module = workspaceManager.module(path);
             if (semanticModel.isEmpty() || module.isEmpty()) {
-                return null;
+                return json;
             }
             Module defaultModule = module.get();
 
             if (range == null) {
-                return null;
+                return json;
             }
 
             PerformanceAnalyzerNodeVisitor nodeVisitor =
@@ -94,7 +95,6 @@ public class EndpointsFinder {
             JsonObject actionInvocationsJson = new JsonObject();
             actionInvocationsJson.add("nextNode", nextNodesJson);
 
-            JsonObject json = new JsonObject();
             json.add(ENDPOINTS_KEY, endPointsJson);
             json.add(ACTION_INVOCATION_KEY, actionInvocationsJson);
 
@@ -104,6 +104,6 @@ public class EndpointsFinder {
         } catch (Throwable e) {
             //
         }
-        return null;
+        return json;
     }
 }
