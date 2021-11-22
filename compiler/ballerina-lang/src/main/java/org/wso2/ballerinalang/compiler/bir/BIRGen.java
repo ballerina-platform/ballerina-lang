@@ -183,6 +183,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -724,6 +725,11 @@ public class BIRGen extends BLangNodeVisitor {
 
         this.env.unlockVars.clear();
 
+        // Rearrange basic block ids.
+        birFunc.parameters.values().forEach(basicBlocks -> basicBlocks.forEach(bb -> bb.id = this.env.nextBBId(names)));
+        birFunc.basicBlocks.forEach(bb -> bb.id = this.env.nextBBId(names));
+        // Rearrange error entries.
+        birFunc.errorTable.sort(Comparator.comparingInt(o -> Integer.parseInt(o.trapBB.id.value.replace("bb", ""))));
         birFunc.dependentGlobalVars = astFunc.symbol.dependentGlobalVars.stream()
                 .map(varSymbol -> this.globalVarMap.get(varSymbol)).collect(Collectors.toSet());
         this.env.clear();

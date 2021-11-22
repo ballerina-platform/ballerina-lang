@@ -46,7 +46,7 @@ mapInits function() -> (string|(), int|()) {
     bb1 {
         %27 = %20;
         %19 = <string|()> %27;
-        GOTO bb7;
+        GOTO bb6;
     }
     bb2 {
         %26 = %20 is Employee;
@@ -69,48 +69,42 @@ mapInits function() -> (string|(), int|()) {
         GOTO bb6;
     }
     bb6 {
-        GOTO bb7;
-    }
-    bb7 {
         %12 = ConstLoad jack;
         %46 = %1[%12];
         %25 = ConstLoad 0;
         %26 = %46 == %25;
-        %26? bb8 : bb9;
+        %26? bb7 : bb8;
     }
-    bb8 {
+    bb7 {
         %53 = %46;
         %45 = <int|()> %53;
-        GOTO bb14;
+        GOTO bb12;
+    }
+    bb8 {
+        %26 = %46 is Employee;
+        %26? bb9 : bb10;
     }
     bb9 {
-        %26 = %46 is Employee;
-        %26? bb10 : bb11;
-    }
-    bb10 {
         %59 = <Employee> %46;
         %7 = ConstLoad age;
         %63 = %59[%7];
         %45 = <int|()> %63;
-        GOTO bb13;
+        GOTO bb12;
+    }
+    bb10 {
+        %26 = %46 is any;
+        %26? bb11 : bb12;
     }
     bb11 {
-        %26 = %46 is any;
-        %26? bb12 : bb13;
-    }
-    bb12 {
         %25 = ConstLoad 0;
         %45 = <int|()> %25;
+        GOTO bb12;
+    }
+    bb12 {
+        %0 = newArray (string|(), int|())[%10];
         GOTO bb13;
     }
     bb13 {
-        GOTO bb14;
-    }
-    bb14 {
-        %0 = newArray (string|(), int|())[%10];
-        GOTO bb15;
-    }
-    bb15 {
         return;
     }
 
