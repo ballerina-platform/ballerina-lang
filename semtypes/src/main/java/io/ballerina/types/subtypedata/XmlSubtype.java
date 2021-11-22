@@ -18,6 +18,7 @@
 package io.ballerina.types.subtypedata;
 
 import io.ballerina.types.Bdd;
+import io.ballerina.types.Common;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Core;
 import io.ballerina.types.PredefinedType;
@@ -98,9 +99,9 @@ public class XmlSubtype implements ProperSubtypeData {
     }
 
     public static ComplexSemType createXmlSemtype(SubtypeData ro, SubtypeData rw) {
-        if (ro instanceof AllOrNothingSubtype && ((AllOrNothingSubtype) ro).isNothingSubtype()) {
+        if (Common.isNothingSubtype(ro)) {
             return ComplexSemType.createComplexSemType(0, UniformSubtype.from(UniformTypeCode.UT_XML_RW, rw));
-        } else if (rw instanceof AllOrNothingSubtype && ((AllOrNothingSubtype) rw).isNothingSubtype()) {
+        } else if (Common.isNothingSubtype(rw)) {
             return ComplexSemType.createComplexSemType(0, UniformSubtype.from(UniformTypeCode.UT_XML_RO, ro));
         } else {
             return ComplexSemType.createComplexSemType(0, UniformSubtype.from(UniformTypeCode.UT_XML_RO, ro),

@@ -81,7 +81,7 @@ public abstract class XmlCommonOps implements UniformTypeOps {
         int allBits = 0;
         Conjunction current = con;
         while (current != null) {
-            allBits |= ((RecAtom) current.atom).index;
+            allBits |= getIndex(current);
             current = current.next;
         }
         return allBits;
@@ -94,11 +94,15 @@ public abstract class XmlCommonOps implements UniformTypeOps {
 
         Conjunction n = con;
         while (n != null) {
-            if ((allBits & ~((RecAtom) n.atom).index) == 0) {
+            if ((allBits & ~getIndex(con)) == 0) {
                 return true;
             }
             n = n.next;
         }
         return false;
+    }
+
+    private static int getIndex(Conjunction con) {
+        return ((RecAtom) con.atom).index;
     }
 }
