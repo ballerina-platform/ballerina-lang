@@ -20,9 +20,12 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -36,6 +39,7 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Completion provider for {@link CheckExpressionNode} context.
@@ -44,6 +48,7 @@ import java.util.Optional;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class CheckExpressionNodeContext extends AbstractCompletionProvider<CheckExpressionNode> {
+
     public CheckExpressionNodeContext() {
         super(CheckExpressionNode.class);
     }
@@ -59,12 +64,24 @@ public class CheckExpressionNodeContext extends AbstractCompletionProvider<Check
                 || node.parent().kind() == SyntaxKind.FROM_CLAUSE) {
                 completionItems.addAll(CompletionUtil.route(ctx, node.parent()));
         } else {
-            /*
-            We add the action keywords in order to support the check action context completions
-             */
-            completionItems.addAll(this.actionKWCompletions(ctx));
-            completionItems.addAll(this.expressionCompletions(ctx));
-            completionItems.add(new SnippetCompletionItem(ctx, Snippet.STMT_COMMIT.get()));
+
+            NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
+            if (QNameReferenceUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
+                Predicate<Symbol> filter = symbol -> symbol.kind() == SymbolKind.VARIABLE
+                        || symbol.kind() == SymbolKind.FUNCTION
+                        || symbol.kind() == SymbolKind.TYPE_DEFINITION
+                        || symbol.kind() == SymbolKind.CLASS;
+                List<Symbol> types = QNameReferenceUtil.getModuleContent(ctx,
+                        (QualifiedNameReferenceNode) nodeAtCursor, filter);
+                completionItems.addAll(getCompletionItemList(types, ctx));
+            } else {
+                /*
+                    We add the action keywords in order to support the check action context completions
+                 */
+                completionItems.addAll(this.actionKWCompletions(ctx));
+                completionItems.addAll(this.expressionCompletions(ctx));
+                completionItems.add(new SnippetCompletionItem(ctx, Snippet.STMT_COMMIT.get()));
+            }
         }
         this.sort(ctx, node, completionItems);
 
