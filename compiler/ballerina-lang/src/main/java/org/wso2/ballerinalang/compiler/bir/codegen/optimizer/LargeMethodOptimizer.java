@@ -75,9 +75,6 @@ public class LargeMethodOptimizer {
             List<BIRFunction> newBIRFunctions = splitThisBIRFunction(function.name.toString(), function, false);
             newlyAddedBIRFunctions.addAll(newBIRFunctions);
         }
-        birPkg.functions.addAll(newlyAddedBIRFunctions);
-
-        List<BIRFunction> newlyAddedAttachedFunctions = new ArrayList<>();
         for (BIRTypeDefinition birTypeDef : birPkg.typeDefs) {
             for (BIRFunction function : birTypeDef.attachedFuncs) {
                 if (hasLessInstructionCount(function)) {
@@ -85,10 +82,10 @@ public class LargeMethodOptimizer {
                 }
                 String parentFunctionName = birTypeDef.name.toString() + "$" + function.name.toString();
                 List<BIRFunction> newBIRFunctions = splitThisBIRFunction(parentFunctionName, function, true);
-                newlyAddedAttachedFunctions.addAll(newBIRFunctions);
+                newlyAddedBIRFunctions.addAll(newBIRFunctions);
             }
         }
-        birPkg.functions.addAll(newlyAddedAttachedFunctions);
+        birPkg.functions.addAll(newlyAddedBIRFunctions);
     }
 
     private boolean hasLessInstructionCount(BIRFunction birFunction) {
@@ -422,6 +419,7 @@ public class LargeMethodOptimizer {
                 parentFunc.workerName, 0, parentFunc.origin);
 
         List<BIRFunctionParameter> functionParams = new ArrayList<>();
+        BIRVariableDcl selfVarDcl = null;
         for (BIRVariableDcl funcArg : currSplit.funcArgs) {
             Name argName = funcArg.name;
             birFunc.requiredParams.add(new BIRParameter(lastIns.pos, argName, 0));
@@ -429,6 +427,10 @@ public class LargeMethodOptimizer {
                     VarScope.FUNCTION, VarKind.ARG, argName.getValue(), false);
             functionParams.add(funcParameter);
             birFunc.parameters.put(funcParameter, new ArrayList<>());
+            if (funcArg.kind == VarKind.SELF) {
+                selfVarDcl = new BIRVariableDcl(funcArg.pos, funcArg.type, funcArg.name, funcArg.originalName,
+                        VarScope.FUNCTION, VarKind.ARG, funcArg.metaVarName);
+            }
         }
 
         birFunc.argsCount = currSplit.funcArgs.size();
@@ -473,6 +475,7 @@ public class LargeMethodOptimizer {
         lastBB.terminator = new BIRTerminator.GOTO(null, exitBB, lastIns.scope);
         birFunc.basicBlocks.add(lastBB);
         birFunc.basicBlocks.add(exitBB);
+        changeSelfToArgVarKind(birFunc, selfVarDcl);
         return birFunc;
     }
 
@@ -559,6 +562,7 @@ public class LargeMethodOptimizer {
                 parentFunc.workerName, 0, parentFunc.origin);
 
         List<BIRFunctionParameter> functionParams = new ArrayList<>();
+        BIRVariableDcl selfVarDcl = null;
         for (BIRVariableDcl funcArg : funcArgs) {
             Name argName = funcArg.name;
             birFunc.requiredParams.add(new BIRParameter(currentIns.pos, argName, 0));
@@ -566,6 +570,10 @@ public class LargeMethodOptimizer {
                     VarScope.FUNCTION, VarKind.ARG, argName.getValue(), false);
             functionParams.add(funcParameter);
             birFunc.parameters.put(funcParameter, new ArrayList<>());
+            if (funcArg.kind == VarKind.SELF) {
+                selfVarDcl = new BIRVariableDcl(funcArg.pos, funcArg.type, funcArg.name, funcArg.originalName,
+                        VarScope.FUNCTION, VarKind.ARG, funcArg.metaVarName);
+            }
         }
 
         birFunc.argsCount = funcArgs.size();
@@ -591,7 +599,34 @@ public class LargeMethodOptimizer {
         entryBB.terminator = new BIRTerminator.GOTO(null, exitBB, currentIns.scope);
         birFunc.basicBlocks.add(entryBB);
         birFunc.basicBlocks.add(exitBB);
+        changeSelfToArgVarKind(birFunc, selfVarDcl);
         return birFunc;
+    }
+
+    private void changeSelfToArgVarKind(BIRFunction birFunction, BIRVariableDcl selfVarDcl) {
+        for (BIRBasicBlock basicBlock : birFunction.basicBlocks) {
+            for (BIRNonTerminator instruction : basicBlock.instructions) {
+                if (instruction.lhsOp.variableDcl.kind == VarKind.SELF) {
+                    instruction.lhsOp.variableDcl = selfVarDcl;
+                }
+                BIROperand[] rhsOperands = instruction.getRhsOperands();
+                for (BIROperand rhsOperand : rhsOperands) {
+                    if (rhsOperand.variableDcl.kind == VarKind.SELF) {
+                        rhsOperand.variableDcl = selfVarDcl;
+                    }
+                }
+            }
+            if ((basicBlock.terminator.lhsOp != null) &&
+                    (basicBlock.terminator.lhsOp.variableDcl.kind == VarKind.SELF)) {
+                basicBlock.terminator.lhsOp.variableDcl = selfVarDcl;
+            }
+            BIROperand[] rhsOperands = basicBlock.terminator.getRhsOperands();
+            for (BIROperand rhsOperand : rhsOperands) {
+                if (rhsOperand.variableDcl.kind == VarKind.SELF) {
+                    rhsOperand.variableDcl = selfVarDcl;
+                }
+            }
+        }
     }
 }
 

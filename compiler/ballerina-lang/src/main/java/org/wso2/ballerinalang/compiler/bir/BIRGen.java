@@ -28,7 +28,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer;
 import org.wso2.ballerinalang.compiler.bir.model.ArgumentState;
 import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -269,11 +268,6 @@ public class BIRGen extends BLangNodeVisitor {
         astPkg.accept(this);
 
         this.birOptimizer.optimizePackage(birPkg);
-
-        // Split large BIR functions into smaller methods
-        LargeMethodOptimizer largeMethodOptimizer = new LargeMethodOptimizer();
-        largeMethodOptimizer.splitLargeBIRFunctions(birPkg);
-
         if (!astPkg.moduleContextDataHolder.skipTests() && astPkg.hasTestablePackage()) {
             BIRPackage testBirPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName, astPkg.packageID.pkgName,
                     astPkg.packageID.name, astPkg.packageID.version, astPkg.packageID.sourceFileName);
