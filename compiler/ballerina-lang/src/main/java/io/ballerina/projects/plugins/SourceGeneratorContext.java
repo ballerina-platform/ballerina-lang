@@ -62,6 +62,22 @@ public interface SourceGeneratorContext {
     void addSourceFile(TextDocument textDocument, String filenamePrefix);
 
     /**
+     * Adds the provided source code as a new file to the  {@code Module} identified by the {@code ModuleId}.
+     *
+     * @param content  a {@code TextDocument} that contains the source code
+     * @param fileName proposed prefix of the filename to be added
+     */
+    void addResourceFile(byte[] content, String fileName, ModuleId moduleId);
+
+    /**
+     * Adds the provided source code as a new file to the default {@code Module} of the {@code Package}.
+     *
+     * @param content  a {@code TextDocument} that contains the source code
+     * @param fileName proposed prefix of the filename to be added
+     */
+    void addResourceFile(byte[] content, String fileName);
+
+    /**
      * Reports a diagnostic against the compilation.
      *
      * @param diagnostic the {@code Diagnostic} to be reported

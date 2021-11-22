@@ -36,6 +36,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
+import java.util.jar.JarFile;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
@@ -228,6 +229,26 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
+    }
+
+    @Test(dependsOnMethods = "testBuildBalProject")
+    public void testCodeGenerator() throws IOException {
+        Path projectPath = this.testResources.resolve("validApplicationProject");
+        Path thinJarPath = projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("foo-winery-0.1.0.jar");
+        Path execPath = projectPath.resolve("target").resolve("bin").resolve("winery.jar");
+        String generatedSource = "foo/winery/0/dummyfunc-generated_1.class";
+        String generatedResource = "resources/winery/openapi-spec.yaml";
+
+        JarFile thinJar = new JarFile(thinJarPath.toString());
+        JarFile execJar = new JarFile(execPath.toString());
+
+        Assert.assertNotNull(thinJar.getJarEntry(generatedSource));
+        Assert.assertNotNull(thinJar.getJarEntry(generatedResource));
+
+        Assert.assertNotNull(execJar.getJarEntry(generatedSource));
+        Assert.assertNotNull(execJar.getJarEntry(generatedResource));
     }
 
     /**

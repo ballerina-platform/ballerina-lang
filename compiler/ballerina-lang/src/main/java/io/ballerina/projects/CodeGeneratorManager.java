@@ -55,7 +55,7 @@ class CodeGeneratorManager {
 
     CodeGeneratorResult runCodeGenerators(Package currentPackage) {
         CodeGenTaskResult codeGenTaskResult = getCodeGenTaskResult();
-        if (codeGenTaskResult.containsSourceFile()) {
+        if (codeGenTaskResult.containsSourceFile() || codeGenTaskResult.containsResourceFile()) {
             Package packageWithGenSources = new PackageModifier().modifyPackage(currentPackage, codeGenTaskResult);
             return new CodeGeneratorResult(packageWithGenSources, codeGenTaskResult.reportedDiagnostics());
         } else {
@@ -98,6 +98,7 @@ class CodeGeneratorManager {
 
             resultBuilder.addDiagnostics(sourceGenContext.reportedDiagnostics());
             resultBuilder.addSourceFiles(sourceGenContext.generatedSourceFiles());
+            resultBuilder.addResourceFiles(sourceGenContext.generatedResourceFiles());
         }
     }
 
@@ -244,6 +245,7 @@ class CodeGeneratorManager {
         private final PackageCompilation compilation;
         private final List<Diagnostic> diagnostics = new ArrayList<>();
         private final List<GeneratedSourceFile> sourceFiles = new ArrayList<>();
+        private final List<GeneratedResourceFile> resourceFiles = new ArrayList<>();
 
         private final ModuleId defaultModuleId;
 
@@ -279,6 +281,21 @@ class CodeGeneratorManager {
         }
 
         @Override
+        public void addResourceFile(byte[] content, String fileName, ModuleId moduleId) {
+            if (currentPackage.moduleIds().contains(moduleId)) {
+                resourceFiles.add(new GeneratedResourceFile(content, fileName, moduleId));
+            } else {
+                throw new IllegalArgumentException("There is no such module in the current package " +
+                        "with the given identifier: " + moduleId);
+            }
+        }
+
+        @Override
+        public void addResourceFile(byte[] content, String fileName) {
+            addResourceFile(content, fileName, defaultModuleId);
+        }
+
+        @Override
         public void reportDiagnostic(Diagnostic diagnostic) {
             diagnostics.add(diagnostic);
         }
@@ -289,6 +306,10 @@ class CodeGeneratorManager {
 
         Collection<GeneratedSourceFile> generatedSourceFiles() {
             return sourceFiles;
+        }
+
+        Collection<GeneratedResourceFile> generatedResourceFiles() {
+            return resourceFiles;
         }
     }
 
@@ -309,6 +330,30 @@ class CodeGeneratorManager {
 
         public String filenamePrefix() {
             return filenamePrefix;
+        }
+
+        public ModuleId moduleId() {
+            return moduleId;
+        }
+    }
+
+    private static class GeneratedResourceFile {
+        private final byte[] content;
+        private final String filename;
+        private final ModuleId moduleId;
+
+        public GeneratedResourceFile(byte[] content, String filename, ModuleId moduleId) {
+            this.content = content;
+            this.filename = filename;
+            this.moduleId = moduleId;
+        }
+
+        public byte[] content() {
+            return content;
+        }
+
+        public String filename() {
+            return filename;
         }
 
         public ModuleId moduleId() {
@@ -363,11 +408,14 @@ class CodeGeneratorManager {
     private static class CodeGenTaskResult {
         private final List<Diagnostic> reportedDiagnostics;
         private final Map<ModuleId, List<GeneratedSourceFile>> sourceFilesMap;
+        private final Map<ModuleId, List<GeneratedResourceFile>> resourceFilesMap;
 
         public CodeGenTaskResult(List<Diagnostic> reportedDiagnostics,
-                                 Map<ModuleId, List<GeneratedSourceFile>> sourceFilesMap) {
+                                 Map<ModuleId, List<GeneratedSourceFile>> sourceFilesMap,
+                                 Map<ModuleId, List<GeneratedResourceFile>> resourceFilesMap) {
             this.reportedDiagnostics = reportedDiagnostics;
             this.sourceFilesMap = sourceFilesMap;
+            this.resourceFilesMap = resourceFilesMap;
         }
 
         Collection<Diagnostic> reportedDiagnostics() {
@@ -375,21 +423,37 @@ class CodeGeneratorManager {
         }
 
         Collection<GeneratedSourceFile> sourceFiles(ModuleId moduleId) {
+            if (sourceFilesMap.get(moduleId) == null) {
+                return Collections.emptyList();
+            }
             return sourceFilesMap.get(moduleId);
+        }
+
+        Collection<GeneratedResourceFile> resourceFiles(ModuleId moduleId) {
+            if (resourceFilesMap.get(moduleId) == null) {
+                return Collections.emptyList();
+            }
+            return resourceFilesMap.get(moduleId);
         }
 
         boolean containsSourceFile() {
             return !sourceFilesMap.isEmpty();
+        }
+
+        boolean containsResourceFile() {
+            return !resourceFilesMap.isEmpty();
         }
     }
 
     private static class CodeGeneratorTaskResultBuilder {
         private final List<Diagnostic> reportedDiagnostics;
         private final List<GeneratedSourceFile> generatedSourceFiles;
+        private final List<GeneratedResourceFile> generatedResourceFiles;
 
         CodeGeneratorTaskResultBuilder() {
             this.reportedDiagnostics = new ArrayList<>();
             this.generatedSourceFiles = new ArrayList<>();
+            this.generatedResourceFiles = new ArrayList<>();
         }
 
         CodeGeneratorTaskResultBuilder addDiagnostics(Collection<Diagnostic> diagnostics) {
@@ -402,12 +466,21 @@ class CodeGeneratorManager {
             return this;
         }
 
+        CodeGeneratorTaskResultBuilder addResourceFiles(Collection<GeneratedResourceFile> resourceFiles) {
+            generatedResourceFiles.addAll(resourceFiles);
+            return this;
+        }
+
         CodeGenTaskResult build() {
             Map<ModuleId, List<GeneratedSourceFile>> sourceFilesMap = new HashMap<>();
             for (GeneratedSourceFile sourceFile : generatedSourceFiles) {
                 sourceFilesMap.computeIfAbsent(sourceFile.moduleId(), key -> new ArrayList<>()).add(sourceFile);
             }
-            return new CodeGenTaskResult(reportedDiagnostics, sourceFilesMap);
+            Map<ModuleId, List<GeneratedResourceFile>> resourceFilesMap = new HashMap<>();
+            for (GeneratedResourceFile resourceFile : generatedResourceFiles) {
+                resourceFilesMap.computeIfAbsent(resourceFile.moduleId(), key -> new ArrayList<>()).add(resourceFile);
+            }
+            return new CodeGenTaskResult(reportedDiagnostics, sourceFilesMap, resourceFilesMap);
         }
     }
 
@@ -462,7 +535,21 @@ class CodeGeneratorManager {
                 addGeneratedDocument(uniqueFilename, sourceFile.textDocument, modifier, moduleId);
             }
 
+            for (GeneratedResourceFile resourceFile : codeGenTaskResult.resourceFiles(moduleId)) {
+                docNames.add(resourceFile.filename());
+                addGeneratedResource(resourceFile.filename(), resourceFile.content, modifier, moduleId);
+            }
+
             return modifier.apply().packageInstance();
+        }
+
+        private void addGeneratedResource(String newResourceFilename,
+                                          byte[] content,
+                                          Module.Modifier modifier,
+                                          ModuleId moduleId) {
+            DocumentId documentId = DocumentId.create(newResourceFilename, moduleId);
+            ResourceConfig resourceConfig = ResourceConfig.from(documentId, newResourceFilename, content);
+            modifier.addResource(resourceConfig);
         }
 
         private void addGeneratedDocument(String newDocFilename,

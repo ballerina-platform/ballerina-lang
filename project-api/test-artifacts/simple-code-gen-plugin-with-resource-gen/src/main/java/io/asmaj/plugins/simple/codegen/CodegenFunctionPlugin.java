@@ -15,24 +15,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.samjs.plugins.init.codegen;
+package io.asmaj.plugins.simple.codegen;
 
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.projects.plugins.CodeAnalysisContext;
-import io.ballerina.projects.plugins.CodeAnalyzer;
 import io.ballerina.projects.plugins.CodeGenerator;
 import io.ballerina.projects.plugins.CodeGeneratorContext;
 import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.CompilerPluginContext;
-import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import io.samjs.jarlibrary.diagnosticutils.DiagnosticUtils;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
 
 import java.nio.charset.Charset;
 
 /**
- * A sample {@code CompilerPlugin} that generated files for each function definition.
+ * A sample {@code CompilerPlugin} that generates a source file and a resource file.
  *
  * @since 2.0.0
  */
@@ -40,8 +35,7 @@ public class CodegenFunctionPlugin extends CompilerPlugin {
 
     @Override
     public void init(CompilerPluginContext pluginContext) {
-        pluginContext.addCodeAnalyzer(new FunctionNodeAnalyzer());
-        pluginContext.addCodeGenerator(new InitFunctionCodeGenerator());
+        pluginContext.addCodeGenerator(new DummySourceGenerator());
         pluginContext.addCodeGenerator(new OpenApiSpecGenerator());
     }
 
@@ -60,22 +54,19 @@ public class CodegenFunctionPlugin extends CompilerPlugin {
     }
 
     /**
-     * A sample {@code CodeAnalyzer} that report function info diagnostics.
+     * A sample {@code CodeGenerator} that creates a source file with a function.
      *
      * @since 2.0.0
      */
-    public static class FunctionNodeAnalyzer extends CodeAnalyzer {
-
+    public static class DummySourceGenerator extends CodeGenerator {
         @Override
-        public void init(CodeAnalysisContext analysisContext) {
-            analysisContext.addSyntaxNodeAnalysisTask(syntaxNodeAnalysisContext -> {
-                FunctionDefinitionNode funcDefNode = (FunctionDefinitionNode) syntaxNodeAnalysisContext.node();
-                // Report a test diagnostic
-                Diagnostic diagnostic = DiagnosticUtils.createDiagnostic("CODEGEN_PLUGIN_FUNCTION",
-                        funcDefNode.functionName().text(),
-                        funcDefNode.functionKeyword().location(), DiagnosticSeverity.INFO);
-                syntaxNodeAnalysisContext.reportDiagnostic(diagnostic);
-            }, SyntaxKind.FUNCTION_DEFINITION);
+        public void init(CodeGeneratorContext generatorContext) {
+            String content = "function dummyUtil() {}";
+            generatorContext.addSourceGeneratorTask(sourceGeneratorContext -> {
+                TextDocument textDocument = TextDocuments.from(content);
+                sourceGeneratorContext.addSourceFile(textDocument, "dummyfunc");
+            });
         }
     }
+
 }
