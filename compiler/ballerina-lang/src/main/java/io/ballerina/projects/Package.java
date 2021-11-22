@@ -210,6 +210,10 @@ public class Package {
         return this.packageMd;
     }
 
+    Package duplicate(Project project) {
+        return new Package(packageContext.duplicate(project), project);
+    }
+
     /**
      * Run {@code CodeGenerator} tasks in engaged {@code CompilerPlugin}s.
      * <p>

@@ -229,7 +229,8 @@ public class JvmTerminatorGen {
         mv.visitJumpInsn(IFNE, yieldLabel);
     }
 
-    private void loadDefaultValue(MethodVisitor mv, BType bType) {
+    private void loadDefaultValue(MethodVisitor mv, BType type) {
+        BType bType = JvmCodeGenUtil.getReferredType(type);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitInsn(LCONST_0);
             return;
@@ -426,6 +427,7 @@ public class JvmTerminatorGen {
 
         boolean errorIncluded = false;
         for (BType member : bType.getMemberTypes()) {
+            member = JvmCodeGenUtil.getReferredType(member);
             if (member.tag == TypeTags.ERROR) {
                 errorIncluded = true;
                 break;
@@ -716,7 +718,7 @@ public class JvmTerminatorGen {
         }
 
         BIRNode.BIRVariableDcl selfArg = callIns.args.get(0).variableDcl;
-        if (selfArg.type.tag == TypeTags.OBJECT) {
+        if (JvmCodeGenUtil.getReferredType(selfArg.type).tag == TypeTags.OBJECT) {
             this.genVirtualCall(callIns, JvmCodeGenUtil.isBallerinaBuiltinModule(
                     packageID.orgName.getValue(), packageID.name.getValue()), localVarOffset);
         } else {
@@ -1313,9 +1315,11 @@ public class JvmTerminatorGen {
     }
 
     public void genReturnTerm(int returnVarRefIndex, BIRNode.BIRFunction func) {
-
         BType bType = unifier.build(func.type.retType);
+        generateReturnTermFromType(returnVarRefIndex, bType, func);
+    }
 
+    private void generateReturnTermFromType(int returnVarRefIndex, BType bType, BIRNode.BIRFunction func) {
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             this.mv.visitVarInsn(LLOAD, returnVarRefIndex);
             this.mv.visitInsn(LRETURN);
@@ -1369,6 +1373,9 @@ public class JvmTerminatorGen {
                 this.notifyChannels(Arrays.asList(func.workerChannels), returnVarRefIndex);
                 this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 this.mv.visitInsn(ARETURN);
+                break;
+            case TypeTags.TYPEREFDESC:
+                generateReturnTermFromType(returnVarRefIndex, JvmCodeGenUtil.getReferredType(bType), func);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +

@@ -356,11 +356,10 @@ public class BallerinaSemanticModel implements SemanticModel {
             return Optional.empty();
         }
 
-        if (isTypeSymbol(symbolAtCursor) &&
-                ((isInlineSingletonType((BTypeSymbol) symbolAtCursor))
-                        || isCursorPosAtDefinition(compilationUnit, symbolAtCursor, position))) {
+        if (isTypeSymbol(symbolAtCursor) && ((isInlineSingletonType(symbolAtCursor))
+                || isCursorPosAtDefinition(compilationUnit, symbolAtCursor, position))) {
             return Optional.ofNullable(
-                    typesFactory.getTypeDescriptor(symbolAtCursor.type, (BTypeSymbol) symbolAtCursor));
+                    typesFactory.getTypeDescriptor(symbolAtCursor.type, symbolAtCursor));
         }
 
         return Optional.ofNullable(symbolFactory.getBCompiledSymbol(symbolAtCursor,
@@ -424,16 +423,18 @@ public class BallerinaSemanticModel implements SemanticModel {
                 && PositionUtil.withinBlock(cursorPos, symbolAtCursor.pos));
     }
 
-
-    private boolean isInlineSingletonType(BTypeSymbol symbol) {
-        // !symbol.isLabel is checked to exclude type defs
-        return symbol.type.tag == TypeTags.FINITE && !symbol.isLabel
-                && ((BFiniteType) symbol.type).getValueSpace().size() == 1;
+    private boolean isInlineSingletonType(BSymbol symbol) {
+        // !(symbol.kind == SymbolKind.TYPE_DEF) is checked to exclude type defs
+        return !(symbol.kind == SymbolKind.TYPE_DEF) && symbol.type.tag == TypeTags.FINITE &&
+                ((BFiniteType) symbol.type).getValueSpace().size() == 1;
     }
 
-    private boolean isTypeSymbol(BSymbol symbol) {
-        return symbol instanceof BTypeSymbol && !Symbols.isTagOn(symbol, PACKAGE)
-                && !Symbols.isTagOn(symbol, ANNOTATION);
+    private boolean isTypeSymbol(BSymbol tSymbol) {
+        if (tSymbol.kind == SymbolKind.TYPE_DEF) {
+            return true;
+        }
+        return tSymbol instanceof BTypeSymbol && !Symbols.isTagOn(tSymbol, PACKAGE)
+                && !Symbols.isTagOn(tSymbol, ANNOTATION);
     }
 
     private BSymbol getInternalSymbol(Symbol symbol) {

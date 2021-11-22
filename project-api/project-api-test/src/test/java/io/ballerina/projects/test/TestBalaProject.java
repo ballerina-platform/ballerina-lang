@@ -37,14 +37,18 @@ import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.repos.TempDirCompilationCache;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -246,5 +250,91 @@ public class TestBalaProject {
         } catch (ProjectException e) {
             // ignore
         }
+    }
+
+    @Test
+    public void testProjectRefresh() {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_refresh_tests").resolve("package_refresh_bala");
+        Project project = TestUtils.loadProject(projectDirPath);
+        Assert.assertEquals(project.kind(), ProjectKind.BALA_PROJECT);
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        int errorCount = compilation.diagnosticResult().errorCount();
+        Assert.assertEquals(errorCount, 3);
+
+        BCompileUtil.compileAndCacheBala("projects_for_refresh_tests/package_refresh_two_v3");
+        int errorCount2 = project.currentPackage().getCompilation().diagnosticResult().errorCount();
+        Assert.assertEquals(errorCount2, 3);
+
+        project.clearCaches();
+        int errorCount3 = project.currentPackage().getCompilation().diagnosticResult().errorCount();
+        Assert.assertEquals(errorCount3, 0);
+    }
+
+    @Test
+    public void testProjectDuplicate() {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_refresh_tests").resolve("package_refresh_bala");
+        Project project = TestUtils.loadProject(projectDirPath);
+        Assert.assertEquals(project.kind(), ProjectKind.BALA_PROJECT);
+        Project duplicate = project.duplicate();
+        Assert.assertEquals(project.kind(), ProjectKind.BALA_PROJECT);
+
+        Assert.assertNotSame(project, duplicate);
+        Assert.assertNotSame(project.currentPackage().project(), duplicate.currentPackage().project());
+
+        Assert.assertNotSame(project.currentPackage(), duplicate.currentPackage());
+        Assert.assertEquals(project.currentPackage().packageId(), duplicate.currentPackage().packageId());
+        Assert.assertTrue(project.currentPackage().moduleIds().containsAll(duplicate.currentPackage().moduleIds())
+                && duplicate.currentPackage().moduleIds().containsAll(project.currentPackage().moduleIds()));
+        Assert.assertEquals(project.currentPackage().packageMd().isPresent(),
+                duplicate.currentPackage().packageMd().isPresent());
+        if (project.currentPackage().packageMd().isPresent()) {
+            Assert.assertEquals(project.currentPackage().packageMd().get().content(),
+                    duplicate.currentPackage().packageMd().get().content());
+        }
+
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Assert.assertNotSame(project.currentPackage().module(moduleId),
+                    duplicate.currentPackage().module(moduleId));
+            Assert.assertNotSame(project.currentPackage().module(moduleId).project(),
+                    duplicate.currentPackage().module(moduleId).project());
+            Assert.assertNotSame(project.currentPackage().module(moduleId).packageInstance(),
+                    duplicate.currentPackage().module(moduleId).packageInstance());
+
+            Assert.assertEquals(project.currentPackage().module(moduleId).descriptor(),
+                    duplicate.currentPackage().module(moduleId).descriptor());
+            Assert.assertEquals(project.currentPackage().module(moduleId).moduleMd().isPresent(),
+                    duplicate.currentPackage().module(moduleId).moduleMd().isPresent());
+            if (project.currentPackage().module(moduleId).moduleMd().isPresent()) {
+                Assert.assertEquals(project.currentPackage().module(moduleId).moduleMd().get().content(),
+                        duplicate.currentPackage().module(moduleId).moduleMd().get().content());
+            }
+
+            Assert.assertTrue(project.currentPackage().module(moduleId).documentIds().containsAll(
+                    duplicate.currentPackage().module(moduleId).documentIds())
+                    && duplicate.currentPackage().module(moduleId).documentIds().containsAll(
+                    project.currentPackage().module(moduleId).documentIds()));
+            for (DocumentId documentId : project.currentPackage().module(moduleId).documentIds()) {
+                Assert.assertNotSame(project.currentPackage().module(moduleId).document(documentId),
+                        duplicate.currentPackage().module(moduleId).document(documentId));
+                Assert.assertNotSame(project.currentPackage().module(moduleId).document(documentId).module(),
+                        duplicate.currentPackage().module(moduleId).document(documentId).module());
+                Assert.assertNotSame(project.currentPackage().module(moduleId).document(documentId).syntaxTree(),
+                        duplicate.currentPackage().module(moduleId).document(documentId).syntaxTree());
+
+                Assert.assertEquals(project.currentPackage().module(moduleId).document(documentId).name(),
+                        duplicate.currentPackage().module(moduleId).document(documentId).name());
+                Assert.assertEquals(
+                        project.currentPackage().module(moduleId).document(documentId).syntaxTree().toSourceCode(),
+                        duplicate.currentPackage().module(moduleId).document(documentId).syntaxTree().toSourceCode());
+            }
+        }
+        Assert.assertNotSame(project.projectEnvironmentContext().getService(CompilerContext.class),
+                duplicate.projectEnvironmentContext().getService(CompilerContext.class));
+        Assert.assertNotSame(
+                PackageCache.getInstance(project.projectEnvironmentContext().getService(CompilerContext.class)),
+                PackageCache.getInstance(duplicate.projectEnvironmentContext().getService(CompilerContext.class)));
+
+        project.currentPackage().getCompilation();
+        duplicate.currentPackage().getCompilation();
     }
 }

@@ -35,7 +35,7 @@
       "label": "TestMap2",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "BN",
+      "sortText": "AN",
       "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
@@ -43,7 +43,7 @@
       "label": "TestMap1",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "BN",
+      "sortText": "AN",
       "insertText": "TestMap1",
       "insertTextFormat": "Snippet"
     },
@@ -62,7 +62,7 @@
       "label": "TestMap3",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "BN",
+      "sortText": "AN",
       "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },

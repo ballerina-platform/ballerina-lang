@@ -17,7 +17,7 @@
       "label": "MyType",
       "kind": "TypeParameter",
       "detail": "String",
-      "sortText": "BN",
+      "sortText": "AN",
       "insertText": "MyType",
       "insertTextFormat": "Snippet"
     },
