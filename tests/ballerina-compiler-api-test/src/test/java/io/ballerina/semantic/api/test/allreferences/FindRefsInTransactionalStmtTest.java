@@ -24,39 +24,27 @@ import org.testng.annotations.Test;
 import java.util.List;
 
 /**
- * Test cases for the find all references API related to enum contexts.
+ * Test cases for the find all references API related to regular compound statement contexts.
  *
  * @since 2.0.0
  */
 @Test
-public class FindRefsOfEnumsTest extends FindAllReferencesTest {
+public class FindRefsInTransactionalStmtTest extends FindAllReferencesTest {
 
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
         return new Object[][]{
-                {16, 5, location(16, 5, 11),
-                        List.of(location(16, 5, 11),
-                                location(30, 24, 30),
-                                location(31, 4, 10))
-                },
-                {17, 4, location(17, 4, 7),
-                        List.of(location(17, 4, 7),
-                                location(31, 17, 20),
-                                location(33, 11, 14))
-                },
-                {20, 6, location(20, 6, 15),
-                        List.of(location(20, 6, 15),
-                                location(24, 10, 19))
-                },
-                {22, 5, location(22, 5, 12),
-                        List.of(location(22, 5, 12),
-                                location(28, 14, 21))
+                {18, 8, location(28, 9, 13),
+                        List.of(location(18, 8, 12),
+                                location(20, 12, 16),
+                                location(24, 8, 12),
+                                location(28, 9, 13))
                 },
         };
     }
 
     @Override
     public String getTestSourcePath() {
-        return "test-src/find-all-ref/find_ref_of_enums.bal";
+        return "test-src/find-all-ref/find_ref_in_transactional_stmt.bal";
     }
 }

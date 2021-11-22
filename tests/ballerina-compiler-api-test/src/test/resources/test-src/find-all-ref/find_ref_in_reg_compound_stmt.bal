@@ -14,22 +14,46 @@
 // specific language governing permissions and limitations
 // under the License.
 
-enum Colour {
-    RED, GREEN, BLUE
+function testWhile() {
+    int k = 0;
+    while next(k) < 10 {
+        int i = next(k);
+        k += i;
+    }
 }
 
-const VAN_CONST = "van";
+function testForeach() {
+    foreach int i in 0...9 {
+        int p = i;
+        string str = "";
+    }
 
-enum Vehicle {
-    CAR = "toyota",
-    VAN = VAN_CONST,
-    BUS = "bus"
+    int[] ints = [1, 2, 4, 5];
+    foreach var item in ints {
+        int val = 10;
+        call();
+    }
+
+    foreach int[] [a, b, c] in [[1, 2, 3], [3, 4, 5]] {
+        int val = a;
+        call(b);
+    }
 }
 
-type Vehicle2 Vehicle;
+function testLock() {
+    int iVal = 0;
+    lock {
+        iVal += 1;
+        call();
+    }
+}
 
-function test() returns Colour {
-    Colour clr = RED;
-    Vehicle2 vehicle = VAN;
-    return RED;
+function next(int i) returns int {
+    return i + 1;
+}
+
+function call(any value = ()) {
+}
+
+function func(error? e) {
 }
