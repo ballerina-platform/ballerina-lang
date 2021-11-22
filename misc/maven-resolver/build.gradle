@@ -34,14 +34,14 @@ jar {
 }
 
 dependencies {
-    implementation 'org.apache.maven:maven-resolver-provider:3.6.3'
-    implementation 'org.apache.maven.resolver:maven-resolver-api:1.7.0'
-    implementation 'org.apache.maven.resolver:maven-resolver-spi:1.7.0'
-    implementation 'org.apache.maven.resolver:maven-resolver-util:1.7.0'
-    implementation 'org.apache.maven.resolver:maven-resolver-impl:1.7.0'
-    implementation 'org.apache.maven.resolver:maven-resolver-connector-basic:1.7.0'
-    implementation 'org.apache.maven.resolver:maven-resolver-transport-file:1.7.0'
-    implementation 'org.apache.maven.resolver:maven-resolver-transport-http:1.7.0'
+    implementation "org.apache.maven:maven-resolver-provider:${project.apacheMavenProviderVersion}"
+    implementation "org.apache.maven.resolver:maven-resolver-api:${project.apacheMavenApiVersion}"
+    implementation "org.apache.maven.resolver:maven-resolver-spi:${project.apacheMavenSpiVersion}"
+    implementation "org.apache.maven.resolver:maven-resolver-util:${project.apacheMavenUtilVersion}"
+    implementation "org.apache.maven.resolver:maven-resolver-impl:${project.apacheMavenImplVersion}"
+    implementation "org.apache.maven.resolver:maven-resolver-connector-basic:${project.apacheMavenConnectorVersion}"
+    implementation "org.apache.maven.resolver:maven-resolver-transport-file:${project.apacheMavenTransportFileVersion}"
+    implementation "org.apache.maven.resolver:maven-resolver-transport-http:${project.apacheMavenTransportHttpVersion}"
     implementation 'me.tongfei:progressbar'
     testCompile 'org.testng:testng'
 }

@@ -52,6 +52,8 @@ import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.DiagnosticPropertyKind;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -75,6 +77,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -239,7 +242,7 @@ public class CodeActionUtil {
             if (jsonSubType) {
                 types.add("json");
             }
-            
+
             // Map
             TypeSymbol prevType = null;
             boolean isConstrainedMap = true;
@@ -846,6 +849,7 @@ public class CodeActionUtil {
      */
     public static boolean hasErrorMemberType(UnionTypeSymbol unionTypeSymbol) {
         return unionTypeSymbol.memberTypeDescriptors().stream()
+                .map(CommonUtil::getRawType)
                 .anyMatch(member -> member.typeKind() == TypeDescKind.ERROR);
     }
 
@@ -862,5 +866,27 @@ public class CodeActionUtil {
         }
         newTextBuilder.append(String.format(" else {%s}%s", padding, LINE_SEPARATOR));
         return LINE_SEPARATOR + newTextBuilder.toString();
+    }
+
+    /**
+     * Get the filter function used for filter diagnostic property values.
+     *
+     * @return Diagnostic property filter function.
+     */
+    public static <T> Function<List<DiagnosticProperty<?>>, 
+            Optional<T>> getDiagPropertyFilterFunction(int propertyIndex) {
+        Function<List<DiagnosticProperty<?>>, Optional<T>> filterFunction = diagnosticProperties -> {
+
+            List<DiagnosticProperty<?>> props = diagnosticProperties.stream()
+                    .filter(diagnosticProperty -> diagnosticProperty.kind() == DiagnosticPropertyKind.SYMBOLIC)
+                    .collect(Collectors.toList());
+            if (props.size() < (propertyIndex + 1)) {
+                return Optional.empty();
+            }
+            DiagnosticProperty<?> diagnosticProperty = props.get(propertyIndex);
+            // Nullable static API used for safety
+            return Optional.ofNullable((T) diagnosticProperty.value());
+        };
+        return filterFunction;
     }
 }

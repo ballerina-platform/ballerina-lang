@@ -1411,6 +1411,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangExpression expr = letExpression.expr;
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(letExpression.pos);
         blockStmt.scope = letExpression.env.scope;
+        blockStmt.isLetExpr = true;
 
         for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
             BLangNode node  = rewrite((BLangNode) letVariable.definitionNode, env);
@@ -1432,6 +1433,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariable varNode) {
+        varNode.typeNode = rewrite(varNode.typeNode, env);
         //  case 1:
         //  [string, int] (a, b) = (tuple)
         //
