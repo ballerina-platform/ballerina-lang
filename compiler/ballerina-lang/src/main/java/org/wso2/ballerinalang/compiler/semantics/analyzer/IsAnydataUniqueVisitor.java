@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
@@ -80,6 +81,8 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             case TypeTags.UNSIGNED16_INT:
             case TypeTags.UNSIGNED32_INT:
                 return true;
+            case TypeTags.TYPEREFDESC:
+                return isAnydata(((BTypeReferenceType) type).referredType);
             default:
                 return false;
         }
@@ -218,6 +221,11 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
     }
 
     @Override
+    public Boolean visit(BTypeReferenceType type) {
+        return visit(type.referredType);
+    }
+
+    @Override
     public Boolean visit(BXMLType type) {
         return isAnydata(type);
     }
@@ -314,6 +322,8 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
                 return visit((BTupleType) type);
             case TypeTags.INTERSECTION:
                 return visit((BIntersectionType) type);
+            case TypeTags.TYPEREFDESC:
+                return visit((BTypeReferenceType) type);
             case TypeTags.SIGNED8_INT:
             case TypeTags.SIGNED16_INT:
             case TypeTags.SIGNED32_INT:

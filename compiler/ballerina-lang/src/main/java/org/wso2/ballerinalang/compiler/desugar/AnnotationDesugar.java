@@ -232,11 +232,8 @@ public class AnnotationDesugar {
         literalNode.pos = position;
         BSymbol annTypeSymbol = symResolver.lookupSymbolInMainSpace(
                 pkgEnv, names.fromString(SERVICE_INTROSPECTION_INFO_REC));
-        BStructureTypeSymbol bStructSymbol = null;
-        if (annTypeSymbol instanceof BStructureTypeSymbol) {
-            bStructSymbol = (BStructureTypeSymbol) annTypeSymbol;
-            literalNode.setBType(bStructSymbol.type);
-        }
+        BStructureTypeSymbol bStructSymbol = (BStructureTypeSymbol) annTypeSymbol.type.tsymbol;
+        literalNode.setBType(bStructSymbol.type);
 
         //Add Root Descriptor
         BLangRecordLiteral.BLangRecordKeyValueField descriptorKeyValue = (BLangRecordLiteral.BLangRecordKeyValueField)
@@ -578,12 +575,9 @@ public class AnnotationDesugar {
         annoAttachment.pkgAlias = pkgAlias;
         annoAttachment.attachPoints.add(AttachPoint.Point.FUNCTION);
         literalNode.pos = pos;
-        BStructureTypeSymbol bStructSymbol = null;
         BSymbol annTypeSymbol = symResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(DEFAULTABLE_REC));
-        if (annTypeSymbol instanceof BStructureTypeSymbol) {
-            bStructSymbol = (BStructureTypeSymbol) annTypeSymbol;
-            literalNode.setBType(bStructSymbol.type);
-        }
+        BStructureTypeSymbol bStructSymbol = (BStructureTypeSymbol) annTypeSymbol.type.tsymbol;
+        literalNode.setBType(annTypeSymbol.type);
 
         //Add Root Descriptor
         BLangRecordLiteral.BLangRecordKeyValueField descriptorKeyValue = (BLangRecordLiteral.BLangRecordKeyValueField)
@@ -714,9 +708,9 @@ public class AnnotationDesugar {
         }
 
         for (BAnnotationSymbol annotationSymbol : attachments.keySet()) {
-            BTypeSymbol attachedTypeSymbol = annotationSymbol.attachedType;
-            if (attachedTypeSymbol == null ||
-                    types.isAssignable(attachedTypeSymbol.type, symTable.trueType)) {
+            BType attachedType = annotationSymbol.attachedType;
+            if (attachedType == null ||
+                    types.isAssignable(attachedType, symTable.trueType)) {
                 // annotation v1 on type; OR annotation TRUE v1 on type;
                 // @v1
                 // type X record {
@@ -725,7 +719,7 @@ public class AnnotationDesugar {
                 // // Adds
                 // { ..., v1: true, ... }
                 addTrueAnnot(attachments.get(annotationSymbol).get(0), mapLiteral);
-            } else if (attachedTypeSymbol.type.tag != TypeTags.ARRAY) {
+            } else if (attachedType.tag != TypeTags.ARRAY) {
                 // annotation FooRecord v1 on type; OR annotation map<anydata> v1 on type;
                 // @v1 {
                 //     value: 1
@@ -749,7 +743,7 @@ public class AnnotationDesugar {
                 // };
                 // // Adds
                 // { ..., v1: [{ value: 1 }, { value: 2 }], ... }
-                addAnnotArray(function.pos, annotationSymbol.bvmAlias(), attachedTypeSymbol.type,
+                addAnnotArray(function.pos, annotationSymbol.bvmAlias(), attachedType,
                               attachments.get(annotationSymbol), mapLiteral);
             }
         }
@@ -915,7 +909,8 @@ public class AnnotationDesugar {
         return hasTypeSymbol(symbol, expr.getBType());
     }
 
-    private boolean hasTypeSymbol(BTypeSymbol symbol, BType bType) {
+    private boolean hasTypeSymbol(BTypeSymbol symbol, BType type) {
+        BType bType = types.getReferredType(type);
         if (bType.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) bType).getMemberTypes()) {
                 if (hasTypeSymbol(symbol, memberType)) {

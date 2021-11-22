@@ -93,7 +93,7 @@ public class IsolationInferenceTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/isolation-analysis/isolation_inference_type_checking_negative.bal");
         int i = 0;
-        validateError(result, i++, "incompatible types: expected 'isolated function', found 'function () returns " +
+        validateError(result, i++, "incompatible types: expected 'IsolatedFunction', found 'function () returns " +
                 "(string)'", 21, 25);
         assertEquals(result.getErrorCount(), i);
     }
