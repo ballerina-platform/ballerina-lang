@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Document;
@@ -89,7 +90,8 @@ public class RenameUtil {
                 })
                 .orElse(null);
         // Check if token at cursor is an identifier
-        if (!(tokenAtCursor instanceof IdentifierToken) || CommonUtil.isKeyword(tokenAtCursor.text())) {
+        if (!(tokenAtCursor instanceof IdentifierToken) || CommonUtil.isKeyword(tokenAtCursor.text()) 
+                || CommonUtil.SELF_KW.equals(tokenAtCursor.text())) {
             return Optional.empty();
         }
         Optional<Document> document = context.currentDocument();
@@ -127,6 +129,13 @@ public class RenameUtil {
         // For clients that doesn't support prepare rename, we do this check here as well
         if (onImportDeclarationNode(context, nodeAtCursor)) {
             return Collections.emptyMap();
+        }
+        
+        if (nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            String tokenAtCursorName = ((SimpleNameReferenceNode) nodeAtCursor).name().text();
+            if (CommonUtil.SELF_KW.equals(tokenAtCursorName)) {
+                return Collections.emptyMap();
+            }
         }
 
         if (QNameReferenceUtil.onModulePrefix(context, nodeAtCursor)) {
@@ -168,7 +177,7 @@ public class RenameUtil {
         Map<String, ChangeAnnotation> changeAnnotationMap = new HashMap<>();
         WorkspaceEdit workspaceEdit = new WorkspaceEdit();
         Map<String, List<TextEdit>> changes = getChanges(context);
-
+//&& CommonUtil.SELF_KW.equals(context.getParams().getNewName())
         if (context.getHonorsChangeAnnotations() && CommonUtil.isKeyword(context.getParams().getNewName())) {
             changeAnnotationMap.put(RenameChangeAnnotation.QUOTED_KEYWORD.getID(),
                     RenameChangeAnnotation.QUOTED_KEYWORD.getChangeAnnotation());
