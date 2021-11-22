@@ -73,6 +73,7 @@ public class CompletionUtil {
         if (triggerKind == CompletionTriggerKind.TriggerCharacter
                 && triggerCharacter.equals(SyntaxKind.GT_TOKEN.stringValue())
                 && ctx.getTokenAtCursor().kind() != SyntaxKind.RIGHT_ARROW_TOKEN
+                && ctx.getTokenAtCursor().kind() != SyntaxKind.SYNC_SEND_TOKEN
                 || isWithinComment(ctx)) {
             return Collections.emptyList();
         }

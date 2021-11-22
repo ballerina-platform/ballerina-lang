@@ -251,16 +251,16 @@ public function main() {
     }
 
     // variable visibility in 'else' statement
-    if (false) {
+    if (intVar == 0) {
         intVar = 2;
     } else {
         intVar = 3;
     }
 
     // variable visibility in 'else-if' statement
-    if (false) {
+    if (intVar == 1) {
         intVar = 4;
-    } else if (true) {
+    } else if (intVar == 3) {
         intVar = 5;
     } else {
         intVar = 6;
@@ -295,6 +295,17 @@ public function main() {
 
     intVar = addition(2, 3);
     intVar = addition(3, 4);
+
+    // visibility of variable which is defined inside 'if' statement
+    if (true) {
+        int newVar = intVar + 5;
+        intVar += intVar;
+    }
+
+    // variable visibility inside let expression
+    string greeting = let string hello = "Hello ",
+                              string ballerina = "Ballerina!"
+                          in hello + ballerina;
 }
 
 function printSalaryDetails(int baseSalary, int annualIncrement = 20, float bonusRate = 0.02) returns string {

@@ -17,7 +17,7 @@
       "label": "MyType",
       "kind": "TypeParameter",
       "detail": "String",
-      "sortText": "BN",
+      "sortText": "AN",
       "insertText": "MyType",
       "insertTextFormat": "Snippet"
     },
@@ -181,6 +181,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "CE",
+      "filterText": "array",
       "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -204,6 +205,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "CE",
+      "filterText": "runtime",
       "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -227,6 +229,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "CF",
+      "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -250,6 +253,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "CE",
+      "filterText": "test",
       "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -273,6 +277,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "CF",
+      "filterText": "java",
       "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -296,6 +301,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "CE",
+      "filterText": "value",
       "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [

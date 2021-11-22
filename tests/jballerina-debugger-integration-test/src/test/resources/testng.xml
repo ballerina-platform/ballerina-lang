@@ -51,7 +51,6 @@ under the License.
             <class name="org.ballerinalang.debugger.test.adapter.LangLibDebugTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.ConditionalBreakpointTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.LogPointTest"/>
-
             <class name="org.ballerinalang.debugger.test.adapter.run.DebugEngageTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.DebugOutputTest"/>
 
@@ -62,6 +61,9 @@ under the License.
             <!--Debugger Expression Evaluation Tests-->
             <class name="org.ballerinalang.debugger.test.adapter.evaluation.ExpressionEvaluationTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.evaluation.ExpressionEvaluationNegativeTest"/>
+
+            <!--Debug Completions Tests-->
+            <class name="org.ballerinalang.debugger.test.adapter.completions.DebugCompletionTest"/>
         </classes>
     </test>
 </suite>

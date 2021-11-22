@@ -78,3 +78,61 @@ function test7() {
 
     }
 }
+
+function testForeachIterationOverReadOnlyArrayMembersOfReadOnlyArrayNegative() {
+    readonly & (int[2])[] x = [[1, 2], [3, 4], [5, 6]];
+
+    foreach (int[])[2] [a, b] in x {
+    }
+}
+
+function testForeachIterationOverReadOnlyArrayMembersOfNonReadOnlyArrayNegative() {
+    (readonly & int[2])[] x = [[1, 2], [3, 4], [5, 6]];
+
+    foreach readonly & byte[2] [a, b] in x {
+    }
+}
+
+function testForeachIterationOverReadOnlyTupleMembersOfReadOnlyArrayNegative() {
+    readonly & ([int, string, boolean])[] x = [[1, "a", true], [3, "bc", false], [5, "def", true]];
+
+    foreach [string, int, boolean] [a, b, c] in x {
+    }
+}
+
+function testForeachIterationOverReadOnlyTupleMembersOfReadOnlyTupleNegative() {
+    readonly & [[int, int], [int, int]...] x = [[1, 2], [3, 4], [5, 6]];
+
+    foreach [[int, int], [string, string]] [a, b] in x {
+    }
+}
+
+function testForeachIterationOverReadOnlyArrayMembersOfReadOnlyTupleNegative() {
+    readonly & [int[2], string[2], boolean[3]] x = [[1, 2], ["a", "b"], [false, false, true]];
+
+    foreach [int|boolean, int|boolean, int|string...] [a, b, ...c] in x {
+    }
+}
+
+function testForeachIterationOverReadOnlyRecordOfNonReadOnlyArrayNegative() {
+    (readonly & record {| int a; int b; |}|readonly & record {| string[] a; boolean? b = (); |})[] x =
+        [{a: 1, b: 2}, {a: ["hello", "world", "ballerina"]}];
+
+
+    foreach record {| int a; boolean? b; |} {a, b} in x {
+    }
+}
+
+function testForeachIterationOverReadOnlyTupleMembersOfNonReadOnlyRecord() {
+    record {| readonly & [int, string] a; readonly & [boolean, int] b; |} x = {"a": [1, "foo"], "b": [false, 2]};
+
+    foreach [int, int] & readonly [a, b] in x {
+    }
+}
+
+function testForeachIterationOverReadOnlyTupleMembersOfReadOnlyMap() {
+    readonly & map<[int, string, boolean...]|[boolean, int]> x = {a: [1, "foo"], b: [true, 2], c: [3, "bar", false]};
+
+    foreach [int, string|int, int...] [a, b, ...c] in x {
+    }
+}

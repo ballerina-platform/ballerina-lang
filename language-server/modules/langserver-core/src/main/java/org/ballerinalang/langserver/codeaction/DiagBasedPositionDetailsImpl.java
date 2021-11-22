@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDeta
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * This class holds position details for the diagnostics-based code actions.
@@ -30,6 +31,7 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class DiagBasedPositionDetailsImpl implements DiagBasedPositionDetails {
+
     private final NonTerminalNode matchedNode;
     private final Symbol matchedSymbol;
     private final Diagnostic diagnostic;
@@ -75,6 +77,12 @@ public class DiagBasedPositionDetailsImpl implements DiagBasedPositionDetails {
         }
 
         DiagnosticProperty<?> diagnosticProperty = props.get(propertyIndex);
-        return Optional.of((T) diagnosticProperty.value());
+        // Nullable static API used for safety
+        return Optional.ofNullable((T) diagnosticProperty.value());
+    }
+
+    @Override
+    public <T> Optional<T> diagnosticProperty(Function<List<DiagnosticProperty<?>>, Optional<T>> function) {
+        return function.apply(diagnostic.properties());
     }
 }

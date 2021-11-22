@@ -138,6 +138,8 @@ public class VarDeclSymbolTest {
                         List.of()},
                 {70, 19, "valueB", TypeDescKind.INT, null, null,
                         List.of()},
+                {74, 11, "str", TypeDescKind.STRING, null, "varDecl",
+                        List.of()},
         };
     }
 }

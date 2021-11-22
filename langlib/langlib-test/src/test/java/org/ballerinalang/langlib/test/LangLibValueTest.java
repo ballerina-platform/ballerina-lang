@@ -135,6 +135,11 @@ public class LangLibValueTest {
     }
 
     @Test
+    public void testFromJsonStringNegative() {
+        BRunUtil.invokeFunction(compileResult, "testFromJsonStringNegative");
+    }
+
+    @Test
     public void testFromJsonFloatString() {
 
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFromJsonFloatString");
@@ -354,7 +359,8 @@ public class LangLibValueTest {
                 { "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray" },
                 { "testCloneWithTypeWithUnionTypeArrayFromIntArray" },
                 { "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative" },
-                { "testConvertJsonToNestedRecordsWithErrors" }
+                { "testConvertJsonToNestedRecordsWithErrors" },
+                { "testCloneWithTypeNestedStructuredTypesNegative"}
         };
     }
 

@@ -39,7 +39,6 @@
             <class name="io.ballerina.semantic.api.test.TestSourcesTest" />
             <class name="io.ballerina.semantic.api.test.TypeAssignabilityTest" />
             <class name="io.ballerina.semantic.api.test.TypedescriptorTest" />
-            <class name="io.ballerina.semantic.api.test.typeof.TypeOfQueryExprTest" />
             <class name="io.ballerina.semantic.api.test.WorkspaceSymbolLookupTest" />
 
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsWithinTargetDocumentTest" />
@@ -113,6 +112,13 @@
             <class name="io.ballerina.semantic.api.test.statements.SymbolsInFailRetryStatements" />
             <class name="io.ballerina.semantic.api.test.statements.SymbolsInPanicStatements" />
 
+            <!--Actions-->
+            <class name="io.ballerina.semantic.api.test.actions.SymbolsInQueryActionsTest" />
+            <class name="io.ballerina.semantic.api.test.actions.SymbolsInSendReceiveFlushActionsTest" />
+            <class name="io.ballerina.semantic.api.test.actions.SymbolsInStartActionsTest" />
+            <class name="io.ballerina.semantic.api.test.actions.SymbolsInTypeCastActionsTest" />
+            <class name="io.ballerina.semantic.api.test.actions.SymbolsInWaitActionsTest" />
+
             <!--Symbols-->
             <class name="io.ballerina.semantic.api.test.symbols.AnnotationSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ClassSymbolTest" />
@@ -145,6 +151,18 @@
             <class name="io.ballerina.semantic.api.test.langlib.TypeParamBoundStreamFunctionsTest" />
             <class name="io.ballerina.semantic.api.test.langlib.TypeParamBoundTableFunctionsTest" />
             <class name="io.ballerina.semantic.api.test.langlib.TypeParamBoundXMLFunctionsTest" />
+
+            <!--Visible Symbols-->
+            <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInCompoundStatementsTest" />
+            <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInExpressionsTest" />
+            <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInModuleLevelDeclsTest" />
+            <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInQueryExprsTest" />
+            <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInStatementsTest" />
+            <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInWorkersTest" />
+
+            <!--Type Of-->
+            <class name="io.ballerina.semantic.api.test.typeof.TypeOfInCallStatementsTest" />
+            <class name="io.ballerina.semantic.api.test.typeof.TypeOfQueryExprTest" />
 
         </classes>
     </test>

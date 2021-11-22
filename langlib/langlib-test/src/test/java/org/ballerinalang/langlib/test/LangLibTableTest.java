@@ -168,8 +168,8 @@ public class LangLibTableTest {
     public void testCompilerNegativeCases() {
         assertEquals(negativeResult.getErrorCount(), 22);
         int index = 0;
-        validateError(negativeResult, index++, "incompatible types: expected 'table<Employee> " +
-                "key(name)', found 'table<Person> key<string>'", 68, 36);
+        validateError(negativeResult, index++, "incompatible types: expected 'EmployeeTable', " +
+                "found 'table<Person> key<string>'", 68, 36);
         validateError(negativeResult, index++, "incompatible types: expected 'Employee', " +
                 "found 'Person'", 68, 47);
         validateError(negativeResult, index++, "incompatible types: expected " +
@@ -177,18 +177,23 @@ public class LangLibTableTest {
                         "found " +
                         "'object { public isolated function next () returns (record {| Person value; |}?); }'",
                 77, 92);
-        validateError(negativeResult, index++, "incompatible types: expected 'table<map<(any|error)>> " +
-                "key<int>', found 'table<Person> key(name)'", 84, 12);
-        validateError(negativeResult, index++, "incompatible types: expected 'table<map<(any|error)>> " +
-                "key<anydata>', found 'table<Person>'", 96, 12);
-        validateError(negativeResult, index++, "incompatible types: expected 'table<map<(any|error)>> " +
-                "key<anydata>', found 'table<Person>'", 107, 21);
-        validateError(negativeResult, index++, "incompatible types: expected 'table<map<(any|error)>> " +
-                "key<anydata>', found 'table<Person>'", 119, 28);
-        validateError(negativeResult, index++, "incompatible types: expected 'table<map<(any|error)>> " +
-                "key<anydata>', found 'table<Person>'", 128, 30);
-        validateError(negativeResult, index++, "incompatible types: expected 'table<map<(any|error)>> " +
-                "key<anydata>', found 'table<Person>'", 129, 30);
+        validateError(negativeResult, index++, "incompatible types: expected " +
+                "'table<ballerina/lang.table:0.0.0:MapType> key<int>', found 'PersonalTable'", 84, 12);
+        validateError(negativeResult, index++, "incompatible types: expected " +
+                "'table<ballerina/lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', " +
+                "found 'PersonalKeyLessTable'", 96, 12);
+        validateError(negativeResult, index++, "incompatible types: expected " +
+                "'table<ballerina/lang.table:0.0.0:MapType> " +
+                "key<ballerina/lang.table:0.0.0:KeyType>', found 'table<Person>'", 107, 21);
+        validateError(negativeResult, index++, "incompatible types: expected " +
+                "'table<ballerina/lang.table:0.0.0:MapType> " +
+                "key<ballerina/lang.table:0.0.0:KeyType>', found 'table<Person>'", 119, 28);
+        validateError(negativeResult, index++, "incompatible types: expected " +
+                "'table<ballerina/lang.table:0.0.0:MapType> " +
+                "key<ballerina/lang.table:0.0.0:KeyType>', found 'table<Person>'", 128, 30);
+        validateError(negativeResult, index++, "incompatible types: expected " +
+                "'table<ballerina/lang.table:0.0.0:MapType> " +
+                "key<ballerina/lang.table:0.0.0:KeyType>', found 'table<Person>'", 129, 30);
         validateError(negativeResult, index++, "incompatible types: expected 'Employee', " +
                 "found 'record {| string name; int age; |}'", 139, 21);
         validateError(negativeResult, index++, "incompatible types: expected 'Employee', " +
@@ -206,8 +211,9 @@ public class LangLibTableTest {
         validateError(negativeResult, index++, "missing ellipsis token", 181, 38);
         validateError(negativeResult, index++, "missing open brace token", 181, 38);
         validateError(negativeResult, index++, "missing close brace token", 181, 39);
-        validateError(negativeResult, index++, "incompatible types: expected 'table<map<(any|error)>> " +
-                "key<anydata>', found 'table<int> key(age)'", 182, 9);
+        validateError(negativeResult, index++, "incompatible types: expected " +
+                "'table<ballerina/lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', " +
+                "found 'table<int> key(age)'", 182, 9);
         validateError(negativeResult, index++, "incompatible types: expected '[]', found 'int'", 182, 20);
         validateError(negativeResult, index, "table with constraint of type map cannot have key specifier " +
                 "or key type constraint", 188, 30);
@@ -221,7 +227,7 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.table\\}KeyConstraintViolation \\{\"message\":\"A value found for key " +
+                    "error: \\{ballerina/lang.table\\}KeyConstraintViolation \\{\"message\":\"a value found for key " +
                             "'5'\"\\}.*")
     public void testAddExistingMember() {
         BRunUtil.invoke(compileResult, "testAddExistingMember");

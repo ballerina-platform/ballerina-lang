@@ -115,8 +115,8 @@ public class IsolationAnalysisTest {
         int i = 0;
         validateError(result, i++, "incompatible types: expected 'Qux', found 'object { int i; function qux () " +
                 "returns (int); }'", 37, 13);
-        validateError(result, i++, "incompatible types: expected 'isolated function () returns (int)', found " +
-                "'function () returns (int)'", 44, 24);
+        validateError(result, i++, "incompatible types: expected 'IsolatedFunction', " +
+                "found 'function () returns (int)'", 44, 24);
         validateError(result, i++, "incompatible types: expected 'isolated function (int) returns (int)', found " +
                 "'function (int) returns (int)'", 66, 51);
         validateError(result, i++, "incompatible types: expected 'isolated function () returns (int)', found " +

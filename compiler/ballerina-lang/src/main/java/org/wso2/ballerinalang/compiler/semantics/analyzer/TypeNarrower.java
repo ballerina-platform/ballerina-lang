@@ -117,7 +117,7 @@ public class TypeNarrower extends BLangNodeVisitor {
                     typeInfo.trueType;
             BVarSymbol originalSym = getOriginalVarSymbol(symbol);
             symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, originalSym, narrowedType,
-                                                 originalSym.origin == VIRTUAL);
+                    originalSym.origin == VIRTUAL);
         }
 
         return targetEnv;
@@ -157,6 +157,58 @@ public class TypeNarrower extends BLangNodeVisitor {
         return targetEnv;
     }
 
+    /**
+     * Evaluate the expression in an `if` statement to its false value, following the `if` statement
+     * without an `else` clause if its statement block cannot complete normally. Returns an environment
+     * containing the symbols with their narrowed types, defined by the falsity of the expression.
+     * If there are no symbols that get affected by type narrowing, then this will return the same environment.
+     *
+     * @param expr Expression to evaluate
+     * @param currentEnv Current environment
+     * @return target environment
+     */
+    public SymbolEnv evaluateFalsityFollowingIfWithoutElse(BLangExpression expr, SymbolEnv currentEnv) {
+        if (!checkValidExpressionToEvaluateFalsity(expr)) {
+            return currentEnv;
+        }
+
+        Map<BVarSymbol, NarrowedTypes> narrowedTypes = getNarrowedTypes(expr, currentEnv);
+        if (narrowedTypes.isEmpty()) {
+            return currentEnv;
+        }
+
+        SymbolEnv narrowedEnv = SymbolEnv.createTypeNarrowedEnv(expr, currentEnv);
+
+        for (Map.Entry<BVarSymbol, NarrowedTypes> narrowedType : narrowedTypes.entrySet()) {
+            BVarSymbol originalSym = getOriginalVarSymbol(narrowedType.getKey());
+            symbolEnter.defineTypeNarrowedSymbol(expr.pos, narrowedEnv, originalSym,
+                    narrowedType.getValue().falseType, originalSym.origin == VIRTUAL);
+        }
+
+        return narrowedEnv;
+    }
+
+    private boolean checkValidExpressionToEvaluateFalsity(BLangExpression expr) {
+        switch (expr.getKind()) {
+            case TYPE_TEST_EXPR:
+            case LITERAL:
+            case NUMERIC_LITERAL:
+                return true;
+            case GROUP_EXPR:
+                return checkValidExpressionToEvaluateFalsity(((BLangGroupExpr) expr).expression);
+            case BINARY_EXPR:
+                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) expr;
+                return checkValidExpressionToEvaluateFalsity(binaryExpr.lhsExpr) &&
+                        checkValidExpressionToEvaluateFalsity(binaryExpr.rhsExpr);
+            case UNARY_EXPR:
+                return checkValidExpressionToEvaluateFalsity(((BLangUnaryExpr) expr).expr);
+            case SIMPLE_VARIABLE_REF:
+                return types.getReferredType(expr.getBType()).tag == TypeTags.FINITE;
+            default:
+                return false;
+        }
+    }
+
     public SymbolEnv evaluateTruth(BLangExpression expr, BLangNode targetNode, SymbolEnv env) {
         return evaluateTruth(expr, targetNode, env, false);
     }
@@ -180,8 +232,8 @@ public class TypeNarrower extends BLangNodeVisitor {
         SymbolEnv targetEnv = getTargetEnv(targetNode, env);
         narrowedTypes.forEach((symbol, typeInfo) -> {
             BVarSymbol originalSym = getOriginalVarSymbol(symbol);
-            symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, originalSym,
-                                                 typeInfo.falseType, originalSym.origin == VIRTUAL);
+            symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, originalSym, typeInfo.falseType,
+                    originalSym.origin == VIRTUAL);
         });
 
         return targetEnv;
@@ -335,8 +387,8 @@ public class TypeNarrower extends BLangNodeVisitor {
     }
 
     private BType getTypeUnion(BType currentType, BType targetType) {
-        LinkedHashSet<BType> union = new LinkedHashSet<>(types.getAllTypes(currentType));
-        List<BType> targetComponentTypes = types.getAllTypes(targetType);
+        LinkedHashSet<BType> union = new LinkedHashSet<>(types.getAllTypes(currentType, true));
+        List<BType> targetComponentTypes = types.getAllTypes(targetType, true);
         for (BType newType : targetComponentTypes) {
             if (newType.tag != TypeTags.NULL_SET) {
                 for (BType existingType : union) {

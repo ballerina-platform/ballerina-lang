@@ -5,17 +5,29 @@
   },
   {
     "description": "Create a new object I.",
-    "code": "Person p1 = new; p1.age",
+    "code": "Person p1 = new;"
+  },
+  {
+    "description": "Create a new object I - get value.",
+    "code": "p1.age",
     "expr": "0"
   },
   {
     "description": "Create a new object II.",
-    "code": "Person p2 = new (); p2.age",
+    "code": "Person p2 = new ();"
+  },
+  {
+    "description": "Create a new object II - get value.",
+    "code": "p2.age",
     "expr": "0"
   },
   {
     "description": "Create a new object III.",
-    "code": "Person p3 = new Person(); p3.age",
+    "code": "Person p3 = new Person();"
+  },
+  {
+    "description": "Create a new object III - get value.",
+    "code": "p3.age",
     "expr": "0"
   }
 ]

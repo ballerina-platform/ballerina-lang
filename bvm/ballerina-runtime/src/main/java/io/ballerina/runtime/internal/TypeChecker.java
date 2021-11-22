@@ -2589,6 +2589,9 @@ public class TypeChecker {
                 addErrorMessage((errors == null) ? 0 : errors.size(), "missing required field '" + fieldNameLong +
                         "' of type '" + targetField.getFieldType().toString() + "' in record '" + targetType + "'",
                         errors);
+                if ((errors == null) || (errors.size() >= MAX_TYPECAST_ERROR_COUNT + 1)) {
+                    return false;
+                }
                 returnVal = false;
             }
         }
@@ -2603,7 +2606,8 @@ public class TypeChecker {
                 if (!checkIsLikeType(errors, (valueEntry.getValue()), targetFieldTypes.get(fieldName),
                                      unresolvedValues, allowNumericConversion, fieldNameLong)) {
                     addErrorMessage(initialErrorCount, "field '" + fieldNameLong + "' in record '" + targetType +
-                            "' should be of type '" + targetFieldTypes.get(fieldName) + "'", errors);
+                            "' should be of type '" + targetFieldTypes.get(fieldName) + "', found '" +
+                            TypeConverter.getShortSourceValue(valueEntry.getValue()) + "'", errors);
                     returnVal = false;
                 }
             } else {
@@ -2612,7 +2616,7 @@ public class TypeChecker {
                                          allowNumericConversion, fieldNameLong)) {
                         addErrorMessage(initialErrorCount, "value of field '" + valueEntry.getKey() +
                                 "' adding to the record '" + targetType + "' should be of type '" + restFieldType +
-                                "'", errors);
+                                "', found '" + TypeConverter.getShortSourceValue(valueEntry.getValue()) + "'", errors);
                         returnVal = false;
                     }
                 } else {
@@ -2620,6 +2624,9 @@ public class TypeChecker {
                             "' cannot be added to the closed record '" + targetType + "'", errors);
                     returnVal = false;
                 }
+            }
+            if ((!returnVal) && ((errors == null) || (errors.size() >= MAX_TYPECAST_ERROR_COUNT + 1))) {
+                return false;
             }
         }
         return returnVal;

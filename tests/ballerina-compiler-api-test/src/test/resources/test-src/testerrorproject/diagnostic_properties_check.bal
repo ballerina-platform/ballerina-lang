@@ -22,3 +22,8 @@ class MyClass {
     function init(int arg1, string arg2) {
     }
 }
+
+function mapTypes() {
+    map<string> a = {a: "dul", b: "grg"}.
+    map<string> b = {d: "dul", e: "fg"};
+}

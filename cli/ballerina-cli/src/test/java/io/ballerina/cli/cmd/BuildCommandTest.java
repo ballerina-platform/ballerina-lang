@@ -38,9 +38,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
-import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
-import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
-import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
 /**
@@ -347,7 +344,8 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testArtifactCreationWhenTestsFail() {
         Path projectPath = this.testResources.resolve("validProjectWithFailingTests");
         System.setProperty("user.dir", projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true,
+                false, false, false, null);
         // non existing bal file
         new CommandLine(buildCommand).parse();
         try {
@@ -535,125 +533,6 @@ public class BuildCommandTest extends BaseCommandTest {
                         .exists());
     }
 
-    @Test(description = "Compile a library package")
-    public void testCompileProject() throws IOException {
-        Path projectPath = this.testResources.resolve("validLibraryProject");
-        System.setProperty("user.dir", projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
-        new CommandLine(buildCommand).parse();
-        buildCommand.execute();
-        String buildLog = readOutput(true);
-
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                getOutput("compile-bal-project.txt"));
-        Assert.assertTrue(
-                projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
-        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
-                .resolve("foo-winery-0.1.0.jar").toFile().exists());
-    }
-
-    @Test(description = "Compile an application package")
-    public void testCompileApplicationPackage() {
-        Path projectPath = this.testResources.resolve("validApplicationProject");
-        System.setProperty("user.dir", projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
-
-        new CommandLine(buildCommand).parse();
-        try {
-            buildCommand.execute();
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getDetailedMessages().get(0)
-                    .contains("'package' information not found in Ballerina.toml"));
-        }
-    }
-
-    @Test(description = "Compile a Standalone Ballerina file")
-    public void testCompileStandaloneFile() {
-        Path projectPath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
-        System.setProperty("user.dir", this.testResources.resolve("valid-bal-file").toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
-
-        new CommandLine(buildCommand).parse();
-        try {
-            buildCommand.execute();
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getDetailedMessages().get(0)
-                    .contains("'-c' or '--compile' can only be used with a Ballerina package."));
-        }
-    }
-
-    @Test(description = "Compile a package with platform libs")
-    public void testPackageWithPlatformLibs() throws IOException {
-        Path projectPath = this.testResources.resolve("validProjectWithPlatformLibs");
-        System.setProperty("user.dir", projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
-        new CommandLine(buildCommand).parse();
-        buildCommand.execute();
-        String buildLog = readOutput(true);
-
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                            getOutput("build-project-with-platform-libs.txt"));
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-java11-0.1.0.bala")
-                                  .toFile().exists());
-    }
-
-    @Test(description = "Compile a package with an empty Dependencies.toml")
-    public void testPackageWithEmptyDependenciesToml() throws IOException {
-        Path projectPath = this.testResources.resolve("validProjectWithDependenciesToml");
-        System.setProperty("user.dir", projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
-        new CommandLine(buildCommand).parse();
-        buildCommand.execute();
-        String buildLog = readOutput(true);
-
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                            getOutput("build-project-with-dependencies-toml.txt"));
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala")
-                                  .toFile().exists());
-        // `Dependencies.toml` file should not get deleted
-        Assert.assertTrue(projectPath.resolve(DEPENDENCIES_TOML).toFile().exists());
-        // `dependencies-toml-version` should exists in `Dependencies.toml`
-        String expected = "[ballerina]\n"
-                + "dependencies-toml-version = \"2\"";
-        String actual = Files.readString(projectPath.resolve(DEPENDENCIES_TOML));
-        Assert.assertTrue(actual.contains(expected));
-    }
-
-    @Test(description = "Compile a package without root package in Dependencies.toml")
-    public void testPackageWithoutRootPackageInDependenciesToml() throws IOException {
-        Path projectPath = this.testResources.resolve("validProjectWoRootPkgInDepsToml");
-        System.setProperty("user.dir", projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
-        new CommandLine(buildCommand).parse();
-        buildCommand.execute();
-        String buildLog = readOutput(true);
-
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                            getOutput("build-project-wo-root-pkg-in-deps-toml.txt"));
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-java11-0.1.0.bala")
-                                  .toFile().exists());
-
-        Assert.assertEquals(readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)).trim(), readFileAsString(
-                projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml")).trim());
-    }
-
-    @Test(description = "Compile an empty package with compiler plugin")
-    public void testCompileEmptyProjectWithCompilerPlugin() throws IOException {
-        Path projectPath = this.testResources.resolve("emptyProjectWithCompilerPlugin");
-        System.setProperty("user.dir", projectPath.toString());
-
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
-        new CommandLine(buildCommand).parse();
-        buildCommand.execute();
-        String buildLog = readOutput(true);
-
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala")
-                .resolve("wso2-emptyProjWithCompilerPlugin-any-0.1.0.bala").toFile().exists());
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                getOutput("compile-empty-project-with-compiler-plugin.txt"));
-    }
-
     @Test(description = "Build an empty package with compiler plugin")
     public void testBuildEmptyProjectWithCompilerPlugin() throws IOException {
         Path projectPath = this.testResources.resolve("emptyProjectWithCompilerPlugin");
@@ -666,19 +545,6 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 getOutput("build-empty-project-with-compiler-plugin.txt"));
-    }
-
-    @Test(description = "Compile an empty package with tests only")
-    public void testCompileEmptyProjectWithTestsOnly() {
-        Path projectPath = this.testResources.resolve("emptyProjectWithTestsOnly");
-        System.setProperty("user.dir", projectPath.toString());
-
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
-        new CommandLine(buildCommand).parse();
-        buildCommand.execute();
-
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala")
-                .resolve("wso2-emptyProjWithTestsOnly-any-0.1.0.bala").toFile().exists());
     }
 
     @Test(description = "Build an empty package with tests only")
@@ -695,19 +561,6 @@ public class BuildCommandTest extends BaseCommandTest {
                 getOutput("build-empty-project-with-tests-only.txt"));
     }
 
-    @Test(description = "Compile an empty package with Non Default modules")
-    public void testCompileEmptyProjectWithNonDefaultModules() {
-        Path projectPath = this.testResources.resolve("emptyProjectWithNonDefaultModules");
-        System.setProperty("user.dir", projectPath.toString());
-
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
-        new CommandLine(buildCommand).parse();
-        buildCommand.execute();
-
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala")
-                .resolve("wso2-emptyProjWithNonDefaultModules-any-0.1.0.bala").toFile().exists());
-    }
-
     @Test(description = "Build an empty package with Non Default modules")
     public void testBuildEmptyProjectWithNonDefaultModules() throws IOException {
         Path projectPath = this.testResources.resolve("emptyProjectWithNonDefaultModules");
@@ -720,19 +573,6 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 getOutput("build-empty-project-with-nondefault-modules.txt"));
-    }
-
-    @Test(description = "Compile an empty package with Non Default modules with Tests only")
-    public void testCompileEmptyProjectWithNonDefaultModulesTestOnly() {
-        Path projectPath = this.testResources.resolve("emptyProjectWithNonDefaultModulesTestOnly");
-        System.setProperty("user.dir", projectPath.toString());
-
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
-        new CommandLine(buildCommand).parse();
-        buildCommand.execute();
-
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala")
-                .resolve("wso2-emptyProjWithNonDefaultModulesTestOnly-any-0.1.0.bala").toFile().exists());
     }
 
     @Test(description = "Build an empty package with Non Default modules with Tests only")
@@ -749,19 +589,6 @@ public class BuildCommandTest extends BaseCommandTest {
                 getOutput("build-empty-project-with-nondefault-modules-tests-only.txt"));
     }
 
-    @Test(description = "Compile an empty package with empty Non Default")
-    public void testCompileEmptyNonDefaultModule() {
-        Path projectPath = this.testResources.resolve("emptyNonDefaultModule");
-        System.setProperty("user.dir", projectPath.toString());
-
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
-        new CommandLine(buildCommand).parse();
-        buildCommand.execute();
-
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala")
-                .resolve("wso2-emptyNonDefaultModule-any-0.1.0.bala").toFile().exists());
-    }
-
     @Test(description = "Build an empty package with empty Non Default")
     public void testBuildEmptyNonDefaultModule() throws IOException {
         Path projectPath = this.testResources.resolve("emptyNonDefaultModule");
@@ -771,7 +598,6 @@ public class BuildCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
-
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 getOutput("build-empty-nondefault-module.txt"));
     }
@@ -850,7 +676,7 @@ public class BuildCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("dump-build-time-package.txt"));
+        Assert.assertTrue(buildLog.replaceAll("\r", "").contains(getOutput("dump-build-time-package.txt")));
 
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("build-time.json")));
         Assert.assertTrue(projectPath.resolve("target").resolve("build-time.json").toFile().length() > 0);
@@ -865,8 +691,7 @@ public class BuildCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand).parse(balFilePath.toString());
         buildCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                getOutput("dump-build-time-standalone.txt"));
+        Assert.assertTrue(buildLog.replaceAll("\r", "").contains(getOutput("dump-build-time-standalone.txt")));
         Assert.assertTrue(Files.exists(this.testResources.resolve("valid-bal-file").resolve("build-time.json")));
         Assert.assertTrue(
                 this.testResources.resolve("valid-bal-file").resolve("build-time.json").toFile().length() > 0);

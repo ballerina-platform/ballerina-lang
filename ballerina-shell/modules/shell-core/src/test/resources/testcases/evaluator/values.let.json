@@ -5,32 +5,56 @@
   },
   {
     "description": "This is a simple let expression.",
-    "code": "int a = let int b = 1 in b * 2; a",
+    "code": "int a = let int b = 1 in b * 2;"
+  },
+  {
+    "description": "This is a simple let expression - get value.",
+    "code": "a",
     "expr": "2"
   },
   {
     "description": "Declare multiple variables in a let expression.",
-    "code": "string greeting = let string hello = \"Hello \", string ballerina = \"Ballerina!\" in hello + ballerina; greeting",
+    "code": "string greeting = let string hello = \"Hello \", string ballerina = \"Ballerina!\" in hello + ballerina;"
+  },
+  {
+    "description": "Declare multiple variables in a let expression - get value.",
+    "code": "greeting",
     "expr": "\"Hello Ballerina!\""
   },
   {
     "description": "The scope of a variable declared in a let expression is from the point of declaration to the end of the let expression.",
-    "code": "int three = let int one = getInt(), int two = one + one in one + two; three",
+    "code": "int three = let int one = getInt(), int two = one + one in one + two;"
+  },
+  {
+    "description": "The scope of a variable declared in a let expression is from the point of declaration to the end of the let expression - get value.",
+    "code": "three",
     "expr": "3"
   },
   {
     "description": "Declare variables using the keyword `var` in a let expression.",
-    "code": "int length = let var num = 10, var txt = \"four\" in num + txt.length(); length",
+    "code": "int length = let var num = 10, var txt = \"four\" in num + txt.length();"
+  },
+  {
+    "description": "Declare variables using the keyword `var` in a let expression - get value.",
+    "code": "length",
     "expr": "14"
   },
   {
     "description": "Let variable declarations can include tuple binding patterns.",
-    "code": "int tupleBindingResult = let [int, int] [d1, d2] = [10, 20], int d3 = d1 + d2 in  d3 * 2; tupleBindingResult",
+    "code": "int tupleBindingResult = let [int, int] [d1, d2] = [10, 20], int d3 = d1 + d2 in  d3 * 2;"
+  },
+  {
+    "description": "Let variable declarations can include tuple binding patterns - get value.",
+    "code": "tupleBindingResult",
     "expr": "60"
   },
   {
     "description": "Let variable declarations can include map binding patterns.",
-    "code": "int age = 0; age = let Person { name: firstName, age: personAge, ...otherDetails } = getPerson() in personAge; age",
+    "code": "int age = 0; age = let Person { name: firstName, age: personAge, ...otherDetails } = getPerson() in personAge;"
+  },
+  {
+    "description": "Let variable declarations can include map binding patterns - get value.",
+    "code": "age",
     "expr": "31"
   }
 ]
