@@ -18,11 +18,11 @@
 package io.ballerina.types.typeops;
 
 import io.ballerina.types.Bdd;
+import io.ballerina.types.Conjunction;
 import io.ballerina.types.Context;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SubtypeData;
 import io.ballerina.types.UniformTypeOps;
-import io.ballerina.types.XmlPrimitive;
 import io.ballerina.types.subtypedata.XmlSubtype;
 
 /**
@@ -32,10 +32,10 @@ import io.ballerina.types.subtypedata.XmlSubtype;
  */
 public abstract class XmlCommonOps implements UniformTypeOps {
 
-    private static final XmlSubtype xmlRoTop = XmlSubtype.from(XmlPrimitive.XML_PRIMITIVE_RO_MASK,
-            BddCommonOps.bddAtom(RecAtom.createRecAtom(XmlPrimitive.XML_PRIMITIVE_RO_SINGLETON)));
-    private static final XmlSubtype xmlRwTop = XmlSubtype.from(XmlPrimitive.XML_PRIMITIVE_RW_MASK,
-            BddCommonOps.bddAtom(RecAtom.createRecAtom(XmlPrimitive.XML_PRIMITIVE_SINGLETON)));
+    private static final XmlSubtype xmlRoTop = XmlSubtype.from(XmlSubtype.XML_PRIMITIVE_RO_MASK,
+            BddCommonOps.bddAtom(RecAtom.createRecAtom(XmlSubtype.XML_PRIMITIVE_RO_SINGLETON)));
+    private static final XmlSubtype xmlRwTop = XmlSubtype.from(XmlSubtype.XML_PRIMITIVE_RW_MASK,
+            BddCommonOps.bddAtom(RecAtom.createRecAtom(XmlSubtype.XML_PRIMITIVE_SINGLETON)));
 
     public SubtypeData commonUnion(boolean isRo, SubtypeData d1, SubtypeData d2) {
         XmlSubtype v1 = (XmlSubtype) d1;
@@ -76,4 +76,29 @@ public abstract class XmlCommonOps implements UniformTypeOps {
     }
 
     abstract boolean xmlBddEmpty(Context cx, Bdd sequence);
+
+    public static int collectAllBits(Conjunction con) {
+        int allBits = 0;
+        Conjunction current = con;
+        while (current != null) {
+            allBits |= ((RecAtom) current.atom).index;
+            current = current.next;
+        }
+        return allBits;
+    }
+
+    public static boolean hasTotalNegative(int allBits, Conjunction con) {
+        if (allBits == 0) {
+            return true;
+        }
+
+        Conjunction n = con;
+        while (n != null) {
+            if ((allBits & ~((RecAtom) n.atom).index) == 0) {
+                return true;
+            }
+            n = n.next;
+        }
+        return false;
+    }
 }

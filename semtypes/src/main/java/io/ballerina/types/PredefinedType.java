@@ -22,13 +22,13 @@ import io.ballerina.types.subtypedata.StringSubtype;
 
 import java.util.StringJoiner;
 
-import static io.ballerina.types.XmlPrimitive.XML_PRIMITIVE_COMMENT_RO;
-import static io.ballerina.types.XmlPrimitive.XML_PRIMITIVE_COMMENT_RW;
-import static io.ballerina.types.XmlPrimitive.XML_PRIMITIVE_ELEMENT_RO;
-import static io.ballerina.types.XmlPrimitive.XML_PRIMITIVE_ELEMENT_RW;
-import static io.ballerina.types.XmlPrimitive.XML_PRIMITIVE_PI_RO;
-import static io.ballerina.types.XmlPrimitive.XML_PRIMITIVE_PI_RW;
-import static io.ballerina.types.XmlPrimitive.XML_PRIMITIVE_TEXT;
+import static io.ballerina.types.subtypedata.XmlSubtype.XML_PRIMITIVE_COMMENT_RO;
+import static io.ballerina.types.subtypedata.XmlSubtype.XML_PRIMITIVE_COMMENT_RW;
+import static io.ballerina.types.subtypedata.XmlSubtype.XML_PRIMITIVE_ELEMENT_RO;
+import static io.ballerina.types.subtypedata.XmlSubtype.XML_PRIMITIVE_ELEMENT_RW;
+import static io.ballerina.types.subtypedata.XmlSubtype.XML_PRIMITIVE_PI_RO;
+import static io.ballerina.types.subtypedata.XmlSubtype.XML_PRIMITIVE_PI_RW;
+import static io.ballerina.types.subtypedata.XmlSubtype.XML_PRIMITIVE_TEXT;
 import static io.ballerina.types.subtypedata.XmlSubtype.xmlSequence;
 import static io.ballerina.types.subtypedata.XmlSubtype.xmlSingleton;
 

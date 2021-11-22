@@ -693,11 +693,13 @@ public class SymbolEnter extends BLangNodeVisitor {
     private SemType resolveXmlSubtype(String name) {
         switch(name) {
             case "Element":
-                return SemTypes.XELEMENT;
+                return SemTypes.XML_ELEMENT;
             case "Comment":
-                return SemTypes.XCOMMENT;
+                return SemTypes.XML_COMMENT;
             case "Text":
-                return SemTypes.XTEXT;
+                return SemTypes.XML_TEXT;
+            case "ProcessingInstruction":
+                return SemTypes.XML_PI;
             default:
                 throw new IllegalStateException("Unknown XML subtype: " + name);
         }

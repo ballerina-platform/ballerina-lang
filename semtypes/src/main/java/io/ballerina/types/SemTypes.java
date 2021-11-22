@@ -39,10 +39,10 @@ public class SemTypes {
     public static final SemType UINT16 = IntSubtype.intWidthUnsigned(16);
     public static final SemType UINT32 = IntSubtype.intWidthUnsigned(32);
     public static final SemType CHAR = PredefinedType.STRING_CHAR;
-    public static final SemType XELEMENT = PredefinedType.XML_ELEMENT;
-    public static final SemType XCOMMENT = PredefinedType.XML_COMMENT;
-    public static final SemType XTEXT = PredefinedType.XML_TEXT;
-    public static final SemType XPI = PredefinedType.XML_PI;
+    public static final SemType XML_ELEMENT = PredefinedType.XML_ELEMENT;
+    public static final SemType XML_COMMENT = PredefinedType.XML_COMMENT;
+    public static final SemType XML_TEXT = PredefinedType.XML_TEXT;
+    public static final SemType XML_PI = PredefinedType.XML_PI;
 
     public static SemType floatConst(double v) {
         return FloatSubtype.floatConst(v);

@@ -19,7 +19,6 @@ package io.ballerina.types.subtypedata;
 
 import io.ballerina.types.Bdd;
 import io.ballerina.types.ComplexSemType;
-import io.ballerina.types.Conjunction;
 import io.ballerina.types.Core;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.ProperSubtypeData;
@@ -29,7 +28,6 @@ import io.ballerina.types.SubtypeData;
 import io.ballerina.types.UniformSubtype;
 import io.ballerina.types.UniformTypeBitSet;
 import io.ballerina.types.UniformTypeCode;
-import io.ballerina.types.XmlPrimitive;
 import io.ballerina.types.typeops.BddCommonOps;
 
 /**
@@ -38,8 +36,24 @@ import io.ballerina.types.typeops.BddCommonOps;
  * @since 3.0.0
  */
 public class XmlSubtype implements ProperSubtypeData {
-    public int primitives;
-    public Bdd sequence;
+    public final int primitives;
+    public final Bdd sequence;
+
+    public static final int XML_PRIMITIVE_NEVER      = 1;
+    public static final int XML_PRIMITIVE_TEXT       = 1 << 1;
+    public static final int XML_PRIMITIVE_ELEMENT_RO = 1 << 2;
+    public static final int XML_PRIMITIVE_PI_RO      = 1 << 3;
+    public static final int XML_PRIMITIVE_COMMENT_RO = 1 << 4;
+    public static final int XML_PRIMITIVE_ELEMENT_RW = 1 << 5;
+    public static final int XML_PRIMITIVE_PI_RW      = 1 << 6;
+    public static final int XML_PRIMITIVE_COMMENT_RW = 1 << 7;
+
+    public static final int XML_PRIMITIVE_RO_SINGLETON = XML_PRIMITIVE_TEXT | XML_PRIMITIVE_ELEMENT_RO
+            | XML_PRIMITIVE_PI_RO | XML_PRIMITIVE_COMMENT_RO;
+    public static final int XML_PRIMITIVE_RO_MASK = XML_PRIMITIVE_NEVER | XML_PRIMITIVE_RO_SINGLETON;
+    public static final int XML_PRIMITIVE_RW_MASK = XML_PRIMITIVE_ELEMENT_RW | XML_PRIMITIVE_PI_RW
+            | XML_PRIMITIVE_COMMENT_RW;
+    public static final int XML_PRIMITIVE_SINGLETON = XML_PRIMITIVE_RO_SINGLETON | XML_PRIMITIVE_RW_MASK;
 
     private XmlSubtype(int primitives, Bdd sequence) {
         this.primitives = primitives;
@@ -59,7 +73,7 @@ public class XmlSubtype implements ProperSubtypeData {
 
     public static SemType xmlSequence(SemType constituentType) {
         if (constituentType == PredefinedType.NEVER) {
-            return xmlSequence(xmlSingleton(XmlPrimitive.XML_PRIMITIVE_NEVER));
+            return xmlSequence(xmlSingleton(XML_PRIMITIVE_NEVER));
         }
         if (constituentType instanceof UniformTypeBitSet) {
             return constituentType;
@@ -76,9 +90,9 @@ public class XmlSubtype implements ProperSubtypeData {
     }
 
     private static SubtypeData makeSequence(boolean roPart, XmlSubtype d) {
-        int primitives = XmlPrimitive.XML_PRIMITIVE_NEVER | d.primitives;
+        int primitives = XML_PRIMITIVE_NEVER | d.primitives;
         int atom = d.primitives &
-                (roPart ? XmlPrimitive.XML_PRIMITIVE_RO_SINGLETON : XmlPrimitive.XML_PRIMITIVE_SINGLETON);
+                (roPart ? XML_PRIMITIVE_RO_SINGLETON : XML_PRIMITIVE_SINGLETON);
         Bdd sequence = BddCommonOps.bddUnion(BddCommonOps.bddAtom(RecAtom.createRecAtom(atom)), d.sequence);
         return createXmlSubtype(roPart, primitives, sequence);
     }
@@ -95,7 +109,7 @@ public class XmlSubtype implements ProperSubtypeData {
     }
 
     public static SubtypeData createXmlSubtype(boolean isRo, int primitives, Bdd sequence) {
-        int mask = isRo ? XmlPrimitive.XML_PRIMITIVE_RO_MASK : XmlPrimitive.XML_PRIMITIVE_RW_MASK;
+        int mask = isRo ? XML_PRIMITIVE_RO_MASK : XML_PRIMITIVE_RW_MASK;
         int p = primitives & mask;
         if (sequence instanceof BddAllOrNothing && ((BddAllOrNothing) sequence).isAll() && p == mask) {
             return AllOrNothingSubtype.createAll();
@@ -108,30 +122,5 @@ public class XmlSubtype implements ProperSubtypeData {
             return AllOrNothingSubtype.createNothing();
         }
         return from(primitives, sequence);
-    }
-
-    public static int collectAllBits(Conjunction con) {
-        int allBits = 0;
-        Conjunction current = con;
-        while (current != null) {
-            allBits |= current.atom.getIndex();
-            current = current.next;
-        }
-        return allBits;
-    }
-
-    public static boolean hasTotalNegative(int allBits, Conjunction con) {
-        if (allBits == 0) {
-            return true;
-        }
-
-        Conjunction n = con;
-        while (n != null) {
-            if ((allBits & ~n.atom.getIndex()) == 0) {
-                return true;
-            }
-            n = n.next;
-        }
-        return false;
     }
 }

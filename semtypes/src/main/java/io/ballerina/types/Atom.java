@@ -23,5 +23,4 @@ package io.ballerina.types;
  * @since 3.0.0
  */
 public interface Atom {
-    public int getIndex();
 }

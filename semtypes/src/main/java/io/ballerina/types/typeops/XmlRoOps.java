@@ -22,7 +22,6 @@ import io.ballerina.types.Common;
 import io.ballerina.types.Conjunction;
 import io.ballerina.types.Context;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.subtypedata.XmlSubtype;
 
 /**
  * xml readonly specific methods.
@@ -45,6 +44,6 @@ public class XmlRoOps extends XmlCommonOps {
     }
 
     private static boolean xmlFormulaIsEmpty(Context cx, Conjunction pos, Conjunction neg) {
-        return XmlSubtype.hasTotalNegative(XmlSubtype.collectAllBits(pos), neg);
+        return hasTotalNegative(collectAllBits(pos), neg);
     }
 }

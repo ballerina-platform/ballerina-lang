@@ -22,7 +22,6 @@ import io.ballerina.types.Common;
 import io.ballerina.types.Conjunction;
 import io.ballerina.types.Context;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.XmlPrimitive;
 import io.ballerina.types.subtypedata.XmlSubtype;
 
 /**
@@ -48,7 +47,7 @@ public class XmlRwOps extends XmlCommonOps {
     }
 
     private static boolean xmlFormulaIsEmpty(Context cx, Conjunction pos, Conjunction neg) {
-        int rwOnlyBits = XmlSubtype.collectAllBits(pos) & XmlPrimitive.XML_PRIMITIVE_RW_MASK;
-        return XmlSubtype.hasTotalNegative(rwOnlyBits, neg);
+        int rwOnlyBits = collectAllBits(pos) & XmlSubtype.XML_PRIMITIVE_RW_MASK;
+        return hasTotalNegative(rwOnlyBits, neg);
     }
 }
