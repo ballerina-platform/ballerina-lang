@@ -36,16 +36,16 @@ dependencies {
         exclude group: "javax.validation", module: "validation-api"
         exclude group: 'com.google.guava', module: 'guava'
     }
-    implementation 'com.google.guava:guava:30.0-jre'
-    implementation 'com.google.code.gson:gson:2.8.8'
-    compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
+    implementation 'com.google.guava:guava:"${project.guavaVersion}"'
+    implementation 'com.google.code.gson:gson:"${project.gsonVersion}"'
+    compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
 
     testCompile 'org.testng:testng'
     testCompile project(':ballerina-parser')
     testCompile project(':language-server:language-server-commons')
     testCompile project(':language-server:language-server-core')
-    testCompile 'com.google.code.gson:gson:2.8.8'
-    testCompile (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
+    testCompile 'com.google.code.gson:gson:"${project.gsonVersion}"'
+    testCompile (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
 
 }
 
