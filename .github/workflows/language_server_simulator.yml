@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  ubuntu_build:
-    name: Build with tests on Ubuntu
+  run_simulator:
+    name: Run LS Simulator
     runs-on: ubuntu-latest
     timeout-minutes: 75
 
@@ -29,6 +29,12 @@ jobs:
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
           ./gradlew :language-server-simulator:runLSSimulator
+          
+      - name: Upload Heap Dumps
+        uses: actions/upload-artifact@v2
+        with:
+          name: Windows Installer msi
+          path: ./**/*.hprof
 
 #      - name: Notify failure
 #        if: ${{ failure() }}
