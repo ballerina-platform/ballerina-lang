@@ -5336,7 +5336,7 @@ public class Types {
      * @param diagnosticCode    The code to log if the return type is invalid
      */
     public void validateErrorOrNilReturn(BLangFunction function, DiagnosticCode diagnosticCode) {
-        BType returnType = function.returnTypeNode.getBType();
+        BType returnType = getReferredType(function.returnTypeNode.getBType());
 
         if (returnType.tag == TypeTags.NIL ||
                 (returnType.tag == TypeTags.UNION &&
@@ -5353,7 +5353,8 @@ public class Types {
         }
 
         for (BType memType : type.getMemberTypes()) {
-            if (memType.tag != TypeTags.NIL && memType.tag != TypeTags.ERROR) {
+            BType referredMemType = getReferredType(memType);
+            if (referredMemType.tag != TypeTags.NIL && referredMemType.tag != TypeTags.ERROR) {
                 return false;
             }
         }
