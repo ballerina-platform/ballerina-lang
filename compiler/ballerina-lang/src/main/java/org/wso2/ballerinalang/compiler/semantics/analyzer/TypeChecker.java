@@ -4394,7 +4394,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (exprType != symTable.semanticError) {
                 BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, exprType);
                 if (symbol == symTable.notFoundSymbol) {
-                    symbol = symResolver.getUnaryArithmeticOpsForTypeSets(unaryExpr.operator, exprType);
+                    symbol = symResolver.getUnaryOpsForTypeSets(unaryExpr.operator, exprType);
                 }
                 if (symbol == symTable.notFoundSymbol) {
                     dlog.error(unaryExpr.pos, DiagnosticErrorCode.UNARY_OP_INCOMPATIBLE_TYPES,

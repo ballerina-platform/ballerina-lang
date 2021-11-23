@@ -1932,7 +1932,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
-    public BSymbol getUnaryArithmeticOpsForTypeSets(OperatorKind opKind, BType type) {
+    public BSymbol getUnaryOpsForTypeSets(OperatorKind opKind, BType type) {
         boolean validNumericTypeExists;
         switch (opKind) {
             case ADD:
