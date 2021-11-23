@@ -103,6 +103,7 @@ task unpackBalTestProject(type: Copy) {
 }
 
 task runLSSimulator(type: JavaExec) {
+    dependsOn downloadBalTestProject
     dependsOn unpackBalTestProject
     dependsOn loadDistributionCache
     systemProperty "ballerina.home", "$buildDir/"
@@ -118,5 +119,3 @@ task runLSSimulator(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = "org.ballerinalang.langserver.simulator.EditorSimulator"
 }
-
-unpackBalTestProject.dependsOn downloadBalTestProject
