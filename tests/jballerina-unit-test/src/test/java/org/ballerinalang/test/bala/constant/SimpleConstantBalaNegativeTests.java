@@ -43,25 +43,25 @@ public class SimpleConstantBalaNegativeTests {
 
         int index = 0;
         int offset = 1;
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'false', found 'boolean'",
-                offset += 7, 29);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'true', found 'boolean'",
-                offset += 7, 32);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '40', found 'int'",
-                offset += 9, 25);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '20', found 'int'",
-                offset += 7, 28);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '240', found 'int'",
-                offset += 9, 26);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '4.0f', found 'float'",
-                offset += 9, 27);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '2.0f', found 'float'",
-                offset += 7, 30);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '4.0d', found 'float'",
-                offset += 9, 29);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ballerina is awesome', found" +
-                " 'string'", offset += 9, 28);
-        BAssertUtil.validateError(compileResult, index, "incompatible types: expected 'Ballerina rocks', found " +
-                "'string'", offset += 7, 31);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'BooleanTypeWithType'," +
+                        " found 'boolean'", offset += 7, 29);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'BooleanTypeWithoutType'," +
+                        " found 'boolean'", offset += 7, 32);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'IntTypeWithType'," +
+                        " found 'int'", offset += 9, 25);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'IntTypeWithoutType'," +
+                        " found 'int'", offset += 7, 28);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'ByteTypeWithType'," +
+                        " found 'int'", offset += 9, 26);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'FloatTypeWithType'," +
+                        " found 'float'", offset += 9, 27);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'FloatTypeWithoutType'," +
+                        " found 'float'", offset += 7, 30);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'DecimalTypeWithType'," +
+                        " found 'float'", offset += 9, 29);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'StringTypeWithType'," +
+                " found 'string'", offset += 9, 28);
+        BAssertUtil.validateError(compileResult, index, "incompatible types: expected 'StringTypeWithoutType'," +
+                " found 'string'", offset += 7, 31);
     }
 }

@@ -105,9 +105,6 @@ public class ConnectorGenerator {
                         String description = getDocFromMetadata(classDefinition.metadata());
                         Map<String, String> connectorAnnotation =
                                 getDisplayAnnotationFromMetadataNode(classDefinition.metadata());
-                        if (!connectorAnnotation.get("label").isEmpty()) {
-                            connectorName = connectorAnnotation.get("label");
-                        }
 
                         if (detailed) {
                             List<Function> functions = getConnectorFunctions(semanticModel, classDefinition);
@@ -275,6 +272,7 @@ public class ConnectorGenerator {
                             defaultableParameter.paramName().get().text() : "";
                     param.displayAnnotation = getDisplayAnnotationFromAnnotationsList(
                             defaultableParameter.annotations());
+                    param.defaultable = true;
                     param.defaultValue = defaultableParameter.expression().toString();
                     param.documentation = getParameterDocFromMetadataList(param.name, optionalMetadataNode);
                     parameters.add(param);

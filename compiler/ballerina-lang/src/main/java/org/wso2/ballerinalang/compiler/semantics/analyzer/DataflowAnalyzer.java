@@ -214,7 +214,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -443,8 +442,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeDefinition.typeNode, typeDefinition.symbol.scope, env);
-        this.currDependentSymbolDeque.push(typeDefinition.symbol);
+        SymbolEnv typeDefEnv;
+        BSymbol symbol = typeDefinition.symbol;
+        if (typeDefinition.symbol.kind == SymbolKind.TYPE_DEF) {
+            symbol = symbol.type.tsymbol;
+        }
+        typeDefEnv = SymbolEnv.createTypeEnv(typeDefinition.typeNode, symbol.scope, env);
+        this.currDependentSymbolDeque.push(symbol);
         analyzeNode(typeDefinition.typeNode, typeDefEnv);
         this.currDependentSymbolDeque.pop();
     }
@@ -526,7 +530,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         this.currDependentSymbolDeque.push(symbol);
         if (variable.typeNode != null && variable.typeNode.getBType() != null) {
-            recordGlobalVariableReferenceRelationship(variable.typeNode.getBType().tsymbol);
+            BType type = variable.typeNode.getBType();
+            recordGlobalVariableReferenceRelationship(types.getReferredType(type).tsymbol);
         }
         boolean withInModuleVarLetExpr = symbol.owner.tag == SymTag.LET && isGlobalVarSymbol(env.enclVarSym);
         if (withInModuleVarLetExpr) {
@@ -987,17 +992,26 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private List<BLangExpression> createKeyArray(BLangRecordLiteral literal, List<String> fieldNames) {
         //fieldNames have to be literals in table constructor's record literal list
-        Map<String, BLangExpression> fieldMap =
-                literal.fields.stream().map(recordField -> (BLangRecordLiteral.BLangRecordKeyValueField) recordField)
-                        .map(d -> new SimpleEntry<>(d.key.expr.toString(), d.valueExpr)).
-                        collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
+        Map<String, BLangExpression> fieldMap = new HashMap<>();
+
+        for (RecordLiteralNode.RecordField recordField : literal.fields) {
+            if (recordField.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField keyVal =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) recordField;
+                fieldMap.put(keyVal.key.expr.toString(), keyVal.valueExpr);
+            } else if (recordField.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangRecordLiteral.BLangRecordVarNameField recordVarNameField =
+                        (BLangRecordLiteral.BLangRecordVarNameField) recordField;
+                fieldMap.put(recordVarNameField.getVariableName().value, recordVarNameField);
+            }
+        }
         return fieldNames.stream().map(fieldMap::get).collect(Collectors.toList());
     }
 
     private List<String> getFieldNames(BLangTableConstructorExpr constructorExpr) {
         List<String> fieldNames = null;
-        if (constructorExpr.getBType().tag == TypeTags.TABLE) {
-            fieldNames = ((BTableType) constructorExpr.getBType()).fieldNameList;
+        if (types.getReferredType(constructorExpr.getBType()).tag == TypeTags.TABLE) {
+            fieldNames = ((BTableType) types.getReferredType(constructorExpr.getBType())).fieldNameList;
             if (fieldNames != null) {
                 return fieldNames;
             }
@@ -1338,7 +1352,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeInit typeInitExpr) {
         typeInitExpr.argsExpr.forEach(argExpr -> analyzeNode(argExpr, env));
         if (this.currDependentSymbolDeque.peek() != null) {
-            addDependency(this.currDependentSymbolDeque.peek(), typeInitExpr.getBType().tsymbol);
+            addDependency(this.currDependentSymbolDeque.peek(),
+                    types.getReferredType(typeInitExpr.getBType()).tsymbol);
         }
     }
 
@@ -1618,7 +1633,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (this.currDependentSymbolDeque.isEmpty()) {
             return;
         }
-        BType resolvedType = userDefinedType.getBType();
+        BType resolvedType = types.getReferredType(userDefinedType.getBType());
         if (resolvedType == symTable.semanticError) {
             return;
         }
@@ -1657,14 +1672,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        BTypeSymbol tsymbol = recordTypeNode.getBType().tsymbol;
+        BTypeSymbol tsymbol = types.getReferredType(recordTypeNode.getBType()).tsymbol;
         for (TypeNode type : recordTypeNode.getTypeReferences()) {
             BLangType bLangType = (BLangType) type;
             analyzeNode(bLangType, env);
-            recordGlobalVariableReferenceRelationship(bLangType.getBType().tsymbol);
+            recordGlobalVariableReferenceRelationship(
+                    types.getReferredType(bLangType.getBType()).tsymbol);
         }
         for (BLangSimpleVariable field : recordTypeNode.fields) {
-            addTypeDependency(tsymbol, field.getBType(), new HashSet<>());
+            addTypeDependency(tsymbol, types.getReferredType(field.getBType()), new HashSet<>());
             analyzeNode(field, env);
             recordGlobalVariableReferenceRelationship(field.symbol);
         }
@@ -1690,6 +1706,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             case TypeTags.MAP:
                 addTypeDependency(dependentTypeSymbol,
                         types.getTypeWithEffectiveIntersectionTypes(((BMapType) providerType).getConstraint()),
+                        unresolvedTypes);
+                break;
+            case TypeTags.TYPEREFDESC:
+                addTypeDependency(dependentTypeSymbol, types.getReferredType(providerType),
                         unresolvedTypes);
                 break;
             default:
@@ -1751,10 +1771,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         if (this.currDependentSymbolDeque.peek() != null) {
-            addDependency(this.currDependentSymbolDeque.peek(), serviceConstructorExpr.getBType().tsymbol);
+            addDependency(this.currDependentSymbolDeque.peek(),
+                    types.getReferredType(serviceConstructorExpr.getBType()).tsymbol);
         }
 
-        addDependency(serviceConstructorExpr.getBType().tsymbol, serviceConstructorExpr.serviceNode.symbol);
+        addDependency(types.getReferredType(serviceConstructorExpr.getBType()).tsymbol,
+                serviceConstructorExpr.serviceNode.symbol);
         analyzeNode(serviceConstructorExpr.serviceNode, env);
     }
 
@@ -2013,7 +2035,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 BLangAccessExpression accessExpr = (BLangAccessExpression) varRef;
 
                 BLangExpression expr = accessExpr.expr;
-                BType type = expr.getBType();
+                BType type = types.getReferredType(expr.getBType());
                 if (isObjectMemberAccessWithSelf(accessExpr)) {
                     BObjectType objectType = (BObjectType) type;
 
@@ -2058,7 +2080,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private void checkFinalObjectFieldUpdate(BLangFieldBasedAccess fieldAccess) {
         BLangExpression expr = fieldAccess.expr;
 
-        BType exprType = expr.getBType();
+        BType exprType = types.getReferredType(expr.getBType());
 
         if (types.isSubTypeOfBaseType(exprType, TypeTags.OBJECT) &&
                 isFinalFieldInAllObjects(fieldAccess.pos, exprType, fieldAccess.field.value)) {
@@ -2066,7 +2088,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean isFinalFieldInAllObjects(Location pos, BType type, String fieldName) {
+    private boolean isFinalFieldInAllObjects(Location pos, BType btype, String fieldName) {
+        BType type = types.getReferredType(btype);
         if (type.tag == TypeTags.OBJECT) {
 
             BField field = ((BObjectType) type).fields.get(fieldName);

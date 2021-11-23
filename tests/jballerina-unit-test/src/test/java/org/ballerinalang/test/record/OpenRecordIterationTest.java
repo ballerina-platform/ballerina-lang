@@ -81,11 +81,13 @@ public class OpenRecordIterationTest {
                                   "incompatible types: expected '[string,any]', found 'anydata'",
                                   74, 30);
         BAssertUtil.validateError(openRecNegatives, index++,
-                                  "incompatible types: expected 'function ((any|error)) returns (boolean)', found " +
-                                          "'function (anydata) returns (string)'",
+                                  "incompatible types: expected " +
+                                          "'function (ballerina/lang.map:0.0.0:Type) returns (boolean)', " +
+                                          "found 'function (anydata) returns (string)'",
                                   82, 21);
         BAssertUtil.validateError(openRecNegatives, index++,
-                                  "incompatible types: expected 'function ((any|error)) returns (boolean)', found " +
+                                  "incompatible types: expected " +
+                                          "'function (ballerina/lang.map:0.0.0:Type) returns (boolean)', found " +
                                           "'function (anydata) returns ([string,any,string])'",
                                   86, 21);
         BAssertUtil.validateError(openRecNegatives, index++,

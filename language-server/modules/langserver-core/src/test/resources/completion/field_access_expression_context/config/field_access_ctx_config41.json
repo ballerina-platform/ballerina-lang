@@ -45,7 +45,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "cloneReadOnly",
       "insertText": "cloneReadOnly()",
       "insertTextFormat": "Snippet"
@@ -60,7 +60,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType`   \n- clone of parameter `v`  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "clone",
       "insertText": "clone()",
       "insertTextFormat": "Snippet"
@@ -91,7 +91,7 @@
       "documentation": {
         "left": "http://ballerina.com/aa"
       },
-      "sortText": "BB",
+      "sortText": "CB",
       "insertText": "ns1",
       "insertTextFormat": "Snippet"
     },
@@ -102,7 +102,7 @@
       "documentation": {
         "left": "http://ballerina.com/aa"
       },
-      "sortText": "BB",
+      "sortText": "CB",
       "insertText": "ns0",
       "insertTextFormat": "Snippet"
     },
@@ -110,7 +110,7 @@
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "BS",
+      "sortText": "CS",
       "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
@@ -119,7 +119,7 @@
       "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "BR",
+      "sortText": "CR",
       "filterText": "test",
       "insertText": "test",
       "insertTextFormat": "Snippet",
@@ -143,7 +143,7 @@
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "BR",
+      "sortText": "CR",
       "filterText": "array",
       "insertText": "array",
       "insertTextFormat": "Snippet",
@@ -167,7 +167,7 @@
       "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "BR",
+      "sortText": "CR",
       "filterText": "java",
       "insertText": "java",
       "insertTextFormat": "Snippet",
@@ -191,7 +191,7 @@
       "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "BR",
+      "sortText": "CR",
       "filterText": "value",
       "insertText": "value",
       "insertTextFormat": "Snippet",
@@ -215,7 +215,7 @@
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "BR",
+      "sortText": "CR",
       "filterText": "runtime",
       "insertText": "runtime",
       "insertTextFormat": "Snippet",
@@ -239,7 +239,7 @@
       "label": "boolean",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "BR",
+      "sortText": "CR",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
@@ -247,7 +247,7 @@
       "label": "decimal",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "BR",
+      "sortText": "CR",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
@@ -255,7 +255,7 @@
       "label": "error",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "BR",
+      "sortText": "CR",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -263,7 +263,7 @@
       "label": "float",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "BR",
+      "sortText": "CR",
       "insertText": "float",
       "insertTextFormat": "Snippet"
     },
@@ -271,7 +271,7 @@
       "label": "future",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "BR",
+      "sortText": "CR",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
@@ -279,7 +279,7 @@
       "label": "int",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "BR",
+      "sortText": "CR",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
@@ -287,7 +287,7 @@
       "label": "map",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "BR",
+      "sortText": "CR",
       "insertText": "map",
       "insertTextFormat": "Snippet"
     },
@@ -295,7 +295,7 @@
       "label": "object",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "BR",
+      "sortText": "CR",
       "insertText": "object",
       "insertTextFormat": "Snippet"
     },
@@ -303,7 +303,7 @@
       "label": "stream",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "BR",
+      "sortText": "CR",
       "insertText": "stream",
       "insertTextFormat": "Snippet"
     },
@@ -311,7 +311,7 @@
       "label": "string",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "BR",
+      "sortText": "CR",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
@@ -319,7 +319,7 @@
       "label": "table",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "BR",
+      "sortText": "CR",
       "insertText": "table",
       "insertTextFormat": "Snippet"
     },
@@ -327,7 +327,7 @@
       "label": "transaction",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "BR",
+      "sortText": "CR",
       "insertText": "transaction",
       "insertTextFormat": "Snippet"
     },
@@ -335,7 +335,7 @@
       "label": "typedesc",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "BR",
+      "sortText": "CR",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     },
@@ -343,7 +343,7 @@
       "label": "xml",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "BR",
+      "sortText": "CR",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
@@ -372,7 +372,7 @@
           "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nApplies a function to each item in an xml sequence.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function ()` func: a function to apply to each item in parameter `x`"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "forEach",
       "insertText": "forEach(${1})",
       "insertTextFormat": "Snippet",
@@ -391,7 +391,7 @@
           "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns number of xml items in an xml value.\n  \n  \n  \n**Return** `int`   \n- number of xml items in parameter `x`  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "length",
       "insertText": "length()",
       "insertTextFormat": "Snippet"
@@ -406,7 +406,7 @@
           "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nSelects the items from an xml sequence for which a function returns true.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each item to test whether it should be selected  \n  \n**Return** `xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>`   \n- new xml sequence containing items in parameter `x` for which function `func` evaluates to true  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "filter",
       "insertText": "filter(${1})",
       "insertTextFormat": "Snippet",
@@ -418,14 +418,14 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {| xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text value; |}?;}",
+      "detail": "object {public isolated function next() returns record {| xml:ItemType value; |}?;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns an iterator over the xml items of an xml sequence.\n\n# Each item is represented by an xml singleton.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text value; |}?;}`   \n- iterator object  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns an iterator over the xml items of an xml sequence.\n\n# Each item is represented by an xml singleton.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| xml:ItemType value; |}?;}`   \n- iterator object  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "iterator",
       "insertText": "iterator()",
       "insertTextFormat": "Snippet"
@@ -440,7 +440,7 @@
           "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nStrips the insignificant parts of the an xml value.\n\nComment items, processing instruction items are considered insignificant.\nAfter removal of comments and processing instructions, the text is grouped into\nthe biggest possible chunks (i.e., only elements cause division into multiple chunks)\nand a chunk is considered insignificant if the entire chunk is whitespace.\n  \n  \n  \n**Return** `xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>`   \n- `x` with insignificant parts removed  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "strip",
       "insertText": "strip()",
       "insertTextFormat": "Snippet"
@@ -455,7 +455,7 @@
           "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns a subsequence of an xml value.\n  \n**Params**  \n- `int` startIndex: start index, inclusive  \n- `int` endIndex: end index, exclusive(Defaultable)  \n  \n**Return** `xml<xml:Element>`   \n- a subsequence of parameter `x` consisting of items with index >= parameter `startIndex` and < parameter `endIndex`  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "slice",
       "insertText": "slice(${1})",
       "insertTextFormat": "Snippet",
@@ -474,7 +474,7 @@
           "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns the children of elements in an xml value.\n\nWhen parameter `x` is of type `Element`, it is equivalent to function `getChildren`.\nThis is equivalent to `elements(x).map(getChildren)`.\n  \n  \n  \n**Return** `xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>`   \n- xml sequence containing the children of each element x concatenated in order  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "children",
       "insertText": "children()",
       "insertTextFormat": "Snippet"
@@ -489,7 +489,7 @@
           "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns the item of an xml sequence with given index.\n\nThis differs from `x[i]` in that it panics if\nparameter `x` does not have an item with index parameter `i`.\n  \n**Params**  \n- `int` i: the index  \n  \n**Return** `xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>`   \n- the item with index parameter `i` in parameter `x`  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "get",
       "insertText": "get(${1})",
       "insertTextFormat": "Snippet",
@@ -508,7 +508,7 @@
           "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nSelects elements from an xml value.\n\nIf parameter `nm` is `()`, selects all elements;\notherwise, selects only elements whose expanded name is parameter `nm`.\n  \n**Params**  \n- `string?` nm: the expanded name of the elements to be selected, or `()` for all elements(Defaultable)  \n  \n**Return** `xml<xml:Element>`   \n- an xml sequence consisting of all the element items in parameter `x` whose expanded name is parameter `nm`,  \nor, if parameter `nm` is `()`, all element items in parameter `x`  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "elements",
       "insertText": "elements(${1})",
       "insertTextFormat": "Snippet",
@@ -527,7 +527,7 @@
           "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nSelects all the items in a sequence that are of type `xml:Text`.\n  \n  \n  \n**Return** `xml:Text`   \n- an xml sequence consisting of selected text items  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "text",
       "insertText": "text()",
       "insertTextFormat": "Snippet"
@@ -542,7 +542,7 @@
           "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nSelects element children of an xml value.\n\nThis is equivalent to `children(x).elements(nm)`.\n  \n**Params**  \n- `string?` nm: the expanded name of the elements to be selected, or `()` for all elements(Defaultable)  \n  \n**Return** `xml<xml:Element>`   \n- an xml sequence consisting of child elements of elements in parameter `x`; if parameter `nm`  \nis `()`, returns a sequence of all such elements;  \notherwise, include only elements whose expanded name is parameter `nm`  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "elementChildren",
       "insertText": "elementChildren(${1})",
       "insertTextFormat": "Snippet",
@@ -554,14 +554,14 @@
     {
       "label": "map(function () func)",
       "kind": "Function",
-      "detail": "xml<xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>>",
+      "detail": "xml<xml:XmlType>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nApplies a function to each item in an xml sequence, and returns an xml sequence of the results.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function ()` func: a function to apply to each child or parameter `item`  \n  \n**Return** `xml<xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>>`   \n- new xml value containing result of applying function `func` to each child or parameter `item`  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nApplies a function to each item in an xml sequence, and returns an xml sequence of the results.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function ()` func: a function to apply to each child or parameter `item`  \n  \n**Return** `xml<xml:XmlType>`   \n- new xml value containing result of applying function `func` to each child or parameter `item`  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "map",
       "insertText": "map(${1})",
       "insertTextFormat": "Snippet",
@@ -599,7 +599,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value of type `anydata` to `json`.\n\nThis does a deep copy of parameter `v` converting values that do\nnot belong to json into values that do.\nA value of type `xml` is converted into a string as if\nby the `toString` function.\nA value of type `table` is converted into a list of\nmappings one for each row.\nThe inherent type of arrays in the return value will be\n`json[]` and of mappings will be `map<json>`.\nA new copy is made of all structural values, including\nimmutable values.\nThis panics if parameter `v` has cycles.\n  \n  \n  \n**Return** `json`   \n- representation of `v` as value of type json  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "toJson",
       "insertText": "toJson()",
       "insertTextFormat": "Snippet"
@@ -614,7 +614,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nTests whether a value is read-only, i.e., immutable.\n\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Return** `boolean`   \n- true if read-only, false otherwise  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "isReadOnly",
       "insertText": "isReadOnly()",
       "insertTextFormat": "Snippet"

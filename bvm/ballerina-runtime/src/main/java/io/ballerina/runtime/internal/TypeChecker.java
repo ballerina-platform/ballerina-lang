@@ -1865,6 +1865,7 @@ public class TypeChecker {
             case TypeTags.FINITE_TYPE_TAG: // Assuming a finite type will only have members from simple basic types.
             case TypeTags.READONLY_TAG:
             case TypeTags.NULL_TAG:
+            case TypeTags.NEVER_TAG:
             case TypeTags.ERROR_TAG:
             case TypeTags.INVOKABLE_TAG:
             case TypeTags.SERVICE_TAG:
