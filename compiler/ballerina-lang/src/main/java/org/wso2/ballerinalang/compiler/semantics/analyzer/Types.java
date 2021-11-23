@@ -1284,6 +1284,7 @@ public class Types {
             case TypeTags.FINITE: // Assuming a finite type will only have members from simple basic types.
             case TypeTags.READONLY:
             case TypeTags.NIL:
+            case TypeTags.NEVER:
             case TypeTags.ERROR:
             case TypeTags.INVOKABLE:
             case TypeTags.TYPEDESC:
@@ -1371,19 +1372,13 @@ public class Types {
                 BRecordType recordType = (BRecordType) type;
                 for (BField field : recordType.fields.values()) {
                     BType fieldType = field.type;
-                    if (!isInherentlyImmutableType(fieldType) &&
+                    if (!Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
+                            !isInherentlyImmutableType(fieldType) &&
                             !isSelectivelyImmutableType(fieldType, unresolvedTypes, forceCheck)) {
                         return false;
                     }
                 }
-
-                BType recordRestType = recordType.restFieldType;
-                if (recordRestType == null || recordRestType == symTable.noType) {
-                    return true;
-                }
-
-                return isInherentlyImmutableType(recordRestType) ||
-                        isSelectivelyImmutableType(recordRestType, unresolvedTypes, forceCheck);
+                return true;
             case TypeTags.MAP:
                 BType constraintType = ((BMapType) type).constraint;
                 return isInherentlyImmutableType(constraintType) ||

@@ -36,8 +36,8 @@ dependencies {
     implementation project(':ballerina-tools-api')
     implementation project(':central-client')
     implementation 'info.picocli:picocli'
-    implementation 'org.apache.commons:commons-compress:1.21'
-    implementation 'com.google.code.gson:gson:2.8.7'
+    implementation "org.apache.commons:commons-compress:${project.apacheCommonsCompressVersion}"
+    implementation "com.google.code.gson:gson:${project.gsonVersion}"
     implementation project(':docerina')
     implementation project(':testerina:testerina-core')
     implementation project(':testerina:testerina-runtime')
