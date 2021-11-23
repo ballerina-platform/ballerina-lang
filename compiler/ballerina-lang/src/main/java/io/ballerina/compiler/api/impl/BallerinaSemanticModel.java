@@ -363,13 +363,6 @@ public class BallerinaSemanticModel implements SemanticModel {
                     typesFactory.getTypeDescriptor(symbolAtCursor.type, symbolAtCursor));
         }
 
-        if (isTypeSymbol(symbolAtCursor) &&
-                symbolAtCursor.type.tag == TypeTags.ERROR &&
-                Symbols.isFlagOn(symbolAtCursor.type.flags, Flags.ANONYMOUS)) {
-            return Optional.ofNullable(
-                    typesFactory.getTypeDescriptor(symbolAtCursor.type, symbolAtCursor));
-        }
-
         return Optional.ofNullable(symbolFactory.getBCompiledSymbol(symbolAtCursor,
                                                                     symbolAtCursor.getOriginalName().getValue()));
     }
@@ -426,6 +419,11 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private boolean isCursorPosAtDefinition(BLangCompilationUnit compilationUnit, BSymbol symbolAtCursor,
                                             LinePosition cursorPos) {
+        BType symbolType = symbolAtCursor.type;
+        if (symbolType.tag == TypeTags.ERROR &&
+                Symbols.isFlagOn(symbolType.flags, Flags.ANONYMOUS)) {
+            return true;
+        }
         return !(compilationUnit.getPackageID().equals(symbolAtCursor.pkgID)
                 && compilationUnit.getName().equals(symbolAtCursor.pos.lineRange().filePath())
                 && PositionUtil.withinBlock(cursorPos, symbolAtCursor.pos));
