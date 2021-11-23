@@ -1411,6 +1411,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangExpression expr = letExpression.expr;
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(letExpression.pos);
         blockStmt.scope = letExpression.env.scope;
+        blockStmt.isLetExpr = true;
 
         for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
             BLangNode node  = rewrite((BLangNode) letVariable.definitionNode, env);
@@ -1432,6 +1433,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariable varNode) {
+        varNode.typeNode = rewrite(varNode.typeNode, env);
         //  case 1:
         //  [string, int] (a, b) = (tuple)
         //
@@ -5223,11 +5225,9 @@ public class Desugar extends BLangNodeVisitor {
         // int[] $data$ = data;
         //
         // abstract object {public function next() returns record {|int value;|}? $iterator$ = $data$.iterator();
-        // record {|int value;|}? $result$ = $iterator$.next();
         //
-        // while $result$ is record {|int value;|} {
+        // while {record {|int value;|}? $result$ = $iterator$.next(), $result} is record {|int value;|} {
         //     int i = $result$.value;
-        //     $result$ = $iterator$.next();
         //     ....
         //     [foreach node body]
         //     ....
@@ -5249,19 +5249,22 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariableDef resultVariableDefinition = getIteratorNextVariableDefinition(foreach.pos,
                 foreach.nillableResultType, iteratorSymbol, resultSymbol);
 
-        // Note - $result$ != ()
-        BLangType userDefineType = getUserDefineTypeNode(foreach.resultType);
+        // Note - {map<T>? $result$ = $iterator$.next(), $result}
         BLangSimpleVarRef resultReferenceInWhile = ASTBuilderUtil.createVariableRef(foreach.pos, resultSymbol);
+        BLangStatementExpression statementExpression = ASTBuilderUtil.createStatementExpression(
+                resultVariableDefinition, resultReferenceInWhile);
+        statementExpression.setBType(foreach.nillableResultType);
+
+        // Note - $result != ()
+        BLangType userDefineType = getUserDefineTypeNode(foreach.resultType);
         BLangTypeTestExpr typeTestExpr = ASTBuilderUtil
-                .createTypeTestExpr(foreach.pos, resultReferenceInWhile, userDefineType);
+                .createTypeTestExpr(foreach.pos, statementExpression, userDefineType);
         // create while loop: while ($result$ != ())
         BLangWhile whileNode = (BLangWhile) TreeBuilder.createWhileNode();
         whileNode.pos = foreach.pos;
         whileNode.expr = typeTestExpr;
         whileNode.body = foreach.body;
 
-        // Note - $result$ = $iterator$.next(); < this should go after initial assignment of `item`
-        BLangAssignment resultAssignment = getIteratorNextAssignment(foreach.pos, iteratorSymbol, resultSymbol);
         VariableDefinitionNode variableDefinitionNode = foreach.variableDefinitionNode;
 
         // Generate $result$.value
@@ -5276,16 +5279,12 @@ public class Desugar extends BLangNodeVisitor {
         variableDefinitionNode.getVariable()
                 .setInitialExpression(addConversionExprIfRequired(valueAccessExpr, foreach.varType));
         whileNode.body.stmts.add(0, (BLangStatement) variableDefinitionNode);
-        whileNode.body.stmts.add(1, resultAssignment);
 
         // Create a new block statement node.
         BLangBlockStmt blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
 
         // Add iterator variable to the block.
         blockNode.addStatement(varDef);
-
-        // Add result variable to the block.
-        blockNode.addStatement(resultVariableDefinition);
 
         // Add the while node to the block.
         blockNode.addStatement(whileNode);
@@ -8163,20 +8162,6 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariable resultVariable = ASTBuilderUtil.createVariable(pos, "$result$",
                 nillableResultType, nextInvocation, resultSymbol);
         return ASTBuilderUtil.createVariableDef(pos, resultVariable);
-    }
-
-    // Foreach desugar helper method.
-    BLangAssignment getIteratorNextAssignment(Location pos,
-                                              BVarSymbol iteratorSymbol, BVarSymbol resultSymbol) {
-        BLangSimpleVarRef resultReferenceInAssignment = ASTBuilderUtil.createVariableRef(pos, resultSymbol);
-
-        // Note - $iterator$.next();
-        BLangInvocation nextInvocation = createIteratorNextInvocation(pos, iteratorSymbol);
-
-        // we are inside the while loop. hence the iterator cannot be nil. hence remove nil from iterator's type
-        nextInvocation.expr.setBType(types.getSafeType(nextInvocation.expr.getBType(), true, false));
-
-        return ASTBuilderUtil.createAssignmentStmt(pos, resultReferenceInAssignment, nextInvocation, false);
     }
 
     BLangInvocation createIteratorNextInvocation(Location pos, BVarSymbol iteratorSymbol) {

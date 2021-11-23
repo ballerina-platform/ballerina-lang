@@ -289,10 +289,6 @@ public class BallerinaParser extends AbstractParser {
                 startContext(ParserRuleContext.COMP_UNIT);
                 startContext(ParserRuleContext.FUNC_BODY_BLOCK);
                 return parseStatement();
-            case STATEMENTS:
-                startContext(ParserRuleContext.COMP_UNIT);
-                startContext(ParserRuleContext.FUNC_BODY_BLOCK);
-                return parseStatements();
             case EXPRESSION:
                 startContext(ParserRuleContext.COMP_UNIT);
                 startContext(ParserRuleContext.VAR_DECL_STMT);
