@@ -4457,6 +4457,8 @@ public class Types {
                 return lhsType;
             }
         }
+        type = getReferredType(type);
+        lhsType = getReferredType(lhsType);
 
         // TODO: intersections with readonly types are not handled properly. Here, the logic works as follows.
         // Say we have an intersection called A & readonly and we have another type called B. As per the current
@@ -4482,8 +4484,7 @@ public class Types {
                     return symTable.semanticError;
                 }
 
-                return ImmutableTypeCloner.getEffectiveImmutableType(null, this,
-                                                                     (SelectivelyImmutableReferenceType) bType,
+                return ImmutableTypeCloner.getEffectiveImmutableType(null, this, bType,
                                                                      env, symTable, anonymousModelHelper, names);
             }
         }
