@@ -533,7 +533,7 @@ public class TypeChecker extends BLangNodeVisitor {
             literalExpr.value = String.valueOf(literalValue);
             return symTable.decimalType;
         } else if (expectedType.tag == TypeTags.FINITE) {
-            BFiniteType finiteType = (BFiniteType) expType;
+            BFiniteType finiteType = (BFiniteType) expectedType;
             return getFiniteTypeMatchWithIntLiteral(literalExpr, finiteType, literalValue);
         } else if (expectedType.tag == TypeTags.UNION) {
             Set<BType> memberTypes = ((BUnionType) expectedType).getMemberTypes();
