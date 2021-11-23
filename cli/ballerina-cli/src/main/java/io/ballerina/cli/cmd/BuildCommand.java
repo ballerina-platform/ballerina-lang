@@ -314,7 +314,8 @@ public class BuildCommand implements BLauncherCmd {
             buildOptionsBuilder.targetDir(targetDir.toString());
         }
 
-        return buildOptionsBuilder.build();
+        return buildOptionsBuilder.configSchemaGen(configSchemaGen)
+                .build();
     }
 
     @Override
