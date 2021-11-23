@@ -1410,6 +1410,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             List<BType> compatibleTypes = new ArrayList<>();
             boolean erroredExpType = false;
+            boolean CannotInferArraySize = false;
             for (BType memberType : ((BUnionType) bType).getMemberTypes()) {
                 if (memberType == symTable.semanticError) {
                     if (!erroredExpType) {
@@ -1428,7 +1429,20 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (memCompatibiltyType != symTable.semanticError && dlog.errorCount() == 0 &&
                         isUniqueType(compatibleTypes, memCompatibiltyType)) {
                     compatibleTypes.add(memCompatibiltyType);
+                } else if (memCompatibiltyType == symTable.semanticError &&
+                        listCompatibleMemType.tag == TypeTags.ARRAY &&
+                        ((BArrayType) listCompatibleMemType).state == BArrayState.INFERRED) {
+                    this.dlog.unmute();
+                    dlog.error(listCompatibleMemType.tsymbol.pos, DiagnosticErrorCode.CANNOT_INFER_ARRAY_SIZE,
+                            listCompatibleMemType);
+                    this.dlog.mute();
+                    CannotInferArraySize = true;
                 }
+            }
+
+            if (CannotInferArraySize) {
+                this.dlog.unmute();
+                return symTable.semanticError;
             }
 
             this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
@@ -1550,6 +1564,11 @@ public class TypeChecker extends BLangNodeVisitor {
         BType eType = arrayType.eType;
 
         if (arrayType.state == BArrayState.INFERRED) {
+            for (BLangExpression expr : listConstructor.exprs) {
+                if (exprIncompatible(eType, expr)) {
+                    return symTable.semanticError;
+                }
+            }
             arrayType.size = listConstructor.exprs.size();
             arrayType.state = BArrayState.CLOSED;
         } else if ((arrayType.state != BArrayState.OPEN) && (arrayType.size != listConstructor.exprs.size())) {
