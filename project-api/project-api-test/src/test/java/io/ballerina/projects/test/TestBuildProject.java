@@ -1439,8 +1439,8 @@ public class TestBuildProject extends BaseTest {
         Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
 
         // Set sticky false, to imitate the default build command behavior
-        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
-        buildOptionsBuilder.sticky(false);
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        buildOptionsBuilder.setSticky(false);
         BuildOptions buildOptions = buildOptionsBuilder.build();
 
         // 1) Initialize the project instance
