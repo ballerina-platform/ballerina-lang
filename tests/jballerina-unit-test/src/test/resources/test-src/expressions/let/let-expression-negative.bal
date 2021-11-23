@@ -89,7 +89,7 @@ type A record {
 };
 
 function testLetWithXMLTemplateExpression() {
-    xml x = xml `<Books>${xml `<Book>"${let A y = {a:1} in y}"</Book>`}</Books>`;
+    xml _ = xml `<Books>${xml `<Book>"${let A y = {a:1} in y}"</Book>`}</Books>`;
 }
 
 function func(string[] k) returns string {
