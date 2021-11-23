@@ -526,7 +526,7 @@ public class Types {
         if (mappingMatchPattern.matchExpr == null) {
             return patternType;
         }
-        BType intersectionType = getTypeIntersection(getMatchClauseIntersectionContextForMapping(),
+        BType intersectionType = getTypeIntersection(IntersectionContext.matchClauseIntersectionContextForMapping(),
                 mappingMatchPattern.matchExpr.getBType(), patternType, env);
         if (intersectionType == symTable.semanticError) {
             return symTable.noType;
@@ -541,18 +541,12 @@ public class Types {
         if (varBindingPatternMatchPattern.matchExpr == null) {
             return mappingBindingPatternType;
         }
-        BType intersectionType = getTypeIntersection(getMatchClauseIntersectionContextForMapping(),
+        BType intersectionType = getTypeIntersection(IntersectionContext.matchClauseIntersectionContextForMapping(),
                 varBindingPatternMatchPattern.matchExpr.getBType(), mappingBindingPatternType, env);
         if (intersectionType == symTable.semanticError) {
             return symTable.noType;
         }
         return intersectionType;
-    }
-
-    private IntersectionContext getMatchClauseIntersectionContextForMapping() {
-        IntersectionContext intersectionContext = IntersectionContext.compilerInternalIntersectionContext();
-        intersectionContext.ignoreDefaultValues = true;
-        return intersectionContext;
     }
 
     private boolean containsAnyType(BType type) {
@@ -6049,6 +6043,19 @@ public class Types {
             intersectionContext.ignoreDefaultValues = true;
             intersectionContext.preferNonGenerativeIntersection = true;
             intersectionContext.createTypeDefs = true;
+            return intersectionContext;
+        }
+
+        /**
+         * Create {@link IntersectionContext} used for calculating the intersection type with mappings, ignoring
+         * default values.
+         * This does not emit error messages explaining why there is no intersection between two types.
+         *
+         * @return a {@link IntersectionContext}
+         */
+        public static IntersectionContext matchClauseIntersectionContextForMapping() {
+            IntersectionContext intersectionContext = new IntersectionContext(null, null, null);
+            intersectionContext.ignoreDefaultValues = true;
             return intersectionContext;
         }
 
