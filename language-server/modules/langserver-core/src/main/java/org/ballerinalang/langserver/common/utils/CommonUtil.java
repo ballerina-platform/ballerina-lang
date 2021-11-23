@@ -82,6 +82,7 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -1807,5 +1808,16 @@ public class CommonUtil {
             }
         }
         return true;
+    }
+    
+    public static String getModifiedUri(WorkspaceManager workspaceManager, String uri) {
+        URI original = URI.create(uri);
+        try {
+            return new URI(workspaceManager.uriScheme(),
+                    original.getSchemeSpecificPart(),
+                    original.getFragment()).toString();
+        } catch (URISyntaxException e) {
+            return uri;
+        }
     }
 }

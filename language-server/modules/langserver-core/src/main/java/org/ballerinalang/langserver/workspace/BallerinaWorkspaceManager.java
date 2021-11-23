@@ -97,14 +97,11 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * Mapping of source root to project instance.
      */
     protected final Map<Path, ProjectPair> sourceRootToProject;
-    private static final LanguageServerContext.Key<BallerinaWorkspaceManager> WORKSPACE_MANAGER_KEY =
-            new LanguageServerContext.Key<>();
     protected final LSClientLogger clientLogger;
     private final LanguageServerContext serverContext;
     private final Set<Path> openedDocuments = new HashSet<>();
 
     public BallerinaWorkspaceManager(LanguageServerContext serverContext) {
-//        serverContext.put(WORKSPACE_MANAGER_KEY, this);
         this.serverContext = serverContext;
         this.clientLogger = LSClientLogger.getInstance(serverContext);
         Cache<Path, Path> cache = CacheBuilder.newBuilder()
@@ -114,15 +111,6 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         this.pathToSourceRootCache = cache.asMap();
         this.sourceRootToProject = new SourceRootToProjectMap<>(pathToSourceRootCache);
     }
-
-//    public static BallerinaWorkspaceManager getInstance(LanguageServerContext serverContext) {
-//        BallerinaWorkspaceManager workspaceManager = serverContext.get(WORKSPACE_MANAGER_KEY);
-//        if (workspaceManager == null) {
-//            workspaceManager = new BallerinaWorkspaceManager(serverContext);
-//        }
-//
-//        return workspaceManager;
-//    }
 
     @Override
     public Optional<String> relativePath(Path path) {
@@ -484,6 +472,11 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             }
         });
         return new ArrayList<>(reloadableProjects);
+    }
+
+    @Override
+    public String uriScheme() {
+        return "file";
     }
 
     /**

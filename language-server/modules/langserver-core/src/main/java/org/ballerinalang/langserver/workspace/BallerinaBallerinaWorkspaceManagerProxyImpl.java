@@ -122,6 +122,11 @@ public class BallerinaBallerinaWorkspaceManagerProxyImpl implements BallerinaWor
                     "' kind: '" + project.get().kind().name().toLowerCase(Locale.getDefault()) +
                     "'} removed");
         }
+
+        @Override
+        public String uriScheme() {
+            return "expr";
+        }
     }
 
     private boolean isExprScheme(String uri) {
