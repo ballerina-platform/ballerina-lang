@@ -18,7 +18,6 @@
 
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
-import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -63,6 +62,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getEffectiveTomlType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getLineRange;
@@ -550,7 +550,7 @@ public class TomlProvider implements ConfigProvider {
 
     private void validateUnionValue(TomlNode tomlValue, String variableName, BUnionType unionType) {
         visitedNodes.add(tomlValue);
-        Object balValue = io.ballerina.runtime.internal.configurable.providers.toml.Utils.getBalValueFromToml(tomlValue, visitedNodes, unionType, invalidTomlLines, variableName);
+        Object balValue = Utils.getBalValueFromToml(tomlValue, visitedNodes, unionType, invalidTomlLines, variableName);
         List<Type> convertibleTypes = new ArrayList<>();
         for (Type type : unionType.getMemberTypes()) {
             if (TypeChecker.checkIsLikeType(balValue, type, false)) {
@@ -558,15 +558,14 @@ public class TomlProvider implements ConfigProvider {
                 if (convertibleTypes.size() > 1) {
                     invalidTomlLines.add(tomlValue.location().lineRange());
                     throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, getLineRange(tomlValue),
-                                              variableName, Utils.decodeIdentifier(unionType.toString()));
+                                              variableName, decodeIdentifier(unionType.toString()));
                 }
             }
         }
         if (convertibleTypes.isEmpty()) {
             invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
-                                      Utils.decodeIdentifier(unionType.toString()),
-                    getTomlTypeString(tomlValue));
+                    decodeIdentifier(unionType.toString()), getTomlTypeString(tomlValue));
         }
         Type type = convertibleTypes.get(0);
         if (isSimpleType(type.getTag()) || isXMLType(type)) {
@@ -578,7 +577,7 @@ public class TomlProvider implements ConfigProvider {
                 return;
             } else {
                 throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
-                        Utils.decodeIdentifier(type.toString()), getTomlTypeString(tomlValue));
+                        decodeIdentifier(type.toString()), getTomlTypeString(tomlValue));
             }
         }
         validateStructuredValue(tomlValue, variableName, type);
@@ -665,7 +664,7 @@ public class TomlProvider implements ConfigProvider {
 
     private void validateMapUnionArray(TomlTableArrayNode tomlValue, String variableName, ArrayType arrayType,
                                        BUnionType elementType) {
-        if (!io.ballerina.runtime.internal.configurable.providers.toml.Utils.containsMapType(elementType.getMemberTypes())) {
+        if (!Utils.containsMapType(elementType.getMemberTypes())) {
             invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName, arrayType,
                     getTomlTypeString(tomlValue));
@@ -740,7 +739,7 @@ public class TomlProvider implements ConfigProvider {
                     throw new ConfigException(CONFIG_TOML_INVALID_ADDTIONAL_RECORD_FIELD, getLineRange(value),
                             fieldName, recordType.toString());
                 }
-                field = io.ballerina.runtime.internal.configurable.providers.toml.Utils.createAdditionalField(recordType, fieldName, value);
+                field = Utils.createAdditionalField(recordType, fieldName, value);
             }
             validateValue(value, variableName + "." + fieldName, field.getFieldType());
         }
