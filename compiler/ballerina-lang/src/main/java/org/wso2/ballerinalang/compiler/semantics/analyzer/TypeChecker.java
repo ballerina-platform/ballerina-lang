@@ -5920,7 +5920,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         return (funcSymbol.tag & SymTag.FUNCTION) == SymTag.VARIABLE
                 && funcSymbol.kind == SymbolKind.FUNCTION
-                && (funcSymbol.flags & Flags.NATIVE) != Flags.NATIVE;
+                && !Symbols.isNative(funcSymbol);
     }
 
     private List<BLangNamedArgsExpression> checkProvidedErrorDetails(BLangErrorConstructorExpr errorConstructorExpr,
@@ -6468,7 +6468,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType retType = typeParamAnalyzer.getReturnTypeParams(env, bInvokableType.getReturnType());
         if (restType != symTable.semanticError &&
-                Symbols.isFlagOn(invokableSymbol.flags, Flags.NATIVE) &&
+                Symbols.isNative(invokableSymbol) &&
                 Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
             retType = unifier.build(retType, expType, iExpr, types, symTable, dlog);
         }
