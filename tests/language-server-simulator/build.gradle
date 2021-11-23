@@ -76,7 +76,6 @@ jacocoTestReport {
 }
 
 task downloadBalTestProject(type: Download) {
-    dependsOn build
     // Download nBallerina latest tag
     src "https://github.com/ballerina-platform/nballerina/archive/refs/tags/subset06.zip"
     onlyIfModified true
