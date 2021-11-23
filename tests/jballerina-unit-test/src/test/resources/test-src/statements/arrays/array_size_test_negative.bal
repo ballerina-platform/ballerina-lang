@@ -50,3 +50,8 @@ function arraySizeTest() {
     int[9223372036854775808] w = [];
     int[0x001234567890abcdef01] x = [];
 }
+
+function inferArraySize() {
+    int[*]|string[*]|byte[*]  y = [1000];
+    int[*]  z = ["1"];
+}

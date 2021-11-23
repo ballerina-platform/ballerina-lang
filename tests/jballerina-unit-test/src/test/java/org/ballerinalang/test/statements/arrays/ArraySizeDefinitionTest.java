@@ -38,6 +38,8 @@ public class ArraySizeDefinitionTest {
     private static final String INVALID_ARRAY_LENGTH_ERROR =
             "invalid array length: array length should be a non-negative integer";
     private static final String SIZE_LIMIT_ERROR = "array length greater that '2147483637' not yet supported";
+    private static final String CANNOT_INFER_ARRAY_SIZE_STRING = "cannot infer array size of 'string[*]'";
+    private static final String CANNOT_INFER_ARRAY_SIZE_BYTE = "cannot infer array size of 'byte[*]'";
 
     @Test
     public void testCompilationSizeReferenceErrors() {
@@ -75,6 +77,9 @@ public class ArraySizeDefinitionTest {
         BAssertUtil.validateError(resultNegative, index++, SIZE_LIMIT_ERROR, 48, 9);
         BAssertUtil.validateError(resultNegative, index++, INVALID_ARRAY_LENGTH_ERROR, 50, 9);
         BAssertUtil.validateError(resultNegative, index++, INVALID_ARRAY_LENGTH_ERROR, 51, 9);
+        BAssertUtil.validateError(resultNegative, index++, CANNOT_INFER_ARRAY_SIZE_STRING, 55, 12);
+        BAssertUtil.validateError(resultNegative, index++, CANNOT_INFER_ARRAY_SIZE_BYTE, 55, 22);
+        BAssertUtil.validateError(resultNegative, index++, incompatibleTypeError, 56, 18);
         Assert.assertEquals(resultNegative.getDiagnostics().length, index);
     }
 
