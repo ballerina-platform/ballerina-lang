@@ -9,7 +9,7 @@ jobs:
   run_simulator:
     name: Run LS Simulator
     runs-on: ubuntu-latest
-    timeout-minutes: 75
+    timeout-minutes: 360
 
     steps:
       - name: Checkout Repository
@@ -32,6 +32,7 @@ jobs:
           
       - name: Upload Heap Dumps
         uses: actions/upload-artifact@v2
+        if: failure()
         with:
           name: Heap Dump
           path: ./**/*.hprof
