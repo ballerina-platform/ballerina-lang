@@ -299,7 +299,7 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, "incompatible types: expected '()', found 'int'", 262, 12);
         validateError(result, i++, "incompatible types: expected 'int', found 'int?'", 264, 13);
         validateError(result, i++, "incompatible types: expected '20', found '10'", 272, 12);
-        validateError(result, i++, "incompatible types: expected '10', found '10|20'", 274, 12);
+        validateError(result, i++, "incompatible types: expected '10', found 'Type1'", 274, 12);
         validateError(result, i++, "incompatible types: expected 'int', found '()'", 286, 13);
         validateError(result, i++, "incompatible types: expected 'int', found '()'", 296, 13);
         validateError(result, i++, "incompatible types: expected '()', found 'int?'", 308, 12);
