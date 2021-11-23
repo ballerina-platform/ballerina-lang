@@ -35,7 +35,7 @@ jobs:
         if: failure()
         with:
           name: Heap Dump
-          path: '**/*.hprof'
+          path: 'build/dumps'
 
 #      - name: Notify failure
 #        if: ${{ failure() }}
