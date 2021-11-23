@@ -28,12 +28,12 @@ jobs:
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew :language-server-simulator:runLSSimulator
+          ./gradlew clean :language-server-simulator:runLSSimulator
           
       - name: Upload Heap Dumps
         uses: actions/upload-artifact@v2
         with:
-          name: Windows Installer msi
+          name: Heap Dump
           path: ./**/*.hprof
 
 #      - name: Notify failure
