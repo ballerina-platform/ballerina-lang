@@ -364,7 +364,12 @@ function testLetWithClass() {
 
 function testLetWithXMLTemplateExpression() {
     xml x = xml `<Books>${xml `<Book>"${let int y = 5 in y}"</Book>`}</Books>`;
-    assert("<Book>\"5\"</Book>", (x[0]/*).toString());
+    assert("<Book>\"5\"</Book>", (x[0]/*));
+}
+
+function testLetExprWithAXMLCommentLiteral(){
+    xml x = xml `<Books>${xml `<Book><!--${let int y = 5 in y}--></Book>`}</Books>`;
+    assert("<Book><!--5--></Book>", (x[0]/*));
 }
 
 //// Util functions

@@ -144,7 +144,8 @@ public class LetExpressionTest {
                 {"testAnonymousRecordWithLetExpression"},
                 {"testRecordWithLetExpression"},
                 {"testLetWithClass"},
-                {"testLetWithXMLTemplateExpression"}
+                {"testLetWithXMLTemplateExpression"},
+                {"testLetExprWithAXMLCommentLiteral"}
         };
     }
 
