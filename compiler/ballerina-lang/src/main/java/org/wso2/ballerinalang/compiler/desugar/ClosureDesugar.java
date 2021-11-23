@@ -978,7 +978,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-        xmlCommentLiteral.textFragments.forEach(this::rewriteExpr);
         result = xmlCommentLiteral;
     }
 
