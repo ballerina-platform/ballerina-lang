@@ -17,7 +17,7 @@
  **/
 package org.ballerinalang.langlib.error;
 
-import io.ballerina.identifierutil.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
@@ -89,7 +89,7 @@ public class StackTrace {
         values[2] = stackTraceElement.getFileName();
         values[3] = stackTraceElement.getLineNumber();
 
-        String moduleName = IdentifierUtils.decodeIdentifier(stackTraceElement.getClassName())
+        String moduleName = Utils.decodeIdentifier(stackTraceElement.getClassName())
                 .replace(FILE_NAME_PERIOD_SEPARATOR, DOT);
         String fileName = stackTraceElement.getFileName().replace(BLANG_SRC_FILE_SUFFIX, EMPTY);
         if (!moduleName.equals(fileName)) {

@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.identifierutil.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.Flag;
@@ -291,8 +291,8 @@ class JvmObservabilityGen {
      */
     private void rewriteAsyncInvocations(BIRFunction func, BIRTypeDefinition attachedTypeDef, BIRPackage pkg) {
         PackageID packageID = pkg.packageID;
-        Name org = new Name(IdentifierUtils.decodeIdentifier(packageID.orgName.getValue()));
-        Name module = new Name(IdentifierUtils.decodeIdentifier(packageID.name.getValue()));
+        Name org = new Name(Utils.decodeIdentifier(packageID.orgName.getValue()));
+        Name module = new Name(Utils.decodeIdentifier(packageID.name.getValue()));
         PackageID currentPkgId = new PackageID(org, module, packageID.version);
         BSymbol functionOwner;
         List<BIRFunction> scopeFunctionsList;

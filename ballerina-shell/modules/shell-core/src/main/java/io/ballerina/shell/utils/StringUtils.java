@@ -18,7 +18,7 @@
 
 package io.ballerina.shell.utils;
 
-import io.ballerina.identifierutil.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -125,7 +125,7 @@ public class StringUtils {
      * @return modified identifier with unicode character
      */
     public static String unescapeUnicodeCodepoints(String identifier) {
-        return IdentifierUtils.unescapeUnicodeCodepoints(identifier);
+        return Utils.unescapeUnicodeCodepoints(identifier);
     }
 
     /**

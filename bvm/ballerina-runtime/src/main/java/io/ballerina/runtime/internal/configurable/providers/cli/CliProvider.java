@@ -18,7 +18,7 @@
 
 package io.ballerina.runtime.internal.configurable.providers.cli;
 
-import io.ballerina.identifierutil.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -230,7 +230,7 @@ public class CliProvider implements ConfigProvider {
             }
         }
         throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable,
-                                  IdentifierUtils.decodeIdentifier(unionType.toString()), cliArg.value);
+                                  Utils.decodeIdentifier(unionType.toString()), cliArg.value);
     }
 
     @Override

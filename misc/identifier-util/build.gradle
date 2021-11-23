@@ -23,7 +23,7 @@ dependencies {
 
 description = 'Identifier Utils'
 
-ext.moduleName = 'io.ballerina.identifierutil'
+ext.moduleName = 'io.ballerina.identifier'
 
 compileJava {
     inputs.property("moduleName", moduleName)

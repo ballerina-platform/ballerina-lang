@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.internal.types;
 
-import io.ballerina.identifierutil.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
@@ -77,7 +77,7 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public String getAnnotationKey() {
-        return IdentifierUtils.decodeIdentifier(this.typeName);
+        return Utils.decodeIdentifier(this.typeName);
     }
 
     @Override

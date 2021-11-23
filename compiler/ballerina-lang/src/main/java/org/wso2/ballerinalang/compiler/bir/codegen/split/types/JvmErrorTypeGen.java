@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.split.types;
 
-import io.ballerina.identifierutil.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -96,7 +96,7 @@ public class JvmErrorTypeGen {
         mv.visitInsn(DUP);
 
         // Load error type name
-        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(name));
+        mv.visitLdcInsn(Utils.decodeIdentifier(name));
 
         // Load package
         String varName = jvmConstantsGen.getModuleConstantVar(errorType.tsymbol.pkgID);

@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.internal.types;
 
-import io.ballerina.identifierutil.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
@@ -184,7 +184,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
 
     @Override
     public String getAnnotationKey() {
-        return IdentifierUtils.decodeIdentifier(this.typeName);
+        return Utils.decodeIdentifier(this.typeName);
     }
 
     @Override

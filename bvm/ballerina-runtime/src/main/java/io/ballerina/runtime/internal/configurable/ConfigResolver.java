@@ -18,7 +18,7 @@
 
 package io.ballerina.runtime.internal.configurable;
 
-import io.ballerina.identifierutil.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -144,12 +144,12 @@ public class ConfigResolver {
                                     .getAsUnionAndMark(module, key));
                     default:
                         diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
-                                            IdentifierUtils.decodeIdentifier(effectiveType.toString()));
+                                            Utils.decodeIdentifier(effectiveType.toString()));
                 }
                 break;
             default:
                 diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
-                                    IdentifierUtils.decodeIdentifier(type.toString()));
+                                    Utils.decodeIdentifier(type.toString()));
         }
         return Optional.empty();
     }

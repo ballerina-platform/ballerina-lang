@@ -18,7 +18,7 @@
 
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
-import io.ballerina.identifierutil.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -550,7 +550,7 @@ public class TomlProvider implements ConfigProvider {
 
     private void validateUnionValue(TomlNode tomlValue, String variableName, BUnionType unionType) {
         visitedNodes.add(tomlValue);
-        Object balValue = Utils.getBalValueFromToml(tomlValue, visitedNodes, unionType, invalidTomlLines, variableName);
+        Object balValue = io.ballerina.runtime.internal.configurable.providers.toml.Utils.getBalValueFromToml(tomlValue, visitedNodes, unionType, invalidTomlLines, variableName);
         List<Type> convertibleTypes = new ArrayList<>();
         for (Type type : unionType.getMemberTypes()) {
             if (TypeChecker.checkIsLikeType(balValue, type, false)) {
@@ -558,14 +558,14 @@ public class TomlProvider implements ConfigProvider {
                 if (convertibleTypes.size() > 1) {
                     invalidTomlLines.add(tomlValue.location().lineRange());
                     throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, getLineRange(tomlValue),
-                                              variableName, IdentifierUtils.decodeIdentifier(unionType.toString()));
+                                              variableName, Utils.decodeIdentifier(unionType.toString()));
                 }
             }
         }
         if (convertibleTypes.isEmpty()) {
             invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
-                                      IdentifierUtils.decodeIdentifier(unionType.toString()),
+                                      Utils.decodeIdentifier(unionType.toString()),
                     getTomlTypeString(tomlValue));
         }
         Type type = convertibleTypes.get(0);
@@ -578,7 +578,7 @@ public class TomlProvider implements ConfigProvider {
                 return;
             } else {
                 throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
-                        IdentifierUtils.decodeIdentifier(type.toString()), getTomlTypeString(tomlValue));
+                        Utils.decodeIdentifier(type.toString()), getTomlTypeString(tomlValue));
             }
         }
         validateStructuredValue(tomlValue, variableName, type);
@@ -665,7 +665,7 @@ public class TomlProvider implements ConfigProvider {
 
     private void validateMapUnionArray(TomlTableArrayNode tomlValue, String variableName, ArrayType arrayType,
                                        BUnionType elementType) {
-        if (!Utils.containsMapType(elementType.getMemberTypes())) {
+        if (!io.ballerina.runtime.internal.configurable.providers.toml.Utils.containsMapType(elementType.getMemberTypes())) {
             invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName, arrayType,
                     getTomlTypeString(tomlValue));
@@ -740,7 +740,7 @@ public class TomlProvider implements ConfigProvider {
                     throw new ConfigException(CONFIG_TOML_INVALID_ADDTIONAL_RECORD_FIELD, getLineRange(value),
                             fieldName, recordType.toString());
                 }
-                field = Utils.createAdditionalField(recordType, fieldName, value);
+                field = io.ballerina.runtime.internal.configurable.providers.toml.Utils.createAdditionalField(recordType, fieldName, value);
             }
             validateValue(value, variableName + "." + fieldName, field.getFieldType());
         }

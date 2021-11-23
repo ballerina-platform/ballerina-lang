@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.identifierutil.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
@@ -216,7 +216,7 @@ public class ReadOnlyUtils {
                 }
 
                 BRecordType immutableRecordType = new BRecordType(
-                        IdentifierUtils.decodeIdentifier(origRecordType.getName().concat(" & readonly")),
+                        Utils.decodeIdentifier(origRecordType.getName().concat(" & readonly")),
                         origRecordType.getPackage(),
                         origRecordType.flags |= SymbolFlags.READONLY, fields,
                         null, origRecordType.sealed,
@@ -253,7 +253,7 @@ public class ReadOnlyUtils {
                 Map<String, Field> originalObjectFields = origObjectType.getFields();
                 Map<String, Field> immutableObjectFields = new HashMap<>(originalObjectFields.size());
                 BObjectType immutableObjectType = new BObjectType(
-                        IdentifierUtils.decodeIdentifier(origObjectType.getName().concat(" & readonly")),
+                        Utils.decodeIdentifier(origObjectType.getName().concat(" & readonly")),
                         origObjectType.getPackage(), origObjectType.flags |= SymbolFlags.READONLY);
                 immutableObjectType.setFields(immutableObjectFields);
                 immutableObjectType.generatedInitializer = origObjectType.generatedInitializer;

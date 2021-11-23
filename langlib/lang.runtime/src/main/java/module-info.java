@@ -1,5 +1,5 @@
 module io.ballerina.lang.runtime {
     requires io.ballerina.runtime;
-    requires io.ballerina.identifierutil;
+    requires io.ballerina.identifier;
     exports org.ballerinalang.langlib.runtime;
 }

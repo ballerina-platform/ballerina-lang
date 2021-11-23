@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.nativeimpl.jvm.servicetests;
 
-import io.ballerina.identifierutil.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
@@ -168,7 +168,7 @@ public class ServiceValue {
         for (int i = 0; i < path.size(); i++) {
             funcName.append("$").append(path.getBString(i).getValue());
         }
-        return IdentifierUtils.encodeFunctionIdentifier(funcName.toString());
+        return Utils.encodeFunctionIdentifier(funcName.toString());
     }
 
     public static BArray getServicePath() {
