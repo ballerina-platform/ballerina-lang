@@ -67,6 +67,7 @@ type F 3.45d|1.25d|45.6d;
 type G "Me";
 type des G|decimal|2.0d|2.0d;
 type DecimalType1 E|des|F|G;
+type DecimalType2 1d|2d|"me";
 
 function testStaticTypeOfOperandContainsMixType() {
     C x = 0;
@@ -80,4 +81,7 @@ function testStaticTypeOfOperandContainsMixType() {
 
     DecimalType1 b = 1.25;
     decimal|string _ = -b;
+
+    decimal|DecimalType2 c = 1d;
+    string|decimal _ = +c;
 }

@@ -1,5 +1,3 @@
-import ballerina/test;
-
 function intMultiply(int a, int b) returns (int) {
     return a * b;
 }
@@ -83,38 +81,38 @@ function testMultiplicationWithTypes() {
     IntType3|int a22 = 2;
     int|IntType4 a23 = 3;
 
-    test:assertEquals(a21 * a21, 1);
-    test:assertEquals(a21 * a22, 2);
-    test:assertEquals(a21 * a23, 3);
-    test:assertEquals(a22 * a23, 6);
-    test:assertEquals(a23 * a23, 9);
+    assertEqual(a21 * a21, 1);
+    assertEqual(a21 * a22, 2);
+    assertEqual(a21 * a23, 3);
+    assertEqual(a22 * a23, 6);
+    assertEqual(a23 * a23, 9);
 
     FloatType2 a24 = -2;
     FloatType2 a25 = 1;
     FloatType3|float a26 = 1.25;
     float|FloatType3 a27 = 2.5;
 
-    test:assertEquals(a24 * a24, 4.0);
-    test:assertEquals(a24 * a25, -2.0);
-    test:assertEquals(a24 * a26, -2.5);
-    test:assertEquals(a24 * a27, -5.0);
-    test:assertEquals(a25 * a25, 1.0);
-    test:assertEquals(a25 * a26, 1.25);
-    test:assertEquals(a25 * a27, 2.5);
-    test:assertEquals(a26 * a26, 1.5625);
-    test:assertEquals(a26 * a27, 3.125);
-    test:assertEquals(a27 * a27, 6.25);
+    assertEqual(a24 * a24, 4.0);
+    assertEqual(a24 * a25, -2.0);
+    assertEqual(a24 * a26, -2.5);
+    assertEqual(a24 * a27, -5.0);
+    assertEqual(a25 * a25, 1.0);
+    assertEqual(a25 * a26, 1.25);
+    assertEqual(a25 * a27, 2.5);
+    assertEqual(a26 * a26, 1.5625);
+    assertEqual(a26 * a27, 3.125);
+    assertEqual(a27 * a27, 6.25);
 
     DecimalType1 a28 = 1.25;
     DecimalType3|decimal a29 = 2;
     decimal|DecimalType3 a30 = 3;
 
-    test:assertEquals(a28 * a28, 1.5625d);
-    test:assertEquals(a28 * a29, 2.5d);
-    test:assertEquals(a28 * a30, 3.75d);
-    test:assertEquals(a29 * a29, 4d);
-    test:assertEquals(a29 * a30, 6d);
-    test:assertEquals(a30 * a30, 9d);
+    assertEqual(a28 * a28, 1.5625d);
+    assertEqual(a28 * a29, 2.5d);
+    assertEqual(a28 * a30, 3.75d);
+    assertEqual(a29 * a29, 4d);
+    assertEqual(a29 * a30, 6d);
+    assertEqual(a30 * a30, 9d);
 }
 
 function testMultiplySingleton() {
@@ -252,38 +250,38 @@ function testMultiplyNullable() {
     IntType3? a28 = 2;
     IntType4? a29 = 3;
 
-    test:assertEquals(a27 * a27, 1);
-    test:assertEquals(a27 * a28, 2);
-    test:assertEquals(a27 * a29, 3);
-    test:assertEquals(a28 * a29, 6);
-    test:assertEquals(a29 * a29, 9);
+    assertEqual(a27 * a27, 1);
+    assertEqual(a27 * a28, 2);
+    assertEqual(a27 * a29, 3);
+    assertEqual(a28 * a29, 6);
+    assertEqual(a29 * a29, 9);
 
     FloatType2? a30 = -2;
     FloatType2? a31 = 1;
     FloatType3? a32 = 1.25;
     FloatType3? a33 = 2.5;
 
-    test:assertEquals(a30 * a30, 4.0);
-    test:assertEquals(a30 * a31, -2.0);
-    test:assertEquals(a30 * a32, -2.5);
-    test:assertEquals(a30 * a33, -5.0);
-    test:assertEquals(a31 * a31, 1.0);
-    test:assertEquals(a31 * a32, 1.25);
-    test:assertEquals(a31 * a33, 2.5);
-    test:assertEquals(a32 * a32, 1.5625);
-    test:assertEquals(a32 * a33, 3.125);
-    test:assertEquals(a33 * a33, 6.25);
+    assertEqual(a30 * a30, 4.0);
+    assertEqual(a30 * a31, -2.0);
+    assertEqual(a30 * a32, -2.5);
+    assertEqual(a30 * a33, -5.0);
+    assertEqual(a31 * a31, 1.0);
+    assertEqual(a31 * a32, 1.25);
+    assertEqual(a31 * a33, 2.5);
+    assertEqual(a32 * a32, 1.5625);
+    assertEqual(a32 * a33, 3.125);
+    assertEqual(a33 * a33, 6.25);
 
     DecimalType1? a34 = 1.25;
     DecimalType3? a35 = 2;
     DecimalType3? a36 = 3;
 
-    test:assertEquals(a34 * a34, 1.5625d);
-    test:assertEquals(a34 * a35, 2.5d);
-    test:assertEquals(a34 * a36, 3.75d);
-    test:assertEquals(a35 * a35, 4d);
-    test:assertEquals(a35 * a36, 6d);
-    test:assertEquals(a36 * a36, 9d);
+    assertEqual(a34 * a34, 1.5625d);
+    assertEqual(a34 * a35, 2.5d);
+    assertEqual(a34 * a36, 3.75d);
+    assertEqual(a35 * a35, 4d);
+    assertEqual(a35 * a36, 6d);
+    assertEqual(a36 * a36, 9d);
 }
 
 function assertEqual(any actual, any expected) {

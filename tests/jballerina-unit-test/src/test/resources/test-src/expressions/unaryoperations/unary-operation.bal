@@ -1,5 +1,3 @@
-import ballerina/test;
-
 function negativeIntTest() returns [int, int] {
     int x;
     int y;
@@ -167,18 +165,18 @@ function testUnaryOperationsWithNonBasicTypes() {
     anydata x11 = ~-5;
     anydata x12 = -~5;
 
-    test:assertEquals(x1, 5);
-    test:assertEquals(x2, 5);
-    test:assertEquals(x3, -5);
-    test:assertEquals(x4, 5);
-    test:assertEquals(x5, -6);
-    test:assertEquals(x6, -6);
-    test:assertEquals(x7, 5);
-    test:assertEquals(x8, 5);
-    test:assertEquals(x9, -5);
-    test:assertEquals(x10, -6);
-    test:assertEquals(x11, 4);
-    test:assertEquals(x12, 6);
+    assertEquality(x1, 5);
+    assertEquality(x2, 5);
+    assertEquality(x3, -5);
+    assertEquality(x4, 5);
+    assertEquality(x5, -6);
+    assertEquality(x6, -6);
+    assertEquality(x7, 5);
+    assertEquality(x8, 5);
+    assertEquality(x9, -5);
+    assertEquality(x10, -6);
+    assertEquality(x11, 4);
+    assertEquality(x12, 6);
 
     int i = 5;
     int? a1 = +i;
@@ -203,21 +201,21 @@ function testUnaryOperationsWithNonBasicTypes() {
     int? a14 = +-s;
     int|decimal a15 = +~s;
 
-    test:assertEquals(a1, 5);
-    test:assertEquals(a2, 5);
-    test:assertEquals(a3, -6);
-    test:assertEquals(a4, -6);
-    test:assertEquals(a5, 5);
-    test:assertEquals(a6, -5);
-    test:assertEquals(a7, -5.2);
-    test:assertEquals(a8, 5.2);
-    test:assertEquals(a9, 7.45d);
-    test:assertEquals(a10, -7.45d);
-    test:assertEquals(a11, -7.45d);
-    test:assertEquals(a12, 7.45d);
-    test:assertEquals(a13, 16);
-    test:assertEquals(a14, -16);
-    test:assertEquals(a15, -17);
+    assertEquality(a1, 5);
+    assertEquality(a2, 5);
+    assertEquality(a3, -6);
+    assertEquality(a4, -6);
+    assertEquality(a5, 5);
+    assertEquality(a6, -5);
+    assertEquality(a7, -5.2);
+    assertEquality(a8, 5.2);
+    assertEquality(a9, 7.45d);
+    assertEquality(a10, -7.45d);
+    assertEquality(a11, -7.45d);
+    assertEquality(a12, 7.45d);
+    assertEquality(a13, 16);
+    assertEquality(a14, -16);
+    assertEquality(a15, -17);
 
     int:Signed8|int:Unsigned32 a16 = 12;
     int a17 = -a16;
@@ -225,8 +223,8 @@ function testUnaryOperationsWithNonBasicTypes() {
     int:Unsigned8|int:Signed8 a18 = 10;
     int a19 = +a18;
 
-    test:assertEquals(a17, -12);
-    test:assertEquals(a19, 10);
+    assertEquality(a17, -12);
+    assertEquality(a19, 10);
 }
 
 type Ints -2|-1|0|1|2;
@@ -322,8 +320,8 @@ function testNullableUnaryExpressions() {
     int:Unsigned8|int:Signed8? a18 = 10;
     int? a19 = +a18;
 
-    test:assertEquals(a17, -12);
-    test:assertEquals(a19, 10);
+    assertEquality(a17, -12);
+    assertEquality(a19, 10);
 }
 
 function assertEquality(any actual, any expected) {

@@ -1,5 +1,3 @@
-import ballerina/test;
-
 function intDivide(int a, int b) returns (int) {
     return a / b;
 }
@@ -93,38 +91,38 @@ function testDivisionWithTypes() {
     int|IntType3 a22 = 2;
     IntType4|int a23 = 3;
 
-    test:assertEquals(a21 / a21, 1);
-    test:assertEquals(a21 / a22, 0);
-    test:assertEquals(a21 / a23, 0);
-    test:assertEquals(a22 / a23, 0);
-    test:assertEquals(a23 / a23, 1);
+    assertEqual(a21 / a21, 1);
+    assertEqual(a21 / a22, 0);
+    assertEqual(a21 / a23, 0);
+    assertEqual(a22 / a23, 0);
+    assertEqual(a23 / a23, 1);
 
     FloatType2 a24 = -2;
     FloatType2 a25 = 1;
     float|FloatType3 a26 = 1.25;
     FloatType3|float a27 = 2.5;
 
-    test:assertEquals(a24 / a24, 1.0);
-    test:assertEquals(a24 / a25, -2.0);
-    test:assertEquals(a24 / a26, -1.6);
-    test:assertEquals(a24 / a27, -0.8);
-    test:assertEquals(a25 / a25, 1.0);
-    test:assertEquals(a25 / a26, 0.8);
-    test:assertEquals(a25 / a27, 0.4);
-    test:assertEquals(a26 / a26, 1.0);
-    test:assertEquals(a26 / a27, 0.5);
-    test:assertEquals(a27 / a27, 1.0);
+    assertEqual(a24 / a24, 1.0);
+    assertEqual(a24 / a25, -2.0);
+    assertEqual(a24 / a26, -1.6);
+    assertEqual(a24 / a27, -0.8);
+    assertEqual(a25 / a25, 1.0);
+    assertEqual(a25 / a26, 0.8);
+    assertEqual(a25 / a27, 0.4);
+    assertEqual(a26 / a26, 1.0);
+    assertEqual(a26 / a27, 0.5);
+    assertEqual(a27 / a27, 1.0);
 
     DecimalType1 a28 = 1.2;
     DecimalType3|decimal a29 = 2;
     decimal|DecimalType3 a30 = 3;
 
-    test:assertEquals(a28 / a28, 1d);
-    test:assertEquals(a28 / a29, 0.6d);
-    test:assertEquals(a28 / a30, 0.4d);
-    test:assertEquals(a29 / a29, 1d);
-    test:assertEquals(a29 / a30, 0.6666666666666666666666666666666667d);
-    test:assertEquals(a30 / a30, 1d);
+    assertEqual(a28 / a28, 1d);
+    assertEqual(a28 / a29, 0.6d);
+    assertEqual(a28 / a30, 0.4d);
+    assertEqual(a29 / a29, 1d);
+    assertEqual(a29 / a30, 0.6666666666666666666666666666666667d);
+    assertEqual(a30 / a30, 1d);
 }
 
 function testDivisionSingleton() {
@@ -262,38 +260,38 @@ function testDivisionNullable() {
     IntType3? a28 = 2;
     IntType4? a29 = 3;
 
-    test:assertEquals(a27 / a27, 1);
-    test:assertEquals(a27 / a28, 0);
-    test:assertEquals(a27 / a29, 0);
-    test:assertEquals(a28 / a29, 0);
-    test:assertEquals(a29 / a29, 1);
+    assertEqual(a27 / a27, 1);
+    assertEqual(a27 / a28, 0);
+    assertEqual(a27 / a29, 0);
+    assertEqual(a28 / a29, 0);
+    assertEqual(a29 / a29, 1);
 
     FloatType2? a30 = -2;
     FloatType2? a31 = 1;
     FloatType3? a32 = 1.25;
     FloatType3? a33 = 2.5;
 
-    test:assertEquals(a30 / a30, 1.0);
-    test:assertEquals(a30 / a31, -2.0);
-    test:assertEquals(a30 / a32, -1.6);
-    test:assertEquals(a30 / a33, -0.8);
-    test:assertEquals(a31 / a31, 1.0);
-    test:assertEquals(a31 / a32, 0.8);
-    test:assertEquals(a31 / a33, 0.4);
-    test:assertEquals(a32 / a32, 1.0);
-    test:assertEquals(a32 / a33, 0.5);
-    test:assertEquals(a33 / a33, 1.0);
+    assertEqual(a30 / a30, 1.0);
+    assertEqual(a30 / a31, -2.0);
+    assertEqual(a30 / a32, -1.6);
+    assertEqual(a30 / a33, -0.8);
+    assertEqual(a31 / a31, 1.0);
+    assertEqual(a31 / a32, 0.8);
+    assertEqual(a31 / a33, 0.4);
+    assertEqual(a32 / a32, 1.0);
+    assertEqual(a32 / a33, 0.5);
+    assertEqual(a33 / a33, 1.0);
 
     DecimalType1? a34 = 1.2;
     DecimalType3? a35 = 2;
     DecimalType3? a36 = 3;
 
-    test:assertEquals(a34 / a34, 1d);
-    test:assertEquals(a34 / a35, 0.6d);
-    test:assertEquals(a34 / a36, 0.4d);
-    test:assertEquals(a35 / a35, 1d);
-    test:assertEquals(a35 / a36, 0.6666666666666666666666666666666667d);
-    test:assertEquals(a36 / a36, 1d);
+    assertEqual(a34 / a34, 1d);
+    assertEqual(a34 / a35, 0.6d);
+    assertEqual(a34 / a36, 0.4d);
+    assertEqual(a35 / a35, 1d);
+    assertEqual(a35 / a36, 0.6666666666666666666666666666666667d);
+    assertEqual(a36 / a36, 1d);
 }
 
 function assertEqual(any actual, any expected) {
