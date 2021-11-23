@@ -61,7 +61,8 @@ public class ConfigSchemaGenTask implements AnalysisTask<CompilationAnalysisCont
         if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
             path = Paths.get(System.getProperty("user.dir"));
         } else {
-            path = project.targetDir().resolve(ProjectConstants.BIN_DIR_NAME);
+            path = project.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                    .resolve(ProjectConstants.BIN_DIR_NAME);
         }
         if (path != null && !schema.isEmpty()) {
             Path configSchemaFile = path.resolve(CONFIG_SCHEMA);

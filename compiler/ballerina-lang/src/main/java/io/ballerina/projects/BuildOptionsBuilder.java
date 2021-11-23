@@ -105,6 +105,11 @@ public class BuildOptionsBuilder {
         return this;
     }
 
+    public BuildOptionsBuilder configSchemaGen(Boolean value) {
+        compilationOptionsBuilder.configSchemaGen(value);
+        return this;
+    }
+
     public BuildOptions build() {
         CompilationOptions compilationOptions = compilationOptionsBuilder.build();
         return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions);

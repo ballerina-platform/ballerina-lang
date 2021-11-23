@@ -445,7 +445,7 @@ public class BuildCommand implements BLauncherCmd {
                 .listConflictedClasses(listConflictedClasses)
                 .dumpBuildTime(dumpBuildTime)
                 .sticky(sticky)
-                .setConfigSchemaGen(configSchemaGen);
+                .configSchemaGen(configSchemaGen)
                 .build();
     }
 

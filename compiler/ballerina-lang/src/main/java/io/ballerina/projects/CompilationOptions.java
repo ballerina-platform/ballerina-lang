@@ -166,9 +166,9 @@ public class CompilationOptions {
             compilationOptionsBuilder.withCodeGenerators(this.withCodeGenerators);
         }
         if (theirOptions.configSchemaGen != null) {
-            compilationOptionsBuilder.setConfigSchemaGen(theirOptions.configSchemaGen);
+            compilationOptionsBuilder.configSchemaGen(theirOptions.configSchemaGen);
         } else {
-            compilationOptionsBuilder.setConfigSchemaGen(this.configSchemaGen);
+            compilationOptionsBuilder.configSchemaGen(this.configSchemaGen);
         }
         return compilationOptionsBuilder.build();
     }

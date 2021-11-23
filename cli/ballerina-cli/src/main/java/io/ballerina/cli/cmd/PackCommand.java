@@ -299,7 +299,7 @@ public class PackCommand implements BLauncherCmd {
                 .dumpRawGraphs(dumpRawGraphs)
                 .dumpBuildTime(dumpBuildTime)
                 .sticky(sticky)
-                .setConfigSchemaGen(configSchemaGen);
+                .configSchemaGen(configSchemaGen)
                 .build();
     }
 

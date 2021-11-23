@@ -231,7 +231,7 @@ public class RunCommand implements BLauncherCmd {
                 .sticky(sticky)
                 .dumpGraph(dumpGraph)
                 .dumpRawGraphs(dumpRawGraphs)
-                .setConfigSchemaGen(configSchemaGen)
+                .configSchemaGen(configSchemaGen)
                 .build();
     }
 }
