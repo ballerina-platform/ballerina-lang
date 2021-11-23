@@ -1459,7 +1459,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             }
             constrainedType = new BXMLType(constraintType, null);
         } else {
-            return symTable.neverType; // KRV change
+            return symTable.neverType;
         }
 
         BTypeSymbol typeSymbol = type.tsymbol;

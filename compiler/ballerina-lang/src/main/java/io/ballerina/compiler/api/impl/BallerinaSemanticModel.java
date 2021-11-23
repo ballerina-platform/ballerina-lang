@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -372,10 +373,6 @@ public class BallerinaSemanticModel implements SemanticModel {
         return Optional.ofNullable(symbolFactory.getBCompiledSymbol(symbolAtCursor,
                                                                     symbolAtCursor.getOriginalName().getValue()));
     }
-
-//    private boolean isInLineErrorType(BTypeSymbol symbol) {
-//        return symbol.type.tag == TypeTags.ERROR && !symbol.isLabel;
-//    }
 
     private boolean hasCursorPosPassedSymbolPos(BSymbol symbol, Location cursorPos) {
         if (symbol.origin != SOURCE) {
