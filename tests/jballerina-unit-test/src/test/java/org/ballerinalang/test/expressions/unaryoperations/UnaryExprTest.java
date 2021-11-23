@@ -206,7 +206,7 @@ public class UnaryExprTest {
 
     @Test(description = "Test unary statement with errors")
     public void testUnaryStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 18);
+        Assert.assertEquals(resultNegative.getErrorCount(), 19);
         BAssertUtil.validateError(resultNegative, 0, "operator '+' not defined for 'json'", 5, 10);
         BAssertUtil.validateError(resultNegative, 1, "operator '-' not defined for 'json'", 14, 10);
         BAssertUtil.validateError(resultNegative, 2, "operator '!' not defined for 'json'", 23, 10);
@@ -227,10 +227,11 @@ public class UnaryExprTest {
                 56, 11);
         BAssertUtil.validateError(resultNegative, 13, "incompatible types: expected 'B', found 'float'",
                 59, 11);
-        BAssertUtil.validateError(resultNegative, 14, "operator '-' not defined for 'C'", 73, 13);
-        BAssertUtil.validateError(resultNegative, 15, "operator '-' not defined for 'D'", 76, 13);
-        BAssertUtil.validateError(resultNegative, 16, "operator '+' not defined for '(decimal|DecimalType1)'", 79, 24);
-        BAssertUtil.validateError(resultNegative, 17, "operator '-' not defined for 'DecimalType1'", 82, 24);
+        BAssertUtil.validateError(resultNegative, 14, "operator '-' not defined for 'C'", 74, 13);
+        BAssertUtil.validateError(resultNegative, 15, "operator '-' not defined for 'D'", 77, 13);
+        BAssertUtil.validateError(resultNegative, 16, "operator '+' not defined for '(decimal|DecimalType1)'", 80, 24);
+        BAssertUtil.validateError(resultNegative, 17, "operator '-' not defined for 'DecimalType1'", 83, 24);
+        BAssertUtil.validateError(resultNegative, 18, "operator '+' not defined for '(decimal|DecimalType2)'", 86, 24);
     }
 
     @AfterClass
