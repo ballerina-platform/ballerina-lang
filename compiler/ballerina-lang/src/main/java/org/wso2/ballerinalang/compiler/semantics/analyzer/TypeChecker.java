@@ -1410,7 +1410,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             List<BType> compatibleTypes = new ArrayList<>();
             boolean erroredExpType = false;
-            boolean CannotInferArraySize = false;
+            boolean cannotInferArraySize = false;
             for (BType memberType : ((BUnionType) bType).getMemberTypes()) {
                 if (memberType == symTable.semanticError) {
                     if (!erroredExpType) {
@@ -1436,11 +1436,11 @@ public class TypeChecker extends BLangNodeVisitor {
                     dlog.error(listCompatibleMemType.tsymbol.pos, DiagnosticErrorCode.CANNOT_INFER_ARRAY_SIZE,
                             listCompatibleMemType);
                     this.dlog.mute();
-                    CannotInferArraySize = true;
+                    cannotInferArraySize = true;
                 }
             }
 
-            if (CannotInferArraySize) {
+            if (cannotInferArraySize) {
                 this.dlog.unmute();
                 return symTable.semanticError;
             }
