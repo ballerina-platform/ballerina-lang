@@ -30,7 +30,7 @@
           "value": "**Package:** _ballerina/lang.error:0.0.0_  \n  \nConverts an error to a string that describes the value in Ballerina syntax.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "toBalString",
       "insertText": "toBalString()",
       "insertTextFormat": "Snippet"
@@ -45,7 +45,7 @@
           "value": "**Package:** _ballerina/lang.error:0.0.0_  \n  \nConverts an error to a string.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "toString",
       "insertText": "toString()",
       "insertTextFormat": "Snippet"
@@ -53,14 +53,14 @@
     {
       "label": "detail()",
       "kind": "Function",
-      "detail": "error:Detail & readonly",
+      "detail": "error:DetailType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.error:0.0.0_  \n  \nReturns the error's detail record.\n\nThe returned value will be immutable.  \n  \n  \n**Return** `error:Detail & readonly`   \n- error detail value  \n  \n"
+          "value": "**Package:** _ballerina/lang.error:0.0.0_  \n  \nReturns the error's detail record.\n\nThe returned value will be immutable.  \n  \n  \n**Return** `error:DetailType`   \n- error detail value  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "detail",
       "insertText": "detail()",
       "insertTextFormat": "Snippet"
@@ -68,14 +68,14 @@
     {
       "label": "stackTrace()",
       "kind": "Function",
-      "detail": "error:StackFrame[]",
+      "detail": "error:CallStack",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.error:0.0.0_  \n  \nReturns an object representing the stack trace of the error.\n  \n  \n  \n**Return** `error:StackFrame[]`   \n- a new object representing the stack trace of the error value  \nThe first member of the array represents the top of the call stack.  \n  \n"
+          "value": "**Package:** _ballerina/lang.error:0.0.0_  \n  \nReturns an object representing the stack trace of the error.\n  \n  \n  \n**Return** `error:CallStack`   \n- a new object representing the stack trace of the error value  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "stackTrace",
       "insertText": "stackTrace()",
       "insertTextFormat": "Snippet"
@@ -90,7 +90,7 @@
           "value": "**Package:** _ballerina/lang.error:0.0.0_  \n  \nReturns the error's message.\n  \n  \n  \n**Return** `string`   \n- error message  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "message",
       "insertText": "message()",
       "insertTextFormat": "Snippet"
@@ -105,7 +105,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "cloneReadOnly",
       "insertText": "cloneReadOnly()",
       "insertTextFormat": "Snippet"
@@ -120,7 +120,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType`   \n- clone of parameter `v`  \n  \n"
         }
       },
-      "sortText": "BD",
+      "sortText": "CD",
       "filterText": "clone",
       "insertText": "clone()",
       "insertTextFormat": "Snippet"

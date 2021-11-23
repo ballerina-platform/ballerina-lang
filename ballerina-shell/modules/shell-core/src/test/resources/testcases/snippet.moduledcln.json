@@ -1,6 +1,6 @@
 [
   {
-    "input": "function printValue(string value) { };",
+    "input": "function printValue(string value) { }",
     "accepted": true
   },
   {
@@ -12,7 +12,7 @@
     "accepted": true
   },
   {
-    "input": "service hello on new http:Listener(9090) { };",
+    "input": "service hello on new http:Listener(9090) { }",
     "accepted": false
   },
   {
@@ -24,7 +24,7 @@
     "accepted": true
   },
   {
-    "input": "class Person { };",
+    "input": "class Person { }",
     "accepted": true
   }
 ]

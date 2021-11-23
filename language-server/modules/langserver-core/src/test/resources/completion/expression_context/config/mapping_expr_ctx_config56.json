@@ -16,7 +16,7 @@
     {
       "label": "rec2",
       "kind": "Variable",
-      "detail": "TestRecord",
+      "detail": "TestRecord2",
       "sortText": "AB",
       "insertText": "rec2",
       "insertTextFormat": "Snippet"
@@ -50,6 +50,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "BO",
+      "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
@@ -58,6 +59,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "CR",
+      "filterText": "test",
       "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -81,6 +83,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "CR",
+      "filterText": "array",
       "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -104,6 +107,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "CR",
+      "filterText": "java",
       "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -127,6 +131,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "CR",
+      "filterText": "value",
       "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -150,6 +155,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "CR",
+      "filterText": "runtime",
       "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [

@@ -29,7 +29,6 @@ import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.ConstrainedType;
 import org.ballerinalang.model.types.IntersectableReferenceType;
-import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
@@ -57,6 +56,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -136,7 +137,7 @@ public class BIRPackageSymbolEnter {
     private BStructureTypeSymbol currentStructure = null;
     private LinkedList<Object> compositeStack = new LinkedList<>();
 
-    private static final int SERVICE_TYPE_TAG = 52;
+    private static final int SERVICE_TYPE_TAG = 53;
 
     private static final CompilerContext.Key<BIRPackageSymbolEnter> COMPILED_PACKAGE_SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
@@ -261,7 +262,8 @@ public class BIRPackageSymbolEnter {
         for (BStructureTypeSymbol structureTypeSymbol : this.structureTypes) {
             if (structureTypeSymbol.type.tag == TypeTags.OBJECT) {
                 BObjectType objectType = (BObjectType) structureTypeSymbol.type;
-                for (BType typeRef : objectType.typeInclusions) {
+                for (BType ref : objectType.typeInclusions) {
+                    BType typeRef = types.getReferredType(ref);
                     if (typeRef.tsymbol == null || typeRef.tsymbol.kind != SymbolKind.OBJECT) {
                         continue;
                     }
@@ -397,7 +399,7 @@ public class BIRPackageSymbolEnter {
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
         if (this.currentStructure != null) {
-            BType attachedType = this.currentStructure.type;
+            BType attachedType = types.getReferredType(this.currentStructure.type);
 
             // Update the symbol
             invokableSymbol.owner = attachedType.tsymbol;
@@ -458,7 +460,6 @@ public class BIRPackageSymbolEnter {
         String typeDefOrigName = getStringCPEntryValue(dataInStream);
 
         var flags = dataInStream.readLong();
-        boolean isLabel = dataInStream.readByte() == 1;
         byte origin = dataInStream.readByte();
 
         byte[] docBytes = readDocBytes(dataInStream);
@@ -467,35 +468,50 @@ public class BIRPackageSymbolEnter {
         dataInStream.skip(dataInStream.readLong());
 
         BType type = readBType(dataInStream);
+
+        BType referenceType = null;
+        boolean hasReferenceType = dataInStream.readBoolean();
+        if (hasReferenceType) {
+            referenceType = readBType(dataInStream);
+        }
+
         if (type.tag == TypeTags.INVOKABLE) {
             setInvokableTypeSymbol((BInvokableType) type);
         }
 
         // Temp solution to add abstract flag if available TODO find a better approach
-        flags = Symbols.isFlagOn(type.tsymbol.flags, Flags.CLASS) ? flags | Flags.CLASS : flags;
+        boolean isClass = Symbols.isFlagOn(type.tsymbol.flags, Flags.CLASS);
+        flags = isClass ? flags | Flags.CLASS : flags;
 
         // Temp solution to add client flag if available TODO find a better approach
         flags = Symbols.isFlagOn(type.tsymbol.flags, Flags.CLIENT) ? flags | Flags.CLIENT : flags;
 
-        BTypeSymbol symbol;
-        if (isLabel) {
-            symbol = type.tsymbol.createLabelSymbol();
-        } else {
+        BSymbol symbol;
+        if (isClass || Symbols.isFlagOn(type.tsymbol.flags, Flags.ENUM)) {
             symbol = type.tsymbol;
+            symbol.pos = pos;
+        } else {
+            symbol = Symbols.createTypeDefinitionSymbol(flags, names.fromString(typeDefName),
+                    this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol, pos, COMPILED_SOURCE);
+            ((BTypeDefinitionSymbol) symbol).referenceType = (BTypeReferenceType) referenceType;
         }
+        symbol.originalName = names.fromString(typeDefOrigName);
+        symbol.origin = toOrigin(origin);
+        symbol.flags = flags;
 
         defineMarkDownDocAttachment(symbol, docBytes);
 
-        symbol.name = names.fromString(typeDefName);
-        symbol.originalName = names.fromString(typeDefOrigName);
-        symbol.type = type;
-        symbol.pkgID = this.env.pkgSymbol.pkgID;
-        symbol.flags = flags;
-        symbol.origin = toOrigin(origin);
-        symbol.pos = pos;
+        if (type.tsymbol.name == Names.EMPTY && type.tag != TypeTags.INVOKABLE) {
+            type.tsymbol.name = symbol.name;
+            type.tsymbol.originalName = symbol.originalName;
+        }
 
         if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
-            this.structureTypes.add((BStructureTypeSymbol) symbol);
+            if (!isClass) {
+                ((BStructureTypeSymbol) type.tsymbol).typeDefinitionSymbol = (BTypeDefinitionSymbol) symbol;
+            }
+            type.tsymbol.origin = toOrigin(origin);
+            this.structureTypes.add((BStructureTypeSymbol) type.tsymbol);
         }
 
         this.env.pkgSymbol.scope.define(symbol.name, symbol);
@@ -640,7 +656,7 @@ public class BIRPackageSymbolEnter {
 
         this.env.pkgSymbol.scope.define(annotationSymbol.name, annotationSymbol);
         if (annotationType != symTable.noType) { //TODO fix properly
-            annotationSymbol.attachedType = annotationType.tsymbol;
+            annotationSymbol.attachedType = annotationType;
         }
     }
 
@@ -665,15 +681,15 @@ public class BIRPackageSymbolEnter {
         // read and ignore constant value's byte chunk length.
         dataInStream.readLong();
 
-        constantSymbol.value = readConstLiteralValue(dataInStream);
+        BType constantValType = readBType(dataInStream);
+        constantSymbol.value = readConstLiteralValue(constantValType, dataInStream);
         constantSymbol.literalType = constantSymbol.value.type;
 
         // Define constant.
         enclScope.define(constantSymbol.name, constantSymbol);
     }
 
-    private BLangConstantValue readConstLiteralValue(DataInputStream dataInStream) throws IOException {
-        BType valueType = readBType(dataInStream);
+    private BLangConstantValue readConstLiteralValue(BType valueType, DataInputStream dataInStream) throws IOException {
         switch (valueType.tag) {
             case TypeTags.INT:
                 return new BLangConstantValue(getIntCPEntryValue(dataInStream), symTable.intType);
@@ -694,10 +710,13 @@ public class BIRPackageSymbolEnter {
                 Map<String, BLangConstantValue> keyValuePairs = new LinkedHashMap<>();
                 for (int i = 0; i < size; i++) {
                     String key = getStringCPEntryValue(dataInStream);
-                    BLangConstantValue value = readConstLiteralValue(dataInStream);
+                    BType type = readBType(dataInStream);
+                    BLangConstantValue value = readConstLiteralValue(type, dataInStream);
                     keyValuePairs.put(key, value);
                 }
                 return new BLangConstantValue(keyValuePairs, valueType);
+            case TypeTags.TYPEREFDESC:
+                return readConstLiteralValue(types.getReferredType(valueType), dataInStream);
             default:
                 // TODO implement for other types
                 throw new RuntimeException("unexpected type: " + valueType);
@@ -1125,6 +1144,23 @@ public class BIRPackageSymbolEnter {
                     typedescType.constraint = readTypeFromCp();
                     typedescType.flags = flags;
                     return typedescType;
+                case TypeTags.TYPEREFDESC:
+                    int pkgIndex = inputStream.readInt();
+                    PackageID pkg = getPackageId(pkgIndex);
+
+                    String typeDefName = getStringCPEntryValue(inputStream);
+                    BTypeSymbol typeSymbol = Symbols.createTypeSymbol(SymTag.TYPE_REF,
+                            Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                            names.fromString(typeDefName), env.pkgSymbol.pkgID, null, env.pkgSymbol,
+                            symTable.builtinPos, COMPILED_SOURCE);
+                    BTypeReferenceType typeReferenceType = new BTypeReferenceType(null, typeSymbol, flags);
+                    addShapeCP(typeReferenceType, cpI);
+                    compositeStack.push(typeReferenceType);
+                    typeReferenceType.referredType = readTypeFromCp();
+
+                    Object poppedRefType = compositeStack.pop();
+                    assert poppedRefType == typeReferenceType;
+                    return typeReferenceType;
                 case TypeTags.PARAMETERIZED_TYPE:
                     BParameterizedType type = new BParameterizedType(null, null, null, name, -1);
                     type.paramValueType = readTypeFromCp();
@@ -1408,6 +1444,9 @@ public class BIRPackageSymbolEnter {
                     if (isImmutable(flags)) {
                         objectSymbol.flags |= Flags.READONLY;
                     }
+                    if (Symbols.isFlagOn(flags, Flags.ANONYMOUS)) {
+                        objectSymbol.flags |= Flags.ANONYMOUS;
+                    }
                     objectType.flags = flags;
                     objectSymbol.type = objectType;
                     addShapeCP(objectType, cpI);
@@ -1668,13 +1707,13 @@ public class BIRPackageSymbolEnter {
     }
 
     private BType getEffectiveImmutableType(BType type) {
-        return ImmutableTypeCloner.getEffectiveImmutableType(null, types, (SelectivelyImmutableReferenceType) type,
+        return ImmutableTypeCloner.getEffectiveImmutableType(null, types, type,
                 type.tsymbol.pkgID, type.tsymbol.owner,
                 symTable, null, names);
     }
 
     private BType getEffectiveImmutableType(BType type, PackageID pkgID, BSymbol owner) {
-        return ImmutableTypeCloner.getEffectiveImmutableType(null, types, (SelectivelyImmutableReferenceType) type,
-                pkgID, owner, symTable, null, names);
+        return ImmutableTypeCloner.getEffectiveImmutableType(null, types, type, pkgID, owner, symTable,
+                null, names);
     }
 }

@@ -25,7 +25,7 @@ dependencies {
     implementation project(':central-client')
     implementation project(':maven-resolver')
     implementation 'com.moandjiezana.toml:toml4j'
-    implementation 'org.apache.commons:commons-compress:1.21'
+    implementation "org.apache.commons:commons-compress:${project.apacheCommonsCompressVersion}"
     implementation 'io.netty:netty-buffer'
     implementation 'org.ow2.asm:asm'
     implementation 'commons-io:commons-io'
@@ -34,8 +34,8 @@ dependencies {
         because("We use this library to execute package resolution tests")
     }
     testCompile 'org.testng:testng'
-    testCompile "org.mockito:mockito-core:2.1.0"
-    testImplementation 'org.mockito:mockito-core:2.1.0'
+    testCompile "org.mockito:mockito-core:${project.mockitoCoreVersion}"
+    testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
 }
 
 description = 'Ballerina - Lang'

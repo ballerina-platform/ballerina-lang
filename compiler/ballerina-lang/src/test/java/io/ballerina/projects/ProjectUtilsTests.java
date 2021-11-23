@@ -25,6 +25,7 @@ import io.ballerina.projects.util.ProjectUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -46,7 +47,7 @@ public class ProjectUtilsTests {
     @BeforeClass
     public void setUp() throws IOException {
         tempDirectory = Files.createTempDirectory("b7a-project-utils-test-" + System.nanoTime());
-        buildJson = new BuildJson(1629359520, 1629259520);
+        buildJson = new BuildJson(1629359520, 1629259520, RepoUtils.getBallerinaShortVersion());
     }
 
     @Test
@@ -56,6 +57,7 @@ public class ProjectUtilsTests {
             BuildJson buildJson = ProjectUtils.readBuildJson(buildFilePath);
             Assert.assertEquals(buildJson.lastBuildTime(), 1629359520);
             Assert.assertEquals(buildJson.lastUpdateTime(), 1629259520);
+            Assert.assertEquals(buildJson.distributionVersion(), "slbeta4");
         } catch (Exception e) {
             Assert.fail("Reading Build Json failed");
         }
@@ -76,5 +78,4 @@ public class ProjectUtilsTests {
             ProjectUtils.readBuildJson(buildFilePath);
         });
     }
-
 }

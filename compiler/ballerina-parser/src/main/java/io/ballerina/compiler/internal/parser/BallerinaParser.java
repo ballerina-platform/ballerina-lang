@@ -101,6 +101,33 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Completely parses a given input a statement.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsStatement() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.FUNC_BODY_BLOCK);
+        STNode stmt = parseStatement();
+
+        if (stmt == null || validateStatement(stmt)) {
+            stmt = createMissingSimpleVarDecl(false);
+            stmt = invalidateRestAndAddToTrailingMinutiae(stmt);
+            return stmt;
+        }
+
+        if (stmt.kind == SyntaxKind.NAMED_WORKER_DECLARATION) {
+            addInvalidNodeToNextToken(stmt, DiagnosticErrorCode.ERROR_NAMED_WORKER_NOT_ALLOWED_HERE);
+            stmt = createMissingSimpleVarDecl(false);
+            stmt = invalidateRestAndAddToTrailingMinutiae(stmt);
+            return stmt;
+        }
+
+        stmt = invalidateRestAndAddToTrailingMinutiae(stmt);
+        return stmt;
+    }
+
+    /**
      * Completely parses a given input as statements.
      *
      * @return Parsed node
@@ -146,6 +173,100 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Completely parses a given input as an action or expression.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsActionOrExpression() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.FUNC_DEF);
+        startContext(ParserRuleContext.FUNC_BODY_BLOCK);
+        startContext(ParserRuleContext.VAR_DECL_STMT);
+        STNode actionOrExpr = parseActionOrExpression();
+
+        actionOrExpr = invalidateRestAndAddToTrailingMinutiae(actionOrExpr);
+        return actionOrExpr;
+    }
+
+    /**
+     * Completely parses a given input as a module member declaration.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsModuleMemberDeclaration() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        STNode topLevelNode = parseTopLevelNode();
+
+        if (topLevelNode == null) {
+            topLevelNode = createMissingSimpleVarDecl(true);
+        }
+
+        if (topLevelNode.kind == SyntaxKind.IMPORT_DECLARATION) {
+            STNode temp = topLevelNode;
+            topLevelNode = createMissingSimpleVarDecl(true);
+            topLevelNode = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(topLevelNode, temp);
+        }
+
+        topLevelNode = invalidateRestAndAddToTrailingMinutiae(topLevelNode);
+        return topLevelNode;
+    }
+
+    /**
+     * Completely parses a given input as an import declaration.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsImportDeclaration() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        STNode importDecl = parseImportDecl();
+
+        importDecl = invalidateRestAndAddToTrailingMinutiae(importDecl);
+        return importDecl;
+    }
+
+    /**
+     * Completely parses a given input as a type descriptor.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsTypeDescriptor() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.MODULE_TYPE_DEFINITION);
+        STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_DEF);
+
+        typeDesc = invalidateRestAndAddToTrailingMinutiae(typeDesc);
+        return typeDesc;
+    }
+
+    /**
+     * Completely parses a given input as a binding pattern.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsBindingPattern() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.VAR_DECL_STMT);
+        STNode bindingPattern = parseBindingPattern();
+
+        bindingPattern = invalidateRestAndAddToTrailingMinutiae(bindingPattern);
+        return bindingPattern;
+    }
+
+    /**
+     * Completely parses a given input as a function body block.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsFunctionBodyBlock() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.FUNC_DEF);
+        STNode funcBodyBlock = parseFunctionBodyBlock(false);
+
+        funcBodyBlock = invalidateRestAndAddToTrailingMinutiae(funcBodyBlock);
+        return funcBodyBlock;
+    }
+
+    /**
      * Start parsing the input from a given context. Supported starting points are:
      * <ul>
      * <li>Module part (a file)</li>
@@ -168,10 +289,6 @@ public class BallerinaParser extends AbstractParser {
                 startContext(ParserRuleContext.COMP_UNIT);
                 startContext(ParserRuleContext.FUNC_BODY_BLOCK);
                 return parseStatement();
-            case STATEMENTS:
-                startContext(ParserRuleContext.COMP_UNIT);
-                startContext(ParserRuleContext.FUNC_BODY_BLOCK);
-                return parseStatements();
             case EXPRESSION:
                 startContext(ParserRuleContext.COMP_UNIT);
                 startContext(ParserRuleContext.VAR_DECL_STMT);
@@ -4190,7 +4307,7 @@ public class BallerinaParser extends AbstractParser {
      * Invalidate top-level nodes which are allowed to be parsed as statements to improve the error messages.
      *
      * @param statement Statement to validate
-     * @return <code>true</code> if the statement is valid <code>false</code> otherwise
+     * @return <code>true</code> if the statement is not valid <code>false</code> otherwise
      */
     boolean validateStatement(STNode statement) {
         switch (statement.kind) {
@@ -5574,7 +5691,6 @@ public class BallerinaParser extends AbstractParser {
             case SYNC_SEND_TOKEN:
             case ANNOT_CHAINING_TOKEN:
             case OPTIONAL_CHAINING_TOKEN:
-            case QUESTION_MARK_TOKEN:
             case COLON_TOKEN:
             case DOT_LT_TOKEN:
             case SLASH_LT_TOKEN:
@@ -5582,6 +5698,9 @@ public class BallerinaParser extends AbstractParser {
             case SLASH_ASTERISK_TOKEN:
             case NOT_IS_KEYWORD:
                 return true;
+            case QUESTION_MARK_TOKEN:
+                // TODO : Should fix properly #33259
+                return getNextNextToken().kind != SyntaxKind.EQUAL_TOKEN && peek(3).kind != SyntaxKind.EQUAL_TOKEN;
             default:
                 return isBinaryOperator(tokenKind);
         }
@@ -8568,8 +8687,14 @@ public class BallerinaParser extends AbstractParser {
         // Validate the array length expression
         STNode lengthExpr = lengthExprs.get(0);
         switch (lengthExpr.kind) {
-            case ASTERISK_LITERAL:
             case SIMPLE_NAME_REFERENCE:
+                STSimpleNameReferenceNode nameRef = (STSimpleNameReferenceNode) lengthExpr;
+                if (nameRef.name.isMissing()) {
+                    return createArrayTypeDesc(memberTypeDesc, indexedExpr.openBracket, STNodeFactory.createEmptyNode(),
+                            indexedExpr.closeBracket);
+                }
+                break;
+            case ASTERISK_LITERAL:
             case QUALIFIED_NAME_REFERENCE:
                 break;
             case NUMERIC_LITERAL:
@@ -15263,6 +15388,7 @@ public class BallerinaParser extends AbstractParser {
         STNode memberEnd;
         while (!isEndOfListConstructor(peek().kind)) {
             STNode expr = parseTypeDescOrExpr();
+            expr = getTypeDescFromExpr(expr);
             // Tuple type desc can contain rest descriptor which is not a regular type desc,
             // hence handle it here.
             if (peek().kind == SyntaxKind.ELLIPSIS_TOKEN && isDefiniteTypeDesc(expr.kind)) {

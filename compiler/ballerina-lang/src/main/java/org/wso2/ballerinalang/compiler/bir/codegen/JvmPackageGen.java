@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.objectweb.asm.ClassTooLargeException;
 import org.objectweb.asm.ClassWriter;
@@ -58,6 +59,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
@@ -518,7 +520,7 @@ public class JvmPackageGen {
         List<BIRTypeDefinition> typeDefs = module.typeDefs;
 
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = optionalTypeDef.type;
+            BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
 
             if ((bType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS))) {
                 continue;
@@ -705,7 +707,14 @@ public class JvmPackageGen {
             BPackageSymbol symbol = packageCache.getSymbol(id.orgName + "/" + id.name);
             if (symbol != null) {
                 Name lookupKey = new Name(IdentifierUtils.decodeIdentifier(objectNewIns.objectName));
-                BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) symbol.scope.lookup(lookupKey).symbol;
+                BSymbol typeSymbol = symbol.scope.lookup(lookupKey).symbol;
+                BObjectTypeSymbol objectTypeSymbol;
+                if (typeSymbol.kind == SymbolKind.TYPE_DEF) {
+                    objectTypeSymbol = (BObjectTypeSymbol) typeSymbol.type.tsymbol;
+                } else {
+                    //class symbols
+                    objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
+                }
                 if (objectTypeSymbol != null) {
                     return objectTypeSymbol.type;
                 }

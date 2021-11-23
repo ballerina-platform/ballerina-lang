@@ -18,35 +18,46 @@
 
 package io.ballerina.shell.parser.trials;
 
+import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
+import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.shell.parser.TrialTreeParser;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 /**
- * Attempts to parse source as a expression.
+ * Attempts to parse source as an expression.
  *
  * @since 2.0.0
  */
-public class ExpressionTrial extends StatementTrial {
+public class ExpressionTrial extends TreeParserTrial {
+
+    private static final String SEMICOLON = ";";
+
     public ExpressionTrial(TrialTreeParser parentParser) {
         super(parentParser);
     }
 
     @Override
-    public Node parse(String source) throws ParserTrialFailedException {
-        // TODO: [Bug in Parser] a >>= 4 gets accepted as a >> 4 (#28317)
-        String statementCode = String.format("return %s", source);
-        Node statement = super.parseSource(statementCode);
-
-        assertIf(statement instanceof ReturnStatementNode, "expected a return statement");
-        assert statement instanceof ReturnStatementNode;
-        ReturnStatementNode returnStatement = (ReturnStatementNode) statement;
-        assertIf(returnStatement.expression().isPresent(), "expected an expression on return");
-        ExpressionNode expressionNode = returnStatement.expression().get();
-        // TEMP FIX
-        assertIf(!source.contains(">>=") || expressionNode.toSourceCode().contains(">>="), "" +
-                "Compound statement is not an expression.");
-        return expressionNode;
+    public Collection<Node> parse(String source) throws ParserTrialFailedException {
+        Collection<Node> nodes = new ArrayList<>();
+        ExpressionNode expressionNode;
+        Node parsedNode;
+        if (source.endsWith(SEMICOLON)) {
+            parsedNode = NodeParser.parseStatements("assignment = " + source).get(0);
+        } else {
+            parsedNode = NodeParser.parseStatements("assignment = " + source + ";").get(0);
+        }
+        if (parsedNode.hasDiagnostics()) {
+            throw new ParserTrialFailedException("Error occurred during parsing node as statement node");
+        }
+        expressionNode = ((AssignmentStatementNode) parsedNode).expression();
+        if (expressionNode.hasDiagnostics()) {
+            throw new ParserTrialFailedException("Error occurred during extracting expression from the statement");
+        }
+        nodes.add(expressionNode);
+        return nodes;
     }
 }

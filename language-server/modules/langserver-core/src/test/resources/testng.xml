@@ -50,9 +50,9 @@ under the License.
             <package name="org.ballerinalang.langserver.semantictokens.*"/>
             <package name="org.ballerinalang.langserver.documentsymbol.*"/>
             <package name="org.ballerinalang.langserver.performance.*"/>
+            <package name="org.ballerinalang.langserver.workspace.*"/>
         </packages>
         <classes>
-            <class name="org.ballerinalang.langserver.workspace.TestWorkspaceManager"/>
             <class name="org.ballerinalang.langserver.extensions.document.SyntaxTreeByRangeTest"/>
             <class name="org.ballerinalang.langserver.extensions.document.SyntaxTreeLocateTest"/>
             <class name="org.ballerinalang.langserver.extensions.document.SyntaxApiCallsGenTest"/>

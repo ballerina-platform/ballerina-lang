@@ -20,9 +20,11 @@ package io.ballerina.compiler.api.impl;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.projects.Document;
@@ -354,11 +356,10 @@ public class BallerinaSemanticModel implements SemanticModel {
             return Optional.empty();
         }
 
-        if (isTypeSymbol(symbolAtCursor) &&
-                ((isInlineSingletonType((BTypeSymbol) symbolAtCursor))
-                        || isCursorPosAtDefinition(compilationUnit, symbolAtCursor, position))) {
+        if (isTypeSymbol(symbolAtCursor) && ((isInlineSingletonType(symbolAtCursor))
+                || isCursorPosAtDefinition(compilationUnit, symbolAtCursor, position))) {
             return Optional.ofNullable(
-                    typesFactory.getTypeDescriptor(symbolAtCursor.type, (BTypeSymbol) symbolAtCursor));
+                    typesFactory.getTypeDescriptor(symbolAtCursor.type, symbolAtCursor));
         }
 
         return Optional.ofNullable(symbolFactory.getBCompiledSymbol(symbolAtCursor,
@@ -422,21 +423,28 @@ public class BallerinaSemanticModel implements SemanticModel {
                 && PositionUtil.withinBlock(cursorPos, symbolAtCursor.pos));
     }
 
-
-    private boolean isInlineSingletonType(BTypeSymbol symbol) {
-        // !symbol.isLabel is checked to exclude type defs
-        return symbol.type.tag == TypeTags.FINITE && !symbol.isLabel
-                && ((BFiniteType) symbol.type).getValueSpace().size() == 1;
+    private boolean isInlineSingletonType(BSymbol symbol) {
+        // !(symbol.kind == SymbolKind.TYPE_DEF) is checked to exclude type defs
+        return !(symbol.kind == SymbolKind.TYPE_DEF) && symbol.type.tag == TypeTags.FINITE &&
+                ((BFiniteType) symbol.type).getValueSpace().size() == 1;
     }
 
-    private boolean isTypeSymbol(BSymbol symbol) {
-        return symbol instanceof BTypeSymbol && !Symbols.isTagOn(symbol, PACKAGE)
-                && !Symbols.isTagOn(symbol, ANNOTATION);
+    private boolean isTypeSymbol(BSymbol tSymbol) {
+        if (tSymbol.kind == SymbolKind.TYPE_DEF) {
+            return true;
+        }
+        return tSymbol instanceof BTypeSymbol && !Symbols.isTagOn(tSymbol, PACKAGE)
+                && !Symbols.isTagOn(tSymbol, ANNOTATION);
     }
 
     private BSymbol getInternalSymbol(Symbol symbol) {
         if (symbol.kind() == TYPE) {
-            return ((AbstractTypeSymbol) symbol).getBType().tsymbol;
+            AbstractTypeSymbol abstractTypeSymbol = (AbstractTypeSymbol) symbol;
+            if (abstractTypeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                return ((BallerinaSymbol) ((BallerinaTypeReferenceTypeSymbol) symbol).definition()).getInternalSymbol();
+            }
+
+            return (abstractTypeSymbol).getBType().tsymbol;
         }
 
         return ((BallerinaSymbol) symbol).getInternalSymbol();

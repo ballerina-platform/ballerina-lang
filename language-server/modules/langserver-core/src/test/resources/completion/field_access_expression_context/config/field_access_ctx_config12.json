@@ -9,7 +9,7 @@
       "label": "url",
       "kind": "Field",
       "detail": "string",
-      "sortText": "BA",
+      "sortText": "CA",
       "insertText": "url",
       "insertTextFormat": "Snippet"
     }
