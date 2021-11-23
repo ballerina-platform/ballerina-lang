@@ -58,7 +58,6 @@ public class ConfigSchemaTest {
         }
 
         JsonObject jsonObject = JsonParser.parseString(response).getAsJsonObject();
-        Assert.assertTrue(jsonObject.isJsonObject());
         Assert.assertFalse(jsonObject.getAsJsonObject("result").getAsJsonObject("configSchema")
                 .getAsJsonObject("properties").getAsJsonObject("wso2")
                 .getAsJsonPrimitive("additionalProperties").getAsBoolean());
@@ -72,8 +71,7 @@ public class ConfigSchemaTest {
      */
     private boolean compareResponse(String assertFileName, String response) {
         Path expectedPath = this.resourceRoot.resolve("config-schema").resolve(assertFileName);
-        JsonObject expectedJsonObject = FileUtils.fileContentAsObject(expectedPath.toAbsolutePath().toString())
-                .getAsJsonObject();
+        JsonObject expectedJsonObject = FileUtils.fileContentAsObject(expectedPath.toAbsolutePath().toString());
         JsonObject responseJsonObject = JsonParser.parseString(response).getAsJsonObject()
                 .getAsJsonObject("result").getAsJsonObject("configSchema");
 
