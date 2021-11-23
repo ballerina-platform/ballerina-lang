@@ -90,6 +90,7 @@ task unpackBalTestProject(type: Copy) {
     new File("${sourceDir}").mkdirs()
     into new File("${sourceDir}")
 
+    print("Finding compiler directory within ${sourceDir}")
     // Find the compiler directory within nballerina source
     new File("${sourceDir}").eachDir { parentDir ->
         if (parentDir.isDirectory()) {
