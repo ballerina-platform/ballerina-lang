@@ -3075,7 +3075,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     String unescapedName = IdentifierUtils.unescapeJava(name);
                     if (names.contains(unescapedName)) {
                         this.dlog.error(keyExpr.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
-                                        types.getReferredType(recordLiteral.expectedType).getKind().typeName(), unescapedName);
+                                        types.getReferredType(recordLiteral.expectedType).getKind().typeName(),
+                                        unescapedName);
                     } else if (inclusiveTypeSpreadField != null && !neverTypedKeys.contains(unescapedName)) {
                         this.dlog.error(keyExpr.pos,
                                         DiagnosticErrorCode.POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP,

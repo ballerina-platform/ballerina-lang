@@ -4476,11 +4476,11 @@ public class Types {
             if (types.size() == 1) {
                 BType bType = types.get(0);
 
-                if (isInherentlyImmutableType(type) || Symbols.isFlagOn(type.flags, Flags.READONLY)) {
-                    return type;
+                if (isInherentlyImmutableType(bType) || Symbols.isFlagOn(bType.flags, Flags.READONLY)) {
+                    return bType;
                 }
 
-                if (!isSelectivelyImmutableType(type, new HashSet<>())) {
+                if (!isSelectivelyImmutableType(bType, new HashSet<>())) {
                     return symTable.semanticError;
                 }
 
@@ -5336,7 +5336,7 @@ public class Types {
      * @param diagnosticCode    The code to log if the return type is invalid
      */
     public void validateErrorOrNilReturn(BLangFunction function, DiagnosticCode diagnosticCode) {
-        BType returnType = function.returnTypeNode.getBType();
+        BType returnType = getReferredType(function.returnTypeNode.getBType());
 
         if (returnType.tag == TypeTags.NIL ||
                 (returnType.tag == TypeTags.UNION &&
@@ -5353,8 +5353,8 @@ public class Types {
         }
 
         for (BType memType : type.getMemberTypes()) {
-            BType memberRefType = getReferredType(memType);
-            if (memberRefType.tag != TypeTags.NIL && memberRefType.tag != TypeTags.ERROR) {
+            BType referredMemType = getReferredType(memType);
+            if (referredMemType.tag != TypeTags.NIL && referredMemType.tag != TypeTags.ERROR) {
                 return false;
             }
         }
