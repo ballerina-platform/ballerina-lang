@@ -144,7 +144,8 @@ public class ArrayAccessExprTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/statements/arrays/incorrect-array-access.bal");
         int i = 0;
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'int', found 'string'", 4, 20);
-        BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'int', found '1|two'", 12, 25);
+        BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'int', found 'IntOrString'",
+                                  12, 25);
         BAssertUtil.validateError(compileResult, i++, "list index out of range: index: '-1'", 19, 7);
         BAssertUtil.validateError(compileResult, i++, "list index out of range: index: '-2'", 20, 7);
         Assert.assertEquals(compileResult.getErrorCount(), i);

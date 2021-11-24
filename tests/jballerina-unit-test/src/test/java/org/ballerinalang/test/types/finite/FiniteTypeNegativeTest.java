@@ -61,8 +61,8 @@ public class FiniteTypeNegativeTest {
         validateError(result, i++, "incompatible types: expected 'int', found 'StringOrInt'", 92, 14);
         validateError(result, i++, "incompatible types: expected 't3', found 'float'", 102, 13);
         validateError(result, i++, "incompatible types: expected '(t|t2)', found 'decimal'", 107, 14);
-        validateError(result, i++, "incompatible types: expected '1f|1d|2d', found 'int'", 116, 14);
-        validateError(result, i++, "incompatible types: expected '1|1d|2d', found 'int'", 117, 15);
+        validateError(result, i++, "incompatible types: expected 'Foo', found 'int'", 116, 14);
+        validateError(result, i++, "incompatible types: expected 'Foo2', found 'int'", 117, 15);
         validateError(result, i++, "incompatible types: expected 'Foo4', found 'int'", 118, 15);
         validateError(result, i, "incompatible types: expected 'chiran', found 'int'", 119, 18);
     }
