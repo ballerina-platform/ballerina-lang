@@ -144,7 +144,7 @@ public class TestCommand implements BLauncherCmd {
             description = "hidden option for code coverage to include all classes")
     private String includes;
 
-    @CommandLine.Option(names = "--dump-build-time", description = "calculate and dump build time")
+    @CommandLine.Option(names = "--dump-build-time", description = "calculate and dump build time", hidden = true)
     private Boolean dumpBuildTime;
 
     private static final String testCmd = "bal test [--offline]\n" +

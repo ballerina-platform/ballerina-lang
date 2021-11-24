@@ -100,9 +100,6 @@ OPTIONS
            Include the dependencies and artifacts in the  executable JAR file(s) of a 
            Ballerina program that are required to enable the observability functionalities on it.
 
-       --dump-build-time
-           Calculate and dump build time.
-
 
 EXAMPLES
         Run all the test functions in the current package.
