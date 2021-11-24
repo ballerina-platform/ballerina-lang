@@ -102,8 +102,9 @@ task runLSSimulator(type: JavaExec) {
     systemProperty "ls.simulation.duration", "60"
     systemProperty "LANG_REPO_BUILD", "false"
 
-    jvmArgs = ['-Xms256m', '-Xmx1024m', '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=\"$buildDir/dumps\""]
+    jvmArgs = ['-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=\"$rootDir\"", "-XX:OnError=\"jmap -dump:[live],format=b,file=heapdump.hprof %p\""]
 
+    maxHeapSize "1024m"
     group = "Execution"
     description = "Run the main class with JavaExecTask"
     classpath = sourceSets.main.runtimeClasspath
