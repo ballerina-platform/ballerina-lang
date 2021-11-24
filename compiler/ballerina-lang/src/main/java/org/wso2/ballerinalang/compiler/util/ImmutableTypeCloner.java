@@ -391,17 +391,6 @@ public class ImmutableTypeCloner {
                 return immutableJsonIntersectionType;
             case TypeTags.INTERSECTION:
                 return (BIntersectionType) type;
-
-//            case TypeTags.TYPEREFDESC:
-//                BIntersectionType intersectionType = setImmutableType(pos, types,
-//                        (SelectivelyImmutableReferenceType) types.getReferredType(type), env, pkgId, owner, symTable,
-//                        anonymousModelHelper, names, origObjFlagSet, unresolvedTypes);
-//                LinkedHashSet<BType> constituentTypes = new LinkedHashSet<>() {{
-//                    add(type);
-//                    add(symTable.readonlyType);
-//                }};
-//                intersectionType.setConstituentTypes(constituentTypes);
-//                return intersectionType;
             default:
                 return defineImmutableUnionType(pos, types, env, pkgId, owner, symTable, anonymousModelHelper, names,
                                                 unresolvedTypes, (BUnionType) type);
