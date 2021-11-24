@@ -36,6 +36,7 @@ public class CompilationOptionsBuilder {
     private Boolean dumpGraph;
     private Boolean dumpRawGraph;
     private Boolean withCodeGenerators;
+    private Boolean configSchemaGen;
 
     public CompilationOptionsBuilder() {
     }
@@ -95,9 +96,14 @@ public class CompilationOptionsBuilder {
         return this;
     }
 
+    CompilationOptionsBuilder configSchemaGen(Boolean value) {
+        configSchemaGen = value;
+        return this;
+    }
+
     public CompilationOptions build() {
         return new CompilationOptions(offline, experimental, observabilityIncluded, dumpBir,
                 dumpBirFile, cloud, listConflictedClasses, sticky,
-                dumpGraph, dumpRawGraph, withCodeGenerators);
+                dumpGraph, dumpRawGraph, withCodeGenerators, configSchemaGen);
     }
 }

@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
 
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
@@ -71,7 +72,7 @@ public class SymbolsInMappingConstructorTest {
                 {17, 39, RECORD_FIELD, "country"},
                 {20, 8, RECORD_FIELD, "name"},
                 {21, 8, PARAMETER, "age"},
-//                {22, 10, FUNCTION, "foo"}, https://github.com/ballerina-platform/ballerina-lang/issues/31803
+                {22, 10, FUNCTION, "foo"},
                 {23, 11, VARIABLE, "adrs"},
                 {27, 8, RECORD_FIELD, "name"},
                 {29, 18, RECORD_FIELD, "city"},

@@ -47,4 +47,9 @@ public class ReadonlyArrayTest {
     public Object[] getFunctionNames() {
         return new String[]{"testIntArray", "testBooleanArray", "testByteArray", "testFloatArray", "testStringArray"};
     }
+
+    @Test
+    public void testReadOnlyMappingWithOptionalNeverFieldArray() {
+        BRunUtil.invoke(result, "testReadOnlyMappingWithOptionalNeverFieldArray");
+    }
 }
