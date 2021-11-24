@@ -18411,7 +18411,8 @@ public class BallerinaParser extends AbstractParser {
                 return getBindingPattern(positionalArg.expression);
             case NAMED_ARG:
                 STNamedArgumentNode namedArg = (STNamedArgumentNode) ambiguousNode;
-                return STNodeFactory.createNamedArgBindingPatternNode(namedArg.argumentName, namedArg.equalsToken,
+                STNode bindingPatternArgName = ((STSimpleNameReferenceNode) namedArg.argumentName).name;
+                return STNodeFactory.createNamedArgBindingPatternNode(bindingPatternArgName, namedArg.equalsToken,
                         getBindingPattern(namedArg.expression));
             case REST_ARG:
                 STRestArgumentNode restArg = (STRestArgumentNode) ambiguousNode;
