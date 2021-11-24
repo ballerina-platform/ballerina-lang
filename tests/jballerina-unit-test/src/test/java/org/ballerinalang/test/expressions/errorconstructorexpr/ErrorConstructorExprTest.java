@@ -25,7 +25,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -37,7 +36,6 @@ import static org.ballerinalang.test.BAssertUtil.validateWarning;
  *
  * @since 2.0.0
  */
-@Ignore
 public class ErrorConstructorExprTest {
 
     private CompileResult result;
@@ -103,7 +101,7 @@ public class ErrorConstructorExprTest {
         validateError(negativeSemanticResult, i++, "cannot create a new error value from 'ErrorU1'", 62, 19);
         validateError(negativeSemanticResult, i++, "cannot create a new error value from 'ErrorU2'", 63, 19);
         validateError(negativeSemanticResult, i++, "undefined error type descriptor 'ErrorU3'", 64, 19);
-        validateError(negativeSemanticResult, i++, "incompatible types: expected '(int|string)', found 'error'",
+        validateError(negativeSemanticResult, i++, "incompatible types: expected '(int|string)', found 'ErrorA'",
                 66, 18);
         validateError(negativeSemanticResult, i++, "compatible type for error constructor expression not " +
                 "found in type '(int|string)'", 67, 16);

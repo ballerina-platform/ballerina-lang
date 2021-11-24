@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.test;
 
-
 import org.ballerinalang.core.model.types.TypeTags;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
@@ -26,7 +25,6 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -36,7 +34,6 @@ import static org.testng.Assert.assertEquals;
  *
  * @since 1.0
  */
-@Ignore
 public class LangLibErrorTest {
 
     private CompileResult compileResult;

@@ -22,7 +22,6 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -33,7 +32,6 @@ import static org.testng.Assert.assertEquals;
  *
  * @since 1.3.0
  */
-@Ignore
 public class IntersectionTypeTest {
 
     private CompileResult readOnlyIntersectionResults;

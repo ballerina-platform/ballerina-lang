@@ -35,7 +35,7 @@ import java.util.Arrays;
  */
 public class TypeParamTest {
 
-    @Test(enabled = false)
+    @Test
     public void testTypeParamNegative() {
 
         CompileResult result = BCompileUtil.compile("test-src/type-param/type_param_test_negative.bal");
