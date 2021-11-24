@@ -734,7 +734,7 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangMatchGuard source) {
         BLangMatchGuard clone = new BLangMatchGuard();
         source.cloneRef = clone;
-        clone.setExpression(source.getExpression());
+        clone.setExpression(clone(source.expr));
     }
 
     @Override
