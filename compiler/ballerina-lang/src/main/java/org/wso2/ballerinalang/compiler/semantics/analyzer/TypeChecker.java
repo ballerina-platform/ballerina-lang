@@ -536,8 +536,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BFiniteType finiteType = (BFiniteType) expectedType;
             return getFiniteTypeMatchWithIntLiteral(literalExpr, finiteType, literalValue);
         } else if (expectedType.tag == TypeTags.UNION) {
-            Set<BType> memberTypes = ((BUnionType) expectedType).getMemberTypes();
-            for (BType memType : memberTypes) {
+            for (BType memType : types.getAllTypes(expectedType, true)) {
                 BType memberRefType = types.getReferredType(memType);
                 if (TypeTags.isIntegerTypeTag(memberRefType.tag) || memberRefType.tag == TypeTags.BYTE) {
                     BType intLiteralType = getIntLiteralType(memType, literalValue);
@@ -570,6 +569,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
 
+            Set<BType> memberTypes = ((BUnionType) expectedType).getMemberTypes();
             return getTypeMatchingFloatOrDecimal(finiteType, memberTypes, literalExpr, (BUnionType) expectedType);
         }
         return symTable.intType;
@@ -688,17 +688,17 @@ public class TypeChecker extends BLangNodeVisitor {
         if (literalExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
             NodeKind kind = ((BLangNumericLiteral) literalExpr).kind;
             if (kind == NodeKind.INTEGER_LITERAL) {
-                return getIntegerLiteralType(literalExpr, literalValue, expType);
+                return getIntegerLiteralType(literalExpr, literalValue, expectedType);
             } else if (kind == NodeKind.DECIMAL_FLOATING_POINT_LITERAL) {
                 if (NumericLiteralSupport.isFloatDiscriminated(literalExpr.originalValue)) {
-                    return getTypeOfLiteralWithFloatDiscriminator(literalExpr, literalValue, expType);
+                    return getTypeOfLiteralWithFloatDiscriminator(literalExpr, literalValue, expectedType);
                 } else if (NumericLiteralSupport.isDecimalDiscriminated(literalExpr.originalValue)) {
-                    return getTypeOfLiteralWithDecimalDiscriminator(literalExpr, literalValue, expType);
+                    return getTypeOfLiteralWithDecimalDiscriminator(literalExpr, literalValue, expectedType);
                 } else {
-                    return getTypeOfDecimalFloatingPointLiteral(literalExpr, literalValue, expType);
+                    return getTypeOfDecimalFloatingPointLiteral(literalExpr, literalValue, expectedType);
                 }
             } else {
-                return getTypeOfHexFloatingPointLiteral(literalExpr, literalValue, expType);
+                return getTypeOfHexFloatingPointLiteral(literalExpr, literalValue, expectedType);
             }
         }
 

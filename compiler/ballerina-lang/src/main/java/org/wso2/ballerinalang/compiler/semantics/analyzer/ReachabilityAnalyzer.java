@@ -90,7 +90,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -496,29 +495,13 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
 
         BType returnType = types.getReferredType(funcNode.returnTypeNode.getBType());
         if (!funcNode.interfaceFunction && returnType.tag == TypeTags.UNION) {
-            if (hasNilType((BUnionType) returnType) &&
+            if (types.getAllTypes(returnType, true).contains(symTable.nilType) &&
                     !types.isSubTypeOfErrorOrNilContainingNil((BUnionType) returnType) &&
                     !this.statementReturnsPanicsOrFails) {
                 this.dlog.warning(funcNode.returnTypeNode.pos,
                         DiagnosticWarningCode.FUNCTION_SHOULD_EXPLICITLY_RETURN_A_VALUE);
             }
         }
-    }
-
-    private boolean hasNilType(BUnionType type) {
-        LinkedHashSet<BType> memberTypes = type.getMemberTypes();
-
-        if (memberTypes.contains(symTable.nilType)) {
-            return true;
-        }
-
-        for (BType memberType : memberTypes) {
-            BType referredType = types.getReferredType(memberType);
-            if (referredType.tag == TypeTags.UNION && hasNilType((BUnionType) referredType)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private Location getEndCharPos(Location pos) {
