@@ -187,9 +187,9 @@ public class IntegerRangeOperatorTest {
         BRunUtil.invoke(result, "testHalfOpenIntRangeOnIntSubTypes");
     }
 
-    @Test(description = "Test int range with hex integers")
-    public void testIntRangeWithHexInt() {
-        BRunUtil.invoke(result, "testIntRangeWithHexInt");
+    @Test(description = "Test int range with hex integer literals")
+    public void testIntRangeWithHexIntLiterals() {
+        BRunUtil.invoke(result, "testIntRangeWithHexIntLiterals");
     }
 
     @Test(description = "Test integer range operators with errors")

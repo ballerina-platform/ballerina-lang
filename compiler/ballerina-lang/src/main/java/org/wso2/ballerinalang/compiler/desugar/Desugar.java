@@ -6766,7 +6766,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangExpression lhsExpr = binaryExpr.lhsExpr;
             BLangExpression rhsExpr = binaryExpr.rhsExpr;
 
-            // Assume we reach here for int subtypes. Casting to int as method gen does not support them.
+            // If type of either expression is a subtype of int, cast to int as method gen does not support subtypes.
             lhsExpr = createTypeCastExpr(lhsExpr, symTable.intType);
             rhsExpr = createTypeCastExpr(rhsExpr, symTable.intType);
 
