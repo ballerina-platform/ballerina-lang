@@ -25,6 +25,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -36,6 +37,7 @@ import static org.ballerinalang.test.BAssertUtil.validateWarning;
  *
  * @since 2.0.0
  */
+@Ignore
 public class ErrorConstructorExprTest {
 
     private CompileResult result;
