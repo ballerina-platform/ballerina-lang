@@ -4476,11 +4476,11 @@ public class Types {
             if (types.size() == 1) {
                 BType bType = types.get(0);
 
-                if (isInherentlyImmutableType(type) || Symbols.isFlagOn(type.flags, Flags.READONLY)) {
-                    return type;
+                if (isInherentlyImmutableType(bType) || Symbols.isFlagOn(bType.flags, Flags.READONLY)) {
+                    return bType;
                 }
 
-                if (!isSelectivelyImmutableType(type, new HashSet<>())) {
+                if (!isSelectivelyImmutableType(bType, new HashSet<>())) {
                     return symTable.semanticError;
                 }
 
