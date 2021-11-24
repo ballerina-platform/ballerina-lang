@@ -19,6 +19,7 @@
 package io.ballerina.semantic.api.test.typedescriptors;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.EnumSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -27,10 +28,15 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 
+import java.util.Map;
 import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
@@ -93,4 +99,16 @@ public class TypeReferenceTSymbolTest {
         assertSame(type.definition(), enm);
     }
 
+    @Test
+    public void testRecordField() {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(44, 7));
+        BallerinaVariableSymbol typeSymbol = ((BallerinaVariableSymbol) symbol.get());
+        assertEquals(typeSymbol.getInternalSymbol().type.getKind(), TypeKind.RECORD);
+        BRecordType varType = (BRecordType) typeSymbol.getInternalSymbol().type;
+        Map<String, BField> recordFields = ((BRecordType) varType).fields;
+        assertEquals(recordFields.size(), 1);
+        BField field = recordFields.get("age");
+        assertEquals(field.getName().getValue(), "age");
+        assertEquals(((BTypeReferenceType) field.getType()).definitionName, "Age");
+    }
 }
