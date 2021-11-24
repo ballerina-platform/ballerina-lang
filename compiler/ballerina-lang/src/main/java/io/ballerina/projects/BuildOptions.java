@@ -121,6 +121,7 @@ public class BuildOptions {
         buildOptionsBuilder.cloud(compilationOptions.cloud);
         buildOptionsBuilder.listConflictedClasses(compilationOptions.listConflictedClasses);
         buildOptionsBuilder.sticky(compilationOptions.sticky);
+        buildOptionsBuilder.configSchemaGen(compilationOptions.configSchemaGen);
 
         return buildOptionsBuilder.build();
     }
