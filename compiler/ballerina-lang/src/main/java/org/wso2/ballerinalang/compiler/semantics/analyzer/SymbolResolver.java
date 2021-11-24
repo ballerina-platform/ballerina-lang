@@ -1540,12 +1540,9 @@ public class SymbolResolver extends BLangNodeVisitor {
         //    If the package alias is not empty or null, then find the package scope,
         if (symbol == symTable.notFoundSymbol) {
             BSymbol tempSymbol = lookupMainSpaceSymbolInPackage(userDefinedTypeNode.pos, env, pkgAlias, typeName);
-
-            BSymbol refSymbol = tempSymbol.tag == SymTag.TYPE_DEF ? types.getReferredType(tempSymbol.type).tsymbol
-                    : tempSymbol;
-            if ((refSymbol.tag & SymTag.TYPE) == SymTag.TYPE) {
+            if ((tempSymbol.tag & SymTag.TYPE) == SymTag.TYPE) {
                 symbol = tempSymbol;
-            } else if (Symbols.isTagOn(refSymbol, SymTag.VARIABLE) && env.node.getKind() == NodeKind.FUNCTION) {
+            } else if (Symbols.isTagOn(tempSymbol, SymTag.VARIABLE) && env.node.getKind() == NodeKind.FUNCTION) {
                 BLangFunction func = (BLangFunction) env.node;
                 boolean errored = false;
 
@@ -1556,8 +1553,8 @@ public class SymbolResolver extends BLangNodeVisitor {
                     errored = true;
                 }
 
-                if (refSymbol.type != null &&
-                        types.getReferredType(refSymbol.type).tag != TypeTags.TYPEDESC) {
+                if (tempSymbol.type != null &&
+                        types.getReferredType(tempSymbol.type).tag != TypeTags.TYPEDESC) {
                     dlog.error(userDefinedTypeNode.pos, DiagnosticErrorCode.INVALID_PARAM_TYPE_FOR_RETURN_TYPE,
                             tempSymbol.type);
                     errored = true;
@@ -1569,7 +1566,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 }
 
                 ParameterizedTypeInfo parameterizedTypeInfo =
-                        getTypedescParamValueType(func.requiredParams, refSymbol);
+                        getTypedescParamValueType(func.requiredParams, tempSymbol);
                 BType paramValType = parameterizedTypeInfo == null ? null : parameterizedTypeInfo.paramValueType;
 
                 if (paramValType == symTable.semanticError) {

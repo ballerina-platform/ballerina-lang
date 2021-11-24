@@ -29,13 +29,11 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 /**
  * Class to test functionality of type guard.
  */
-@Ignore
 public class TypeGuardTest {
 
     CompileResult result;
