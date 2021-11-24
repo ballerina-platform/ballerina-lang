@@ -1,0 +1,136 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "dilhashanazeer": {
+      "type": "object",
+      "properties": {
+        "complexconfigs2": {
+          "type": "object",
+          "properties": {
+            "t": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "salary": {
+                    "type": "integer"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "description": ""
+            },
+            "itemCodes": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "description": ""
+            },
+            "itemColor": {
+              "enum": [
+                "BLUE",
+                "GREEN",
+                "RED"
+              ],
+              "description": ""
+            },
+            "val": {
+              "enum": [
+                1.4,
+                1,
+                2,
+                "test1"
+              ],
+              "description": ""
+            },
+            "myVal": {
+              "enum": [
+                "BLUE",
+                "GREEN",
+                "RED",
+                1.4,
+                1,
+                2,
+                "test1"
+              ],
+              "description": ""
+            },
+            "myArray": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "integer"
+                }
+              },
+              "description": ""
+            },
+            "employeeArray": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "salary": {
+                    "type": "integer"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "description": ""
+            },
+            "employeeMap": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "salary": {
+                    "type": "integer"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "description": ""
+            },
+            "empMapArray": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "salary": {
+                      "type": "integer"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "description": ""
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "employeeArray",
+            "empMapArray"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1267,27 +1267,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        ArrayValueImpl that = (ArrayValueImpl) o;
-        return arrayType.equals(that.arrayType) &&
-                elementType.equals(that.elementType) &&
-                Arrays.equals(refValues, that.refValues) &&
-                Arrays.equals(intValues, that.intValues) &&
-                Arrays.equals(booleanValues, that.booleanValues) &&
-                Arrays.equals(byteValues, that.byteValues) &&
-                Arrays.equals(floatValues, that.floatValues) &&
-                Arrays.equals(bStringValues, that.bStringValues);
-    }
-
-    @Override
     public int hashCode() {
         int result = Objects.hash(arrayType, elementType);
         result = 31 * result + Arrays.hashCode(refValues);

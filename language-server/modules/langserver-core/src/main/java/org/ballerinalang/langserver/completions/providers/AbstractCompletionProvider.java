@@ -747,4 +747,30 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         
         return Optional.of(new SnippetCompletionItem(context, snippetBlock));
     }
+
+    /**
+     * Sets the sort text of the provided completion item based on provided rank and context type.
+     *
+     * @param context        Completion context
+     * @param completionItem Completion item
+     * @param rank           A secondary rank to be considered other than assignability
+     */
+    protected void sortByAssignability(BallerinaCompletionContext context, LSCompletionItem completionItem, int rank) {
+        Optional<TypeSymbol> contextType = context.getContextType();
+        String sortText = "";
+        // First we sort the assignable items above others, and then sort by the rank
+        if (contextType.isPresent() && SortingUtil.isCompletionItemAssignable(completionItem, contextType.get())) {
+            // Rank directly assignable ones first
+            sortText += SortingUtil.genSortText(1);
+        } else if (contextType.isPresent() &&
+                SortingUtil.isCompletionItemAssignableWithCheck(completionItem, contextType.get())) {
+            // Then the items which can be made assignable using a check expression
+            sortText += SortingUtil.genSortText(2);
+        } else {
+            sortText += SortingUtil.genSortText(3);
+        }
+        sortText += SortingUtil.genSortText(rank);
+
+        completionItem.getCompletionItem().setSortText(sortText);
+    }
 }
