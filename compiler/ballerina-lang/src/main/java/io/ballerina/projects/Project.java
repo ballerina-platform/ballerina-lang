@@ -46,8 +46,8 @@ public abstract class Project {
                       ProjectEnvironmentBuilder projectEnvironmentBuilder, BuildOptions buildOptions) {
         this.projectKind = projectKind;
         this.sourceRoot = projectPath;
-        this.projectEnvironment = projectEnvironmentBuilder.build(this);
         this.buildOptions = buildOptions;
+        this.projectEnvironment = projectEnvironmentBuilder.build(this);
     }
 
     protected Project(ProjectKind projectKind,
