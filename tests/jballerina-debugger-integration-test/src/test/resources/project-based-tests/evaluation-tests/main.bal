@@ -171,6 +171,9 @@ var floatValue = 2.0;
 json jsonValue = {name: "John", age: 20};
 var '\ \/\:\@\[\`\{\~\u{03C0}_IL = "IL with global var";
 
+// configurable variables
+configurable int port = ?;
+
 // let expression helper declarations
 const globalVar = 2;
 int k = let int x = 4 in 2 * x * globalVar;

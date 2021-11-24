@@ -58,9 +58,7 @@ import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -181,8 +179,8 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
      * @return Ballerina program snippet
      */
     private String generateEvaluationSnippet() throws EvaluationException {
-        // Generates top level declarations snippet
-        String moduleDeclarations = extractModuleDefinitions(context.getModule(), false, false);
+        // Generates top-level declarations snippet.
+        String moduleDeclarations = extractModuleDefinitions(context.getModule(), false);
 
         // Generates function signature (parameter definitions) for the snippet function template.
         processSnippetFunctionParameters();
@@ -426,11 +424,11 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
 
         File moduleMainFile = Files.createTempFile(filePath, MAIN_FILE_PREFIX, BAL_FILE_EXT).toFile();
         moduleMainFile.deleteOnExit();
-        String moduleDefinitions = extractModuleDefinitions(module, true, true);
+        String moduleDefinitions = extractModuleDefinitions(module, true);
         FileUtils.writeToFile(moduleMainFile, moduleDefinitions);
     }
 
-    private String extractModuleDefinitions(Module module, boolean includeImports, boolean includeGlobalDeclarations) {
+    private String extractModuleDefinitions(Module module, boolean includeImports) {
         ModuleLevelDefinitionFinder moduleDefinitionFinder = new ModuleLevelDefinitionFinder(context);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.FUNCTION_DEFINITION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.TYPE_DEFINITION);
@@ -439,11 +437,8 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.ENUM_DECLARATION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CLASS_DEFINITION);
-
-        if (includeGlobalDeclarations) {
-            moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CONST_DECLARATION);
-            moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_VAR_DECL);
-        }
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CONST_DECLARATION);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_VAR_DECL);
 
         if (includeImports) {
             moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.IMPORT_DECLARATION);
