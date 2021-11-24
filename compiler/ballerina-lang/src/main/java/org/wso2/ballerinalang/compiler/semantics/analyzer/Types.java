@@ -5353,7 +5353,8 @@ public class Types {
         }
 
         for (BType memType : type.getMemberTypes()) {
-            if (memType.tag != TypeTags.NIL && memType.tag != TypeTags.ERROR) {
+            BType memberRefType = getReferredType(memType);
+            if (memberRefType.tag != TypeTags.NIL && memberRefType.tag != TypeTags.ERROR) {
                 return false;
             }
         }
