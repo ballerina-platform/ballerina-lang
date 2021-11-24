@@ -41,8 +41,10 @@ import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -282,7 +284,9 @@ public class LargeMethodOptimizer {
         int bbNum = 0; // ongoing BB index
         int newBBNum = getBbIdNum(basicBlocks, basicBlocks.size() - 1); // used for newly created BB's id
         int newFuncNum = 0; // to number the splits made using a particular function
-        BIRBasicBlock currentBB  = new BIRBasicBlock(new Name("bb" + getBbIdNum(basicBlocks, bbNum)));;
+        BIRBasicBlock currentBB  = new BIRBasicBlock(new Name("bb" + getBbIdNum(basicBlocks, bbNum)));
+        Map<String, String> changedLocalVarStartBB = new HashMap<>(); // key: oldBBId, value: newBBId
+        Map<String, String> changedLocalVarEndBB = new HashMap<>(); // key: oldBBId, value: newBBId
 
         while (bbNum < basicBlocks.size()) {
             // it is either the start of a new BB or after split across BBs (say jump) now in the middle of a BB
@@ -311,6 +315,8 @@ public class LargeMethodOptimizer {
                 }
                 currentBB.terminator = basicBlocks.get(bbNum).terminator;
                 newBBList.add(currentBB);
+                changedLocalVarStartBB.put(basicBlocks.get(bbNum).id.value, currentBB.id.value);
+                changedLocalVarEndBB.put(basicBlocks.get(bbNum).id.value, currentBB.id.value);
                 startInsNum = 0;
                 bbNum += 1;
                 continue;
@@ -330,7 +336,7 @@ public class LargeMethodOptimizer {
                 }
             }
             // so the next splitNum contains a split starts from this BB or another BB, but do not end in this BB
-
+            changedLocalVarStartBB.put(basicBlocks.get(bbNum).id.value, currentBB.id.value);
             if (!splitsInSameBBList.isEmpty()) {
                 // current unfinished BB is passed to the function and a new one is returned from it
                 currentBB = generateSplitsInSameBB(funcName, function, bbNum, splitsInSameBBList, newlyAddedFunctions,
@@ -348,6 +354,7 @@ public class LargeMethodOptimizer {
                 }
                 currentBB.terminator = basicBlocks.get(bbNum).terminator;
                 newBBList.add(currentBB);
+                changedLocalVarEndBB.put(basicBlocks.get(bbNum).id.value, currentBB.id.value);
                 startInsNum = 0;
                 bbNum += 1;
                 currentBB = new BIRBasicBlock(new Name("bb" + getBbIdNum(basicBlocks, bbNum)));
@@ -386,12 +393,42 @@ public class LargeMethodOptimizer {
                     currentPackageId, newFuncName, args, newCurrentBBTerminatorLhsOp, newBB, Collections.emptyList(),
                     Collections.emptySet(), lastInstruction.scope);
             newBBList.add(currentBB);
+            changedLocalVarEndBB.put(basicBlocks.get(bbNum).id.value, currentBB.id.value);
             currentBB = newBB;
             bbNum = currSplit.endBBNum;
         }
 
+        // set startBB and endBB for local vars in the function
+        setLocalVarStartEndBB(function, newBBList, changedLocalVarStartBB, changedLocalVarEndBB);
         // newBBList is used as the original function's BB list
         function.basicBlocks = newBBList;
+    }
+
+    private void setLocalVarStartEndBB(BIRFunction birFunction, List<BIRBasicBlock> newBBList, Map<String, String>
+            changedLocalVarStartBB, Map<String, String> changedLocalVarEndBB) {
+
+        Map<String, BIRBasicBlock> newBBs = new HashMap<>();
+        for (BIRBasicBlock newBB : newBBList) {
+            newBBs.put(newBB.id.value, newBB);
+        }
+        for (BIRVariableDcl localVar : birFunction.localVars) {
+            if (localVar.kind == VarKind.LOCAL) {
+                if (localVar.startBB != null) {
+                    if (changedLocalVarStartBB.containsKey(localVar.startBB.id.value)) {
+                        localVar.startBB = newBBs.get(changedLocalVarStartBB.get(localVar.startBB.id.value));
+                    } else {
+                        localVar.startBB = newBBs.get(localVar.startBB.id.value);
+                    }
+                }
+                if (localVar.endBB != null) {
+                    if (changedLocalVarEndBB.containsKey(localVar.endBB.id.value)) {
+                        localVar.endBB = newBBs.get(changedLocalVarEndBB.get(localVar.endBB.id.value));
+                    } else {
+                        localVar.endBB = newBBs.get(localVar.endBB.id.value);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -602,28 +639,41 @@ public class LargeMethodOptimizer {
         changeSelfToArgVarKind(birFunc, selfVarDcl);
         return birFunc;
     }
+    private BIRVariableDcl getArgVarKindVarDcl(BIRVariableDcl variableDcl) {
+        return new BIRVariableDcl(variableDcl.pos, variableDcl.type, variableDcl.name, variableDcl.originalName,
+                VarScope.FUNCTION, VarKind.ARG, variableDcl.metaVarName);
+    }
 
     private void changeSelfToArgVarKind(BIRFunction birFunction, BIRVariableDcl selfVarDcl) {
         for (BIRBasicBlock basicBlock : birFunction.basicBlocks) {
             for (BIRNonTerminator instruction : basicBlock.instructions) {
                 if (instruction.lhsOp.variableDcl.kind == VarKind.SELF) {
                     instruction.lhsOp.variableDcl = selfVarDcl;
+                } else if (instruction.lhsOp.variableDcl.kind == VarKind.LOCAL) {
+                    instruction.lhsOp.variableDcl = getArgVarKindVarDcl(instruction.lhsOp.variableDcl);
                 }
                 BIROperand[] rhsOperands = instruction.getRhsOperands();
                 for (BIROperand rhsOperand : rhsOperands) {
                     if (rhsOperand.variableDcl.kind == VarKind.SELF) {
                         rhsOperand.variableDcl = selfVarDcl;
+                    } else if (rhsOperand.variableDcl.kind == VarKind.LOCAL) {
+                        rhsOperand.variableDcl = getArgVarKindVarDcl(rhsOperand.variableDcl);
                     }
                 }
             }
             if ((basicBlock.terminator.lhsOp != null) &&
                     (basicBlock.terminator.lhsOp.variableDcl.kind == VarKind.SELF)) {
                 basicBlock.terminator.lhsOp.variableDcl = selfVarDcl;
+            } else if ((basicBlock.terminator.lhsOp != null) &&
+                    (basicBlock.terminator.lhsOp.variableDcl.kind == VarKind.LOCAL)) {
+                basicBlock.terminator.lhsOp.variableDcl = getArgVarKindVarDcl(basicBlock.terminator.lhsOp.variableDcl);
             }
             BIROperand[] rhsOperands = basicBlock.terminator.getRhsOperands();
             for (BIROperand rhsOperand : rhsOperands) {
                 if (rhsOperand.variableDcl.kind == VarKind.SELF) {
                     rhsOperand.variableDcl = selfVarDcl;
+                } else if (rhsOperand.variableDcl.kind == VarKind.LOCAL) {
+                    rhsOperand.variableDcl = getArgVarKindVarDcl(rhsOperand.variableDcl);
                 }
             }
         }
