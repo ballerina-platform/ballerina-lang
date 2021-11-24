@@ -1,0 +1,7 @@
+stringSingleton = "test"
+intSingleton = 2
+floatSingleton = 2.2
+decimalSingleton = 3.23
+unionVar1 = 1.34
+unionVar2 = 3.23
+unionVar3 = "test"

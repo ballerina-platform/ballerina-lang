@@ -647,4 +647,35 @@ public class TomlProviderTest {
                 {"color", COLOR_ENUM_UNION, StringUtils.fromString("RED")},
         };
     }
+
+    @Test(dataProvider = "finite-data-provider")
+    public void testTomlProviderFiniteType(String variableName, Type type, Object expectedValues) {
+        IntersectionType intersectionType = new BIntersectionType(ROOT_MODULE, new Type[]{type,
+                PredefinedTypes.TYPE_READONLY}, type, 1, true);
+        VariableKey finiteVar = new VariableKey(ROOT_MODULE, variableName, intersectionType, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{finiteVar}));
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
+                List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("FiniteTypeConfig.toml"),
+                        configVarMap.keySet())));
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
+        Object value = configValueMap.get(finiteVar).getValue();
+        Assert.assertEquals(expectedValues, value);
+    }
+
+    @DataProvider(name = "finite-data-provider")
+    public Object[][] finiteDataProvider() {
+        String typeName = "Singleton";
+        BString strVal = fromString("test");
+        BDecimal decimalVal = ValueCreator.createDecimalValue("3.23");
+        return new Object[][]{
+                {"stringSingleton", TypeCreator.createFiniteType(typeName, Set.of(strVal), 0), strVal},
+                {"intSingleton", TypeCreator.createFiniteType(typeName, Set.of(2L), 0), 2L},
+                {"floatSingleton", TypeCreator.createFiniteType(typeName, Set.of(2.2d), 0), 2.2d},
+                {"decimalSingleton", TypeCreator.createFiniteType(typeName, Set.of(decimalVal), 0), decimalVal},
+                {"unionVar1", TypeCreator.createFiniteType(typeName, Set.of(strVal, 1.34d, decimalVal), 0), 1.34d},
+                {"unionVar2", TypeCreator.createFiniteType(typeName, Set.of(3.24d, decimalVal), 0), decimalVal},
+                {"unionVar3", TypeCreator.createFiniteType(typeName, Set.of(3.23d, decimalVal, strVal), 0), strVal},
+        };
+    }
 }
