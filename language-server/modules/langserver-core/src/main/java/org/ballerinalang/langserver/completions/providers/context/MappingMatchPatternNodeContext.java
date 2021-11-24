@@ -80,13 +80,10 @@ public class MappingMatchPatternNodeContext extends MappingContextProvider<Mappi
 
     @Override
     protected boolean withinValueExpression(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {
-        Token colon = null;
-        if (evalNodeAtCursor.kind() == SyntaxKind.FIELD_MATCH_PATTERN) {
-            colon = ((FieldMatchPatternNode) evalNodeAtCursor).colonToken();
-        }
-        if (colon == null) {
+        if (evalNodeAtCursor.kind() != SyntaxKind.FIELD_MATCH_PATTERN) {
             return false;
         }
+        Token colon = ((FieldMatchPatternNode) evalNodeAtCursor).colonToken();
         int cursorPosInTree = context.getCursorPositionInTree();
         int colonStart = colon.textRange().startOffset();
         return cursorPosInTree > colonStart;

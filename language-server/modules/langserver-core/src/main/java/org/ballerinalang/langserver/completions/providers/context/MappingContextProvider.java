@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
@@ -56,21 +71,21 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
     }
 
     protected boolean withinValueExpression(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {
-        Token colon = null;
-
+        Token colon;
         if (evalNodeAtCursor.kind() == SyntaxKind.SPECIFIC_FIELD) {
-            colon = ((SpecificFieldNode) evalNodeAtCursor).colon().orElse(null);
+            Optional<Token> optionalColon = ((SpecificFieldNode) evalNodeAtCursor).colon();
+            if (optionalColon.isEmpty()) {
+                return false;
+            }
+            colon = optionalColon.get();
         } else if (evalNodeAtCursor.kind() == SyntaxKind.COMPUTED_NAME_FIELD) {
             colon = ((ComputedNameFieldNode) evalNodeAtCursor).colonToken();
-        }
-
-        if (colon == null) {
+        } else {
             return false;
         }
 
         int cursorPosInTree = context.getCursorPositionInTree();
         int colonStart = colon.textRange().startOffset();
-
         return cursorPosInTree > colonStart;
     }
 
@@ -173,9 +188,8 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
         if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
             return this.getExpressionsCompletionsForQNameRef(context, qNameRef);
-        } else {
-            return this.expressionCompletions(context);
         }
+        return this.expressionCompletions(context);
     }
 
     protected NonTerminalNode getEvalNode(BallerinaCompletionContext context) {
