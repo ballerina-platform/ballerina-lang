@@ -18,6 +18,7 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -47,7 +48,6 @@ import java.util.Objects;
  */
 public class NewCommandTest extends BaseCommandTest {
     private Path testResources;
-    private Path centralCache;
     private Path homeCache;
 
     @DataProvider(name = "invalidProjectNames")
@@ -70,12 +70,12 @@ public class NewCommandTest extends BaseCommandTest {
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
         }
-        homeCache = Paths.get("build", "userHome");
+        homeCache = this.tmpDir.resolve("home-cache");
         Path centralCache = homeCache.resolve("repositories/central.ballerina.io").resolve("bala");
         Files.createDirectories(centralCache);
 
-        Path centralPackagePath = this.testResources.resolve("balacache-template");
-        Files.copy(centralPackagePath, centralCache.resolve("admin"), StandardCopyOption.REPLACE_EXISTING);
+        Path validProjectPath = this.testResources.resolve("balacache-template");
+        Files.walkFileTree(validProjectPath, new FileUtils.Copy(validProjectPath, centralCache));
     }
 
     @Test(description = "Create a new project")
@@ -247,7 +247,7 @@ public class NewCommandTest extends BaseCommandTest {
     @Test(description = "Test new command with central template in the local cache")
     public void testNewCommandWithTemplateInLocalCache() throws IOException {
         // Test if no arguments was passed in
-        String templateArg = "parkavik/Hello:0.1.2";
+        String templateArg = "admin/lib_project:0.1.0";
         String[] args = {"sample_pull_local", "-t", templateArg};
         NewCommand newCommand = new NewCommand(tmpDir, printStream, false, homeCache);
         new CommandLine(newCommand).parseArgs(args);
@@ -255,23 +255,19 @@ public class NewCommandTest extends BaseCommandTest {
 
         Path packageDir = tmpDir.resolve("sample_pull_local");
         Assert.assertTrue(Files.exists(packageDir));
-
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedTomlContent = "[package]\n" +
-                "org = \"parkavik\"\n" +
+                "org = \"admin\"\n" +
                 "name = \"sample_pull_local\"\n" +
-                "version = \"0.1.2\"\n" +
-                "export = [\"sample_pull_local.module2\", \"sample_pull_local.module1\"]\n" +
-                "ballerina_version = \"slbeta3\"\n" +
+                "version = \"0.1.0\"\n" +
+                "ballerina_version = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
                 "language_spec_version = \"2021R1\"\n" +
                 "template = true";
         Assert.assertTrue(tomlContent.contains(expectedTomlContent));
-
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
-
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
 

@@ -52,11 +52,7 @@ public class NewCommand implements BLauncherCmd {
     private Path userDir;
     private PrintStream errStream;
     private boolean exitWhenFinish;
-    Path customHomeCache;
     Path homeCache = RepoUtils.createAndGetHomeReposPath();
-    Path balaCache = homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
-            .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
-            .resolve(ProjectConstants.BALA_DIR_NAME);
 
     @CommandLine.Parameters
     public List<String> argList;
@@ -82,16 +78,19 @@ public class NewCommand implements BLauncherCmd {
         CommandUtil.initJarFs();
     }
 
-    public NewCommand(Path userDir, PrintStream errStream, boolean exitWhenFinish, Path homeCache) {
+    public NewCommand(Path userDir, PrintStream errStream, boolean exitWhenFinish, Path customHomeCache) {
         this.userDir = userDir;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         CommandUtil.initJarFs();
-        this.customHomeCache = homeCache;
+        this.homeCache = customHomeCache;
     }
 
     @Override
     public void execute() {
+        Path balaCache = homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
+                .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
+                .resolve(ProjectConstants.BALA_DIR_NAME);
         // If help flag is given print the help message.
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(NEW_COMMAND);

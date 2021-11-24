@@ -1,3 +1,0 @@
-# Description  
-public function hello() {
-}
