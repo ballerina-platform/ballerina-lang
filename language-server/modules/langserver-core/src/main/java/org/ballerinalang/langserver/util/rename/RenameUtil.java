@@ -177,7 +177,6 @@ public class RenameUtil {
         Map<String, ChangeAnnotation> changeAnnotationMap = new HashMap<>();
         WorkspaceEdit workspaceEdit = new WorkspaceEdit();
         Map<String, List<TextEdit>> changes = getChanges(context);
-//&& CommonUtil.SELF_KW.equals(context.getParams().getNewName())
         if (context.getHonorsChangeAnnotations() && CommonUtil.isKeyword(context.getParams().getNewName())) {
             changeAnnotationMap.put(RenameChangeAnnotation.QUOTED_KEYWORD.getID(),
                     RenameChangeAnnotation.QUOTED_KEYWORD.getChangeAnnotation());
