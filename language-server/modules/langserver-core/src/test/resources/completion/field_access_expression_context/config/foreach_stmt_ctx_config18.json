@@ -339,11 +339,11 @@
     {
       "label": "map(function () func)",
       "kind": "Function",
-      "detail": "table<table:Type>",
+      "detail": "table<table:MapType1>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nApplies a function each member of a table and returns a table of the result.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `table<table:Type>`   \n- new table containing result of applying function `func` to each member  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nApplies a function to each member of a table and returns a table of the result.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `table<table:MapType1>`   \n- new table containing result of applying function `func` to each member  \n  \n"
         }
       },
       "sortText": "CD",
