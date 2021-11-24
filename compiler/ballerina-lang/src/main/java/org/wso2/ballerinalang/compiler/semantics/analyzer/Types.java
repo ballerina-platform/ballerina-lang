@@ -3793,19 +3793,29 @@ public class Types {
                     Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
                     BType baseExprType = valSpace.iterator().next().getBType();
                     for (BType memType : memberTypes) {
+                        if (memType.tag == TypeTags.TYPEREFDESC) {
+                            memType = getReferredType(memType);
+                        }
                         if (memType.tag == TypeTags.FINITE) {
                             if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
                                 return false;
                             }
+                            continue;
                         }
-                        if (!checkValidNumericTypesInUnion(memType, firstTypeInUnion.tag)) {
+                        if (!validNumericTypeExists(memType)) {
                             return false;
                         }
                     }
                 } else {
                     for (BType memType : memberTypes) {
                         memType = getReferredType(memType);
-                        if (!checkValidNumericTypesInUnion(memType, firstTypeInUnion.tag)) {
+                        if (memType.tag == TypeTags.FINITE) {
+                            if (!checkValueSpaceHasSameType((BFiniteType) memType, firstTypeInUnion)) {
+                                return false;
+                            }
+                            continue;
+                        }
+                        if (!validNumericTypeExists(memType)) {
                             return false;
                         }
                     }
