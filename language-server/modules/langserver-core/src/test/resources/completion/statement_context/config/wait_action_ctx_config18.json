@@ -1,0 +1,26 @@
+{
+  "position": {
+    "line": 18,
+    "character": 27
+  },
+  "source": "statement_context/source/wait_action_ctx_source18.bal",
+  "items": [
+    {
+      "label": "b",
+      "kind": "Field",
+      "detail": "Result.b",
+      "sortText": "G",
+      "insertText": "b: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Result Required Fields",
+      "kind": "Property",
+      "detail": "Result",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "b: \"\"",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

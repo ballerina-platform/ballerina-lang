@@ -1,0 +1,34 @@
+{
+  "position": {
+    "line": 18,
+    "character": 32
+  },
+  "source": "statement_context/source/wait_action_ctx_source20.bal",
+  "items": [
+    {
+      "label": "a",
+      "kind": "Field",
+      "detail": "Result.a",
+      "sortText": "G",
+      "insertText": "a: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "b",
+      "kind": "Field",
+      "detail": "Result.b",
+      "sortText": "G",
+      "insertText": "b: ${2:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Result Required Fields",
+      "kind": "Property",
+      "detail": "Result",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "a: 0,\nb: \"\"",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "position": {
+    "line": 12,
+    "character": 21
+  },
+  "source": "statement_context/source/wait_action_ctx_source21.bal",
+  "items": [
+    {
+      "label": "WA",
+      "kind": "Field",
+      "detail": "Result.WA",
+      "sortText": "G",
+      "insertText": "WA: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Result Required Fields",
+      "kind": "Property",
+      "detail": "Result",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "WA: 0",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WA",
+      "kind": "Variable",
+      "detail": "int|error",
+      "sortText": "B",
+      "insertText": "WA",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

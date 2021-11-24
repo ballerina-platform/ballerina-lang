@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 13,
+    "character": 36
+  },
+  "source": "statement_context/source/wait_action_ctx_source19.bal",
+  "items": [
+    {
+      "label": "fint",
+      "kind": "Variable",
+      "detail": "future<int>",
+      "sortText": "B",
+      "insertText": "fint",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WA",
+      "kind": "Variable",
+      "detail": "worker",
+      "sortText": "B",
+      "insertText": "WA",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WB",
+      "kind": "Variable",
+      "detail": "worker",
+      "sortText": "B",
+      "insertText": "WB",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fstr",
+      "kind": "Variable",
+      "detail": "future<string>",
+      "sortText": "B",
+      "insertText": "fstr",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
