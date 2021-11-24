@@ -1,0 +1,72 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "wso2": {
+            "type": "object",
+            "properties": {
+                "project_config_schema": {
+                    "type": "object",
+                    "properties": {
+                        "url": {
+                            "type": "string",
+                            "description": ""
+                        },
+                        "ports": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            },
+                            "description": ""
+                        },
+                        "users": {
+                            "type": "object",
+                            "properties": {
+                                "admin": {
+                                    "type": "object",
+                                    "properties": {
+                                        "username": {
+                                            "type": "string"
+                                        },
+                                        "age": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "additionalProperties": false,
+                                    "description": ""
+                                },
+                                "users": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "username": {
+                                                "type": "string"
+                                            },
+                                            "age": {
+                                                "type": "integer"
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    },
+                                    "description": ""
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "admin",
+                                "users"
+                            ]
+                        }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                        "url"
+                    ]
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}

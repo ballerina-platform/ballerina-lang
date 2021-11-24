@@ -1,0 +1,8 @@
+[package]
+org = "wso2"
+name = "project_config_schema"
+version = "0.1.0"
+distribution = "slbeta4"
+
+[build-options]
+observabilityIncluded = true

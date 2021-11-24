@@ -34,11 +34,12 @@ public class CompilationOptions {
     Boolean dumpGraph;
     Boolean dumpRawGraphs;
     Boolean withCodeGenerators;
+    Boolean configSchemaGen;
 
     CompilationOptions(Boolean offlineBuild, Boolean experimental,
                        Boolean observabilityIncluded, Boolean dumpBir, Boolean dumpBirFile,
                        String cloud, Boolean listConflictedClasses, Boolean sticky,
-                       Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators) {
+                       Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators, Boolean configSchemaGen) {
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
@@ -50,6 +51,7 @@ public class CompilationOptions {
         this.dumpGraph = dumpGraph;
         this.dumpRawGraphs = dumpRawGraphs;
         this.withCodeGenerators = withCodeGenerators;
+        this.configSchemaGen = configSchemaGen;
     }
 
     public boolean offlineBuild() {
@@ -94,6 +96,10 @@ public class CompilationOptions {
 
     public boolean withCodeGenerators() {
         return toBooleanDefaultIfNull(this.withCodeGenerators);
+    }
+
+    public Boolean configSchemaGen() {
+        return toBooleanDefaultIfNull(this.configSchemaGen);
     }
 
     /**
@@ -158,6 +164,11 @@ public class CompilationOptions {
             compilationOptionsBuilder.withCodeGenerators(theirOptions.withCodeGenerators);
         } else {
             compilationOptionsBuilder.withCodeGenerators(this.withCodeGenerators);
+        }
+        if (theirOptions.configSchemaGen != null) {
+            compilationOptionsBuilder.configSchemaGen(theirOptions.configSchemaGen);
+        } else {
+            compilationOptionsBuilder.configSchemaGen(this.configSchemaGen);
         }
         return compilationOptionsBuilder.build();
     }
