@@ -47,7 +47,7 @@ public class IndexedExpressionNodeContext extends AbstractCompletionProvider<Ind
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
-        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> entries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
 
@@ -62,6 +62,6 @@ public class IndexedExpressionNodeContext extends AbstractCompletionProvider<Ind
 
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, IndexedExpressionNode node) {
-        return context.getNodeAtCursor().lineRange().endLine().offset() >= context.getCursorPosition().getCharacter();
+        return context.getNodeAtCursor().textRange().endOffset() >= context.getCursorPositionInTree();
     }
 }
