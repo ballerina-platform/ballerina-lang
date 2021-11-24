@@ -37,11 +37,11 @@ jobs:
           name: Heap Dump
           path: '*.hprof'
 
-#      - name: Notify failure
-#        if: ${{ failure() }}
-#        run: |
-#          curl \
-#          -X POST 'https://chat.googleapis.com/v1/spaces/${{secrets.NOTIFICATIONS_CHAT_ID}}/messages?key=${{secrets.NOTIFICATIONS_CHAT_KEY}}&token=${{secrets.NOTIFICATIONS_CHAT_TOKEN}}' \
-#          --header 'Content-Type: application/json' \
-#          -d '{"text": "*ballerina-lang daily build failure* \nPlease \n visit <https://github.com/ballerina-platform/ballerina-lang/actions?query=workflow%3A%22Daily+build%22|the daily build page> for more information"}'
+      - name: Notify failure
+        if: failure()
+        run: |
+          curl \
+          -X POST 'https://chat.googleapis.com/v1/spaces/${{secrets.NOTIFICATIONS_CHAT_ID}}/messages?key=${{secrets.NOTIFICATIONS_CHAT_KEY}}&token=${{secrets.NOTIFICATIONS_CHAT_TOKEN}}' \
+          --header 'Content-Type: application/json' \
+          -d '{"text": "*language server simulator failure* \nPlease \n visit <https://github.com/ballerina-platform/ballerina-lang/actions?query=workflow%3A%22Language+Server+Simulator%22|the LS simulator build page> for more information"}'
 
