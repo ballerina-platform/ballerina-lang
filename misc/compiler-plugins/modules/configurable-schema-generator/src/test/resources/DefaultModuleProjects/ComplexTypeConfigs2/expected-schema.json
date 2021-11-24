@@ -48,6 +48,18 @@
               ],
               "description": ""
             },
+            "myVal": {
+              "enum": [
+                "BLUE",
+                "GREEN",
+                "RED",
+                1.4,
+                1,
+                2,
+                "test1"
+              ],
+              "description": ""
+            },
             "myArray": {
               "type": "array",
               "items": {
