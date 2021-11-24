@@ -78,3 +78,10 @@ function checkCastInNamedArg() {
 public function func1(int arg1) {
 
 }
+
+public type MyType record {|int field1;int field2;|};
+
+public function func2() {
+    record {|int field1;int field2;|} a =  <MyType> {field1: 10,field2: 1.0};
+    record {|int field1;int field2;|} b =  {field1: 10,field2: <float> 1.0};
+}

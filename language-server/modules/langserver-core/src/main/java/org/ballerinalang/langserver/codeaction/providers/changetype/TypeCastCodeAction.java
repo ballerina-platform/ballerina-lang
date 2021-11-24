@@ -23,16 +23,13 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
-import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
-import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.codeaction.ExpressionNodeResolver;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
@@ -45,7 +42,6 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -72,8 +68,11 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
             return Collections.emptyList();
         }
-        Node matchedNode = getMatchedNode(positionDetails.matchedNode());
-        if (matchedNode == null) {
+
+        //Check if there is a type cast expression already present.
+        ExpressionNodeResolver expressionResolver = new ExpressionNodeResolver();
+        Optional<ExpressionNode> expressionNode = positionDetails.matchedNode().apply(expressionResolver);
+        if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
             return Collections.emptyList();
         }
 
@@ -100,11 +99,6 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
             }
         }
 
-        Optional<ExpressionNode> expressionNode = getExpression(matchedNode);
-        if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
-            return Collections.emptyList();
-        }
-
         List<TextEdit> edits = new ArrayList<>();
         //numeric types can be casted between each other.
         if (!lhsTypeSymbol.get().subtypeOf(rhsTypeSymbol.get()) && (!isNumeric(lhsTypeSymbol.get())
@@ -124,33 +118,6 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
     @Override
     public String getName() {
         return NAME;
-    }
-
-    protected NonTerminalNode getMatchedNode(NonTerminalNode node) {
-        List<SyntaxKind> syntaxKinds =
-                Arrays.asList(SyntaxKind.LOCAL_VAR_DECL, SyntaxKind.MODULE_VAR_DECL, SyntaxKind.ASSIGNMENT_STATEMENT,
-                        SyntaxKind.POSITIONAL_ARG, SyntaxKind.NAMED_ARG, SyntaxKind.SPREAD_FIELD);
-        while (node != null && !syntaxKinds.contains(node.kind())) {
-            node = node.parent();
-        }
-
-        return node;
-    }
-
-    protected Optional<ExpressionNode> getExpression(Node node) {
-        if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
-            return ((VariableDeclarationNode) node).initializer();
-        } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
-            return ((ModuleVariableDeclarationNode) node).initializer();
-        } else if (node.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
-            return Optional.of(((AssignmentStatementNode) node).expression());
-        } else if (node.kind() == SyntaxKind.POSITIONAL_ARG) {
-            return Optional.of(((PositionalArgumentNode) node).expression());
-        } else if (node.kind() == SyntaxKind.NAMED_ARG) {
-            return Optional.of(((NamedArgumentNode) node).expression());
-        } else {
-            return Optional.empty();
-        }
     }
 
     protected Optional<VariableSymbol> getVariableSymbol(CodeActionContext context, Node matchedNode) {

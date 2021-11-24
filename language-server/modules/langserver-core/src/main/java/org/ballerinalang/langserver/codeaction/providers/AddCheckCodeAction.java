@@ -19,11 +19,11 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.codeaction.ExpressionNodeResolver;
 import org.ballerinalang.langserver.codeaction.providers.changetype.TypeCastCodeAction;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -63,8 +63,11 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
         if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
             return Collections.emptyList();
         }
-        Node matchedNode = getMatchedNode(positionDetails.matchedNode());
-        if (matchedNode == null) {
+
+        //Check if there is a check expression already present.
+        ExpressionNodeResolver expressionResolver = new ExpressionNodeResolver();
+        Optional<ExpressionNode> expressionNode = positionDetails.matchedNode().apply(expressionResolver);
+        if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.CHECK_EXPRESSION) {
             return Collections.emptyList();
         }
 
@@ -83,11 +86,6 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
 
         if (foundType.get().typeKind() != TypeDescKind.UNION ||
                 !CodeActionUtil.hasErrorMemberType((UnionTypeSymbol) foundType.get())) {
-            return Collections.emptyList();
-        }
-
-        Optional<ExpressionNode> expressionNode = getExpression(matchedNode);
-        if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.CHECK_EXPRESSION) {
             return Collections.emptyList();
         }
 
