@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v2
         if: failure()
         with:
-          name: Heap Dump
+          name: heap_dump.hprof
           path: '*.hprof'
 
       - name: Notify failure
