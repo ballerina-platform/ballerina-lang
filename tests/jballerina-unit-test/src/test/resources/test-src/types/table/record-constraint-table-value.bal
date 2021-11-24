@@ -492,6 +492,39 @@ public function testSpreadFieldInConstructor() {
     tb3.toString());
 }
 
+function testTableTypeInferenceWithVarType() {
+    testTableTypeInferenceWithVarType1();
+    testTableTypeInferenceWithVarType2();
+    testTableTypeInferenceWithVarType3();
+}
+
+function testTableTypeInferenceWithVarType1() {
+    var v1 = table [
+        {a: 1},
+        {a: "str", b: 2}
+    ];
+    assertTrue(v1 is table<record {|int|string a; int b?;|}>);
+}
+
+function testTableTypeInferenceWithVarType2() {
+    record {string a; int b?;} m = {a: "str", b: 2};
+    var v1 = table [
+        {a: 1},
+        {...m},
+        {a: true, c: 2, b: false}
+    ];
+    assertTrue(v1 is table<record {| (int|string|boolean) a; (int|boolean) b?; int c?; |}>);
+}
+
+function testTableTypeInferenceWithVarType3() {
+    record {string|boolean a; int b?;} m = {a: "str", b: 2};
+    var v1 = table [
+        {a: 1},
+        {...m}
+    ];
+    assertTrue(v1 is table<record {| (int|string|boolean) a; int b?; |}>);
+    assertFalse(v1 is table<record {| (int|string) a; int b?; |}>);
+}
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 

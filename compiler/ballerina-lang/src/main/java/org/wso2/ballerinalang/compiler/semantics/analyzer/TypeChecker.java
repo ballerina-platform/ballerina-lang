@@ -1056,66 +1056,94 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType inferTableMemberType(List<BType> memTypes, BLangTableConstructorExpr tableConstructorExpr) {
         BLangTableKeySpecifier keySpecifier = tableConstructorExpr.tableKeySpecifier;
         List<String> keySpecifierFieldNames = new ArrayList<>();
-        Set<BField> allFieldSet = new LinkedHashSet<>();
-        for (BType memType : memTypes) {
-            allFieldSet.addAll(((BRecordType) memType).fields.values());
-        }
 
-        Set<BField> commonFieldSet = new LinkedHashSet<>(allFieldSet);
-        for (BType memType : memTypes) {
-            commonFieldSet.retainAll(((BRecordType) memType).fields.values());
-        }
-
-        List<String> requiredFieldNames = new ArrayList<>();
         if (keySpecifier != null) {
             for (IdentifierNode identifierNode : keySpecifier.fieldNameIdentifierList) {
-                requiredFieldNames.add(((BLangIdentifier) identifierNode).value);
                 keySpecifierFieldNames.add(((BLangIdentifier) identifierNode).value);
             }
         }
 
-        List<String> fieldNames = new ArrayList<>();
-        for (BField field : allFieldSet) {
-            String fieldName = field.name.value;
-
-            if (fieldNames.contains(fieldName)) {
-                dlog.error(tableConstructorExpr.pos,
-                        DiagnosticErrorCode.CANNOT_INFER_MEMBER_TYPE_FOR_TABLE_DUE_AMBIGUITY,
-                        fieldName);
-                return symTable.semanticError;
-            }
-            fieldNames.add(fieldName);
-
-            boolean isOptional = true;
-            for (BField commonField : commonFieldSet) {
-                if (commonField.name.value.equals(fieldName)) {
-                    isOptional = false;
-                    requiredFieldNames.add(commonField.name.value);
+        LinkedHashMap<String, List<BField>> fieldNameToFields = new LinkedHashMap<>();
+        for (BType memType : memTypes) {
+            for (BField field : ((BRecordType) memType).fields.values()) {
+                String key = field.name.value;
+                if (fieldNameToFields.containsKey(key)) {
+                    fieldNameToFields.get(key).add(field);
+                } else {
+                    fieldNameToFields.put(key, new ArrayList<>() {{
+                        add(field);
+                    }});
                 }
-            }
-
-            if (isOptional) {
-                field.symbol.flags = Flags.asMask(EnumSet.of(Flag.OPTIONAL));
-            } else if (requiredFieldNames.contains(fieldName) && keySpecifierFieldNames.contains(fieldName)) {
-                field.symbol.flags = Flags.asMask(EnumSet.of(Flag.REQUIRED)) + Flags.asMask(EnumSet.of(Flag.READONLY));
-            } else if (requiredFieldNames.contains(fieldName)) {
-                field.symbol.flags = Flags.asMask(EnumSet.of(Flag.REQUIRED));
             }
         }
 
-        return createTableConstraintRecordType(allFieldSet, tableConstructorExpr.pos);
+        LinkedHashSet<BField> inferredFields = new LinkedHashSet<>();
+        int memTypesSize = memTypes.size();
+
+        fieldNameToFields.forEach((fieldName, fields) -> {
+            BField field = mergeSameNameFields(fields);
+
+            boolean isOptional = fields.size() != memTypesSize;
+            if (isOptional) {
+                field.symbol.flags = Flags.asMask(EnumSet.of(Flag.OPTIONAL));
+            } else if (keySpecifierFieldNames.contains(fieldName)) {
+                field.symbol.flags = Flags.asMask(EnumSet.of(Flag.REQUIRED)) + Flags.asMask(EnumSet.of(Flag.READONLY));
+            } else {
+                field.symbol.flags = Flags.asMask(EnumSet.of(Flag.REQUIRED));
+            }
+
+            inferredFields.add(field);
+        });
+
+        return createTableConstraintRecordType(inferredFields, tableConstructorExpr.pos);
     }
 
-    private BRecordType createTableConstraintRecordType(Set<BField> allFieldSet, Location pos) {
+    /**
+     * Merges multiple fields with same field name into a single field, where type of that field will be the
+     * supertype of the static types of all the fields.
+     *
+     * @param fields the list of same name fields (size > 0)
+     * @return a {@code BField}
+     */
+    private BField mergeSameNameFields(List<BField> fields) {
+        BField firstField = fields.get(0);
+
+        if (fields.size() == 1) {
+            return firstField;
+        }
+
+        List<BType> types = new ArrayList<>();
+        for (BField field : fields) {
+            BType type = field.getType();
+            if (type.tag == TypeTags.UNION) {
+                ((BUnionType) type).getMemberTypes().forEach(t -> {
+                    if (isUniqueType(types, t)) {
+                        types.add(t);
+                    }
+                });
+            } else if (isUniqueType(types, type)) {
+                types.add(type);
+            }
+        }
+
+        BUnionType bUnionType = BUnionType.create(null, new LinkedHashSet<>(types));
+        BVarSymbol symbol = firstField.symbol;
+        BVarSymbol fieldSymbol = new BVarSymbol(symbol.flags, symbol.name, symbol.pkgID, bUnionType, symbol.owner,
+                symbol.pos, VIRTUAL);
+
+        return new BField(firstField.name, firstField.pos, fieldSymbol);
+    }
+
+    private BRecordType createTableConstraintRecordType(Set<BField> inferredFields, Location pos) {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(pkgID, pos, VIRTUAL);
 
-        for (BField field : allFieldSet) {
+        for (BField field : inferredFields) {
             recordSymbol.scope.define(field.name, field.symbol);
         }
 
         BRecordType recordType = new BRecordType(recordSymbol);
-        recordType.fields = allFieldSet.stream().collect(getFieldCollector());
+        recordType.fields = inferredFields.stream().collect(getFieldCollector());
 
         recordSymbol.type = recordType;
         recordType.tsymbol = recordSymbol;
