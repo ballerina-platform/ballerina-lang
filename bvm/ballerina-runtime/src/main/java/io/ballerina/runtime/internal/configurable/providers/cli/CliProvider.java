@@ -234,6 +234,11 @@ public class CliProvider implements ConfigProvider {
     }
 
     @Override
+    public Optional<ConfigValue> getAsFiniteAndMark(Module module, VariableKey key) {
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<ConfigValue> getAsXmlAndMark(Module module, VariableKey key) {
         Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
         CliArg cliArg = getCliArg(module, key);
