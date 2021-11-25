@@ -1569,7 +1569,7 @@ public class TestBuildProject extends BaseTest {
     public void testAddResources() throws IOException {
         // 1. load the project
         Path projectPath = RESOURCE_DIRECTORY.resolve("test_proj_with_resources");
-        BuildOptions buildOptions = new BuildOptionsBuilder().skipTests(false).build();
+        BuildOptions buildOptions = BuildOptions.builder().setSkipTests(false).build();
         BuildProject buildProject = loadBuildProject(projectPath, buildOptions);
         Module defaultModule = buildProject.currentPackage().getDefaultModule();
 
