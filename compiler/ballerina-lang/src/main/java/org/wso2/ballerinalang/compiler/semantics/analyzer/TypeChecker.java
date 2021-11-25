@@ -6467,7 +6467,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType retType = typeParamAnalyzer.getReturnTypeParams(env, bInvokableType.getReturnType());
-        if (restType != symTable.semanticError &&
+        if (restType != symTable.semanticError && (Symbols.isFlagOn(invokableSymbol.flags, Flags.INTERFACE)
+                || Symbols.isFlagOn(invokableSymbol.flags, Flags.NATIVE)) &&
                 Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
             retType = unifier.build(retType, expType, iExpr, types, symTable, dlog);
         }

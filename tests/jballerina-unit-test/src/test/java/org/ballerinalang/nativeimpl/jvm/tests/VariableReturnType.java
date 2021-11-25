@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -144,6 +145,11 @@ public class VariableReturnType {
         }
 
         return map;
+    }
+
+    public static BStream getStreamOfRecords(ObjectValue objectValue, BStream strm, BTypedesc typedesc) {
+        RecordType streamConstraint = (RecordType) ((BTypedesc) typedesc).getDescribingType();
+        return strm;
     }
 
     public static ArrayValue getTuple(BTypedesc td1, BTypedesc td2, BTypedesc td3) {

@@ -823,6 +823,38 @@ function testDependentlyTypedFunctionWithIncludedRecordParam() {
     assert("application/json 5", checkpanic p29);
 }
 
+client class ClientObjImpl {
+    *ClientObject;
+    remote isolated function query(stream<record {}> strm, typedesc<record {}> rowType = <>) returns stream <rowType> =
+    @java:Method {
+                'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+                name: "getStreamOfRecords",
+                paramTypes: ["io.ballerina.runtime.api.values.BStream", "io.ballerina.runtime.api.values.BTypedesc"]
+                } external;
+}
+
+public type ClientObject client object {
+    remote isolated function query(stream<record {}> strm, typedesc<record {}> rowType = <>) returns stream <rowType>;
+};
+
+function testDependentlyTypedFunctionsWithStreams() {
+    ClientObject cl = new ClientObjImpl();
+    Person p1 = getRecord();
+    Person p2 = getRecord();
+    Person[] personList = [p1, p2];
+    stream<Person> studentStream = personList.toStream();
+    stream<Person> y = cl->query(studentStream, Person);
+    var rec = y.next();
+    if (rec is record {| Person value; |}) {
+        Person person = rec.value;
+        assert(20, person.age);
+        assert("John Doe", person.name);
+        return;
+    }
+    rec = y.next();
+    assert(true, rec is record {| Person value; |});
+}
+
 // Util functions
 function assert(anydata expected, anydata actual) {
     if (expected != actual) {

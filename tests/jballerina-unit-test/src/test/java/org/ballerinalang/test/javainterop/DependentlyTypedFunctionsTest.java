@@ -230,7 +230,8 @@ public class DependentlyTypedFunctionsTest {
                 {"testArgsForDependentlyTypedFunctionViaTupleRestArg"},
                 {"testArgsForDependentlyTypedFunctionViaArrayRestArg"},
                 {"testArgsForDependentlyTypedFunctionViaRecordRestArg"},
-                {"testDependentlyTypedFunctionWithIncludedRecordParam"}
+                {"testDependentlyTypedFunctionWithIncludedRecordParam"},
+                {"testDependentlyTypedFunctionsWithStreams"}
         };
     }
 
