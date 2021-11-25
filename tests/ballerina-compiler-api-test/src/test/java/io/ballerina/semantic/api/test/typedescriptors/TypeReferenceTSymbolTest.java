@@ -102,9 +102,9 @@ public class TypeReferenceTSymbolTest {
     @Test
     public void testRecordField() {
         Optional<Symbol> symbol = model.symbol(srcFile, from(44, 7));
-        BallerinaVariableSymbol typeSymbol = ((BallerinaVariableSymbol) symbol.get());
-        assertEquals(typeSymbol.getInternalSymbol().type.getKind(), TypeKind.RECORD);
-        BRecordType varType = (BRecordType) typeSymbol.getInternalSymbol().type;
+        BallerinaVariableSymbol variableSymbol = ((BallerinaVariableSymbol) symbol.get());
+        assertEquals(variableSymbol.getInternalSymbol().type.getKind(), TypeKind.RECORD);
+        BRecordType varType = (BRecordType) variableSymbol.getInternalSymbol().type;
         Map<String, BField> recordFields = ((BRecordType) varType).fields;
         assertEquals(recordFields.size(), 1);
         BField field = recordFields.get("age");
