@@ -578,6 +578,11 @@ public class ImmutableTypeCloner {
                 invokableSymbol.restParam = tsymbol.restParam;
                 invokableSymbol.retType = tsymbol.returnType;
                 invokableSymbol.flags = tsymbol.flags;
+            } else if (immutableFieldType == symTable.semanticError) {
+                // Can only happen for records.
+                immutableFieldSymbol = new BVarSymbol(origField.symbol.flags | flag | Flags.OPTIONAL,
+                                                      origFieldName, pkgID, symTable.neverType,
+                                                      immutableStructureSymbol, origField.symbol.pos, SOURCE);
             } else {
                 immutableFieldSymbol = new BVarSymbol(origField.symbol.flags | flag, origFieldName, pkgID,
                                                       immutableFieldType, immutableStructureSymbol,
@@ -614,9 +619,11 @@ public class ImmutableTypeCloner {
             immutableRecordType.restFieldType = origRestFieldType;
             return;
         }
-        immutableRecordType.restFieldType = getImmutableType(pos, types, origRestFieldType, env, env.enclPkg.packageID,
-                                                             env.scope.owner, symTable, anonymousModelHelper, names,
-                                                             unresolvedTypes);
+        BType restFieldImmutableType = getImmutableType(pos, types, origRestFieldType, env, env.enclPkg.packageID,
+                                                        env.scope.owner, symTable, anonymousModelHelper, names,
+                                                        unresolvedTypes);
+        immutableRecordType.restFieldType = restFieldImmutableType == symTable.semanticError ?
+                symTable.neverType : restFieldImmutableType;
     }
 
     private static BIntersectionType defineImmutableRecordType(Location pos, BRecordType origRecordType,
