@@ -105,5 +105,5 @@ public abstract class TerminalAdapter {
                 .collect(Collectors.joining(NEWLINE));
     }
 
-    public abstract String readOneLine();
+    public abstract String readOneLine(String prompt);
 }

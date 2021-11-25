@@ -265,8 +265,7 @@ public class BallerinaShell {
             moduleCount += 1;
         }
 
-        terminal.info("Do you want to import mentioned modules (yes/y) (no/n) ?");
-        String answer = terminal.readOneLine();
+        String answer = terminal.readOneLine("Do you want to import mentioned modules (yes/y) (no/n) ? ");
         if (answer.equalsIgnoreCase("yes") || answer.equalsIgnoreCase("y")) {
             terminal.info("Adding required imports");
             for (String module : modules) {
