@@ -55,8 +55,8 @@ public class ErrorBindingPatternTest {
         CompileResult buildError = BCompileUtil.compile(
                 "test-src/statements/matchstmt/varbindingpatternmatchpattern/error_type_ref_negative.bal");
         int i = -1;
-        BAssertUtil.validateError(buildError, ++i, "invalid error binding pattern with type 'other'", 18, 11);
         BAssertUtil.validateError(buildError, ++i, "unknown type 'myError'", 18, 17);
+        BAssertUtil.validateError(buildError, ++i, "unknown type 'myError'", 22, 15);
         Assert.assertEquals(buildError.getErrorCount(), i + 1);
     }
 
