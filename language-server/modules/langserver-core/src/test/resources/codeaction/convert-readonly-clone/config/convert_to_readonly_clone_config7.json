@@ -1,0 +1,24 @@
+{
+  "line": 7,
+  "character": 35,
+  "expected": [
+    {
+      "title": "Convert to Readonly Clone",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 31
+            },
+            "end": {
+              "line": 7,
+              "character": 40
+            }
+          },
+          "newText": "(testXml/*).cloneReadOnly()"
+        }
+      ]
+    }
+  ]
+}

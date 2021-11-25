@@ -20,7 +20,7 @@ public function foo() {
     }
 
     worker w2 {
-        string s = checkpanic <- w1;
+        string _ = checkpanic <- w1;
     }
 }
 
@@ -30,6 +30,6 @@ public function bar() {
     }
 
     worker w2 {
-        string s = checkpanic <- w1;
+        string _ = checkpanic <- w1;
     }
 }

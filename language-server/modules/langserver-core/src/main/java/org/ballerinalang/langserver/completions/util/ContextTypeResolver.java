@@ -458,7 +458,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
         if (!CommonUtil.isInMethodCallParameterContext(context, node)) {
-            return SymbolUtil.getTypeDescriptor(methodSymbol.get());
+            // Here, we want the type of the context, not the type of the method itself
+            return node.parent().apply(this);
         }
 
         Optional<ParameterSymbol> paramSymbol =

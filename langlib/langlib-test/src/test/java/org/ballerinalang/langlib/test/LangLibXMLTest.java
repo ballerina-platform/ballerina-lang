@@ -329,6 +329,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testSetChildrenFunction() {
+        BRunUtil.invoke(compileResult, "testSetChildrenFunction");
+    }
+
+    @Test
     public void testNegativeCases() {
         negativeResult = BCompileUtil.compile("test-src/xmllib_test_negative.bal");
         int i = 0;
@@ -344,8 +349,9 @@ public class LangLibXMLTest {
         validateError(negativeResult, i++, "incompatible types: expected 'xml:Element', found 'xml'", 69, 13);
         validateError(negativeResult, i++, "incompatible types: expected 'xml<xml:Element>', found 'xml'",
                 75, 28);
-        validateError(negativeResult, i++, "incompatible types: expected " +
-                "'map<string>', found 'record {| string x; anydata...; |}'", 95, 49);
+        validateError(negativeResult, i++, "incompatible types: expected 'map<string>', " +
+                        "found 'record {| string x; anydata...; |}'",
+                95, 49);
         validateError(negativeResult, i++, "incompatible types: expected 'map<string>', found 'attributesRecord'",
                 96, 49);
         validateError(negativeResult, i++, "incompatible types: expected 'xml', found 'string'",

@@ -34,17 +34,16 @@ import io.ballerina.compiler.syntax.tree.Token;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.SymbolCompletionItem;
-import org.ballerinalang.langserver.completions.builder.VariableCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.eclipse.lsp4j.CompletionItem;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -133,6 +132,22 @@ public class MappingConstructorExpressionNodeContext extends
         return !node.openBrace().isMissing() && !node.closeBrace().isMissing();
     }
 
+    @Override
+    public void sort(BallerinaCompletionContext context,
+                     MappingConstructorExpressionNode node,
+                     List<LSCompletionItem> completionItems) {
+        Optional<TypeSymbol> contextType = context.getContextType();
+        if (contextType.isPresent()) {
+            completionItems.forEach(lsCItem -> {
+                String sortText = SortingUtil.genSortTextByAssignability(context, lsCItem, contextType.get());
+                lsCItem.getCompletionItem().setSortText(sortText);
+            });
+            return;
+        }
+
+        super.sort(context, node, completionItems);
+    }
+
     private boolean withinValueExpression(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {
         Token colon = null;
 
@@ -188,21 +203,17 @@ public class MappingConstructorExpressionNodeContext extends
     private List<LSCompletionItem> getVariableCompletionsForFields(BallerinaCompletionContext ctx,
                                                                    Map<String, RecordFieldSymbol> recFields) {
         List<Symbol> visibleSymbols = ctx.visibleSymbols(ctx.getCursorPosition()).stream()
-                .filter(this.getVariableFilter())
+                .filter(this.getVariableFilter().and(symbol -> {
+                    Optional<TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
+                    Optional<String> symbolName = symbol.getName();
+                    return symbolName.isPresent() && typeDescriptor.isPresent()
+                            && recFields.containsKey(symbolName.get())
+                            && recFields.get(symbolName.get()).typeDescriptor().typeKind()
+                            == typeDescriptor.get().typeKind();
+                }))
                 .collect(Collectors.toList());
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        visibleSymbols.forEach(symbol -> {
-            TypeSymbol typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
-            String symbolName = symbol.getName().get();
-            if (recFields.containsKey(symbolName)
-                    && recFields.get(symbolName).typeDescriptor().typeKind() == typeDescriptor.typeKind()) {
-                CompletionItem cItem = VariableCompletionItemBuilder.build((VariableSymbol) symbol, symbolName,
-                        CommonUtil.getModifiedTypeName(ctx, typeDescriptor));
-                completionItems.add(new SymbolCompletionItem(ctx, symbol, cItem));
-            }
-        });
-
-        return completionItems;
+        
+        return this.getCompletionItemList(visibleSymbols, ctx);
     }
 
     private List<LSCompletionItem> getComputedNameCompletions(BallerinaCompletionContext context) {

@@ -433,6 +433,29 @@ function setChildren('xml:Element fc, 'xml:Element subRoot) returns error? {
     return trap fc.setChildren(subRoot);
 }
 
+function testSetChildrenFunction() {
+    string url = "https://ballerina.io";
+    xml:Element xml1 = xml `<ele href="${url}"><foo>temp</foo></ele>`;
+    xml:setChildren(xml1, "Ballerina");
+    assertEquals(xml1.toString(), "<ele href=\"https://ballerina.io\">Ballerina</ele>");
+
+    xml1 = xml `<ele href="${url}"><foo>${url}</foo></ele>`;
+    xml:setChildren(xml1, "Ballerina");
+    assertEquals(xml1.toString(), "<ele href=\"https://ballerina.io\">Ballerina</ele>");
+
+    xml1 = xml `<ele href="${url}"><foo>temp value</foo></ele>`;
+    xml:setChildren(xml1, url);
+    assertEquals(xml1.toString(), "<ele href=\"https://ballerina.io\">https://ballerina.io</ele>");
+
+    xml1 = xml `<ele><foo>temp value</foo></ele>`;
+    xml:setChildren(xml1, string `this is ${url}`);
+    assertEquals(xml1.toString(), "<ele>this is https://ballerina.io</ele>");
+
+    xml1 = xml `<ele href="${url}"></ele>`;
+    xml:setChildren(xml1, "Ballerina");
+    assertEquals(xml1.toString(), "<ele href=\"https://ballerina.io\">Ballerina</ele>");
+}
+
 function testGet() returns [xml|error, xml|error, xml|error, xml|error, xml|error] {
     var e = 'xml:createElement("elem");
     xml|error e1 = trap e.get(0);

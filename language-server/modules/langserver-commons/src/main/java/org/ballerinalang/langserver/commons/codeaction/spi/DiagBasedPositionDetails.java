@@ -17,8 +17,11 @@ package org.ballerinalang.langserver.commons.codeaction.spi;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * This class holds position details for the diagnostics based code actions.
@@ -26,6 +29,7 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public interface DiagBasedPositionDetails {
+
     int DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED_SYMBOL_INDEX = 0;
     int DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX = 1;
     int DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX = 0;
@@ -51,4 +55,13 @@ public interface DiagBasedPositionDetails {
      * @return Value of the property at given index
      */
     <T> Optional<T> diagnosticProperty(int propertyIndex);
+
+    /**
+     * Returns optional value of the diagnostic property.
+     *
+     * @param function Function to be invoked on the diagnostic properties.
+     * @return Value of the property returned by the specified function.
+     */
+    <T> Optional<T> diagnosticProperty(Function<List<DiagnosticProperty<?>>, Optional<T>> function);
+    
 }

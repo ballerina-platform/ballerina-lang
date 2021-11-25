@@ -46,7 +46,7 @@ public class FiniteTypeNegativeTest {
     public void testInvalidLiteralAssignment() {
 
         CompileResult result = BCompileUtil.compile("test-src/types/finite/finite_type_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 13, "Error count mismatch");
+        Assert.assertEquals(result.getErrorCount(), 17, "Error count mismatch");
         int i = 0;
         validateError(result, i++, "incompatible types: expected 'Finite', found 'string'", 33, 16);
         validateError(result, i++, "incompatible types: expected 'ByteType', found '5'", 40, 18);
@@ -60,6 +60,10 @@ public class FiniteTypeNegativeTest {
         validateError(result, i++, "incompatible types: expected 'string', found 'StringOrIntVal'", 89, 17);
         validateError(result, i++, "incompatible types: expected 'int', found 'StringOrInt'", 92, 14);
         validateError(result, i++, "incompatible types: expected 't3', found 'float'", 102, 13);
-        validateError(result, i, "incompatible types: expected '(t|t2)', found 'decimal'", 107, 14);
+        validateError(result, i++, "incompatible types: expected '(t|t2)', found 'decimal'", 107, 14);
+        validateError(result, i++, "incompatible types: expected 'Foo', found 'int'", 116, 14);
+        validateError(result, i++, "incompatible types: expected 'Foo2', found 'int'", 117, 15);
+        validateError(result, i++, "incompatible types: expected 'Foo4', found 'int'", 118, 15);
+        validateError(result, i, "incompatible types: expected 'chiran', found 'int'", 119, 18);
     }
 }

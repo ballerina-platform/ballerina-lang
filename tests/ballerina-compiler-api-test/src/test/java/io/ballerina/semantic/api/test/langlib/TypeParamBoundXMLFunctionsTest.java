@@ -85,7 +85,7 @@ public class TypeParamBoundXMLFunctionsTest {
         assertTrue(getFnType.returnTypeDescriptor().isPresent());
 
         TypeSymbol getFnRetType = getFnType.returnTypeDescriptor().get();
-        assertEquals(getFnRetType.typeKind(), TypeDescKind.XML);
+        assertTypeRef(getFnRetType);
     }
 
     @Test

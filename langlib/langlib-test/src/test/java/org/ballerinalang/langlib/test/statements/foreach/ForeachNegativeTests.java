@@ -29,6 +29,8 @@ import org.testng.annotations.Test;
  * @since 0.96.0
  */
 public class ForeachNegativeTests {
+    private static final String INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE =
+            "a wildcard binding pattern can be used only with a value that belong to type 'any'";
 
     @Test
     public void testForeachSemanticsNegative() {
@@ -143,5 +145,22 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, index++, "incompatible types: expected '(([int,string,boolean.." +
                 ".]|[boolean,int]) & readonly)', found '[int,(string|int),int...]'", 136, 13);
         Assert.assertEquals(compile.getErrorCount(), index);
+    }
+
+    @Test
+    public void testWildcardBindingPatternInForeachNegative() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/statements/foreach/foreach_wildcard_binding_pattern_negative.bal");
+        int index = 0;
+        BAssertUtil.validateError(result, index++, INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE, 20, 13);
+        BAssertUtil.validateError(result, index++, INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE, 23, 13);
+        BAssertUtil.validateError(result, index++, INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE, 28, 13);
+        BAssertUtil.validateError(result, index++, INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE, 31, 13);
+//        https://github.com/ballerina-platform/ballerina-lang/issues/33544
+//        BAssertUtil.validateError(result, index++, INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE, 36, 32);
+//        BAssertUtil.validateError(result, index++, INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE, 39, 59);
+        BAssertUtil.validateError(result, index++, INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE, 43, 21);
+        BAssertUtil.validateError(result, index++, INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE, 46, 55);
+        Assert.assertEquals(result.getErrorCount(), index);
     }
 }

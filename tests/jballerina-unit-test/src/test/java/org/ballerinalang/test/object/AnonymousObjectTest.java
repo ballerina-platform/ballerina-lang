@@ -170,7 +170,8 @@ public class AnonymousObjectTest {
 
     @Test(description = "Test Code analyzer execution on Anonymous objects")
     public void testCodeAnalyzerRunningOnAnonymousObjectsForDeprecatedFunctionAnnotation() {
-        BAssertUtil.validateWarning(compileResult, 0, "usage of construct 'Test()' is deprecated", 287, 25);
+        BAssertUtil.validateWarning(compileResult, 0, "unused variable 'obj'", 284, 5);
+        BAssertUtil.validateWarning(compileResult, 1, "usage of construct 'Test()' is deprecated", 287, 25);
     }
 
     @AfterClass

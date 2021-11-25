@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "address",
       "kind": "Field",
       "detail": "Person.address",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "address: {\n\tstreet: \"${1}\",\n\tcity: \"${2}\",\n\tpostalCode: \"${3}\"\n}",
       "insertTextFormat": "Snippet"
     },
@@ -26,7 +26,7 @@
       "label": "name",
       "kind": "Field",
       "detail": "Person.name",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "name: \"${2}\"",
       "insertTextFormat": "Snippet"
     },
@@ -34,7 +34,7 @@
       "label": "age",
       "kind": "Field",
       "detail": "Person.age",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "age: ${3:0}",
       "insertTextFormat": "Snippet"
     },

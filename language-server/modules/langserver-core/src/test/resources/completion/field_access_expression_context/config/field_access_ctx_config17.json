@@ -12,10 +12,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \n  \n  \n  \n**Return** `record {| array:Type value; |}?`   \n  \n"
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \n  \n  \n  \n**Return** `record {| array:Type value; |}?`   \n  \n"
         }
       },
-      "sortText": "BC",
+      "sortText": "CC",
       "filterText": "next",
       "insertText": "next()",
       "insertTextFormat": "Snippet"
