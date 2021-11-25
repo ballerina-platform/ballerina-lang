@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.completions.builder;
 
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
