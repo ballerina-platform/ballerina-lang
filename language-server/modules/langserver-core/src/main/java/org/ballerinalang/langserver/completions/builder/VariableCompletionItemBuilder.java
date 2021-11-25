@@ -44,9 +44,7 @@ public final class VariableCompletionItemBuilder {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         String[] delimiterSeparatedTokens = (label).split("\\.");
-        String insertText = delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1];
-        insertText = CommonUtil.escapeEscapeCharsInIdentifier(insertText);
-        item.setInsertText(insertText);
+        item.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
         item.setDetail((type.equals("")) ? ItemResolverConstants.NONE : type);
         setMeta(item, varSymbol);
         return item;
