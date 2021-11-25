@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "name",
       "kind": "Field",
       "detail": "Application.name",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "name: \"${1}\"",
       "insertTextFormat": "Snippet"
     },
@@ -26,7 +26,7 @@
       "label": "id",
       "kind": "Field",
       "detail": "Application.id",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "id: \"${2}\"",
       "insertTextFormat": "Snippet"
     },
@@ -34,7 +34,7 @@
       "label": "version",
       "kind": "Field",
       "detail": "Application.version",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "'version: ${3:0}",
       "insertTextFormat": "Snippet"
     },

@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "next",
       "kind": "Field",
       "detail": "LinkedList.next",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "next: ${1:()}",
       "insertTextFormat": "Snippet"
     },
@@ -26,7 +26,7 @@
       "label": "value",
       "kind": "Field",
       "detail": "LinkedList.value",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "value: \"${2}\"",
       "insertTextFormat": "Snippet"
     },
