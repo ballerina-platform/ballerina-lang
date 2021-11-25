@@ -251,11 +251,7 @@ public class LargeMethodOptimizer {
     }
 
     private int getBbIdNum(List<BIRBasicBlock> bbList, int bbIndex) {
-        try {
-            return Integer.parseInt(bbList.get(bbIndex).toString().substring(2));
-        } catch (NumberFormatException e) {
-            return bbList.size() - 1;
-        }
+        return Integer.parseInt(bbList.get(bbIndex).toString().substring(2));
     }
 
     private boolean needToPassRhsVarDclAsArg(BIROperand rhsOp) {
@@ -274,6 +270,7 @@ public class LargeMethodOptimizer {
      * @param function original BIR function
      * @param possibleSplits list of possible splits
      * @param newlyAddedFunctions list to add the newly created functions
+     * @param fromAttachedFunction flag which indicates an original attached function is being split
      */
     private void generateSplits(String funcName, BIRFunction function, List<Split> possibleSplits,
                                 List<BIRFunction> newlyAddedFunctions, boolean fromAttachedFunction) {
@@ -438,6 +435,7 @@ public class LargeMethodOptimizer {
      * @param funcName Name of the function to be created
      * @param currSplit ongoing split details
      * @param newBBNum last BB id num of the parent function
+     * @param fromAttachedFunction flag which indicates an original attached function is being split
      * @return newly created BIR function
      */
     private BIRFunction createNewBIRFunctionAcrossBB(BIRFunction parentFunc, Name funcName, Split currSplit,
@@ -446,7 +444,6 @@ public class LargeMethodOptimizer {
         BIRNonTerminator lastIns = parentFuncBBs.get(currSplit.endBBNum).instructions.get(currSplit.lastIns);
         BType retType = lastIns.lhsOp.variableDcl.type;
         List<BType> paramTypes = new ArrayList<>();
-
         for (BIRVariableDcl funcArg : currSplit.funcArgs) {
             paramTypes.add(funcArg.type);
         }
@@ -529,6 +526,7 @@ public class LargeMethodOptimizer {
      * @param newFuncNum number to distinguish the newly created functions
      * @param startInsNum index of the start instruction in the BB instruction list
      * @param currentBB BB at the start of the split
+     * @param fromAttachedFunction flag which indicates an original attached function is being split
      * @return the next BB that will be in the parent function
      */
     private BIRBasicBlock generateSplitsInSameBB(String funcName, BIRFunction function, int bbNum,
@@ -581,6 +579,7 @@ public class LargeMethodOptimizer {
      * @param collectedIns other instructions in the split
      * @param lhsOperandList set of varDcl of the LHS operands
      * @param funcArgs list of varDcl for the new function arguments
+     * @param fromAttachedFunction flag which indicates an original attached function is being split
      * @return newly created BIR function
      */
     private BIRFunction createNewBIRFunctionInBB(BIRFunction parentFunc, Name funcName, BIRNonTerminator currentIns,
@@ -589,7 +588,6 @@ public class LargeMethodOptimizer {
                                                  boolean fromAttachedFunction) {
         BType retType = currentIns.lhsOp.variableDcl.type;
         List<BType> paramTypes = new ArrayList<>();
-
         for (BIRVariableDcl funcArg : funcArgs) {
             paramTypes.add(funcArg.type);
         }
@@ -639,6 +637,7 @@ public class LargeMethodOptimizer {
         changeSelfToArgVarKind(birFunc, selfVarDcl);
         return birFunc;
     }
+
     private BIRVariableDcl getArgVarKindVarDcl(BIRVariableDcl variableDcl) {
         return new BIRVariableDcl(variableDcl.pos, variableDcl.type, variableDcl.name, variableDcl.originalName,
                 VarScope.FUNCTION, VarKind.ARG, variableDcl.metaVarName);
