@@ -253,16 +253,16 @@ function testClosedIntRangeOnIntSubTypes() {
     assertEquality(arr[1], 2);
     assertEquality(arr[2], 3);
 
-//    int:Signed32 startValue16 = +254;
-//    byte|IntsV3 endValue16 = 256;
-//    arr.removeAll();
-//    foreach var val in startValue16 ... endValue16 {
-//        arr.push(val);
-//    }
-//    assertEquality(arr.length(), 3);
-//    assertEquality(arr[0], 254);
-//    assertEquality(arr[1], 255);
-//    assertEquality(arr[2], 256);
+    int:Signed32 startValue16 = +254;
+    byte|IntsV3 endValue16 = 256;
+    arr.removeAll();
+    foreach var val in startValue16 ... endValue16 {
+        arr.push(val);
+    }
+    assertEquality(arr.length(), 3);
+    assertEquality(arr[0], 254);
+    assertEquality(arr[1], 255);
+    assertEquality(arr[2], 256);
 
     IntsV5 startValue17 = -4;
     -2 endValue17 = -2;
@@ -388,15 +388,15 @@ function testHalfOpenIntRangeOnIntSubTypes() {
     assertEquality(arr[0], 1);
     assertEquality(arr[1], 2);
 
-//    int:Signed32 startValue10 = +254;
-//    byte|IntsV3 endValue10 = 256;
-//    arr.removeAll();
-//    foreach var val in startValue10 ..< endValue10 {
-//        arr.push(val);
-//    }
-//    assertEquality(arr.length(), 2);
-//    assertEquality(arr[0], 254);
-//    assertEquality(arr[1], 255);
+    int:Signed32 startValue10 = +254;
+    byte|IntsV3 endValue10 = 256;
+    arr.removeAll();
+    foreach var val in startValue10 ..< endValue10 {
+        arr.push(val);
+    }
+    assertEquality(arr.length(), 2);
+    assertEquality(arr[0], 254);
+    assertEquality(arr[1], 255);
 
     IntsV5 startValue11 = -4;
     -2 endValue11 = -2;
