@@ -235,3 +235,14 @@ type CustomerTableWithKTC table<CustomerDetail> key<Name>;
 
 CustomerTableWithKTC tbl4 = table key(firstname, lastname) [{name: {fname: "Sanjiva", lname: "Weerawarana"},
                 id: 13, address: "Sri Lanka"}];
+
+function variableNameFieldAsKeyField() {
+    int id = 1;
+
+    table<record {readonly int id; string name;}> key (id) _ = table [
+        {id, name: "Jo"},
+        {id: 1, name: "Amy"},
+        {id: 2, name: "Amy"},
+        {id, name: "Alex"}
+    ];
+}

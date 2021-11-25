@@ -43,6 +43,7 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -129,6 +130,22 @@ public class MappingConstructorExpressionNodeContext extends
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, MappingConstructorExpressionNode node) {
         return !node.openBrace().isMissing() && !node.closeBrace().isMissing();
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context,
+                     MappingConstructorExpressionNode node,
+                     List<LSCompletionItem> completionItems) {
+        Optional<TypeSymbol> contextType = context.getContextType();
+        if (contextType.isPresent()) {
+            completionItems.forEach(lsCItem -> {
+                String sortText = SortingUtil.genSortTextByAssignability(context, lsCItem, contextType.get());
+                lsCItem.getCompletionItem().setSortText(sortText);
+            });
+            return;
+        }
+
+        super.sort(context, node, completionItems);
     }
 
     private boolean withinValueExpression(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {

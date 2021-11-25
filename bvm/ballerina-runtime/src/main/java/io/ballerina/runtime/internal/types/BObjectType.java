@@ -102,9 +102,6 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public boolean isIsolated(String methodName) {
-        if (!isIsolated()) {
-            return false;
-        }
         for (MethodType method : this.getMethods()) {
             if (method.getName().equals(methodName)) {
                 return method.isIsolated();

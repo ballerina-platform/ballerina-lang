@@ -493,7 +493,7 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangLetExpression letExpr) {
-        if (PositionUtil.withinBlock(this.linePosition, letExpr.getPosition())
+        if (PositionUtil.withinRightInclusive(this.linePosition, letExpr.getPosition())
                 && isNarrowerEnclosure(letExpr.getPosition())) {
             SymbolEnv letExprEnv = letExpr.env.createClone();
             this.scope = letExprEnv;

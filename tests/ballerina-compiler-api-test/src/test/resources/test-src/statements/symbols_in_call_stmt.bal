@@ -40,6 +40,11 @@ function bar(string name, int age) returns error {
     return error("error");
 }
 
+function testErrorConstructor() {
+    string msg = "Op failed";
+    error err1 = error(msg, a = "foo");
+}
+
 class Dog {
     function eat() {
     }

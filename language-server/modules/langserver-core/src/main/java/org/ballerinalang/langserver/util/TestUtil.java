@@ -35,6 +35,7 @@ import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaProjectParams;
 import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxTreeNodeRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageComponentsRequest;
+import org.ballerinalang.langserver.extensions.ballerina.packages.PackageConfigSchemaRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageMetadataRequest;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionContext;
@@ -47,6 +48,7 @@ import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.CompletionTriggerKind;
 import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
+import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
@@ -145,6 +147,8 @@ public class TestUtil {
     private static final String PACKAGE_METADATA = "ballerinaPackage/metadata";
 
     private static final String PACKAGE_COMPONENTS = "ballerinaPackage/components";
+
+    private static final String PACKAGE_CONFIG_SCHEMA = "ballerinaPackage/configSchema";
 
     private static final String DOCUMENT_SYNTAX_TREE_NODE = "ballerinaDocument/syntaxTreeNode";
 
@@ -412,6 +416,19 @@ public class TestUtil {
     }
 
     /**
+     * Get package service's config schema response.
+     *
+     * @param serviceEndpoint Language Server Service endpoint
+     * @param projectPath     Project path to evaluate
+     * @return {@link String} Package config schema response
+     */
+    public static String getPackageConfigSchemaResponse(Endpoint serviceEndpoint, String projectPath) {
+        PackageConfigSchemaRequest packageConfigSchemaRequest = new PackageConfigSchemaRequest();
+        packageConfigSchemaRequest.setDocumentIdentifier(getTextDocumentIdentifier(projectPath));
+        return getResponseString(serviceEndpoint.request(PACKAGE_CONFIG_SCHEMA, packageConfigSchemaRequest));
+    }
+
+    /**
      * Returns syntaxTreeNode API response.
      *
      * @param serviceEndpoint Language Server Service endpoint
@@ -545,6 +562,16 @@ public class TestUtil {
             }
         }
         return true;
+    }
+
+    /**
+     * Send the workspace/didChangeWatchedFiles notification.
+     * 
+     * @param serviceEndpoint service endpoint
+     * @param params {@link DidChangeWatchedFilesParams} parameters for the change notification
+     */
+    public static void didChangeWatchedFiles(Endpoint serviceEndpoint, DidChangeWatchedFilesParams params) {
+        serviceEndpoint.notify("workspace/didChangeWatchedFiles", params);
     }
 
     /**

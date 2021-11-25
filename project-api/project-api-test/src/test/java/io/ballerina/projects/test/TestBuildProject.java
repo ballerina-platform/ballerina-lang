@@ -22,7 +22,6 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.CloudToml;
-import io.ballerina.projects.CompilationOptions;
 import io.ballerina.projects.CompilerPluginToml;
 import io.ballerina.projects.DependenciesToml;
 import io.ballerina.projects.DependencyGraph;
@@ -86,6 +85,7 @@ import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Contains cases to test the basic package structure.
@@ -1332,44 +1332,6 @@ public class TestBuildProject extends BaseTest {
         buildProject.documentId(filePath); // get the document ID
     }
 
-    @Test(description = "test passing compilation options to package compilation", enabled = false)
-    public void testPassCompilationOptionsToPackageCompilation() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
-
-        // 1) Initialize the project instance
-        BuildOptions options = BuildOptions.builder().setExperimental(true).build();
-        BuildProject project = loadBuildProject(projectPath, options);
-
-        Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
-        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-            Assert.assertTrue(project.currentPackage().module(moduleId).moduleName().toString().contains("myproject"));
-        }
-        project.currentPackage().getCompilation();
-        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
-
-        // 2) Pass compilations option 'offline' to the package compilation
-        CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder = CompilationOptions.builder();
-        compilationOptionsBuilder.setOffline(true);
-        project.currentPackage().getCompilation(compilationOptionsBuilder.build());
-        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
-
-        // 3) Get compilation again and check compilation options
-        BallerinaToml newBallerinaToml = project.currentPackage().ballerinaToml().get()
-                .modify().withContent("" +
-                                       "[package]\n" +
-                                       "org = \"sameera\"\n" +
-                                       "name = \"yourproject\"\n" +
-                                       "version = \"0.2.0\"\n").apply();
-        Package newPackage = newBallerinaToml.packageInstance();
-        Assert.assertEquals(newPackage.packageName().toString(), "yourproject");
-
-        project.currentPackage().getCompilation();
-        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
-
-        newPackage.getCompilation();
-        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
-    }
-
     @Test(description = "test auto updating dependencies using build file")
     public void testAutoUpdateWithBuildFile() throws IOException {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
@@ -1467,6 +1429,68 @@ public class TestBuildProject extends BaseTest {
 
         // Remove generated files
         Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+    }
+
+    @Test(description = "test auto updating dependencies with old distribution version")
+    public void testAutoUpdateWithOldDistVersion() throws IOException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("old_dist_version_project");
+        // Delete build file and Dependencies.toml file if already exists
+        Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+
+        // Set sticky false, to imitate the default build command behavior
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        buildOptionsBuilder.setSticky(false);
+        BuildOptions buildOptions = buildOptionsBuilder.build();
+
+        // 1) Initialize the project instance
+        BuildProject project = loadBuildProject(projectPath);
+        project.save();
+
+        Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
+        Path buildFile = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        Assert.assertTrue(buildFile.toFile().exists());
+        BuildJson initialBuildJson = readBuildJson(buildFile);
+        Assert.assertTrue(initialBuildJson.lastBuildTime() > 0, "invalid last_build_time in the build file");
+        Assert.assertTrue(initialBuildJson.lastUpdateTime() > 0, "invalid last_update_time in the build file");
+        Assert.assertFalse(initialBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
+
+        // 2) Build project again after setting un-matching dist version
+        // When distribution is not matching always should update Dependencies.toml, even build file has not expired
+        initialBuildJson.setDistributionVersion("slbeta0");
+        ProjectUtils.writeBuildFile(buildFile, initialBuildJson);
+        Assert.assertTrue(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists());
+        BuildProject projectSecondBuild = loadBuildProject(projectPath, buildOptions);
+        projectSecondBuild.save();
+
+        Assert.assertTrue(buildFile.toFile().exists());
+        BuildJson secondBuildJson = readBuildJson(buildFile);
+        Assert.assertTrue(secondBuildJson.lastBuildTime() > initialBuildJson.lastBuildTime(),
+                "last_build_time has not updated for the second build");
+        assertTrue(secondBuildJson.lastUpdateTime() > initialBuildJson.lastUpdateTime(),
+                "last_update_time has not updated for the second build");
+        Assert.assertFalse(secondBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
+        Assert.assertTrue(projectSecondBuild.currentPackage().getResolution().autoUpdate());
+
+        // 3) Build project again after setting dist version as null
+        initialBuildJson.setDistributionVersion(null);
+        ProjectUtils.writeBuildFile(buildFile, initialBuildJson);
+        Assert.assertTrue(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists());
+        BuildProject projectThirdBuild = loadBuildProject(projectPath, buildOptions);
+        projectThirdBuild.save();
+
+        Assert.assertTrue(buildFile.toFile().exists());
+        BuildJson thirdBuildJson = readBuildJson(buildFile);
+        Assert.assertTrue(thirdBuildJson.lastBuildTime() > secondBuildJson.lastBuildTime(),
+                "last_build_time has not updated for the second build");
+        assertTrue(thirdBuildJson.lastUpdateTime() > secondBuildJson.lastUpdateTime(),
+                "last_update_time has not updated for the second build");
+        Assert.assertFalse(thirdBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
+        Assert.assertTrue(projectThirdBuild.currentPackage().getResolution().autoUpdate());
+
+        // Remove generated files
+        Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
     }
 
     @Test(description = "test build package without dependencies")

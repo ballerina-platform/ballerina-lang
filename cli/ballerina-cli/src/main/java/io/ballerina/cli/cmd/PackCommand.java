@@ -72,7 +72,7 @@ public class PackCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
     private String debugPort;
 
-    @CommandLine.Option(names = "--dump-build-time", description = "calculate and dump build time")
+    @CommandLine.Option(names = "--dump-build-time", hidden = true, description = "calculate and dump build time")
     private Boolean dumpBuildTime;
 
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
@@ -80,6 +80,9 @@ public class PackCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
+
+    @CommandLine.Option(names = "--generate-config-schema", hidden = true)
+    private Boolean configSchemaGen;
 
     public PackCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -257,7 +260,8 @@ public class PackCommand implements BLauncherCmd {
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setDumpBuildTime(dumpBuildTime)
-                .setSticky(sticky);
+                .setSticky(sticky)
+                .setConfigSchemaGen(configSchemaGen);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

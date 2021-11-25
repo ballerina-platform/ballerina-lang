@@ -1,7 +1,7 @@
-module org.ballerinalang.pkg.toml.semntic.analyzer {
+module org.ballerinalang.config.schema.generator {
     requires io.ballerina.lang;
     requires io.ballerina.tools.api;
     requires io.ballerina.toml;
     requires com.google.gson;
-    exports org.ballerinalang.configschemagenerator;
+    exports org.ballerinalang.config.schema.generator;
 }
