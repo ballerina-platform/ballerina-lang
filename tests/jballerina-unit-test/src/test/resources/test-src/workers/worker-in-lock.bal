@@ -2,7 +2,7 @@ function testWorkerInsideLock() {
     lock {
         fork {
             worker w1 {
-                int i = 5;
+                int _ = 5;
             }
         }
     }
@@ -15,7 +15,7 @@ function testStartInsideLock() {
 }
 
 function testFunction() {
-    int i = 1;
+    int _ = 1;
 }
 
 
@@ -25,7 +25,7 @@ function testWorkerInsideLockDepth3() {
             worker w1 {
                 fork {
                     worker w2 {
-                        int i = 5;
+                        int _ = 5;
                     }
                 }
             }
@@ -36,11 +36,11 @@ function testWorkerInsideLockDepth3() {
 function testWorkerInsideNestedLocks() {
     lock {
         lock {
-            int i = 10;
+            int _ = 10;
         }
         fork {
             worker w1 {
-                int j = 15;
+                int _ = 15;
             }
         }
     }

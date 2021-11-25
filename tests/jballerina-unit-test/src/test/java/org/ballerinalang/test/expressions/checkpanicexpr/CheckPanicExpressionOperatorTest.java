@@ -104,8 +104,8 @@ public class CheckPanicExpressionOperatorTest {
                 "test-src/expressions/checkpanicexpr/check_panic_expr_code_analysis_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 2);
         BAssertUtil.validateError(compileResult, 0, "expression of type 'never' or equivalent to type 'never' " +
-                "not allowed here", 18, 19);
+                "not allowed here", 18, 16);
         BAssertUtil.validateError(compileResult, 1, "expression of type 'never' or equivalent to type 'never' " +
-                "not allowed here", 28, 19);
+                "not allowed here", 28, 16);
     }
 }

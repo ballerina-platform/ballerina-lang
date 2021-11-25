@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.completion;
 
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 
 /**
@@ -25,6 +26,13 @@ import org.testng.annotations.DataProvider;
  * @since 2.0.0
  */
 public class EnumContextTest extends CompletionTest {
+    
+    @BeforeClass
+    @Override
+    public void init() throws InterruptedException {
+        preLoadAndInit();
+    }
+    
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {

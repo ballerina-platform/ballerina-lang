@@ -293,6 +293,47 @@ function getErrorOrString() returns error|string {
     return error("Dummy error");
 }
 
+function testWildcardBindingPatternInQueryAction1() {
+    int[] x = [1, 2, 3];
+
+    int m = 0;
+
+    error? res = from int _ in x
+        do {
+            m += 1;
+        };
+
+    res = from var _ in x
+        do {
+            m += 1;
+        };
+
+    assertEquality(6, m);
+    assertEquality(true, res is ());
+}
+
+function testWildcardBindingPatternInQueryAction2() {
+    map<boolean> x = {
+        a: true,
+        b: false
+    };
+
+    int m = 0;
+
+    error? res = from boolean _ in x
+        do {
+            m += 1;
+        };
+
+    res = from var _ in x
+        do {
+            m += 1;
+        };
+
+    assertEquality(4, m);
+    assertEquality(true, res is ());
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

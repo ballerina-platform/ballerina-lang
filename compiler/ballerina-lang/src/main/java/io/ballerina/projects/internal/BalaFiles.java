@@ -399,12 +399,14 @@ public class BalaFiles {
                         .from(pkgDesc, CompilerPluginDescriptor.from(pluginJson), platforms, dependencies,
                                 packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
                                 packageJson.getExport(), packageJson.getSourceRepository(),
-                                packageJson.getBallerinaVersion(), packageJson.getVisibility()))
+                                packageJson.getBallerinaVersion(), packageJson.getVisibility(),
+                                packageJson.getTemplate()))
                 .orElseGet(() -> PackageManifest
                         .from(pkgDesc, null, platforms, dependencies, packageJson.getLicenses(),
                                 packageJson.getAuthors(), packageJson.getKeywords(), packageJson.getExport(),
                                 packageJson.getSourceRepository(), packageJson.getBallerinaVersion(),
-                                packageJson.getVisibility()));
+                                packageJson.getVisibility(),
+                                packageJson.getTemplate()));
     }
 
     private static DependencyManifest getDependencyManifest(DependencyGraphJson dependencyGraphJson) {
@@ -526,7 +528,7 @@ public class BalaFiles {
             moduleName = ModuleName.from(pkgDesc.name());
         } else {
             String moduleNamePart = modDepEntry.getModuleName()
-                    .split(modDepEntry.getPackageName() + MODULE_NAME_SEPARATOR)[1];
+                    .split(modDepEntry.getPackageName() + MODULE_NAME_SEPARATOR, 2)[1];
             moduleName = ModuleName.from(pkgDesc.name(), moduleNamePart);
         }
         return ModuleDescriptor.from(moduleName, pkgDesc);
