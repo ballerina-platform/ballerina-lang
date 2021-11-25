@@ -253,4 +253,29 @@ public class TestCommandTest extends BaseCommandTest {
         Assert.assertTrue(buildLog.contains("unsupported coverage report format 'html' found. Only 'xml' format is " +
                 "supported."));
     }
+
+    @Test ()
+    public void testCustomTargetDirWithTestCmd() {
+        Path projectPath = this.testResources.resolve("validProjectWithTests");
+        Path customTargetDir = projectPath.resolve("customTargetDir3");
+        System.setProperty("user.dir", projectPath.toString());
+
+        TestCommand testCommand = new TestCommand(
+                projectPath, printStream, printStream, false, true,
+                customTargetDir);
+        new CommandLine(testCommand).parse();
+        testCommand.execute();
+
+        Assert.assertFalse(Files.exists(customTargetDir.resolve("bin")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache").resolve("tests_cache").resolve("test_suit" +
+                ".json")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("build")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("report")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("report").resolve("test_results.json")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("rerun_test.json")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache").resolve("tests_cache").resolve("test_suit" +
+                ".json")));
+    }
+
 }
