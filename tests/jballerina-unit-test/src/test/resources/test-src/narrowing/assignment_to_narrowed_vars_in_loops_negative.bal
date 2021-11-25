@@ -132,7 +132,7 @@ function f4() {
                     b += 1;
                     continue;
                 } else {
-                    int c = a;
+                    int _ = a;
                     a = "hello";
                 }
             }
@@ -146,7 +146,7 @@ function f5() {
     if x is int {
         int i = 0;
         foreach int m in i ..< 2 {
-            int j = x;
+            int _ = x;
             x = "hello";
         }
     }
@@ -154,7 +154,7 @@ function f5() {
     if x is int {
         int i = 0;
         foreach int m in i ..< 2 {
-            int j = x;
+            int _ = x;
             x = 1;
         }
     }
@@ -162,7 +162,7 @@ function f5() {
     if x is int {
         int i = 0;
         foreach int m in i ..< 2 {
-            int j = x;
+            int _ = x;
             x = "hello";
             continue;
         }
@@ -171,7 +171,7 @@ function f5() {
     if x is int {
         int i = 0;
         foreach int m in i ..< 2 {
-            int j = x;
+            int _ = x;
             x = 1;
             continue;
         }
@@ -188,7 +188,7 @@ function f6() {
                 x = "hello";
                 continue;
             }
-            int j = <int> x;
+            int _ = <int> x;
         }
     }
 
@@ -199,19 +199,19 @@ function f6() {
                 x = "hello";
                 continue;
             }
-            int j = <int> x;
+            int _ = <int> x;
         }
     }
 }
 
 function f7() {
     int|string a = 1;
-    int|string b = 1;
+    int|string _ = 1;
 
     while a is int {
         if a < 10 {
             foreach int m in 0 ..< 2 {
-                int c = a;
+                int _ = a;
                 a = "hello";
             }
         }
@@ -220,7 +220,7 @@ function f7() {
     if a is int {
         if a < 10 {
             foreach int m in 0 ..< 2 {
-                int c = a;
+                int _ = a;
                 a = "hello";
             }
         }
@@ -235,7 +235,7 @@ function f8() {
         if a < 10 {
             foreach int m in a ..< 2 {
                 if m < 10 {
-                    int c = a;
+                    int _ = a;
                     a = "hello";
                     continue;
                 }
@@ -250,7 +250,7 @@ function f8() {
                     b += 1;
                     continue;
                 } else {
-                    int c = a;
+                    int _ = a;
                     a = "hello";
                 }
             }
@@ -261,7 +261,7 @@ function f8() {
         if a < 10 {
             foreach int m in 1 ..< 2 {
                 if b == 1 {
-                    int c = a;
+                    int _ = a;
                     a = "hello";
                     break;
                 } else {
@@ -280,7 +280,7 @@ function f9() {
         if a < 10 {
             foreach int m in 1 ..< 2 {
                 if b == 1 {
-                    int c = a;
+                    int _ = a;
                     a = "hello";
                 } else {
                     a = "hello";
@@ -295,7 +295,7 @@ function f9() {
             int m = 0;
             while m < 2 {
                 if b == 1 {
-                    int c = a;
+                    int _ = a;
                     a = "hello";
                     panic error("error!");
                 } else {
@@ -321,7 +321,7 @@ function f10() {
                     }
 
                     _ => {
-                        int c = a;
+                        int _ = a;
                         a = "hello";
                     }
                 }
@@ -336,7 +336,7 @@ function f10() {
             while m < 2 {
                 match b {
                     1 => {
-                        int c = a;
+                        int _ = a;
                         a = "hello";
                     }
                     _ => {
@@ -356,7 +356,7 @@ function f11() {
     if a is int && b is int {
         if a < 10 {
             foreach int m in 1 ..< 2 {
-                int v = b;
+                int _ = b;
                 b = "str";
                 match b {
                     1 => {
@@ -365,7 +365,7 @@ function f11() {
                     }
 
                     _ => {
-                        int c = a;
+                        int _ = a;
                         a = "hello";
                     }
                 }
@@ -376,14 +376,14 @@ function f11() {
     if a is int && b is int {
         if a < 10 {
             foreach int m in 1 ..< 2 {
-                int v = b;
+                int _ = b;
                 b = "str";
 
                 if b == 1 {
                     b = 2;
                     continue;
                 } else {
-                    int c = a;
+                    int _ = a;
                     a = "hello";
                 }
             }
@@ -395,11 +395,11 @@ function f11() {
             int m = 0;
 
             while m < 2 {
-                int v = b;
+                int _ = b;
                 b = "str";
                 match b {
                     1 => {
-                        int c = a;
+                        int _ = a;
                         a = "hello";
                     }
                     _ => {
@@ -416,11 +416,11 @@ function f11() {
             int m = 0;
 
             while m < 2 {
-                int v = b;
+                int _ = b;
                 b = "str";
 
                 if b == 1 {
-                    int c = a;
+                    int _ = a;
                     a = "hello";
                 } else {
                     a = "world";
@@ -441,7 +441,7 @@ function f12() {
 
     if a is string && b is int && c is int && d is int && w is int[] {
         while b < 5 {
-            [string, int, int, int] [e, f, g, h] = [a, b, c, d];
+            [string, int, int, int] [_, f, _, _] = [a, b, c, d];
             [a, b, f, c, d, ...w] = [1, 2, 3, 4, 5];
             [...w] = [];
         }
@@ -449,7 +449,7 @@ function f12() {
 
     if a is string && b is int && c is int && d is int && x is map<int|string> {
         foreach int i in 0 ... 2 {
-            [string, int, int, int] [e, f, g, h] = [a, b, c, d];
+            [string, int, int, int] [e, f, _, _] = [a, b, c, d];
             record {
                 string a;
                 int b;
@@ -463,7 +463,7 @@ function f12() {
 
     if a is string && b is int && c is int && d is int && x is map<anydata> {
         foreach int i in 0 ... 2 {
-            [string, int, int, int] [e, f, g, h] = [a, b, c, d];
+            [string, int, int, int] [_, f, _, _] = [a, b, c, d];
             error<record { int b; string c; int d; }> err = error("error!", b = 1, c = "err!", d = 2);
             error(a, b = b, c = c, d = d) = err;
             error(b = f, ...x) = err;
@@ -483,7 +483,7 @@ function f13() {
                 value = v.toString();
                 if value is string {
                     while k == "module" {
-                        string str = value;
+                        string _ = value;
                         value = 4;
                     }
                 }
@@ -497,7 +497,7 @@ function f14(int?[] arr) returns boolean {
 
     if value is int {
         foreach int? item in arr {
-            int currentValue = value;
+            int _ = value;
 
             if item is () {
                 value = ();
@@ -518,7 +518,7 @@ function f15(int?[] arr) returns boolean {
         int index = 0;
         while index < arr.length() {
             int? item = arr[index];
-            int currentValue = value;
+            int _ = value;
 
             if item is () {
                 value = ();
@@ -540,7 +540,7 @@ function f16(int?[] arr) returns boolean {
         int index = 0;
         while index < arr.length() {
             int? item = arr[index];
-            int currentValue = value;
+            int _ = value;
 
             match item {
                 () => {
@@ -562,7 +562,7 @@ function f17(int?[] arr) returns boolean {
 
     if value is int {
         foreach int? item in arr {
-            int currentValue = value;
+            int _ = value;
 
             if item is () {
                 value = ();
@@ -581,7 +581,7 @@ function f18(int?[] arr) returns boolean {
         int index = 0;
         while index < arr.length() {
             int? item = arr[index];
-            int currentValue = value;
+            int _ = value;
 
             if item is () {
                 value = ();
@@ -602,7 +602,7 @@ function f19(int?[] arr) returns boolean {
         int index = 0;
         while index < arr.length() {
             int? item = arr[index];
-            int currentValue = value;
+            int _ = value;
 
             match item {
                 () => {
@@ -616,4 +616,16 @@ function f19(int?[] arr) returns boolean {
     }
 
     return false;
+}
+
+function f20() {
+    int|string x = 1;
+    int|string y = 1;
+
+    if x is int {
+        while y is byte {
+            int _ = x;
+            x = "";
+        }
+    }
 }

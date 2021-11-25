@@ -1,6 +1,6 @@
 
 function test () returns int {
-    Person p = new();
+    Person _ = new();
     return 6;
 }
 

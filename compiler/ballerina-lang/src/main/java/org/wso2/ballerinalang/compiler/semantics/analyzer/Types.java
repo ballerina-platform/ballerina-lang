@@ -130,6 +130,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.SIGNED
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED16_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED32_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED8_MAX_VALUE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.NEVER;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.isSimpleBasicType;
 
 /**
@@ -154,6 +155,7 @@ public class Types {
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private int recordCount = 0;
     private SymbolEnv env;
+    private boolean ignoreObjectTypeIds = false;
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -659,6 +661,13 @@ public class Types {
      */
     public boolean isAssignable(BType source, BType target) {
         return isAssignable(source, target, new HashSet<>());
+    }
+
+    public boolean isAssignableIgnoreObjectTypeIds(BType source, BType target) {
+        this.ignoreObjectTypeIds = true;
+        boolean result = isAssignable(source, target);
+        this.ignoreObjectTypeIds = false;
+        return result;
     }
 
     private boolean isAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
@@ -1284,6 +1293,7 @@ public class Types {
             case TypeTags.FINITE: // Assuming a finite type will only have members from simple basic types.
             case TypeTags.READONLY:
             case TypeTags.NIL:
+            case TypeTags.NEVER:
             case TypeTags.ERROR:
             case TypeTags.INVOKABLE:
             case TypeTags.TYPEDESC:
@@ -1371,19 +1381,13 @@ public class Types {
                 BRecordType recordType = (BRecordType) type;
                 for (BField field : recordType.fields.values()) {
                     BType fieldType = field.type;
-                    if (!isInherentlyImmutableType(fieldType) &&
+                    if (!Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
+                            !isInherentlyImmutableType(fieldType) &&
                             !isSelectivelyImmutableType(fieldType, unresolvedTypes, forceCheck)) {
                         return false;
                     }
                 }
-
-                BType recordRestType = recordType.restFieldType;
-                if (recordRestType == null || recordRestType == symTable.noType) {
-                    return true;
-                }
-
-                return isInherentlyImmutableType(recordRestType) ||
-                        isSelectivelyImmutableType(recordRestType, unresolvedTypes, forceCheck);
+                return true;
             case TypeTags.MAP:
                 BType constraintType = ((BMapType) type).constraint;
                 return isInherentlyImmutableType(constraintType) ||
@@ -1614,7 +1618,7 @@ public class Types {
             }
         }
 
-        return lhsType.typeIdSet.isAssignableFrom(rhsType.typeIdSet);
+        return lhsType.typeIdSet.isAssignableFrom(rhsType.typeIdSet) || this.ignoreObjectTypeIds;
     }
 
     private int getObjectFuncCount(BObjectTypeSymbol sym) {
@@ -3077,8 +3081,9 @@ public class Types {
             BField rhsField = rhsFields.get(lhsField.name.value);
 
             // If LHS field is required, there should be a corresponding RHS field
+            // If LHS field is never typed, RHS rest field type should include never type
             if (rhsField == null) {
-                if (!Symbols.isOptional(lhsField.symbol)) {
+                if (!Symbols.isOptional(lhsField.symbol) || isInvalidNeverField(lhsField, rhsType)) {
                     return false;
                 }
                 continue;
@@ -3118,6 +3123,25 @@ public class Types {
             }
         }
         return true;
+    }
+
+    private boolean isInvalidNeverField(BField lhsField, BRecordType rhsType) {
+        if (lhsField.type.tag != NEVER || rhsType.sealed) {
+            return false;
+        }
+        switch (rhsType.restFieldType.tag) {
+            case TypeTags.UNION:
+                for (BType member : ((BUnionType) rhsType.restFieldType).getOriginalMemberTypes()) {
+                    if (member.tag == NEVER) {
+                        return false;
+                    }
+                }
+                return true;
+            case NEVER:
+                return false;
+            default:
+                return true;
+        }
     }
 
     private BAttachedFunction getMatchingInvokableType(List<BAttachedFunction> rhsFuncList, BAttachedFunction lhsFunc,
@@ -3558,6 +3582,31 @@ public class Types {
                 return baseValue.equals(candidateValue);
         }
         return false;
+    }
+
+    boolean validateFloatLiteral(Location pos, String numericLiteral) {
+        double value = Double.parseDouble(numericLiteral);
+        if (Double.isInfinite(value)) {
+            dlog.error(pos, DiagnosticErrorCode.FLOAT_TOO_LARGE, numericLiteral);
+            return false;
+        }
+        if (value != 0.0) {
+            return true;
+        }
+
+        List<Character> exponentIndicator = List.of('e', 'E', 'p', 'P');
+        for (int i = 0; i < numericLiteral.length(); i++) {
+            char character = numericLiteral.charAt(i);
+            if (exponentIndicator.contains(character)) {
+                break;
+            }
+            if (numericLiteral.charAt(i) >= '1' && numericLiteral.charAt(i) <= '9') {
+                dlog.error(pos, DiagnosticErrorCode.FLOAT_TOO_SMALL, numericLiteral);
+                return false;
+            }
+
+        }
+        return true;
     }
 
     boolean isByteLiteralValue(Long longObject) {
@@ -4410,6 +4459,36 @@ public class Types {
         }
         type = getReferredType(type);
         lhsType = getReferredType(lhsType);
+
+        // TODO: intersections with readonly types are not handled properly. Here, the logic works as follows.
+        // Say we have an intersection called A & readonly and we have another type called B. As per the current
+        // implementation, we cannot easily find the intersection between (A & readonly) and B. Instead, what we
+        // do here is, first find the intersection between A and B then re-create the immutable type out of it.
+
+        if (Symbols.isFlagOn(lhsType.flags, Flags.READONLY) && lhsType.tag == TypeTags.UNION &&
+                ((BUnionType) lhsType).getIntersectionType().isPresent()) {
+            BIntersectionType intersectionType = ((BUnionType) lhsType).getIntersectionType().get();
+            BType finalType = type;
+            List<BType> types = intersectionType.getConstituentTypes().stream().filter(t -> t.tag != TypeTags.READONLY)
+                    .map(t -> getIntersection(intersectionContext, t, env, finalType, visitedTypes))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            if (types.size() == 1) {
+                BType bType = types.get(0);
+
+                if (isInherentlyImmutableType(bType) || Symbols.isFlagOn(bType.flags, Flags.READONLY)) {
+                    return bType;
+                }
+
+                if (!isSelectivelyImmutableType(bType, new HashSet<>())) {
+                    return symTable.semanticError;
+                }
+
+                return ImmutableTypeCloner.getEffectiveImmutableType(null, this, bType,
+                                                                     env, symTable, anonymousModelHelper, names);
+            }
+        }
+
         if (type.tag == TypeTags.ERROR && lhsType.tag == TypeTags.ERROR) {
             BType intersectionType = getIntersectionForErrorTypes(intersectionContext, lhsType, type, env,
                                                             visitedTypes);
@@ -4489,21 +4568,23 @@ public class Types {
             }
         } else if (isAnydataOrJson(type) && lhsType.tag == TypeTags.RECORD) {
             BType intersectionType = createRecordIntersection(intersectionContext, (BRecordType) lhsType,
-                    getEquivalentRecordType(getMapTypeForAnydataOrJson(type)), env, visitedTypes);
+                    getEquivalentRecordType(getMapTypeForAnydataOrJson(type, env)), env, visitedTypes);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
         } else if (type.tag == TypeTags.RECORD && isAnydataOrJson(lhsType)) {
             BType intersectionType = createRecordIntersection(intersectionContext,
-                    getEquivalentRecordType(getMapTypeForAnydataOrJson(lhsType)), (BRecordType) type, env,
+                    getEquivalentRecordType(getMapTypeForAnydataOrJson(lhsType, env)), (BRecordType) type, env,
                     visitedTypes);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
         } else if (isAnydataOrJson(type) && lhsType.tag == TypeTags.MAP) {
-            return getIntersection(intersectionContext, lhsType, env, getMapTypeForAnydataOrJson(type), visitedTypes);
+            return getIntersection(intersectionContext, lhsType, env, getMapTypeForAnydataOrJson(type, env),
+                    visitedTypes);
         } else if (type.tag == TypeTags.MAP && isAnydataOrJson(lhsType)) {
-            return getIntersection(intersectionContext, getMapTypeForAnydataOrJson(lhsType), env, type, visitedTypes);
+            return getIntersection(intersectionContext, getMapTypeForAnydataOrJson(lhsType, env), env, type,
+                    visitedTypes);
         } else if (isAnydataOrJson(type) && lhsType.tag == TypeTags.TUPLE) {
             BType intersectionType = createArrayAndTupleIntersection(intersectionContext,
                     getArrayTypeForAnydataOrJson(type), (BTupleType) lhsType, env, visitedTypes);
@@ -4558,7 +4639,7 @@ public class Types {
         return false;
     }
 
-    private BMapType getMapTypeForAnydataOrJson(BType type) {
+    private BMapType getMapTypeForAnydataOrJson(BType type, SymbolEnv env) {
         BMapType mapType = type.tag == TypeTags.ANYDATA ? symTable.mapAnydataType : symTable.mapJsonType;
 
         if (isImmutable(type)) {
@@ -5255,21 +5336,29 @@ public class Types {
      * @param diagnosticCode    The code to log if the return type is invalid
      */
     public void validateErrorOrNilReturn(BLangFunction function, DiagnosticCode diagnosticCode) {
-        BType returnType = function.returnTypeNode.getBType();
+        BType returnType = getReferredType(function.returnTypeNode.getBType());
 
-        if (returnType.tag == TypeTags.NIL) {
+        if (returnType.tag == TypeTags.NIL ||
+                (returnType.tag == TypeTags.UNION &&
+                        isSubTypeOfErrorOrNilContainingNil((BUnionType) returnType))) {
             return;
         }
 
-        if (returnType.tag == TypeTags.UNION) {
-            Set<BType> memberTypes = getEffectiveMemberTypes(((BUnionType) returnType));
-            if (returnType.isNullable() &&
-                    memberTypes.stream().allMatch(type -> type.tag == TypeTags.NIL || type.tag == TypeTags.ERROR)) {
-                return;
-            }
+        dlog.error(function.returnTypeNode.pos, diagnosticCode, function.returnTypeNode.getBType().toString());
+    }
+
+    public boolean isSubTypeOfErrorOrNilContainingNil(BUnionType type) {
+        if (!type.isNullable()) {
+            return false;
         }
 
-        dlog.error(function.returnTypeNode.pos, diagnosticCode, function.returnTypeNode.getBType().toString());
+        for (BType memType : type.getMemberTypes()) {
+            BType referredMemType = getReferredType(memType);
+            if (referredMemType.tag != TypeTags.NIL && referredMemType.tag != TypeTags.ERROR) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

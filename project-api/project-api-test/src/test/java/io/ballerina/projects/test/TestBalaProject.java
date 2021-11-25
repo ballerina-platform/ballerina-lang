@@ -19,7 +19,6 @@
 package io.ballerina.projects.test;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.EmitResult;
@@ -149,7 +148,7 @@ public class TestBalaProject {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            BuildOptions buildOptions = new BuildOptionsBuilder().sticky(true).build();
+            BuildOptions buildOptions = BuildOptions.builder().setSticky(true).build();
             project = TestUtils.loadBuildProject(projectPath, buildOptions);
         } catch (Exception e) {
             Assert.fail(e.getMessage(), e);

@@ -45,6 +45,11 @@ public isolated class IsolatedClass {
         name: "isolatedClassIsIsolatedFunction",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
     } external;
+
+    public function isIsolatedFunctionWithName(string method) returns boolean = @java:Method {
+        name: "isIsolatedFunctionWithName",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
 }
 
 class NonIsolatedClass {
@@ -75,6 +80,11 @@ class NonIsolatedClass {
         name: "nonIsolatedClassIsIsolatedFunction",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
     } external;
+
+    public function isIsolatedFunctionWithName(string method) returns boolean = @java:Method {
+        name: "isIsolatedFunctionWithName",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
 }
 
 isolated service class IsolatedServiceClass {
@@ -101,6 +111,11 @@ isolated service class IsolatedServiceClass {
 
     public function isIsolatedFunction() returns boolean = @java:Method {
         name: "isolatedServiceIsIsolatedFunction",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+    public function isIsolatedFunctionWithName(string method) returns boolean = @java:Method {
+        name: "isIsolatedFunctionWithName",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
     } external;
 }
@@ -130,6 +145,11 @@ service class NonIsolatedServiceClass {
 
     public function isIsolatedFunction() returns boolean = @java:Method {
         name: "nonIsolatedServiceIsIsolatedFunction",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+    public function isIsolatedFunctionWithName(string method) returns boolean = @java:Method {
+        name: "isIsolatedFunctionWithName",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
     } external;
 
@@ -207,24 +227,28 @@ public function main() {
     test:assertEquals(isolatedClass.asyncGetA(), 1);
     test:assertTrue(isolatedClass.isIsolated());
     test:assertTrue(isolatedClass.isIsolatedFunction());
+    test:assertTrue(isolatedClass.isIsolatedFunctionWithName("getA"));
 
     NonIsolatedClass nonIsolatedClass = new ();
     test:assertEquals(nonIsolatedClass.callGetA(), 2);
     test:assertEquals(nonIsolatedClass.asyncGetA(), 2);
     test:assertFalse(nonIsolatedClass.isIsolated());
     test:assertFalse(nonIsolatedClass.isIsolatedFunction());
+    test:assertFalse(nonIsolatedClass.isIsolatedFunctionWithName("getA"));
 
     IsolatedServiceClass isolatedServiceClass = new ();
     test:assertEquals(isolatedServiceClass.callGetA(), 3);
     test:assertEquals(isolatedServiceClass.asyncGetA(), 3);
     test:assertTrue(isolatedServiceClass.isIsolated());
     test:assertTrue(isolatedServiceClass.isIsolatedFunction());
+    test:assertTrue(isolatedServiceClass.isIsolatedFunctionWithName("$gen$$getA$$0046"));
 
     NonIsolatedServiceClass nonIsolatedServiceClass = new ();
     test:assertEquals(nonIsolatedServiceClass.callGetA(), 4);
     test:assertEquals(nonIsolatedServiceClass.asyncGetA(), 4);
     test:assertFalse(nonIsolatedServiceClass.isIsolated());
     test:assertFalse(nonIsolatedServiceClass.isIsolatedFunction());
+    test:assertFalse(nonIsolatedServiceClass.isIsolatedFunctionWithName("$gen$$getA$$0046"));
 
     // invokeAsync api calls negative test cases
 

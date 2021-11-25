@@ -256,9 +256,49 @@ function testHalfOpenIntRangeOnIntSubTypes() {
     assertEquality(arr[2], -10);
 }
 
+type IsolatedIterable isolated object {
+    public isolated function iterator() returns isolated object {
+        public isolated function next() returns record {| int value; |}?;
+    };
+};
+
+function testIsolatednessOfRangeExprIterableAndIterator() {
+    object {} a = 1 ... 2;
+    assertTrue(a is object:Iterable);
+    assertTrue(a is IsolatedIterable);
+    assertFalse(a !is IsolatedIterable);
+
+    int i = 1;
+    int j = 5;
+
+    isolated object {
+        public isolated function iterator() returns isolated object {
+            public isolated function next() returns record {| int value; |}?;
+        };
+    } _ = i ... j;
+
+    any b = i ..< j;
+    assertTrue(b is object:Iterable);
+    assertTrue(b is IsolatedIterable);
+    assertFalse(b !is IsolatedIterable);
+    isolated object {
+        public isolated function iterator() returns isolated object {
+            public isolated function next() returns record {| int value; |}?;
+        };
+    } _ = 1 ..< 2;
+}
+
 type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(any|error actual) {
+    assertEquality(true, actual);
+}
+
+function assertFalse(any|error actual) {
+    assertEquality(false, actual);
+}
 
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {

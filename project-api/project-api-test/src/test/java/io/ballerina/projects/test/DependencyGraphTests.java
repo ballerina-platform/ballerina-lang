@@ -17,7 +17,7 @@
  */
 package io.ballerina.projects.test;
 
-import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.Document;
@@ -98,7 +98,7 @@ public class DependencyGraphTests extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_edit_api_tests/package_test_dependencies_toml");
 
         // Create build options with sticky
-        BuildProject project = TestUtils.loadBuildProject(projectPath, new BuildOptionsBuilder().sticky(true).build());
+        BuildProject project = TestUtils.loadBuildProject(projectPath, BuildOptions.builder().setSticky(true).build());
         DependencyGraph<ResolvedPackageDependency> dependencyGraphOld =
                 project.currentPackage().getResolution().dependencyGraph();
         // dependency graph should contain self and package_dep
