@@ -321,4 +321,9 @@ public class LangLibDecimalTest {
                 "testDecimalNotExactEquality"
         };
     }
+
+    @Test
+    public void testFromStringFunctionWithInvalidValues() {
+        BRunUtil.invoke(compileResult, "testFromStringFunctionWithInvalidValues");
+    }
 }

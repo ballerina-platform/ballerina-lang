@@ -47,7 +47,7 @@ public class XMLIterationTest {
 
     @Test
     public void testNegative() {
-        Assert.assertEquals(negative.getErrorCount(), 20);
+
         int index = 0;
         BAssertUtil.validateError(negative, index++,
                                   "invalid list binding pattern: attempted to infer a list type, but found 'xml'",
@@ -62,9 +62,8 @@ public class XMLIterationTest {
                 "incompatible types: 'xml:Element' is not an iterable collection",
                 29, 34);
         BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'record {| xml:Element value; |}?', " +
-                        "found 'record {| ballerina/lang.xml:0.0.0:ItemType value; |}?'",
-                33, 54);
+                "incompatible types: expected 'record {| xml:Comment value; |}?', found " +
+                        "'record {| xml:Element value; |}?'", 33, 54);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found 'xml:Comment'",
                 40, 13);
@@ -72,9 +71,8 @@ public class XMLIterationTest {
                 "incompatible types: 'xml:Comment' is not an iterable collection",
                 40, 34);
         BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'record {| xml:Comment value; |}?', " +
-                        "found 'record {| ballerina/lang.xml:0.0.0:ItemType value; |}?'",
-                44, 54);
+                "incompatible types: expected 'record {| xml:Element value; |}?', found " +
+                        "'record {| xml:Comment value; |}?'", 44, 54);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found 'xml:ProcessingInstruction'",
                 51, 13);
@@ -82,9 +80,8 @@ public class XMLIterationTest {
                 "incompatible types: 'xml:ProcessingInstruction' is not an iterable collection",
                 51, 48);
         BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'record {| xml:ProcessingInstruction value; |}?', " +
-                        "found 'record {| ballerina/lang.xml:0.0.0:ItemType value; |}?'",
-                55, 63);
+                "incompatible types: expected 'record {| xml:Comment value; |}?', found " +
+                        "'record {| xml:ProcessingInstruction value; |}?'", 55, 49);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected '(xml:Element|xml:Text)', found 'xml'",
                 59, 34);
@@ -134,6 +131,9 @@ public class XMLIterationTest {
         BRunUtil.invoke(result, "testXmlPISequenceIteration");
         BRunUtil.invoke(result, "testXmlUnionSequenceIteration");
         BRunUtil.invoke(result, "testXmlSequenceIteration");
+        BRunUtil.invoke(result, "xmlTypeParamCommentIter");
+        BRunUtil.invoke(result, "xmlTypeParamElementIter");
+        BRunUtil.invoke(result, "xmlTypeParamPIIter");
     }
 
     @Test

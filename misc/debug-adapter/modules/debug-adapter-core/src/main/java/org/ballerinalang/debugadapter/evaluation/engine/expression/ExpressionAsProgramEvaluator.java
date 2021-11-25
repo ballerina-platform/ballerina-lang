@@ -30,7 +30,6 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
@@ -220,7 +219,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
                 fillOtherModuleDefinitions();
             }
 
-            BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+            BuildOptions buildOptions = BuildOptions.builder().setOffline(true).build();
             return BuildProject.load(this.tempProjectDir, buildOptions);
         } catch (EvaluationException e) {
             throw e;

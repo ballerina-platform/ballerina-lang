@@ -255,7 +255,7 @@ public class CliProvider implements ConfigProvider {
             return;
         }
         for (String key : varKeySet) {
-            diagnosticLog.warn(CONFIG_CLI_UNUSED_CLI_ARGS, null, key + "=" + cliVarKeyValueMap.get(key));
+            diagnosticLog.error(CONFIG_CLI_UNUSED_CLI_ARGS, null, key + "=" + cliVarKeyValueMap.get(key));
         }
     }
 

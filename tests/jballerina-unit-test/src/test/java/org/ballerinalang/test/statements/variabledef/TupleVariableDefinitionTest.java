@@ -365,6 +365,11 @@ public class TupleVariableDefinitionTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 24);
     }
 
+    @Test(description = "Test tuple variable with error BP")
+    public void testTupleVariableWithErrorBP() {
+        BRunUtil.invoke(result, "testTupleVariableWithErrorBP");
+    }
+
     private void validateTupleVarDefWithUnitionComplexResults(BValue[] returns) {
         Assert.assertEquals(returns.length, 3);
 

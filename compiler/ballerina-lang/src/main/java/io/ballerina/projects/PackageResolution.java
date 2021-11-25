@@ -57,7 +57,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
-import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
 /**
@@ -164,8 +163,8 @@ public class PackageResolution {
 
         // set sticky if `build` file exists and `last_update_time` not passed 24 hours
         if (rootPackageContext.project().kind() == ProjectKind.BUILD_PROJECT) {
-            Path buildFilePath = this.rootPackageContext.project().sourceRoot().resolve(TARGET_DIR_NAME)
-                    .resolve(BUILD_FILE);
+            Path buildFilePath = this.rootPackageContext.project().targetDir().resolve(BUILD_FILE);
+
             if (Files.exists(buildFilePath) && buildFilePath.toFile().length() > 0) {
                 try {
                     BuildJson buildJson = readBuildJson(buildFilePath);

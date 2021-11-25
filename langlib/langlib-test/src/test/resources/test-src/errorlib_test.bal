@@ -72,8 +72,8 @@ public function funcFoo() returns int|ErrorUnion {
     return e;
 }
 
-public function getAnotherDetail(error e) returns AnotherDetail {
-    return <AnotherDetail>e.detail();
+public function getAnotherDetail(error e) returns readonly & AnotherDetail {
+    return <AnotherDetail & readonly>e.detail();
 }
 
 function stack0() returns error {
@@ -90,20 +90,20 @@ function stack2() returns error {
 
 function getErrorStackTrace() returns any {
     error e = stack0();
-    return e.stackTrace();
+    return e.stackTrace().map(x => x.toString());
 }
 
 public function testErrorStackTrace() returns [int, string] {
         error e = stack0();
-        string[] ar = e.stackTrace().callStack.map(function (errorLib:CallStackElement elem) returns string {
-            return elem.callableName + ":" + elem.fileName;
+        string[] ar = e.stackTrace().map(function (errorLib:StackFrame elem) returns string {
+            return elem.toString();
         });
-        return [e.stackTrace().callStack.length(), ar.toString()];
+        return [e.stackTrace().length(), ar.toString()];
 }
 
 public function testErrorCallStack() {
     error e = error("error!");
-    error:CallStack stackTrace = e.stackTrace();
+    error:StackFrame[] stackTrace = e.stackTrace();
 
     any|error res = stackTrace;
     test:assertFalse(res is error);
@@ -114,7 +114,7 @@ public function testErrorCallStack() {
     } else {
         s = res.toString();
     }
-    test:assertValueEqual("object lang.error:CallStack", s);
+    test:assertValueEqual("[callableName: testErrorCallStack  fileName: errorlib_test.bal lineNumber: 105]", s);
 }
 
 public function testRetriableTest() {
@@ -161,4 +161,28 @@ function testErrorUnionDetailType() {
         string? stringCodeName =  err2.detail().codeName;
         test:assertValueEqual("WTC_68", detailRecord2.codeName);
     }
+}
+
+isolated function testStacktraceStrRepresentation() {
+    error err = error GenericError(GENERIC_ERROR, message = "Test union of errors with type test");
+    string[] ar = err.stackTrace().map(isolated function(errorLib:StackFrame elem) returns string {
+        return elem.toString();
+    });
+    assertEquality("[\"callableName: testStacktraceStrRepresentation  fileName: errorlib_test.bal lineNumber: 167\"]",
+    ar.toString());
+}
+
+
+isolated function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

@@ -403,6 +403,27 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
     }
 
+    BSymbol createUnaryOperator(OperatorKind kind, BType type, BType retType) {
+        List<BType> paramTypes = Lists.of(type);
+        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
+        return new BOperatorSymbol(names.fromString(kind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
+    }
+
+    public BSymbol resolvePkgSymbol(Location pos, SymbolEnv env, Name pkgAlias) {
+        if (pkgAlias == Names.EMPTY) {
+            // Return the current package symbol
+            return env.enclPkg.symbol;
+        }
+
+        // Lookup for an imported package
+        BSymbol pkgSymbol = lookupSymbolInPrefixSpace(env, pkgAlias);
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
+        }
+
+        return pkgSymbol;
+    }
+
     public BSymbol resolvePrefixSymbol(SymbolEnv env, Name pkgAlias, Name compUnit) {
         if (pkgAlias == Names.EMPTY) {
             // Return the current package symbol
@@ -1159,6 +1180,9 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                         length = 0;
                         dlog.error(size.pos,
                                 DiagnosticErrorCode.ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED);
+                    } else if (lengthCheck < 0) {
+                        length = 0;
+                        dlog.error(size.pos, DiagnosticErrorCode.INVALID_ARRAY_LENGTH);
                     } else {
                         length = (int) lengthCheck;
                     }
@@ -1518,14 +1542,14 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         // 2) Resolve the package scope using the package alias.
         //    If the package alias is not empty or null, then find the package scope,
         if (symbol == symTable.notFoundSymbol) {
-            BSymbol tempSymbol = lookupMainSpaceSymbolInPackage(userDefinedTypeNode.pos, data.env, pkgAlias, typeName);
+            BSymbol tempSymbol = lookupMainSpaceSymbolInPackage(userDefinedTypeNode.pos, env, pkgAlias, typeName);
 
             BSymbol refSymbol = tempSymbol.tag == SymTag.TYPE_DEF ? types.getReferredType(tempSymbol.type).tsymbol
                     : tempSymbol;
             if ((refSymbol.tag & SymTag.TYPE) == SymTag.TYPE) {
                 symbol = tempSymbol;
-            } else if (Symbols.isTagOn(refSymbol, SymTag.VARIABLE) && data.env.node.getKind() == NodeKind.FUNCTION) {
-                BLangFunction func = (BLangFunction) data.env.node;
+            } else if (Symbols.isTagOn(refSymbol, SymTag.VARIABLE) && env.node.getKind() == NodeKind.FUNCTION) {
+                BLangFunction func = (BLangFunction) env.node;
                 boolean errored = false;
 
                 if (func.returnTypeNode == null ||
@@ -1535,8 +1559,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                     errored = true;
                 }
 
-                if (refSymbol.type != null &&
-                        types.getReferredType(refSymbol.type).tag != TypeTags.TYPEDESC) {
+                if (tempSymbol.type != null &&
+                        types.getReferredType(tempSymbol.type).tag != TypeTags.TYPEDESC) {
                     dlog.error(userDefinedTypeNode.pos, DiagnosticErrorCode.INVALID_PARAM_TYPE_FOR_RETURN_TYPE,
                             tempSymbol.type);
                     errored = true;
@@ -1547,7 +1571,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 }
 
                 ParameterizedTypeInfo parameterizedTypeInfo =
-                        getTypedescParamValueType(func.requiredParams, data, refSymbol);
+                        getTypedescParamValueType(func.requiredParams, refSymbol);
                 BType paramValType = parameterizedTypeInfo == null ? null : parameterizedTypeInfo.paramValueType;
 
                 if (paramValType == symTable.semanticError) {
@@ -1903,6 +1927,26 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return createBinaryOperator(opKind, lhsType, rhsType, compatibleType1);
         }
         return symTable.notFoundSymbol;
+    }
+
+    public BSymbol getUnaryOpsForTypeSets(OperatorKind opKind, BType type) {
+        boolean validNumericTypeExists;
+        switch (opKind) {
+            case ADD:
+            case SUB:
+                validNumericTypeExists = types.validNumericTypeExists(type);
+                break;
+            default:
+                return symTable.notFoundSymbol;
+        }
+        if (!validNumericTypeExists) {
+            return symTable.notFoundSymbol;
+        }
+        if (type.isNullable()) {
+            BType compatibleType = types.findCompatibleType(types.getSafeType(type, true, false));
+            return createUnaryOperator(opKind, type, BUnionType.create(null, compatibleType, symTable.nilType));
+        }
+        return createUnaryOperator(opKind, type, types.findCompatibleType(type));
     }
 
     public BSymbol getBinaryBitwiseOpsForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType) {

@@ -876,7 +876,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangStatementExpression stmtExpr = createStatementExpression(ifElse, resultVarRef);
         stmtExpr.setBType(configurableVar.getBType());
 
-        return rewriteExpr(stmtExpr);
+        //not rewriting the statement expression here, so that it will be desugared while visiting the init function
+        return stmtExpr;
     }
 
     private List<BLangExpression> getConfigurableLangLibInvocationParam(BLangSimpleVariable configurableVar) {
@@ -7137,8 +7138,22 @@ public class Desugar extends BLangNodeVisitor {
             rewriteBitwiseComplementOperator(unaryExpr);
             return;
         }
+
+        OperatorKind opKind = unaryExpr.operator;
+        if (opKind == OperatorKind.ADD || opKind == OperatorKind.SUB) {
+            createTypeCastExprForUnaryPlusAndMinus(unaryExpr);
+        }
+
         unaryExpr.expr = rewriteExpr(unaryExpr.expr);
         result = unaryExpr;
+    }
+
+    private void createTypeCastExprForUnaryPlusAndMinus(BLangUnaryExpr unaryExpr) {
+        BLangExpression expr = unaryExpr.expr;
+        if (TypeTags.isIntegerTypeTag(expr.getBType().tag)) {
+            return;
+        }
+        unaryExpr.expr = createTypeCastExpr(expr, unaryExpr.getBType());
     }
 
     /**
@@ -7958,7 +7973,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangTypeTestExpr typeTestExpr) {
         BLangExpression expr = typeTestExpr.expr;
         if (types.isValueType(expr.getBType())) {
-            addConversionExprIfRequired(expr, symTable.anyType);
+            expr = addConversionExprIfRequired(expr, symTable.anyType);
         }
         if (typeTestExpr.isNegation) {
             BLangTypeTestExpr bLangTypeTestExpr = ASTBuilderUtil.createTypeTestExpr(typeTestExpr.pos,
@@ -9016,7 +9031,9 @@ public class Desugar extends BLangNodeVisitor {
 
         types.setImplicitCastExpr(expr, rhsType, lhsType);
         if (expr.impConversionExpr != null) {
-            return expr;
+            BLangExpression impConversionExpr = expr.impConversionExpr;
+            expr.impConversionExpr = null;
+            return impConversionExpr;
         }
 
         if (lhsType.tag == TypeTags.JSON && rhsType.tag == TypeTags.NIL) {

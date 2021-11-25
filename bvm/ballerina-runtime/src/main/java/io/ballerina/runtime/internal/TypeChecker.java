@@ -509,14 +509,18 @@ public class TypeChecker {
     }
 
     private static boolean isXMLValueRefEqual(XmlValue lhsValue, XmlValue rhsValue) {
+        if (lhsValue.getNodeType() == XmlNodeType.SEQUENCE && lhsValue.isSingleton()) {
+            return ((XmlSequence) lhsValue).getChildrenList().get(0) == rhsValue;
+        }
+        if (rhsValue.getNodeType() == XmlNodeType.SEQUENCE && rhsValue.isSingleton()) {
+            return ((XmlSequence) rhsValue).getChildrenList().get(0) == lhsValue;
+        }
         if (lhsValue.getNodeType() != rhsValue.getNodeType()) {
             return false;
         }
-
         if (lhsValue.getNodeType() == XmlNodeType.SEQUENCE && rhsValue.getNodeType() == XmlNodeType.SEQUENCE) {
             return isXMLSequenceRefEqual((XmlSequence) lhsValue, (XmlSequence) rhsValue);
         }
-
         if (lhsValue.getNodeType() == XmlNodeType.TEXT && rhsValue.getNodeType() == XmlNodeType.TEXT) {
             return isEqual(lhsValue, rhsValue);
         }
@@ -1315,6 +1319,11 @@ public class TypeChecker {
             Field targetField = targetFieldEntry.getValue();
             Field sourceField = sourceFields.get(fieldName);
 
+            if (targetField.getFieldType().getTag() == TypeTags.NEVER_TAG && containsInvalidNeverField(sourceField,
+                    sourceRecordType)) {
+                return false;
+            }
+
             if (sourceField == null) {
                 if (!SymbolFlags.isFlagOn(targetField.getFlags(), SymbolFlags.OPTIONAL)) {
                     return false;
@@ -1384,6 +1393,32 @@ public class TypeChecker {
             }
         }
         return true;
+    }
+
+    private static boolean containsInvalidNeverField(Field sourceField, BRecordType sourceRecordType) {
+        if (sourceField != null) {
+            return !containsNeverType(sourceField.getFieldType());
+        }
+        if (sourceRecordType.isSealed()) {
+            return true;
+        }
+        return !containsNeverType(sourceRecordType.getRestFieldType());
+    }
+
+    private static boolean containsNeverType(Type fieldType) {
+        int fieldTag = fieldType.getTag();
+        if (fieldTag == TypeTags.NEVER_TAG) {
+            return true;
+        }
+        if (fieldTag == TypeTags.UNION_TAG) {
+            List<Type> memberTypes = ((BUnionType) fieldType).getOriginalMemberTypes();
+            for (Type member : memberTypes) {
+                if (member.getTag() == TypeTags.NEVER_TAG) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static boolean hasIncompatibleReadOnlyFlags(Field targetField, Field sourceField) {
@@ -2173,16 +2208,11 @@ public class TypeChecker {
                 return checkFiniteTypeAssignable(sourceValue, sourceType, (BFiniteType) targetType,
                  unresolvedValues, allowNumericConversion);
             case TypeTags.XML_ELEMENT_TAG:
-                if (sourceTypeTag == TypeTags.XML_TAG) {
-                    XmlValue xmlSource = (XmlValue) sourceValue;
-                    return xmlSource.isSingleton();
-                }
-                return false;
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TEXT_TAG:
                 if (sourceTypeTag == TypeTags.XML_TAG) {
-                    return checkIsLikeNonElementSingleton((XmlValue) sourceValue, targetType);
+                    return checkIsLikeXmlValueSingleton((XmlValue) sourceValue, targetType);
                 }
                 return false;
             case TypeTags.XML_TAG:
@@ -2243,7 +2273,7 @@ public class TypeChecker {
         return nodeType;
     }
 
-    private static boolean checkIsLikeNonElementSingleton(XmlValue xmlSource, Type targetType) {
+    private static boolean checkIsLikeXmlValueSingleton(XmlValue xmlSource, Type targetType) {
 
         XmlNodeType nodeType = getXmlNodeType(targetType);
 

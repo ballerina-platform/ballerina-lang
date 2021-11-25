@@ -56,6 +56,12 @@ public class BLangService extends BLangNode implements ServiceNode {
     // Semantic Data
     public BSymbol symbol;
     public BType listenerType;
+    public List<BLangFunction> resourceFunctions;
+
+    public BLangSimpleVariable serviceVariable;
+    public List<IdentifierNode> absoluteResourcePath;
+    public BLangLiteral serviceNameLiteral;
+    public BType inferredServiceType;
 
     public BLangService() {
         this.flagSet = EnumSet.noneOf(Flag.class);
