@@ -250,6 +250,12 @@ public class BallerinaShell {
         }
     }
 
+    /**
+     * Add modules exists in the Ballerina Distribution repo.
+     *
+     * @param moduleImporter moduleImporter.
+     * @param modules        available modules.
+     */
     public void moduleAcceptor(ModuleImporter moduleImporter, List<String> modules) {
         int moduleCount = 1;
         List<String> missingModules = new ArrayList<>();

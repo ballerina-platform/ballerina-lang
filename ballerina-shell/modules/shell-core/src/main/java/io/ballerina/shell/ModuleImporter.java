@@ -53,7 +53,6 @@ public class ModuleImporter {
     private static final String LANG = "lang";
 
     public ModuleImporter() {
-        //TODO improve this
         packageList = getPackagesFromDistRepo();
     }
 
@@ -77,18 +76,18 @@ public class ModuleImporter {
             if (pkg.packageName().value().equals(module)) {
                 statement = statement + pkg.packageOrg().toString() + '/' + pkg.packageName().value();
             }
-
             if (pkg.packageName().value().equals(langModule)) {
                 statement = statement + pkg.packageOrg().toString() + '/' + LANG + "." + StringUtils.quoted(module);
             }
         }
+
         return statement;
     }
 
     public List<String> undefinedModules(Collection<Diagnostic> diagnostics) {
         List<String> moduleErrors = new ArrayList<>();
         for (Diagnostic diagnostic : diagnostics) {
-            //TODO update following statement using error code (BCE2000)
+            //TODO update following statement using error code (BCE2000) issue : #33990
             if (diagnostic.toString().contains(UNDEFINED_MODULE)) {
                 moduleErrors.add(diagnostic.toString().split("\n")[0].split(" ")[3]);
             }
