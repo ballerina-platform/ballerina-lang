@@ -50,6 +50,11 @@ public class XmlText extends XmlNonElementItem {
     }
 
     @Override
+    public boolean isSingleton() {
+        return !isEmpty();
+    }
+
+    @Override
     public String getItemType() {
         return getNodeType().value();
     }

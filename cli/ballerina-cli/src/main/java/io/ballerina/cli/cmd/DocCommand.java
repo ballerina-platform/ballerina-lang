@@ -24,7 +24,6 @@ import io.ballerina.cli.task.CreateDocsTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
@@ -200,12 +199,12 @@ public class DocCommand implements BLauncherCmd {
     }
 
     private BuildOptions constructBuildOptions() {
-        return new BuildOptionsBuilder()
-                .codeCoverage(false)
-                .experimental(experimentalFlag)
-                .offline(offline)
-                .testReport(false)
-                .observabilityIncluded(false)
+        return BuildOptions.builder()
+                .setCodeCoverage(false)
+                .setExperimental(experimentalFlag)
+                .setOffline(offline)
+                .setTestReport(false)
+                .setObservabilityIncluded(false)
                 .build();
     }
 }

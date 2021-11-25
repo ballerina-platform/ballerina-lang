@@ -262,13 +262,13 @@ public class XMLAccessTest {
                 "expressions, use a grouping expression (parenthesis) " +
                 "if you intend to member-access the result of the navigation expression.";
         int i = 0;
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 3, 14);
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 4, 14);
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 5, 14);
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 6, 14);
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 7, 14);
-        BAssertUtil.validateError(navigationNegative, i++, navIndexingMessage, 8, 14);
-        BAssertUtil.validateError(navigationNegative, i++, navIndexingMessage, 9, 14);
+        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 3, 13);
+        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 4, 13);
+        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 5, 13);
+        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 6, 13);
+        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 7, 13);
+        BAssertUtil.validateError(navigationNegative, i++, navIndexingMessage, 8, 13);
+        BAssertUtil.validateError(navigationNegative, i++, navIndexingMessage, 9, 13);
         Assert.assertEquals(navigationNegative.getErrorCount(), i);
     }
 

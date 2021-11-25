@@ -47,7 +47,9 @@ public class BallerinaErrorReasons {
 
     public static final BString DIVISION_BY_ZERO_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat("DivisionByZero"));
-    public static final BString NUMBER_OVERFLOW = StringUtils.fromString(BALLERINA_PREFIX.concat("NumberOverflow"));
+    public static final String NUMBER_OVERFLOW_ERROR_IDENTIFIER = "NumberOverflow";
+    public static final BString NUMBER_OVERFLOW =
+            StringUtils.fromString(BALLERINA_PREFIX.concat(NUMBER_OVERFLOW_ERROR_IDENTIFIER));
     public static final BString ARITHMETIC_OPERATION_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat("ArithmeticOperationError"));
     public static final BString JAVA_NULL_REFERENCE_ERROR =

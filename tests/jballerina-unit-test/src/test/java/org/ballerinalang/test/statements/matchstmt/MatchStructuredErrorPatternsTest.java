@@ -183,17 +183,51 @@ public class MatchStructuredErrorPatternsTest {
 
     @Test
     public void testUnreachablePatterns() {
-        Assert.assertEquals(resultNegative.getWarnCount(), 8);
         int i = -1;
         String unreachablePattern = "unreachable pattern";
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 28, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 28, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 29, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'detail'", 29, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 29, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'detail'", 33, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 33, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 34, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 43, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 43, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 44, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 44, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 's'", 44, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 48, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 's'", 48, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 49, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 49, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 49, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 's'", 49, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 50, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 50, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 's'", 50, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 59, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 59, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 60, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 60, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 64, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 64, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 65, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 65, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'message'", 79, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 79, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 79, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 80, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'extra'", 80, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 80, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'message'", 84, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 84, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 84, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 85, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'message'", 85, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 85, 9);
+        Assert.assertEquals(resultNegative.getWarnCount(), i + 1);
     }
 
     @Test()
