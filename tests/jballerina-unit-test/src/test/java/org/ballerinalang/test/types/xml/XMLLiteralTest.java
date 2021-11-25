@@ -49,152 +49,152 @@ public class XMLLiteralTest {
         result = BCompileUtil.compile("test-src/types/xml/xml-literals.bal");
     }
 
-    @Test
-    public void testXMLNegativeSemantics() {
-        CompileResult negativeResult = BCompileUtil.compile("test-src/types/xml/xml-literals-negative.bal");
-        int index = 0;
-        BAssertUtil.validateError(negativeResult, index++, "invalid namespace prefix 'xmlns'", 4, 19);
-        BAssertUtil.validateError(negativeResult, index++, "invalid namespace prefix 'xmlns'", 4, 36);
-
-        // undeclared element prefix
-        BAssertUtil.validateError(negativeResult, index++, "undefined symbol 'ns1'", 9, 19);
-        BAssertUtil.validateError(negativeResult, index++, "undefined symbol 'ns1'", 9, 34);
-
-        // text with multi type expressions
-        BAssertUtil.validateError(negativeResult, index++,
-                                  "incompatible types: expected '(int|float|decimal|string|boolean|xml)', found 'map'",
-                                  15, 59);
-
-        // namespace conflict with block scope namespace
-        BAssertUtil.validateError(negativeResult, index++, "redeclared symbol 'ns0'", 28, 46);
-
-        // namespace conflict with package import
-        BAssertUtil.validateError(negativeResult, index++, "redeclared symbol 'x'", 33, 5);
-
-        // update qname
-        BAssertUtil.validateError(negativeResult, index++, "cannot assign values to an xml qualified name", 38, 5);
-
-        // use of undefined namespace for qname
-        BAssertUtil.validateError(negativeResult, index++, "cannot find xml namespace prefix 'ns0'", 46, 24);
-
-        // define namespace with empty URI
-        BAssertUtil.validateError(negativeResult, index++, "cannot bind prefix 'ns0' to the empty namespace name",
-                50, 5);
-
-        // XML elements with mismatching start and end tags
-        BAssertUtil.validateError(negativeResult, index++, "mismatching start and end tags found in xml element",
-                                  54, 13);
-        // XML interpolation is not allowed to interpolate XML namespace attributes
-        BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 63, 29);
-        BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 63, 47);
-
-        // XML sequence value assignment
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                        "'xml<xml:Text>', found 'xml:Comment'", 68, 30);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml:Text', found 'xml:Comment'", 69, 26);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                        "'xml<(xml:Text|xml:Comment)>', found 'xml:Element'", 70, 38);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<(xml:Text|xml:Comment)>', found 'xml:Element'", 71, 43);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<(xml:Text|xml:Comment)>', found 'xml:ProcessingInstruction'", 71, 90);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'(xml<xml:Text>|xml<xml:Comment>)', found 'xml:Element'", 72, 44);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'(xml<xml:Text>|xml<xml:Comment>)', found 'xml:Element'", 73, 49);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'(xml<xml:Text>|xml<xml:Comment>)', found 'xml:ProcessingInstruction'", 73, 96);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'(xml:Text|xml:Comment)', found 'xml:Element'", 74, 34);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                        "'(xml:Text|xml:Comment)', found 'xml'", 75, 34);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'(xml:Text|xml:Comment)', found 'xml:Element'", 75, 39);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'(xml:Text|xml:Comment)', found 'xml:ProcessingInstruction'", 75, 86);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                        "'(xml:Text|xml:Comment)', found 'xml'", 76, 34);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'(xml<xml:Text>|xml:Comment)', found 'xml'", 77, 39);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml:Element', found 'XML Sequence'", 78, 24);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'(xml:Comment|xml:Element)', found 'xml'", 79, 37);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'(xml:Comment|xml:Element)', found 'xml'", 80, 37);
-
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml:ProcessingInstruction', found 'XML Sequence'", 82, 38);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml:Element', found 'XML Sequence'", 83, 24);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml:Comment', found 'XML Sequence'", 84, 24);
-
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:ProcessingInstruction>', found 'xml:Element'", 87, 48);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:ProcessingInstruction>', found 'xml:Element'", 87, 63);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:ProcessingInstruction>', found 'xml:Text'", 88, 48);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:ProcessingInstruction>', found 'xml:Comment'", 89, 48);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:ProcessingInstruction>', found 'xml:Comment'", 89, 63);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:Element>', found 'xml:Text'", 91, 34);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:Element>', found 'xml:ProcessingInstruction'", 92, 34);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:Element>', found 'xml:ProcessingInstruction'", 92, 41);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:Element>', found 'xml:Comment'", 93, 34);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:Element>', found 'xml:Comment'", 93, 49);
-
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:Comment>', found 'xml:ProcessingInstruction'", 95, 34);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:Comment>', found 'xml:ProcessingInstruction'", 95, 41);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:Comment>', found 'xml:Element'", 96, 34);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:Comment>', found 'xml:Element'", 96, 49);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:Comment>', found 'xml:Text'", 97, 34);
-
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:Text>', found 'xml:Comment'", 99, 31);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:Text>', found 'xml:Comment'", 99, 46);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:Text>', found 'xml:Element'", 100, 31);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:Text>', found 'xml:Element'", 100, 46);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:Text>', found 'xml:ProcessingInstruction'", 101, 31);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml<xml:Text>', found 'xml:ProcessingInstruction'", 101, 38);
-        BAssertUtil.validateError(negativeResult, index++, "undefined symbol 'b'", 105, 32);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'(int|float|decimal|string|boolean)', found 'map<string>'", 111, 32);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'(int|float|decimal|string|boolean)', found 'error'", 111, 37);
-
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml:Element', found 'xml<xml<xml:Element>>'", 116, 22);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml:Comment', found 'xml<xml<xml<xml:Comment>>>'", 118, 22);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml:ProcessingInstruction', found 'xml<xml<xml<xml:ProcessingInstruction>>>'", 120, 36);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml:Text', found 'xml'", 122, 19);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                "'xml:Text', found 'xml<xml>'", 124, 19);
-        BAssertUtil.validateError(negativeResult, index++, "missing xml CDATA end token", 128, 49);
-
-        Assert.assertEquals(index, negativeResult.getErrorCount());
-    }
+//    @Test
+//    public void testXMLNegativeSemantics() {
+//        CompileResult negativeResult = BCompileUtil.compile("test-src/types/xml/xml-literals-negative.bal");
+//        int index = 0;
+//        BAssertUtil.validateError(negativeResult, index++, "invalid namespace prefix 'xmlns'", 4, 19);
+//        BAssertUtil.validateError(negativeResult, index++, "invalid namespace prefix 'xmlns'", 4, 36);
+//
+//        // undeclared element prefix
+//        BAssertUtil.validateError(negativeResult, index++, "undefined symbol 'ns1'", 9, 19);
+//        BAssertUtil.validateError(negativeResult, index++, "undefined symbol 'ns1'", 9, 34);
+//
+//        // text with multi type expressions
+//        BAssertUtil.validateError(negativeResult, index++,
+//                                  "incompatible types: expected '(int|float|decimal|string|boolean|xml)', found 'map'",
+//                                  15, 59);
+//
+//        // namespace conflict with block scope namespace
+//        BAssertUtil.validateError(negativeResult, index++, "redeclared symbol 'ns0'", 28, 46);
+//
+//        // namespace conflict with package import
+//        BAssertUtil.validateError(negativeResult, index++, "redeclared symbol 'x'", 33, 5);
+//
+//        // update qname
+//        BAssertUtil.validateError(negativeResult, index++, "cannot assign values to an xml qualified name", 38, 5);
+//
+//        // use of undefined namespace for qname
+//        BAssertUtil.validateError(negativeResult, index++, "cannot find xml namespace prefix 'ns0'", 46, 24);
+//
+//        // define namespace with empty URI
+//        BAssertUtil.validateError(negativeResult, index++, "cannot bind prefix 'ns0' to the empty namespace name",
+//                50, 5);
+//
+//        // XML elements with mismatching start and end tags
+//        BAssertUtil.validateError(negativeResult, index++, "mismatching start and end tags found in xml element",
+//                                  54, 13);
+//        // XML interpolation is not allowed to interpolate XML namespace attributes
+//        BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 63, 29);
+//        BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 63, 47);
+//
+//        // XML sequence value assignment
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                        "'xml<xml:Text>', found 'xml:Comment'", 68, 30);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml:Text', found 'xml:Comment'", 69, 26);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                        "'xml<(xml:Text|xml:Comment)>', found 'xml:Element'", 70, 38);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<(xml:Text|xml:Comment)>', found 'xml:Element'", 71, 43);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<(xml:Text|xml:Comment)>', found 'xml:ProcessingInstruction'", 71, 90);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'(xml<xml:Text>|xml<xml:Comment>)', found 'xml:Element'", 72, 44);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'(xml<xml:Text>|xml<xml:Comment>)', found 'xml:Element'", 73, 49);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'(xml<xml:Text>|xml<xml:Comment>)', found 'xml:ProcessingInstruction'", 73, 96);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'(xml:Text|xml:Comment)', found 'xml:Element'", 74, 34);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                        "'(xml:Text|xml:Comment)', found 'xml'", 75, 34);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'(xml:Text|xml:Comment)', found 'xml:Element'", 75, 39);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'(xml:Text|xml:Comment)', found 'xml:ProcessingInstruction'", 75, 86);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                        "'(xml:Text|xml:Comment)', found 'xml'", 76, 34);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'(xml<xml:Text>|xml:Comment)', found 'xml'", 77, 39);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml:Element', found 'XML Sequence'", 78, 24);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'(xml:Comment|xml:Element)', found 'xml'", 79, 37);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'(xml:Comment|xml:Element)', found 'xml'", 80, 37);
+//
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml:ProcessingInstruction', found 'XML Sequence'", 82, 38);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml:Element', found 'XML Sequence'", 83, 24);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml:Comment', found 'XML Sequence'", 84, 24);
+//
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:ProcessingInstruction>', found 'xml:Element'", 87, 48);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:ProcessingInstruction>', found 'xml:Element'", 87, 63);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:ProcessingInstruction>', found 'xml:Text'", 88, 48);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:ProcessingInstruction>', found 'xml:Comment'", 89, 48);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:ProcessingInstruction>', found 'xml:Comment'", 89, 63);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:Element>', found 'xml:Text'", 91, 34);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:Element>', found 'xml:ProcessingInstruction'", 92, 34);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:Element>', found 'xml:ProcessingInstruction'", 92, 41);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:Element>', found 'xml:Comment'", 93, 34);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:Element>', found 'xml:Comment'", 93, 49);
+//
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:Comment>', found 'xml:ProcessingInstruction'", 95, 34);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:Comment>', found 'xml:ProcessingInstruction'", 95, 41);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:Comment>', found 'xml:Element'", 96, 34);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:Comment>', found 'xml:Element'", 96, 49);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:Comment>', found 'xml:Text'", 97, 34);
+//
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:Text>', found 'xml:Comment'", 99, 31);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:Text>', found 'xml:Comment'", 99, 46);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:Text>', found 'xml:Element'", 100, 31);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:Text>', found 'xml:Element'", 100, 46);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:Text>', found 'xml:ProcessingInstruction'", 101, 31);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml<xml:Text>', found 'xml:ProcessingInstruction'", 101, 38);
+//        BAssertUtil.validateError(negativeResult, index++, "undefined symbol 'b'", 105, 32);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'(int|float|decimal|string|boolean)', found 'map<string>'", 111, 32);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'(int|float|decimal|string|boolean)', found 'error'", 111, 37);
+//
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml:Element', found 'xml<xml<xml:Element>>'", 116, 22);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml:Comment', found 'xml<xml<xml<xml:Comment>>>'", 118, 22);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml:ProcessingInstruction', found 'xml<xml<xml<xml:ProcessingInstruction>>>'", 120, 36);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml:Text', found 'xml'", 122, 19);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+//                "'xml:Text', found 'xml<xml>'", 124, 19);
+//        BAssertUtil.validateError(negativeResult, index++, "missing xml CDATA end token", 128, 49);
+//
+//        Assert.assertEquals(index, negativeResult.getErrorCount());
+//    }
 
     @Test
     public void testXMLSequence() {

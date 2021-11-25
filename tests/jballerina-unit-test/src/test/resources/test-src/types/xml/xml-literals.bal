@@ -16,6 +16,11 @@
 
 import ballerina/test;
 
+public type Template object {
+    public string[] & readonly strings;
+    public anydata[] insertions;
+};
+
 function testXMLSequence() {
     string v1 = "interpolation1";
     string v2 = "interpolation2";
@@ -77,6 +82,22 @@ function testXMLSequence() {
     test:assertEquals(x15.toString(), "<root> text1<foo>100</foo><foo>200</foo></root> text1");
     'xml:Text x16 = xml `text ${v1}`;
     test:assertEquals(x16.toString(), "text interpolation1");
+
+    any|Template a1 = xml `foo<elem/>`;
+    test:assertEquals(a1.toString(), "foo<elem></elem>");
+    anydata|Template a7 = xml `foo<elem/>`;
+    test:assertEquals(a7.toString(), "foo<elem></elem>");
+    xml|error a2 = xml `foo<elem/>`;
+    if (a2 is xml) {
+        xml b = <xml> a2 ;
+        test:assertEquals(a2.toString(), "foo<elem></elem>");
+    }
+    xml:Comment|xml a3 = xml `foo<elem/>`;
+    test:assertEquals(a3.toString(), "foo<elem></elem>");
+    xml:ProcessingInstruction|xml a5 = xml `foo<elem/>`;
+    test:assertEquals(a5.toString(), "foo<elem></elem>");
+    xml:Text|xml a6 = xml `foo<elem/>`;
+    test:assertEquals(a6.toString(), "foo<elem></elem>");
 }
 
 function testXMLTextLiteral() returns [xml, xml, xml, xml, xml, xml] {
@@ -362,4 +383,34 @@ function testXMLReturnUnion() returns error? {
     xmlSequence = obj.getNestedXmlSequence();
     test:assertTrue(xmlSequence is xml);
     test:assertEquals((check xmlSequence).toString(), "<grand_total>2</grand_total>");
+}
+
+function testXMLInterpolationWithCheck() {
+    xml a1 = xml `<A>${xml `<B>${checkpanic interpolationTest1()}</B>`}</A>`;
+    test:assertEquals(a1.toString(), "<A><B>23</B></A>");
+
+    a1 = xml `<A>${xml `<B>${interpolationTest2()}</B>`}</A>`;
+    test:assertEquals(a1.toString(), "<A><B>20</B></A>");
+
+    a1 = xml `<A>${interpolationTest2()}</A>`;
+    test:assertEquals(a1.toString(), "<A>20</A>");
+
+    a1 = xml `<A>${checkpanic interpolationTest1()}</A>`;
+    test:assertEquals(a1.toString(), "<A>20</A>");
+
+    error|xml a2 = interpolationTest3();
+    test:assertEquals(a1.toString(), "<A><B>23</B></A>");
+}
+
+function interpolationTest1() returns error|int {
+    return 23;
+}
+
+function interpolationTest2() returns int {
+    return 20;
+}
+
+function interpolationTest3() returns error|xml {
+    xml z = xml `<A>${xml `<B>${check interpolationTest1()}</B>`}</A>`;
+    return z;
 }
