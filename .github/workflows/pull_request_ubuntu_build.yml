@@ -8,7 +8,7 @@ on:
       - release-stage
       - stage
       - ballerina-1.2.x
-      - stage-slbeta4
+      - stage-slbeta5
 
 jobs:
   ubuntu_build:
