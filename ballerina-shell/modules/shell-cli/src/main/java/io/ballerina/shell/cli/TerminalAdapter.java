@@ -104,4 +104,6 @@ public abstract class TerminalAdapter {
         return Arrays.stream(text.split(NEWLINE)).map(s -> "| " + s)
                 .collect(Collectors.joining(NEWLINE));
     }
+
+    public abstract String readOneLine();
 }
