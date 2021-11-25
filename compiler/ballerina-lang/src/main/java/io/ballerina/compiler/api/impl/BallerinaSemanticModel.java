@@ -517,7 +517,7 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private boolean isWithinCurrentWorker(long symbolEnvScopeOwnerFlags, SymbolEnv enclEnv, BSymbol symbol) {
 
-        if ( Symbols.isFlagOn(symbolEnvScopeOwnerFlags, Flags.WORKER)
+        if (Symbols.isFlagOn(symbolEnvScopeOwnerFlags, Flags.WORKER)
                 && Symbols.isFlagOn(symbol.flags, Flags.WORKER)
                 && enclEnv != null
                 && enclEnv.node.getKind() == NodeKind.FUNCTION) {
