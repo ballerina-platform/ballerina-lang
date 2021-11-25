@@ -258,7 +258,7 @@ public class BallerinaXmlSerializer extends OutputStream {
             throws XMLStreamException {
         String defaultNamespaceUri = setDefaultNamespace(nsPrefixMap, qName, currentNSLevel);
 
-        if (qName.getNamespaceURI() == defaultNamespaceUri) {
+        if (qName.getNamespaceURI().equals(defaultNamespaceUri)) {
             xmlStreamWriter.writeStartElement(qName.getLocalPart());
         } else {
             String prefix = getXmlNsUriPrefix(nsPrefixMap, qName.getNamespaceURI());

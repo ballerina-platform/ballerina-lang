@@ -324,6 +324,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testNamespaces() {
+        BRunUtil.invoke(compileResult, "testNamespaces");
+    }
+
+    @Test
     public void testNegativeCases() {
         negativeResult = BCompileUtil.compile("test-src/xmllib_test_negative.bal");
         int i = 0;

@@ -50,7 +50,7 @@ public class CreateElement {
     public static BXml createElement(BString name, BMap<BString, BString> attributes, BXml children) {
         String prefix = getPrefix(name.getValue(), attributes);
         BXmlQName xmlqName;
-        if (prefix == "") {
+        if (prefix.equals("")) {
             xmlqName = ValueCreator.createXmlQName(name);
         } else {
             xmlqName = ValueCreator.createXmlQName(name, prefix);
@@ -63,14 +63,14 @@ public class CreateElement {
     }
 
     private static String getPrefix(String name, BMap<BString, BString> attributes) {
-        int parenEndIndex = name.indexOf('}');
-        if (name.startsWith("{") && parenEndIndex > 0) {
-            String uri = name.substring(1, parenEndIndex);
+        int curlyBracketEndIndex = name.lastIndexOf('}');
+        if (name.startsWith("{") && curlyBracketEndIndex > 0) {
+            String uri = name.substring(1, curlyBracketEndIndex);
             for (Map.Entry<BString, BString> entry : attributes.entrySet()) {
                 if (entry.getValue().getValue().equals(uri)) {
                     String key = entry.getKey().getValue();
                     if (key.startsWith(XMLNS_NS_URI_PREFIX)) {
-                        String prefix = key.substring(key.indexOf('}') + 1);
+                        String prefix = key.substring(key.lastIndexOf('}') + 1);
                         if (prefix.equals(XML)) {
                             return "";
                         }
