@@ -9,7 +9,7 @@ jobs:
   run_simulator:
     name: Run LS Simulator
     runs-on: ubuntu-latest
-    timeout-minutes: 500
+    timeout-minutes: 240
 
     steps:
       - name: Checkout Repository
@@ -25,6 +25,7 @@ jobs:
         run: git submodule update --init
 
       - name: Build with Gradle
+        timeout-minutes: 180
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
