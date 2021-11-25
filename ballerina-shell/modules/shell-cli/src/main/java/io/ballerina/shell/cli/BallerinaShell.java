@@ -21,6 +21,7 @@ package io.ballerina.shell.cli;
 import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.DiagnosticKind;
 import io.ballerina.shell.Evaluator;
+import io.ballerina.shell.ModuleImporter;
 import io.ballerina.shell.cli.handlers.CommandHandler;
 import io.ballerina.shell.cli.handlers.DeleteCommand;
 import io.ballerina.shell.cli.handlers.ExitCommand;
@@ -36,6 +37,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -104,7 +106,7 @@ public class BallerinaShell {
             Duration previousDuration = Duration.between(start, end);
             String rightPrompt = String.format("took %s ms", previousDuration.toMillis());
             rightPrompt = terminal.color(rightPrompt, TerminalAdapter.BRIGHT);
-
+            boolean requiredModules = false;
             try {
                 String source = terminal.readLine(leftPrompt, rightPrompt).trim();
                 start = Instant.now();
@@ -120,10 +122,22 @@ public class BallerinaShell {
                 if (!evaluator.hasErrors()) {
                     terminal.fatalError("Something went wrong: " + e.getMessage());
                 }
-                outputException(e);
+                ModuleImporter moduleImporter = new ModuleImporter();
+                List<String> modules = moduleImporter.undefinedModules(evaluator.diagnostics());
+                if (modules.size() > 0) {
+                    requiredModules = true;
+                    moduleAcceptor(moduleImporter, modules);
+                } else {
+                    outputException(e);
+                }
+                if (!requiredModules) {
+                    outputException(e);
+                }
             } finally {
                 end = Instant.now();
-                evaluator.diagnostics().forEach(this::outputDiagnostic);
+                if (!requiredModules) {
+                    evaluator.diagnostics().forEach(this::outputDiagnostic);
+                }
                 evaluator.resetDiagnostics();
                 terminal.println("");
             }
@@ -233,6 +247,45 @@ public class BallerinaShell {
             this.evaluator.initialize();
         } catch (BallerinaShellException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void moduleAcceptor(ModuleImporter moduleImporter, List<String> modules) {
+        int moduleCount = 1;
+        List<String> missingModules = new ArrayList<>();
+        terminal.info("Undefined module(s) found.");
+        for (String module : modules) {
+            terminal.info(String.format("%d. %s", moduleCount, module));
+            moduleCount += 1;
+        }
+
+        terminal.info("Do you want to import mentioned modules (yes/y) (no/n) ?");
+        String answer = terminal.readOneLine();
+        if (answer.equalsIgnoreCase("yes") || answer.equalsIgnoreCase("y")) {
+            terminal.info("Adding required imports");
+            for (String module : modules) {
+                module = module.replaceAll("'", "");
+                if (moduleImporter.isModuleInDistRepo(module)) {
+                    String importSource = moduleImporter.getImportStatement(module);
+                    terminal.info("Adding import: " + importSource);
+                    try {
+                        evaluator.evaluate(importSource);
+                        terminal.info("Import added: " + importSource);
+                    } catch (BallerinaShellException ex) {
+                        terminal.error("Error occurred while adding imports.");
+                        outputException(ex);
+                    }
+                } else {
+                    missingModules.add(module);
+                }
+            }
+
+            if (missingModules.size() > 0) {
+                terminal.error("Found missing modules.");
+                for (String missingModule : missingModules) {
+                    terminal.error(missingModule);
+                }
+            }
         }
     }
 }
