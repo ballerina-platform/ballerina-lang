@@ -26,7 +26,6 @@ import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.RunExecutableTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
@@ -221,17 +220,17 @@ public class RunCommand implements BLauncherCmd {
     }
 
     private BuildOptions constructBuildOptions() {
-        return new BuildOptionsBuilder()
-                .codeCoverage(false)
-                .experimental(experimentalFlag)
-                .offline(offline)
-                .skipTests(true)
-                .testReport(false)
-                .observabilityIncluded(observabilityIncluded)
-                .sticky(sticky)
-                .dumpGraph(dumpGraph)
-                .dumpRawGraphs(dumpRawGraphs)
-                .configSchemaGen(configSchemaGen)
+        return BuildOptions.builder()
+                .setCodeCoverage(false)
+                .setExperimental(experimentalFlag)
+                .setOffline(offline)
+                .setSkipTests(true)
+                .setTestReport(false)
+                .setObservabilityIncluded(observabilityIncluded)
+                .setSticky(sticky)
+                .setDumpGraph(dumpGraph)
+                .setDumpRawGraphs(dumpRawGraphs)
+                .setConfigSchemaGen(configSchemaGen)
                 .build();
     }
 }

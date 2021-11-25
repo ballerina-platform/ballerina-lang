@@ -213,3 +213,28 @@ service on x {
 service ServType / on new ServTypeListener() {
 
 }
+
+type DServ distinct service object {
+
+};
+
+public class DServListener {
+    public isolated function 'start() returns error? {
+    }
+    public isolated function gracefulStop() returns error? {
+    }
+    public isolated function immediateStop() returns error? {
+    }
+    public isolated function detach(DServ s) returns error? {
+    }
+    public isolated function attach(DServ s, string[]|string name = "") returns error? {
+    }
+}
+
+service DServ / on new DServListener() {
+
+}
+
+service / on new DServListener() {
+
+}

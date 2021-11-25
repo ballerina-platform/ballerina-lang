@@ -70,6 +70,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "float_literal_source_07.bal",
                 "method_call_expr_source_03.bal",
                 "method_call_expr_source_05.bal",
+                "qualified_identifier_assert_08.bal",
 
                 // the following tests need to be enabled in the future
                 "annotations_source_04.bal", // could be considered an invalid scenario

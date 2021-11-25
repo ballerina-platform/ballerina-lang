@@ -269,7 +269,7 @@ type SchemaA record {|
 type SchemaB record {|
     string name;
     boolean age;
-    boolean married;
+    boolean? married;
     int...;
 |};
 
@@ -284,7 +284,7 @@ function testRestFieldResolving() {
     SchemaA|SchemaB|SchemaC {name, ...rest} = recA;
     map<int|string> extra = rest;
     var extraRec = rest;
-    boolean married = extraRec.married;
+    boolean? married = extraRec.married;
 }
 
 record {|

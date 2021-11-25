@@ -41,7 +41,7 @@ function testTableConstructExprWithDuplicateKeys() returns string {
 
 const int idNum = 1;
 function testVariableNameFieldAsKeyField() {
-    table<record {readonly int idNum; string name;}> key (idNum) tb = table [
+    table<record {readonly int idNum; string name;}> key (idNum) _ = table [
         {idNum, name: "Jo"},
         {idNum, name: "Chiran"},
         {idNum: 2, name: "Amy"}

@@ -42,8 +42,8 @@ handle dummyHandle = newArrayList();
 typedesc<any> T = typeof strValue;
 
 var fn = function () {
-    int x = 5;
-    int y = 4;
+    int _ = 5;
+    int _ = 4;
 };
 
 DummyImpl dummyImpl = new();

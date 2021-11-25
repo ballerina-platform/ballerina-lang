@@ -23,7 +23,6 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.CloudToml;
 import io.ballerina.projects.CompilerPluginToml;
 import io.ballerina.projects.DependenciesToml;
@@ -480,22 +479,19 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     }
 
     /**
-     * Refresh the project corresponding to the provided file path. Can be used to reload dependencies and trigger
-     * a recompile without document modifications. This is an internal API therefore, not available in the interface.
+     * Refresh the project by cloning it internally and clearing caches.
      *
      * @param filePath A path of a file in the project
      */
     public void refreshProject(Path filePath) throws WorkspaceDocumentException {
         Optional<ProjectPair> projectPairOpt = projectPair(projectRoot(filePath));
-        Optional<Document> doc = projectPairOpt.flatMap(projectPair -> document(filePath, projectPair.project(), null));
-        if (doc.isEmpty()) {
-            throw new WorkspaceDocumentException("Document not found for filePath: " + filePath);
+        if (projectPairOpt.isEmpty()) {
+            throw new WorkspaceDocumentException("Project not found for filePath: " + filePath);
         }
 
         Lock lock = projectPairOpt.get().lockAndGet();
         try {
-            Document updatedDoc = doc.get().modify().withContent(doc.get().syntaxTree().toSourceCode()).apply();
-            projectPairOpt.get().setProject(updatedDoc.module().project());
+            projectPairOpt.get().project().clearCaches();
         } finally {
             lock.unlock();
         }
@@ -1017,7 +1013,8 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         Path projectRoot = projectKindAndProjectRootPair.getRight();
         try {
             Project project;
-            BuildOptions options = new BuildOptionsBuilder().offline(CommonUtil.COMPILE_OFFLINE).sticky(true).build();
+            BuildOptions options = BuildOptions.builder()
+                    .setOffline(CommonUtil.COMPILE_OFFLINE).setSticky(true).build();
             if (projectKind == ProjectKind.BUILD_PROJECT) {
                 project = BuildProject.load(projectRoot, options);
             } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {

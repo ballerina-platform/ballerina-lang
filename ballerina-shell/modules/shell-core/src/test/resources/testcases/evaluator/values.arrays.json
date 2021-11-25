@@ -42,7 +42,7 @@
   },
   {
     "description": "Arrays support several inbuilt functions: reverse(). ",
-    "code": "b.reverse()",
+    "code": "sortedArray.reverse()",
     "expr": "[1,2,3,4,5,6,7]"
   },
   {
