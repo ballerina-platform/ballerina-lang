@@ -481,11 +481,7 @@ public class BallerinaSemanticModel implements SemanticModel {
 
         // Checks if the enclosed node is within a worker declaration body and the encountered symbol is the same
         // worker that is being declared.
-        if (Symbols.isFlagOn(symbolEnvScopeOwner.flags, Flags.WORKER)
-                && Symbols.isFlagOn(symbol.flags, Flags.WORKER)
-                && symbolEnv.enclEnv != null
-                && symbolEnv.enclEnv.node.getKind() == NodeKind.FUNCTION
-                && isWithinCurrentWorker(((BLangFunction) symbolEnv.enclEnv.node).defaultWorkerName, symbol)) {
+        if (isWithinCurrentWorker(symbolEnvScopeOwner.flags, symbolEnv.enclEnv, symbol)) {
             return;
         }
 
@@ -519,9 +515,20 @@ public class BallerinaSemanticModel implements SemanticModel {
         addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name, symbolEnv, states);
     }
 
-    private boolean isWithinCurrentWorker(BLangIdentifier defaultWorkerName, BSymbol symbol) {
-        return defaultWorkerName.getValue().equals(symbol.getName().getValue())
-                && defaultWorkerName.getPosition().equals(symbol.getPosition());
+    private boolean isWithinCurrentWorker(long symbolEnvScopeOwnerFlags, SymbolEnv enclEnv, BSymbol symbol) {
+
+        if ( Symbols.isFlagOn(symbolEnvScopeOwnerFlags, Flags.WORKER)
+                && Symbols.isFlagOn(symbol.flags, Flags.WORKER)
+                && enclEnv != null
+                && enclEnv.node.getKind() == NodeKind.FUNCTION) {
+
+            BLangIdentifier defaultWorkerName = ((BLangFunction) enclEnv.node).defaultWorkerName;
+
+            return defaultWorkerName.getValue().equals(symbol.getName().getValue())
+                    && defaultWorkerName.getPosition().equals(symbol.getPosition());
+        }
+
+        return false;
     }
 
     private boolean isFieldSymbol(Symbol symbol) {
