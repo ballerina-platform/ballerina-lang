@@ -1,7 +1,7 @@
 final int i = 100;
 final int k = 200;
 
-function closureVariableAsFieldValue() {
+function testClosureVariableAsFieldValue() {
     final int i = 10;
     object {
         int x;
@@ -12,7 +12,7 @@ function closureVariableAsFieldValue() {
     assertValueEquality(10, obj.x);
 }
 
-function closureVariableAsFieldValueUsedInAttachedFunctions() {
+function testClosureVariableAsFieldValueUsedInAttachedFunctions() {
     final int i = 10;
     object {
         int x;
@@ -33,7 +33,7 @@ function closureVariableAsFieldValueUsedInAttachedFunctions() {
     assertValueEquality(10, bOceVariable.x);
 }
 
-function closureVariableUsedInsideAttachedMethodBodyAndField() {
+function testClosureVariableUsedInsideAttachedMethodBodyAndField() {
     final int i = 10;
     object {
         int x;
@@ -54,7 +54,7 @@ function closureVariableUsedInsideAttachedMethodBodyAndField() {
     assertValueEquality(55, y);
 }
 
-function closureVariableUsedInsideAttachedMethodBodyOnly() {
+function testClosureVariableUsedInsideAttachedMethodBodyOnly() {
     final int i = 10;
     object {
         int x;
@@ -75,7 +75,7 @@ function closureVariableUsedInsideAttachedMethodBodyOnly() {
     assertValueEquality(55, y);
 }
 
-function closureVariableUsedInsideWithDifferentType() {
+function testClosureVariableUsedInsideWithDifferentType() {
     final string i = "10";
     object {
         int x;
@@ -96,9 +96,9 @@ function closureVariableUsedInsideWithDifferentType() {
 }
 
 function testClosureButAsArgument() {
-    closureVariableUsedInsideMethodNoBlockMap("10");
-    closureArgumentAsClassFieldDefaultValue("10");
-    closureArgumentAsClassFieldDefaultValueChangingClosureVarValue("10");
+    //closureVariableUsedInsideMethodNoBlockMap("10");
+    //closureArgumentAsClassFieldDefaultValue("10");
+    //closureArgumentAsClassFieldDefaultValueChangingClosureVarValue("10");
     closureVariablesAndArgsAsFieldsAndAttachedMethodBodyTogether(10);
 }
 
@@ -202,6 +202,19 @@ function closureArgumentAsClassFieldDefaultValueChangingClosureVarValue(string j
     j = "hello";
     y = lambda("45");
     assertValueEquality("45hi", y);
+}
+
+int a = 200;
+
+public function testAttachedMethodClosuresMapFromFunctionBlock() {
+    int a = 10;
+    var x = object {
+        function t1() returns int {
+            return 3 + a;
+        }
+    };
+    int getValue = x.t1();
+    assertValueEquality(x.t1(), 13);
 }
 
 type AssertionError distinct error;

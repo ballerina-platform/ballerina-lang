@@ -62,12 +62,13 @@ public class ObjectConstructorTest {
     @DataProvider(name = "ClosureTestFunctionList")
     public Object[][] closureTestFunctionList() {
         return new Object[][]{
-                {"closureVariableAsFieldValue"},
-                {"closureVariableAsFieldValueUsedInAttachedFunctions"},
-                {"closureVariableUsedInsideAttachedMethodBodyAndField"},
-                {"closureVariableUsedInsideAttachedMethodBodyOnly"},
-                {"closureVariableUsedInsideWithDifferentType"},
+                {"testClosureVariableAsFieldValue"},
+                {"testClosureVariableAsFieldValueUsedInAttachedFunctions"},
+                {"testClosureVariableUsedInsideAttachedMethodBodyAndField"},
+                {"testClosureVariableUsedInsideAttachedMethodBodyOnly"},
+                {"testClosureVariableUsedInsideWithDifferentType"},
                 {"testClosureButAsArgument"},
+                {"testAttachedMethodClosuresMapFromFunctionBlock"},
         };
     }
 
