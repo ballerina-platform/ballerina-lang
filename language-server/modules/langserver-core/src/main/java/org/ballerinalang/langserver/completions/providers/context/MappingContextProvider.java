@@ -59,12 +59,12 @@ import java.util.stream.Collectors;
  */
 public abstract class MappingContextProvider<T extends Node> extends AbstractCompletionProvider<T> {
 
-    protected abstract Map<String, RecordFieldSymbol> getValidFields(T node,
-                                                                     RecordTypeSymbol recordTypeSymbol);
-
     public MappingContextProvider(Class<T> attachmentPoint) {
         super(attachmentPoint);
     }
+
+    protected abstract Map<String, RecordFieldSymbol> getValidFields(T node,
+                                                                     RecordTypeSymbol recordTypeSymbol);
 
     protected Predicate<Symbol> getVariableFilter() {
         return CommonUtil.getVariableFilterPredicate().or(symbol -> symbol.kind() == SymbolKind.CONSTANT);
