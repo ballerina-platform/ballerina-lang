@@ -152,9 +152,10 @@ public class DiagnosticsHelper {
      * @param compilation package compilation
      */
     private synchronized void compileAndSendDiagnostics(ExtendedLanguageClient client, Path projectRoot,
-                                                        PackageCompilation compilation, WorkspaceManager workspace) {
+                                                        PackageCompilation compilation,
+                                                        WorkspaceManager workspaceManager) {
         Map<String, List<Diagnostic>> diagnosticMap =
-                toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), projectRoot, workspace);
+                toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), projectRoot, workspaceManager);
         // If the client is null, returns
         if (client == null) {
             return;
@@ -192,7 +193,8 @@ public class DiagnosticsHelper {
         }
         PackageCompilation compilation = workspace.waitAndGetPackageCompilation(context.filePath()).orElseThrow();
         // We do not send the internal diagnostics
-        diagnosticMap.putAll(toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), projectRoot, workspace));
+        diagnosticMap.putAll(
+                toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), projectRoot, workspace));
         return diagnosticMap;
     }
 

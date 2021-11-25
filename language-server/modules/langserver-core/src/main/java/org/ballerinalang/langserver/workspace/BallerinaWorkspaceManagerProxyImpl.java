@@ -37,12 +37,11 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BallerinaBallerinaWorkspaceManagerProxyImpl implements BallerinaWorkspaceManagerProxy {
-    private static final String EXPR_SCHEME = "expr";
+public class BallerinaWorkspaceManagerProxyImpl implements BallerinaWorkspaceManagerProxy {
     private final WorkspaceManager baseWorkspaceManager;
     private final ClonedWorkspace clonedWorkspaceManager;
 
-    public BallerinaBallerinaWorkspaceManagerProxyImpl(LanguageServerContext serverContext) {
+    public BallerinaWorkspaceManagerProxyImpl(LanguageServerContext serverContext) {
         this.baseWorkspaceManager = new BallerinaWorkspaceManager(serverContext);
         this.clonedWorkspaceManager = new ClonedWorkspace(serverContext);
     }
@@ -54,7 +53,7 @@ public class BallerinaBallerinaWorkspaceManagerProxyImpl implements BallerinaWor
 
     @Override
     public WorkspaceManager get(String fileUri) {
-        return URI.create(fileUri).getScheme().equals(EXPR_SCHEME) ?
+        return URI.create(fileUri).getScheme().equals(CommonUtil.EXPR_SCHEME) ?
                 this.clonedWorkspaceManager : this.baseWorkspaceManager;
     }
 
@@ -125,7 +124,7 @@ public class BallerinaBallerinaWorkspaceManagerProxyImpl implements BallerinaWor
 
         @Override
         public String uriScheme() {
-            return "expr";
+            return CommonUtil.EXPR_SCHEME;
         }
     }
 

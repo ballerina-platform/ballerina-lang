@@ -136,12 +136,12 @@ public class LSClientUtil {
     }
 
     public static boolean isDynamicDefinitionRegistrationSupported(TextDocumentClientCapabilities capabilities) {
-        return capabilities != null && capabilities.getHover() != null &&
+        return capabilities != null && capabilities.getDefinition() != null &&
                 Boolean.TRUE.equals(capabilities.getDefinition().getDynamicRegistration());
     }
 
     public static boolean isDynamicReferencesRegistrationSupported(TextDocumentClientCapabilities capabilities) {
-        return capabilities != null && capabilities.getHover() != null &&
+        return capabilities != null && capabilities.getReferences() != null &&
                 Boolean.TRUE.equals(capabilities.getReferences().getDynamicRegistration());
     }
 
@@ -151,7 +151,7 @@ public class LSClientUtil {
     }
 
     public static boolean isDynamicCompletionRegistrationSupported(TextDocumentClientCapabilities capabilities) {
-        return capabilities != null && capabilities.getSynchronization() != null &&
+        return capabilities != null && capabilities.getCompletion() != null &&
                 Boolean.TRUE.equals(capabilities.getCompletion().getDynamicRegistration());
     }
 

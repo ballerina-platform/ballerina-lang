@@ -601,6 +601,12 @@ public class TestUtil {
         return getResponseString(result);
     }
 
+    /**
+     * Get the {@link TextDocumentIdentifier} given the file path. Use the one with the URI as the parameter.
+     * 
+     * @param filePath {@link Path}
+     * @return {@link TextDocumentIdentifier}
+     */
     @Deprecated
     public static TextDocumentIdentifier getTextDocumentIdentifier(String filePath) {
         TextDocumentIdentifier identifier = new TextDocumentIdentifier();
@@ -609,6 +615,12 @@ public class TestUtil {
         return identifier;
     }
 
+    /**
+     * Get the {@link TextDocumentIdentifier} given the URI.
+     *
+     * @param fileUri {@link URI}
+     * @return {@link TextDocumentIdentifier}
+     */
     public static TextDocumentIdentifier getTextDocumentIdentifier(URI fileUri) {
         TextDocumentIdentifier identifier = new TextDocumentIdentifier();
         identifier.setUri(fileUri.toString());
