@@ -221,6 +221,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @throws InvokerException If compilation failed.
      */
     protected PackageCompilation compile(Project project) throws InvokerException {
+        boolean isContainsErrors = false;
         try {
             Module module = project.currentPackage().getDefaultModule();
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
@@ -229,14 +230,18 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             for (io.ballerina.tools.diagnostics.Diagnostic diagnostic : diagnosticResult.diagnostics()) {
                 DiagnosticSeverity severity = diagnostic.diagnosticInfo().severity();
                 if (severity == DiagnosticSeverity.ERROR) {
+                    isContainsErrors = true;
                     addErrorDiagnostic(highlightedDiagnostic(module, diagnostic));
-                    addErrorDiagnostic("Compilation aborted due to errors.");
-                    throw new InvokerException();
                 } else if (severity == DiagnosticSeverity.WARNING) {
                     addWarnDiagnostic(highlightedDiagnostic(module, diagnostic));
                 } else {
                     addDebugDiagnostic(diagnostic.message());
                 }
+            }
+
+            if (isContainsErrors) {
+                addErrorDiagnostic("Compilation aborted due to errors.");
+                throw new InvokerException();
             }
 
             return packageCompilation;
