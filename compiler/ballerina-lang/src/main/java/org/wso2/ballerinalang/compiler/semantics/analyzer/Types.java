@@ -528,8 +528,7 @@ public class Types {
         if (mappingMatchPattern.matchExpr == null) {
             return patternType;
         }
-        BType intersectionType = getTypeIntersection(
-                IntersectionContext.compilerInternalIntersectionContext(),
+        BType intersectionType = getTypeIntersection(IntersectionContext.matchClauseIntersectionContextForMapping(),
                 mappingMatchPattern.matchExpr.getBType(), patternType, env);
         if (intersectionType == symTable.semanticError) {
             return symTable.noType;
@@ -544,10 +543,8 @@ public class Types {
         if (varBindingPatternMatchPattern.matchExpr == null) {
             return mappingBindingPatternType;
         }
-        BType intersectionType = getTypeIntersection(
-                IntersectionContext.compilerInternalIntersectionContext(),
-                varBindingPatternMatchPattern.matchExpr.getBType(),
-                mappingBindingPatternType, env);
+        BType intersectionType = getTypeIntersection(IntersectionContext.matchClauseIntersectionContextForMapping(),
+                varBindingPatternMatchPattern.matchExpr.getBType(), mappingBindingPatternType, env);
         if (intersectionType == symTable.semanticError) {
             return symTable.noType;
         }
@@ -3850,19 +3847,29 @@ public class Types {
                     Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
                     BType baseExprType = valSpace.iterator().next().getBType();
                     for (BType memType : memberTypes) {
+                        if (memType.tag == TypeTags.TYPEREFDESC) {
+                            memType = getReferredType(memType);
+                        }
                         if (memType.tag == TypeTags.FINITE) {
                             if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
                                 return false;
                             }
+                            continue;
                         }
-                        if (!checkValidNumericTypesInUnion(memType, firstTypeInUnion.tag)) {
+                        if (!validNumericTypeExists(memType)) {
                             return false;
                         }
                     }
                 } else {
                     for (BType memType : memberTypes) {
                         memType = getReferredType(memType);
-                        if (!checkValidNumericTypesInUnion(memType, firstTypeInUnion.tag)) {
+                        if (memType.tag == TypeTags.FINITE) {
+                            if (!checkValueSpaceHasSameType((BFiniteType) memType, firstTypeInUnion)) {
+                                return false;
+                            }
+                            continue;
+                        }
+                        if (!validNumericTypeExists(memType)) {
                             return false;
                         }
                     }
@@ -6135,6 +6142,19 @@ public class Types {
             intersectionContext.ignoreDefaultValues = true;
             intersectionContext.preferNonGenerativeIntersection = true;
             intersectionContext.createTypeDefs = true;
+            return intersectionContext;
+        }
+
+        /**
+         * Create {@link IntersectionContext} used for calculating the intersection type with mappings, ignoring
+         * default values.
+         * This does not emit error messages explaining why there is no intersection between two types.
+         *
+         * @return a {@link IntersectionContext}
+         */
+        public static IntersectionContext matchClauseIntersectionContextForMapping() {
+            IntersectionContext intersectionContext = new IntersectionContext(null, null, null);
+            intersectionContext.ignoreDefaultValues = true;
             return intersectionContext;
         }
 
