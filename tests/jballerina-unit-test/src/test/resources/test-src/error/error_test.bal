@@ -412,10 +412,10 @@ function bar2(){
     bar();
 }
 
-function testStackOverFlow() returns [error:CallStackElement[], string]? {
+function testStackOverFlow() returns [error:StackFrame[], string]? {
     error? e = trap bar();
     if (e is error){
-        return [e.stackTrace().callStack, e.message()];
+        return [e.stackTrace(), e.message()];
     }
 }
 

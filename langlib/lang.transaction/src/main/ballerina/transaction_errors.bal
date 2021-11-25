@@ -22,7 +22,7 @@ public type Error distinct error;
 # + message - Error message
 # + err - `error` instance
 # + return - Prepared `Error` instance
-public function prepareError(string message, error? err = ()) returns Error {
+public isolated function prepareError(string message, error? err = ()) returns Error {
     Error trxError;
     if (err is error) {
         trxError = error Error(message, err);

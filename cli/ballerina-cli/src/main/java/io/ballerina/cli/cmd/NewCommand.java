@@ -21,6 +21,9 @@ package io.ballerina.cli.cmd;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.ballerinalang.central.client.exceptions.CentralClientException;
+import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -32,6 +35,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static io.ballerina.cli.cmd.CommandUtil.applyBalaTemplate;
+import static io.ballerina.cli.cmd.CommandUtil.findBalaTemplate;
+import static io.ballerina.cli.cmd.CommandUtil.pullPackageFromCentral;
 import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 
@@ -46,16 +52,20 @@ public class NewCommand implements BLauncherCmd {
     private Path userDir;
     private PrintStream errStream;
     private boolean exitWhenFinish;
+    Path homeCache = RepoUtils.createAndGetHomeReposPath();
+    Path balaCache = homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
+            .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
+            .resolve(ProjectConstants.BALA_DIR_NAME);
 
     @CommandLine.Parameters
-    private List<String> argList;
+    public List<String> argList;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
     @CommandLine.Option(names = {"--template", "-t"}, description = "Acceptable values: [main, service, lib] " +
             "default: default")
-    private String template = "default";
+    public String template = "default";
 
     public NewCommand() {
         this.userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -69,6 +79,14 @@ public class NewCommand implements BLauncherCmd {
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         CommandUtil.initJarFs();
+    }
+
+    public NewCommand(Path userDir, PrintStream errStream, boolean exitWhenFinish, Path homeCache) {
+        this.userDir = userDir;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        CommandUtil.initJarFs();
+        this.homeCache = homeCache;
     }
 
     @Override
@@ -159,36 +177,87 @@ public class NewCommand implements BLauncherCmd {
             errStream.println();
         }
 
-        // Check if the template exists
-        if (!CommandUtil.getTemplates().contains(template)) {
-            CommandUtil.printError(errStream,
-                    "template not found, use `bal new --help` to view available templates.",
-                    null,
-                    false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
         try {
             Files.createDirectories(path);
-            CommandUtil.initPackageByTemplate(path, packageName, template);
+            // check if the template matches with one of the inbuilt template types
+            if (!CommandUtil.getTemplates().contains(template)) {
+                // Check if the package is available in local bala cache
+                if (findBalaTemplate(template) != null) {
+                    // Pkg is available in the local cache
+                    try {
+                        applyBalaTemplate(path, balaCache, template);
+                    } catch (CentralClientException centralClientException) {
+                        if (Files.exists(path)) {
+                            try {
+                                Files.delete(path);
+                            } catch (IOException ignored) {
+                            }
+                        }
+                        CommandUtil.printError(errStream, centralClientException.getMessage(),
+                                null,
+                                false);
+                        CommandUtil.exitError(this.exitWhenFinish);
+                    }
+                } else {
+                    // Pull pkg from central
+                    pullPackageFromCentral(balaCache, path, template);
+                }
+            } else {
+                // create package with inbuilt template
+                CommandUtil.initPackageByTemplate(path, packageName, template);
+            }
+        } catch (PackageAlreadyExistsException e) {
+            try {
+                applyBalaTemplate(path, balaCache, template);
+                if (Files.exists(path)) {
+                    errStream.println("Created new Ballerina package '" + guessPkgName(packageName)
+                            + "' at " + userDir.relativize(path) + ".");
+                }
+            } catch (CentralClientException centralClientException) {
+                if (Files.exists(path)) {
+                    try {
+                        Files.delete(path);
+                    } catch (IOException ignored) {
+                    }
+                }
+                CommandUtil.printError(errStream, centralClientException.getMessage(),
+                        null,
+                        false);
+                CommandUtil.exitError(this.exitWhenFinish);
+            }
+            CommandUtil.exitError(this.exitWhenFinish);
         } catch (AccessDeniedException e) {
             CommandUtil.printError(errStream,
                     "error occurred while creating project : " + "Insufficient Permission : " + e.getMessage(),
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
-            return;
+        } catch (CentralClientException e) {
+            if (Files.exists(path)) {
+                try {
+                    Files.delete(path);
+                } catch (IOException ignored) {
+                }
+            }
+            CommandUtil.printError(errStream, e.getMessage(),
+                    null,
+                    false);
+            CommandUtil.exitError(this.exitWhenFinish);
         } catch (IOException | URISyntaxException e) {
             CommandUtil.printError(errStream,
                     "error occurred while creating project : " + e.getMessage(),
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
-            return;
         }
-        errStream.println("Created new Ballerina package '" + guessPkgName(packageName)
-                + "' at " + userDir.relativize(path) + ".");
+        if (Files.exists(path)) {
+            errStream.println("Created new Ballerina package '" + guessPkgName(packageName)
+                    + "' at " + userDir.relativize(path) + ".");
+        }
+        if (this.exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
+        }
+        return;
     }
 
     @Override

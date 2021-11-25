@@ -108,6 +108,9 @@ public isolated function ensureType(any|error v, typedesc<any> t = <>) returns t
 #
 # + v - source value
 # + return - true if read-only, false otherwise
+# # Deprecated
+# This function will be removed in a future release.
+@deprecated
 public isolated function isReadOnly(anydata v) returns boolean = @java:Method {
     'class: "org.ballerinalang.langlib.value.IsReadOnly",
     name: "isReadOnly"

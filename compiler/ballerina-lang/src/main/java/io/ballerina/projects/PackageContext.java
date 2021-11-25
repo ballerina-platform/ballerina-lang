@@ -217,17 +217,17 @@ class PackageContext {
     }
 
     PackageCompilation getPackageCompilation(CompilationOptions compilationOptions) {
-        CompilationOptions options = new CompilationOptionsBuilder()
-                .offline(this.compilationOptions.offlineBuild())
-                .experimental(this.compilationOptions.experimental())
-                .observabilityIncluded(this.compilationOptions.observabilityIncluded())
-                .dumpBir(this.compilationOptions.dumpBir())
-                .cloud(this.compilationOptions.getCloud())
-                .dumpBirFile(this.compilationOptions.dumpBirFile())
-                .dumpGraph(this.compilationOptions.dumpGraph())
-                .dumpRawGraphs(this.compilationOptions.dumpRawGraphs())
-                .listConflictedClasses(this.compilationOptions.listConflictedClasses())
-                .configSchemaGen(this.compilationOptions.configSchemaGen())
+        CompilationOptions options = CompilationOptions.builder()
+                .setOffline(this.compilationOptions.offlineBuild())
+                .setExperimental(this.compilationOptions.experimental())
+                .setObservabilityIncluded(this.compilationOptions.observabilityIncluded())
+                .setDumpBir(this.compilationOptions.dumpBir())
+                .setCloud(this.compilationOptions.getCloud())
+                .setDumpBirFile(this.compilationOptions.dumpBirFile())
+                .setDumpGraph(this.compilationOptions.dumpGraph())
+                .setDumpRawGraphs(this.compilationOptions.dumpRawGraphs())
+                .setListConflictedClasses(this.compilationOptions.listConflictedClasses())
+                .setConfigSchemaGen(this.compilationOptions.configSchemaGen())
                 .build();
         CompilationOptions mergedOptions = options.acceptTheirs(compilationOptions);
         return PackageCompilation.from(this, mergedOptions);
