@@ -28,17 +28,10 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
-import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -86,41 +79,6 @@ public class MappingConstructorExpressionNodeContext extends
         return !node.openBrace().isMissing() && !node.closeBrace().isMissing();
     }
 
-    @Override
-    public void sort(BallerinaCompletionContext context,
-                     MappingConstructorExpressionNode node,
-                     List<LSCompletionItem> completionItems) {
-        Optional<TypeSymbol> contextType = context.getContextType();
-        if (contextType.isPresent()) {
-            completionItems.forEach(lsCItem -> {
-                String sortText = SortingUtil.genSortTextByAssignability(context, lsCItem, contextType.get());
-                lsCItem.getCompletionItem().setSortText(sortText);
-            });
-            return;
-        }
-
-        super.sort(context, node, completionItems);
-    }
-
-    private boolean withinValueExpression(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {
-        Token colon = null;
-
-        if (evalNodeAtCursor.kind() == SyntaxKind.SPECIFIC_FIELD) {
-            colon = ((SpecificFieldNode) evalNodeAtCursor).colon().orElse(null);
-        } else if (evalNodeAtCursor.kind() == SyntaxKind.COMPUTED_NAME_FIELD) {
-            colon = ((ComputedNameFieldNode) evalNodeAtCursor).colonToken();
-        }
-
-        if (colon == null) {
-            return false;
-        }
-
-        int cursorPosInTree = context.getCursorPositionInTree();
-        int colonStart = colon.textRange().startOffset();
-
-        return cursorPosInTree > colonStart;
-    }
-
     private boolean withinComputedNameContext(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {
         if (evalNodeAtCursor.kind() != SyntaxKind.COMPUTED_NAME_FIELD) {
             return false;
@@ -131,43 +89,6 @@ public class MappingConstructorExpressionNodeContext extends
         int cursorPosInTree = context.getCursorPositionInTree();
 
         return cursorPosInTree >= openBracketEnd && cursorPosInTree <= closeBracketStart;
-    }
-
-    private List<Pair<TypeSymbol, TypeSymbol>> getRecordTypeDescs(BallerinaCompletionContext context,
-                                                                  MappingConstructorExpressionNode node) {
-        ContextTypeResolver typeResolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> resolvedType = node.apply(typeResolver);
-        if (resolvedType.isEmpty()) {
-            return Collections.emptyList();
-        }
-        TypeSymbol rawType = CommonUtil.getRawType(resolvedType.get());
-        if (rawType.typeKind() == TypeDescKind.RECORD) {
-            return Collections.singletonList(Pair.of(rawType, resolvedType.get()));
-        }
-        if (rawType.typeKind() == TypeDescKind.UNION) {
-            return ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
-                    .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.RECORD)
-                    .map(typeSymbol -> Pair.of(CommonUtil.getRawType(typeSymbol), typeSymbol))
-                    .collect(Collectors.toList());
-        }
-
-        return Collections.emptyList();
-    }
-
-    private List<LSCompletionItem> getVariableCompletionsForFields(BallerinaCompletionContext ctx,
-                                                                   Map<String, RecordFieldSymbol> recFields) {
-        List<Symbol> visibleSymbols = ctx.visibleSymbols(ctx.getCursorPosition()).stream()
-                .filter(this.getVariableFilter().and(symbol -> {
-                    Optional<TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
-                    Optional<String> symbolName = symbol.getName();
-                    return symbolName.isPresent() && typeDescriptor.isPresent()
-                            && recFields.containsKey(symbolName.get())
-                            && recFields.get(symbolName.get()).typeDescriptor().typeKind()
-                            == typeDescriptor.get().typeKind();
-                }))
-                .collect(Collectors.toList());
-        
-        return this.getCompletionItemList(visibleSymbols, ctx);
     }
 
     private List<LSCompletionItem> getComputedNameCompletions(BallerinaCompletionContext context) {
