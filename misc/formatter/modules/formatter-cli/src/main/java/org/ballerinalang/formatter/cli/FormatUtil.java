@@ -18,7 +18,6 @@ package org.ballerinalang.formatter.cli;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
@@ -241,13 +240,13 @@ class FormatUtil {
     }
 
     private static BuildOptions constructBuildOptions() {
-        return new BuildOptionsBuilder()
-                .codeCoverage(false)
-                .experimental(true)
-                .offline(false)
-                .skipTests(false)
-                .testReport(false)
-                .observabilityIncluded(false)
+        return BuildOptions.builder()
+                .setCodeCoverage(false)
+                .setExperimental(true)
+                .setOffline(false)
+                .setSkipTests(false)
+                .setTestReport(false)
+                .setObservabilityIncluded(false)
                 .build();
     }
 

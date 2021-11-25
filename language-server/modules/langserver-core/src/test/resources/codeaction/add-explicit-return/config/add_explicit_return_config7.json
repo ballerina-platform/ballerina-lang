@@ -1,0 +1,24 @@
+{
+  "line": 59,
+  "character": 34,
+  "expected": [
+    {
+      "title": "Add Explicit Return Statement",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 59,
+              "character": 38
+            },
+            "end": {
+              "line": 59,
+              "character": 39
+            }
+          },
+          "newText": "\n    return;\n}"
+        }
+      ]
+    }
+  ]
+}

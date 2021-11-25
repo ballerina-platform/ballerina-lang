@@ -53,6 +53,9 @@ public class NewCommand implements BLauncherCmd {
     private PrintStream errStream;
     private boolean exitWhenFinish;
     Path homeCache = RepoUtils.createAndGetHomeReposPath();
+    Path balaCache = homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
+            .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
+            .resolve(ProjectConstants.BALA_DIR_NAME);
 
     @CommandLine.Parameters
     public List<String> argList;

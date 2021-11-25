@@ -250,8 +250,10 @@ public class ArrowExprTest {
     @Test(description = "Test compile time errors for arrow expression")
     public void testNegativeArrowExpr() {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
-        BAssertUtil.validateError(resultNegative, 0, "variable 'i' is not initialized", 20, 54);
-        BAssertUtil.validateError(resultNegative, 1, "variable 'm' is not initialized", 20, 58);
+        Assert.assertEquals(resultNegative.getWarnCount(), 1);
+        BAssertUtil.validateWarning(resultNegative, 0, "unused variable 'addFunc1'", 20, 5);
+        BAssertUtil.validateError(resultNegative, 1, "variable 'i' is not initialized", 20, 54);
+        BAssertUtil.validateError(resultNegative, 2, "variable 'm' is not initialized", 20, 58);
     }
 
     @Test(description = "Test compile time errors for arrow expression with type narrowing scenario")

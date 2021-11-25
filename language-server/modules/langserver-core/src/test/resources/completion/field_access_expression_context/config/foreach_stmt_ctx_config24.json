@@ -448,11 +448,11 @@
     {
       "label": "get(int i)",
       "kind": "Function",
-      "detail": "xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>",
+      "detail": "xml:Element",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns the item of an xml sequence with given index.\n\nThis differs from `x[i]` in that it panics if\nparameter `x` does not have an item with index parameter `i`.\n  \n**Params**  \n- `int` i: the index  \n  \n**Return** `xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>`   \n- the item with index parameter `i` in parameter `x`  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns the item of an xml sequence with given index.\n\nThis differs from `x[i]` in that it panics if\nparameter `x` does not have an item with index parameter `i`.\n  \n**Params**  \n- `int` i: the index  \n  \n**Return** `xml:Element`   \n- the item with index parameter `i` in parameter `x`  \n  \n"
         }
       },
       "sortText": "CD",

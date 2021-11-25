@@ -48,6 +48,9 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
     DUPLICATE_DOCUMENTED_ATTRIBUTE("BCE20016", "duplicate.documented.attribute"),
     UNDEFINED_DOCUMENTATION_PUBLIC_FUNCTION("BCE20017", "undefined.documentation.public.function"),
     USAGE_OF_DEPRECATED_CONSTRUCT("BCE20018", "usage.of.deprecated.construct"),
+    INVALID_DEPRECATION_DOCUMENTATION("BCE20019", "invalid.deprecation.documentation"),
+    DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE("BCE20020", "deprecation.documentation.should.available"),
+    DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED("BCE20021", "deprecated.parameters.documentation.not.allowed"),
 
     // Parser diagnostic codes
     SYNTAX_WARNING("BCE20200", "syntax.warning"),
@@ -64,7 +67,9 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
     CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_SERVICE("BCE20401",
             "concurrent.calls.will.not.be.made.to.non.isolated.service"),
     CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD("BCE20402",
-            "concurrent.calls.will.not.be.made.to.non.isolated.method")
+            "concurrent.calls.will.not.be.made.to.non.isolated.method"),
+
+    UNUSED_LOCAL_VARIABLE("BCE20403", "unused.local.variable")
     ;
 
     private String diagnosticId;

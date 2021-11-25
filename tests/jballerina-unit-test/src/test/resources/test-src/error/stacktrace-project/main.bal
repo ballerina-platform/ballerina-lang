@@ -17,24 +17,15 @@
 import stacktrace_project.stacktrace as stacktrace;
 
 public function testStackTraceElements() {
-    error:CallStackElement[] callStackElements = stacktrace:getStackTrace();
+    error:StackFrame[] callStackElements = stacktrace:getStackTrace();
 
     assertEquality(callStackElements.length(), 2);
-    assertEquality(callStackElements[0].toString(), "{\"callableName\":\"getStackTrace\",\"moduleName\":" +
-                "\"test_org.stacktrace_project.stacktrace.0\",\"fileName\":\"stacktrace.bal\",\"lineNumber\":18}");
-    assertEquality(callStackElements[1].toString(), "{\"callableName\":\"testStackTraceElements\",\"moduleName\":" +
-                "\"test_org.stacktrace_project.0\",\"fileName\":\"main.bal\",\"lineNumber\":20}");
+    assertEquality(callStackElements[0].toString(), "callableName: getStackTrace moduleName: " +
+        "test_org.stacktrace_project.stacktrace.0 fileName: stacktrace.bal lineNumber: 18");
+    assertEquality(callStackElements[1].toString(), "callableName: testStackTraceElements moduleName: " +
+        "test_org.stacktrace_project.0 fileName: main.bal lineNumber: 20");
 
-    error:CallStackElement callStackElement = callStackElements[0];
-    string callableName = callStackElement["callableName"];
-    string? moduleName = callStackElement["moduleName"];
-    string fileName = callStackElement["fileName"];
-    int lineNumber = callStackElement["lineNumber"];
-
-    assertEquality(callableName, "getStackTrace");
-    assertEquality(moduleName, "test_org.stacktrace_project.stacktrace.0");
-    assertEquality(fileName, "stacktrace.bal");
-    assertEquality(lineNumber, 18);
+    error:StackFrame callStackElement = callStackElements[0];
 }
 
 function assertEquality(any|error actual, any|error expected) {

@@ -31,6 +31,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -130,9 +131,9 @@ public class UnionTypeTest {
         BAssertUtil.validateError(negativeResult, i++, "ambiguous type '(ClosedBar|OpenBar)'", 44, 28);
         BAssertUtil.validateError(negativeResult, i++, "incompatible mapping constructor expression for type '" +
                 "(ClosedFoo|Foo2)'", 47, 25);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int:Signed8', found 'int'",
-                54, 31);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int:Signed8', found 'int'",
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(int:Signed8|object { })'," +
+                        " found 'int'", 54, 31);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'SomeTypes', found 'int'",
                 55, 20);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(string:Char|int)', " +
                         "found 'string'", 56, 26);
@@ -149,24 +150,20 @@ public class UnionTypeTest {
         }
     }
 
-    @Test(description = "Test union type with a function pointer accessing")
-    public void testUnionTypeWithFunctionPointerAccess() {
-        BRunUtil.invoke(result, "testUnionTypeWithFunctionPointerAccess");
+    @Test(dataProvider = "function-name-provider")
+    public void testUnionMemberTypes(String funcName) {
+        BRunUtil.invoke(result, funcName);
     }
 
-    @Test
-    public void testCastToImmutableUnion() {
-        BRunUtil.invoke(result, "testCastToImmutableUnion");
-    }
-
-    @Test(description = "Test union with integer subtypes")
-    public void testUnionWithIntegerSubTypes() {
-        BRunUtil.invoke(result, "testUnionWithIntegerSubTypes");
-    }
-
-    @Test(description = "Test union with string subtypes")
-    public void testUnionWithStringSubTypes() {
-        BRunUtil.invoke(result, "testUnionWithStringSubTypes");
+    @DataProvider(name = "function-name-provider")
+    public Object[] unionMemberTypesTests() {
+        return new String[]{
+                "testUnionTypeWithFunctionPointerAccess",
+                "testCastToImmutableUnion",
+                "testUnionWithIntegerSubTypes",
+                "testUnionWithStringSubTypes",
+                "testUnionWithDecimalFiniteTypes"
+        };
     }
 
     @AfterClass

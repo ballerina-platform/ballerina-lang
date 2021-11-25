@@ -19,7 +19,6 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
@@ -403,10 +402,8 @@ public class ManifestBuilder {
             return null;
         }
 
-        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
 
-        Boolean skipTests =
-                getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.SKIP_TESTS.toString());
         Boolean offline = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OFFLINE.toString());
         Boolean experimental =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.EXPERIMENTAL.toString());
@@ -428,18 +425,25 @@ public class ManifestBuilder {
         Boolean listConflictedClasses =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.LIST_CONFLICTED_CLASSES.toString());
 
-        return buildOptionsBuilder
-                .skipTests(skipTests)
-                .offline(offline)
-                .experimental(experimental)
-                .observabilityIncluded(observabilityIncluded)
-                .testReport(testReport)
-                .codeCoverage(codeCoverage)
-                .cloud(cloud)
-                .listConflictedClasses(listConflictedClasses)
-                .dumpBuildTime(dumpBuildTime)
-                .sticky(sticky)
-                .build();
+        String targetDir = getStringFromBuildOptionsTableNode(tableNode,
+                BuildOptions.OptionName.TARGET_DIR.toString());
+
+        buildOptionsBuilder
+                .setOffline(offline)
+                .setExperimental(experimental)
+                .setObservabilityIncluded(observabilityIncluded)
+                .setTestReport(testReport)
+                .setCodeCoverage(codeCoverage)
+                .setCloud(cloud)
+                .setListConflictedClasses(listConflictedClasses)
+                .setDumpBuildTime(dumpBuildTime)
+                .setSticky(sticky);
+
+        if (targetDir != null) {
+            buildOptionsBuilder.targetDir(targetDir);
+        }
+
+        return buildOptionsBuilder.build();
     }
 
     private Boolean getBooleanFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
@@ -454,6 +458,23 @@ public class ManifestBuilder {
             if (value.kind() == TomlType.BOOLEAN) {
                 TomlBooleanValueNode tomlBooleanValueNode = (TomlBooleanValueNode) value;
                 return tomlBooleanValueNode.getValue();
+            }
+        }
+        return null;
+    }
+
+    private String getStringFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
+        TopLevelNode topLevelNode = tableNode.entries().get(key);
+        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
+            return null;
+        }
+
+        if (topLevelNode.kind() == TomlType.KEY_VALUE) {
+            TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
+            TomlValueNode value = keyValueNode.value();
+            if (value.kind() == TomlType.STRING) {
+                TomlStringValueNode tomlStringValueNode = (TomlStringValueNode) value;
+                return tomlStringValueNode.getValue();
             }
         }
         return null;
