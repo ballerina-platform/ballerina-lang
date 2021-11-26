@@ -358,7 +358,7 @@ public class HoverUtil {
         TypeSymbol varTypeSymbol = symbol.typeDescriptor();
         String type = varTypeSymbol.signature();
         String varName = symbol.getName().isPresent() ? " " + symbol.getName().get() : "";
-        String modifiedVariable = quotedString(type) + varName;
+        String modifiedVariable = quotedString(type) + CommonUtil.escapeEscapeCharsInIdentifier(varName);
         hoverContent.add(modifiedVariable);
 
         Hover hover = new Hover();

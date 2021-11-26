@@ -1018,6 +1018,16 @@ public class CommonUtil {
     }
 
     /**
+     * Escapes the escape characters present in an identifier.
+     *
+     * @param identifier Identifier
+     * @return The identifier with escape characters escaped
+     */
+    public static String escapeEscapeCharsInIdentifier(String identifier) {
+        return identifier.replaceAll("\\\\", "\\\\\\\\");
+    }
+
+    /**
      * Returns module prefix and process imports required.
      *
      * @param importsAcceptor import acceptor

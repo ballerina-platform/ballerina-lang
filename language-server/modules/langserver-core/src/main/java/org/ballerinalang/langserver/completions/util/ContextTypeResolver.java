@@ -48,6 +48,7 @@ import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
@@ -603,6 +604,26 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         }
         TypeSymbol symbol = (TypeSymbol) typeSymbol.get();
         return Optional.of(symbol);
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(ImplicitAnonymousFunctionExpressionNode node) {
+        Optional<TypeSymbol> typeSymbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.typeOf(node))
+                .or(() -> node.parent().apply(this));
+        
+        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() != TypeDescKind.FUNCTION) {
+            return Optional.empty();
+        }
+        
+        FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) typeSymbol.get();
+        if (!node.rightDoubleArrow().isMissing() &&
+                context.getCursorPositionInTree() >= node.rightDoubleArrow().textRange().endOffset()) {
+            // Cursor is at the expression node
+            return functionTypeSymbol.returnTypeDescriptor();
+        }
+
+        return typeSymbol;
     }
 
     @Override
