@@ -500,30 +500,33 @@ function testTableTypeInferenceWithVarType() {
 
 function testTableTypeInferenceWithVarType1() {
     var v1 = table [
-        {a: 1},
-        {a: "str", b: 2}
-    ];
-    assertTrue(v1 is table<record {|int|string a; int b?;|}>);
+            {a: 1},
+            {a: "str", b: 2}
+        ];
+
+    table<record {|int|string a; int b?;|}> _ = v1;
 }
 
 function testTableTypeInferenceWithVarType2() {
-    record {string a; int b?;} m = {a: "str", b: 2};
+    record {|string a; int b?;|} m = {a: "str", b: 2};
     var v1 = table [
-        {a: 1},
-        {...m},
-        {a: true, c: 2, b: false}
-    ];
-    assertTrue(v1 is table<record {| (int|string|boolean) a; (int|boolean) b?; int c?; |}>);
+            {a: 1},
+            {...m},
+            {a: true, c: 2, b: false}
+        ];
+
+    table<record {|(int|string|boolean) a; (int|boolean) b?; int c?;|}> _ = v1;
 }
 
 function testTableTypeInferenceWithVarType3() {
-    record {string|boolean a; int b?;} m = {a: "str", b: 2};
+    record {|string|boolean a; int b?;|} m = {a: "str", b: 2};
     var v1 = table [
-        {a: 1},
-        {...m}
-    ];
-    assertTrue(v1 is table<record {| (int|string|boolean) a; int b?; |}>);
-    assertFalse(v1 is table<record {| (int|string) a; int b?; |}>);
+            {a: 1},
+            {...m}
+        ];
+
+    table<record {|(int|string|boolean) a; int b?;|}> _ = v1;
+    assertFalse(v1 is table<record {|(int|string) a; int b?;|}>);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

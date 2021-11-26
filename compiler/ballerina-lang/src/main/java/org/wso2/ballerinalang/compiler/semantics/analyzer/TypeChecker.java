@@ -1081,57 +1081,82 @@ public class TypeChecker extends BLangNodeVisitor {
         int memTypesSize = memTypes.size();
 
         fieldNameToFields.forEach((fieldName, fields) -> {
-            BField field = mergeSameNameFields(fields);
+            List<BType> uniqueTypes = getUniqueTypesFromSameNameFieldList(fields);
 
-            boolean isOptional = fields.size() != memTypesSize;
-            if (isOptional) {
-                field.symbol.flags = Flags.asMask(EnumSet.of(Flag.OPTIONAL));
-            } else if (keySpecifierFieldNames.contains(fieldName)) {
-                field.symbol.flags = Flags.asMask(EnumSet.of(Flag.REQUIRED)) + Flags.asMask(EnumSet.of(Flag.READONLY));
-            } else {
-                field.symbol.flags = Flags.asMask(EnumSet.of(Flag.REQUIRED));
+            for (BType memType : memTypes) {
+                BRecordType bMemType = (BRecordType) memType;
+                if (bMemType.sealed) {
+                    continue;
+                }
+
+                if (bMemType.fields.containsKey(fieldName)) {
+                    continue;
+                }
+
+                BType restFieldType = bMemType.restFieldType;
+                if (isUniqueType(uniqueTypes, restFieldType)) {
+                    uniqueTypes.add(restFieldType);
+                }
             }
 
-            inferredFields.add(field);
+            BField resultantField = replaceFieldType(fields.get(0), uniqueTypes);
+            boolean isOptional = fields.size() != memTypesSize;
+
+            if (isOptional) {
+                resultantField.symbol.flags = Flags.asMask(EnumSet.of(Flag.OPTIONAL));
+            } else if (keySpecifierFieldNames.contains(fieldName)) {
+                resultantField.symbol.flags = Flags.asMask(EnumSet.of(Flag.REQUIRED)) + Flags.asMask(EnumSet.of(Flag.READONLY));
+            } else {
+                resultantField.symbol.flags = Flags.asMask(EnumSet.of(Flag.REQUIRED));
+            }
+
+            inferredFields.add(resultantField);
         });
 
         return createTableConstraintRecordType(inferredFields, tableConstructorExpr.pos);
     }
 
     /**
-     * Merges multiple fields with same field name into a single field, where type of that field will be the
-     * supertype of the static types of all the fields.
+     * Gives unique {@code BType} list, extracted from {@code BField} list in which all fields having same field name.
      *
-     * @param fields the list of same name fields (size > 0)
-     * @return a {@code BField}
+     * @param fields the list of same name fields
+     * @return a {@code List<BType>}
      */
-    private BField mergeSameNameFields(List<BField> fields) {
-        BField firstField = fields.get(0);
+    private List<BType> getUniqueTypesFromSameNameFieldList(List<BField> fields) {
+        List<BType> uniqueTypes = new ArrayList<>();
 
-        if (fields.size() == 1) {
-            return firstField;
-        }
-
-        List<BType> types = new ArrayList<>();
         for (BField field : fields) {
             BType type = field.getType();
             if (type.tag == TypeTags.UNION) {
                 ((BUnionType) type).getMemberTypes().forEach(t -> {
-                    if (isUniqueType(types, t)) {
-                        types.add(t);
+                    if (isUniqueType(uniqueTypes, t)) {
+                        uniqueTypes.add(t);
                     }
                 });
-            } else if (isUniqueType(types, type)) {
-                types.add(type);
+            } else if (isUniqueType(uniqueTypes, type)) {
+                uniqueTypes.add(type);
             }
         }
 
-        BUnionType bUnionType = BUnionType.create(null, new LinkedHashSet<>(types));
-        BVarSymbol symbol = firstField.symbol;
-        BVarSymbol fieldSymbol = new BVarSymbol(symbol.flags, symbol.name, symbol.pkgID, bUnionType, symbol.owner,
-                symbol.pos, VIRTUAL);
+        return uniqueTypes;
+    }
 
-        return new BField(firstField.name, firstField.pos, fieldSymbol);
+    /**
+     * Replaces the {@code BField} type with a union type, derived from the given unique list of types.
+     *
+     * @param field       - bField of which, the type to be replaced
+     * @param uniqueTypes - list of unique types
+     * @return a {@code BField}
+     */
+    private BField replaceFieldType(BField field, List<BType> uniqueTypes) {
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(uniqueTypes);
+        BType unionType = BUnionType.create(null, memberTypes);
+
+        BVarSymbol originalSymbol = field.symbol;
+        BVarSymbol fieldSymbol = new BVarSymbol(originalSymbol.flags, originalSymbol.name, originalSymbol.pkgID,
+                unionType, originalSymbol.owner, originalSymbol.pos, VIRTUAL);
+
+        return new BField(field.name, field.pos, fieldSymbol);
     }
 
     private BRecordType createTableConstraintRecordType(Set<BField> inferredFields, Location pos) {
