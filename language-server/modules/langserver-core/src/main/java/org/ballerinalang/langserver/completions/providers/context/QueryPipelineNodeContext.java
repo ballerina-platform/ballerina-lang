@@ -67,9 +67,10 @@ public class QueryPipelineNodeContext extends AbstractCompletionProvider<QueryPi
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get()));
             completionItems.addAll(QueryExpressionUtil.getCommonKeywordCompletions(context));
-        } else if(onMissingJoinKeyword(context)) {
+        } else if (onMissingJoinKeyword(context)) {
             /* Covers the following
-            [intermediate-clause] outer <cursor>
+            (1) [intermediate-clause] outer <cursor>
+            (2) [intermediate-clause] outer j<cursor>
              */
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_JOIN.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_JOIN.get()));
