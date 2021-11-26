@@ -47,7 +47,7 @@ public class WhereClauseNodeContext extends IntermediateClauseNodeContext<WhereC
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
-        if (cursorAtTheEndOfClause(context, node) && nodeAtCursor.kind() != SyntaxKind.BINARY_EXPRESSION) {
+        if (cursorAtTheEndOfClause(context, node)) {
             completionItems.addAll(this.getKeywordCompletions(context, node));
         } else if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             /*
