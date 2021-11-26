@@ -17,7 +17,7 @@
  */
 package io.ballerina.projects.util;
 
-import io.ballerina.projects.CompilationOptionsBuilder;
+import io.ballerina.projects.CompilationOptions;
 import io.ballerina.projects.Project;
 
 /**
@@ -37,8 +37,8 @@ public class DependencyUtils {
      * @param project project
      */
     public static void pullMissingDependencies(Project project) {
-        CompilationOptionsBuilder compilationOptionsBuilder = new CompilationOptionsBuilder();
-        compilationOptionsBuilder.offline(false).sticky(false);
+        CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder = CompilationOptions.builder();
+        compilationOptionsBuilder.setOffline(false).setSticky(false);
         project.currentPackage().getResolution(compilationOptionsBuilder.build());
     }
 }

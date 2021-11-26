@@ -64,9 +64,10 @@ public class CaptureBindingPatternTest {
 
     @Test
     public void testCaptureBindingPatternNegative1() {
-        Assert.assertEquals(resultNegative.getWarnCount(), 1);
+        Assert.assertEquals(resultNegative.getWarnCount(), 2);
 
-        BAssertUtil.validateWarning(resultNegative, 0, "unreachable pattern", 22, 9);
+        BAssertUtil.validateWarning(resultNegative, 0, "unused variable 'a'", 19, 9);
+        BAssertUtil.validateWarning(resultNegative, 1, "unreachable pattern", 22, 9);
     }
 
     @AfterClass

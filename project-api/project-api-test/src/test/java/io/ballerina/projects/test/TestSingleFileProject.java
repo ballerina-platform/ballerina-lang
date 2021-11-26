@@ -18,7 +18,6 @@
 package io.ballerina.projects.test;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
@@ -141,9 +140,9 @@ public class TestSingleFileProject {
     public void testOverrideBuildOptions() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("single_file").resolve("main.bal");
         SingleFileProject project = null;
-        BuildOptions buildOptions = new BuildOptionsBuilder()
-                .skipTests(true)
-                .observabilityIncluded(true)
+        BuildOptions buildOptions = BuildOptions.builder()
+                .setSkipTests(true)
+                .setObservabilityIncluded(true)
                 .build();
         try {
             project = TestUtils.loadSingleFileProject(projectPath, buildOptions);

@@ -23,6 +23,7 @@ import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.jballerina.JarWriter;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -103,7 +104,7 @@ public class JBallerinaBackend extends CompilerBackend {
         // Check if the project has write permissions
         if (packageCompilation.packageContext().project().kind().equals(ProjectKind.BUILD_PROJECT)) {
             try {
-                new Target(packageCompilation.packageContext().project().sourceRoot());
+                new Target(packageCompilation.packageContext().project().targetDir());
             } catch (IOException e) {
                 throw new ProjectException("error while checking permissions of target directory", e);
             }
@@ -539,8 +540,8 @@ public class JBallerinaBackend extends CompilerBackend {
      */
     private String getPlatformLibPath(String groupId, String artifactId, String version) {
         String targetRepo =
-                this.packageContext.project().sourceRoot().toString() + File.separator + "target" + File.separator
-                        + "platform-libs";
+                this.packageContext.project().targetDir().resolve(ProjectConstants.TARGET_DIR_NAME).toString()
+                        + File.separator + "platform" + "-libs";
         MavenResolver resolver = new MavenResolver(targetRepo);
         try {
             Dependency dependency = resolver.resolve(groupId, artifactId, version, false);

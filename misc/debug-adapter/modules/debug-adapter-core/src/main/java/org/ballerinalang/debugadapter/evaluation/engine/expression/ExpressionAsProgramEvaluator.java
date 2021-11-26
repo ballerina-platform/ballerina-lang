@@ -22,14 +22,14 @@ import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
@@ -42,8 +42,6 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextDocuments;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.BImport;
@@ -221,7 +219,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
                 fillOtherModuleDefinitions();
             }
 
-            BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+            BuildOptions buildOptions = BuildOptions.builder().setOffline(true).build();
             return BuildProject.load(this.tempProjectDir, buildOptions);
         } catch (EvaluationException e) {
             throw e;
@@ -336,15 +334,14 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
      * the detected import usages.
      */
     private String generateImportDeclarations(String functionSnippet) throws EvaluationException {
-        TextDocument document = TextDocuments.from(functionSnippet);
-        SyntaxTree functionNode = SyntaxTree.asTopLevel(document);
-        if (functionNode.rootNode().kind() != SyntaxKind.FUNCTION_DEFINITION) {
+        ModuleMemberDeclarationNode functionNode = NodeParser.parseModuleMemberDeclaration(functionSnippet);
+        if (functionNode.kind() != SyntaxKind.FUNCTION_DEFINITION) {
             return null;
         }
         // Detects all the import usages within the evaluation snippet and generates required import statements for
         // the detected import usages.
         EvaluationImportResolver importResolver = new EvaluationImportResolver(context);
-        Map<String, BImport> usedImports = importResolver.detectUsedImports(functionNode.rootNode(), resolvedImports);
+        Map<String, BImport> usedImports = importResolver.detectUsedImports(functionNode, resolvedImports);
         this.capturedImports.addAll(usedImports.values());
 
         StringBuilder importBuilder = new StringBuilder(System.lineSeparator());

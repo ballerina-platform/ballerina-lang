@@ -52,7 +52,7 @@ public function fooFunc3 (string s, Bar r, int i = 4, Foo... fArg) returns [Foo,
 }
 
 public function fooFunc1 (Foo fArg) { // :54:1:: 'Foo'
-    Foo fooVar = fArg;
+    Foo _ = fArg;
 }
 
 

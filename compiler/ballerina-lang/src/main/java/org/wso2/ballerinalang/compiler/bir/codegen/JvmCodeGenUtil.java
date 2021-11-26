@@ -699,7 +699,7 @@ public class JvmCodeGenUtil {
             case TypeTags.DECIMAL:
                 mv.visitTypeInsn(NEW, DECIMAL_VALUE);
                 mv.visitInsn(DUP);
-                mv.visitLdcInsn(String.valueOf(constVal));
+                mv.visitLdcInsn(removeDecimalDiscriminator(String.valueOf(constVal)));
                 mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, JVM_INIT_METHOD, INIT_WITH_STRING, false);
                 break;
             case TypeTags.NIL:
@@ -707,9 +707,20 @@ public class JvmCodeGenUtil {
                 mv.visitInsn(ACONST_NULL);
                 break;
             default:
-                throw new BLangCompilerException("JVM generation is not supported for type : " +
-                                                         bType);
+                throw new BLangCompilerException("JVM generation is not supported for type : " + bType);
         }
+    }
+
+    private static String removeDecimalDiscriminator(String value) {
+        int length = value.length();
+        if (length < 2) {
+            return value;
+        }
+        char lastChar = value.charAt(length - 1);
+        if (lastChar == 'd' || lastChar == 'D') {
+            return value.substring(0, length - 1);
+        }
+        return value;
     }
 
     public static void createDefaultCase(MethodVisitor mv, Label defaultCaseLabel, int nameRegIndex,

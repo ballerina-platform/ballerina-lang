@@ -39,7 +39,6 @@
             <class name="io.ballerina.semantic.api.test.TestSourcesTest" />
             <class name="io.ballerina.semantic.api.test.TypeAssignabilityTest" />
             <class name="io.ballerina.semantic.api.test.TypedescriptorTest" />
-            <class name="io.ballerina.semantic.api.test.typeof.TypeOfQueryExprTest" />
             <class name="io.ballerina.semantic.api.test.WorkspaceSymbolLookupTest" />
 
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsWithinTargetDocumentTest" />
@@ -57,6 +56,11 @@
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsOfEnumsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.XMLRefsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.CyclicUnionRefsTest" />
+            <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInConditionalStmtTest" />
+            <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInRegCompoundStmtTest" />
+            <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInTransactionalStmtTest" />
+            <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInFailTrtryStmtTest" />
+            <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInClassObjectTest" />
 
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByAnnotationTest" />
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByClassTest" />
@@ -160,6 +164,11 @@
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInQueryExprsTest" />
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInStatementsTest" />
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInWorkersTest" />
+
+            <!--Type Of-->
+            <class name="io.ballerina.semantic.api.test.typeof.TypeOfInCallStatementsTest" />
+            <class name="io.ballerina.semantic.api.test.typeof.TypeOfQueryExprTest" />
+            <class name="io.ballerina.semantic.api.test.typeof.TypeOfRegressionTest" />
 
         </classes>
     </test>

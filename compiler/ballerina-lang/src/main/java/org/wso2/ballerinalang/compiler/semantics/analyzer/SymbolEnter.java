@@ -2799,11 +2799,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangRecordVariable.BLangRecordVariableKeyValue variable : recordVar.variableList) {
             // Infer the type of each variable in recordVariable from the given record type
             // so that symbol enter is done recursively
-            if (names.fromIdNode(variable.getKey()) == Names.IGNORE) {
-                dlog.error(recordVar.pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED);
-                continue;
-            }
-
             BLangVariable value = variable.getValue();
             if (value.getKind() == NodeKind.VARIABLE) {
                 // '_' is allowed in record variables. Not allowed if all variables are named as '_'
@@ -3138,6 +3133,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TypeTags.ERROR:
                 errorType = (BErrorType) varType;
                 break;
+            case TypeTags.SEMANTIC_ERROR:
+                // we assume that we have already given an error
+                return false;
             default:
                 dlog.error(errorVariable.pos, DiagnosticErrorCode.INVALID_ERROR_BINDING_PATTERN,
                         varType);
@@ -4946,12 +4944,18 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void resolveAndSetFunctionTypeFromRHSLambda(BLangVariable variable, SymbolEnv env) {
         BLangFunction function = ((BLangLambdaFunction) variable.expr).function;
-        BInvokableType invokableType = (BInvokableType) symResolver.createInvokableType(function.getParameters(),
-                                                                                        function.restParam,
-                                                                                        function.returnTypeNode,
-                                                                                        Flags.asMask(variable.flagSet),
-                                                                                        env,
-                                                                                        function.pos);
+        BType resolvedInvokableType = symResolver.createInvokableType(function.getParameters(),
+                                                                      function.restParam,
+                                                                      function.returnTypeNode,
+                                                                      Flags.asMask(variable.flagSet),
+                                                                      env,
+                                                                      function.pos);
+
+        if (resolvedInvokableType.tag == TypeTags.NONE) {
+            return;
+        }
+
+        BInvokableType invokableType = (BInvokableType) resolvedInvokableType;
 
         if (function.flagSet.contains(Flag.ISOLATED)) {
             invokableType.flags |= Flags.ISOLATED;

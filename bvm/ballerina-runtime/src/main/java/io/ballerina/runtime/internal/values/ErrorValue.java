@@ -254,7 +254,7 @@ public class ErrorValue extends BError implements RefValue {
      */
     public Object getDetails() {
         if (details instanceof RefValue) {
-            return ((RefValue) details).copy(new HashMap<>());
+            return ((RefValue) details).frozenCopy(new HashMap<>());
         }
         return details;
     }

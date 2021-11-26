@@ -149,6 +149,7 @@ public abstract class BalaWriter {
         packageJson.setKeywords(packageManifest.keywords());
         packageJson.setExport(packageManifest.exportedModules());
         packageJson.setVisibility(packageManifest.visibility());
+        packageJson.setTemplate(packageManifest.template());
 
         packageJson.setPlatform(target);
         packageJson.setBallerinaVersion(BALLERINA_SHORT_VERSION);
