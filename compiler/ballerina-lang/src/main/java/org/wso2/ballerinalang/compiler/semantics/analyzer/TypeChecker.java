@@ -1157,7 +1157,8 @@ public class TypeChecker extends BLangNodeVisitor {
             if (isOptional) {
                 resultantField.symbol.flags = Flags.asMask(EnumSet.of(Flag.OPTIONAL));
             } else if (keySpecifierFieldNames.contains(fieldName)) {
-                resultantField.symbol.flags = Flags.asMask(EnumSet.of(Flag.REQUIRED)) + Flags.asMask(EnumSet.of(Flag.READONLY));
+                resultantField.symbol.flags = Flags.asMask(EnumSet.of(Flag.REQUIRED)) +
+                        Flags.asMask(EnumSet.of(Flag.READONLY));
             } else {
                 resultantField.symbol.flags = Flags.asMask(EnumSet.of(Flag.REQUIRED));
             }

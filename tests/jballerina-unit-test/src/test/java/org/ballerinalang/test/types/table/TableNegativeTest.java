@@ -110,11 +110,11 @@ public class TableNegativeTest {
         validateError(compileResult, index++, "value expression of key specifier 'id' must be " +
                 "a constant expression", 237, 9);
         validateError(compileResult, index++, "incompatible types: expected 'table<record {| string name?; |}>',"
-                + " found 'table<record {| string name?; (int|boolean)...; |}>'", 254, 41);
+                + " found 'table<record {| (string|int|boolean) name?; (int|boolean)...; |}>'", 254, 41);
         validateError(compileResult, index++, "incompatible types: expected 'table<record {| string name?; |}>'," +
-                " found 'table<record {| string name?; int...; |}>'", 263, 41);
-        validateError(compileResult, index, "incompatible types: expected " +
-                        "'table<record {| (string|int) name?; |}>', found 'table<record {| string name?; int...; |}>'",
+                " found 'table<record {| (string|int) name?; int...; |}>'", 263, 41);
+        validateError(compileResult, index, "incompatible types: expected 'table<record {| (string|int) name?; |}>'," +
+                        " found 'table<record {| (string|int) name?; int...; |}>'",
                 264, 45);
     }
 }

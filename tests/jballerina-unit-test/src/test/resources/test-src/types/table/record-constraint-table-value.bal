@@ -503,7 +503,7 @@ function testTableConstructExprVar() {
         {[s2]: false}
     ];
 
-    table<record {|string name?; int|boolean...;|}> t1 = v1;
+    table<record {|(string|int|boolean) name?; int|boolean...;|}> t1 = v1;
     assertEquality("[{\"name\":\"Jo\"},{\"id\":2},{\"employed\":false}]", t1.toString());
 }
 
@@ -512,6 +512,7 @@ function testTableTypeInferenceWithVarType() {
     testTableTypeInferenceWithVarType2();
     testTableTypeInferenceWithVarType3();
     testTableTypeInferenceWithVarType4();
+    testTableTypeInferenceWithVarType5();
 }
 
 function testTableTypeInferenceWithVarType1() {
@@ -563,6 +564,23 @@ function testTableTypeInferenceWithVarType4() {
     assertFalse(v1 is table<record {|(int|string) a; (int|string) b?;|}>);
     v1.add({a: 1, b: "c"});
     v1.add({...m});
+}
+
+function testTableTypeInferenceWithVarType5() {
+    record {string a; int b?;} m = {a: "str", b: 2};
+    string s1 = "a";
+    string s2 = "b";
+
+    var v1 = table [
+            {a: 1},
+            {...m},
+            {[s1] : true, c: 2, [s2] : false}
+        ];
+
+    table<record {|int|string|boolean a?; int|boolean b?; anydata c?; anydata...; |}> _ = v1;
+    v1.add({a: 1});
+    v1.add({...m});
+    v1.add({[s1] : true, c: 2, [s2] : false});
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
