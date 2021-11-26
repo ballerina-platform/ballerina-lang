@@ -1563,6 +1563,10 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitKeyValue waitKeyValue) {
+        if (waitKeyValue.keyExpr == null && setEnclosingNode(waitKeyValue.keySymbol, waitKeyValue.key.pos)) {
+            return;
+        }
+
         lookupNode(waitKeyValue.valueExpr != null ? waitKeyValue.valueExpr : waitKeyValue.keyExpr);
     }
 
