@@ -25,14 +25,14 @@ type Student record {
 };
 
 function testRestFieldKeysAsIdentifiers() {
-    Student st1 = {
+    Student _ = {
         readonly name: "May",
         id: 1234,
         math: 80,
         "science": 90
     };
 
-    Details|Student st2 = {
+    Details|Student _ = {
         readonly name: "May",
         id: 1234,
         "math": 80,

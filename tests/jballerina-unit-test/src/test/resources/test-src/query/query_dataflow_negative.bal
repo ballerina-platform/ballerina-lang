@@ -55,7 +55,7 @@ function testReassignValueInLet() {
     Student[] studentList = [s1, s2];
 	FullName[] nameList = [];
 
-	error? outputNameList =
+    error? outputNameList =
 	    from var student in studentList
 	    let float twiceScore = (student.score * 2.0)
 	    do {

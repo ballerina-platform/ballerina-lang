@@ -23,6 +23,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
 
 /**
  * Negative test cases for anonymous records.
@@ -122,42 +123,57 @@ public class AnonymousRecordNegativeTest {
                 "of a record field", 27, 55);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 27, 83);
+        validateWarning(compileResult, index++, "unused variable 'a9'", 28, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 28, 27);
+        validateWarning(compileResult, index++, "unused variable 'a10'", 29, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 29, 30);
+        validateWarning(compileResult, index++, "unused variable 'a11'", 30, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 30, 30);
+        validateWarning(compileResult, index++, "unused variable 'a12'", 31, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 31, 30);
+        validateWarning(compileResult, index++, "unused variable 'a1'", 37, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 37, 23);
+        validateWarning(compileResult, index++, "unused variable 'a2'", 38, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 38, 23);
+        validateWarning(compileResult, index++, "unused variable 'a3'", 39, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 39, 24);
+        validateWarning(compileResult, index++, "unused variable 'a4'", 40, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 40, 29);
+        validateWarning(compileResult, index++, "unused variable 'a5'", 41, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 41, 23);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 41, 47);
+        validateWarning(compileResult, index++, "unused variable 'a6'", 42, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 42, 23);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 42, 47);
+        validateWarning(compileResult, index++, "unused variable 'a7'", 43, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 43, 23);
+        validateWarning(compileResult, index++, "unused variable 'a8'", 44, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 44, 28);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 44, 55);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 44, 83);
+        validateWarning(compileResult, index++, "unused variable 'a9'", 45, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 45, 29);
+        validateWarning(compileResult, index++, "unused variable 'a10'", 46, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 46, 29);
+        validateWarning(compileResult, index++, "unused variable 'a11'", 47, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 47, 29);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
@@ -166,52 +182,72 @@ public class AnonymousRecordNegativeTest {
                 "of a record field", 59, 23);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 64, 23);
+        validateWarning(compileResult, index++, "unused variable 'a1'", 69, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 69, 23);
+        validateWarning(compileResult, index++, "unused variable 'a2'", 70, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 70, 24);
+        validateWarning(compileResult, index++, "unused variable 'a3'", 71, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 71, 24);
+        validateWarning(compileResult, index++, "unused variable 'a4'", 72, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 72, 24);
+        validateWarning(compileResult, index++, "unused variable 'a5'", 73, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 73, 27);
+        validateWarning(compileResult, index++, "unused variable 'a6'", 74, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 74, 29);
+        validateWarning(compileResult, index++, "unused variable 'a7'", 75, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 75, 44);
+        validateWarning(compileResult, index++, "unused variable 'a8'", 76, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 76, 45);
+        validateWarning(compileResult, index++, "unused variable 'a9'", 77, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 77, 28);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 77, 65);
+        validateWarning(compileResult, index++, "unused variable 'a10'", 78, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 78, 30);
+        validateWarning(compileResult, index++, "unused variable 'a11'", 79, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 79, 31);
+        validateWarning(compileResult, index++, "unused variable 'a12'", 80, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 80, 31);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 85, 27);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 90, 27);
+        validateWarning(compileResult, index++, "unused variable 'a1'", 94, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 94, 33);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 94, 69);
+        validateWarning(compileResult, index++, "unused variable 'a2'", 95, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 95, 29);
+        validateWarning(compileResult, index++, "unused variable 'a3'", 96, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 96, 32);
+        validateWarning(compileResult, index++, "unused variable 'a4'", 97, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 97, 32);
+        validateWarning(compileResult, index++, "unused variable 'a5'", 98, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 98, 30);
+        validateWarning(compileResult, index++, "unused variable 'a6'", 99, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 99, 51);
+        validateWarning(compileResult, index++, "unused variable 'a7'", 100, 5);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 100, 33);
+        validateWarning(compileResult, index++, "unused variable 'a8'", 101, 5);
         validateError(compileResult, index, "invalid access of mutable storage in the default value " +
                 "of a record field", 101, 37);
     }

@@ -368,18 +368,6 @@ public class RefEqualAndNotEqualOperationsTest {
     }
 
     @Test
-    public void testXMLSequenceRefEquality() {
-        BValue[] returns = BRunUtil.invoke(result, "testXMLSequenceRefEquality");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test
-    public void testXMLSequenceRefEqualityFalse() {
-        BValue[] returns = BRunUtil.invoke(result, "testXMLSequenceRefEqualityFalse");
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test
     public void testTupleJSONRefEquality() {
         BRunUtil.invoke(result, "testTupleJSONRefEquality");
     }
@@ -389,28 +377,25 @@ public class RefEqualAndNotEqualOperationsTest {
         BRunUtil.invoke(result, "testIntersectingUnionRefEquality");
     }
 
-    @Test
-    public void testXMLSequenceRefEqualityDifferentLength() {
-        BValue[] returns = BRunUtil.invoke(result, "testXMLSequenceRefEqualityDifferentLength");
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    @Test(dataProvider = "functionsWithXmlExactEqualityChecks")
+    public void testXmlExactEquality(String function) {
+        BRunUtil.invoke(result, function);
     }
 
-    @Test
-    public void testXMLSequenceRefEqualityIncludingString() {
-        BValue[] returns = BRunUtil.invoke(result, "testXMLSequenceRefEqualityIncludingString");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test
-    public void testXMLSequenceRefEqualityIncludingDifferentString() {
-        BValue[] returns = BRunUtil.invoke(result, "testXMLSequenceRefEqualityIncludingDifferentString");
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test
-    public void testEmptyXMLSequencesRefEquality() {
-        BValue[] returns = BRunUtil.invoke(result, "testEmptyXMLSequencesRefEquality");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    @DataProvider
+    public Object[] functionsWithXmlExactEqualityChecks() {
+        return new String[] {
+                "testXmlElementRefEquality",
+                "testXmlCommentRefEquality",
+                "testXmlProcessingInstructionRefEquality",
+                "testXMLSequenceRefEquality",
+                "testXMLSequenceRefEqualityFalse",
+                "testXMLSequenceRefEqualityDifferentLength",
+                "testXMLSequenceRefEqualityIncludingString",
+                "testXMLSequenceRefEqualityIncludingDifferentString",
+                "testEmptyXMLSequencesRefEquality",
+                "testXmlTextRefEquality"
+        };
     }
 
     @Test(description = "Test reference equal with errors")

@@ -68,7 +68,7 @@ public class DiagnosticsTest {
 
     private final LanguageServerContext serverContext = new LanguageServerContextImpl();
 
-    private final BallerinaWorkspaceManager workspaceManager = BallerinaWorkspaceManager.getInstance(serverContext);
+    private final BallerinaWorkspaceManager workspaceManager = new BallerinaWorkspaceManager(serverContext);
 
     @BeforeClass
     public void init() {

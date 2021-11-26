@@ -344,7 +344,7 @@ public class TypedescriptorTest {
         return new Object[][]{
                 {204, 11, "int?"},
                 {205, 17, "int|float|()"},
-                {206, 11, "A?"},
+                {206, 11, "\"A\"?"},
 //                {207, 15, "A|B|()"}, TODO: Disabled due to /ballerina-lang/issues/27957
         };
     }
@@ -375,7 +375,7 @@ public class TypedescriptorTest {
     public Object[][] getFiniteTypePos() {
         return new Object[][]{
                 {60, 10, "Digit", List.of("0", "1", "2", "3")},
-                {62, 11, "Format", List.of("default", "csv", "tdf")}
+                {62, 11, "Format", List.of("\"default\"", "\"csv\"", "\"tdf\"")}
         };
     }
 

@@ -1,4 +1,4 @@
 public function testServices() {
     // Syntactic error
-    int services = 5
+    int _ = 5
 }

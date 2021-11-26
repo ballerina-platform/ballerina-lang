@@ -428,6 +428,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
     }
 
+    BSymbol createUnaryOperator(OperatorKind kind, BType type, BType retType) {
+        List<BType> paramTypes = Lists.of(type);
+        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
+        return new BOperatorSymbol(names.fromString(kind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
+    }
+
     public BSymbol resolvePkgSymbol(Location pos, SymbolEnv env, Name pkgAlias) {
         if (pkgAlias == Names.EMPTY) {
             // Return the current package symbol
@@ -1180,6 +1186,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                         length = 0;
                         dlog.error(size.pos,
                                 DiagnosticErrorCode.ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED);
+                    } else if (lengthCheck < 0) {
+                        length = 0;
+                        dlog.error(size.pos, DiagnosticErrorCode.INVALID_ARRAY_LENGTH);
                     } else {
                         length = (int) lengthCheck;
                     }
@@ -1537,12 +1546,9 @@ public class SymbolResolver extends BLangNodeVisitor {
         //    If the package alias is not empty or null, then find the package scope,
         if (symbol == symTable.notFoundSymbol) {
             BSymbol tempSymbol = lookupMainSpaceSymbolInPackage(userDefinedTypeNode.pos, env, pkgAlias, typeName);
-
-            BSymbol refSymbol = tempSymbol.tag == SymTag.TYPE_DEF ? types.getReferredType(tempSymbol.type).tsymbol
-                    : tempSymbol;
-            if ((refSymbol.tag & SymTag.TYPE) == SymTag.TYPE) {
+            if ((tempSymbol.tag & SymTag.TYPE) == SymTag.TYPE) {
                 symbol = tempSymbol;
-            } else if (Symbols.isTagOn(refSymbol, SymTag.VARIABLE) && env.node.getKind() == NodeKind.FUNCTION) {
+            } else if (Symbols.isTagOn(tempSymbol, SymTag.VARIABLE) && env.node.getKind() == NodeKind.FUNCTION) {
                 BLangFunction func = (BLangFunction) env.node;
                 boolean errored = false;
 
@@ -1553,8 +1559,8 @@ public class SymbolResolver extends BLangNodeVisitor {
                     errored = true;
                 }
 
-                if (refSymbol.type != null &&
-                        types.getReferredType(refSymbol.type).tag != TypeTags.TYPEDESC) {
+                if (tempSymbol.type != null &&
+                        types.getReferredType(tempSymbol.type).tag != TypeTags.TYPEDESC) {
                     dlog.error(userDefinedTypeNode.pos, DiagnosticErrorCode.INVALID_PARAM_TYPE_FOR_RETURN_TYPE,
                             tempSymbol.type);
                     errored = true;
@@ -1566,7 +1572,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 }
 
                 ParameterizedTypeInfo parameterizedTypeInfo =
-                        getTypedescParamValueType(func.requiredParams, refSymbol);
+                        getTypedescParamValueType(func.requiredParams, tempSymbol);
                 BType paramValType = parameterizedTypeInfo == null ? null : parameterizedTypeInfo.paramValueType;
 
                 if (paramValType == symTable.semanticError) {
@@ -1926,6 +1932,26 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
+    public BSymbol getUnaryOpsForTypeSets(OperatorKind opKind, BType type) {
+        boolean validNumericTypeExists;
+        switch (opKind) {
+            case ADD:
+            case SUB:
+                validNumericTypeExists = types.validNumericTypeExists(type);
+                break;
+            default:
+                return symTable.notFoundSymbol;
+        }
+        if (!validNumericTypeExists) {
+            return symTable.notFoundSymbol;
+        }
+        if (type.isNullable()) {
+            BType compatibleType = types.findCompatibleType(types.getSafeType(type, true, false));
+            return createUnaryOperator(opKind, type, BUnionType.create(null, compatibleType, symTable.nilType));
+        }
+        return createUnaryOperator(opKind, type, types.findCompatibleType(type));
+    }
+
     public BSymbol getBinaryBitwiseOpsForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType) {
         boolean validIntTypesExists;
         switch (opKind) {
@@ -2019,6 +2045,27 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
         }
         return symTable.notFoundSymbol;
+    }
+
+    /**
+     * Defines {@code ...} or {@code ..<} operator for int subtypes.
+     *
+     * @param opKind  Binary operator kind
+     * @param lhsType Type of the left-hand side value
+     * @param rhsType Type of the right-hand side value
+     * @return Defined symbol
+     */
+    public BSymbol getRangeOpsForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType) {
+        if (opKind != OperatorKind.CLOSED_RANGE && opKind != OperatorKind.HALF_OPEN_RANGE) {
+            return symTable.notFoundSymbol;
+        }
+
+        boolean validIntTypesExists = types.validIntegerTypeExists(lhsType) && types.validIntegerTypeExists(rhsType);
+        if (!validIntTypesExists) {
+            return symTable.notFoundSymbol;
+        }
+
+        return createBinaryOperator(opKind, lhsType, rhsType, symTable.intRangeType);
     }
 
     public boolean isBinaryShiftOperator(OperatorKind binaryOpKind) {

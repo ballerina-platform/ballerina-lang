@@ -23,7 +23,6 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.CloudToml;
 import io.ballerina.projects.CompilerPluginToml;
 import io.ballerina.projects.DependenciesToml;
@@ -96,15 +95,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     /**
      * Mapping of source root to project instance.
      */
-    private final Map<Path, ProjectPair> sourceRootToProject;
-    private static final LanguageServerContext.Key<BallerinaWorkspaceManager> WORKSPACE_MANAGER_KEY =
-            new LanguageServerContext.Key<>();
-    private final LSClientLogger clientLogger;
+    protected final Map<Path, ProjectPair> sourceRootToProject;
+    protected final LSClientLogger clientLogger;
     private final LanguageServerContext serverContext;
     private final Set<Path> openedDocuments = new HashSet<>();
 
-    private BallerinaWorkspaceManager(LanguageServerContext serverContext) {
-        serverContext.put(WORKSPACE_MANAGER_KEY, this);
+    public BallerinaWorkspaceManager(LanguageServerContext serverContext) {
         this.serverContext = serverContext;
         this.clientLogger = LSClientLogger.getInstance(serverContext);
         Cache<Path, Path> cache = CacheBuilder.newBuilder()
@@ -113,15 +109,6 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 .build();
         this.pathToSourceRootCache = cache.asMap();
         this.sourceRootToProject = new SourceRootToProjectMap<>(pathToSourceRootCache);
-    }
-
-    public static BallerinaWorkspaceManager getInstance(LanguageServerContext serverContext) {
-        BallerinaWorkspaceManager workspaceManager = serverContext.get(WORKSPACE_MANAGER_KEY);
-        if (workspaceManager == null) {
-            workspaceManager = new BallerinaWorkspaceManager(serverContext);
-        }
-
-        return workspaceManager;
     }
 
     @Override
@@ -486,23 +473,25 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         return new ArrayList<>(reloadableProjects);
     }
 
+    @Override
+    public String uriScheme() {
+        return "file";
+    }
+
     /**
-     * Refresh the project corresponding to the provided file path. Can be used to reload dependencies and trigger
-     * a recompile without document modifications. This is an internal API therefore, not available in the interface.
+     * Refresh the project by cloning it internally and clearing caches.
      *
      * @param filePath A path of a file in the project
      */
     public void refreshProject(Path filePath) throws WorkspaceDocumentException {
         Optional<ProjectPair> projectPairOpt = projectPair(projectRoot(filePath));
-        Optional<Document> doc = projectPairOpt.flatMap(projectPair -> document(filePath, projectPair.project(), null));
-        if (doc.isEmpty()) {
-            throw new WorkspaceDocumentException("Document not found for filePath: " + filePath);
+        if (projectPairOpt.isEmpty()) {
+            throw new WorkspaceDocumentException("Project not found for filePath: " + filePath);
         }
 
         Lock lock = projectPairOpt.get().lockAndGet();
         try {
-            Document updatedDoc = doc.get().modify().withContent(doc.get().syntaxTree().toSourceCode()).apply();
-            projectPairOpt.get().setProject(updatedDoc.module().project());
+            projectPairOpt.get().project().clearCaches();
         } finally {
             lock.unlock();
         }
@@ -1024,7 +1013,8 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         Path projectRoot = projectKindAndProjectRootPair.getRight();
         try {
             Project project;
-            BuildOptions options = new BuildOptionsBuilder().offline(CommonUtil.COMPILE_OFFLINE).sticky(true).build();
+            BuildOptions options = BuildOptions.builder()
+                    .setOffline(CommonUtil.COMPILE_OFFLINE).setSticky(true).build();
             if (projectKind == ProjectKind.BUILD_PROJECT) {
                 project = BuildProject.load(projectRoot, options);
             } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
