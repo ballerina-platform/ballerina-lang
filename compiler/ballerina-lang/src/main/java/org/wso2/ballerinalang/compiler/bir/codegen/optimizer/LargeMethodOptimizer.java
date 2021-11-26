@@ -509,7 +509,7 @@ public class LargeMethodOptimizer {
         lastBB.terminator = new BIRTerminator.GOTO(null, exitBB, lastIns.scope);
         birFunc.basicBlocks.add(lastBB);
         birFunc.basicBlocks.add(exitBB);
-        changeSelfToArgVarKind(birFunc, selfVarDcl);
+        changeLocalAndSelfToArgVarKind(birFunc, selfVarDcl);
         return birFunc;
     }
 
@@ -542,7 +542,7 @@ public class LargeMethodOptimizer {
             Name newFuncName = new Name(newFunctionName);
             BIROperand currentBBTerminatorLhsOp =
                     new BIROperand(instructionList.get(possibleSplits.get(splitNum).lastIns).lhsOp.variableDcl);
-            BIRFunction newBIRFunc = createNewBIRFunctionInBB(function, newFuncName,
+            BIRFunction newBIRFunc = createNewBIRFuncForSplitInBB(function, newFuncName,
                     instructionList.get(possibleSplits.get(splitNum).lastIns),
                     instructionList.subList(possibleSplits.get(splitNum).firstIns,
                             possibleSplits.get(splitNum).lastIns),
@@ -582,10 +582,10 @@ public class LargeMethodOptimizer {
      * @param fromAttachedFunction flag which indicates an original attached function is being split
      * @return newly created BIR function
      */
-    private BIRFunction createNewBIRFunctionInBB(BIRFunction parentFunc, Name funcName, BIRNonTerminator currentIns,
-                                                 List<BIRNonTerminator> collectedIns,
-                                                 Set<BIRVariableDcl> lhsOperandList, List<BIRVariableDcl> funcArgs,
-                                                 boolean fromAttachedFunction) {
+    private BIRFunction createNewBIRFuncForSplitInBB(BIRFunction parentFunc, Name funcName, BIRNonTerminator currentIns,
+                                                     List<BIRNonTerminator> collectedIns,
+                                                     Set<BIRVariableDcl> lhsOperandList, List<BIRVariableDcl> funcArgs,
+                                                     boolean fromAttachedFunction) {
         BType retType = currentIns.lhsOp.variableDcl.type;
         List<BType> paramTypes = new ArrayList<>();
         for (BIRVariableDcl funcArg : funcArgs) {
@@ -634,7 +634,7 @@ public class LargeMethodOptimizer {
         entryBB.terminator = new BIRTerminator.GOTO(null, exitBB, currentIns.scope);
         birFunc.basicBlocks.add(entryBB);
         birFunc.basicBlocks.add(exitBB);
-        changeSelfToArgVarKind(birFunc, selfVarDcl);
+        changeLocalAndSelfToArgVarKind(birFunc, selfVarDcl);
         return birFunc;
     }
 
@@ -643,7 +643,7 @@ public class LargeMethodOptimizer {
                 VarScope.FUNCTION, VarKind.ARG, variableDcl.metaVarName);
     }
 
-    private void changeSelfToArgVarKind(BIRFunction birFunction, BIRVariableDcl selfVarDcl) {
+    private void changeLocalAndSelfToArgVarKind(BIRFunction birFunction, BIRVariableDcl selfVarDcl) {
         for (BIRBasicBlock basicBlock : birFunction.basicBlocks) {
             for (BIRNonTerminator instruction : basicBlock.instructions) {
                 if (instruction.lhsOp.variableDcl.kind == VarKind.SELF) {

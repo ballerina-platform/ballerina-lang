@@ -25,6 +25,7 @@ import largePackage.unions as u;
 import largePackage.constants as cnt;
 import largePackage.tuples as t;
 import largePackage.arrays as a;
+import largePackage.methods as m;
 
 public function main() {
     c:Client|error myClient = checkpanic new();
@@ -51,4 +52,5 @@ public function main() {
     test:assertEquals(t:getLargeTupleArray(), 421);
     test:assertTrue(t:getLargeTuple() is typedesc<anydata>);
     test:assertTrue(a:testArrays() is true);
+    test:assertTrue(m:largeMethod() is true);
 }
