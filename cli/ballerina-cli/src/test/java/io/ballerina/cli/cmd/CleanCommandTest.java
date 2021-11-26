@@ -73,4 +73,26 @@ public class CleanCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.exists(projectPath.resolve("target").resolve("cache")));
         Assert.assertFalse(Files.exists(projectPath.resolve("target").resolve("report")));
     }
+
+    @Test(description = "Test doc command on a ballerina project with custom target dir.")
+    public void testCleanCommandInProjectWithCustomTarget() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithTarget");
+        Path customTargetDir = projectPath.resolve("customTargetDir4");
+        Files.move(projectPath.resolve("target-dir"), customTargetDir,
+                StandardCopyOption.REPLACE_EXISTING);
+
+        Assert.assertTrue(Objects.requireNonNull(
+                customTargetDir.resolve("bala").toFile().listFiles()).length > 0);
+        Assert.assertTrue(Objects.requireNonNull(
+                customTargetDir.resolve("cache").toFile().listFiles()).length > 0);
+        Assert.assertTrue(Objects.requireNonNull(
+                customTargetDir.resolve("report").toFile().listFiles()).length > 0);
+
+        CleanCommand cleanCommand = new CleanCommand(projectPath, false, customTargetDir);
+        cleanCommand.execute();
+
+        Assert.assertFalse(Files.exists(customTargetDir.resolve("bala")));
+        Assert.assertFalse(Files.exists(customTargetDir.resolve("cache")));
+        Assert.assertFalse(Files.exists(customTargetDir.resolve("report")));
+    }
 }
