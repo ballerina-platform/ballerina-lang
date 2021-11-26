@@ -49,14 +49,14 @@ service nocacheBackend on new http:Listener(9243) {
     @http:ResourceConfig { path: "/" }
     resource function sayHello(http:Caller caller, http:Request req) {
         json nocachePayload = {};
-        http:Response res = new;
-        http:ResponseCacheControl resCC = new;
         if (nocachehitcount < 1) {
             nocachePayload = { "message": "1st response" };
-            res.cacheControl = resCC;
         } else {
             nocachePayload = { "message": "2nd response" };
         }
+        http:Response res = new;
+        http:ResponseCacheControl resCC = new;
+        res.cacheControl = resCC;
         resCC.noCache = true;
         res.setETag(nocachePayload);
         nocachehitcount += 1;
