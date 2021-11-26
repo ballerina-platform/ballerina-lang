@@ -428,6 +428,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
     }
 
+    BSymbol createUnaryOperator(OperatorKind kind, BType type, BType retType) {
+        List<BType> paramTypes = Lists.of(type);
+        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
+        return new BOperatorSymbol(names.fromString(kind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
+    }
+
     public BSymbol resolvePkgSymbol(Location pos, SymbolEnv env, Name pkgAlias) {
         if (pkgAlias == Names.EMPTY) {
             // Return the current package symbol
@@ -1926,6 +1932,26 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
+    public BSymbol getUnaryOpsForTypeSets(OperatorKind opKind, BType type) {
+        boolean validNumericTypeExists;
+        switch (opKind) {
+            case ADD:
+            case SUB:
+                validNumericTypeExists = types.validNumericTypeExists(type);
+                break;
+            default:
+                return symTable.notFoundSymbol;
+        }
+        if (!validNumericTypeExists) {
+            return symTable.notFoundSymbol;
+        }
+        if (type.isNullable()) {
+            BType compatibleType = types.findCompatibleType(types.getSafeType(type, true, false));
+            return createUnaryOperator(opKind, type, BUnionType.create(null, compatibleType, symTable.nilType));
+        }
+        return createUnaryOperator(opKind, type, types.findCompatibleType(type));
+    }
+
     public BSymbol getBinaryBitwiseOpsForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType) {
         boolean validIntTypesExists;
         switch (opKind) {
@@ -2019,6 +2045,27 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
         }
         return symTable.notFoundSymbol;
+    }
+
+    /**
+     * Defines {@code ...} or {@code ..<} operator for int subtypes.
+     *
+     * @param opKind  Binary operator kind
+     * @param lhsType Type of the left-hand side value
+     * @param rhsType Type of the right-hand side value
+     * @return Defined symbol
+     */
+    public BSymbol getRangeOpsForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType) {
+        if (opKind != OperatorKind.CLOSED_RANGE && opKind != OperatorKind.HALF_OPEN_RANGE) {
+            return symTable.notFoundSymbol;
+        }
+
+        boolean validIntTypesExists = types.validIntegerTypeExists(lhsType) && types.validIntegerTypeExists(rhsType);
+        if (!validIntTypesExists) {
+            return symTable.notFoundSymbol;
+        }
+
+        return createBinaryOperator(opKind, lhsType, rhsType, symTable.intRangeType);
     }
 
     public boolean isBinaryShiftOperator(OperatorKind binaryOpKind) {

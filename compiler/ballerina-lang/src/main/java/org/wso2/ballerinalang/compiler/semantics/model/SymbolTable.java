@@ -1022,7 +1022,7 @@ public class SymbolTable {
     }
 
     public void defineIntRangeOperations() {
-        BType[] intTypes = {intType, signed32IntType, signed16IntType, signed8IntType,
+        BType[] intTypes = {byteType, intType, signed32IntType, signed16IntType, signed8IntType,
                 unsigned32IntType, unsigned16IntType, unsigned8IntType};
         for (BType lhs : intTypes) {
             for (BType rhs : intTypes) {

@@ -246,6 +246,33 @@ function testLaxUnionFieldAccessNegative3() returns boolean {
     return assertKeyNotFoundError(jv, "e");
 }
 
+json j = {
+    x: {
+        y: {
+            z: "value"
+        }
+    }
+};
+
+function laxFieldAccessWithCheckOnVariableDefinedAtModuleLevel() returns string|error {
+    string s = check j.x.y.z;
+    return s;
+}
+
+function laxFieldAccessForUndefinedFieldWithCheckOnVariableDefinedAtModuleLevel() returns string|error {
+    string s = check j.x.y.k;
+    return s;
+}
+
+function testLaxFieldAccessWithCheckOnVariableDefinedAtModuleLevel() returns boolean|error?{
+    return isEqual(laxFieldAccessWithCheckOnVariableDefinedAtModuleLevel(), "value");
+}
+
+function negativeTestLaxFieldAccessWithCheckOnVariableDefinedAtModuleLevel() returns boolean|error?{
+    return isEqual(laxFieldAccessForUndefinedFieldWithCheckOnVariableDefinedAtModuleLevel(),
+                    "error(\"{ballerina/lang.map}KeyNotFound\",message=\"key 'k' not found in JSON mapping\")");
+}
+
 function assertNonMappingJsonError(json|error je) returns boolean {
     if (je is error) {
         var detailMessage = je.detail()["message"];
