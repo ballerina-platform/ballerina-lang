@@ -105,6 +105,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
+import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorBindingPattern;
@@ -6489,11 +6490,14 @@ public class Desugar extends BLangNodeVisitor {
                 break;
         }
 
-        if (invocation.expr.getBType().tag == TypeTags.OBJECT) {
+        if (invocation.objectInitMethod && Symbols.isFlagOn(invocation.expr.getBType().flags, Flags.OBJECT_CTOR)) {
             BObjectType initializingObject = (BObjectType) invocation.expr.getBType();
-            if (Symbols.isFlagOn(invocation.expr.getBType().flags, Flags.OBJECT_CTOR)) {
-                initializingObject.classDef.oceEnvData.attachedFunctionInvocation =
-                        (BLangAttachedFunctionInvocation) result;
+            OCEDynamicEnvironmentData oceEnvData = initializingObject.classDef.oceEnvData;
+            if (oceEnvData.attachedFunctionInvocation != null) {
+                System.out.println("I am not null : " + invocation);
+            }
+            if (oceEnvData.attachedFunctionInvocation == null) {
+                oceEnvData.attachedFunctionInvocation = (BLangAttachedFunctionInvocation) result;
             }
         }
         fixTypeCastInTypeParamInvocation(invocation, invRef);
@@ -6576,22 +6580,25 @@ public class Desugar extends BLangNodeVisitor {
         objVarDef.var.name.pos = symTable.builtinPos;
         BLangSimpleVarRef objVarRef = ASTBuilderUtil.createVariableRef(typeInitExpr.pos, objVarDef.var.symbol);
         blockStmt.addStatement(objVarDef);
-        typeInitExpr.initInvocation.exprSymbol = objVarDef.var.symbol;
-        typeInitExpr.initInvocation.symbol = ((BObjectTypeSymbol) objType.tsymbol).generatedInitializerFunc.symbol;
+        BLangInvocation typeInitInvocation = typeInitExpr.initInvocation;
+        typeInitInvocation.exprSymbol = objVarDef.var.symbol;
+        typeInitInvocation.symbol = ((BObjectTypeSymbol) objType.tsymbol).generatedInitializerFunc.symbol;
+
+        typeInitInvocation.objectInitMethod = true;
 
         // init() returning nil is the common case and the type test is not needed for it.
-        if (types.getReferredType(typeInitExpr.initInvocation.getBType()).tag == TypeTags.NIL) {
+        if (types.getReferredType(typeInitInvocation.getBType()).tag == TypeTags.NIL) {
             BLangExpressionStmt initInvExpr = ASTBuilderUtil.createExpressionStmt(typeInitExpr.pos, blockStmt);
-            initInvExpr.expr = typeInitExpr.initInvocation;
-            typeInitExpr.initInvocation.name.value = GENERATED_INIT_SUFFIX.value;
+            initInvExpr.expr = typeInitInvocation;
+            typeInitInvocation.name.value = GENERATED_INIT_SUFFIX.value;
             BLangStatementExpression stmtExpr = createStatementExpression(blockStmt, objVarRef);
             stmtExpr.setBType(objVarRef.symbol.type);
             return stmtExpr;
         }
 
         // var $temp$ = $obj$.init();
-        BLangSimpleVariableDef initInvRetValVarDef = createVarDef("$temp$", typeInitExpr.initInvocation.getBType(),
-                                                                  typeInitExpr.initInvocation, typeInitExpr.pos);
+        BLangSimpleVariableDef initInvRetValVarDef = createVarDef("$temp$", typeInitInvocation.getBType(),
+                typeInitInvocation, typeInitExpr.pos);
         blockStmt.addStatement(initInvRetValVarDef);
 
         // Person|error $result$;

@@ -62,6 +62,7 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
      */
     public List<BLangExpression> requiredArgs = new ArrayList<>();
     public List<BLangExpression> restArgs = new ArrayList<>();
+    public boolean objectInitMethod;
 
     @Override
     public IdentifierNode getPackageAlias() {
