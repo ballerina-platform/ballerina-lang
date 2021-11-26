@@ -399,6 +399,60 @@ public class LargeMethodOptimizer {
         setLocalVarStartEndBB(function, newBBList, changedLocalVarStartBB, changedLocalVarEndBB);
         // newBBList is used as the original function's BB list
         function.basicBlocks = newBBList;
+        // unused temp and synthetic vars in the original function are removed
+        removeUnusedVars(function);
+    }
+
+    private boolean isTempOrSyntheticVar(BIRVariableDcl variableDcl) {
+        return (variableDcl.kind == VarKind.TEMP) || (variableDcl.kind == VarKind.SYNTHETIC);
+    }
+
+    private Set<BIRVariableDcl> findUsedVars(List<BIRBasicBlock> basicBlocks) {
+        Set<BIRVariableDcl> usedVars = new HashSet<>();
+        for (BIRBasicBlock basicBlock : basicBlocks) {
+            for (BIRNonTerminator instruction : basicBlock.instructions) {
+                if (isTempOrSyntheticVar(instruction.lhsOp.variableDcl)) {
+                    usedVars.add(instruction.lhsOp.variableDcl);
+                }
+                BIROperand[] rhsOperands = instruction.getRhsOperands();
+                for (BIROperand rhsOperand : rhsOperands) {
+                    if (isTempOrSyntheticVar(rhsOperand.variableDcl)) {
+                        usedVars.add(rhsOperand.variableDcl);
+                    }
+                }
+            }
+            if ((basicBlock.terminator.lhsOp != null) &&
+                    (isTempOrSyntheticVar(basicBlock.terminator.lhsOp.variableDcl))) {
+                usedVars.add(basicBlock.terminator.lhsOp.variableDcl);
+            }
+            BIROperand[] rhsOperands = basicBlock.terminator.getRhsOperands();
+            for (BIROperand rhsOperand : rhsOperands) {
+                if (isTempOrSyntheticVar(rhsOperand.variableDcl)) {
+                    usedVars.add(rhsOperand.variableDcl);
+                }
+            }
+        }
+        return usedVars;
+    }
+
+    private void removeUnusedVars(BIRFunction birFunction) {
+        Set<BIRVariableDcl> usedVars = new HashSet<>();
+        for (List<BIRBasicBlock> bbList : birFunction.parameters.values()) {
+            usedVars.addAll(findUsedVars(bbList));
+        }
+        usedVars.addAll(findUsedVars(birFunction.basicBlocks));
+
+        List<BIRVariableDcl> newLocalVars = new ArrayList<>();
+        for (BIRVariableDcl localVar : birFunction.localVars) {
+            if (isTempOrSyntheticVar(localVar)) {
+                if (usedVars.contains(localVar)) {
+                    newLocalVars.add(localVar);
+                }
+            } else {
+                newLocalVars.add(localVar);
+            }
+        }
+        birFunction.localVars = newLocalVars;
     }
 
     private void setLocalVarStartEndBB(BIRFunction birFunction, List<BIRBasicBlock> newBBList, Map<String, String>
