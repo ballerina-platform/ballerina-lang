@@ -40,7 +40,7 @@ function testInvalidNonIsolatedRecordDefaultValues() {
 
             isolated function getB() returns boolean => self.b;
         };
-    } rec = {"oth": 2.34};
+    } _ = {"oth": 2.34};
 }
 
 function (int i) returns string bar = function (int i) returns string {

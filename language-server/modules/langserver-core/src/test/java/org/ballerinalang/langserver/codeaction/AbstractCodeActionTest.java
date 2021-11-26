@@ -63,7 +63,7 @@ public abstract class AbstractCodeActionTest {
     private final Path sourcesPath = new File(getClass().getClassLoader().getResource("codeaction").getFile()).toPath();
 
     private static final WorkspaceManager workspaceManager
-            = BallerinaWorkspaceManager.getInstance(new LanguageServerContextImpl());
+            = new BallerinaWorkspaceManager(new LanguageServerContextImpl());
     
     private static final LanguageServerContext serverContext = new LanguageServerContextImpl();
 

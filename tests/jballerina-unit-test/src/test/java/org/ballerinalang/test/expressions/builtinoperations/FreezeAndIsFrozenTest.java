@@ -39,6 +39,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
 
 /**
  * This class tests the freeze() and isFrozen() builtin functions.
@@ -589,5 +590,15 @@ public class FreezeAndIsFrozenTest {
                 {"testFrozenFloatArrayModification"},
                 {"testFrozenStringArrayModification"}
         };
+    }
+
+    @Test
+    public void testDeprecatedWarningForIsReadOnly() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/expressions/builtinoperations/is_readonly_deprecated_warning.bal");
+        int index = 0;
+        validateWarning(result, index++, "usage of construct 'x.isReadOnly(x)' is deprecated", 22, 9);
+        validateWarning(result, index++, "usage of construct 'value:isReadOnly(x)' is deprecated", 24, 17);
+        Assert.assertEquals(result.getDiagnostics().length, index);
     }
 }

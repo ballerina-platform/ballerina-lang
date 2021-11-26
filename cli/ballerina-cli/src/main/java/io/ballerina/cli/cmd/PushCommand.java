@@ -71,8 +71,8 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
         + "Ballerina Central")
 public class PushCommand implements BLauncherCmd {
 
-    @CommandLine.Parameters
-    private List<String> argList;
+    @CommandLine.Parameters (arity = "0..1")
+    private Path balaPath;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -108,6 +108,15 @@ public class PushCommand implements BLauncherCmd {
         this.exitWhenFinish = exitWhenFinish;
     }
 
+    public PushCommand(Path userDir, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                       Path balaPath) {
+        this.userDir = userDir;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.balaPath = balaPath;
+    }
+
     @Override
     public void execute() {
         if (helpFlag) {
@@ -119,6 +128,7 @@ public class PushCommand implements BLauncherCmd {
         }
 
         BuildProject project;
+
         try {
             project = BuildProject.load(userDir);
         } catch (ProjectException e) {
@@ -134,48 +144,42 @@ public class PushCommand implements BLauncherCmd {
 
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
 
-        if (argList == null || argList.isEmpty()) {
-            try {
-                // If the repository flag is specified, validate and push to the provided repo
-                if (repositoryName != null) {
-                    if (!repositoryName.equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
-                        String errMsg = "unsupported repository '" + repositoryName + "' found. Only '" +
-                                ProjectConstants.LOCAL_REPOSITORY_NAME + "' repository is supported.";
-                        CommandUtil.printError(this.errStream, errMsg, null, false);
-                        CommandUtil.exitError(this.exitWhenFinish);
-                        return;
-                    }
-
-                    pushPackage(project);
-                } else {
-                    Settings settings = RepoUtils.readSettings();
-                    if (settings.diagnostics().hasErrors()) {
-                        CommandUtil.printError(this.errStream, settings.getErrorMessage(), null, false);
-                        CommandUtil.exitError(this.exitWhenFinish);
-                        return;
-                    }
-                    CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                                                                   initializeProxy(settings.getProxy()),
-                                                                   getAccessTokenOfCLI(settings));
-
-                    try {
-                        pushPackage(project, client);
-                    } catch (ProjectException | CentralClientException e) {
-                        CommandUtil.printError(this.errStream, e.getMessage(), null, false);
-                        CommandUtil.exitError(this.exitWhenFinish);
-                        return;
-                    }
+        try {
+            // If the repository flag is specified, validate and push to the provided repo
+            if (repositoryName != null) {
+                if (!repositoryName.equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
+                    String errMsg = "unsupported repository '" + repositoryName + "' found. Only '"
+                            + ProjectConstants.LOCAL_REPOSITORY_NAME + "' repository is supported.";
+                    CommandUtil.printError(this.errStream, errMsg, null, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
                 }
-            } catch (ProjectException | SettingsTomlException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
+
+                pushPackage(project);
+            } else {
+                Settings settings = RepoUtils.readSettings();
+                if (settings.diagnostics().hasErrors()) {
+                    CommandUtil.printError(this.errStream, settings.getErrorMessage(), null, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
+                CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                        initializeProxy(settings.getProxy()), getAccessTokenOfCLI(settings));
+
+                try {
+                    pushPackage(project, client);
+                } catch (ProjectException | CentralClientException e) {
+                    CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
             }
-        } else {
-            CommandUtil.printError(this.errStream, "too many arguments", "bal push ", false);
+        } catch (ProjectException | SettingsTomlException e) {
+            CommandUtil.printError(this.errStream, e.getMessage(), null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
+
 
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
@@ -202,20 +206,28 @@ public class PushCommand implements BLauncherCmd {
     }
 
     private void pushPackage(BuildProject project) {
-        Path balaFilePath = validateBalaFile(project);
+        Path balaFilePath = validateBalaFile(project, this.balaPath);
         pushBalaToCustomRepo(balaFilePath);
-        outStream.println("Successfully pushed " + userDir.relativize(balaFilePath)
+
+        Path relativePathToBalaFile;
+        if (this.balaPath != null) {
+            relativePathToBalaFile = balaFilePath;
+        } else {
+            relativePathToBalaFile = userDir.relativize(balaFilePath);
+        }
+        outStream.println("Successfully pushed " + relativePathToBalaFile
                 + " to '" + repositoryName + "' repository.");
     }
 
     private void pushPackage(BuildProject project, CentralAPIClient client)
             throws CentralClientException {
-        Path balaFilePath = validateBala(project, client);
+        Path balaFilePath = validateBala(project, client, this.balaPath);
         pushBalaToRemote(balaFilePath, client);
     }
 
-    private static Path validateBala(BuildProject project, CentralAPIClient client) throws CentralClientException {
-        Path packageBalaFile = validateBalaFile(project);
+    private static Path validateBala(BuildProject project, CentralAPIClient client, Path customBalaPath)
+            throws CentralClientException {
+        Path packageBalaFile = validateBalaFile(project, customBalaPath);
 
         // check if the package is already there in remote repository
         DependencyManifest.Package pkgAsDependency = new DependencyManifest.Package(
@@ -238,21 +250,25 @@ public class PushCommand implements BLauncherCmd {
         return packageBalaFile;
     }
 
-    private static Path validateBalaFile(BuildProject project) {
+    private static Path validateBalaFile(BuildProject project, Path customBalaPath) {
         final PackageName pkgName = project.currentPackage().packageName();
         final PackageOrg orgName = project.currentPackage().packageOrg();
         PackageVersion packageVersion = project.currentPackage().packageVersion();
 
-        // Get bala output path
-        Path balaOutputDir = project.currentPackage().project().sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
-                .resolve(ProjectConstants.TARGET_BALA_DIR_NAME);
+        Path packageBalaFile = customBalaPath;
 
-        if (Files.notExists(balaOutputDir)) {
-            throw new ProjectException("cannot find bala file for the package: " + pkgName + ". Run "
-                    + "'bal pack' to compile and generate the bala.");
+        // If the customBalaPath has not been specified we validate the default paths
+        if (packageBalaFile == null) {
+            // Get bala output path
+            Path balaOutputDir = project.currentPackage().project().targetDir()
+                    .resolve(ProjectConstants.TARGET_BALA_DIR_NAME);
+            if (Files.notExists(balaOutputDir)) {
+                throw new ProjectException("cannot find bala file for the package: " + pkgName + ". Run "
+                        + "'bal pack' to compile and generate the bala.");
+            }
+            packageBalaFile = findBalaFile(pkgName, orgName, balaOutputDir);
         }
 
-        Path packageBalaFile = findBalaFile(pkgName, orgName, balaOutputDir);
         if (null == packageBalaFile) {
             throw new ProjectException("cannot find bala file for the package: " + pkgName + ". Run "
                     + "'bal pack' to compile and generate the bala.");

@@ -54,7 +54,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
     @Deprecated
     public DecimalValueKind valueKind = DecimalValueKind.OTHER;
 
-    private BigDecimal value;
+    private final BigDecimal value;
 
     public DecimalValue(BigDecimal value) {
         this.value = value;

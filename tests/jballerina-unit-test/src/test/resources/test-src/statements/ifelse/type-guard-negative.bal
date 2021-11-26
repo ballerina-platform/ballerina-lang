@@ -88,18 +88,18 @@ function testMultipleTypeGuardsWithAndOperator_2() returns int {
 function testTypeGuardsWithBinaryOps_1() {
     int|string|boolean|float x = 5;
     if (((x is int|string && x is int) || (x is boolean)) && (x is float)) {
-        int y = 1;
+        int _ = 1;
     } else {
-        string s = "";
+        string _ = "";
     }
 }
 
 function testTypeGuardsWithBinaryOps_2() {
     int|string|boolean|float x = 5;
     if (((x is int|string || x is int) && (x is boolean)) || (x is float)) {
-        int y = 1;
+        int _ = 1;
     } else {
-        string s = "";
+        string _ = "";
     }
 }
 
@@ -115,9 +115,9 @@ function testTypeGuardsWithBinaryOps_4() {
 function testTypeGuardsWithBinaryOps_5() {
     int|string|boolean|float x = 5;
     if ((x is string && x is float) || (x is boolean)) {
-        int y = 1;
+        int _ = 1;
     } else {
-        string s = "";
+        string _ = "";
     }
 }
 
@@ -136,9 +136,9 @@ function testTypeGuardsWithBinaryOps_6() {
     Person|Student x = s;
 
     if ((x is string && x is Person && x is float) || (x is boolean)) {
-        int y = 1;
+        int _ = 1;
     } else {
-        string y = "";
+        string _ = "";
     }
 }
 
@@ -148,13 +148,13 @@ function testTypeGuardWithRecordNegative() {
     if val is Foo {
 
     } else if val is Bar {
-        var v = val.code;
+        var _ = val.code;
     }
 
     if val is Foo {
 
     } else if val is Qux {
-        var v = val.code;
+        var _ = val.code;
     }
 }
 
@@ -219,7 +219,7 @@ function testMapIntersectionNegative() {
     map<int|string> m = {};
 
     if m is map<boolean> {
-        map<int> x = m;
+        map<int> _ = m;
     }
 }
 

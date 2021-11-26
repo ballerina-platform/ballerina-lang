@@ -19,8 +19,12 @@ import ballerina/test;
 
 public function testStringUtils() {
     error v = <error>trap foo();
-    string val = getStringVal(v.stackTrace());
-    test:assertEquals(val, "object lang.error:CallStack");
+    var val = v.stackTrace();
+    test:assertEquals(val.toString(),
+        "[callableName: baz  fileName: string-utils.bal lineNumber: 39," +
+        "callableName: bar  fileName: string-utils.bal lineNumber: 35," +
+        "callableName: foo  fileName: string-utils.bal lineNumber: 31," +
+        "callableName: testStringUtils  fileName: string-utils.bal lineNumber: 21]");
 }
 
 function foo() {

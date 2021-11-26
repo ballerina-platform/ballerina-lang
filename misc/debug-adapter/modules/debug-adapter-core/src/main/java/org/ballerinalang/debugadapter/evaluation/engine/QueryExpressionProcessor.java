@@ -23,7 +23,6 @@ import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
@@ -158,7 +157,7 @@ public class QueryExpressionProcessor {
 
             // Creates a main file and writes the generated code snippet.
             createMainBalFile(mainBalContent);
-            BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+            BuildOptions buildOptions = BuildOptions.builder().setOffline(true).build();
             BuildProject buildProject = BuildProject.load(this.tempProjectDir, buildOptions);
 
             // Updates the 'Ballerina.toml' content

@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "node",
       "kind": "Field",
       "detail": "MyConfig.node",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "node: ${1:new ({}, 0, \"\")}",
       "insertTextFormat": "Snippet"
     },
@@ -26,7 +26,7 @@
       "label": "isAlive",
       "kind": "Field",
       "detail": "MyConfig.isAlive",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "isAlive: ${2:false}",
       "insertTextFormat": "Snippet"
     },
@@ -34,7 +34,7 @@
       "label": "err1",
       "kind": "Field",
       "detail": "MyConfig.err1",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "err1: ${3:error (\"\", message = \"\")}",
       "insertTextFormat": "Snippet"
     },
@@ -42,7 +42,7 @@
       "label": "myXML",
       "kind": "Field",
       "detail": "MyConfig.myXML",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "myXML: ${4:xml ``}",
       "insertTextFormat": "Snippet"
     },
@@ -50,7 +50,7 @@
       "label": "keywords",
       "kind": "Field",
       "detail": "MyConfig.keywords",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "keywords: [${5}]",
       "insertTextFormat": "Snippet"
     },
@@ -58,7 +58,7 @@
       "label": "credentials",
       "kind": "Field",
       "detail": "MyConfig.credentials",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "credentials: {\n\tip: \"${1}\",\n\tport: ${2:0},\n\tusername: \"${3}\",\n\tfiles: ${4:new ()}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -66,7 +66,7 @@
       "label": "record2",
       "kind": "Field",
       "detail": "MyConfig.record2",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "record2: {\n\tf1: ${1:0}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -74,7 +74,7 @@
       "label": "record1",
       "kind": "Field",
       "detail": "MyConfig.record1",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "record1: {${8}}",
       "insertTextFormat": "Snippet"
     },
@@ -82,7 +82,7 @@
       "label": "myMap",
       "kind": "Field",
       "detail": "MyConfig.myMap",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "myMap: ${9:{}}",
       "insertTextFormat": "Snippet"
     },
@@ -90,7 +90,7 @@
       "label": "myTable",
       "kind": "Field",
       "detail": "MyConfig.myTable",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "myTable: ${10:table [{}]}",
       "insertTextFormat": "Snippet"
     },
@@ -98,7 +98,7 @@
       "label": "myError",
       "kind": "Field",
       "detail": "MyConfig.myError",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "myError: ${11:error (\"\")}",
       "insertTextFormat": "Snippet"
     },
@@ -106,7 +106,7 @@
       "label": "randomNum",
       "kind": "Field",
       "detail": "MyConfig.randomNum",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "randomNum: ${12:error (\"\")}",
       "insertTextFormat": "Snippet"
     },

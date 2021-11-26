@@ -48,12 +48,16 @@ import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.MappingMatchPatternNode;
+import io.ballerina.compiler.syntax.tree.MatchClauseNode;
+import io.ballerina.compiler.syntax.tree.MatchStatementNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
@@ -212,7 +216,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     public Optional<TypeSymbol> transform(VariableDeclarationNode node) {
         return this.visit(node.typedBindingPattern().bindingPattern());
     }
-    
+
     @Override
     public Optional<TypeSymbol> transform(LetVariableDeclarationNode node) {
         return this.visit(node.typedBindingPattern().bindingPattern());
@@ -606,6 +610,26 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     @Override
+    public Optional<TypeSymbol> transform(ImplicitAnonymousFunctionExpressionNode node) {
+        Optional<TypeSymbol> typeSymbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.typeOf(node))
+                .or(() -> node.parent().apply(this));
+        
+        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() != TypeDescKind.FUNCTION) {
+            return Optional.empty();
+        }
+        
+        FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) typeSymbol.get();
+        if (!node.rightDoubleArrow().isMissing() &&
+                context.getCursorPositionInTree() >= node.rightDoubleArrow().textRange().endOffset()) {
+            // Cursor is at the expression node
+            return functionTypeSymbol.returnTypeDescriptor();
+        }
+
+        return typeSymbol;
+    }
+
+    @Override
     public Optional<TypeSymbol> transform(RecordFieldWithDefaultValueNode node) {
 
         Optional<Symbol> symbol =
@@ -620,6 +644,23 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(MappingConstructorExpressionNode mappingConstructorExpressionNode) {
         return mappingConstructorExpressionNode.parent().apply(this);
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(MappingMatchPatternNode mappingMatchPatternNode) {
+        return mappingMatchPatternNode.parent().apply(this);
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(MatchClauseNode matchClauseNode) {
+        return matchClauseNode.parent().apply(this);
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(MatchStatementNode matchStatementNode) {
+        Optional<TypeSymbol> typeSymbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.typeOf(matchStatementNode.condition()));
+        return typeSymbol;
     }
 
     //    @Override

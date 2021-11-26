@@ -30,5 +30,15 @@ public function main() {
     error invalidError = trap errors:getError("UserError2");
 
     test:assertValueEqual(invalidError.message(), "No such error: UserError2");
+
+    testTypeIds();
+}
+
+function testTypeIds() {
+    error userError = error errors:UserError("Whoops!");
+    string[] types = errors:getTypeIds(userError);
+    test:assertValueEqual(types.length(), 2);
+    test:assertValueEqual(types[0], "UserError");
+    test:assertValueEqual(types[1], "GenericError");
 }
 
