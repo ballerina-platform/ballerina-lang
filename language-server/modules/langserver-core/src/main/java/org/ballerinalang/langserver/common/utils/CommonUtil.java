@@ -104,8 +104,10 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -1094,7 +1096,15 @@ public class CommonUtil {
      */
     public static Optional<Path> getPathFromURI(String uri) {
         URI fileUri = URI.create(uri);
-        return Optional.of(Paths.get(fileUri.getPath()));
+        if (fileUri.getScheme().equals(EXPR_SCHEME)) {
+            String newUri = fileUri.toString().replace(EXPR_SCHEME + ":", "file:");
+            try {
+                return Optional.of(Paths.get(new URL(newUri).toURI()));
+            } catch (URISyntaxException | MalformedURLException e) {
+                return Optional.empty();
+            }
+        }
+        return Optional.of(Paths.get(fileUri));
     }
 
     /**
