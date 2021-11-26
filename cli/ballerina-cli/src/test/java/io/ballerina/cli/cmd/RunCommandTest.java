@@ -201,4 +201,25 @@ public class RunCommandTest extends BaseCommandTest {
             Assert.assertTrue(Objects.requireNonNull(projectDir.listFiles(fileFilter)).length > 0);
         }
     }
+
+    @Test(description = "Run a valid ballerina file with custom target")
+    public void testRunWithCustomTarget() {
+        Path projectPath = this.testResources.resolve("jar-file");
+        Path customTargetDir = projectPath.resolve("custom");
+        System.setProperty("user.dir", projectPath.toString());
+
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false, customTargetDir);
+        runCommand.execute();
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache").resolve("wso2").resolve("foo").resolve("0.1" +
+                ".0")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache").resolve("wso2").resolve("foo").resolve("0.1" +
+                ".0")));
+        if (!(Files.exists(customTargetDir.resolve("cache").resolve("wso2").resolve("foo").resolve("0.1" +
+                ".0").resolve("java11").resolve("wso2-foo-0.1.0.jar")) || Files.exists(customTargetDir.resolve(
+                        "cache").resolve("wso2").resolve("foo").resolve("0.1" +
+                ".0").resolve("any").resolve("wso2-foo-0.1.0.jar")))) {
+            Assert.fail("Run command with custom target dir failed");
+        }
+    }
 }

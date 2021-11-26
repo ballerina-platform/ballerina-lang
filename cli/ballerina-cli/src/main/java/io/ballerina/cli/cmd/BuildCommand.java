@@ -158,14 +158,6 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
 
-    // TODO : Remove after Beta4
-    @CommandLine.Option(names = {"--compile", "-c"}, description = "Compile the source without generating " +
-            "executable(s).")
-    private boolean compile;
-
-    @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
-    private Boolean skipTestsTemp;
-
     public void execute() {
         long start = 0;
         if (this.helpFlag) {
@@ -174,25 +166,12 @@ public class BuildCommand implements BLauncherCmd {
             return;
         }
 
-        if (this.compile) {
-            this.outStream.println("error: '-c compile' flag has been removed. Please make use of 'bal pack' command");
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
-        if (this.skipTestsTemp != null) {
-            this.outStream.println("error : '--skip-tests' flag is deprecated.");
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
-        // load project
-        Project project;
-
         if (sticky == null) {
             sticky = false;
         }
 
+        // load project
+        Project project;
         BuildOptions buildOptions = constructBuildOptions();
 
         boolean isSingleFileBuild = false;
@@ -309,8 +288,7 @@ public class BuildCommand implements BLauncherCmd {
             buildOptionsBuilder.targetDir(targetDir.toString());
         }
 
-        return buildOptionsBuilder.setConfigSchemaGen(configSchemaGen)
-                .build();
+        return buildOptionsBuilder.build();
     }
 
     @Override
