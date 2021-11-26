@@ -74,13 +74,15 @@ function testXMLSequence() {
     test:assertEquals(x10.toString(), "<!--comment-->text1");
     xml<'xml:Element|'xml:ProcessingInstruction> x11 = xml `<root> text1<foo>100</foo><foo>200</foo></root><?foo?>`;
     test:assertEquals(x11.toString(), "<root> text1<foo>100</foo><foo>200</foo></root><?foo ?>");
-    xml<'xml:Text>|xml<'xml:Comment> x13 = xml `<!--comment-->text1`;
+    xml<'xml:Text>|xml<'xml:Comment>|xml x13 = xml `<!--comment-->text1`;
     test:assertEquals(x13.toString(), "<!--comment-->text1");
-    xml<xml<'xml:Text>>|xml<xml<'xml:Comment>> x14 = xml `<!--comment-->text1`;
+    xml<xml<'xml:Text>>|xml<xml<'xml:Comment>>|xml x14 = xml `<!--comment-->text1`;
     test:assertEquals(x14.toString(), "<!--comment-->text1");
-    xml<'xml:Element>|'xml:Text x15 = xml `<root> text1<foo>100</foo><foo>200</foo></root> text1`;
+    xml<'xml:Element>|'xml:Text|xml x15 = xml `<root> text1<foo>100</foo><foo>200</foo></root> text1`;
     test:assertEquals(x15.toString(), "<root> text1<foo>100</foo><foo>200</foo></root> text1");
     'xml:Text x16 = xml `text ${v1}`;
+    test:assertEquals(x16.toString(), "text interpolation1");
+    'xml:Text|'xml:Comment x17 = xml `text ${v1}`;
     test:assertEquals(x16.toString(), "text interpolation1");
 
     any|Template a1 = xml `foo<elem/>`;

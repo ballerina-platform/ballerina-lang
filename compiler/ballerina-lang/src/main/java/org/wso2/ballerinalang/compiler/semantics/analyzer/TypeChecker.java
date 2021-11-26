@@ -4737,12 +4737,17 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
         if (xmlTypesInSequence.isEmpty()) {
+            resultType = symTable.semanticError;
+            return;
+        }
+        // Disallow exp type that has 'xml:T (singleton) items
+        if (expType.tag == TypeTags.XML_ELEMENT || expType.tag == TypeTags.XML_COMMENT
+                || expType.tag == TypeTags.XML_PI) {
             dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, this.expType,
                     "XML Sequence");
             resultType = symTable.semanticError;
             return;
         }
-
         // Set type according to items in xml sequence and expected type
         if (expType.tag == TypeTags.XML || expType == symTable.noType) {
             if (xmlTypesInSequence.size() == 1) {
@@ -4757,22 +4762,28 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = symTable.xmlTextType;
             return;
         }
-        // Disallow unions with 'xml:T (singleton) items
-        int numberOfNonSequenceInExpType = 0;
-        LinkedHashSet<BType> unionMemberTypes = ((BUnionType) expType).getMemberTypes();
-
-        for (BType item : unionMemberTypes) {
-            item = types.getReferredType(item);
-            if (item.tag == TypeTags.XML_ELEMENT || item.tag == TypeTags.XML_COMMENT || item.tag == TypeTags.XML_PI) {
-                numberOfNonSequenceInExpType += 1;
-            }
-        }
-        if (unionMemberTypes.size() == numberOfNonSequenceInExpType) {
+        // Disallow unions with only 'xml:T (singleton) items
+        if (!types.isAssignable(symTable.xmlType,expType)) {
             dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                     expType, symTable.xmlType);
             resultType = symTable.semanticError;
             return;
         }
+//        int numberOfNonSequenceInExpType = 0;
+//        LinkedHashSet<BType> unionMemberTypes = ((BUnionType) expType).getMemberTypes();
+//
+//        for (BType item : unionMemberTypes) {
+//            item = types.getReferredType(item);
+//            if (item.tag == TypeTags.XML_ELEMENT || item.tag == TypeTags.XML_COMMENT || item.tag == TypeTags.XML_PI) {
+//                numberOfNonSequenceInExpType += 1;
+//            }
+//        }
+//        if (unionMemberTypes.size() == numberOfNonSequenceInExpType) {
+//            dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
+//                    expType, symTable.xmlType);
+//            resultType = symTable.semanticError;
+//            return;
+//        }
         resultType = symTable.xmlType;
     }
 
