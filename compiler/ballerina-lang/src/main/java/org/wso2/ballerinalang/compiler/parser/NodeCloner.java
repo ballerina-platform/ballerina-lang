@@ -2059,6 +2059,7 @@ public class NodeCloner extends BLangNodeVisitor {
             clone.detail.add(new BLangErrorDetailEntry(entry.key, clone(entry.valueBindingPattern)));
         }
         clone.restDetail = clone(source.restDetail);
+        clone.typeNode = clone(source.typeNode);
         clone.detailExpr = clone(source.detailExpr);
         clone.cause = clone(source.cause);
         clone.reasonVarPrefixAvailable = source.reasonVarPrefixAvailable;

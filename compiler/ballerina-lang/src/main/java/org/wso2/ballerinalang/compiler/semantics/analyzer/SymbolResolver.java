@@ -2044,6 +2044,27 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         return symTable.notFoundSymbol;
     }
 
+    /**
+     * Defines {@code ...} or {@code ..<} operator for int subtypes.
+     *
+     * @param opKind  Binary operator kind
+     * @param lhsType Type of the left-hand side value
+     * @param rhsType Type of the right-hand side value
+     * @return Defined symbol
+     */
+    public BSymbol getRangeOpsForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType) {
+        if (opKind != OperatorKind.CLOSED_RANGE && opKind != OperatorKind.HALF_OPEN_RANGE) {
+            return symTable.notFoundSymbol;
+        }
+
+        boolean validIntTypesExists = types.validIntegerTypeExists(lhsType) && types.validIntegerTypeExists(rhsType);
+        if (!validIntTypesExists) {
+            return symTable.notFoundSymbol;
+        }
+
+        return createBinaryOperator(opKind, lhsType, rhsType, symTable.intRangeType);
+    }
+
     public boolean isBinaryShiftOperator(OperatorKind binaryOpKind) {
         return binaryOpKind == OperatorKind.BITWISE_LEFT_SHIFT ||
                 binaryOpKind == OperatorKind.BITWISE_RIGHT_SHIFT ||

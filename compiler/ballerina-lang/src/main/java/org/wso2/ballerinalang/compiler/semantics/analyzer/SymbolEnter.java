@@ -3114,6 +3114,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TypeTags.ERROR:
                 errorType = (BErrorType) varType;
                 break;
+            case TypeTags.SEMANTIC_ERROR:
+                // we assume that we have already given an error
+                return false;
             default:
                 dlog.error(errorVariable.pos, DiagnosticErrorCode.INVALID_ERROR_BINDING_PATTERN,
                         varType);
