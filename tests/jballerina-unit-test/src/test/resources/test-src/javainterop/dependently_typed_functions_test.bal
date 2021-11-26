@@ -842,14 +842,30 @@ function testDependentlyTypedFunctionsWithStreams() {
     Person p1 = getRecord();
     Person p2 = getRecord();
     Person[] personList = [p1, p2];
-    stream<Person> studentStream = personList.toStream();
-    stream<Person> y = cl->query(studentStream, Person);
+    stream<Person> personStream = personList.toStream();
+    stream<Person> y = cl->query(personStream, Person);
     var rec = y.next();
     if (rec is record {| Person value; |}) {
         Person person = rec.value;
         assert(20, person.age);
         assert("John Doe", person.name);
-        return;
+    }
+    rec = y.next();
+    assert(true, rec is record {| Person value; |});
+}
+
+function testDependentlyTypedFunctionsWithInferredStreamType() {
+    ClientObject cl = new ClientObjImpl();
+    Person p1 = getRecord();
+    Person p2 = getRecord();
+    Person[] personList = [p1, p2];
+    stream<Person> personStream = personList.toStream();
+    stream<Person> y = cl->query(personStream);
+    var rec = y.next();
+    if (rec is record {| Person value; |}) {
+        Person person = rec.value;
+        assert(20, person.age);
+        assert("John Doe", person.name);
     }
     rec = y.next();
     assert(true, rec is record {| Person value; |});

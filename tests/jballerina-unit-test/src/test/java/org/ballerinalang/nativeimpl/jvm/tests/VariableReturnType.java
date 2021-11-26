@@ -148,7 +148,8 @@ public class VariableReturnType {
     }
 
     public static BStream getStreamOfRecords(ObjectValue objectValue, BStream strm, BTypedesc typedesc) {
-        RecordType streamConstraint = (RecordType) ((BTypedesc) typedesc).getDescribingType();
+        RecordType streamConstraint = (RecordType) typedesc.getDescribingType();
+        assert streamConstraint == strm.getConstraintType();
         return strm;
     }
 
