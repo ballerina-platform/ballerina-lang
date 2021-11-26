@@ -837,7 +837,7 @@ public type ClientObject client object {
     remote isolated function query(stream<record {}> strm, typedesc<record {}> rowType = <>) returns stream <rowType>;
 };
 
-function testDependentlyTypedFunctionsWithStreams() {
+function testDependentlyTypedMethodCallOnObjectType() {
     ClientObject cl = new ClientObjImpl();
     Person p1 = getRecord();
     Person p2 = getRecord();
