@@ -496,6 +496,7 @@ function testTableTypeInferenceWithVarType() {
     testTableTypeInferenceWithVarType1();
     testTableTypeInferenceWithVarType2();
     testTableTypeInferenceWithVarType3();
+    testTableTypeInferenceWithVarType4();
 }
 
 function testTableTypeInferenceWithVarType1() {
@@ -505,6 +506,8 @@ function testTableTypeInferenceWithVarType1() {
         ];
 
     table<record {|int|string a; int b?;|}> _ = v1;
+    v1.add({a: 1});
+    v1.add({a: "str", b: 2});
 }
 
 function testTableTypeInferenceWithVarType2() {
@@ -516,6 +519,9 @@ function testTableTypeInferenceWithVarType2() {
         ];
 
     table<record {|(int|string|boolean) a; (int|boolean) b?; int c?;|}> _ = v1;
+    v1.add({a: 1});
+    v1.add({...m});
+    v1.add({a: true, c: 2, b: false});
 }
 
 function testTableTypeInferenceWithVarType3() {
@@ -527,6 +533,21 @@ function testTableTypeInferenceWithVarType3() {
 
     table<record {|(int|string|boolean) a; int b?;|}> _ = v1;
     assertFalse(v1 is table<record {|(int|string) a; int b?;|}>);
+    v1.add({a: 1});
+    v1.add({...m});
+}
+
+function testTableTypeInferenceWithVarType4() {
+    record {|string|boolean a; int|json b?;|} m = {a: "str", b: 2};
+    var v1 = table [
+            {a: 1, b: "c"},
+            {...m}
+        ];
+
+    table<record {|(int|string|boolean) a; (int|string|json) b?;|}> _ = v1;
+    assertFalse(v1 is table<record {|(int|string) a; (int|string) b?;|}>);
+    v1.add({a: 1, b: "c"});
+    v1.add({...m});
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

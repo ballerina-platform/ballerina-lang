@@ -1100,7 +1100,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             BField resultantField = replaceFieldType(fields.get(0), uniqueTypes);
-            boolean isOptional = fields.size() != memTypesSize;
+            boolean isOptional = hasOptionalFields(fields) || fields.size() != memTypesSize;
 
             if (isOptional) {
                 resultantField.symbol.flags = Flags.asMask(EnumSet.of(Flag.OPTIONAL));
@@ -1157,6 +1157,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 unionType, originalSymbol.owner, originalSymbol.pos, VIRTUAL);
 
         return new BField(field.name, field.pos, fieldSymbol);
+    }
+
+    private boolean hasOptionalFields(List<BField> fields) {
+        return fields.stream().anyMatch(field -> field.symbol.getFlags().contains(Flag.OPTIONAL));
     }
 
     private BRecordType createTableConstraintRecordType(Set<BField> inferredFields, Location pos) {
