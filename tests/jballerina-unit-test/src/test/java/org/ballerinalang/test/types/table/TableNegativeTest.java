@@ -35,7 +35,7 @@ public class TableNegativeTest {
     @Test
     public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 35);
+        Assert.assertEquals(compileResult.getErrorCount(), 38);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
@@ -107,7 +107,14 @@ public class TableNegativeTest {
                 "expected: '[string, string]' fields but found '[firstname]'", 213, 47);
         validateError(compileResult, index++, "field name 'firstname' used in key specifier " +
                 "is not found in table constraint type 'CustomerDetail'", 230, 35);
-        validateError(compileResult, index, "value expression of key specifier 'id' must be " +
+        validateError(compileResult, index++, "value expression of key specifier 'id' must be " +
                 "a constant expression", 237, 9);
+        validateError(compileResult, index++, "incompatible types: expected 'table<record {| string name?; |}>',"
+                + " found 'table<record {| string name?; (int|boolean)...; |}>'", 254, 41);
+        validateError(compileResult, index++, "incompatible types: expected 'table<record {| string name?; |}>'," +
+                " found 'table<record {| string name?; int...; |}>'", 263, 41);
+        validateError(compileResult, index, "incompatible types: expected " +
+                        "'table<record {| (string|int) name?; |}>', found 'table<record {| string name?; int...; |}>'",
+                264, 45);
     }
 }

@@ -1098,6 +1098,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType inferTableMemberType(List<BType> memTypes, BLangTableConstructorExpr tableConstructorExpr) {
         BLangTableKeySpecifier keySpecifier = tableConstructorExpr.tableKeySpecifier;
         List<String> keySpecifierFieldNames = new ArrayList<>();
+        List<BType> restFieldTypes = new ArrayList<>();
+
 
         if (keySpecifier != null) {
             for (IdentifierNode identifierNode : keySpecifier.fieldNameIdentifierList) {
@@ -1107,7 +1109,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         LinkedHashMap<String, List<BField>> fieldNameToFields = new LinkedHashMap<>();
         for (BType memType : memTypes) {
-            for (BField field : ((BRecordType) memType).fields.values()) {
+            BRecordType member = (BRecordType) memType;
+            for (BField field : member.fields.values()) {
                 String key = field.name.value;
                 if (fieldNameToFields.containsKey(key)) {
                     fieldNameToFields.get(key).add(field);
@@ -1115,6 +1118,13 @@ public class TypeChecker extends BLangNodeVisitor {
                     fieldNameToFields.put(key, new ArrayList<>() {{
                         add(field);
                     }});
+                }
+            }
+
+            if (!member.sealed) {
+                BType restFieldType = member.restFieldType;
+                if (isUniqueType(restFieldTypes, restFieldType)) {
+                    restFieldTypes.add(restFieldType);
                 }
             }
         }
@@ -1155,7 +1165,7 @@ public class TypeChecker extends BLangNodeVisitor {
             inferredFields.add(resultantField);
         });
 
-        return createTableConstraintRecordType(inferredFields, tableConstructorExpr.pos);
+        return createTableConstraintRecordType(inferredFields, restFieldTypes, tableConstructorExpr.pos);
     }
 
     /**
@@ -1205,7 +1215,8 @@ public class TypeChecker extends BLangNodeVisitor {
         return fields.stream().anyMatch(field -> field.symbol.getFlags().contains(Flag.OPTIONAL));
     }
 
-    private BRecordType createTableConstraintRecordType(Set<BField> inferredFields, Location pos) {
+    private BRecordType createTableConstraintRecordType(Set<BField> inferredFields, List<BType> restFieldTypes,
+                                                        Location pos) {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(pkgID, pos, VIRTUAL);
 
@@ -1224,8 +1235,15 @@ public class TypeChecker extends BLangNodeVisitor {
         recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env,
                                                                                            names, symTable);
         TypeDefBuilderHelper.createTypeDefinitionForTSymbol(recordType, recordSymbol, recordTypeNode, env);
-        recordType.sealed = true;
-        recordType.restFieldType = symTable.noType;
+
+        if (restFieldTypes.isEmpty()) {
+            recordType.sealed = true;
+            recordType.restFieldType = symTable.noType;
+        } else if (restFieldTypes.size() == 1) {
+            recordType.restFieldType = restFieldTypes.get(0);
+        } else {
+            recordType.restFieldType = BUnionType.create(null, restFieldTypes.toArray(new BType[0]));
+        }
         return recordType;
     }
 

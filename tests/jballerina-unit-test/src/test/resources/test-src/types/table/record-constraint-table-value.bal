@@ -189,6 +189,7 @@ function runTableTestcasesWithVarType() {
     testTableWithMultiKeySpecifier2();
     testInferTableType();
     testInferTableTypeV2();
+    testTableConstructExprVar();
 }
 
 function testSimpleTableInitializationWithVarType() {
@@ -490,6 +491,20 @@ public function testSpreadFieldInConstructor() {
         ];
     assertEquality("[{\"id\":1,\"name\":\"Mary\",\"salary\":100.0},{\"id\":2,\"name\":\"Jo\",\"age\":12}]",
     tb3.toString());
+}
+
+function testTableConstructExprVar() {
+    string s1 = "id";
+    string s2 = "employed";
+
+    var v1 = table [
+        {name: "Jo"},
+        {[s1]: 2},
+        {[s2]: false}
+    ];
+
+    table<record {|string name?; int|boolean...;|}> t1 = v1;
+    assertEquality("[{\"name\":\"Jo\"},{\"id\":2},{\"employed\":false}]", t1.toString());
 }
 
 function testTableTypeInferenceWithVarType() {
