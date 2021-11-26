@@ -166,7 +166,7 @@ public class RunCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", this.testResources.resolve("jar-file").toString());
 
         // Run build command to generate jar file
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         buildCommand.execute();
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("foo.jar").toFile().exists());
 

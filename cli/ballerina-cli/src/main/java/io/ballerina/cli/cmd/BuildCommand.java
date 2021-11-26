@@ -57,50 +57,45 @@ public class BuildCommand implements BLauncherCmd {
     private final PrintStream outStream;
     private final PrintStream errStream;
     private boolean exitWhenFinish;
-    private boolean skipCopyLibsFromDist;
 
     public BuildCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = true;
-        this.skipCopyLibsFromDist = false;
     }
 
-    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean dumpBuildTime) {
+    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
-        this.exitWhenFinish = false;
+        this.exitWhenFinish = exitWhenFinish;
+    }
+
+    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                        boolean dumpBuildTime) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
         this.dumpBuildTime = dumpBuildTime;
     }
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                        boolean skipCopyLibsFromDist) {
+                        String output) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
-        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
-    }
-
-    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                        boolean skipCopyLibsFromDist, String output) {
-        this.projectPath = projectPath;
-        this.outStream = outStream;
-        this.errStream = errStream;
-        this.exitWhenFinish = exitWhenFinish;
-        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
         this.output = output;
     }
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                        boolean skipCopyLibsFromDist, Path targetDir) {
+                        Path targetDir) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
-        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
         this.targetDir = targetDir;
     }
 

@@ -73,7 +73,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         System.setProperty("user.dir", this.testResources.resolve("valid-bal-file").toString());
         // set valid source root
-        BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false);
         // name of the file as argument
         new CommandLine(buildCommand).parse(validBalFilePath.toString());
         buildCommand.execute();
@@ -96,8 +96,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         System.setProperty("user.dir", this.testResources.resolve("valid-bal-file").toString());
         // set valid source root
-        BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true,
-                "foo.jar");
+        BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, "foo.jar");
         // name of the file as argument
         new CommandLine(buildCommand).parse("-o", "foo.jar", validBalFilePath.toString());
         buildCommand.execute();
@@ -110,7 +109,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Files.delete(this.testResources.resolve("valid-bal-file").resolve("foo.jar"));
 
         // only give the name of the file without extension
-        buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true, "bar");
+        buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, "bar");
         new CommandLine(buildCommand).parse("-o", "bar", validBalFilePath.toString());
         buildCommand.execute();
 
@@ -124,7 +123,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         // create executable in a different path
         Path helloExecutableTmpDir = Files.createTempDirectory("hello_executable-");
-        buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true,
+        buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false,
                 helloExecutableTmpDir.toAbsolutePath().toString());
         new CommandLine(buildCommand).parse("-o", helloExecutableTmpDir.toAbsolutePath().toString(),
                 validBalFilePath.toString());
@@ -139,7 +138,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(helloExecutableTmpDir.toAbsolutePath().resolve("hello_world.jar")));
 
         // create executable in a different path with .jar extension
-        buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true,
+        buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false,
                 helloExecutableTmpDir.toAbsolutePath().resolve("hippo.jar").toString());
         new CommandLine(buildCommand).parse("-o",
                 helloExecutableTmpDir.toAbsolutePath().resolve("hippo.jar").toString(),
@@ -159,7 +158,7 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Build non .bal file")
     public void testNonBalFileBuild() throws IOException {
         Path nonBalFilePath = this.testResources.resolve("non-bal-file").resolve("hello_world.txt");
-        BuildCommand buildCommand = new BuildCommand(nonBalFilePath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(nonBalFilePath, printStream, printStream, false);
         new CommandLine(buildCommand).parse(nonBalFilePath.toString());
         buildCommand.execute();
 
@@ -172,7 +171,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testNonExistingBalFile() throws IOException {
         // valid source root path
         Path validBalFilePath = this.testResources.resolve("valid-bal-file").resolve("xyz.bal");
-        BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parse(validBalFilePath.toString());
         buildCommand.execute();
@@ -185,7 +184,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBuildBalFileWithNoEntry() {
         // valid source root path
         Path projectPath = this.testResources.resolve("valid-bal-file-with-no-entry").resolve("hello_world.bal");
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parse(projectPath.toString());
         try {
@@ -200,7 +199,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBalFileWithSyntaxError() throws IOException {
         // valid source root path
         Path balFilePath = this.testResources.resolve("bal-file-with-syntax-error").resolve("hello_world.bal");
-        BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parse(balFilePath.toString());
         try {
@@ -216,7 +215,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBuildBalProject() throws IOException {
         Path projectPath = this.testResources.resolve("validApplicationProject");
         System.setProperty("user.dir", projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
@@ -274,7 +273,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBuildBalProjectWithJarConflicts() throws IOException {
         Path projectPath = this.testResources.resolve("projectWithConflictedJars");
         System.setProperty("user.dir", projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -293,7 +292,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBuildJava11BalProject() throws IOException {
         Path projectPath = this.testResources.resolve("validJava11Project");
         System.setProperty("user.dir", projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
@@ -310,7 +309,7 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Build a valid ballerina project")
     public void testBuildBalProjectFromADifferentDirectory() throws IOException {
         Path projectPath = this.testResources.resolve("validApplicationProject");
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parse(projectPath.toString());
         buildCommand.execute();
@@ -327,7 +326,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBuildProjectWithTests() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         System.setProperty("user.dir", projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
@@ -344,7 +343,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBuildMultiModuleProject() throws IOException {
         Path projectPath = this.testResources.resolve("validMultiModuleProject");
         System.setProperty("user.dir", projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
@@ -368,7 +367,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBuildProjectWithDefaultBuildOptions() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithBuildOptions");
         System.setProperty("user.dir", projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
@@ -389,7 +388,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validProjectWithBuildOptions");
         System.setProperty("user.dir", projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(
-                projectPath, printStream, printStream, false, true);
+                projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parse();
         try {
@@ -420,7 +419,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
         System.setProperty("user.dir", this.testResources.resolve("valid-bal-file").toString());
         BuildCommand buildCommand = new BuildCommand(
-                projectPath, printStream, printStream, false, true);
+                projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parse();
         try {
@@ -445,7 +444,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
         System.setProperty("user.dir", this.testResources.resolve("valid-bal-file").toString());
         BuildCommand buildCommand = new BuildCommand(
-                projectPath, printStream, printStream, false, true);
+                projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parse();
         try {
@@ -468,7 +467,7 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", this.testResources.resolve("valid-bal-file-no-permission").toString());
         balFilePath.getParent().toFile().setWritable(false, false);
         // set valid source root
-        BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false);
         // name of the file as argument
         new CommandLine(buildCommand).parse(balFilePath.toString());
 
@@ -486,7 +485,7 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", this.testResources.resolve("validProject-no-permission").toString());
         balFilePath.getParent().toFile().setWritable(false, false);
         // set valid source root
-        BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false);
         // name of the file as argument
         new CommandLine(buildCommand).parse(balFilePath.toString());
 
@@ -504,7 +503,7 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
         System.setProperty(USER_NAME, "john");
 
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
@@ -521,7 +520,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("emptyProjectWithCompilerPlugin");
         System.setProperty("user.dir", projectPath.toString());
 
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -535,7 +534,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("emptyProjectWithTestsOnly");
         System.setProperty("user.dir", projectPath.toString());
 
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -549,7 +548,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("emptyProjectWithNonDefaultModules");
         System.setProperty("user.dir", projectPath.toString());
 
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -563,7 +562,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("emptyProjectWithNonDefaultModulesTestOnly");
         System.setProperty("user.dir", projectPath.toString());
 
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -577,7 +576,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("emptyNonDefaultModule");
         System.setProperty("user.dir", projectPath.toString());
 
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -590,7 +589,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validProjectWithEmptyBallerinaToml");
         System.setProperty("user.dir", projectPath.toString());
         System.setProperty("user.name", "$org");
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
@@ -642,7 +641,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testDumpBuildTimeForPackage() throws IOException {
         Path projectPath = this.testResources.resolve("validApplicationProject");
         System.setProperty("user.dir", projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false , true);
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -657,7 +656,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path balFilePath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
 
         System.setProperty("user.dir", this.testResources.resolve("valid-bal-file").toString());
-        BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, true);
+        BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false , true);
         new CommandLine(buildCommand).parse(balFilePath.toString());
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -673,8 +672,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path customTargetDir = projectPath.resolve("customTargetDir");
         System.setProperty("user.dir", projectPath.toString());
 
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true,
-                customTargetDir);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, customTargetDir);
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
 
@@ -690,8 +688,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path customTargetDir = projectPath.resolve("customTargetDir2");
         System.setProperty("user.dir", projectPath.toString());
 
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true,
-                customTargetDir);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, customTargetDir);
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
 
