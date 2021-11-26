@@ -734,7 +734,7 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangMatchGuard source) {
         BLangMatchGuard clone = new BLangMatchGuard();
         source.cloneRef = clone;
-        clone.setExpression(clone(source.getExpression()));
+        clone.setExpression(clone(source.expr));
     }
 
     @Override
@@ -1883,7 +1883,11 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef.BLangPackageVarRef packageVarRef) {
-        // Ignore
+        BLangSimpleVarRef.BLangPackageVarRef clone = new BLangSimpleVarRef.BLangPackageVarRef(
+                (BVarSymbol) packageVarRef.varSymbol);
+        packageVarRef.cloneRef = clone;
+        clone.pkgAlias = packageVarRef.pkgAlias;
+        clone.variableName = packageVarRef.variableName;
     }
 
     @Override
@@ -2112,6 +2116,7 @@ public class NodeCloner extends BLangNodeVisitor {
             clone.detail.add(new BLangErrorDetailEntry(entry.key, clone(entry.valueBindingPattern)));
         }
         clone.restDetail = clone(source.restDetail);
+        clone.typeNode = clone(source.typeNode);
         clone.detailExpr = clone(source.detailExpr);
         clone.cause = clone(source.cause);
         clone.reasonVarPrefixAvailable = source.reasonVarPrefixAvailable;
