@@ -854,7 +854,7 @@ function testDependentlyTypedMethodCallOnObjectType() {
     assert(true, rec is record {| Person value; |});
 }
 
-function testDependentlyTypedFunctionsWithInferredStreamType() {
+function testDependentlyTypedMethodCallOnObjectTypeWithInferredArgument() {
     ClientObject cl = new ClientObjImpl();
     Person p1 = getRecord();
     Person p2 = getRecord();
