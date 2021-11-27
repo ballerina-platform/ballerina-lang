@@ -6493,9 +6493,6 @@ public class Desugar extends BLangNodeVisitor {
         if (invocation.objectInitMethod && Symbols.isFlagOn(invocation.expr.getBType().flags, Flags.OBJECT_CTOR)) {
             BObjectType initializingObject = (BObjectType) invocation.expr.getBType();
             OCEDynamicEnvironmentData oceEnvData = initializingObject.classDef.oceEnvData;
-            if (oceEnvData.attachedFunctionInvocation != null) {
-                System.out.println("I am not null : " + invocation);
-            }
             if (oceEnvData.attachedFunctionInvocation == null) {
                 oceEnvData.attachedFunctionInvocation = (BLangAttachedFunctionInvocation) result;
             }
