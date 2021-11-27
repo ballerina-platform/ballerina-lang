@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.WaitForAllExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -93,6 +94,7 @@ public class BLangWaitForAllExpr extends BLangExpression implements WaitForAllEx
         public BLangIdentifier key;
         public BLangExpression valueExpr;
         public BLangExpression keyExpr;
+        public BVarSymbol keySymbol; // Only applicable when a record type is contextually expected
 
         @Override
         public BLangIdentifier getKey() {

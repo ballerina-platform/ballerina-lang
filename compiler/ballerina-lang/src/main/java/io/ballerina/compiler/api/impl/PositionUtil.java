@@ -59,6 +59,7 @@ class PositionUtil {
         return true;
     }
 
+    // Checks whether the specified range falls within the node
     static boolean withinRange(LineRange specifiedRange, Location nodePosition) {
 
         //TODO: Remove this check

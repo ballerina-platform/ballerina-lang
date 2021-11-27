@@ -14,14 +14,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "w1",
-      "kind": "Variable",
-      "detail": "worker",
-      "sortText": "B",
-      "insertText": "w1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
