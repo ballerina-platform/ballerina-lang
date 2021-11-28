@@ -48,6 +48,7 @@ import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.BImport;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationImportResolver;
+import org.ballerinalang.debugadapter.evaluation.IdentifierModifier;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.ExternalVariableReferenceFinder;
 import org.ballerinalang.debugadapter.evaluation.engine.ModuleLevelDefinitionFinder;
@@ -546,7 +547,6 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             case DECIMAL:
             case STRING:
             case XML:
-            case MAP:
             case TABLE:
             case ERROR:
             case FUNCTION:
@@ -559,9 +559,12 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             case ANYDATA:
             case NEVER:
             case BYTE:
-            case JSON:
             case SERVICE:
                 return bVar.getBType().getString();
+            case JSON:
+                return "map<json>";
+            case MAP:
+                return VariableUtils.getMapType(context, bVar.getJvmValue());
             case NIL:
                 return "()";
             case ARRAY:
