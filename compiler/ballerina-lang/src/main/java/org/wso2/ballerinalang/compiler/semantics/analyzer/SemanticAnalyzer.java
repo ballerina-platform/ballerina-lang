@@ -1490,6 +1490,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (simpleVariable.symbol.type == symTable.semanticError) {
                     simpleVariable.symbol.state = DiagnosticState.UNKNOWN_TYPE;
                 }
+
+                variable.annAttachments.forEach(annotationAttachment -> {
+                    annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
+                    annotationAttachment.accept(this);
+                    variable.symbol.addAnnotation(annotationAttachment.annotationSymbol);
+                });
+
+                validateAnnotationAttachmentCount(variable.annAttachments);
                 break;
             case TUPLE_VARIABLE:
                 if (varRefExpr == null) {
