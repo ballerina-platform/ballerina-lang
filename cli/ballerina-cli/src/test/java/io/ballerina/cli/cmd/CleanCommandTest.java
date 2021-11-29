@@ -18,6 +18,7 @@
 
 package io.ballerina.cli.cmd;
 
+import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -28,7 +29,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 
 /**
@@ -56,8 +56,7 @@ public class CleanCommandTest extends BaseCommandTest {
     @Test(description = "Test doc command on a ballerina project.")
     public void testCleanCommandInProject() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTarget");
-        Files.move(projectPath.resolve("target-dir"), projectPath.resolve("target"),
-                StandardCopyOption.REPLACE_EXISTING);
+        FileUtils.copyDirectory(projectPath.resolve("target-dir").toFile(), projectPath.resolve("target").toFile());
 
         Assert.assertTrue(Objects.requireNonNull(
                 projectPath.resolve("target").resolve("bala").toFile().listFiles()).length > 0);
@@ -74,12 +73,13 @@ public class CleanCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.exists(projectPath.resolve("target").resolve("report")));
     }
 
-    @Test(description = "Test doc command on a ballerina project with custom target dir.")
+    @Test(description = "Test doc command on a ballerina project with custom target dir.",
+            dependsOnMethods = "testCleanCommandInProject")
     public void testCleanCommandInProjectWithCustomTarget() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTarget");
         Path customTargetDir = projectPath.resolve("customTargetDir4");
-        Files.move(projectPath.resolve("target-dir"), customTargetDir,
-                StandardCopyOption.REPLACE_EXISTING);
+        FileUtils.copyDirectory(projectPath.resolve("target-dir").toFile(), customTargetDir.toFile());
+
 
         Assert.assertTrue(Objects.requireNonNull(
                 customTargetDir.resolve("bala").toFile().listFiles()).length > 0);
