@@ -271,10 +271,14 @@ class JMethodResolver {
 
         if ((throwsCheckedException && !jMethodRequest.returnsBErrorType) ||
                 (jMethodRequest.returnsBErrorType && !throwsCheckedException && !returnsErrorValue)) {
+            String expectedRetTypeName = jMethodRequest.bReturnType + "|error";
+            if (jMethodRequest.bReturnType.tag == TypeTags.NIL) {
+                expectedRetTypeName = "error";
+            }
             throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
-                    "Incompatible ballerina return type for the Java method '" + jMethodRequest.methodName +
-                            "' which throws checked exception found in class '" + jMethodRequest.declaringClass +
-                            "': expected '" + jMethodRequest.bReturnType + "|error', found '" +
+                    "Incompatible ballerina return type for Java method '" + jMethodRequest.methodName + "' which " +
+                            "throws checked exception found in class '" + jMethodRequest.declaringClass.getName() +
+                            "': expected '" + expectedRetTypeName + "', found '" +
                             jMethodRequest.bReturnType + "'");
         }
     }
