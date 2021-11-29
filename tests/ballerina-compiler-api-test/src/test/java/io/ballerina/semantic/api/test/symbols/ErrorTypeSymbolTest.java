@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaTypeDefinitionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaUnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
@@ -68,7 +69,7 @@ public class ErrorTypeSymbolTest {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
         assertTrue(symbol.isPresent());
         assertEquals(symbol.get().kind(), SymbolKind.TYPE_DEFINITION);
-        assertEquals(((BallerinaTypeDefinitionSymbol) symbol.get()).typeDescriptor().kind(), SymbolKind.TYPE);
+        assertEquals(((TypeDefinitionSymbol) symbol.get()).typeDescriptor().kind(), SymbolKind.TYPE);
     }
 
     @DataProvider(name = "ErrorTypeProvider")
@@ -101,7 +102,7 @@ public class ErrorTypeSymbolTest {
 
         assertTrue(distinctErrorSymbol.isPresent());
         BallerinaErrorTypeSymbol errorTypeSymbol =
-                (BallerinaErrorTypeSymbol) ((BallerinaTypeDefinitionSymbol) distinctErrorSymbol.get()).
+                (BallerinaErrorTypeSymbol) ((TypeDefinitionSymbol) distinctErrorSymbol.get()).
                         typeDescriptor();
         assertEquals(errorTypeSymbol.typeKind(),
                 TypeDescKind.ERROR);
