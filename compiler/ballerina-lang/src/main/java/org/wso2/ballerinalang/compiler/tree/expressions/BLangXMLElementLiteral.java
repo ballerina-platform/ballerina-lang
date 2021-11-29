@@ -25,6 +25,8 @@ import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLElementLiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 
@@ -38,22 +40,27 @@ import java.util.Map;
  */
 public class BLangXMLElementLiteral extends BLangExpression implements XMLElementLiteralNode {
 
+    // BLangNodes
     public BLangExpression startTagName;
     public BLangExpression endTagName;
     public List<BLangXMLAttribute> attributes;
     public List<BLangExpression> children;
-    public Map<Name, BXMLNSSymbol> namespacesInScope;
-    public List<BLangXMLNS> inlineNamespaces;
-    public BXMLNSSymbol defaultNsSymbol;
+
+    // Parser Flags and Data
     public boolean isRoot;
+
+    // Semantic Data
+    public List<BLangXMLNS> inlineNamespaces;
+    public Map<Name, BXMLNSSymbol> namespacesInScope;
+    public BXMLNSSymbol defaultNsSymbol;
     public Scope scope;
     public List<BLangExpression> modifiedChildren;
-    
+
     public BLangXMLElementLiteral() {
-        attributes = new ArrayList<BLangXMLAttribute>();
-        children = new ArrayList<BLangExpression>();
-        namespacesInScope = new LinkedHashMap<Name, BXMLNSSymbol>();
-        inlineNamespaces = new ArrayList<BLangXMLNS>();
+        attributes = new ArrayList<>();
+        children = new ArrayList<>();
+        namespacesInScope = new LinkedHashMap<>();
+        inlineNamespaces = new ArrayList<>();
     }
 
     @Override
@@ -109,6 +116,16 @@ public class BLangXMLElementLiteral extends BLangExpression implements XMLElemen
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

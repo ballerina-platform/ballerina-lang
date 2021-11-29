@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLQuotedStringNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 
@@ -31,8 +33,13 @@ import java.util.List;
  */
 public class BLangXMLQuotedString extends BLangExpression implements XMLQuotedStringNode {
 
+    // BLangNodes
     public List<BLangExpression> textFragments;
+
+    // Parser Flags and Data
     public QuoteType quoteType;
+
+    // Semantic Data
     public BLangExpression concatExpr;
     
     public BLangXMLQuotedString() {
@@ -52,6 +59,16 @@ public class BLangXMLQuotedString extends BLangExpression implements XMLQuotedSt
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override
