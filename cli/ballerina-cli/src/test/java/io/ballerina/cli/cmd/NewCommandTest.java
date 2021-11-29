@@ -381,6 +381,26 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
 
+    @Test(description = "Test new command by pulling a central template with muliple modules")
+    public void testNewCommandWithMultiModuleTemplate() throws IOException {
+        // Test if no arguments was passed in
+        String templateArg = "parkavik/MultiModulePro:0.1.0";
+        String[] args = {"test_multi_module", "-t", templateArg};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+
+        Path packageDir = tmpDir.resolve("test_multi_module");
+        Assert.assertTrue(Files.exists(packageDir));
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        Assert.assertTrue(Files.exists(packageDir.resolve("modules").resolve("module1")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("modules").resolve("module2")));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+
+        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+    }
+
     @Test(description = "Test new command without arguments")
     public void testNewCommandNoArgs() throws IOException {
         // Test if no arguments was passed in
