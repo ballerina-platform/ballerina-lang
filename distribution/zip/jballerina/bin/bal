@@ -229,38 +229,8 @@ CMD_LINE_ARGS="-Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
                -Dballerina.target=jvm \
                -Djava.command=$JAVACMD"
 
-if [[ $1 == "native-img" ]]; then
-    if [[ ! -z "${GRAALVM_HOME}" ]]; then
-        $GRAALVM_HOME/bin/java -cp "$BALLERINA_CLASSPATH" com.hpe.kraal.MainKt \
-            --excludePackages="ballerina" \
-            --excludeClasses="___init" $2 &&
-        $GRAALVM_HOME/bin/native-image \
-            -H:+PrintAOTCompilation \
-            -H:+PrintClassInitialization \
-            -H:+PrintFeatures \
-            -H:+PrintStaticTruffleBoundaries \
-            -H:+StackTrace \
-            -H:+TraceLoggingFeature \
-            -H:+ReportExceptionStackTraces \
-            -J-Djava.util.concurrent.ForkJoinPool.common.parallelism=1 \
-            -H:InitialCollectionPolicy=com.oracle.svm.core.genscavenge.CollectionPolicy\$BySpaceAndTime \
-            -H:+AddAllCharsets \
-            -H:EnableURLProtocols=http,https \
-            -H:-UseServiceLoaderFeature \
-            --initialize-at-build-time=org.h2.Driver \
-            --enable-all-security-services \
-            --allow-incomplete-classpath \
-            --report-unsupported-elements-at-runtime \
-            --no-fallback \
-            --no-server \
-            -cp "$BALLERINA_CLASSPATH" \
-            -jar $2
-    else
-        echo "Please set GRAALVM_HOME for native image generation"
-    fi
-
 # handles "bal run <JAR_PATH>" command.
-elif [[ $1 == "run" && $2 == *.jar ]]; then
+if [[ $1 == "run" && $2 == *.jar ]]; then
       $JAVACMD \
         $CMD_LINE_ARGS \
         -jar "${@:2}"

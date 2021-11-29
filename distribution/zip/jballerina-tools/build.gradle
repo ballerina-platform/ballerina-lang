@@ -72,7 +72,6 @@ dependencies {
     dist "com.fasterxml.jackson.core:jackson-core:${project.jacksonCoreVersion}"
     dist "com.fasterxml.jackson.core:jackson-annotations:${project.jacksonAnnotationsVersion}"
     dist "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${project.jacksonDataformatYamlVersion}"
-    // dist 'org.ow2.asm:asm:6.2.1'
     dist "org.codehaus.woodstox:woodstox-core-asl:${project.codehausWoodstoxCoreAslVersion}"
     dist "org.codehaus.woodstox:stax2-api:${project.codehausWoodstoxStax2ApiVersion}"
     dist "org.apache.commons:commons-compress:${project.apacheCommonsCompressVersion}"
@@ -81,12 +80,7 @@ dependencies {
     dist "org.wso2.orbit.org.antlr:antlr4-runtime:${project.wso2OrbitAntlr4Version}"
     dist "org.apache.commons:commons-text:${project.apacheCommonsTextVersion}"
     dist "com.github.spullara.mustache.java:compiler:${project.spullaraMustacheCompilerVersion}"
-
-    // Following dependencies are required for kraal library
-    dist "org.jetbrains.kotlin:kotlin-stdlib:${project.jetbrainsKotlinStdlibVersion}"
-    dist "org.jetbrains.kotlin:kotlin-stdlib-common:${project.jetbrainsKotlinStdlibCommonVersion}"
     dist "org.ow2.asm:asm:${project.ow2AsmVersion}"
-    dist "org.ow2.asm:asm-analysis:${project.ow2AsmAnalysisVersion}"
     dist "org.ow2.asm:asm-tree:${project.ow2AsmTreeVersion}"
     dist "org.ow2.asm:asm-util:${project.ow2AsmUtilVersion}"
     dist "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${project.jacksonDatatypeJsr310Version}"
@@ -303,13 +297,6 @@ def copyBinSpec = {
     }
 }
 
-def copyKraalLib = {
-    path -> copySpec {
-        from('lib')
-        into("$path/bre/lib")
-    }
-}
-
 def copyJaCoCoAgent = {
     path -> copySpec {
         from('jacoco/jacocoagent.jar')
@@ -435,7 +422,6 @@ task createZip(type: Zip) {
     with copyDocerinaUi(basePath)
     with copyResourceSpec(basePath)
 //    with copySrcBalaSpec(basePath)
-    with copyKraalLib(basePath)
     with copyJaCoCoAgent(basePath)
     with copyToDistCache(basePath)
 }
@@ -458,7 +444,6 @@ task updateBalHome(type: Copy) {
     with copyStaticSpec(installDir)
     with copyDocerinaUi(installDir)
     with copyResourceSpec(installDir)
-    with copyKraalLib(installDir)
     with copyJaCoCoAgent(installDir)
 //    with copySrcBalaSpec(installDir)
     into System.getenv('BAL_HOME')
@@ -485,7 +470,6 @@ task createDistribution(type: Copy) {
     with copyDocerinaUi("")
     with copyResourceSpec("")
 //    with copySrcBalaSpec("")
-    with copyKraalLib("")
     with copyJaCoCoAgent("")
     with copyToDistCache("")
     destinationDir=file(filePath)
