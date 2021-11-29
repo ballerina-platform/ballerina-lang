@@ -37,6 +37,7 @@ import java.util.Optional;
  */
 public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements ErrorTypeSymbol {
 
+    private static final String ANON_ORG = "$anon";
     private TypeSymbol detail;
     private String signature;
     private ModuleSymbol module;
@@ -104,8 +105,9 @@ public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements Erro
         if ("lang.annotations".equals(moduleID.moduleName()) && "ballerina".equals(moduleID.orgName())) {
             this.signature = definitionName;
         } else {
-            this.signature = moduleID.orgName() + Names.ORG_NAME_SEPARATOR + moduleID.moduleName() +
-                    Names.VERSION_SEPARATOR + moduleID.version() + ":" + definitionName;
+            this.signature = !this.isAnonOrg(moduleID) ?
+                    moduleID.orgName() + Names.ORG_NAME_SEPARATOR + moduleID.moduleName() +
+                    Names.VERSION_SEPARATOR + moduleID.version() + ":" + definitionName : definitionName;
         }
 
         return this.signature;
@@ -134,5 +136,9 @@ public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements Erro
         }
 
         return false;
+    }
+
+    private boolean isAnonOrg(ModuleID moduleID) {
+        return ANON_ORG.equals(moduleID.orgName());
     }
 }

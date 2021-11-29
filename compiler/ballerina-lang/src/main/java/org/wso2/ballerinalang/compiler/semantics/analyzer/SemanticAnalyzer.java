@@ -80,12 +80,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -93,7 +91,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
@@ -153,7 +150,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -178,9 +174,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -462,19 +456,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         ((BInvokableTypeSymbol) funcNode.symbol.type.tsymbol)
                 .returnTypeAnnots.addAll(funcNode.returnTypeAnnAttachments);
 
-        this.processWorkers(funcNode, funcEnv);
-    }
-
-    private void processWorkers(BLangInvokableNode invNode, SymbolEnv invEnv) {
-        if (invNode.workers.size() > 0) {
-            invEnv.scope.entries.putAll(invNode.body.scope.entries);
-            for (BLangWorker worker : invNode.workers) {
-                this.symbolEnter.defineNode(worker, invEnv);
-            }
-            for (BLangWorker e : invNode.workers) {
-                analyzeNode(e, invEnv);
-            }
-        }
     }
 
     @Override
@@ -970,7 +951,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
             return;
         }
-
 
         // Here we create a new symbol environment to catch self references by keep the current
         // variable symbol in the symbol environment
@@ -1765,7 +1745,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case RECORD_VARIABLE:
                 BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
                 recordVariable.variableList.forEach(value -> recursivelySetFinalFlag(value.valueBindingPattern));
-                recursivelySetFinalFlag((BLangVariable) recordVariable.restParam);
+                recursivelySetFinalFlag(recordVariable.restParam);
                 break;
             case ERROR_VARIABLE:
                 BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
@@ -3803,26 +3783,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangResource resourceNode) {
-    }
-
-    @Override
-    public void visit(BLangTryCatchFinally tryCatchFinally) {
-        dlog.error(tryCatchFinally.pos, DiagnosticErrorCode.TRY_STMT_NOT_SUPPORTED);
-    }
-
-    @Override
-    public void visit(BLangCatch bLangCatch) {
-        SymbolEnv catchBlockEnv = SymbolEnv.createBlockEnv(bLangCatch.body, env);
-        analyzeNode(bLangCatch.param, catchBlockEnv);
-        if (bLangCatch.param.getBType().tag != TypeTags.ERROR) {
-            dlog.error(bLangCatch.param.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, symTable.errorType,
-                       bLangCatch.param.getBType());
-        }
-        analyzeStmt(bLangCatch.body, catchBlockEnv);
-    }
-
-    @Override
     public void visit(BLangTransaction transactionNode) {
         SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, env);
 
@@ -3906,12 +3866,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWorker workerNode) {
-        SymbolEnv workerEnv = SymbolEnv.createWorkerEnv(workerNode, this.env);
-        this.analyzeNode(workerNode.body, workerEnv);
-    }
-
-    @Override
     public void visit(BLangWorkerSend workerSendNode) {
         // TODO Need to remove this cached env
         workerSendNode.env = this.env;
@@ -3955,11 +3909,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangBreak breakNode) {
         this.notCompletedNormally = true;
         this.breakFound = true;
-    }
-
-    @Override
-    public void visit(BLangThrow throwNode) {
-        dlog.error(throwNode.pos, DiagnosticErrorCode.THROW_STMT_NOT_SUPPORTED);
     }
 
     @Override
