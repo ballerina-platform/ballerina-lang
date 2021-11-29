@@ -118,7 +118,11 @@
           }
         },
         "icon": {
-          "type": "string"
+          "type": "string",
+          "pattern": ".*.png$",
+          "message": {
+            "pattern": "invalid 'icon' under [package]: 'icon' can only have 'png' images"
+          }
         }
       }
     },

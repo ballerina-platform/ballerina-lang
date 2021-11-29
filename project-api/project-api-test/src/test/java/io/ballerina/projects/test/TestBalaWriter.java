@@ -141,7 +141,7 @@ public class TestBalaWriter {
             Assert.assertEquals(packageJson.getImplementationVendor(), "WSO2");
             Assert.assertEquals(packageJson.getLanguageSpecVersion(), RepoUtils.getBallerinaSpecVersion());
 
-            Assert.assertEquals(Paths.get(packageJson.getIcon()), Paths.get("docs/sample.svg"));
+            Assert.assertEquals(Paths.get(packageJson.getIcon()), Paths.get("docs/sample.png"));
             Assert.assertTrue(balaExportPath.resolve(packageJson.getIcon()).toFile().exists());
         }
 
@@ -172,7 +172,7 @@ public class TestBalaWriter {
                 .resolve("Module.md");
         Assert.assertTrue(storageModuleMdPath.toFile().exists());
         // check icon
-        Path iconPath = balaExportPath.resolve("docs").resolve("sample.svg");
+        Path iconPath = balaExportPath.resolve("docs").resolve("sample.png");
         Assert.assertTrue(iconPath.toFile().exists());
 
         // module sources
