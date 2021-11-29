@@ -116,6 +116,11 @@ public class RefTypeTests {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test(description = "Test interoperability with ballerina error union return")
+    public void testInteropWithErrorUnionReturn() {
+        BRunUtil.invoke(result, "testInteropWithErrorUnionReturn");
+    }
+
     @Test(description = "Test interoperability with ballerina object return")
     public void testInteropWithObjectReturn() {
         BValue[] returns = BRunUtil.invoke(result, "interopWithObjectReturn");
@@ -251,7 +256,7 @@ public class RefTypeTests {
         String message = expectedException.getMessage();
         Assert.assertEquals(message, "error: 'class java.lang.String' cannot be assigned to type 'anydata'\n" +
                 "\tat ballerina_types_as_interop_types:" +
-                "acceptNothingInvalidAnydataReturn(ballerina_types_as_interop_types.bal:196)\n" +
+                "acceptNothingInvalidAnydataReturn(ballerina_types_as_interop_types.bal:203)\n" +
                 "\t   ballerina_types_as_interop_types:" +
                 "interopWithJavaStringReturn(ballerina_types_as_interop_types.bal:174)");
     }
@@ -340,9 +345,9 @@ public class RefTypeTests {
         Assert.assertTrue(returns instanceof ErrorValue);
         ErrorValue error = (ErrorValue) returns;
         Assert.assertEquals(error.getPrintableStackTrace(), "java.util.EmptyStackException\n" +
-                "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:436)\n" +
+                "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:447)\n" +
                 "\t   ballerina_types_as_interop_types:testThrowJavaException2(ballerina_types_as_interop_types.bal:" +
-                "428)");
+                "439)");
     }
 
     @Test

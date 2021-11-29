@@ -298,6 +298,15 @@ public class StaticMethods {
         return ErrorCreator.createError(msg, new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
+    public static Object acceptIntErrorUnionReturnWhichThrowsCheckedException(int flag)
+            throws JavaInteropTestCheckedException {
+        if (flag == 0) {
+            return 5;
+        } else {
+            return new ErrorValue(StringUtils.fromString("error message"));
+        }
+    }
+
     public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag)
             throws JavaInteropTestCheckedException {
         switch (flag) {
