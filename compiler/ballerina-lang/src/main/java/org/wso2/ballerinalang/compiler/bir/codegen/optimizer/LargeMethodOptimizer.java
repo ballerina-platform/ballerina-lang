@@ -400,52 +400,78 @@ public class LargeMethodOptimizer {
         // newBBList is used as the original function's BB list
         function.basicBlocks = newBBList;
         // unused temp and synthetic vars in the original function are removed
-        removeUnusedVars(function);
+        // and onlyUsedInSingleBB flag in BIRVariableDcl is changed in needed places
+        removeUnusedVarsAndSetVarUsage(function);
     }
 
     private boolean isTempOrSyntheticVar(BIRVariableDcl variableDcl) {
         return (variableDcl.kind == VarKind.TEMP) || (variableDcl.kind == VarKind.SYNTHETIC);
     }
 
-    private Set<BIRVariableDcl> findUsedVars(List<BIRBasicBlock> basicBlocks) {
-        Set<BIRVariableDcl> usedVars = new HashSet<>();
-        for (BIRBasicBlock basicBlock : basicBlocks) {
-            for (BIRNonTerminator instruction : basicBlock.instructions) {
-                if (isTempOrSyntheticVar(instruction.lhsOp.variableDcl)) {
-                    usedVars.add(instruction.lhsOp.variableDcl);
-                }
-                BIROperand[] rhsOperands = instruction.getRhsOperands();
-                for (BIROperand rhsOperand : rhsOperands) {
-                    if (isTempOrSyntheticVar(rhsOperand.variableDcl)) {
-                        usedVars.add(rhsOperand.variableDcl);
-                    }
-                }
+    private Set<BIRVariableDcl> findUsedVars(BIRBasicBlock basicBlock, Set<BIRVariableDcl> usedTempAndSyntheticVars,
+                                             Set<BIRVariableDcl> allUsedVars, Set<BIRVariableDcl> multipleBBUsedVars) {
+        Set<BIRVariableDcl> thisBBUsedAllVars = new HashSet<>();
+        for (BIRNonTerminator instruction : basicBlock.instructions) {
+            thisBBUsedAllVars.add(instruction.lhsOp.variableDcl);
+            if (allUsedVars.contains(instruction.lhsOp.variableDcl)) {
+                multipleBBUsedVars.add(instruction.lhsOp.variableDcl);
             }
-            if ((basicBlock.terminator.lhsOp != null) &&
-                    (isTempOrSyntheticVar(basicBlock.terminator.lhsOp.variableDcl))) {
-                usedVars.add(basicBlock.terminator.lhsOp.variableDcl);
+            if (isTempOrSyntheticVar(instruction.lhsOp.variableDcl)) {
+                usedTempAndSyntheticVars.add(instruction.lhsOp.variableDcl);
             }
-            BIROperand[] rhsOperands = basicBlock.terminator.getRhsOperands();
+            BIROperand[] rhsOperands = instruction.getRhsOperands();
             for (BIROperand rhsOperand : rhsOperands) {
+                thisBBUsedAllVars.add(rhsOperand.variableDcl);
+                if (allUsedVars.contains(rhsOperand.variableDcl)) {
+                    multipleBBUsedVars.add(rhsOperand.variableDcl);
+                }
                 if (isTempOrSyntheticVar(rhsOperand.variableDcl)) {
-                    usedVars.add(rhsOperand.variableDcl);
+                    usedTempAndSyntheticVars.add(rhsOperand.variableDcl);
                 }
             }
         }
-        return usedVars;
+        if (basicBlock.terminator.lhsOp != null) {
+            thisBBUsedAllVars.add(basicBlock.terminator.lhsOp.variableDcl);
+            if (allUsedVars.contains(basicBlock.terminator.lhsOp.variableDcl)) {
+                multipleBBUsedVars.add(basicBlock.terminator.lhsOp.variableDcl);
+            }
+            if (isTempOrSyntheticVar(basicBlock.terminator.lhsOp.variableDcl)) {
+                usedTempAndSyntheticVars.add(basicBlock.terminator.lhsOp.variableDcl);
+            }
+        }
+        BIROperand[] rhsOperands = basicBlock.terminator.getRhsOperands();
+        for (BIROperand rhsOperand : rhsOperands) {
+            thisBBUsedAllVars.add(rhsOperand.variableDcl);
+            if (allUsedVars.contains(rhsOperand.variableDcl)) {
+                multipleBBUsedVars.add(rhsOperand.variableDcl);
+            }
+            if (isTempOrSyntheticVar(rhsOperand.variableDcl)) {
+                usedTempAndSyntheticVars.add(rhsOperand.variableDcl);
+            }
+        }
+        return thisBBUsedAllVars;
     }
 
-    private void removeUnusedVars(BIRFunction birFunction) {
-        Set<BIRVariableDcl> usedVars = new HashSet<>();
+    private void removeUnusedVarsAndSetVarUsage(BIRFunction birFunction) {
+        Set<BIRVariableDcl> usedTempAndSyntheticVars = new HashSet<>();
+        Set<BIRVariableDcl> allUsedVars = new HashSet<>();
+        Set<BIRVariableDcl> multipleBBUsedVars = new HashSet<>();
         for (List<BIRBasicBlock> bbList : birFunction.parameters.values()) {
-            usedVars.addAll(findUsedVars(bbList));
+            for (BIRBasicBlock basicBlock : bbList) {
+                allUsedVars.addAll(findUsedVars(basicBlock, usedTempAndSyntheticVars, allUsedVars, multipleBBUsedVars));
+            }
         }
-        usedVars.addAll(findUsedVars(birFunction.basicBlocks));
+        for (BIRBasicBlock basicBlock : birFunction.basicBlocks) {
+            allUsedVars.addAll(findUsedVars(basicBlock, usedTempAndSyntheticVars, allUsedVars, multipleBBUsedVars));
+        }
 
         List<BIRVariableDcl> newLocalVars = new ArrayList<>();
         for (BIRVariableDcl localVar : birFunction.localVars) {
+            if ((localVar.onlyUsedInSingleBB) && multipleBBUsedVars.contains(localVar)) {
+                localVar.onlyUsedInSingleBB = false;
+            }
             if (isTempOrSyntheticVar(localVar)) {
-                if (usedVars.contains(localVar)) {
+                if (usedTempAndSyntheticVars.contains(localVar)) {
                     newLocalVars.add(localVar);
                 }
             } else {
