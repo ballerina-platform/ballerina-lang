@@ -362,14 +362,23 @@ function testLetWithClass() {
     assert(6, foo2.m);
 }
 
-function testLetWithXMLTemplateExpression() {
+function testLetWithBLangXMLTextLiteral() {
     xml x = xml `<Books>${xml `<Book>"${let int y = 5 in y}"</Book>`}</Books>`;
     assert(xml `<Book>"5"</Book>`, (x[0]/*));
 }
 
-function testLetExprWithAXMLCommentLiteral(){
+function testLetExprWithBLangXMLCommentLiteral(){
     xml x = xml `<Books>${xml `<Book><!--${let int y = 5 in y}--></Book>`}</Books>`;
     assert(xml `<Book><!--5--></Book>`, (x[0]/*));
+
+    int i = 1;
+    xml z = xml `<Books>${xml `<Book><!--${let function () returns int y = (() => i) in y()}--></Book>`}</Books>`;
+    assert(xml `<Books><Book><!--1--></Book></Books>`, z);
+}
+
+function testLetExprWithBLangXMLQuotedString(){
+    xml x = xml `<Book x="${let int y = 5 in y}"></Book>`;
+    assert(xml `<Book x="5"/>`, x);
 }
 
 //// Util functions
