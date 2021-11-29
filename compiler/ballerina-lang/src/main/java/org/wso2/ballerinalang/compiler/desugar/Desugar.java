@@ -6810,10 +6810,18 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (binaryExpr.opKind == OperatorKind.HALF_OPEN_RANGE || binaryExpr.opKind == OperatorKind.CLOSED_RANGE) {
+            BLangExpression lhsExpr = binaryExpr.lhsExpr;
+            BLangExpression rhsExpr = binaryExpr.rhsExpr;
+
+            // If type of either expression is a subtype of int, cast to int as method gen does not support subtypes.
+            lhsExpr = createTypeCastExpr(lhsExpr, symTable.intType);
+            rhsExpr = createTypeCastExpr(rhsExpr, symTable.intType);
+
             if (binaryExpr.opKind == OperatorKind.HALF_OPEN_RANGE) {
-                binaryExpr.rhsExpr = getModifiedIntRangeEndExpr(binaryExpr.rhsExpr);
+                rhsExpr = getModifiedIntRangeEndExpr(rhsExpr);
             }
-            result = rewriteExpr(replaceWithIntRange(binaryExpr.pos, binaryExpr.lhsExpr, binaryExpr.rhsExpr));
+
+            result = rewriteExpr(replaceWithIntRange(binaryExpr.pos, lhsExpr, rhsExpr));
             return;
         }
 

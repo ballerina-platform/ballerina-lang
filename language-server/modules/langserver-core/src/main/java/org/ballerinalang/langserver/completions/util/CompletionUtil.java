@@ -25,6 +25,7 @@ import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -82,7 +83,17 @@ public class CompletionUtil {
 
         return items.stream()
                 .map(LSCompletionItem::getCompletionItem)
+                .peek(CompletionUtil::processCompletionItems)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Process an perform generic modification to the provided completion item before it's sent to the LS client.
+     *
+     * @param completionItem Completion item
+     */
+    private static void processCompletionItems(CompletionItem completionItem) {
+        completionItem.setInsertText(CommonUtil.escapeEscapeCharsInIdentifier(completionItem.getInsertText()));
     }
 
     /**

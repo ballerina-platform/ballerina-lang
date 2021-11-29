@@ -3934,6 +3934,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             } else {
                 checkWaitKeyValExpr(keyVal, lhsFields.get(key).type);
+                keyVal.keySymbol = lhsFields.get(key).symbol;
             }
         }
         // If the record literal is of record type and types are validated for the fields, check if there are any
@@ -4282,6 +4283,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
                     if (opSymbol == symTable.notFoundSymbol) {
                         opSymbol = symResolver.getBinaryComparisonOpForTypeSets(binaryExpr.opKind, lhsType, rhsType);
+                    }
+
+                    if (opSymbol == symTable.notFoundSymbol) {
+                        opSymbol = symResolver.getRangeOpsForTypeSets(binaryExpr.opKind, lhsType, rhsType);
                     }
 
                     if (opSymbol == symTable.notFoundSymbol) {

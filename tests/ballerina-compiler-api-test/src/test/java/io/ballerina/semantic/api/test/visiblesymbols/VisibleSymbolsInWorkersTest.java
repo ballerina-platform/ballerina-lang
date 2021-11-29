@@ -46,18 +46,28 @@ public class VisibleSymbolsInWorkersTest extends BaseVisibleSymbolsTest {
                 List.of(
                         from("aString", VARIABLE),
                         from("workerSendToWorker", FUNCTION),
-                        from("testFork", FUNCTION)
+                        from("testFork", FUNCTION),
+                        from("testWorkerSendReceive", FUNCTION)
                 );
         List<ExpectedSymbolInfo> commonSyms = concat(expModuleSymbols,
                                                      from("w1", WORKER),
                                                      from("w2", WORKER));
         return new Object[][]{
                 {18, 50, commonSyms},
-                {20, 15, commonSyms},
-                {22, 14, concat(commonSyms, from("i", VARIABLE))},
-                {24, 0, concat(commonSyms, from("i", VARIABLE))},
+                {20, 15, concat(expModuleSymbols, from("w2", WORKER))},
+                {22, 14, concat(expModuleSymbols,
+                        from("w2", WORKER),
+                        from("i", VARIABLE)
+                )},
+                {24, 0, concat(expModuleSymbols,
+                        from("w2", WORKER),
+                        from("i", VARIABLE)
+                )},
                 {29, 12, commonSyms},
-                {33, 12, concat(commonSyms, from("j", VARIABLE))},
+                {33, 12, concat(expModuleSymbols,
+                        from("w1", WORKER),
+                        from("j", VARIABLE)
+                )},
                 {38, 22, concat(commonSyms, from("ret", VARIABLE))},
                 {45, 4, concat(expModuleSymbols,
                                from("x", VARIABLE),
@@ -67,14 +77,20 @@ public class VisibleSymbolsInWorkersTest extends BaseVisibleSymbolsTest {
                                 from("x", VARIABLE),
                                 from("w1", WORKER)
                 )},
-                {47, 19, concat(expModuleSymbols,
-                                from("x", VARIABLE),
-                                from("w1", WORKER)
-                )},
+                {47, 19, concat(expModuleSymbols, from("x", VARIABLE))},
                 {49, 10, concat(expModuleSymbols,
                                 from("x", VARIABLE),
-                                from("w1", WORKER),
                                 from("i", VARIABLE)
+                )},
+                {57, 12, concat(expModuleSymbols,
+                        from("a", VARIABLE),
+                        from("wrk2", WORKER),
+                        from("wrk3", WORKER)
+                )},
+                {64, 18, concat(expModuleSymbols,
+                        from("b", VARIABLE),
+                        from("wrk1", WORKER),
+                        from("wrk2", WORKER)
                 )},
         };
     }

@@ -2864,8 +2864,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         }
 
+        boolean errorBindingPatternWithTypeRef = var.getKind() == NodeKind.ERROR_VARIABLE && var.typeNode != null;
         var.isDeclaredWithVar = isDeclaredWithVar(type);
-        if (!var.isDeclaredWithVar) {
+        if (!errorBindingPatternWithTypeRef && !var.isDeclaredWithVar) {
             var.setTypeNode(createTypeNode(type));
         }
 
