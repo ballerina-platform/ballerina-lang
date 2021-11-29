@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -1566,11 +1567,82 @@ public class TestBuildProject extends BaseTest {
     }
 
     @Test
+    public void testGetResources() {
+        // 1. load the project
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        BuildProject buildProject = loadBuildProject(projectPath);
+        for (ModuleId moduleId : buildProject.currentPackage().moduleIds()) {
+            Module module = buildProject.currentPackage().module(moduleId);
+            if (module.isDefaultModule()) {
+                Assert.assertEquals(module.resourceIds().size(), 2);
+                for (DocumentId documentId : module.resourceIds()) {
+                    Assert.assertTrue(module.resource(documentId).name().equals("expectedDependencies.toml") ||
+                            module.resource(documentId).name().equals("main.json"));
+                }
+                Assert.assertEquals(module.testResourceIds().size(), 0);
+                continue;
+            }
+            if (module.moduleName().toString().equals("myproject.services")) {
+                Assert.assertEquals(module.resourceIds().size(), 4);
+                for (DocumentId documentId : module.resourceIds()) {
+                    Assert.assertTrue(module.resource(documentId).name().equals("config.json") ||
+                            module.resource(documentId).name().equals("invalidProject/tests/main_tests.bal") ||
+                            module.resource(documentId).name().equals("invalidProject/main.bal") ||
+                            module.resource(documentId).name().equals("invalidProject/Ballerina.toml")
+                            );
+                }
+
+                Assert.assertEquals(module.testResourceIds().size(), 0);
+                continue;
+            }
+            Assert.assertEquals(module.resourceIds().size(), 1);
+            Assert.assertEquals(module.resource(module.resourceIds().stream().findFirst().orElseThrow()).name(),
+                    "db.json");
+            Assert.assertEquals(module.testResourceIds().size(), 0);
+        }
+    }
+
+    @Test
+    public void testGetResourcesOfDependencies() throws IOException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_resources_tests/package_e");
+        BuildProject buildProject = loadBuildProject(projectPath);
+        Module defaultModule = buildProject.currentPackage().getDefaultModule();
+        DocumentId documentId = defaultModule.resourceIds().stream().findFirst().orElseThrow();
+        Assert.assertEquals(defaultModule.resource(documentId).name(), "project-info.properties");
+
+        List<ResolvedPackageDependency> dependencies = buildProject.currentPackage().getResolution().dependencyGraph()
+                .getNodes().stream().filter(resolvedPackageDependency ->
+                        !resolvedPackageDependency.packageInstance().equals(buildProject.currentPackage()))
+                .collect(Collectors.toList());
+        Module depDefaultModule = dependencies.get(0).packageInstance().getDefaultModule();
+        DocumentId dependencyDocId = depDefaultModule.resourceIds()
+                .stream().findFirst().orElseThrow();
+        Assert.assertEquals(depDefaultModule.resource(dependencyDocId).name(), "project-info.properties");
+
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        Path execPath = buildProject.sourceRoot().resolve(TARGET_DIR_NAME).resolve("temp.jar");
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, execPath);
+
+        JarFile execJar = new JarFile(execPath.toString());
+        String resourceName = RESOURCE_DIR_NAME + "/asmaj/package_e/0/project-info.properties";
+        String depResourceName = RESOURCE_DIR_NAME + "/samjs/package_e/0/project-info.properties";
+
+        Assert.assertNotNull(execJar.getJarEntry(resourceName));
+        try (InputStream inputStream = execJar.getInputStream(execJar.getJarEntry(resourceName))) {
+            Assert.assertTrue(new String(inputStream.readAllBytes()).contains("asmaj"));
+        }
+        Assert.assertNotNull(execJar.getJarEntry(depResourceName));
+        try (InputStream inputStream = execJar.getInputStream(execJar.getJarEntry(depResourceName))) {
+            Assert.assertTrue(new String(inputStream.readAllBytes()).contains("samjs"));
+        }
+    }
+
+    @Test
     public void testAddResources() throws IOException {
         // 1. load the project
-        Path projectPath = RESOURCE_DIRECTORY.resolve("test_proj_with_resources");
-        BuildOptions buildOptions = BuildOptions.builder().setSkipTests(false).build();
-        BuildProject buildProject = loadBuildProject(projectPath, buildOptions);
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_resources_tests/myproject");
+        BuildProject buildProject = loadBuildProject(projectPath);
         Module defaultModule = buildProject.currentPackage().getDefaultModule();
 
         // 2. Create and add a resource
@@ -1651,7 +1723,11 @@ public class TestBuildProject extends BaseTest {
     private List<String> getResources(Module module) {
         List<String> resources = new ArrayList<>();
         for (DocumentId documentId : module.resourceIds()) {
-            String name = RESOURCE_DIR_NAME + "/" + module.moduleName() + "/" + module.resource(documentId).name();
+            String name = RESOURCE_DIR_NAME + "/" +
+                    module.descriptor().org().toString() + "/" +
+                    module.moduleName() + "/" +
+                    module.descriptor().version().value().major() + "/" +
+                    module.resource(documentId).name();
             resources.add(name);
         }
         return resources;
@@ -1660,7 +1736,8 @@ public class TestBuildProject extends BaseTest {
     private List<String> getResourcesInBala(Module module) {
         List<String> resources = new ArrayList<>();
         for (DocumentId documentId : module.resourceIds()) {
-            String name = MODULES_ROOT + "/" + module.moduleName() + "/" + RESOURCE_DIR_NAME + "/" +
+            String name = MODULES_ROOT + "/" +
+                    module.moduleName() + "/" + RESOURCE_DIR_NAME + "/" +
                     module.resource(documentId).name();
             resources.add(name);
         }
@@ -1670,7 +1747,11 @@ public class TestBuildProject extends BaseTest {
     private List<String> getTestResources(Module module) {
         List<String> resources = new ArrayList<>();
         for (DocumentId documentId : module.testResourceIds()) {
-            String name = RESOURCE_DIR_NAME + "/" + module.moduleName() + "/" + module.resource(documentId).name();
+            String name = RESOURCE_DIR_NAME + "/" +
+                    module.descriptor().org().toString() + "/" +
+                    module.moduleName() + "/" +
+                    module.descriptor().version().value().major() + "/" +
+                    module.resource(documentId).name();
             resources.add(name);
         }
         return resources;

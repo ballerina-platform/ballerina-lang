@@ -520,7 +520,9 @@ public class JBallerinaBackend extends CompilerBackend {
         Map<String, byte[]> resourceMap = new HashMap<>();
         for (DocumentId documentId : moduleContext.resourceIds()) {
             String resourceName = ProjectConstants.RESOURCE_DIR_NAME + "/"
+                    + moduleContext.descriptor().org().toString() + "/"
                     + moduleContext.moduleName().toString() + "/"
+                    + moduleContext.descriptor().version().value().major() + "/"
                     + moduleContext.resourceContext(documentId).name();
             resourceMap.put(resourceName, moduleContext.resourceContext(documentId).content());
         }
@@ -531,7 +533,9 @@ public class JBallerinaBackend extends CompilerBackend {
         Map<String, byte[]> resourceMap = getResources(moduleContext);
         for (DocumentId documentId : moduleContext.testResourceIds()) {
             String resourceName = ProjectConstants.RESOURCE_DIR_NAME + "/"
+                    + moduleContext.descriptor().org() + "/"
                     + moduleContext.moduleName().toString() + "/"
+                    + moduleContext.descriptor().version().value().major() + "/"
                     + moduleContext.resourceContext(documentId).name();
             resourceMap.put(resourceName, moduleContext.resourceContext(documentId).content());
         }
