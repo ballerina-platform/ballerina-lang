@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.changetype;
 
+import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -70,7 +71,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         }
 
         //Check if there is a type cast expression already present.
-        ExpressionNodeResolver expressionResolver = new ExpressionNodeResolver();
+        ExpressionNodeResolver expressionResolver = new ExpressionNodeResolver(positionDetails.matchedNode());
         Optional<ExpressionNode> expressionNode = positionDetails.matchedNode().apply(expressionResolver);
         if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
             return Collections.emptyList();
@@ -91,7 +92,6 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         if (lhsTypeSymbol.isEmpty() || rhsTypeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
-
         if (rhsTypeSymbol.get().typeKind() == TypeDescKind.UNION) {
             // If RHS is a union and has error member type; skip code-action
             if (CodeActionUtil.hasErrorMemberType((UnionTypeSymbol) rhsTypeSymbol.get())) {
@@ -99,8 +99,16 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
             }
         }
 
-        List<TextEdit> edits = new ArrayList<>();
-        //numeric types can be casted between each other.
+        //Consider the type parameter of future type symbols.
+        if (rhsTypeSymbol.get().typeKind() == TypeDescKind.FUTURE) {
+            if (lhsTypeSymbol.get().typeKind() != TypeDescKind.FUTURE) {
+                return Collections.emptyList();
+            }
+            lhsTypeSymbol = ((FutureTypeSymbol) lhsTypeSymbol.get()).typeParameter();
+            rhsTypeSymbol = ((FutureTypeSymbol) rhsTypeSymbol.get()).typeParameter();
+        }
+
+        //Numeric types can be casted between each other.
         if (!lhsTypeSymbol.get().subtypeOf(rhsTypeSymbol.get()) && (!isNumeric(lhsTypeSymbol.get())
                 || !isNumeric(rhsTypeSymbol.get()))) {
             return Collections.emptyList();
@@ -110,7 +118,8 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        edits.addAll(getTextEdits(positionDetails, typeName));
+        List<TextEdit> edits = new ArrayList<>();
+        edits.addAll(getTextEdits(expressionNode.get(), typeName));
         String commandTitle = CommandConstants.ADD_TYPE_CAST_TITLE;
         return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
     }
@@ -136,20 +145,19 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
      * the assignment/var declaration, etc. This considers if additional parentheses requires to be added around
      * the RHS expression.
      *
-     * @param positionDetails  Expression Node of the diagnostic position
+     * @param expressionNode   Expression Node of the diagnostic position
      * @param expectedTypeName Expected type name as a string
      * @return Text edits to perform the cast
      */
-    private List<TextEdit> getTextEdits(DiagBasedPositionDetails positionDetails, String expectedTypeName) {
+    private List<TextEdit> getTextEdits(NonTerminalNode expressionNode, String expectedTypeName) {
 
-        NonTerminalNode matchedNode = positionDetails.matchedNode();
-        Position startPosition = CommonUtil.toPosition(matchedNode.lineRange().startLine());
-        Position endPosition = CommonUtil.toPosition(matchedNode.lineRange().endLine());
+        Position startPosition = CommonUtil.toPosition(expressionNode.lineRange().startLine());
+        Position endPosition = CommonUtil.toPosition(expressionNode.lineRange().endLine());
 
         String editText = "<" + expectedTypeName + "> ";
 
         // If the expression is a binary expression, need to add parentheses around the expression
-        if (matchedNode.kind() == SyntaxKind.BINARY_EXPRESSION) {
+        if (expressionNode.kind() == SyntaxKind.BINARY_EXPRESSION) {
             editText = editText + CommonKeys.OPEN_PARENTHESES_KEY;
             TextEdit castWithParentheses = new TextEdit(new Range(startPosition, startPosition), editText);
             TextEdit closeParentheses = new TextEdit(new Range(endPosition, endPosition),

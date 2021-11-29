@@ -49,7 +49,7 @@ import java.util.Set;
 public class AddCheckCodeAction extends TypeCastCodeAction {
 
     public static final String NAME = "Add Check";
-    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
+    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068", "BCE2800");
 
     public AddCheckCodeAction() {
         super();
@@ -65,7 +65,7 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
         }
 
         //Check if there is a check expression already present.
-        ExpressionNodeResolver expressionResolver = new ExpressionNodeResolver();
+        ExpressionNodeResolver expressionResolver = new ExpressionNodeResolver(positionDetails.matchedNode());
         Optional<ExpressionNode> expressionNode = positionDetails.matchedNode().apply(expressionResolver);
         if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.CHECK_EXPRESSION) {
             return Collections.emptyList();
@@ -76,6 +76,9 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
             foundType = positionDetails.diagnosticProperty(
                     CodeActionUtil.getDiagPropertyFilterFunction(
                             DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX));
+        } else if ("BCE2800".equals(diagnostic.diagnosticInfo().code())) {
+            foundType = positionDetails.diagnosticProperty(
+                    DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOR_ITERABLE_FOUND_SYMBOL_INDEX);
         } else {
             foundType = positionDetails.diagnosticProperty(
                     DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
@@ -93,6 +96,9 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
         edits.addAll(CodeActionUtil.getAddCheckTextEdits(
                 CommonUtil.toRange(diagnostic.location().lineRange()).getStart(),
                 positionDetails.matchedNode(), context));
+        if (edits.isEmpty()) {
+            return Collections.emptyList();
+        }
         return Collections.singletonList(AbstractCodeActionProvider.createQuickFixCodeAction(
                 CommandConstants.ADD_CHECK_TITLE, edits, context.fileUri()));
     }
