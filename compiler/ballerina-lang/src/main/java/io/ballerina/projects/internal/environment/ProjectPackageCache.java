@@ -100,6 +100,7 @@ public class ProjectPackageCache implements WritablePackageCache {
     }
 
     @Override
-    @Deprecated
-    public void removePackage(PackageId packageId) {}
+    public void removePackage(PackageId packageId) {
+        throw new UnsupportedOperationException("Removing Package from ProjectPackageCache is not supported");
+    }
 }

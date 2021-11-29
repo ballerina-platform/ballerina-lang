@@ -491,7 +491,7 @@ public class Package {
                         .getService(CompilerContext.class);
                 PackageCache packageCache = PackageCache.getInstance(compilerContext);
 
-                io.ballerina.projects.environment.PackageCache service =
+                io.ballerina.projects.environment.PackageCache environmentPackageCache =
                         project.projectEnvironmentContext().environment().getService(
                         io.ballerina.projects.environment.PackageCache.class);
 
@@ -502,7 +502,9 @@ public class Package {
                             PackageID packageID = module.descriptor().moduleCompilationId();
                             // remove the module from the compiler packageCache
                             packageCache.remove(packageID);
-                            service.removePackage(module.moduleId().packageId());
+                            // reset the module in the project environment packageCache to make the module recompile
+                            // and add symbols
+                            environmentPackageCache.removePackage(module.moduleId().packageId());
                             module.moduleContext().setCompilationState(null);
                         }
                     }

@@ -276,6 +276,10 @@ public class PackageResolutionTests extends BaseTest {
 
     @Test()
     public void testClearingEnvironmentCache() throws IOException {
+        // Skip test in windows due to file permission setting issue
+        if (isWindows()) {
+            throw new SkipException("Skipping tests on Windows");
+        }
 
         // Setup : If exists, clear previous cache
         Path projectBCachePath = testBuildDirectory.resolve("repo").resolve("cache").resolve("samjs").resolve(
@@ -346,10 +350,13 @@ public class PackageResolutionTests extends BaseTest {
             Assert.fail("Package B contains compilations error");
         }
 
+        // Step 8 : Clear ProjectB cache
+        FileUtils.deleteDirectory(projectBCachePath.toFile());
 
-        // Step 8 : Modify ProjectA again with the old content
 
-        // - Step 8.1 : Get the main.bal file document
+        // Step 9 : Modify ProjectA again with the old content
+
+        // - Step 9.1 : Get the main.bal file document
         String oldMainProjectAContent = "import samjs/projectB;\n" + "\n" + "public function getHello() returns " +
                 "(string) {\n" + "    return projectB:hello();\n" + "}";
 
@@ -363,14 +370,14 @@ public class PackageResolutionTests extends BaseTest {
             Assert.fail("Failed to retrieve the document ID");
         }
 
-        // - Step 8.2 : Modify the content
+        // - Step 9.2 : Modify the content
         document = defaultModuleProjectA.document(mainDocumentId.get());
         document.modify().withContent(oldMainProjectAContent).apply();
 
 
-        // Step 9 : Compile ProjectA and verify dependency
+        // Step 10 : Compile ProjectA and verify dependency
         compilation = loadProjectA.currentPackage().getCompilation();
-        Assert.assertFalse(compilation.diagnosticResult().errorCount() == 0, "Package A has compiled successfully " +
+        Assert.assertNotEquals(compilation.diagnosticResult().errorCount(), 0, "Package A has compiled successfully " +
                 "when it should fail");
 
     }
