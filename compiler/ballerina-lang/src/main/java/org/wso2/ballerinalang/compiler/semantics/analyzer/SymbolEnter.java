@@ -2121,25 +2121,25 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             staticType = symTable.semanticError;
         }
-        staticType = types.getReferredType(staticType);
         BConstantSymbol constantSymbol = getConstantSymbol(constant);
         constant.symbol = constantSymbol;
 
         NodeKind nodeKind = constant.expr.getKind();
         if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
             if (constant.typeNode != null) {
-                if (types.isValidLiteral((BLangLiteral) constant.expr, staticType)) {
+                BType referredType = types.getReferredType(staticType);
+                if (types.isValidLiteral((BLangLiteral) constant.expr, referredType)) {
                     // A literal type constant is defined with correct type.
                     // Update the type of the finiteType node to the static type.
                     // This is done to make the type inferring work.
                     // eg: const decimal d = 5.0;
                     BLangFiniteTypeNode finiteType = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
                     BLangExpression valueSpaceExpr = finiteType.valueSpace.iterator().next();
-                    valueSpaceExpr.setBType(staticType);
+                    valueSpaceExpr.setBType(referredType);
                     defineNode(constant.associatedTypeDefinition, env);
 
                     constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
-                    constantSymbol.literalType = staticType;
+                    constantSymbol.literalType = referredType;
                 } else {
                     // A literal type constant is defined with some incorrect type. Set the original
                     // types and continue the flow and let it fail at semantic analyzer.
