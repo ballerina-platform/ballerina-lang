@@ -39,6 +39,8 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
+import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
@@ -410,9 +412,10 @@ public class DebuggerRuntime {
             // Initialize a new scheduler
             Scheduler scheduler = new Scheduler(1, false);
             // Initialize configurations
+            TomlDetails configurationDetails = LaunchUtils.getConfigurationDetails();
             invokeMethodDirectly(classLoader, String.join(".", packageNameSpace, CONFIGURE_INIT_CLASS_NAME),
                     CONFIGURE_INIT_METHOD_NAME, new Class[]{String[].class, Path[].class, String.class},
-                    new Object[]{new String[]{}, new Path[]{}, null});
+                    new Object[]{new String[]{}, configurationDetails.paths, configurationDetails.configContent});
             // Initialize the module
             invokeFunction(classLoader, scheduler, String.join(".", packageNameSpace, MODULE_INIT_CLASS_NAME),
                     MODULE_INIT_METHOD_NAME, new Object[1]);
