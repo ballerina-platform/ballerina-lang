@@ -75,11 +75,11 @@ public class TableIterator implements DataIterator {
     }
 
     @Override
-    public boolean next() {
-        if (rs == null) {
-            return false;
-        }
+    public synchronized boolean next() {
         try {
+            if (rs == null || rs.isClosed()) {
+                return false;
+            }
             return rs.next();
         } catch (SQLException e) {
             throw TableUtils.createTableOperationError(e);
@@ -87,7 +87,7 @@ public class TableIterator implements DataIterator {
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         try {
             if (rs != null && !rs.isClosed()) {
                 rs.close();
@@ -194,7 +194,7 @@ public class TableIterator implements DataIterator {
     }
 
     @Override
-    public MapValue<String, Object> generateNext() {
+    public synchronized MapValue<String, Object> generateNext() {
         MapValue<String, Object> bStruct = new MapValueImpl<>(type);
         int index = 0;
         try {

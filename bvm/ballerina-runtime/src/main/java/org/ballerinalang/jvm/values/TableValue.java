@@ -57,14 +57,14 @@ import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
  */
 public class TableValue implements RefValue, BTable {
 
-    protected DataIterator iterator;
-    private boolean hasNextVal;
-    private boolean nextPrefetched;
-    private TableProvider tableProvider;
+    protected volatile DataIterator iterator;
+    private volatile boolean hasNextVal;
+    private volatile boolean nextPrefetched;
+    private volatile TableProvider tableProvider;
     private String tableName;
     private BStructureType constraintType;
     private ArrayValue primaryKeys;
-    private boolean tableClosed;
+    private volatile boolean tableClosed;
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
     private BType type;
     private BType iteratorNextReturnType;
@@ -175,7 +175,7 @@ public class TableValue implements RefValue, BTable {
         if (isIteratorGenerationConditionMet()) {
             generateIterator();
         }
-        if (!nextPrefetched) {
+        if (!nextPrefetched && iterator != null) {
             hasNextVal = iterator.next();
             nextPrefetched = true;
         }
