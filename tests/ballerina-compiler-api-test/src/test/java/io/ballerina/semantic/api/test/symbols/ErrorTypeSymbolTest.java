@@ -19,9 +19,8 @@
 package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.symbols.BallerinaErrorTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaTypeDefinitionSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaUnionTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
+import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
@@ -86,11 +85,11 @@ public class ErrorTypeSymbolTest {
         Optional<Symbol> distinctErrorSymbol = model.symbol(srcFile, LinePosition.from(29, 13));
 
         assertTrue(unionErrorSymbol.isPresent());
-        assertEquals(((BallerinaTypeDefinitionSymbol) unionErrorSymbol.get()).typeDescriptor().typeKind(),
+        assertEquals(((TypeDefinitionSymbol) unionErrorSymbol.get()).typeDescriptor().typeKind(),
                 TypeDescKind.UNION);
 
         BUnionType unionType =
-                (BUnionType) ((BallerinaUnionTypeSymbol) ((BallerinaTypeDefinitionSymbol) unionErrorSymbol.get()).
+                (BUnionType) ((AbstractTypeSymbol) ((TypeDefinitionSymbol) unionErrorSymbol.get()).
                         typeDescriptor()).getBType();
         assertEquals(unionType.toString(), "EmailError");
 
@@ -101,12 +100,12 @@ public class ErrorTypeSymbolTest {
         }
 
         assertTrue(distinctErrorSymbol.isPresent());
-        BallerinaErrorTypeSymbol errorTypeSymbol =
-                (BallerinaErrorTypeSymbol) ((TypeDefinitionSymbol) distinctErrorSymbol.get()).
+        ErrorTypeSymbol errorTypeSymbol =
+                (ErrorTypeSymbol) ((TypeDefinitionSymbol) distinctErrorSymbol.get()).
                         typeDescriptor();
         assertEquals(errorTypeSymbol.typeKind(),
                 TypeDescKind.ERROR);
-        assertEquals(errorTypeSymbol.getBType().tsymbol.pkgID, PackageID.DEFAULT);
-        assertEquals(errorTypeSymbol.getBType().tsymbol.pkgID.getOrgName(), Names.ANON_ORG);
+        assertEquals(((AbstractTypeSymbol) errorTypeSymbol).getBType().tsymbol.pkgID, PackageID.DEFAULT);
+        assertEquals(((AbstractTypeSymbol) errorTypeSymbol).getBType().tsymbol.pkgID.getOrgName(), Names.ANON_ORG);
     }
 }

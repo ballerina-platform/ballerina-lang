@@ -19,16 +19,17 @@
 package io.ballerina.semantic.api.test.typedescriptors;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
+import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.EnumSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -102,10 +103,10 @@ public class TypeReferenceTSymbolTest {
     @Test
     public void testRecordField() {
         Optional<Symbol> symbol = model.symbol(srcFile, from(44, 7));
-        BallerinaVariableSymbol variableSymbol = ((BallerinaVariableSymbol) symbol.get());
-        assertEquals(variableSymbol.getInternalSymbol().type.getKind(), TypeKind.RECORD);
-        BRecordType varType = (BRecordType) variableSymbol.getInternalSymbol().type;
-        Map<String, BField> recordFields = ((BRecordType) varType).fields;
+        TypeSymbol variableSymbol = ((VariableSymbol)symbol.get()).typeDescriptor();
+        assertEquals(variableSymbol.typeKind(), TypeDescKind.RECORD);
+        BRecordType varType = (BRecordType) ((AbstractTypeSymbol) variableSymbol).getBType();
+        Map<String, BField> recordFields = varType.fields;
         assertEquals(recordFields.size(), 1);
         BField field = recordFields.get("age");
         assertEquals(field.getName().getValue(), "age");
