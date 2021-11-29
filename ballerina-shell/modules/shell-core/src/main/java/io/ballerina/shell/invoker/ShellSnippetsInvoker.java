@@ -22,7 +22,6 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
@@ -203,7 +202,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     protected Project getProject(String source, boolean isOffline) throws InvokerException {
         try {
             File mainBal = writeToFile(source);
-            BuildOptions buildOptions = new BuildOptionsBuilder().offline(isOffline).build();
+            BuildOptions buildOptions = BuildOptions.builder().setOffline(isOffline).build();
             return SingleFileProject.load(mainBal.toPath(), buildOptions);
         } catch (IOException e) {
             addErrorDiagnostic("File writing failed: " + e.getMessage());

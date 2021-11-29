@@ -157,11 +157,13 @@ public class WaitActionsNegativeTest {
         BAssertUtil.validateError(result, index++, expectedErrMsg, 33, 17);
         BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 41, 13);
         BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 44, 13);
+        BAssertUtil.validateWarning(result, index++, "unused variable 'i'", 50, 9);
         BAssertUtil.validateError(result, index++, expectedErrMsg, 50, 17);
         BAssertUtil.validateError(result, index++, expectedErrMsg, 51, 13);
         BAssertUtil.validateError(result, index++, expectedErrMsg, 61, 25);
 
-        Assert.assertEquals(result.getErrorCount(), index);
+        Assert.assertEquals(result.getErrorCount(), index - 1);
+        Assert.assertEquals(result.getWarnCount(), 1);
     }
 
     @Test

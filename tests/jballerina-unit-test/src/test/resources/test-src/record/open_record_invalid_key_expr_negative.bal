@@ -20,10 +20,10 @@ type Foo record {
 };
 
 function testIdentifiersAsRestFieldKeys() {
-    Foo f1 = { s: "str", i: 1 }; // Valid
-    Foo f2 = { "s": "str", "i": 1 }; // Valid
-    Foo f3 = { s: "str", "i": 1 }; // Valid
-    Foo f4 = { s: "str", "s2": "str 2", "i2": 1 }; // Valid
-    Foo f5 = { s: "str", s2: "str 2", i2: 1 }; // Invalid
-    Foo f6 = { s: "str", s2: "str 2", "i2": 1 }; // Invalid
+    Foo _ = { s: "str", i: 1 }; // Valid
+    Foo _ = { "s": "str", "i": 1 }; // Valid
+    Foo _ = { s: "str", "i": 1 }; // Valid
+    Foo _ = { s: "str", "s2": "str 2", "i2": 1 }; // Valid
+    Foo _ = { s: "str", s2: "str 2", i2: 1 }; // Invalid
+    Foo _ = { s: "str", s2: "str 2", "i2": 1 }; // Invalid
 }

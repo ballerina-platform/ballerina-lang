@@ -30,22 +30,35 @@ public class TypePrecedenceTest extends AbstractTypesTest {
     
     @Test
     public void testUnionAndIntersection() {
-        testFile("type-precedence/type-precedence_source_01.bal", "type-precedence/type-precedence_assert_01.json");
+        testFile("type-precedence/type_precedence_source_01.bal", "type-precedence/type_precedence_assert_01.json");
     }
 
     @Test
     public void testUnionIntersectionAndArray() {
-        testFile("type-precedence/type-precedence_source_02.bal", "type-precedence/type-precedence_assert_02.json");
-        testFile("type-precedence/type-precedence_source_05.bal", "type-precedence/type-precedence_assert_05.json");
+        testFile("type-precedence/type_precedence_source_02.bal", "type-precedence/type_precedence_assert_02.json");
+        testFile("type-precedence/type_precedence_source_05.bal", "type-precedence/type_precedence_assert_05.json");
     }
 
     @Test
     public void testUnionIntersectionArrayAndDistinct() {
-        testFile("type-precedence/type-precedence_source_03.bal", "type-precedence/type-precedence_assert_03.json");
+        testFile("type-precedence/type_precedence_source_03.bal", "type-precedence/type_precedence_assert_03.json");
+    }
+
+    @Test
+    public void testPrecedenceWithOptionalType() {
+        testFile("type-precedence/type_precedence_source_06.bal", "type-precedence/type_precedence_assert_06.json");
+        testFile("type-precedence/type_precedence_source_07.bal", "type-precedence/type_precedence_assert_07.json");
+        testFile("type-precedence/type_precedence_source_08.bal", "type-precedence/type_precedence_assert_08.json");
+        testFile("type-precedence/type_precedence_source_09.bal", "type-precedence/type_precedence_assert_09.json");
+    }
+
+    @Test
+    public void testFunctionTypePrecedence() {
+        testFile("type-precedence/type_precedence_source_10.bal", "type-precedence/type_precedence_assert_10.json");
     }
 
     @Test
     public void testAllLevels() {
-        testFile("type-precedence/type-precedence_source_04.bal", "type-precedence/type-precedence_assert_04.json");
+        testFile("type-precedence/type_precedence_source_04.bal", "type-precedence/type_precedence_assert_04.json");
     }
 }
