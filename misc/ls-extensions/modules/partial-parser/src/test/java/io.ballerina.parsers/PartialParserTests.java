@@ -28,6 +28,8 @@ import org.testng.annotations.Test;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
@@ -39,6 +41,7 @@ import java.util.concurrent.ExecutionException;
 public class PartialParserTests {
     private static final String SINGLE_STATEMENT = "partialParser/getSTForSingleStatement";
     private static final String EXPRESSION = "partialParser/getSTForExpression";
+    private static final String MODULE_MEMBER = "partialParser/getSTForModuleMembers";
 
     private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
 
@@ -50,6 +53,8 @@ public class PartialParserTests {
     private final Path singleStatementModifiedWithInsertST = RES_DIR.resolve("syntax-tree")
             .resolve("single_statement_insert_modification.json");
     private final Path expressionST = RES_DIR.resolve("syntax-tree").resolve("expression.json");
+    private final Path sampleRecord = RES_DIR.resolve("ballerina").resolve("sample_record.bal");
+    private final Path recordST = RES_DIR.resolve("syntax-tree").resolve("sample_record.json");
 
     private Endpoint serviceEndpoint;
 
@@ -121,6 +126,17 @@ public class PartialParserTests {
         CompletableFuture<?> result = serviceEndpoint.request(EXPRESSION, request);
         STResponse json = (STResponse) result.get();
         BufferedReader br = new BufferedReader(new FileReader(expressionST.toAbsolutePath().toString()));
+        JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
+        Assert.assertEquals(json.getSyntaxTree(), expected);
+    }
+
+    @Test(description = "Test getting ST for a record")
+    public void testSTForRecordMembers() throws ExecutionException, InterruptedException, IOException {
+        String recordMember =  Files.readString(sampleRecord);;
+        PartialSTRequest request = new PartialSTRequest(recordMember);
+        CompletableFuture<?> result = serviceEndpoint.request(MODULE_MEMBER, request);
+        STResponse json = (STResponse) result.get();
+        BufferedReader br = new BufferedReader(new FileReader(recordST.toAbsolutePath().toString()));
         JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
         Assert.assertEquals(json.getSyntaxTree(), expected);
     }
