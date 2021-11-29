@@ -161,7 +161,11 @@ public class PushCommand implements BLauncherCmd {
                 if (balaPath == null) {
                     pushPackage(project);
                 } else {
-                    // Skip validation entirely and push to custom repo
+                    try {
+                        validatePackageMdAndBalToml(balaPath);
+                    } catch (IOException e) {
+                        throw new ProjectException("error while validating the bala file.", e);
+                    }
                     pushBalaToCustomRepo(balaPath);
                 }
             } else {
@@ -177,7 +181,11 @@ public class PushCommand implements BLauncherCmd {
                     if (balaPath == null) {
                         pushPackage(project, client);
                     } else {
-                        // Skip validation entirely and push to central
+                        try {
+                            validatePackageMdAndBalToml(balaPath);
+                        } catch (IOException e) {
+                            throw new ProjectException("error while validating the bala file.", e);
+                        }
                         pushBalaToRemote(balaPath, client);
                     }
                 } catch (ProjectException | CentralClientException e) {
