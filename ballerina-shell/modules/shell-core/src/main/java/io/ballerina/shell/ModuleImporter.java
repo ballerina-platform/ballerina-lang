@@ -29,7 +29,6 @@ import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
-import io.ballerina.shell.utils.StringUtils;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
@@ -77,7 +76,7 @@ public class ModuleImporter {
                 statement = statement + pkg.packageOrg().toString() + '/' + pkg.packageName().value();
             }
             if (pkg.packageName().value().equals(langModule)) {
-                statement = statement + pkg.packageOrg().toString() + '/' + LANG + "." + StringUtils.quoted(module);
+                statement = statement + pkg.packageOrg().toString() + '/' + LANG + "." + module;
             }
         }
 

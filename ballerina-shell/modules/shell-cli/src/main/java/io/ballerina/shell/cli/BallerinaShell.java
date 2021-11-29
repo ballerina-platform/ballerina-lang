@@ -106,7 +106,7 @@ public class BallerinaShell {
             Duration previousDuration = Duration.between(start, end);
             String rightPrompt = String.format("took %s ms", previousDuration.toMillis());
             rightPrompt = terminal.color(rightPrompt, TerminalAdapter.BRIGHT);
-            boolean requiredModules = false;
+            boolean isRequiredModules = false;
             try {
                 String source = terminal.readLine(leftPrompt, rightPrompt).trim();
                 start = Instant.now();
@@ -125,17 +125,17 @@ public class BallerinaShell {
                 ModuleImporter moduleImporter = new ModuleImporter();
                 List<String> modules = moduleImporter.undefinedModules(evaluator.diagnostics());
                 if (modules.size() > 0) {
-                    requiredModules = true;
-                    moduleAcceptor(moduleImporter, modules);
+                    isRequiredModules = true;
+                    importModules(moduleImporter, modules);
                 } else {
                     outputException(e);
                 }
-                if (!requiredModules) {
+                if (!isRequiredModules) {
                     outputException(e);
                 }
             } finally {
                 end = Instant.now();
-                if (!requiredModules) {
+                if (!isRequiredModules) {
                     evaluator.diagnostics().forEach(this::outputDiagnostic);
                 }
                 evaluator.resetDiagnostics();
@@ -256,23 +256,33 @@ public class BallerinaShell {
      * @param moduleImporter moduleImporter.
      * @param modules        available modules.
      */
-    public void moduleAcceptor(ModuleImporter moduleImporter, List<String> modules) {
-        int moduleCount = 1;
+    public void importModules(ModuleImporter moduleImporter, List<String> modules) {
         List<String> missingModules = new ArrayList<>();
-        terminal.info("Undefined module(s) found.");
+        List<String> requiredModules = new ArrayList<>();
+        terminal.info("Found following undefined module(s).");
         for (String module : modules) {
-            terminal.info(String.format("%d. %s", moduleCount, module));
-            moduleCount += 1;
+            module = module.replaceAll("'", "");
+            if (moduleImporter.isModuleInDistRepo(module)) {
+                requiredModules.add(module);
+            } else {
+                missingModules.add(module);
+            }
+            terminal.info(module);
         }
 
-        String answer = terminal.readOneLine("Do you want to import mentioned modules (yes/y) (no/n) ? ");
-        if (answer.equalsIgnoreCase("yes") || answer.equalsIgnoreCase("y")) {
-            terminal.info("Adding required imports");
-            for (String module : modules) {
-                module = module.replaceAll("'", "");
-                if (moduleImporter.isModuleInDistRepo(module)) {
+        if (requiredModules.size() > 0) {
+            terminal.info("\nFollowing undefined modules can be imported.");
+            int moduleCount = 1;
+            for (String module : requiredModules) {
+                terminal.info(String.format("%d. %s", moduleCount, module));
+                moduleCount += 1;
+            }
+            
+            String answer = terminal.readOneLine("Do you want to import mentioned modules (yes/y) (no/n)? ");
+            if (answer.equalsIgnoreCase("yes") || answer.equalsIgnoreCase("y")) {
+                for (String module : requiredModules) {
                     String importSource = moduleImporter.getImportStatement(module);
-                    terminal.info("Adding import: " + importSource);
+                    terminal.info("\nAdding import: " + importSource);
                     try {
                         evaluator.evaluate(importSource);
                         terminal.info("Import added: " + importSource);
@@ -280,17 +290,19 @@ public class BallerinaShell {
                         terminal.error("Error occurred while adding imports.");
                         outputException(ex);
                     }
-                } else {
-                    missingModules.add(module);
                 }
-            }
 
-            if (missingModules.size() > 0) {
-                terminal.error("Found missing modules.");
-                for (String missingModule : missingModules) {
-                    terminal.error(missingModule);
+                if (missingModules.size() > 0) {
+                    terminal.error("\nFound following missing module(s).");
+                    for (String missingModule : missingModules) {
+                        terminal.error(missingModule);
+                    }
                 }
+            } else {
+                terminal.error("\nFound missing module(s).");
             }
+        } else {
+            terminal.error("\nFound missing module(s).");
         }
     }
 }
