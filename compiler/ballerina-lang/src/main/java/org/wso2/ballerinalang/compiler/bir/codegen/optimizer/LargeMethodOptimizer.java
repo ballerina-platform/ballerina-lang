@@ -62,19 +62,22 @@ public class LargeMethodOptimizer {
     private static final int MAX_SPLIT_FUNCTION_ARG_COUNT = 250;
     // current BIR package id
     private PackageID currentPackageId;
+    // newly created split BIR function number
+    private int splitFuncNum;
 
     public LargeMethodOptimizer() {
     }
 
     public void splitLargeBIRFunctions(BIRPackage birPkg) {
         currentPackageId = birPkg.packageID;
+        splitFuncNum = 0;
 
         List<BIRFunction> newlyAddedBIRFunctions = new ArrayList<>();
         for (BIRFunction function : birPkg.functions) {
             if (hasLessInstructionCount(function)) {
                 continue;
             }
-            List<BIRFunction> newBIRFunctions = splitThisBIRFunction(function.name.toString(), function, false);
+            List<BIRFunction> newBIRFunctions = splitThisBIRFunction(function, false);
             newlyAddedBIRFunctions.addAll(newBIRFunctions);
         }
         for (BIRTypeDefinition birTypeDef : birPkg.typeDefs) {
@@ -82,8 +85,7 @@ public class LargeMethodOptimizer {
                 if (hasLessInstructionCount(function)) {
                     continue;
                 }
-                String parentFunctionName = birTypeDef.name.toString() + "$" + function.name.toString();
-                List<BIRFunction> newBIRFunctions = splitThisBIRFunction(parentFunctionName, function, true);
+                List<BIRFunction> newBIRFunctions = splitThisBIRFunction(function, true);
                 newlyAddedBIRFunctions.addAll(newBIRFunctions);
             }
         }
@@ -98,12 +100,11 @@ public class LargeMethodOptimizer {
         return instructionCount < FUNCTION_INSTRUCTION_COUNT_THRESHOLD;
     }
 
-    private List<BIRFunction> splitThisBIRFunction(String parentFuncName, BIRFunction birFunction,
-                                                   boolean fromAttachedFunction) {
+    private List<BIRFunction> splitThisBIRFunction(BIRFunction birFunction, boolean fromAttachedFunction) {
         final List<BIRFunction> newlyAddingFunctions = new ArrayList<>();
         List<Split> possibleSplits = getPossibleSplits(birFunction.basicBlocks, birFunction.errorTable);
         if (!possibleSplits.isEmpty()) {
-            generateSplits(parentFuncName, birFunction, possibleSplits, newlyAddingFunctions, fromAttachedFunction);
+            generateSplits(birFunction, possibleSplits, newlyAddingFunctions, fromAttachedFunction);
         }
         return newlyAddingFunctions;
     }
@@ -182,10 +183,7 @@ public class LargeMethodOptimizer {
                             splitStarted = false;
                             continue;
                         }
-                        newFuncArgs = new ArrayList<>();
-                        for (BIRVariableDcl funcArgVarDcl : neededOperandsVarDcl) {
-                            newFuncArgs.add(funcArgVarDcl);
-                        }
+                        newFuncArgs = new ArrayList<>(neededOperandsVarDcl);
                         // create necessary error table entries
                         List<BIRErrorEntry> splitErrorTableEntries = new ArrayList<>();
                         int trapBBNum;
@@ -266,13 +264,12 @@ public class LargeMethodOptimizer {
 
     /**
      * Generate the given possible splits.
-     * @param funcName parent function name
      * @param function original BIR function
      * @param possibleSplits list of possible splits
      * @param newlyAddedFunctions list to add the newly created functions
      * @param fromAttachedFunction flag which indicates an original attached function is being split
      */
-    private void generateSplits(String funcName, BIRFunction function, List<Split> possibleSplits,
+    private void generateSplits(BIRFunction function, List<Split> possibleSplits,
                                 List<BIRFunction> newlyAddedFunctions, boolean fromAttachedFunction) {
         int splitNum = 0; // next split to be done or the ongoing split index
         List<BIRBasicBlock> basicBlocks = function.basicBlocks;
@@ -280,7 +277,6 @@ public class LargeMethodOptimizer {
         int startInsNum = 0; // start instruction index
         int bbNum = 0; // ongoing BB index
         int newBBNum = getBbIdNum(basicBlocks, basicBlocks.size() - 1); // used for newly created BB's id
-        int newFuncNum = 0; // to number the splits made using a particular function
         BIRBasicBlock currentBB  = new BIRBasicBlock(new Name("bb" + getBbIdNum(basicBlocks, bbNum)));
         Map<String, String> changedLocalVarStartBB = new HashMap<>(); // key: oldBBId, value: newBBId
         Map<String, String> changedLocalVarEndBB = new HashMap<>(); // key: oldBBId, value: newBBId
@@ -336,10 +332,9 @@ public class LargeMethodOptimizer {
             changedLocalVarStartBB.put(basicBlocks.get(bbNum).id.value, currentBB.id.value);
             if (!splitsInSameBBList.isEmpty()) {
                 // current unfinished BB is passed to the function and a new one is returned from it
-                currentBB = generateSplitsInSameBB(funcName, function, bbNum, splitsInSameBBList, newlyAddedFunctions,
-                        newBBNum, newBBList, newFuncNum, startInsNum, currentBB, fromAttachedFunction);
+                currentBB = generateSplitsInSameBB(function, bbNum, splitsInSameBBList, newlyAddedFunctions,
+                        newBBNum, newBBList, startInsNum, currentBB, fromAttachedFunction);
                 startInsNum = possibleSplits.get(splitNum - 1).lastIns + 1;
-                newFuncNum += splitsInSameBBList.size();
                 newBBNum += splitsInSameBBList.size();
             }
 
@@ -364,8 +359,8 @@ public class LargeMethodOptimizer {
                 currentBB.instructions.addAll(basicBlocks.get(bbNum).instructions.subList(startInsNum,
                         possibleSplits.get(splitNum).firstIns));
             }
-            newFuncNum += 1;
-            String newFunctionName = "$split$_" + funcName + "$_" + newFuncNum;
+            splitFuncNum += 1;
+            String newFunctionName = "$split$method$" + splitFuncNum;
             Name newFuncName = new Name(newFunctionName);
             Split currSplit = possibleSplits.get(splitNum);
             splitNum += 1;
@@ -376,7 +371,7 @@ public class LargeMethodOptimizer {
             newBBNum += 1;
             newlyAddedFunctions.add(newBIRFunc);
             if (currSplit.splitFurther) {
-                newlyAddedFunctions.addAll(splitThisBIRFunction(newFunctionName, newBIRFunc, fromAttachedFunction));
+                newlyAddedFunctions.addAll(splitThisBIRFunction(newBIRFunc, fromAttachedFunction));
             }
             function.errorTable.removeAll(currSplit.errorTableEntries);
             startInsNum = currSplit.lastIns + 1;
@@ -596,29 +591,26 @@ public class LargeMethodOptimizer {
     /**
      * Generate the given splits inside the same BB.
      *
-     * @param funcName parent function name
      * @param function parent function
      * @param bbNum index of the ongoing BB in the BB list in the ongoing function in birPkg
      * @param possibleSplits list of possible splits
      * @param newlyAddedFunctions list to add the newly created functions
      * @param newBBNum last BB id num of the parent function
      * @param newBBList new BB list creating for the already available parent function
-     * @param newFuncNum number to distinguish the newly created functions
      * @param startInsNum index of the start instruction in the BB instruction list
      * @param currentBB BB at the start of the split
      * @param fromAttachedFunction flag which indicates an original attached function is being split
      * @return the next BB that will be in the parent function
      */
-    private BIRBasicBlock generateSplitsInSameBB(String funcName, BIRFunction function, int bbNum,
-                                                 List<Split> possibleSplits, List<BIRFunction> newlyAddedFunctions,
-                                                 int newBBNum, List<BIRBasicBlock> newBBList, int newFuncNum,
-                                                 int startInsNum, BIRBasicBlock currentBB,
-                                                 boolean fromAttachedFunction) {
+    private BIRBasicBlock generateSplitsInSameBB(BIRFunction function, int bbNum, List<Split> possibleSplits,
+                                                 List<BIRFunction> newlyAddedFunctions, int newBBNum,
+                                                 List<BIRBasicBlock> newBBList, int startInsNum,
+                                                 BIRBasicBlock currentBB, boolean fromAttachedFunction) {
         List<BIRNonTerminator> instructionList = function.basicBlocks.get(bbNum).instructions;
 
         for (int splitNum = 0; splitNum < possibleSplits.size(); splitNum++) {
-            newFuncNum += 1;
-            String newFunctionName = "$split$_" + funcName + "$_" + newFuncNum;
+            splitFuncNum += 1;
+            String newFunctionName = "$split$method$" + splitFuncNum;
             Name newFuncName = new Name(newFunctionName);
             BIROperand currentBBTerminatorLhsOp =
                     new BIROperand(instructionList.get(possibleSplits.get(splitNum).lastIns).lhsOp.variableDcl);
@@ -629,7 +621,7 @@ public class LargeMethodOptimizer {
                     possibleSplits.get(splitNum).lhsVars, possibleSplits.get(splitNum).funcArgs, fromAttachedFunction);
             newlyAddedFunctions.add(newBIRFunc);
             if (possibleSplits.get(splitNum).splitFurther) {
-                newlyAddedFunctions.addAll(splitThisBIRFunction(newFunctionName, newBIRFunc, fromAttachedFunction));
+                newlyAddedFunctions.addAll(splitThisBIRFunction(newBIRFunc, fromAttachedFunction));
             }
             currentBB.instructions.addAll(instructionList.subList(startInsNum, possibleSplits.get(splitNum).firstIns));
             startInsNum = possibleSplits.get(splitNum).lastIns + 1;
@@ -706,9 +698,8 @@ public class LargeMethodOptimizer {
         // creates 2 bbs
         BIRBasicBlock entryBB = new BIRBasicBlock(new Name("bb0"));
         entryBB.instructions.addAll(collectedIns);
-        BIRNonTerminator lastInstruction = currentIns;
-        lastInstruction.lhsOp = new BIROperand(birFunc.returnVariable);
-        entryBB.instructions.add(lastInstruction);
+        currentIns.lhsOp = new BIROperand(birFunc.returnVariable);
+        entryBB.instructions.add(currentIns);
         BIRBasicBlock exitBB = new BIRBasicBlock(new Name("bb1"));
         exitBB.terminator = new BIRTerminator.Return(null);
         entryBB.terminator = new BIRTerminator.GOTO(null, exitBB, currentIns.scope);
@@ -757,27 +748,27 @@ public class LargeMethodOptimizer {
             }
         }
     }
-}
 
-class Split {
-    int firstIns;
-    int lastIns;
-    int startBBNum;
-    int endBBNum;
-    boolean splitFurther;
-    Set<BIRVariableDcl> lhsVars;
-    List<BIRVariableDcl> funcArgs;
-    List<BIRErrorEntry> errorTableEntries;
+    static class Split {
+        int firstIns;
+        int lastIns;
+        int startBBNum;
+        int endBBNum;
+        boolean splitFurther;
+        Set<BIRVariableDcl> lhsVars;
+        List<BIRVariableDcl> funcArgs;
+        List<BIRErrorEntry> errorTableEntries;
 
-    protected Split(int firstIns, int lastIns, int startBBNum, int endBBNum, Set<BIRVariableDcl> lhsVars,
-                 List<BIRVariableDcl> funcArgs, List<BIRErrorEntry> errorTableEntries, boolean splitFurther) {
-        this.firstIns = firstIns;
-        this.lastIns = lastIns;
-        this.startBBNum = startBBNum;
-        this.endBBNum = endBBNum;
-        this.splitFurther = splitFurther;
-        this.lhsVars = lhsVars;
-        this.funcArgs = funcArgs;
-        this.errorTableEntries = errorTableEntries;
+        private Split(int firstIns, int lastIns, int startBBNum, int endBBNum, Set<BIRVariableDcl> lhsVars,
+                        List<BIRVariableDcl> funcArgs, List<BIRErrorEntry> errorTableEntries, boolean splitFurther) {
+            this.firstIns = firstIns;
+            this.lastIns = lastIns;
+            this.startBBNum = startBBNum;
+            this.endBBNum = endBBNum;
+            this.splitFurther = splitFurther;
+            this.lhsVars = lhsVars;
+            this.funcArgs = funcArgs;
+            this.errorTableEntries = errorTableEntries;
+        }
     }
 }

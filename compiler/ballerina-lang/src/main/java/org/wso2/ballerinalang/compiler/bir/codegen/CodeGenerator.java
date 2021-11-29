@@ -44,6 +44,7 @@ public class CodeGenerator {
     private PackageCache packageCache;
     private BLangDiagnosticLog dlog;
     private CompilerContext compilerContext;
+    private LargeMethodOptimizer largeMethodOptimizer;
 
     private CodeGenerator(CompilerContext compilerContext) {
 
@@ -76,7 +77,7 @@ public class CodeGenerator {
     private CompiledJarFile generate(BPackageSymbol packageSymbol) {
 
         // Split large BIR functions into smaller methods
-        LargeMethodOptimizer largeMethodOptimizer = new LargeMethodOptimizer();
+        largeMethodOptimizer = new LargeMethodOptimizer();
         largeMethodOptimizer.splitLargeBIRFunctions(packageSymbol.bir);
 
         // Desugar BIR to include the observations
