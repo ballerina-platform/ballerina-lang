@@ -3,21 +3,21 @@
 {{/imports}}
 
 // Java methods: Memory
-function __java_recall(handle context_id, handle name) returns any|error = @java:Method {
+isolated function __java_recall(handle context_id, handle name) returns any|error = @java:Method {
     name: "recall",
     'class: "{{{memoryRef}}}"
 } external;
-function __java_memorize(handle context_id, handle name, any|error value) = @java:Method {
+isolated function __java_memorize(handle context_id, handle name, any|error value) = @java:Method {
     name: "memorize",
     'class: "{{{memoryRef}}}"
 } external;
-function __recall_any(string name) returns any {
+isolated function __recall_any(string name) returns any {
     return checkpanic __java_recall(java:fromString("{{contextId}}"), java:fromString(name));
 }
-function __recall_any_error(string name) returns any|error {
+isolated function __recall_any_error(string name) returns any|error {
     return __java_recall(java:fromString("{{contextId}}"), java:fromString(name));
 }
-function __memorize(string name, any|error value) {
+isolated function __memorize(string name, any|error value) {
     __java_memorize(java:fromString("{{contextId}}"), java:fromString(name), value);
 }
 
@@ -75,9 +75,11 @@ function __stmts() returns any {
 function __run() returns any {
     any|error retValue = trap __stmts();
     __memorize("{{{exprVarName}}}", {{{exprVarName}}});
-    {{#varDclns}}
-        __memorize("{{{encodedName}}}", {{{name}}});
-    {{/varDclns}}
+    lock {
+        {{#varDclns}}
+            __memorize("{{{encodedName}}}", {{{name}}});
+        {{/varDclns}}
+    }
     return checkpanic retValue;
 }
 
