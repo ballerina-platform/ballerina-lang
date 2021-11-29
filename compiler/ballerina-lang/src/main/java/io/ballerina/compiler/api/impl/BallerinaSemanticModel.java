@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -420,6 +421,11 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private boolean isCursorPosAtDefinition(BLangCompilationUnit compilationUnit, BSymbol symbolAtCursor,
                                             LinePosition cursorPos) {
+        BType symbolType = symbolAtCursor.type;
+        if (symbolType.tag == TypeTags.ERROR &&
+                Symbols.isFlagOn(symbolType.flags, Flags.ANONYMOUS)) {
+            return true;
+        }
         return !(compilationUnit.getPackageID().equals(symbolAtCursor.pkgID)
                 && compilationUnit.getName().equals(symbolAtCursor.pos.lineRange().filePath())
                 && PositionUtil.withinBlock(cursorPos, symbolAtCursor.pos));

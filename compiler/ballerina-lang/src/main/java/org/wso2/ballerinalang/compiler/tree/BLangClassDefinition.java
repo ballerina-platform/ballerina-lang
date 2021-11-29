@@ -43,21 +43,27 @@ import java.util.Set;
  * @since 2.0
  */
 public class BLangClassDefinition extends BLangNode implements ClassDefinition {
+
+    // BLangNodes
     public BLangIdentifier name;
-    public List<BLangFunction> functions;
-    public BLangFunction initFunction;
-    public BLangFunction generatedInitFunction;
-    public BLangSimpleVariable receiver;
-    public List<BLangSimpleVariable> fields;
-    public List<BLangType> typeRefs;
-    public BTypeSymbol symbol;
-    public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
+    public BLangFunction initFunction;
+    public List<BLangFunction> functions;
+    public List<BLangSimpleVariable> fields;
+    public List<BLangType> typeRefs;
+
+    // Parser Flags and Data
+    public Set<Flag> flagSet;
+    public boolean isServiceDecl;
+
+    // Semantic Data
+    public BTypeSymbol symbol;
+    public BLangFunction generatedInitFunction;
+    public BLangSimpleVariable receiver;
     public List<BLangSimpleVariable> referencedFields;
     public List<BLangSimpleVarRef.BLangLocalVarRef> localVarRefs;
     public int precedence;
-    public boolean isServiceDecl;
 
     public boolean definitionCompleted;
     public OCEDynamicEnvironmentData oceEnvData;
@@ -114,6 +120,16 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

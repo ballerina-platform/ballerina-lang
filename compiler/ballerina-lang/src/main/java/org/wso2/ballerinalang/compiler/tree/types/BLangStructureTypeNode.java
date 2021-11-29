@@ -36,11 +36,16 @@ import java.util.List;
  */
 public abstract class BLangStructureTypeNode extends BLangType implements StructureTypeNode {
 
+    // BLangNodes
     public List<BLangSimpleVariable> fields;
+    public List<BLangType> typeRefs;
     public BLangFunction initFunction;
+
+    // Parser Flags and Data
     public boolean isAnonymous;
     public boolean isLocal;
-    public List<BLangType> typeRefs;
+
+    // Semantic Data
     public BSymbol symbol;
 
     // This is a cache of the fields referred through the type references

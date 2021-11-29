@@ -21,6 +21,8 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
@@ -29,13 +31,16 @@ import java.util.List;
 /**
  * Represents the object-constructor-expr.
  *
- * @since slp3
+ * @since 2.0.0
  */
 public class BLangObjectConstructorExpression extends BLangExpression {
 
+    // BLangNodes
     public BLangClassDefinition classNode;
     public BLangTypeInit typeInit;
     public BLangType referenceType;
+
+    // Parser Flags and Data
     public boolean isClient;
     public boolean isService;
     public boolean defined;
@@ -49,6 +54,16 @@ public class BLangObjectConstructorExpression extends BLangExpression {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     /**
