@@ -60,6 +60,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     public BLangSimpleVariable serviceVariable;
     public List<IdentifierNode> absoluteResourcePath;
     public BLangLiteral serviceNameLiteral;
+    public BType inferredServiceType;
 
     public BLangService() {
         this.flagSet = EnumSet.noneOf(Flag.class);

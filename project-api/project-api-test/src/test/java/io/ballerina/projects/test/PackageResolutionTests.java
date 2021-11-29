@@ -19,7 +19,6 @@ package io.ballerina.projects.test;
 
 import com.sun.management.UnixOperatingSystemMXBean;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
@@ -130,8 +129,8 @@ public class PackageResolutionTests extends BaseTest {
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_0");
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_2");
 
-        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder().experimental(true);
-        buildOptionsBuilder.sticky(false);
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder().setExperimental(true);
+        buildOptionsBuilder.setSticky(false);
         BuildOptions buildOptions = buildOptionsBuilder.build();
 
         Project loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);

@@ -22,7 +22,8 @@ import org.ballerinalang.langserver.commons.LSOperation;
  */
 public enum PackageContext implements LSOperation {
     PACKAGE_METADATA("ballerinaPackage/metadata"),
-    PACKAGE_COMPONENTS("ballerinaPackage/components");
+    PACKAGE_COMPONENTS("ballerinaPackage/components"),
+    PACKAGE_CONFIG_SCHEMA("ballerinaPackage/configSchema");
 
     private final String name;
 

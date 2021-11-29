@@ -1,0 +1,3 @@
+public function main() {
+    float f3 = 0x1A.0;   // Should be 0x1A.0
+}

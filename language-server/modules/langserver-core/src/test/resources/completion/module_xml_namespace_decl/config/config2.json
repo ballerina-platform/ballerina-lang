@@ -8,7 +8,7 @@
     {
       "label": "STRING_CONST",
       "kind": "Variable",
-      "detail": "http://ballerina.com/",
+      "detail": "\"http://ballerina.com/\"",
       "documentation": {
         "right": {
           "kind": "markdown",

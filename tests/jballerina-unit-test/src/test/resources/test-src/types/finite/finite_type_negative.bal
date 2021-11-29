@@ -108,3 +108,13 @@ function testFiniteTypesWithDiscriminatedMembers() returns [any, any, any, any, 
     return [a, b, c, d, e];
 }
 
+type Foo 1f|1d|2d;
+type Foo2 1|1d|2d;
+type Foo4 1|decimal|2f;
+
+function testFiniteTypeWithNumericValues() {
+    Foo f2 = 2;
+    Foo2 f3 = 2;
+    Foo4 f5 = 3;
+    "chiran" x = 5;
+}

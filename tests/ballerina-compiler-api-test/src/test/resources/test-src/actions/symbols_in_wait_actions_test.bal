@@ -43,6 +43,7 @@ function testMultipleWaitAction() returns error? {
 
     map<string|error|string|error> result1 = wait {a: WA, b: WB};
     map<string|error|string|error> result2 = wait {WC, WD};
+    record {|string|error a; string|error b;|} result3 = wait {a: WA, b: WB};
 }
 
 function testAlternateWaitAction() {

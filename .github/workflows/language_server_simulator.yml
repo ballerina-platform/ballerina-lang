@@ -1,0 +1,48 @@
+name: Language Server Simulator
+
+on:
+  schedule:
+    - cron:  '0 */12 * * *'
+  workflow_dispatch:
+
+jobs:
+  run_simulator:
+    name: Run LS Simulator
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin' 
+          java-version: '11'
+
+      - name: Initialize sub-modules
+        run: git submodule update --init
+
+      - name: Build with Gradle
+        timeout-minutes: 180
+        run: |
+          export DISPLAY=':99.0'
+          /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          ./gradlew clean :language-server-simulator:runLSSimulator
+          
+      - name: Upload Heap Dumps
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: heap_dump.hprof
+          path: '*.hprof'
+
+      - name: Notify failure
+        if: failure()
+        run: |
+          curl \
+          -X POST 'https://chat.googleapis.com/v1/spaces/${{secrets.NOTIFICATIONS_CHAT_ID}}/messages?key=${{secrets.NOTIFICATIONS_CHAT_KEY}}&token=${{secrets.NOTIFICATIONS_CHAT_TOKEN}}' \
+          --header 'Content-Type: application/json' \
+          -d '{"text": "*language server simulator failure* \nPlease \n visit <https://github.com/ballerina-platform/ballerina-lang/actions?query=workflow%3A%22Language+Server+Simulator%22|the LS simulator build page> for more information"}'
+

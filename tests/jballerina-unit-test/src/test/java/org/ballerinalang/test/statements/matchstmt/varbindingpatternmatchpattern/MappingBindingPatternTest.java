@@ -127,6 +127,11 @@ public class MappingBindingPatternTest {
     }
 
     @Test
+    public void testMappingBindingToRecordWithDefaultValue() {
+        BRunUtil.invoke(result, "testMappingBindingToRecordWithDefaultValue");
+    }
+
+    @Test
     public void testMappingBindingPatternWithRest1() {
         BRunUtil.invoke(restMatchPatternResult, "testMappingBindingPatternWithRest1");
     }

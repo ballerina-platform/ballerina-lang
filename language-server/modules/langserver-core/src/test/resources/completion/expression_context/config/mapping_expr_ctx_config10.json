@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "field1",
       "kind": "Field",
       "detail": "TestRecord2.field1",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "field1: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -26,7 +26,7 @@
       "label": "field3",
       "kind": "Field",
       "detail": "TestRecord2.field3",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "field3: ${2:false}",
       "insertTextFormat": "Snippet"
     },
@@ -34,7 +34,7 @@
       "label": "field2",
       "kind": "Field",
       "detail": "TestRecord2.field2",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "field2: \"${3}\"",
       "insertTextFormat": "Snippet"
     },
