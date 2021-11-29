@@ -104,13 +104,13 @@ function testComplementOperator() {
 function testUnaryOperationsWithIntSubtypes() {
     int:Unsigned8 x1 = 7;
     int y1 = ~x1;
-    int:Unsigned8 x2 = +x1;
+    int x2 = +x1;
     assertEquality(-8, y1);
     assertEquality(7, x2);
 
     int:Signed8 x3 = 7;
     int y2 = ~x3;
-    int:Signed8 x4 = +x3;
+    int x4 = +x3;
     int:Signed8 x5 = -7;
     assertEquality(-8, y2);
     assertEquality(7, x4);
@@ -118,13 +118,13 @@ function testUnaryOperationsWithIntSubtypes() {
 
     int:Unsigned16 x6 = 7;
     int y3 = ~x6;
-    int:Unsigned16 x7 = +x6;
+    int x7 = +x6;
     assertEquality(-8, y3);
     assertEquality(7, x7);
 
     int:Signed16 x8 = 7;
     int y4 = ~x8;
-    int:Signed16 x9 = +x8;
+    int x9 = +x8;
     int:Signed16 x10 = -7;
     assertEquality(-8, y4);
     assertEquality(7, x9);
@@ -132,13 +132,13 @@ function testUnaryOperationsWithIntSubtypes() {
 
     int:Unsigned32 x11 = 7;
     int y5 = ~x6;
-    int:Unsigned32 x12 = +x11;
+    int x12 = +x11;
     assertEquality(-8, y5);
     assertEquality(7, x12);
 
     int:Signed32 x13 = 7;
     int y6 = ~x13;
-    int:Signed32 x14 = +x13;
+    int x14 = +x13;
     int:Signed32 x15 = -7;
     assertEquality(-8, y6);
     assertEquality(7, x14);
@@ -146,7 +146,7 @@ function testUnaryOperationsWithIntSubtypes() {
 
     byte x16 = 7;
     int y7 = ~x16;
-    byte x17 = +x16;
+    int x17 = +x16;
     assertEquality(-8, y7);
     assertEquality(7, x17);
 }
@@ -322,6 +322,39 @@ function testNullableUnaryExpressions() {
 
     assertEquality(a17, -12);
     assertEquality(a19, 10);
+}
+
+function testResultingTypeOfUnaryPlus() {
+    int:Unsigned8 a = 10;
+    a = +a;
+    assertEquality(a, 10);
+    int:Unsigned16 b = 255;
+    b = +b;
+    assertEquality(b, 255);
+    int:Unsigned32 c = 100;
+    c = +c;
+    assertEquality(c, 100);
+    byte d = 127;
+    d = +d;
+    assertEquality(d, 127);
+    int:Signed8 e = 12;
+    e = +e;
+    assertEquality(e, 12);
+    int:Signed16 f = 43;
+    f = +f;
+    assertEquality(f, 43);
+    int:Signed32 g = 32;
+    g = +g;
+    assertEquality(g, 32);
+    IntType4 i = -1;
+    i = +i;
+    assertEquality(i, -1);
+    IntType1 j = 2;
+    j = +j;
+    assertEquality(j, 2);
+    IntType1|int k = 32;
+    k = +k;
+    assertEquality(k, 32);
 }
 
 function assertEquality(any actual, any expected) {
