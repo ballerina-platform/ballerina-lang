@@ -144,7 +144,6 @@ import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import javax.xml.XMLConstants;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -168,6 +167,8 @@ import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.elements.PackageID.ARRAY;
 import static org.ballerinalang.model.elements.PackageID.BOOLEAN;
