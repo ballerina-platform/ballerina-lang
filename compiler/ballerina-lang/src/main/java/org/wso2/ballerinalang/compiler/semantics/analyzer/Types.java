@@ -2428,7 +2428,7 @@ public class Types {
             // There should be at least one listener compatible type and all the member types, except error type
             // should be listener compatible.
             int listenerCompatibleTypeCount = 0;
-            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+            for (BType memberType : getAllTypes(type, true)) {
                 if (memberType.tag != TypeTags.ERROR) {
                     if (!checkListenerCompatibility(memberType)) {
                         return false;
