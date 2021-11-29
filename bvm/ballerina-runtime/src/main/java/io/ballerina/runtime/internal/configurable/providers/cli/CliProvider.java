@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.configurable.providers.cli;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
@@ -36,6 +37,7 @@ import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BUnionType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +52,7 @@ import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_CLI_VARIABLE_AMBIGUITY;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_INCOMPATIBLE_TYPE;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_INVALID_BYTE_RANGE;
+import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_UNION_VALUE_AMBIGUOUS_TARGET;
 
 /**
  * This class implements @{@link ConfigProvider} tp provide values for configurable variables through cli args.
@@ -58,7 +61,7 @@ import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG
  */
 public class CliProvider implements ConfigProvider {
 
-    private String[] cliConfigArgs;
+    private final String[] cliConfigArgs;
 
     private final Map<String, String> cliVarKeyValueMap;
 
@@ -214,6 +217,7 @@ public class CliProvider implements ConfigProvider {
 
     @Override
     public Optional<ConfigValue> getAsUnionAndMark(Module module, VariableKey key) {
+        // Only `enum` type is supported
         BUnionType unionType = (BUnionType) ((BIntersectionType) key.type).getEffectiveType();
         if (!SymbolFlags.isFlagOn(unionType.getFlags(), SymbolFlags.ENUM)) {
             throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, unionType);
@@ -235,7 +239,36 @@ public class CliProvider implements ConfigProvider {
 
     @Override
     public Optional<ConfigValue> getAsFiniteAndMark(Module module, VariableKey key) {
-        return Optional.empty();
+        CliArg cliArg = getCliArg(module, key);
+        if (cliArg.value == null) {
+            return Optional.empty();
+        }
+        BFiniteType type;
+        if (key.type.getTag() == TypeTags.INTERSECTION_TAG) {
+            type = (BFiniteType) ((IntersectionType) key.type).getEffectiveType();
+        } else {
+            type = (BFiniteType) key.type;
+        }
+        Object value = getFiniteBalValue(cliArg, type, key);
+        return getCliConfigValue(value);
+    }
+
+    public static Object getFiniteBalValue(CliArg arg, BFiniteType finiteType, VariableKey key) {
+        List<Object> matchingValues = new ArrayList<>();
+        for (Object value : finiteType.getValueSpace()) {
+            String stringValue = value.toString();
+            if (stringValue.equals(arg.value)) {
+                matchingValues.add(value);
+            }
+        }
+        String typeName = IdentifierUtils.decodeIdentifier(finiteType.toString());
+        if (matchingValues.isEmpty()) {
+            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, arg, key.variable, typeName, arg.value);
+        }
+        if (matchingValues.size() != 1) {
+            throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, arg, key.variable, typeName);
+        }
+        return matchingValues.get(0);
     }
 
     @Override
