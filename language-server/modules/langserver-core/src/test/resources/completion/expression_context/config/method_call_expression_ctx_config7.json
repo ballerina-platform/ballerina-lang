@@ -29,7 +29,7 @@
           "value": ""
         }
       },
-      "sortText": "BF",
+      "sortText": "CF",
       "insertText": "TEST_STRING_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -43,7 +43,7 @@
           "value": ""
         }
       },
-      "sortText": "BK",
+      "sortText": "CK",
       "insertText": "ENUM1_FIELD1",
       "insertTextFormat": "Snippet"
     },
@@ -51,7 +51,7 @@
       "label": "AnnotationType",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "BP",
+      "sortText": "CP",
       "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     },
@@ -59,7 +59,7 @@
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "BP",
+      "sortText": "CP",
       "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
@@ -67,7 +67,7 @@
       "label": "TestRecord2",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "BP",
+      "sortText": "CP",
       "insertText": "TestRecord2",
       "insertTextFormat": "Snippet"
     },
@@ -75,7 +75,7 @@
       "label": "TestMap2",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "BQ",
+      "sortText": "CQ",
       "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
@@ -83,7 +83,7 @@
       "label": "TestMap3",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "BQ",
+      "sortText": "CQ",
       "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },
@@ -91,7 +91,7 @@
       "label": "TestObject1",
       "kind": "Interface",
       "detail": "Object",
-      "sortText": "BN",
+      "sortText": "CN",
       "insertText": "TestObject1",
       "insertTextFormat": "Snippet"
     },
@@ -99,7 +99,7 @@
       "label": "ErrorOne",
       "kind": "Event",
       "detail": "Error",
-      "sortText": "BO",
+      "sortText": "CO",
       "insertText": "ErrorOne",
       "insertTextFormat": "Snippet"
     },
@@ -107,7 +107,7 @@
       "label": "ErrorTwo",
       "kind": "Event",
       "detail": "Error",
-      "sortText": "BO",
+      "sortText": "CO",
       "insertText": "ErrorTwo",
       "insertTextFormat": "Snippet"
     },
@@ -118,7 +118,7 @@
       "documentation": {
         "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
       },
-      "sortText": "BL",
+      "sortText": "CL",
       "insertText": "ResponseMessage",
       "insertTextFormat": "Snippet"
     },
@@ -129,7 +129,7 @@
       "documentation": {
         "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
       },
-      "sortText": "BL",
+      "sortText": "CL",
       "insertText": "RequestMessage",
       "insertTextFormat": "Snippet"
     },
@@ -137,7 +137,7 @@
       "label": "Listener",
       "kind": "Interface",
       "detail": "Class",
-      "sortText": "BN",
+      "sortText": "CN",
       "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
@@ -145,7 +145,7 @@
       "label": "TestClass1",
       "kind": "Interface",
       "detail": "Class",
-      "sortText": "BN",
+      "sortText": "CN",
       "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
@@ -156,7 +156,7 @@
       "documentation": {
         "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
       },
-      "sortText": "BN",
+      "sortText": "CN",
       "insertText": "Client",
       "insertTextFormat": "Snippet"
     },
@@ -167,7 +167,7 @@
       "documentation": {
         "left": "Represents a response.\n"
       },
-      "sortText": "BN",
+      "sortText": "CN",
       "insertText": "Response",
       "insertTextFormat": "Snippet"
     },
@@ -175,7 +175,7 @@
       "label": "listener1",
       "kind": "Variable",
       "detail": "module1:Listener",
-      "sortText": "BF",
+      "sortText": "CF",
       "insertText": "listener1",
       "insertTextFormat": "Snippet"
     },
@@ -189,7 +189,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n"
         }
       },
-      "sortText": "BC",
+      "sortText": "CC",
       "filterText": "function1",
       "insertText": "function1()",
       "insertTextFormat": "Snippet"
@@ -204,7 +204,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n"
         }
       },
-      "sortText": "BC",
+      "sortText": "CC",
       "filterText": "function2",
       "insertText": "function2()",
       "insertTextFormat": "Snippet"
@@ -238,7 +238,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function4 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description"
         }
       },
-      "sortText": "BC",
+      "sortText": "CC",
       "filterText": "function4",
       "insertText": "function4(${1})",
       "insertTextFormat": "Snippet",

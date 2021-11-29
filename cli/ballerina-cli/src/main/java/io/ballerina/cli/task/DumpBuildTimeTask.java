@@ -80,7 +80,7 @@ public class DumpBuildTimeTask implements Task {
 
     private Path getBuildTimeFilePath(Project project) {
         if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
-            return project.sourceRoot().resolve("target").resolve(BUILD_TIME_JSON).toAbsolutePath();
+            return project.targetDir().resolve(BUILD_TIME_JSON).toAbsolutePath();
         }
         return currentDir.resolve(BUILD_TIME_JSON).toAbsolutePath();
     }

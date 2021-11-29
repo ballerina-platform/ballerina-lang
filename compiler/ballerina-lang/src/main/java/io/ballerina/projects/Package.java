@@ -141,7 +141,7 @@ public class Package {
         return this.packageContext.getPackageCompilation();
     }
 
-    public PackageCompilation getCompilation(CompilationOptions compilationOptions) {
+    PackageCompilation getCompilation(CompilationOptions compilationOptions) {
         return this.packageContext.getPackageCompilation(compilationOptions);
     }
 
@@ -210,6 +210,10 @@ public class Package {
         return this.packageMd;
     }
 
+    Package duplicate(Project project) {
+        return new Package(packageContext.duplicate(project), project);
+    }
+
     /**
      * Run {@code CodeGenerator} tasks in engaged {@code CompilerPlugin}s.
      * <p>
@@ -240,7 +244,7 @@ public class Package {
         }
 
         // There are engaged code generators or there is no cached compilation. We have to compile anyway
-        CompilationOptions compOptions = new CompilationOptionsBuilder().withCodeGenerators(true).build();
+        CompilationOptions compOptions = CompilationOptions.builder().withCodeGenerators(true).build();
         // TODO We can avoid this compilation. Move CompilerPluginManagers out of the PackageCompilation
         // TODO How about PackageResolution
         CompilerPluginManager compilerPluginManager = this.getCompilation(compOptions).compilerPluginManager();
@@ -510,7 +514,7 @@ public class Package {
             this.packageManifest = manifestBuilder.packageManifest();
             BuildOptions newBuildOptions;
             if (manifestBuilder.buildOptions() == null) {
-                newBuildOptions = new BuildOptionsBuilder().build();
+                newBuildOptions = BuildOptions.builder().build();
             } else {
                 newBuildOptions = manifestBuilder.buildOptions();
             }

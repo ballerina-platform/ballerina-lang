@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -275,16 +274,17 @@ public class QueryDesugar extends BLangNodeVisitor {
             onConflictExpr = null;
         } else {
             BLangVariableReference result;
-            if (TypeTags.isXMLTypeTag(queryExpr.getBType().tag) || (queryExpr.getBType().tag == TypeTags.UNION &&
-                    ((BUnionType) queryExpr.getBType()).getMemberTypes().stream()
-                            .allMatch(memType -> TypeTags.isXMLTypeTag(memType.tag)))) {
+            BType refType = types.getReferredType(queryExpr.getBType());
+            if (TypeTags.isXMLTypeTag(refType.tag) || (refType.tag == TypeTags.UNION
+                    && ((BUnionType) refType).getMemberTypes().stream().allMatch(memType ->
+                                    TypeTags.isXMLTypeTag(types.getReferredType(memType).tag)))) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION, Lists.of(streamRef), pos);
-            } else if (TypeTags.isStringTypeTag(queryExpr.getBType().tag)) {
+            } else if (TypeTags.isStringTypeTag(types.getReferredType(queryExpr.getBType()).tag)) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);
             } else {
                 BType arrayType = queryExpr.getBType();
-                if (arrayType.tag == TypeTags.UNION) {
-                    arrayType = ((BUnionType) arrayType).getMemberTypes()
+                if (refType.tag == TypeTags.UNION) {
+                    arrayType = ((BUnionType) refType).getMemberTypes()
                             .stream().filter(m -> m.tag == TypeTags.ARRAY)
                             .findFirst().orElse(symTable.arrayType);
                 }
@@ -420,11 +420,12 @@ public class QueryDesugar extends BLangNodeVisitor {
         blockStmt.addStatement(dataVarDef);
         BType constraintType = resultType;
         BType completionType = symTable.nilType;
-        if (resultType.tag == TypeTags.ARRAY) {
-            constraintType = ((BArrayType) resultType).eType;
-        } else if (resultType.tag == TypeTags.STREAM) {
-            constraintType = ((BStreamType) resultType).constraint;
-            completionType = ((BStreamType) resultType).completionType;
+        BType refType = types.getReferredType(resultType);
+        if (refType.tag == TypeTags.ARRAY) {
+            constraintType = ((BArrayType) refType).eType;
+        } else if (refType.tag == TypeTags.STREAM) {
+            constraintType = ((BStreamType) refType).constraint;
+            completionType = ((BStreamType) refType).completionType;
         }
         BType constraintTdType = new BTypedescType(constraintType, symTable.typeDesc.tsymbol);
         BLangTypedescExpr constraintTdExpr = new BLangTypedescExpr();
@@ -747,8 +748,9 @@ public class QueryDesugar extends BLangNodeVisitor {
         final BType type = queryExpr.getBType();
         String name = getNewVarName();
         BType tableType = type;
-        if (type.tag == TypeTags.UNION) {
-            tableType = ((BUnionType) type).getMemberTypes()
+        BType refType = types.getReferredType(type);
+        if (refType.tag == TypeTags.UNION) {
+            tableType = ((BUnionType) refType).getMemberTypes()
                     .stream().filter(m -> m.tag == TypeTags.TABLE)
                     .findFirst().orElse(symTable.tableType);
         }
@@ -1112,9 +1114,10 @@ public class QueryDesugar extends BLangNodeVisitor {
         for (BVarSymbol symbol : symbols) {
             BType type = symbol.type;
             String key = symbol.name.value;
-            if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
+            BType structureType = types.getReferredType(type);
+            if (structureType.tag == TypeTags.RECORD || structureType.tag == TypeTags.OBJECT) {
                 List<BVarSymbol> nestedSymbols = new ArrayList<>();
-                for (BField field : ((BStructureType) type).fields.values()) {
+                for (BField field : ((BStructureType) structureType).fields.values()) {
                     nestedSymbols.add(field.symbol);
                 }
                 addFrameValueToFrame(frame, key, defineNilFrameForType(nestedSymbols, blockStmt, pos), blockStmt, pos);
@@ -1163,7 +1166,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return reference to the defined frame.
      */
     private BLangSimpleVarRef defineFrameVariable(BLangBlockStmt blockStmt, Location pos) {
-        BRecordTypeSymbol frameTypeSymbol = getFrameTypeSymbol();
+        BSymbol frameTypeSymbol = getFrameTypeSymbol();
         BRecordType frameType = (BRecordType) frameTypeSymbol.type;
         String frameName = getNewVarName();
         BVarSymbol frameSymbol = new BVarSymbol(0, names.fromString(frameName),
@@ -1273,7 +1276,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return a _Frame type node.
      */
     private BLangRecordTypeNode getFrameTypeNode() {
-        BRecordTypeSymbol frameTypeSymbol = getFrameTypeSymbol();
+        BSymbol frameTypeSymbol = getFrameTypeSymbol();
         BRecordType frameType = (BRecordType) frameTypeSymbol.type;
 
         BLangUnionTypeNode restFieldType = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
@@ -1294,8 +1297,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      *
      * @return _Frame type symbol.
      */
-    private BRecordTypeSymbol getFrameTypeSymbol() {
-        return (BRecordTypeSymbol) symTable.langQueryModuleSymbol
+    private BSymbol getFrameTypeSymbol() {
+        return symTable.langQueryModuleSymbol
                 .scope.lookup(names.fromString("_Frame")).symbol;
     }
 

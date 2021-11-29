@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "pets",
       "kind": "Variable",
       "detail": "Pet[]",
-      "sortText": "B",
+      "sortText": "AB",
       "insertText": "pets",
       "insertTextFormat": "Snippet"
     },
@@ -26,7 +26,7 @@
       "label": "petStore",
       "kind": "Variable",
       "detail": "PetStore",
-      "sortText": "B",
+      "sortText": "F",
       "insertText": "petStore",
       "insertTextFormat": "Snippet"
     }

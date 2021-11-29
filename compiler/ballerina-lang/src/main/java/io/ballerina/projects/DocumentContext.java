@@ -56,9 +56,9 @@ class DocumentContext {
     private Set<ModuleLoadRequest> moduleLoadRequests;
     private BLangCompilationUnit compilationUnit;
     private NodeCloner nodeCloner;
-    private DocumentId documentId;
-    private String name;
-    private String content;
+    private final DocumentId documentId;
+    private final String name;
+    private final String content;
 
     private DocumentContext(DocumentId documentId, String name, String content) {
         this.documentId = documentId;
@@ -176,5 +176,9 @@ class DocumentContext {
         for (Diagnostic syntaxDiagnostic : tree.diagnostics()) {
             dlog.logDiagnostic(pkgID, syntaxDiagnostic);
         }
+    }
+
+    DocumentContext duplicate() {
+        return new DocumentContext(this.documentId, this.name, syntaxTree().toSourceCode());
     }
 }

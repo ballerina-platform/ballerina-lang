@@ -21,9 +21,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.CloudToml;
-import io.ballerina.projects.CompilationOptionsBuilder;
 import io.ballerina.projects.CompilerPluginToml;
 import io.ballerina.projects.DependenciesToml;
 import io.ballerina.projects.DependencyGraph;
@@ -56,10 +54,13 @@ import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.tools.text.LinePosition;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -75,6 +76,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.test.TestUtils.isWindows;
+import static io.ballerina.projects.test.TestUtils.loadProject;
 import static io.ballerina.projects.test.TestUtils.readFileAsString;
 import static io.ballerina.projects.test.TestUtils.resetPermissions;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
@@ -83,6 +85,7 @@ import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Contains cases to test the basic package structure.
@@ -420,7 +423,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("projectWithBuildOptions");
         // 1) Initialize the project instance
         BuildProject project = null;
-        BuildOptions buildOptions = new BuildOptionsBuilder().skipTests(false).build();
+        BuildOptions buildOptions = BuildOptions.builder().setSkipTests(false).build();
         try {
             project = BuildProject.load(projectPath, buildOptions);
         } catch (Exception e) {
@@ -440,7 +443,7 @@ public class TestBuildProject extends BaseTest {
     public void testOverrideBuildOptionsOnTomlEdit() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("projectWithBuildOptions");
         // Initialize the project instance
-        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        BuildOptions buildOptions = BuildOptions.builder().setOffline(true).build();
         BuildProject project = loadBuildProject(projectPath, buildOptions);
 
         // Test when build option provided only during project load
@@ -917,7 +920,7 @@ public class TestBuildProject extends BaseTest {
     @Test(description = "test editing Ballerina.toml")
     public void testModifyDependenciesToml() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_edit_api_tests/package_test_dependencies_toml");
-        BuildProject project = loadBuildProject(projectPath, new BuildOptionsBuilder().sticky(true).build());
+        BuildProject project = loadBuildProject(projectPath, BuildOptions.builder().setSticky(true).build());
 
         PackageCompilation compilation = project.currentPackage().getCompilation();
         ResolvedPackageDependency packageDep =
@@ -1329,44 +1332,6 @@ public class TestBuildProject extends BaseTest {
         buildProject.documentId(filePath); // get the document ID
     }
 
-    @Test(description = "test passing compilation options to package compilation", enabled = false)
-    public void testPassCompilationOptionsToPackageCompilation() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
-
-        // 1) Initialize the project instance
-        BuildOptions options = new BuildOptionsBuilder().experimental(true).build();
-        BuildProject project = loadBuildProject(projectPath, options);
-
-        Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
-        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-            Assert.assertTrue(project.currentPackage().module(moduleId).moduleName().toString().contains("myproject"));
-        }
-        project.currentPackage().getCompilation();
-        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
-
-        // 2) Pass compilations option 'offline' to the package compilation
-        CompilationOptionsBuilder compilationOptionsBuilder = new CompilationOptionsBuilder();
-        compilationOptionsBuilder.offline(true);
-        project.currentPackage().getCompilation(compilationOptionsBuilder.build());
-        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
-
-        // 3) Get compilation again and check compilation options
-        BallerinaToml newBallerinaToml = project.currentPackage().ballerinaToml().get()
-                .modify().withContent("" +
-                                       "[package]\n" +
-                                       "org = \"sameera\"\n" +
-                                       "name = \"yourproject\"\n" +
-                                       "version = \"0.2.0\"\n").apply();
-        Package newPackage = newBallerinaToml.packageInstance();
-        Assert.assertEquals(newPackage.packageName().toString(), "yourproject");
-
-        project.currentPackage().getCompilation();
-        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
-
-        newPackage.getCompilation();
-        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
-    }
-
     @Test(description = "test auto updating dependencies using build file")
     public void testAutoUpdateWithBuildFile() throws IOException {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
@@ -1375,8 +1340,8 @@ public class TestBuildProject extends BaseTest {
             Files.delete(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
         }
         // Set sticky false, to imitate the default build command behavior
-        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
-        buildOptionsBuilder.sticky(false);
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        buildOptionsBuilder.setSticky(false);
         BuildOptions buildOptions = buildOptionsBuilder.build();
 
         // 1) Initialize the project instance
@@ -1424,8 +1389,8 @@ public class TestBuildProject extends BaseTest {
         Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
 
         // Set sticky false, to imitate the default build command behavior
-        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
-        buildOptionsBuilder.sticky(false);
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        buildOptionsBuilder.setSticky(false);
         BuildOptions buildOptions = buildOptionsBuilder.build();
 
         // 1) Initialize the project instance
@@ -1464,6 +1429,68 @@ public class TestBuildProject extends BaseTest {
 
         // Remove generated files
         Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+    }
+
+    @Test(description = "test auto updating dependencies with old distribution version")
+    public void testAutoUpdateWithOldDistVersion() throws IOException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("old_dist_version_project");
+        // Delete build file and Dependencies.toml file if already exists
+        Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+
+        // Set sticky false, to imitate the default build command behavior
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        buildOptionsBuilder.setSticky(false);
+        BuildOptions buildOptions = buildOptionsBuilder.build();
+
+        // 1) Initialize the project instance
+        BuildProject project = loadBuildProject(projectPath);
+        project.save();
+
+        Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
+        Path buildFile = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        Assert.assertTrue(buildFile.toFile().exists());
+        BuildJson initialBuildJson = readBuildJson(buildFile);
+        Assert.assertTrue(initialBuildJson.lastBuildTime() > 0, "invalid last_build_time in the build file");
+        Assert.assertTrue(initialBuildJson.lastUpdateTime() > 0, "invalid last_update_time in the build file");
+        Assert.assertFalse(initialBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
+
+        // 2) Build project again after setting un-matching dist version
+        // When distribution is not matching always should update Dependencies.toml, even build file has not expired
+        initialBuildJson.setDistributionVersion("slbeta0");
+        ProjectUtils.writeBuildFile(buildFile, initialBuildJson);
+        Assert.assertTrue(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists());
+        BuildProject projectSecondBuild = loadBuildProject(projectPath, buildOptions);
+        projectSecondBuild.save();
+
+        Assert.assertTrue(buildFile.toFile().exists());
+        BuildJson secondBuildJson = readBuildJson(buildFile);
+        Assert.assertTrue(secondBuildJson.lastBuildTime() > initialBuildJson.lastBuildTime(),
+                "last_build_time has not updated for the second build");
+        assertTrue(secondBuildJson.lastUpdateTime() > initialBuildJson.lastUpdateTime(),
+                "last_update_time has not updated for the second build");
+        Assert.assertFalse(secondBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
+        Assert.assertTrue(projectSecondBuild.currentPackage().getResolution().autoUpdate());
+
+        // 3) Build project again after setting dist version as null
+        initialBuildJson.setDistributionVersion(null);
+        ProjectUtils.writeBuildFile(buildFile, initialBuildJson);
+        Assert.assertTrue(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists());
+        BuildProject projectThirdBuild = loadBuildProject(projectPath, buildOptions);
+        projectThirdBuild.save();
+
+        Assert.assertTrue(buildFile.toFile().exists());
+        BuildJson thirdBuildJson = readBuildJson(buildFile);
+        Assert.assertTrue(thirdBuildJson.lastBuildTime() > secondBuildJson.lastBuildTime(),
+                "last_build_time has not updated for the second build");
+        assertTrue(thirdBuildJson.lastUpdateTime() > secondBuildJson.lastUpdateTime(),
+                "last_update_time has not updated for the second build");
+        Assert.assertFalse(thirdBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
+        Assert.assertTrue(projectThirdBuild.currentPackage().getResolution().autoUpdate());
+
+        // Remove generated files
+        Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
     }
 
     @Test(description = "test build package without dependencies")
@@ -1549,6 +1576,115 @@ public class TestBuildProject extends BaseTest {
             Assert.fail(e.getMessage());
         }
         return buildProject;
+    }
+
+    @Test
+    public void testProjectClearCaches() {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_refresh_tests").resolve("package_refresh_one");
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+        int errorCount = compilation.diagnosticResult().errorCount();
+        Assert.assertEquals(errorCount, 3);
+
+        BCompileUtil.compileAndCacheBala("projects_for_refresh_tests/package_refresh_two");
+        int errorCount2 = buildProject.currentPackage().getCompilation().diagnosticResult().errorCount();
+        Assert.assertEquals(errorCount2, 3);
+
+        buildProject.clearCaches();
+        int errorCount3 = buildProject.currentPackage().getCompilation().diagnosticResult().errorCount();
+        Assert.assertEquals(errorCount3, 0);
+    }
+
+    @Test
+    public void testProjectDuplicate() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        BuildOptions.BuildOptionsBuilder optionsBuilder = BuildOptions.builder()
+                .setCodeCoverage(true).setExperimental(true);
+        Project project = loadProject(projectPath, optionsBuilder.build());
+
+        Project duplicate = project.duplicate();
+        Assert.assertNotSame(project, duplicate);
+        Assert.assertNotSame(project.currentPackage().project(), duplicate.currentPackage().project());
+        Assert.assertNotSame(
+                project.currentPackage().project().buildOptions(), duplicate.currentPackage().project().buildOptions());
+        Assert.assertNotSame(project.projectEnvironmentContext(),
+                duplicate.projectEnvironmentContext());
+        Assert.assertNotSame(project.projectEnvironmentContext().getService(CompilerContext.class),
+                duplicate.projectEnvironmentContext().getService(CompilerContext.class));
+        Assert.assertNotSame(
+                PackageCache.getInstance(project.projectEnvironmentContext().getService(CompilerContext.class)),
+                PackageCache.getInstance(duplicate.projectEnvironmentContext().getService(CompilerContext.class)));
+
+        Assert.assertEquals(project.sourceRoot().toString(), duplicate.sourceRoot().toString());
+        Assert.assertTrue(duplicate.buildOptions().codeCoverage());
+        Assert.assertTrue(duplicate.buildOptions().experimental());
+        Assert.assertFalse(duplicate.buildOptions().testReport());
+
+        Assert.assertNotSame(project.currentPackage(), duplicate.currentPackage());
+        Assert.assertEquals(project.currentPackage().packageId(), duplicate.currentPackage().packageId());
+        Assert.assertTrue(project.currentPackage().moduleIds().containsAll(duplicate.currentPackage().moduleIds())
+                && duplicate.currentPackage().moduleIds().containsAll(project.currentPackage().moduleIds()));
+        Assert.assertEquals(project.currentPackage().packageMd().isPresent(),
+                duplicate.currentPackage().packageMd().isPresent());
+        if (project.currentPackage().packageMd().isPresent()) {
+            Assert.assertEquals(project.currentPackage().packageMd().get().content(),
+                    duplicate.currentPackage().packageMd().get().content());
+        }
+
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Assert.assertNotSame(project.currentPackage().module(moduleId),
+                    duplicate.currentPackage().module(moduleId));
+            Assert.assertNotSame(project.currentPackage().module(moduleId).project(),
+                    duplicate.currentPackage().module(moduleId).project());
+            Assert.assertNotSame(project.currentPackage().module(moduleId).packageInstance(),
+                    duplicate.currentPackage().module(moduleId).packageInstance());
+
+            Assert.assertEquals(project.currentPackage().module(moduleId).descriptor(),
+                    duplicate.currentPackage().module(moduleId).descriptor());
+            Assert.assertEquals(project.currentPackage().module(moduleId).moduleMd().isPresent(),
+                    duplicate.currentPackage().module(moduleId).moduleMd().isPresent());
+            if (project.currentPackage().module(moduleId).moduleMd().isPresent()) {
+                Assert.assertEquals(project.currentPackage().module(moduleId).moduleMd().get().content(),
+                        duplicate.currentPackage().module(moduleId).moduleMd().get().content());
+            }
+
+            Assert.assertTrue(project.currentPackage().module(moduleId).documentIds().containsAll(
+                    duplicate.currentPackage().module(moduleId).documentIds())
+                    && duplicate.currentPackage().module(moduleId).documentIds().containsAll(
+                    project.currentPackage().module(moduleId).documentIds()));
+            for (DocumentId documentId : project.currentPackage().module(moduleId).documentIds()) {
+                Assert.assertNotSame(project.currentPackage().module(moduleId).document(documentId),
+                        duplicate.currentPackage().module(moduleId).document(documentId));
+                Assert.assertNotSame(project.currentPackage().module(moduleId).document(documentId).module(),
+                        duplicate.currentPackage().module(moduleId).document(documentId).module());
+                Assert.assertNotSame(project.currentPackage().module(moduleId).document(documentId).syntaxTree(),
+                        duplicate.currentPackage().module(moduleId).document(documentId).syntaxTree());
+
+                Assert.assertEquals(project.currentPackage().module(moduleId).document(documentId).name(),
+                        duplicate.currentPackage().module(moduleId).document(documentId).name());
+                Assert.assertEquals(
+                        project.currentPackage().module(moduleId).document(documentId).syntaxTree().toSourceCode(),
+                        duplicate.currentPackage().module(moduleId).document(documentId).syntaxTree().toSourceCode());
+            }
+
+            for (DocumentId documentId : project.currentPackage().module(moduleId).testDocumentIds()) {
+                Assert.assertNotSame(project.currentPackage().module(moduleId).document(documentId),
+                        duplicate.currentPackage().module(moduleId).document(documentId));
+                Assert.assertNotSame(project.currentPackage().module(moduleId).document(documentId).module(),
+                        duplicate.currentPackage().module(moduleId).document(documentId).module());
+                Assert.assertNotSame(project.currentPackage().module(moduleId).document(documentId).syntaxTree(),
+                        duplicate.currentPackage().module(moduleId).document(documentId).syntaxTree());
+
+                Assert.assertEquals(project.currentPackage().module(moduleId).document(documentId).name(),
+                        duplicate.currentPackage().module(moduleId).document(documentId).name());
+                Assert.assertEquals(
+                        project.currentPackage().module(moduleId).document(documentId).syntaxTree().toSourceCode(),
+                        duplicate.currentPackage().module(moduleId).document(documentId).syntaxTree().toSourceCode());
+            }
+        }
+
+        project.currentPackage().getCompilation();
+        duplicate.currentPackage().getCompilation();
     }
 
     @AfterClass (alwaysRun = true)

@@ -52,8 +52,12 @@ public class TypeGuardTest {
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 29, 13);
         BAssertUtil.validateError(negativeResult, i++, "unreachable code", 33, 9);
-        BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'string' will not be matched to 'int'", 33, 13);
+        BAssertUtil.validateHint(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true' for variable of type 'never'",
+                33, 13);
+        BAssertUtil.validateError(negativeResult, i++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 34, 30);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 38, 5);
         BAssertUtil.validateError(negativeResult, i++,
                                   "incompatible types: '(float|boolean)' will not be matched to 'string'", 53, 16);
         BAssertUtil.validateError(negativeResult, i++, "unreachable code", 84, 5);
@@ -65,6 +69,8 @@ public class TypeGuardTest {
                                   "incompatible types: 'string' will not be matched to 'int'", 108, 25);
         BAssertUtil.validateError(negativeResult, i++,
                                   "incompatible types: 'string' will not be matched to 'float'", 108, 37);
+        BAssertUtil.validateWarning(negativeResult, i++, "unused variable 'y'", 109, 9);
+        BAssertUtil.validateWarning(negativeResult, i++, "unused variable 's'", 111, 9);
         BAssertUtil.validateError(negativeResult, i++,
                                   "incompatible types: 'string' will not be matched to 'float'", 117, 25);
         BAssertUtil.validateError(negativeResult, i++,
@@ -220,14 +226,14 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++, "invalid operation: type '(Bar & readonly)' does not support " +
                 "optional field access for field 't'", 498, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found '(record {| " +
-                "string s; |} & readonly)?'", 499, 21);
-        BAssertUtil.validateError(negativeResult, i++, "field access cannot be used to access an optional field, use " +
-                "optional field access or member access", 500, 50);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'r|g', found 'r|g|b'", 512, 22);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '1', found '1|2'", 518, 16);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '2|3', found '1|2'", 524, 18);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'r', found 'r|g|b'", 530, 18);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'r|g|x', found 'r|g|b'", 536, 26);
+                "string s; |}? & readonly)'", 499, 21);
+        BAssertUtil.validateError(negativeResult, i++, "field access cannot be used to access an optional field of " +
+                "a type that includes nil, use optional field access or member access", 500, 50);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'r|g', found 'Colour'", 512, 22);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '1', found 'Ints'", 518, 16);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '2|3', found 'Ints'", 524, 18);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'r', found 'Colour'", 530, 18);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'r|g|x', found 'Colour'", 536, 26);
         BAssertUtil.validateError(negativeResult, i++, "missing non-defaultable required record field 'b'", 556, 16);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'byte', found 'int'", 556, 20);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '" +

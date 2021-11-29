@@ -1,0 +1,24 @@
+{
+    "line": 8,
+    "character": 18,
+    "expected": [
+        {
+            "title": "Type guard variable 'cur'",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 8,
+                            "character": 28
+                        },
+                        "end": {
+                            "line": 8,
+                            "character": 28
+                        }
+                    },
+                    "newText": "\n    if cur is Token {\n\n    } else {\n\n    }\n"
+                }
+            ]
+        }
+    ]
+}

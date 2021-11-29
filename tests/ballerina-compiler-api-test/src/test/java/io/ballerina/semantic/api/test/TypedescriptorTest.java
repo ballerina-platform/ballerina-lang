@@ -344,7 +344,7 @@ public class TypedescriptorTest {
         return new Object[][]{
                 {204, 11, "int?"},
                 {205, 17, "int|float|()"},
-                {206, 11, "A?"},
+                {206, 11, "\"A\"?"},
 //                {207, 15, "A|B|()"}, TODO: Disabled due to /ballerina-lang/issues/27957
         };
     }
@@ -375,7 +375,7 @@ public class TypedescriptorTest {
     public Object[][] getFiniteTypePos() {
         return new Object[][]{
                 {60, 10, "Digit", List.of("0", "1", "2", "3")},
-                {62, 11, "Format", List.of("default", "csv", "tdf")}
+                {62, 11, "Format", List.of("\"default\"", "\"csv\"", "\"tdf\"")}
         };
     }
 
@@ -873,10 +873,21 @@ public class TypedescriptorTest {
         assertEquals(type.typeKind(), UNION);
 
         expandedMembers = ((UnionTypeSymbol) type).memberTypeDescriptors();
+        TypeSymbol member1 = expandedMembers.get(0);
+        TypeSymbol member2 = expandedMembers.get(1);
+
+        assertEquals(member1.typeKind(), TYPE_REFERENCE);
+        assertEquals(member2.typeKind(), TYPE_REFERENCE);
+
+        member1 = ((TypeReferenceTypeSymbol) member1).typeDescriptor();
+        expandedMembers = ((UnionTypeSymbol) member1).memberTypeDescriptors();
         assertEquals(expandedMembers.get(0).typeKind(), INT);
         assertEquals(expandedMembers.get(1).typeKind(), STRING);
-        assertEquals(expandedMembers.get(2).typeKind(), FLOAT);
-        assertEquals(expandedMembers.get(3).typeKind(), BOOLEAN);
+
+        member2 = ((TypeReferenceTypeSymbol) member2).typeDescriptor();
+        expandedMembers = ((UnionTypeSymbol) member2).memberTypeDescriptors();
+        assertEquals(expandedMembers.get(0).typeKind(), FLOAT);
+        assertEquals(expandedMembers.get(1).typeKind(), BOOLEAN);
     }
 
     @Test
@@ -908,7 +919,7 @@ public class TypedescriptorTest {
                 {2, 16, "main.bal", SymbolKind.FUNCTION, "main",
                         "symbolowner/testprojmodules:0.1.0"},
                 {5, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "Int",
-                        "ballerina/lang.annotations:0.0.0"},
+                        "symbolowner/testprojmodules.module1:0.1.0"},
                 {9, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "StreamType1",
                         "symbolowner/testprojmodules.module1:0.1.0"},
                 {11, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "StreamType2",

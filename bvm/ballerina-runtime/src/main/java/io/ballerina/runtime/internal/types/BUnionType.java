@@ -90,9 +90,9 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         this(memberTypes, false);
     }
 
-    public BUnionType(String typeName, Module pkg, List<Type> memberTypes) {
+    public BUnionType(String typeName, Module pkg, List<Type> memberTypes, boolean readonly) {
         super(typeName, pkg, Object.class);
-        this.readonly = false;
+        this.readonly = readonly;
         setMemberTypes(memberTypes);
     }
 

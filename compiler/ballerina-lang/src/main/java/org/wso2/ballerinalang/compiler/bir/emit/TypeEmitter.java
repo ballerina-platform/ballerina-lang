@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.emit;
 
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -436,8 +437,8 @@ class TypeEmitter {
     }
 
     /////////////////////// Emitting type reference ///////////////////////////
-    static String emitTypeRef(BType bType, int tabs) {
-
+    static String emitTypeRef(BType type, int tabs) {
+        BType bType = JvmCodeGenUtil.getReferredType(type);
         String tName = getTypeName(bType);
         if (!("".equals(tName))) {
             return tName;

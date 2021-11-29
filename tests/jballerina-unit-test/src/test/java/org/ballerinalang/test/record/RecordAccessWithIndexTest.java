@@ -205,13 +205,13 @@ public class RecordAccessWithIndexTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected 'string', found '(string|int)?'", 26, 16);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected 'string', found 'fieldOne|fieldTwo|0'", 58, 40);
+                "incompatible types: expected 'string', found 'FiniteOne'", 58, 40);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected 'string', found '0|1'", 59, 40);
+                "incompatible types: expected 'string', found 'FiniteTwo'", 59, 40);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected 'string', found 'fieldOne|fieldTwo|0'", 62, 40);
+                "incompatible types: expected 'string', found 'FiniteOne'", 62, 40);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected 'string', found '0|1'", 63, 40);
+                "incompatible types: expected 'string', found 'FiniteTwo'", 63, 40);
         BAssertUtil.validateError(negativeResult, i++,
                 "invalid record member access expression: value space 'NoIntersection' " +
                         "out of range", 64, 40);

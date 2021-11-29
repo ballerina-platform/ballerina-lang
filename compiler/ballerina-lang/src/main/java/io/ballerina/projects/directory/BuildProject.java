@@ -21,7 +21,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -43,6 +42,7 @@ import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -57,7 +57,6 @@ import java.util.Set;
 
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
-import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getDependenciesTomlContent;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
@@ -75,7 +74,7 @@ public class BuildProject extends Project {
      * @return build project
      */
     public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
-        return load(environmentBuilder, projectPath, new BuildOptionsBuilder().build());
+        return load(environmentBuilder, projectPath, BuildOptions.builder().build());
     }
 
     /**
@@ -85,7 +84,7 @@ public class BuildProject extends Project {
      * @return BuildProject instance
      */
     public static BuildProject load(Path projectPath) {
-        return load(projectPath, new BuildOptionsBuilder().build());
+        return load(projectPath, BuildOptions.builder().build());
     }
 
     /**
@@ -156,6 +155,14 @@ public class BuildProject extends Project {
     }
 
     @Override
+    public Project duplicate() {
+        BuildOptions duplicateBuildOptions = BuildOptions.builder().build().acceptTheirs(buildOptions());
+        BuildProject buildProject = new BuildProject(
+                ProjectEnvironmentBuilder.getDefaultBuilder(), this.sourceRoot, duplicateBuildOptions);
+        return cloneProject(buildProject);
+    }
+
+    @Override
     public DocumentId documentId(Path file) {
         if (isFilePathInProject(file)) {
             Path parent = Optional.of(file.toAbsolutePath().getParent()).get();
@@ -200,7 +207,7 @@ public class BuildProject extends Project {
     }
 
     public void save() {
-        Path buildFilePath = this.sourceRoot.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        Path buildFilePath = this.targetDir().resolve(BUILD_FILE);
         boolean shouldUpdate = this.currentPackage().getResolution().autoUpdate();
         // if build file does not exists
 
@@ -399,7 +406,8 @@ public class BuildProject extends Project {
     }
 
     private static void writeBuildFile(Path buildFilePath) {
-        BuildJson buildJson = new BuildJson(System.currentTimeMillis(), System.currentTimeMillis());
+        BuildJson buildJson = new BuildJson(System.currentTimeMillis(), System.currentTimeMillis(),
+                RepoUtils.getBallerinaShortVersion());
         writeBuildFile(buildFilePath, buildJson);
     }
 

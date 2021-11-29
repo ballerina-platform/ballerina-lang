@@ -19,6 +19,7 @@ package org.ballerinalang.test.runtime;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
@@ -58,7 +59,9 @@ public class Main {
         int result;
 
         if (args.length >= 3) {
-            Path testCache = Paths.get(args[0]);
+            Path targetPath = Paths.get(args[0]);
+            Path testCache = targetPath.resolve(ProjectConstants.CACHES_DIR_NAME)
+                            .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
             boolean report = Boolean.parseBoolean(args[1]);
             boolean coverage = Boolean.parseBoolean(args[2]);
 
@@ -95,7 +98,7 @@ public class Main {
 
                         Path jsonTmpSummaryPath = testCache.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE);
                         result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, jsonTmpSummaryPath,
-                                classLoader);
+                                targetPath, classLoader);
                         exitStatus = (result == 1) ? result : exitStatus;
                     }
                 } else {
@@ -110,10 +113,10 @@ public class Main {
     }
 
     private static int startTestSuit(Path sourceRootPath, TestSuite testSuite, Path jsonTmpSummaryPath,
-                                     ClassLoader classLoader) throws IOException {
+                                     Path targetPath, ClassLoader classLoader) throws IOException {
         int exitStatus = 0;
         try {
-            TesterinaUtils.executeTests(sourceRootPath, testSuite, classLoader);
+            TesterinaUtils.executeTests(sourceRootPath, targetPath, testSuite, classLoader);
         } catch (RuntimeException e) {
             exitStatus = 1;
         } finally {

@@ -56,6 +56,13 @@
       "detail": "String",
       "sortText": "A",
       "insertText": "visibility=\"${1:}\""
+    },
+    {
+      "label": "icon",
+      "kind": "Snippet",
+      "detail": "String",
+      "sortText": "A",
+      "insertText": "icon=\"${1:}\""
     }
   ]
 }

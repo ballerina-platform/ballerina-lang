@@ -66,7 +66,7 @@ public class EditorSimulator {
         }
 
         Path path = Paths.get(projectPath);
-        logger.info("Using project: {}", path.toString());
+        logger.info("Using project: {}, path: {}", path.toString(), projectPath);
 
         List<Path> balFiles = Files.list(path)
                 .filter(Files::isRegularFile)

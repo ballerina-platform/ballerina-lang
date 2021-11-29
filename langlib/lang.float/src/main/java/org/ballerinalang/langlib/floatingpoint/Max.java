@@ -31,12 +31,13 @@ package org.ballerinalang.langlib.floatingpoint;
 //)
 public class Max {
 
+    private Max() {
+    }
+
     public static double max(double[] ns) {
         double max = Double.NEGATIVE_INFINITY;
-        int size = ns.length;
-        for (int i = 0; i < size; i++) {
-            double current = ns[i];
-            max = current >= max ? current : max;
+        for (double current : ns) {
+            max = Math.max(current, max);
         }
         return max;
     }

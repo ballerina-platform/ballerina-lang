@@ -653,6 +653,7 @@ class NodeFinder extends BaseVisitor {
     public void visit(BLangTypeInit typeInit) {
         lookupNode(typeInit.userDefinedType);
         lookupNodes(typeInit.argsExpr);
+        setEnclosingNode(typeInit, typeInit.pos);
     }
 
     @Override
@@ -833,6 +834,7 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
         lookupNode(bLangNamedArgsExpression.expr);
+        setEnclosingNode(bLangNamedArgsExpression.name, bLangNamedArgsExpression.name.pos);
     }
 
     @Override
@@ -1368,7 +1370,8 @@ class NodeFinder extends BaseVisitor {
     }
 
     private boolean setEnclosingNode(BLangNode node, Location pos) {
-        if (PositionUtil.withinRange(this.range, pos) && this.enclosingNode == null) {
+        if (PositionUtil.withinRange(this.range, pos)
+                && (this.enclosingNode == null || PositionUtil.withinRange(pos.lineRange(), this.enclosingNode.pos))) {
             this.enclosingNode = node;
             return true;
         }
