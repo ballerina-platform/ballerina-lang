@@ -4,6 +4,7 @@ NAME
 SYNOPSIS
        bal doc 
        bal doc <package-path>
+       bal doc [--target-dir] <target-directory-path>
        bal doc <package-path> [-o | --output] <output-path>]
        bal doc [--offline] [--experimental] <package-path>
 
@@ -13,17 +14,21 @@ DESCRIPTION
 
 OPTIONS
        -o <output>, --output <output>
-           Write the output to the given folder.
+          Write the output to the given folder.
 
        -e, --exclude
-           Exclude the given list of modules.
+          Exclude the given list of modules.
 
        --experimental
-           Enable the experimental language features.
+          Enable the experimental language features.
 
        --offline
-            Build offline using the local artifacts without downloading the latest artifacts of 
-            the dependencies from the remote repository (Ballerina Central).
+          Build offline using the local artifacts without downloading the latest artifacts of
+          the dependencies from the remote repository (Ballerina Central).
+
+       --target-dir
+          Target directory path.
+
 
 EXAMPLES
        Generate API documentation for the current package.
