@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
@@ -286,6 +287,9 @@ public class Type {
                 }
             });
             type = intersectionType;
+        } else if (symbol instanceof StreamTypeSymbol) {
+            StreamTypeSymbol streamTypeSymbol = (StreamTypeSymbol) symbol;
+            type = fromSemanticSymbol(streamTypeSymbol.typeParameter());
         } else if (symbol instanceof TypeSymbol) {
             type = new PrimitiveType(((TypeSymbol) symbol).signature());
         }
