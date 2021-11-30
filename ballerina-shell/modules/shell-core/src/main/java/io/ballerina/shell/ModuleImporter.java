@@ -81,18 +81,21 @@ public class ModuleImporter {
      * @return import statement.
      */
     public String getImportStatement(String module) {
-        String statement = "import ";
+        String importStatement = "import ";
         String langModule = LANG + "." + module;
+        String finalStatement = null;
         for (Package pkg : packageList) {
             if (pkg.packageName().value().equals(module)) {
-                statement = statement + pkg.packageOrg().toString() + '/' + pkg.packageName().value();
+                finalStatement = importStatement + pkg.packageOrg().toString() + '/' + pkg.packageName().value();
+                break;
             }
             if (pkg.packageName().value().equals(langModule)) {
-                statement = statement + pkg.packageOrg().toString() + '/' + LANG + "." + module;
+                finalStatement = importStatement + pkg.packageOrg().toString() + '/' + LANG + "." + module;
+                break;
             }
         }
 
-        return statement;
+        return finalStatement;
     }
 
     /**
