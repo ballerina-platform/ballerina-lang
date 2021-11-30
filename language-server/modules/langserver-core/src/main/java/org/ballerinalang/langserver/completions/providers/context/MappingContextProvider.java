@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -126,16 +127,13 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
                 if (symbol.kind() == WORKER) {
                     sameType = recFields.get(symbolName.get()).typeDescriptor().signature()
                             .equals(typeDescriptor.get().signature());
+                } else if (symbol.kind() == VARIABLE && typeDescriptor.get().typeKind() == TypeDescKind.FUTURE) {
+                        sameType = ((FutureTypeSymbol) typeDescriptor.get()).typeParameter().get().signature()
+                                .equals(recFields.get(symbolName.get()).typeDescriptor().signature());
                 } else {
-                    if (symbol.kind() == VARIABLE && typeDescriptor.get().typeKind() == TypeDescKind.FUTURE) {
-                        sameType = typeDescriptor.get().signature().contains(recFields.get(symbolName.get())
-                                    .typeDescriptor().signature());
-                    } else {
-                        sameType = recFields.get(symbolName.get()).typeDescriptor().typeKind()
-                                == typeDescriptor.get().typeKind();
-                    }
+                    sameType = recFields.get(symbolName.get()).typeDescriptor().typeKind()
+                            == typeDescriptor.get().typeKind();
                 }
-
                 if (sameType) {
                     symbolList.add(symbol);
                 }
