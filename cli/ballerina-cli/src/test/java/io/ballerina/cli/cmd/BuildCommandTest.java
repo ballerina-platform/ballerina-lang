@@ -239,7 +239,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("foo-winery-0.1.0.jar");
         Path execPath = projectPath.resolve("target").resolve("bin").resolve("winery.jar");
         String generatedSource = "foo/winery/0/dummyfunc-generated_1.class";
-        String generatedResource = "resources/winery/openapi-spec.yaml";
+        String generatedResource = "resources/foo/winery/0/openapi-spec.yaml";
 
         JarFile thinJar = new JarFile(thinJarPath.toString());
         JarFile execJar = new JarFile(execPath.toString());
