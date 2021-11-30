@@ -138,7 +138,7 @@ public class CustomServiceClientCapabilities extends BallerinaClientCapability {
 }
 ```
 
-The client capability setter specifies the server capability setting approach. For the server extensions, there is no need to override the `build` methods, since the default behaviour would be enough.
+The client capability setter specifies the client capability setting approach. For the server extensions, there is no need to override the `build` methods, since the default behavior would be enough.
 
 ```Java
 @JavaSPIService("org.ballerinalang.langserver.commons.registration.BallerinaClientCapabilitySetter")
