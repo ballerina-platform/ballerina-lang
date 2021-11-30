@@ -11,7 +11,7 @@ The Language Server Protocol(LSP) defines various namespaces for LSP operations.
 
 By default, the language server protocol defines two services as the `WorkspaceService` and the `TextDocumentService`.
 
-With this extended service capability we are are going to introduce an extensible API to allow the third parties to bind custom services and extend the Language Server Protocol's default behaviour.
+With the extended service capability, we are are going to introduce an extensible API to allow the third parties to bind custom services and extend the Language Server Protocol's default behavior.
 
 <a name="ComponentsOfAService"></a>
 ## Components of a Service
