@@ -52,6 +52,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -65,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -283,9 +286,6 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
-        if (!(exprStmtNode.expr instanceof BLangInvocation)) {
-            return;
-        }
         this.acceptNode(exprStmtNode.expr, symbolEnv);
     }
 
@@ -613,6 +613,21 @@ public class EnvironmentResolver extends BaseVisitor {
             this.scope = blockEnv;
             this.acceptNode(matchClause.blockStmt, blockEnv);
         }
+    }
+
+    @Override
+    public void visit(BLangCheckedExpr checkedExpr) {
+        this.acceptNode(checkedExpr.expr, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangCheckPanickedExpr checkPanickedExpr) {
+        this.acceptNode(checkPanickedExpr.expr, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangTrapExpr trapExpr) {
+        this.acceptNode(trapExpr.expr, this.symbolEnv);
     }
 
     private void acceptNode(BLangNode node, SymbolEnv env) {
