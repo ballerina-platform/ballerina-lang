@@ -470,8 +470,8 @@ public class BIRPackageSymbolEnter {
 
         byte[] docBytes = readDocBytes(dataInStream);
 
-        // Skip annotation attachments for now
-        dataInStream.skip(dataInStream.readLong());
+        // Read annotation attachments
+        List<BLangAnnotationAttachment> annotAttachments = getAnnotationsAttachments(dataInStream);
 
         BType type = readBType(dataInStream);
 
@@ -506,6 +506,11 @@ public class BIRPackageSymbolEnter {
         symbol.flags = flags;
 
         defineMarkDownDocAttachment(symbol, docBytes);
+
+        // Set annotations
+        if (symbol instanceof BTypeDefinitionSymbol && annotAttachments.size() > 0) {
+            ((BTypeDefinitionSymbol) symbol).annAttachments.addAll(annotAttachments);
+        }
 
         if (type.tsymbol.name == Names.EMPTY && type.tag != TypeTags.INVOKABLE) {
             type.tsymbol.name = symbol.name;
