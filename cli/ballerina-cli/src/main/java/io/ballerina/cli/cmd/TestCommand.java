@@ -97,6 +97,16 @@ public class TestCommand implements BLauncherCmd {
         this.coverageFormat = coverageFormat;
     }
 
+    public TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                       Boolean testReport, Path targetDir) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.testReport = testReport;
+        this.targetDir = targetDir;
+    }
+
     @CommandLine.Option(names = {"--offline"}, description = "Builds/Compiles offline without downloading " +
             "dependencies.")
     private Boolean offline;
@@ -146,6 +156,9 @@ public class TestCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--dump-build-time", description = "calculate and dump build time", hidden = true)
     private Boolean dumpBuildTime;
+
+    @CommandLine.Option(names = "--target-dir", description = "target directory path")
+    private Path targetDir;
 
     private static final String testCmd = "bal test [--offline]\n" +
             "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
@@ -256,7 +269,9 @@ public class TestCommand implements BLauncherCmd {
     }
 
     private BuildOptions constructBuildOptions() {
-        return BuildOptions.builder()
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+
+        buildOptionsBuilder
                 .setCodeCoverage(coverage)
                 .setExperimental(experimentalFlag)
                 .setOffline(offline)
@@ -265,6 +280,12 @@ public class TestCommand implements BLauncherCmd {
                 .setObservabilityIncluded(observabilityIncluded)
                 .setDumpBuildTime(dumpBuildTime)
                 .build();
+
+        if (targetDir != null) {
+            buildOptionsBuilder.targetDir(targetDir.toString());
+        }
+
+        return buildOptionsBuilder.build();
     }
 
     @Override
