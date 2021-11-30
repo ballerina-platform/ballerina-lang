@@ -128,7 +128,8 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
                             .equals(typeDescriptor.get().signature());
                 } else {
                     if (symbol.kind() == VARIABLE && typeDescriptor.get().typeKind() == TypeDescKind.FUTURE) {
-                        sameType = typeDescriptor.get().signature().contains(recFields.get(symbolName.get()).typeDescriptor().signature());
+                        sameType = typeDescriptor.get().signature().contains(recFields.get(symbolName.get())
+                                    .typeDescriptor().signature());
                     } else {
                         sameType = recFields.get(symbolName.get()).typeDescriptor().typeKind()
                                 == typeDescriptor.get().typeKind();
