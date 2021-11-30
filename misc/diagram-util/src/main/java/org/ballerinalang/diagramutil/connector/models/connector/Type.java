@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -44,7 +45,9 @@ import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import org.ballerinalang.diagramutil.connector.models.connector.types.ArrayType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.EnumType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.ErrorType;
+import org.ballerinalang.diagramutil.connector.models.connector.types.InclusionType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.IntersectionType;
+import org.ballerinalang.diagramutil.connector.models.connector.types.ObjectType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.PrimitiveType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.RecordType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.StreamType;
@@ -290,6 +293,22 @@ public class Type {
         } else if (symbol instanceof StreamTypeSymbol) {
             StreamTypeSymbol streamTypeSymbol = (StreamTypeSymbol) symbol;
             type = fromSemanticSymbol(streamTypeSymbol.typeParameter());
+        } else if (symbol instanceof ObjectTypeSymbol) {
+            ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) symbol;
+            ObjectType objectType = new ObjectType();
+            objectTypeSymbol.fieldDescriptors().forEach((typeName, typeSymbol) -> {
+                Type semanticSymbol = fromSemanticSymbol(typeSymbol);
+                if (semanticSymbol != null) {
+                    objectType.fields.add(semanticSymbol);
+                }
+            });
+            objectTypeSymbol.typeInclusions().forEach(typeSymbol -> {
+                Type semanticSymbol = fromSemanticSymbol(typeSymbol);
+                if (semanticSymbol != null) {
+                    objectType.fields.add(new InclusionType(semanticSymbol));
+                }
+            });
+            type = objectType;
         } else if (symbol instanceof TypeSymbol) {
             type = new PrimitiveType(((TypeSymbol) symbol).signature());
         }
