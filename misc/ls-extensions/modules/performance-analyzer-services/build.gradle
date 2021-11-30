@@ -29,12 +29,15 @@ dependencies {
     compileOnly project(':ballerina-lang')
     compileOnly project(':ballerina-tools-api')
     compileOnly project(':language-server:language-server-commons')
+    implementation "io.swagger.core.v3:swagger-models"
     implementation ("io.swagger.parser.v3:swagger-parser-v2-converter") {
         exclude group: "io.swagger", module: "swagger-compat-spec-parser"
         exclude group: "org.slf4j", module: "slf4j-ext"
         exclude group: "javax.validation", module: "validation-api"
         exclude group: 'com.google.guava', module: 'guava'
     }
+    implementation 'com.google.guava:guava:"${project.guavaVersion}"'
+    implementation 'com.google.code.gson:gson:"${project.gsonVersion}"'
     compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
 
     testCompile 'org.testng:testng'

@@ -30,13 +30,15 @@ dependencies {
     compileOnly project(':formatter:formatter-core')
     compileOnly project(':language-server:language-server-commons')
     compileOnly "com.fasterxml.jackson.core:jackson-databind"
+    implementation "io.swagger.core.v3:swagger-models"
     implementation ("io.swagger.parser.v3:swagger-parser-v2-converter") {
         exclude group: "io.swagger", module: "swagger-compat-spec-parser"
         exclude group: "org.slf4j", module: "slf4j-ext"
         exclude group: "javax.validation", module: "validation-api"
         exclude group: 'com.google.guava', module: 'guava'
     }
-    compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
+    implementation 'com.google.guava:guava:30.0-jre'
+    compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
 
     testCompile 'org.testng:testng'
     testCompile project(':ballerina-parser')
