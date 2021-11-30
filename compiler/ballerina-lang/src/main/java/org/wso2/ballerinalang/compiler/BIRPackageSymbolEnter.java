@@ -26,6 +26,7 @@ import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.ConstrainedType;
 import org.ballerinalang.model.types.IntersectableReferenceType;
@@ -82,8 +83,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
@@ -423,12 +429,12 @@ public class BIRPackageSymbolEnter {
             }
         }
 
-        // Read annotation attachments
-        // Skip annotation attachments for now
-        dataInStream.skip(dataInStream.readLong());
+        // Read annotation attachments and add to the invokable symbol
+        invokableSymbol.annAttachments.addAll(getAnnotationsAttachments(dataInStream));
 
-        // Skip return type annotations
-        dataInStream.skip(dataInStream.readLong());
+        // Read return-type annotations and add to the type-symbol
+        BInvokableTypeSymbol typeSymbol = (BInvokableTypeSymbol) invokableSymbol.type.tsymbol;
+        typeSymbol.returnTypeAnnots = getAnnotationsAttachments(dataInStream);
 
         // set parameter symbols to the function symbol
         setParamSymbols(invokableSymbol, dataInStream);
@@ -849,6 +855,86 @@ public class BIRPackageSymbolEnter {
             readBType(dataInStream);
             getStringCPEntryValue(dataInStream);
         }
+    }
+
+    private List<BLangAnnotationAttachment> getAnnotationsAttachments(DataInputStream dataInStream) throws IOException {
+        long skipLength = dataInStream.readLong();  // Read the skippable length
+
+        List<BLangAnnotationAttachment> annotAttachments = new ArrayList<>();
+        int noOfAnnotationAttachments = dataInStream.readInt();
+        for (int i = 0; i < noOfAnnotationAttachments; i++) {
+            BLangAnnotationAttachment bLangAnnotationAttachment = new BLangAnnotationAttachment();
+            PackageID pkgId = getPackageId(dataInStream.readInt()); // Read and get package-ID
+            Location pos = readPosition(dataInStream);  // Read and get the location
+
+            // Set up annotation name
+            String annotTagRef = getStringCPEntryValue(dataInStream.readInt()); // Read and get annotation tag Reference
+            IdentifierNode annotName = new BLangIdentifier();
+            annotName.setValue(annotTagRef);
+            bLangAnnotationAttachment.setAnnotationName(annotName);
+
+            setAnnotAttachment(bLangAnnotationAttachment, pkgId, pos, dataInStream);
+            annotAttachments.add(bLangAnnotationAttachment);
+        }
+
+        return annotAttachments;
+    }
+
+    private void setAnnotAttachment(BLangAnnotationAttachment bLangAnnotationAttachment,
+                                    PackageID pkgId, Location pos,
+                                    DataInputStream dataInStream) throws IOException {
+        int noOfAnnotationValues = dataInStream.readInt(); // Read no of annotation values
+
+        BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(0L, Set.of(),
+                Names.fromString(bLangAnnotationAttachment.getAnnotationName().getValue()),
+                Names.fromString(bLangAnnotationAttachment.getAnnotationName().getValue()), // TODO: NPE
+                pkgId, null, this.env.pkgSymbol, pos, toOrigin(Integer.valueOf(3).byteValue()));
+        annotationSymbol.type = new BAnnotationType(annotationSymbol);
+
+        List<BLangExpression> exprs = new ArrayList<>();
+        for (int j = 0; j < noOfAnnotationValues; j++) {
+            exprs.add(readAnnotation(dataInStream));
+        }
+
+        bLangAnnotationAttachment.setExpression(exprs.get(0));
+        bLangAnnotationAttachment.annotationSymbol = annotationSymbol;
+    }
+
+    private BLangExpression readAnnotation(DataInputStream dataInStream) throws IOException {
+        BType bType = readBType(dataInStream);  // Read and get the type of the annotation
+        if (bType.tag == TypeTags.ARRAY) {
+            return readAnnotationArray(dataInStream);
+        } else if (bType.tag == TypeTags.RECORD || bType.tag == TypeTags.MAP) {
+            return readAnnotationRecord(dataInStream);
+        } else {
+            BLangConstantValue constValue = readConstLiteralValue(bType, dataInStream);
+            return new BLangLiteral(constValue.value, constValue.type);
+        }
+    }
+
+    private BLangRecordLiteral readAnnotationRecord(DataInputStream dataInStream) throws IOException {
+        BLangRecordLiteral recordLiteral = new BLangRecordLiteral();
+        int entryMapSize = dataInStream.readInt();  //  Read size of the entries in annotation-map
+        for (int i = 0; i < entryMapSize; i++) {
+            String mapKey = getStringCPEntryValue(dataInStream.readInt());  // Read and get key
+            BLangLiteral keyLiteral = new BLangLiteral();
+            keyLiteral.setValue(mapKey);
+            keyLiteral.setOriginalValue(mapKey);
+            BLangRecordLiteral.BLangRecordKey recordKey = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
+            BLangExpression expr = readAnnotation(dataInStream);
+            recordLiteral.getFields().add(new BLangRecordLiteral.BLangRecordKeyValueField(recordKey, expr));
+        }
+        return recordLiteral;
+    }
+
+    private BLangListConstructorExpr.BLangArrayLiteral readAnnotationArray(DataInputStream dataInStream)
+            throws IOException {
+        BLangListConstructorExpr.BLangArrayLiteral arrayLiteral = new BLangListConstructorExpr.BLangArrayLiteral();
+        int arraySize = dataInStream.readInt();  // Read annotation array size
+        for (int i = 0; i < arraySize; i++) {
+            arrayLiteral.exprs.add(readAnnotation(dataInStream));
+        }
+        return arrayLiteral;
     }
 
     /**
