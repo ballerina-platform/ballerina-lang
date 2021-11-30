@@ -4,7 +4,7 @@ NAME
 SYNOPSIS
        bal test
        bal test [--debug] <port>
-       bal test [--offline] [--rerun-failed] [--dump-build-time] [--experimental] [--observability-included]
+       bal test [--offline] [--rerun-failed] [--experimental] [--observability-included]
        bal test [--code-coverage] [--coverage-format] <xml> [--test-report]
        bal test [<ballerina-file-path> | <ballerina-package-path>] [--list-groups]
        bal test [<ballerina-file-path> | <ballerina-package-path>] [--groups] <test_group, ...>
