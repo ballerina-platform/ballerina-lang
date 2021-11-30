@@ -15,7 +15,7 @@ With this extended service capability we are are going to introduce an extensibl
 
 <a name="ComponentsOfAService"></a>
 ## Components of a Service
-In order to register a new service there are three must have components. 
+In order to register a new service, there are three must have components. 
 1. Service Implementation
 2. Server Capability Registration
 3. Client Capability Registration
