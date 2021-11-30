@@ -74,7 +74,7 @@ public class TypeReferenceTSymbolTest {
         assertEquals(definition.kind(), TYPE_DEFINITION);
         assertEquals(definition.getName().get(), type.getName().get());
         assertEquals(((TypeDefinitionSymbol) definition).documentation().get().description().get(),
-                     "Represents a person.");
+                "Represents a person.");
         assertSame(type.definition(), definition);
     }
 
@@ -103,7 +103,7 @@ public class TypeReferenceTSymbolTest {
     @Test
     public void testRecordField() {
         Optional<Symbol> symbol = model.symbol(srcFile, from(44, 7));
-        TypeSymbol variableSymbol = ((VariableSymbol)symbol.get()).typeDescriptor();
+        TypeSymbol variableSymbol = ((VariableSymbol) symbol.get()).typeDescriptor();
         assertEquals(variableSymbol.typeKind(), TypeDescKind.RECORD);
         BRecordType varType = (BRecordType) ((AbstractTypeSymbol) variableSymbol).getBType();
         Map<String, BField> recordFields = varType.fields;
