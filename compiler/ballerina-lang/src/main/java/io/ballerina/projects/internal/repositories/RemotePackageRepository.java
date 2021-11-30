@@ -187,7 +187,7 @@ public class RemotePackageRepository implements PackageRepository {
         return new ArrayList<>(
             Stream.of(filesystem, remote)
                 .flatMap(Collection::stream).collect(Collectors.toMap(
-                    ImportModuleResponse::packageDescriptor, Function.identity(),
+                    ImportModuleResponse::importModuleRequest, Function.identity(),
                     (ImportModuleResponse x, ImportModuleResponse y) -> {
                         if (y.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
                             return x;
