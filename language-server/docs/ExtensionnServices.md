@@ -1,5 +1,5 @@
 # Writing Extended Services for Language Server
-- <a href="#WhatIsAService">What is a Service</a>
+- <a href="#WhatIsAService">What is a Service?</a>
 - <a href="#ComponentsOfAService">Components of a Service</a>
     - <a href="#ServiceImplementation">Service Implementation</a>
     - <a href="#ServerCapability">Server Capability Registration</a>
