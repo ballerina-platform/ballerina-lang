@@ -261,14 +261,14 @@ public class CliProvider implements ConfigProvider {
                 matchingValues.add(value);
             }
         }
+        if (matchingValues.size() == 1) {
+            return matchingValues.get(0);
+        }
         String typeName = IdentifierUtils.decodeIdentifier(finiteType.toString());
         if (matchingValues.isEmpty()) {
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, arg, key.variable, typeName, arg.value);
         }
-        if (matchingValues.size() != 1) {
-            throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, arg, key.variable, typeName);
-        }
-        return matchingValues.get(0);
+        throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, arg, key.variable, typeName);
     }
 
     @Override

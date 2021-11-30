@@ -335,14 +335,10 @@ public class Utils {
     private static boolean checkDoubleValue(BFiniteType type, int tag, double doubleValue) {
         for (Object value : type.getValueSpace()) {
             if (TypeChecker.getType(value).getTag() == tag) {
-                double member;
                 if (tag == TypeTags.DECIMAL_TAG) {
-                    member = ((DecimalValue) value).floatValue();
+                    return doubleValue == ((DecimalValue) value).floatValue();
                 } else {
-                    member = (double) value;
-                }
-                if (doubleValue == member) {
-                    return true;
+                    return doubleValue == (double) value;
                 }
             }
         }
