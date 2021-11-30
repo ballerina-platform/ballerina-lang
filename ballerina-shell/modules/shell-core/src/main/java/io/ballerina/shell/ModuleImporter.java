@@ -55,6 +55,12 @@ public class ModuleImporter {
         packageList = getPackagesFromDistRepo();
     }
 
+    /**
+     * Check module availability in the distribution.
+     *
+     * @param module module name.
+     * @return availability of the module.
+     */
     public boolean isModuleInDistRepo(String module) {
         boolean isModuleInDistRepo = false;
         String langModule = LANG + "." + module;
@@ -68,6 +74,12 @@ public class ModuleImporter {
         return isModuleInDistRepo;
     }
 
+    /**
+     * Returns import statement.
+     *
+     * @param module input module.
+     * @return import statement.
+     */
     public String getImportStatement(String module) {
         String statement = "import ";
         String langModule = LANG + "." + module;
@@ -83,6 +95,12 @@ public class ModuleImporter {
         return statement;
     }
 
+    /**
+     * Return found undefined modules.
+     *
+     * @param diagnostics collection of evaluator diagnostics.
+     * @return distinct list of module errors.
+     */
     public List<String> undefinedModules(Collection<Diagnostic> diagnostics) {
         List<String> moduleErrors = new ArrayList<>();
         for (Diagnostic diagnostic : diagnostics) {
@@ -95,6 +113,9 @@ public class ModuleImporter {
         return moduleErrors.stream().distinct().collect(Collectors.toList());
     }
 
+    /**
+     * Get packages available in the distributions.
+     */
     private List<Package> getPackagesFromDistRepo() {
         DefaultEnvironment environment = new DefaultEnvironment();
         // Creating a Ballerina distribution instance
