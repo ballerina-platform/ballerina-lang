@@ -154,7 +154,7 @@ public class BuildCommand implements BLauncherCmd {
             description = "list conflicted classes when generating executable")
     private Boolean listConflictedClasses;
 
-    @CommandLine.Option(names = "--dump-build-time", hidden = true, description = "calculate and dump build time")
+    @CommandLine.Option(names = "--dump-build-time", description = "calculate and dump build time", hidden = true)
     private Boolean dumpBuildTime;
 
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
