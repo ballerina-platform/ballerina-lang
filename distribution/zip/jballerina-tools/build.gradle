@@ -80,7 +80,11 @@ dependencies {
     dist "org.wso2.orbit.org.antlr:antlr4-runtime:${project.wso2OrbitAntlr4Version}"
     dist "org.apache.commons:commons-text:${project.apacheCommonsTextVersion}"
     dist "com.github.spullara.mustache.java:compiler:${project.spullaraMustacheCompilerVersion}"
+
+    dist "org.jetbrains.kotlin:kotlin-stdlib:${project.jetbrainsKotlinStdlibVersion}"
+    dist "org.jetbrains.kotlin:kotlin-stdlib-common:${project.jetbrainsKotlinStdlibCommonVersion}"
     dist "org.ow2.asm:asm:${project.ow2AsmVersion}"
+    dist "org.ow2.asm:asm-analysis:${project.ow2AsmAnalysisVersion}"
     dist "org.ow2.asm:asm-tree:${project.ow2AsmTreeVersion}"
     dist "org.ow2.asm:asm-util:${project.ow2AsmUtilVersion}"
     dist "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${project.jacksonDatatypeJsr310Version}"
