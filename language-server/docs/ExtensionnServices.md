@@ -77,7 +77,7 @@ default void init(LanguageServer langServer,
     // access and store the parameters
 }
 ```
-Instead of the `WorkspaceManager` this exposes the `WorkspaceManagerProxy`. The `WorkspaceManagerProxy` will expose both the default `WorkspaceManager` and the `expr` file scheme based workapace manager.
+Instead of the `WorkspaceManager`, this exposes the `WorkspaceManagerProxy`. The `WorkspaceManagerProxy` will expose both the default `WorkspaceManager` and the `expr` file scheme based workapace manager.
 
 <a name="ServerCapability"></a>
 ### Server Capability Registration
