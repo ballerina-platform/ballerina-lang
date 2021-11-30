@@ -20,42 +20,29 @@ import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.api.symbols.WorkerSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.WaitFieldNode;
 import io.ballerina.compiler.syntax.tree.WaitFieldsListNode;
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SymbolCompletionItem;
-import org.ballerinalang.langserver.completions.builder.VariableCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
-import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
-import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.WORKER;
 
 /**
@@ -64,7 +51,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.WORKER;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class WaitFieldsListNodeContext extends AbstractCompletionProvider<WaitFieldsListNode> {
+public class WaitFieldsListNodeContext extends MappingContextProvider<WaitFieldsListNode> {
 
     public WaitFieldsListNodeContext() {
         super(WaitFieldsListNode.class);
@@ -76,9 +63,7 @@ public class WaitFieldsListNodeContext extends AbstractCompletionProvider<WaitFi
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        NonTerminalNode evalNode = (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
-                || nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE)
-                ? nodeAtCursor.parent() : nodeAtCursor;
+        NonTerminalNode evalNode = getEvalNode(context);
 
         if (this.withinValueExpression(context, evalNode)) {
                 /*
@@ -98,69 +83,26 @@ public class WaitFieldsListNodeContext extends AbstractCompletionProvider<WaitFi
             (1) wait {<cursor>}
             (2) wait {fieldName: value, <cursor>}
              */
-            List<Pair<TypeSymbol, TypeSymbol>> recordTypeDesc = this.getRecordTypeDescs(context, node);
-            for (Pair<TypeSymbol, TypeSymbol> recordTypeSymbol : recordTypeDesc) {
-                RecordTypeSymbol rawType = (RecordTypeSymbol) (CommonUtil.getRawType(recordTypeSymbol.getLeft()));
-                Map<String, RecordFieldSymbol> fields = this.getValidFields(node, rawType);
-                completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(context, fields, recordTypeSymbol));
-                if (!fields.values().isEmpty()) {
-                    completionItems.add(CommonUtil.getFillAllStructFieldsItem(context, fields,
-                            recordTypeSymbol));
-                }
-                completionItems.addAll(this.getVariableCompletionsForFields(context, fields));
-            }
-
-            if (recordTypeDesc.isEmpty()) {
-                /*
-                Captures the following case within a mapping constructor for a map.
-                Eg: 
-                function init() {
-                    worker WA returns string { return ""; }
-                    map<string> myVar = wait {<cursor>};
-                }
-                 */
-                List<Symbol> variables = context.visibleSymbols(context.getCursorPosition()).stream()
-                        .filter(this.getVariableFilter())
-                        .collect(Collectors.toList());
-                completionItems.addAll(this.getCompletionItemList(variables, context));
-            }
+            completionItems.addAll(this.getFieldCompletionItems(context, node, evalNode));
         }
         this.sort(context, node, completionItems);
 
         return completionItems;
     }
 
-    private List<LSCompletionItem> getExpressionsCompletionsForQNameRef(BallerinaCompletionContext context,
-                                                                        QualifiedNameReferenceNode qNameRef) {
-        Predicate<Symbol> filter = symbol -> symbol instanceof VariableSymbol
-                || symbol.kind() == SymbolKind.FUNCTION;
-        List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
-
-        return this.getCompletionItemList(moduleContent, context);
+    @Override
+    protected boolean withinValueExpression(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {
+        if (evalNodeAtCursor.kind() != SyntaxKind.WAIT_FIELD) {
+            return false;
+        }
+        Token colon = ((WaitFieldNode) evalNodeAtCursor).colon();
+        int cursorPosInTree = context.getCursorPositionInTree();
+        int colonStart = colon.textRange().startOffset();
+        return cursorPosInTree > colonStart;
     }
-
-    private List<Pair<TypeSymbol, TypeSymbol>> getRecordTypeDescs(BallerinaCompletionContext context,
-                                                                  WaitFieldsListNode node) {
-        ContextTypeResolver typeResolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> resolvedType = node.apply(typeResolver);
-        if (resolvedType.isEmpty()) {
-            return Collections.emptyList();
-        }
-        TypeSymbol rawType = CommonUtil.getRawType(resolvedType.get());
-        if (rawType.typeKind() == TypeDescKind.RECORD) {
-            return Collections.singletonList(Pair.of(rawType, resolvedType.get()));
-        }
-        if (rawType.typeKind() == TypeDescKind.UNION) {
-            return ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
-                    .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.RECORD)
-                    .map(typeSymbol -> Pair.of(CommonUtil.getRawType(typeSymbol), typeSymbol))
-                    .collect(Collectors.toList());
-        }
-
-        return Collections.emptyList();
-    }
-
-    private Map<String, RecordFieldSymbol> getValidFields(WaitFieldsListNode node,
+    
+    @Override
+    protected Map<String, RecordFieldSymbol> getValidFields(WaitFieldsListNode node,
                                                           RecordTypeSymbol recordTypeSymbol) {
         List<String> missingFields = node.waitFields().stream()
                 .filter(field -> !field.isMissing() && field.kind() == SyntaxKind.WAIT_FIELD
@@ -177,57 +119,11 @@ public class WaitFieldsListNodeContext extends AbstractCompletionProvider<WaitFi
         return fieldSymbols;
     }
 
-    private Predicate<Symbol> getVariableFilter() {
+    @Override
+    protected Predicate<Symbol> getVariableFilter() {
         return (symbol -> (symbol.kind() == SymbolKind.VARIABLE
                         && ((VariableSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.FUTURE)
         || symbol.kind() == SymbolKind.WORKER);
-    }
-
-    private List<LSCompletionItem> getVariableCompletionsForFields(BallerinaCompletionContext ctx,
-                                                                   Map<String, RecordFieldSymbol> recFields) {
-        List<Symbol> visibleSymbols = ctx.visibleSymbols(ctx.getCursorPosition()).stream()
-                .filter(this.getVariableFilter())
-                .collect(Collectors.toList());
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        visibleSymbols.forEach(symbol -> {
-            TypeSymbol typeDescriptor;
-            String symbolName = symbol.getName().get();
-            if (symbol.kind() == VARIABLE) {
-                typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
-                if (recFields.containsKey(symbolName)
-                        && recFields.get(symbolName).typeDescriptor().kind() == typeDescriptor.kind()) {
-                    CompletionItem cItem = VariableCompletionItemBuilder.build((VariableSymbol) symbol, symbolName,
-                            CommonUtil.getModifiedTypeName(ctx, typeDescriptor));
-                    completionItems.add(new SymbolCompletionItem(ctx, symbol, cItem));
-                }
-            } else if (symbol.kind() == WORKER) {
-                typeDescriptor = ((WorkerSymbol) symbol).returnType();
-                if (recFields.containsKey(symbolName)
-                        && recFields.get(symbolName).typeDescriptor().signature().equals(typeDescriptor.signature())) {
-                    CompletionItem cItem = VariableCompletionItemBuilder.build((WorkerSymbol) symbol, symbolName,
-                            CommonUtil.getModifiedTypeName(ctx, typeDescriptor));
-                    completionItems.add(new SymbolCompletionItem(ctx, symbol, cItem));
-                }
-            }
-        });
-
-        return completionItems;
-    }
-
-    private boolean withinValueExpression(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {
-        Token colon = null;
-
-        if (evalNodeAtCursor.kind() == SyntaxKind.WAIT_FIELD) {
-            colon = ((WaitFieldNode) evalNodeAtCursor).colon();
-        } 
-
-        if (colon == null) {
-            return false;
-        }
-        int cursorPosInTree = context.getCursorPositionInTree();
-        int colonStart = colon.textRange().startOffset();
-
-        return cursorPosInTree > colonStart;
     }
     
     protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context) {

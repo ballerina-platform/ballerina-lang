@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.completions.builder;
 
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.api.symbols.WorkerSymbol;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -50,16 +49,6 @@ public final class VariableCompletionItemBuilder {
         return item;
     }
 
-    public static CompletionItem build(WorkerSymbol workerSymbol, String label, String type) {
-        CompletionItem item = new CompletionItem();
-        item.setLabel(label);
-        String[] delimiterSeparatedTokens = (label).split("\\.");
-        item.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
-        item.setDetail((type.equals("")) ? ItemResolverConstants.NONE : type);
-        setMeta(item, workerSymbol);
-        return item;
-    }
-
     private static void setMeta(CompletionItem item, VariableSymbol varSymbol) {
         item.setKind(CompletionItemKind.Variable);
         if (varSymbol == null) {
@@ -68,9 +57,5 @@ public final class VariableCompletionItemBuilder {
         if (varSymbol.documentation().isPresent() && varSymbol.documentation().get().description().isPresent()) {
             item.setDocumentation(varSymbol.documentation().get().description().get());
         }
-    }
-
-    private static void setMeta(CompletionItem item, WorkerSymbol workerSymbol) {
-        item.setKind(CompletionItemKind.Variable);
     }
 }
