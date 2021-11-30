@@ -458,14 +458,17 @@ public class BallerinaSemanticModel implements SemanticModel {
     private boolean withinRange(LineRange range, LineRange specifiedRange) {
         int startLine = range.startLine().line();
         int startOffset = range.startLine().offset();
+        int endLine = range.endLine().line();
+        int endOffset = range.endLine().offset();
 
         int specifiedStartLine = specifiedRange.startLine().line();
         int specifiedEndLine = specifiedRange.endLine().line();
         int specifiedStartOffset = specifiedRange.startLine().offset();
         int specifiedEndOffset = specifiedRange.endLine().offset();
 
-        return startLine >= specifiedStartLine && startLine <= specifiedEndLine &&
-                startOffset >= specifiedStartOffset && startOffset <= specifiedEndOffset;
+        return (startLine == specifiedStartLine && startOffset >= specifiedStartOffset
+                || startLine > specifiedStartLine)
+                && (endLine == specifiedEndLine && endOffset <= specifiedEndOffset || endLine < specifiedEndLine);
     }
 
     private void addToCompiledSymbols(Set<Symbol> compiledSymbols, Scope.ScopeEntry scopeEntry, Location cursorPos,
