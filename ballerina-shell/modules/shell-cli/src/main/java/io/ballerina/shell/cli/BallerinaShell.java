@@ -107,8 +107,9 @@ public class BallerinaShell {
             String rightPrompt = String.format("took %s ms", previousDuration.toMillis());
             rightPrompt = terminal.color(rightPrompt, TerminalAdapter.BRIGHT);
             boolean isRequiredModules = false;
+            String source = null;
             try {
-                String source = terminal.readLine(leftPrompt, rightPrompt).trim();
+                source = terminal.readLine(leftPrompt, rightPrompt).trim();
                 start = Instant.now();
                 if (!commandHandler.handle(source)) {
                     String result = evaluator.evaluate(source);
@@ -127,6 +128,12 @@ public class BallerinaShell {
                 if (modules.size() > 0) {
                     isRequiredModules = true;
                     importModules(moduleImporter, modules);
+                    try {
+                        terminal.println("");
+                        evaluator.evaluate(source);
+                    } catch (BallerinaShellException error) {
+                        terminal.error("\nCompilation aborted due to errors.");
+                    }
                 } else {
                     outputException(e);
                 }
@@ -301,6 +308,7 @@ public class BallerinaShell {
             } else {
                 terminal.error("\nFound missing module(s).");
             }
+
         } else {
             terminal.error("\nFound missing module(s).");
         }
