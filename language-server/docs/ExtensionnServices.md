@@ -44,7 +44,7 @@ public class CustomService implements ExtendedLanguageServerService {
 }
 ```
 
-As per the above snippet we can register the service and get it working without any other configuration associated with the service. 
+As depicted by the above snippet, we can register the service and get it working without any other configuration associated with the service. 
 The Ballerina Lannguage Server exposes context information for the use of the extension APIs to be used. Depending on the requirement. the extension developer can use different context information as follows,
 
 #### Default/ without overriding `init` method
