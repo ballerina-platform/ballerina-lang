@@ -9,7 +9,7 @@
       "label": "a",
       "kind": "Field",
       "detail": "Result.a",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "a: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -25,8 +25,8 @@
     {
       "label": "a",
       "kind": "Variable",
-      "detail": "future<int>",
-      "sortText": "B",
+      "detail": "future<int|error>",
+      "sortText": "F",
       "insertText": "a",
       "insertTextFormat": "Snippet"
     }

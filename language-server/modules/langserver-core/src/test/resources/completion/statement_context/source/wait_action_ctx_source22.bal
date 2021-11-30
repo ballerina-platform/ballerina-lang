@@ -8,7 +8,7 @@ type Result record {
         return 0;
     }
     
-    future<int> a = start getInt(); 
+    future<int|error> a = start getInt(); 
 
     Result r = wait {};
 }

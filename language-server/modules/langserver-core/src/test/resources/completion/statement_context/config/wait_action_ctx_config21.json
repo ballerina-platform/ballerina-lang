@@ -9,7 +9,7 @@
       "label": "WA",
       "kind": "Field",
       "detail": "Result.WA",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "WA: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -25,8 +25,8 @@
     {
       "label": "WA",
       "kind": "Variable",
-      "detail": "int|error",
-      "sortText": "B",
+      "detail": "worker",
+      "sortText": "F",
       "insertText": "WA",
       "insertTextFormat": "Snippet"
     }

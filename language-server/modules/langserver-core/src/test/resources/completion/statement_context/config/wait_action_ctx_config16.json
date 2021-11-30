@@ -271,7 +271,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "G",
       "filterText": "getString",
       "insertText": "getString()",
       "insertTextFormat": "Snippet"
@@ -280,7 +280,7 @@
       "label": "fstr",
       "kind": "Variable",
       "detail": "future<string>",
-      "sortText": "B",
+      "sortText": "F",
       "insertText": "fstr",
       "insertTextFormat": "Snippet"
     },
@@ -288,7 +288,7 @@
       "label": "WA",
       "kind": "Variable",
       "detail": "worker",
-      "sortText": "B",
+      "sortText": "F",
       "insertText": "WA",
       "insertTextFormat": "Snippet"
     },
@@ -302,7 +302,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "G",
       "filterText": "getInt",
       "insertText": "getInt()",
       "insertTextFormat": "Snippet"
@@ -311,7 +311,7 @@
       "label": "WB",
       "kind": "Variable",
       "detail": "worker",
-      "sortText": "B",
+      "sortText": "F",
       "insertText": "WB",
       "insertTextFormat": "Snippet"
     },
@@ -325,7 +325,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "G",
       "filterText": "main",
       "insertText": "main()",
       "insertTextFormat": "Snippet"
@@ -334,7 +334,7 @@
       "label": "r",
       "kind": "Variable",
       "detail": "Result",
-      "sortText": "B",
+      "sortText": "AB",
       "insertText": "r",
       "insertTextFormat": "Snippet"
     },
@@ -342,7 +342,7 @@
       "label": "fint",
       "kind": "Variable",
       "detail": "future<int>",
-      "sortText": "B",
+      "sortText": "F",
       "insertText": "fint",
       "insertTextFormat": "Snippet"
     }

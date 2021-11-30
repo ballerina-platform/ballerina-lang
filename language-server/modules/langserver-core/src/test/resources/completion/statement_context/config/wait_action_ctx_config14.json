@@ -9,7 +9,7 @@
       "label": "a",
       "kind": "Field",
       "detail": "Result.a",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "a: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "b",
       "kind": "Field",
       "detail": "Result.b",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "b: ${2:\"\"}",
       "insertTextFormat": "Snippet"
     },

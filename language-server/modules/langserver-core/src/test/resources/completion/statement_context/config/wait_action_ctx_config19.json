@@ -9,7 +9,7 @@
       "label": "fint",
       "kind": "Variable",
       "detail": "future<int>",
-      "sortText": "B",
+      "sortText": "F",
       "insertText": "fint",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "WA",
       "kind": "Variable",
       "detail": "worker",
-      "sortText": "B",
+      "sortText": "F",
       "insertText": "WA",
       "insertTextFormat": "Snippet"
     },
@@ -25,7 +25,7 @@
       "label": "WB",
       "kind": "Variable",
       "detail": "worker",
-      "sortText": "B",
+      "sortText": "AB",
       "insertText": "WB",
       "insertTextFormat": "Snippet"
     },
@@ -33,7 +33,7 @@
       "label": "fstr",
       "kind": "Variable",
       "detail": "future<string>",
-      "sortText": "B",
+      "sortText": "F",
       "insertText": "fstr",
       "insertTextFormat": "Snippet"
     }
