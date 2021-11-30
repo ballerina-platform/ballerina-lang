@@ -35,8 +35,6 @@ dependencies {
         exclude group: "javax.validation", module: "validation-api"
         exclude group: 'com.google.guava', module: 'guava'
     }
-    implementation 'com.google.guava:guava:"${project.guavaVersion}"' // Required during runtime
-    implementation 'com.google.code.gson:gson:"${project.gsonVersion}"' // Required during runtime
     compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
 
     testCompile 'org.testng:testng'
