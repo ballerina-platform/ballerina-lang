@@ -19,6 +19,7 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
+import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.Annotatable;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
@@ -48,7 +49,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
@@ -198,6 +201,17 @@ public class SymbolBIRTest {
         assertTrue(optionalAnnotatable.isPresent());
         List<AnnotationSymbol> returnTypeAnnotations = optionalAnnotatable.get().annotations();
         assertList(returnTypeAnnotations, expectedRetTypeAnnotations);
+    }
+
+    @Test
+    public void testAnnotatedTypeDef() {
+        Optional<Symbol> optionalSymbol = model.symbol(srcFile, from(39, 16));
+        assertTrue(optionalSymbol.isPresent());
+        BallerinaTypeReferenceTypeSymbol typeRefTypeSymbol = (BallerinaTypeReferenceTypeSymbol) optionalSymbol.get();
+        BTypeDefinitionSymbol bTypeDefSymbol = (BTypeDefinitionSymbol) typeRefTypeSymbol.tSymbol;
+        List<BLangAnnotationAttachment> annAttachments = bTypeDefSymbol.annAttachments;
+        assertEquals(annAttachments.size(), 1);
+        assertEquals(annAttachments.get(0).getAnnotationName().getValue(), "AnnotTypeDef");
     }
 
     @DataProvider(name = "ImportSymbolPosProvider")

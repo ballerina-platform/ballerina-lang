@@ -35,3 +35,7 @@ function testMethodUsage() {
 function testAnnotatedFunction() {
     testproject:foo(4);
 }
+
+function testAnnotatedTypeDef() {
+    testproject:AnnotatedTypeDef value = {val: 10};
+}

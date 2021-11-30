@@ -95,3 +95,8 @@ public class EmployeeObj {
         self.age = age;
     }
 }
+
+@AnnotTypeDef
+public type AnnotatedTypeDef record {|
+    int val;
+|};

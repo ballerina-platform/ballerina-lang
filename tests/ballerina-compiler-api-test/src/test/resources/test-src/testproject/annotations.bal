@@ -19,3 +19,5 @@ public annotation Annot Config on function;
 public annotation Optional on function;
 
 public annotation Returned on return;
+
+public annotation AnnotTypeDef on type;
