@@ -5071,12 +5071,13 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInferredTypedescDefaultNode inferTypedescExpr) {
-        if (expType.tag != TypeTags.TYPEDESC) {
+        BType referredType = types.getReferredType(expType);
+        if (referredType.tag != TypeTags.TYPEDESC) {
             dlog.error(inferTypedescExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType, symTable.typeDesc);
             resultType = symTable.semanticError;
             return;
         }
-        resultType = expType;
+        resultType = referredType;
     }
 
     @Override

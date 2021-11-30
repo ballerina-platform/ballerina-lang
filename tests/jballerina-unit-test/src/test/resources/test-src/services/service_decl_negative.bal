@@ -238,3 +238,28 @@ service DServ / on new DServListener() {
 service / on new DServListener() {
 
 }
+
+public type Int int;
+
+public isolated class ListenerWithNonNilInitReturnType {
+    public function init() returns Int? { // invalid object constructor return type 'Int?', expected a subtype of 'error?' containing '()'
+    }
+
+    public function attach(service object {} s, string[]|string|() name = ()) returns error? {
+    }
+
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
+    }
+
+    public function immediateStop() returns error? {
+    }
+
+    public function detach(service object {} s) returns error? {
+    }
+}
+
+service on new ListenerWithNonNilInitReturnType() { // error: incompatible types: expected 'listener', found '(ListenerWithNonNilInitReturnType|Int)'
+}
