@@ -7,7 +7,7 @@
 
 <a name="WhatIsAService"></a>
 ## What is a Service?
-The language server protocol defines various namespaces for the operations. For example, consider the [auto-ccompletion](https://microsoft.github.io/language-server-protocol/specifications/specification-3-16/#textDocument_completion) capability in the LSP. The auto-completion operation's JSON-RPC method is defined as `textDocument/completion`. Here, the `textDocument` prefix defines a namespace for the operation. Similarly the workspace's [watched file did change](https://microsoft.github.io/language-server-protocol/specifications/specification-3-16/#workspace_didChangeWatchedFiles) event in LSP is defined as `workspace/didChangeWatchedFiles` where the `workspace` denotes the namespace.
+The Language Server Protocol(LSP) defines various namespaces for LSP operations. For example, consider the [auto-ccompletion](https://microsoft.github.io/language-server-protocol/specifications/specification-3-16/#textDocument_completion) capability in the LSP. The auto-completion operation's JSON-RPC method is defined as `textDocument/completion`. Here, the `textDocument` prefix defines a namespace for the operation. Similarly the workspace's [watched file did change](https://microsoft.github.io/language-server-protocol/specifications/specification-3-16/#workspace_didChangeWatchedFiles) event in LSP is defined as `workspace/didChangeWatchedFiles` where the `workspace` denotes the namespace.
 
 By default, the language server protocol defines two services as the `WorkspaceService` and the `TextDocumentService`.
 
