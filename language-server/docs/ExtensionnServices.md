@@ -22,7 +22,7 @@ In order to register a new service, there are three must have components.
 
 <a name="ServiceImplementation"></a>
 ### Service Implementation
-The service implementation defines the service namespace and the service operation. The service is dynamically picked and registered at the server startup. The services will be registered with Java SPI implementation. In order to register a new service, following approach should be considered and adding the following annotation is mandatory.
+The service implementation defines the service namespace and the service operation. The service is dynamically picked and registered at the language server startup. The services will be registered with Java SPI implementation. In order to register a new service, following approach should be considered and adding the following annotation is mandatory.
 ```Java
 @JavaSPIService("org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService")
 ```
