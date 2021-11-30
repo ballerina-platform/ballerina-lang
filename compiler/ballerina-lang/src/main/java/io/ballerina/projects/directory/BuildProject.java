@@ -176,19 +176,26 @@ public class BuildProject extends Project {
                     moduleDirName = Optional.of(this.sourceRoot.getFileName()).get().toString();
                 }
 
-                if (Optional.of(parent.getFileName()).get().toString().equals(moduleDirName) || Optional.of(
-                        Optional.of(parent.getParent()).get().getFileName()).get().toString().equals(moduleDirName)) {
-                    Module module = this.currentPackage().module(moduleId);
+                Module module = this.currentPackage().module(moduleId);
+                if (Optional.of(parent.getFileName()).get().toString().equals(moduleDirName)) {
+                    // this is a source file
                     for (DocumentId documentId : module.documentIds()) {
                         if (module.document(documentId).name().equals(
                                 Optional.of(file.getFileName()).get().toString())) {
                             return documentId;
                         }
                     }
-                    for (DocumentId documentId : module.testDocumentIds()) {
-                        if (module.document(documentId).name().split(ProjectConstants.TEST_DIR_NAME + "/")[1]
-                                .equals(Optional.of(file.getFileName()).get().toString())) {
-                            return documentId;
+                } else if (Optional.of(parent.getFileName()).get().toString().equals(ProjectConstants.TEST_DIR_NAME)) {
+                    // this is a test file
+                    if (Optional.of(Optional.of(parent.getParent()).get().getFileName()).get().toString()
+                            .equals(moduleDirName)) {
+                        for (DocumentId documentId : module.testDocumentIds()) {
+                            String[] splitName = module.document(documentId).name()
+                                    .split(ProjectConstants.TEST_DIR_NAME + "/");
+                            if (splitName.length > 1 && splitName[1]
+                                    .equals(Optional.of(file.getFileName()).get().toString())) {
+                                return documentId;
+                            }
                         }
                     }
                 }
