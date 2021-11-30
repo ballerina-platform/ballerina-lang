@@ -183,7 +183,7 @@ public class TestCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validMultiModuleProjectWithTests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
         // build the project
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, true , false);
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
