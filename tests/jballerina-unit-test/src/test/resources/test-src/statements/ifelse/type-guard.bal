@@ -943,24 +943,16 @@ function testTypeGuardForCustomErrorPositive() returns [boolean, boolean] {
     boolean isGenericError = a1 is error && a2 is error;
     return [isSpecificError, isGenericError];
 }
+
 function testCustomErrorType() {
-    Details d = { message: "detail message" };
+    Details d = {message: "detail message"};
     MyError|MyErrorTwo e = error MyError(ERR_REASON, message = d.message);
-    if (e is MyErrorTwo) {
-        test:assertFail();
-    }
-    if (e is MyError) {
-    } else {
-        test:assertFail();
-    }
+    test:assertFalse(e is MyErrorTwo);
+    test:assertTrue(e is MyError);
+
     MyErrorTwo|MyError e1 = error MyError(ERR_REASON, message = d.message);
-    if (e1 is MyErrorTwo) {
-        test:assertFail();
-    }
-    if (e1 is MyError) {
-    } else {
-        test:assertFail();
-    }
+    test:assertFalse(e1 is MyErrorTwo);
+    test:assertTrue(e1 is MyError);
 }
 
 function testTypeGuardForCustomErrorNegative() returns boolean {

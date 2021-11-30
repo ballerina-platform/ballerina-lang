@@ -76,6 +76,13 @@ public class ServiceDeclTest {
     }
 
     @Test
+    public void testServiceDeclOnListenerThatMayReturnCustomError() {
+        CompileResult result = BCompileUtil.compileWithoutInitInvocation(
+                "test-src/services/service_decl_with_listener_returning_custom_error.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
     public void testServiceDeclAndListenerAttachmentsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/services/service_decl_negative.bal");
         int i = 0;
@@ -101,6 +108,10 @@ public class ServiceDeclTest {
         validateError(result, i++, "service absolute path or literal is required by listener", 209, 12);
         validateError(result, i++, "no implementation found for the method 'exec' of service declaration " +
                 "'object { function exec () returns ((any|error)); }'", 213, 1);
+        validateError(result, i++, "invalid object constructor return type 'Int?', expected a subtype of 'error?' " +
+                "containing '()'", 245, 36);
+        validateError(result, i++, "incompatible types: expected 'listener', found '" +
+                "(ListenerWithNonNilInitReturnType|Int)'", 264, 12);
         Assert.assertEquals(i, result.getErrorCount());
     }
 }

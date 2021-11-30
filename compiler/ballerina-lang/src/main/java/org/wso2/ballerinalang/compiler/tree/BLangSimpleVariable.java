@@ -36,6 +36,7 @@ import java.util.EnumSet;
  */
 public class BLangSimpleVariable extends BLangVariable implements SimpleVariableNode {
 
+    // BLangNodes
     public BLangIdentifier name;
 
     public BLangSimpleVariable() {
@@ -51,6 +52,16 @@ public class BLangSimpleVariable extends BLangVariable implements SimpleVariable
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override
