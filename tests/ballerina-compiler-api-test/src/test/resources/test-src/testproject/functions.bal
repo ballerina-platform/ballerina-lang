@@ -19,3 +19,11 @@ public function add(int x, int y) returns int => x + y;
 function concat(string s1, string s2) returns string {
     return s1 + s2;
 }
+
+@Config {
+    host: ""
+}
+@Optional
+public function foo(int valueX) returns @Returned int {
+    return valueX;
+}

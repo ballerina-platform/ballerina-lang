@@ -31,3 +31,7 @@ function testMethodUsage() {
     testproject:PersonObj p = new("John", 20);
     string s = p.getName();
 }
+
+function testAnnotatedFunction() {
+    testproject:foo(4);
+}

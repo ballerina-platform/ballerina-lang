@@ -19,8 +19,12 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
+import io.ballerina.compiler.api.symbols.Annotatable;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
@@ -175,6 +179,27 @@ public class SymbolBIRTest {
         }
     }
 
+    @Test
+    public void testAnnotatedFunction() {
+        Optional<Symbol> optionalSymbol = model.symbol(srcFile, from(35, 16));
+        assertTrue(optionalSymbol.isPresent());
+
+        // Test annotations
+        List<SymbolInfo> expectedAnnotations = createSymbolInfoList(
+                new Object[][]{{"Config", ANNOTATION}, {"Optional", ANNOTATION}});
+        FunctionSymbol symbol = (FunctionSymbol) optionalSymbol.get();
+        List<AnnotationSymbol> annotations = symbol.annotations();
+        assertList(annotations, expectedAnnotations);
+
+        // Test return-type annotations
+        List<SymbolInfo> expectedRetTypeAnnotations = createSymbolInfoList(new Object[][]{{"Returned", ANNOTATION}});
+        FunctionTypeSymbol functionTypeSymbol = symbol.typeDescriptor();
+        Optional<Annotatable> optionalAnnotatable = functionTypeSymbol.returnTypeAnnotations();
+        assertTrue(optionalAnnotatable.isPresent());
+        List<AnnotationSymbol> returnTypeAnnotations = optionalAnnotatable.get().annotations();
+        assertList(returnTypeAnnotations, expectedRetTypeAnnotations);
+    }
+
     @DataProvider(name = "ImportSymbolPosProvider")
     public Object[][] getImportSymbolPos() {
         return new Object[][]{
@@ -223,7 +248,7 @@ public class SymbolBIRTest {
 
     // util methods
 
-    public static void assertList(List<Symbol> actualValues, List<SymbolInfo> expectedValues) {
+    public static <T extends Symbol> void assertList(List<T> actualValues, List<SymbolInfo> expectedValues) {
         assertEquals(actualValues.size(), expectedValues.size());
 
         for (SymbolInfo val : expectedValues) {

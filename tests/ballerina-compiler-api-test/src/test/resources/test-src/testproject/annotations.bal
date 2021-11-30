@@ -15,3 +15,7 @@
 // under the License.
 
 public annotation Annot Config on function;
+
+public annotation Optional on function;
+
+public annotation Returned on return;
