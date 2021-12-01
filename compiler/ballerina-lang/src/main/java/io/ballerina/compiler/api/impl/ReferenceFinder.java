@@ -1017,6 +1017,7 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        find(annotAccessExpr.expr);
         addIfSameSymbol(annotAccessExpr.annotationSymbol, annotAccessExpr.annotationName.pos);
     }
 
