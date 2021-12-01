@@ -19,8 +19,6 @@ package io.ballerina.types.typeops;
 
 import io.ballerina.types.SemType;
 
-import java.util.Optional;
-
 /**
  * Represent the FieldPair record.
  *
