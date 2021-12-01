@@ -14,7 +14,7 @@ class Person1 {
 }
 
 public function testSelfKeywordInvocationNegative() {
-    Person1 person = new("person1", 32);
+    Person1 _ = new("person1", 32);
 }
 
 class Person2 {
@@ -39,7 +39,7 @@ class Person2 {
 }
 
 public function testSelfKeywordInvocationWithLoopAndContinueNegative() {
-    Person2 person = new("person2", "city");
+    Person2 _ = new("person2", "city");
 }
 
 class Person3 {
@@ -64,7 +64,7 @@ class Person3 {
 }
 
 public function testSelfKeywordInvocationWithLoopAndBreakNegative() {
-    Person3 person = new("person2", "city");
+    Person3 _ = new("person2", "city");
 }
 
 
@@ -92,7 +92,7 @@ class Person4 {
 }
 
 public function testSelfKeywordInvocationWithBranchNegative() {
-    Person4 person = new("");
+    Person4 _ = new("");
 }
 
 class Person5 {
@@ -116,7 +116,7 @@ class Person5 {
 
 public function testSelfKeywordInvocationWithForEachNegative() {
     string[] persons = ["person1", "person2", "person3"];
-    Person5 person = new(persons, "city");
+    Person5 _ = new(persons, "city");
 }
 
 class Person6 {
@@ -140,7 +140,7 @@ class Person6 {
 
 public function testSelfKeywordInvocationWithInvocationArg() {
     string[] persons = ["person1", "person2", "person3"];
-    Person5 person = new(persons, "city");
+    Person5 _ = new(persons, "city");
 }
 
 
@@ -158,7 +158,7 @@ function modify(Person7 person) {
 }
 
 public function testSelfKeywordInvocationWithModuleLevelFunctionInvocation() {
-    Person7 person = new("person");
+    Person7 _ = new("person");
 }
 
 class Person8 {
@@ -174,5 +174,5 @@ function change(Person8... person) {
 }
 
 public function testSelfKeywordInvocationWithModuleLevelFunctionInvocationWithRestArgs() {
-    Person8 person = new("person");
+    Person8 _ = new("person");
 }

@@ -92,8 +92,8 @@ public class LangLibIntTest {
     public void testToHexString() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testToHexString");
         assertEquals(returns[0].stringValue(), "75bcd15");
-        // TODO: 7/6/19 Verify the representation of negative numbers
-//        assertEquals(returns[1].stringValue(), "ffffffffffffcfc7");
+        assertEquals(returns[1].stringValue(), "-3039");
+        assertEquals(returns[2].stringValue(), "-2dfd5533a");
     }
 
     @Test
@@ -132,13 +132,15 @@ public class LangLibIntTest {
         assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
-    @Test
-    public void testLangLibCallOnIntSubTypes() {
-        BRunUtil.invoke(compileResult, "testLangLibCallOnIntSubTypes");
+    @Test(dataProvider = "functionProvider")
+    public void testIntFunctions(String funcName) {
+        BRunUtil.invoke(compileResult, funcName);
     }
 
-    @Test
-    public void testLangLibCallOnFiniteType() {
-        BRunUtil.invoke(compileResult, "testLangLibCallOnFiniteType");
+    @DataProvider
+    public Object[] functionProvider() {
+        return new String[] {"testToHexStringNonPositives", "testLangLibCallOnIntSubTypes",
+                "testLangLibCallOnFiniteType", "testIntOverflow"};
     }
+
 }

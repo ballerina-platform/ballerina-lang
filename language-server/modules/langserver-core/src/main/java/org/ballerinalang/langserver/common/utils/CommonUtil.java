@@ -82,6 +82,7 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -113,7 +114,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -156,6 +156,7 @@ public class CommonUtil {
     public static final String BALLERINA_CMD;
 
     public static final String URI_SCHEME_BALA = "bala";
+    public static final String URI_SCHEME_EXPR = "expr";
     public static final String URI_SCHEME_FILE = "file";
     public static final String LANGUAGE_ID_BALLERINA = "ballerina";
 
@@ -164,6 +165,8 @@ public class CommonUtil {
     public static final String BALLERINA_ORG_NAME = "ballerina";
 
     public static final String SDK_VERSION = System.getProperty("ballerina.version");
+
+    public static final String EXPR_SCHEME = "expr";
 
     public static final List<String> PRE_DECLARED_LANG_LIBS = Arrays.asList("lang.boolean", "lang.decimal",
             "lang.error", "lang.float", "lang.future", "lang.int", "lang.map", "lang.object", "lang.stream",
@@ -397,7 +400,7 @@ public class CommonUtil {
             default:
                 return getDefaultValueForTypeDescKind(typeKind);
         }
-        
+
         return Optional.of(typeString);
     }
 
@@ -1018,6 +1021,16 @@ public class CommonUtil {
     }
 
     /**
+     * Escapes the escape characters present in an identifier.
+     *
+     * @param identifier Identifier
+     * @return The identifier with escape characters escaped
+     */
+    public static String escapeEscapeCharsInIdentifier(String identifier) {
+        return identifier.replaceAll("\\\\", "\\\\\\\\");
+    }
+
+    /**
      * Returns module prefix and process imports required.
      *
      * @param importsAcceptor import acceptor
@@ -1085,38 +1098,23 @@ public class CommonUtil {
     }
 
     /**
-     * Node comparator to compare the nodes by position.
-     */
-    public static class BLangNodeComparator implements Comparator<BLangNode> {
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int compare(BLangNode node1, BLangNode node2) {
-            // TODO: Fix?
-            Location node1Loc = node1.getPosition();
-            Location node2Loc = node2.getPosition();
-            if (node1Loc == null || node2Loc == null) {
-                return -1;
-            }
-            return node1Loc.lineRange().startLine().line() - node2Loc.lineRange().startLine().line();
-        }
-    }
-
-    /**
-     * Get the path from given string URI.
+     * Get the path from given string URI. Even if the given URI's scheme is expr, we convert it to file scheme and
+     * provide a valid Path
      *
      * @param uri file uri
      * @return {@link Optional} Path from the URI
      */
     public static Optional<Path> getPathFromURI(String uri) {
-        try {
-            return Optional.of(Paths.get(new URL(uri).toURI()));
-        } catch (URISyntaxException | MalformedURLException e) {
-            // ignore
+        URI fileUri = URI.create(uri);
+        if (fileUri.getScheme().equals(EXPR_SCHEME)) {
+            String newUri = fileUri.toString().replace(EXPR_SCHEME + ":", "file:");
+            try {
+                return Optional.of(Paths.get(new URL(newUri).toURI()));
+            } catch (URISyntaxException | MalformedURLException e) {
+                return Optional.empty();
+            }
         }
-        return Optional.empty();
+        return Optional.of(Paths.get(fileUri));
     }
 
     /**
@@ -1830,5 +1828,16 @@ public class CommonUtil {
             }
         }
         return true;
+    }
+    
+    public static String getModifiedUri(WorkspaceManager workspaceManager, String uri) {
+        URI original = URI.create(uri);
+        try {
+            return new URI(workspaceManager.uriScheme(),
+                    original.getSchemeSpecificPart(),
+                    original.getFragment()).toString();
+        } catch (URISyntaxException e) {
+            return uri;
+        }
     }
 }

@@ -141,7 +141,7 @@ public class Package {
         return this.packageContext.getPackageCompilation();
     }
 
-    public PackageCompilation getCompilation(CompilationOptions compilationOptions) {
+    PackageCompilation getCompilation(CompilationOptions compilationOptions) {
         return this.packageContext.getPackageCompilation(compilationOptions);
     }
 
@@ -244,7 +244,7 @@ public class Package {
         }
 
         // There are engaged code generators or there is no cached compilation. We have to compile anyway
-        CompilationOptions compOptions = new CompilationOptionsBuilder().withCodeGenerators(true).build();
+        CompilationOptions compOptions = CompilationOptions.builder().withCodeGenerators(true).build();
         // TODO We can avoid this compilation. Move CompilerPluginManagers out of the PackageCompilation
         // TODO How about PackageResolution
         CompilerPluginManager compilerPluginManager = this.getCompilation(compOptions).compilerPluginManager();
@@ -514,7 +514,7 @@ public class Package {
             this.packageManifest = manifestBuilder.packageManifest();
             BuildOptions newBuildOptions;
             if (manifestBuilder.buildOptions() == null) {
-                newBuildOptions = new BuildOptionsBuilder().build();
+                newBuildOptions = BuildOptions.builder().build();
             } else {
                 newBuildOptions = manifestBuilder.buildOptions();
             }
@@ -550,10 +550,20 @@ public class Package {
                     testDocContextMap.put(documentId, oldModuleContext.documentContext(documentId));
                 }
 
+                Map<DocumentId, ResourceContext> resourceMap = new HashMap<>();
+                for (DocumentId documentId : oldModuleContext.resourceIds()) {
+                    resourceMap.put(documentId, oldModuleContext.resourceContext(documentId));
+                }
+
+                Map<DocumentId, ResourceContext> testResourceMap = new HashMap<>();
+                for (DocumentId documentId : oldModuleContext.testResourceIds()) {
+                    testResourceMap.put(documentId, oldModuleContext.resourceContext(documentId));
+                }
+
                 moduleContextSet.add(new ModuleContext(this.project, moduleId, moduleDescriptor,
                         oldModuleContext.isDefaultModule(), srcDocContextMap, testDocContextMap,
                         oldModuleContext.moduleMdContext().orElse(null),
-                        oldModuleContext.moduleDescDependencies()));
+                        oldModuleContext.moduleDescDependencies(), resourceMap, testResourceMap));
             }
             updateModules(moduleContextSet);
         }

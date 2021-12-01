@@ -173,7 +173,7 @@ public class MapAccessExprTest {
 
         // uninitialized map access
         BAssertUtil.validateError(resultNegative, index++, "variable 'ints' is not initialized", 9, 5);
-        BAssertUtil.validateError(resultNegative, index++, "variable 'ints' is not initialized", 11, 41);
+        BAssertUtil.validateError(resultNegative, index++, "variable 'ints' is not initialized", 11, 40);
         BAssertUtil.validateError(resultNegative, index, "variable 'm4' is not initialized", 34, 12);
     }
 

@@ -18,7 +18,6 @@
 package org.ballerinalang.test;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.NullBackend;
@@ -59,7 +58,7 @@ public class BCompileUtil {
     private static final Logger logger = LoggerFactory.getLogger(BCompileUtil.class);
 
     public static Project loadProject(String sourceFilePath) {
-        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         return loadProject(sourceFilePath, buildOptionsBuilder.build());
     }
 
@@ -70,7 +69,7 @@ public class BCompileUtil {
 
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
 
-        BuildOptions defaultOptions = new BuildOptionsBuilder().offline(true).dumpBirFile(true).build();
+        BuildOptions defaultOptions = BuildOptions.builder().setOffline(true).setDumpBirFile(true).build();
         BuildOptions mergedOptions = buildOptions.acceptTheirs(defaultOptions);
         return ProjectLoader.loadProject(projectPath, mergedOptions);
     }
@@ -90,8 +89,8 @@ public class BCompileUtil {
     }
 
     public static CompileResult compileOffline(String sourceFilePath) {
-        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
-        BuildOptions buildOptions = buildOptionsBuilder.offline(Boolean.TRUE).build();
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        BuildOptions buildOptions = buildOptionsBuilder.setOffline(Boolean.TRUE).build();
         Project project = loadProject(sourceFilePath, buildOptions);
 
         Package currentPackage = project.currentPackage();
@@ -148,7 +147,7 @@ public class BCompileUtil {
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
 
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
-        BuildOptions defaultOptions = new BuildOptionsBuilder().offline(true).dumpBirFile(true).build();
+        BuildOptions defaultOptions = BuildOptions.builder().setOffline(true).setDumpBirFile(true).build();
         Project project = ProjectLoader.loadProject(projectPath, getTestProjectEnvironmentBuilder(), defaultOptions);
 
         if (isSingleFileProject(project)) {

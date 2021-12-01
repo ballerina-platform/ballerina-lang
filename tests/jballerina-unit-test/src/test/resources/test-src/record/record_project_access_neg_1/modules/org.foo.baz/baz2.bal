@@ -35,7 +35,7 @@ public type FooEmployee record {
 };
 
 public function createRecord() returns FooPerson {
-    map<any> address1 = {};
+    map<any> _ = {};
     map<any> address = {"country":"USA", "state":"CA"};
     FooPerson emp = {name:"Jack", adrs:address, age:25};
     return emp;

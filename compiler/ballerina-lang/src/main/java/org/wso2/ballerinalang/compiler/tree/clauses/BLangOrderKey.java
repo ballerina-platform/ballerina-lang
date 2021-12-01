@@ -21,6 +21,8 @@ import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
@@ -30,7 +32,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  * @since Swan Lake
  */
 public class BLangOrderKey extends BLangNode implements OrderKeyNode {
+
+    // BLangNodes
     public BLangExpression expression;
+
+    // Parser Flags and Data
     public boolean isAscending = true;
 
     public BLangOrderKey() {
@@ -45,6 +51,16 @@ public class BLangOrderKey extends BLangNode implements OrderKeyNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

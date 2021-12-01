@@ -41,10 +41,17 @@ function testAbs() returns [int, int] {
     return [x.abs(), y.abs()];
 }
 
-function testToHexString() returns [string, string] {
+function testToHexString() returns [string, string, string] {
     int x = 123456789;
     int y = -12345;
-    return [x.toHexString(), y.toHexString()];
+    int z = -12345234234;
+    return [x.toHexString(), y.toHexString(), z.toHexString()];
+}
+
+function testToHexStringNonPositives() {
+    test:assertValueEqual("-2", (-2).toHexString());
+    test:assertValueEqual("0", (0).toHexString());
+    test:assertValueEqual("-400", (-1024).toHexString());
 }
 
 function testFromHexString() returns [int|error, int|error] {
@@ -98,4 +105,21 @@ function testLangLibCallOnFiniteType() {
     Ints x = 12;
     string s = x.toHexString();
     test:assertValueEqual("c", s);
+}
+
+function testIntOverflow() {
+    int a1 = -9223372036854775808;
+    int|error result = trap a1.abs();
+
+    test:assertValueEqual(true, result is error);
+    error err = <error>result;
+    test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
+    test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
+
+    result = trap (-9223372036854775807 - 1).abs();
+
+    test:assertValueEqual(true, result is error);
+    err = <error>result;
+    test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
+    test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
 }

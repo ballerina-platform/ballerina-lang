@@ -56,7 +56,6 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -145,7 +144,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -1585,17 +1583,7 @@ public class BIRGen extends BLangNodeVisitor {
 
             // If a terminator statement has not been set for the else-block then just add it.
             if (this.env.enclBB.terminator == null) {
-                if (astIfStmt.elseStmt.pos != null) {
-                    Location newLocation = new BLangDiagnosticLocation(
-                            astIfStmt.elseStmt.pos.lineRange().filePath(),
-                            astIfStmt.elseStmt.pos.lineRange().endLine().line(),
-                            astIfStmt.elseStmt.pos.lineRange().endLine().line(),
-                            astIfStmt.elseStmt.pos.lineRange().endLine().offset(),
-                            astIfStmt.elseStmt.pos.lineRange().endLine().offset());
-                    this.env.enclBB.terminator = new BIRTerminator.GOTO(newLocation, nextBB, this.currentScope);
-                } else {
-                    this.env.enclBB.terminator = new BIRTerminator.GOTO(null, nextBB, this.currentScope);
-                }
+                this.env.enclBB.terminator = new BIRTerminator.GOTO(null, nextBB, this.currentScope);
             }
         } else {
             branchIns.falseBB = nextBB;
@@ -2281,28 +2269,6 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLAccessExpr xmlAccessExpr) {
         generateMappingAccess(xmlAccessExpr, false);
-    }
-
-    @Override
-    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-        if (xmlAttributeAccessExpr.indexExpr != null) {
-            generateMappingAccess(xmlAttributeAccessExpr, false);
-            return;
-        }
-
-        // This is getting xml attributes as a map. i.e.: x@
-        // Model as a conversion where source type is xml, and target type is map<string>.
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.mapStringType, this.env.nextLocalVarId(names),
-                VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
-
-        xmlAttributeAccessExpr.expr.accept(this);
-        BIROperand xmlVarOp = this.env.targetOperand;
-        setScopeAndEmit(
-                new BIRNonTerminator.TypeCast(xmlAttributeAccessExpr.pos, toVarRef, xmlVarOp, symTable.mapStringType,
-                        true));
-        this.env.targetOperand = toVarRef;
     }
 
     @Override

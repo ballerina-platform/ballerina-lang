@@ -99,10 +99,26 @@ public class UnionTypeSymbolTest {
         };
     }
 
-    public static void assertList(List<TypeDescKind> actualValues, List<TypeDescKind> expectedValues) {
+    @Test
+    public void testSingletonMembers() {
+        TypeDefinitionSymbol symbol = (TypeDefinitionSymbol) assertBasicsAndGetSymbol(model, srcFile, 39, 5, "Keyword",
+                                                                                      SymbolKind.TYPE_DEFINITION);
+        assertEquals(symbol.typeDescriptor().typeKind(), TypeDescKind.UNION);
+        UnionTypeSymbol typeSymbol = (UnionTypeSymbol) symbol.typeDescriptor();
+
+        List<TypeSymbol> memberTypeDescriptors = typeSymbol.memberTypeDescriptors();
+        List<String> signatures = memberTypeDescriptors
+                                                    .stream()
+                                                    .filter(member -> member.typeKind() == TypeDescKind.SINGLETON)
+                                                    .map(TypeSymbol::signature)
+                                                    .collect(Collectors.toList());
+        assertList(signatures, List.of("\"int\"", "\"string\"", "100", "\"200\"", "true"));
+    }
+
+    public static <T> void assertList(List<T> actualValues, List<T> expectedValues) {
         assertEquals(actualValues.size(), expectedValues.size());
 
-        for (TypeDescKind val : expectedValues) {
+        for (T val : expectedValues) {
             assertTrue(actualValues.stream().anyMatch(val::equals));
         }
     }

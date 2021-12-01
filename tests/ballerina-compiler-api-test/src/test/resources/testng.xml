@@ -169,6 +169,7 @@
             <!--Type Of-->
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfInCallStatementsTest" />
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfQueryExprTest" />
+            <class name="io.ballerina.semantic.api.test.typeof.TypeOfRegressionTest" />
 
         </classes>
     </test>

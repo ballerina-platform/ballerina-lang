@@ -6,14 +6,6 @@
   "source": "statement_context/source/async_send_action_ctx_source1.bal",
   "items": [
     {
-      "label": "w1",
-      "kind": "Variable",
-      "detail": "worker",
-      "sortText": "CB",
-      "insertText": "w1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "w3",
       "kind": "Variable",
       "detail": "worker",

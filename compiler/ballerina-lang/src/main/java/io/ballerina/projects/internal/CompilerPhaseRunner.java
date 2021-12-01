@@ -162,24 +162,6 @@ public class CompilerPhaseRunner {
         birEmit(pkgNode);
     }
 
-    public void performLangLibTypeCheckPhases(BLangPackage pkgNode) {
-        if (this.stopCompilation(pkgNode, CompilerPhase.TYPE_CHECK)) {
-            return;
-        }
-
-        typeCheck(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.CODE_ANALYZE)) {
-            return;
-        }
-
-        codeAnalyze(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.DOCUMENTATION_ANALYZE)) {
-            return;
-        }
-
-        documentationAnalyze(pkgNode);
-    }
-
     public void performLangLibBirGenPhases(BLangPackage pkgNode) {
         if (this.stopCompilation(pkgNode, CompilerPhase.DESUGAR)) {
             return;

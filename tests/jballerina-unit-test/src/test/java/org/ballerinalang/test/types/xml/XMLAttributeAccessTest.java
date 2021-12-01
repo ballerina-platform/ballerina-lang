@@ -99,4 +99,9 @@ public class XMLAttributeAccessTest {
         Assert.assertTrue(((BBoolean) result[0]).booleanValue());
     }
 
+    @Test
+    public void testXMLAfterRemoveAttribute() {
+        BRunUtil.invoke(compileResult, "testXMLAfterRemoveAttribute");
+    }
+
 }

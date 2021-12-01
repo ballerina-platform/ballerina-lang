@@ -7,7 +7,7 @@ public function foo() {
     }
 
     worker w2 {
-      int j = trap <- w1;
+      int _ = trap <- w1;
     }
 }
 
@@ -17,6 +17,6 @@ public function bar() {
     }
 
     worker w2 {
-      string j = trap <- w1;
+      string _ = trap <- w1;
     }
 }

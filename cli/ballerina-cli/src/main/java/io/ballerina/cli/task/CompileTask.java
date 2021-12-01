@@ -25,6 +25,7 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.ballerinalang.central.client.CentralClientConstants;
 
@@ -72,6 +73,15 @@ public class CompileTask implements Task {
                 BuildTime.getInstance().packageResolutionDuration = System.currentTimeMillis() - start;
                 start = System.currentTimeMillis();
             }
+
+            // run built-in code generator compiler plugins
+            if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
+                // SingleFileProject cannot hold additional sources or resources
+                // and BalaProjects is a read-only project.
+                // Hence we run the code generators only for BuildProject
+                project.currentPackage().runCodeGeneratorPlugins();
+            }
+
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().packageCompilationDuration = System.currentTimeMillis() - start;

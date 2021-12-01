@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
@@ -155,16 +156,7 @@ public class TypeConverter {
         JsonArray memberArray = new JsonArray();
         JsonArray enumArray = new JsonArray();
         // Check if this union is an enum
-        for (BType member : members) {
-            if (TypeTags.isSimpleBasicType(member.tag)) {
-                String typeVal = getSimpleType(member);
-                JsonObject memberObj = new JsonObject();
-                memberObj.addProperty(TYPE, typeVal);
-                memberArray.add(memberObj);
-            } else if (TypeTags.FINITE == member.tag && member instanceof BFiniteType) {
-                getEnumArray(enumArray, (BFiniteType) member);
-            }
-        }
+        updateUnionMembers(members, memberArray, enumArray);
         if (enumArray.isEmpty() && !memberArray.isEmpty()) {
             typeNode.add("anyOf", memberArray);
         } else if (!enumArray.isEmpty() && memberArray.isEmpty()) {
@@ -174,6 +166,33 @@ public class TypeConverter {
             memberObj.add("enum", enumArray);
             memberArray.add(memberObj);
             typeNode.add("anyOf", memberArray);
+        }
+    }
+
+    /**
+     * Update the union member details into the member array and enum array.
+     *
+     * @param members the members of a union type
+     * @param memberArray JSON array to hold non-enum union members
+     * @param enumArray JSON array to hold enum union members
+     */
+    private static void updateUnionMembers(LinkedHashSet<BType> members, JsonArray memberArray, JsonArray enumArray) {
+        for (BType member : members) {
+            if (TypeTags.isSimpleBasicType(member.tag)) {
+                String typeVal = getSimpleType(member);
+                JsonObject memberObj = new JsonObject();
+                memberObj.addProperty(TYPE, typeVal);
+                memberArray.add(memberObj);
+            } else if (TypeTags.FINITE == member.tag && member instanceof BFiniteType) {
+                getEnumArray(enumArray, (BFiniteType) member);
+            } else if (TypeTags.TYPEREFDESC == member.tag && member instanceof BTypeReferenceType) {
+                // When union member refers to another union type, update those union members as well
+                BType referredType =  ((BTypeReferenceType) member).referredType;
+                if (TypeTags.UNION == referredType.tag && referredType instanceof BUnionType) {
+                    LinkedHashSet<BType> subMembers = ((BUnionType) referredType).getMemberTypes();
+                    updateUnionMembers(subMembers, memberArray, enumArray);
+                }
+            }
         }
     }
 
