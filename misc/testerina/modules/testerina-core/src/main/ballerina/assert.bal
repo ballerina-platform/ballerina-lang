@@ -232,7 +232,7 @@ public isolated function assertNotExactEquals(any|error actual, any|error expect
 # ```
 #
 # + msg - Assertion error message
-public isolated function assertFail(string msg = "Test Failed!") returns never {
+public isolated function assertFail(string msg = "Test Failed!") {
     panic createBallerinaError(msg, assertFailureErrorCategory);
 }
 
