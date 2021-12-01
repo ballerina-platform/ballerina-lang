@@ -365,7 +365,7 @@ public class RenameUtil {
     private static boolean isSelfClassSymbol(ReferencesContext context) {
         Optional<Document> srcFile = context.currentDocument();
         Optional<SemanticModel> semanticModel = context.currentSemanticModel();
-        if (srcFile.isEmpty() || semanticModel.isEmpty()) {
+        if (srcFile.isEmpty() || semanticModel.isEmpty() || context.currentSyntaxTree().isEmpty()) {
             return false;
         }
         Position position = context.getCursorPosition();
@@ -374,9 +374,12 @@ public class RenameUtil {
         if (symbol.isEmpty()) {
             return false;
         }
-        ModuleMemberDeclarationNode enclosingNode = BallerinaContextUtils.
-                getEnclosingModuleMember(context.currentSyntaxTree().get(), context.getCursorPositionInTree()).get();
-        return CommonUtil.isSelfClassSymbol(symbol.get(), context, enclosingNode);
+        Optional<ModuleMemberDeclarationNode> enclosingNode = BallerinaContextUtils.
+                getEnclosingModuleMember(context.currentSyntaxTree().get(), context.getCursorPositionInTree());
+        if (enclosingNode.isEmpty()) {
+            return false;
+        }
+        return CommonUtil.isSelfClassSymbol(symbol.get(), context, enclosingNode.get());
     }
 
     private enum RenameChangeAnnotation {
