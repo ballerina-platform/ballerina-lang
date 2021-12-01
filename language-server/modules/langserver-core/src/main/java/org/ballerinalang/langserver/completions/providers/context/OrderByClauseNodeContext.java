@@ -81,15 +81,11 @@ public class OrderByClauseNodeContext extends IntermediateClauseNodeContext<Orde
 
     private boolean onSuggestDirectionKeywords(BallerinaCompletionContext context, OrderByClauseNode node) {
         SeparatedNodeList<OrderKeyNode> orderKeyNodes = node.orderKey();
-        int cursor = context.getCursorPositionInTree();
-        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-
-        if (orderKeyNodes.isEmpty() || nodeAtCursor.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+        if (orderKeyNodes.isEmpty()) {
             return false;
         }
-
+        int cursor = context.getCursorPositionInTree();
         OrderKeyNode lastOrderKey = orderKeyNodes.get(orderKeyNodes.size() - 1);
-
         return cursor > lastOrderKey.textRange().endOffset();
     }
 

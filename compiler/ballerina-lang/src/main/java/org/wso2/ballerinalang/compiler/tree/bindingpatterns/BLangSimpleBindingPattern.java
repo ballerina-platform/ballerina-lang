@@ -21,6 +21,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.bindingpattern.CaptureBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.SimpleBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.WildCardBindingPatternNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -30,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangSimpleBindingPattern extends BLangBindingPattern implements SimpleBindingPatternNode {
 
+    // BLangNodes
     public BLangCaptureBindingPattern captureBindingPattern;
     public BLangWildCardBindingPattern wildCardBindingPattern;
 
@@ -56,6 +59,16 @@ public class BLangSimpleBindingPattern extends BLangBindingPattern implements Si
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

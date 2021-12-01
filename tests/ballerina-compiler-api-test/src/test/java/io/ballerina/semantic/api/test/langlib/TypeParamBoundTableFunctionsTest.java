@@ -68,15 +68,6 @@ public class TypeParamBoundTableFunctionsTest {
     }
 
     @Test
-    public void testLength() {
-        FunctionTypeSymbol lengthFnType = assertFnNameAndGetParams("length");
-        List<ParameterSymbol> params = lengthFnType.params().get();
-
-        assertEquals(params.size(), 1);
-        assertFirstParam(params.get(0));
-    }
-
-    @Test
     public void testIterator() {
         FunctionTypeSymbol iteratorFnType = assertFnNameAndGetParams("iterator");
         List<ParameterSymbol> params = iteratorFnType.params().get();
@@ -138,7 +129,7 @@ public class TypeParamBoundTableFunctionsTest {
         TypeSymbol rowTypeParameterSymbol = ((TableTypeSymbol) mapFnRetType).rowTypeParameter();
         assertEquals(rowTypeParameterSymbol.typeKind(), TypeDescKind.TYPE_REFERENCE);
         assertEquals(((TypeReferenceTypeSymbol) rowTypeParameterSymbol).typeDescriptor().typeKind(),
-                TypeDescKind.UNION);
+                TypeDescKind.MAP);
     }
 
     @Test
@@ -233,15 +224,6 @@ public class TypeParamBoundTableFunctionsTest {
     }
 
     @Test
-    public void testRemoveAll() {
-        FunctionTypeSymbol removeAllFnType = assertFnNameAndGetParams("removeAll");
-        List<ParameterSymbol> params = removeAllFnType.params().get();
-
-        assertEquals(params.size(), 1);
-        assertFirstParam(params.get(0));
-    }
-
-    @Test
     public void testHasKey() {
         FunctionTypeSymbol hasKeyFnType = assertFnNameAndGetParams("hasKey");
         List<ParameterSymbol> params = hasKeyFnType.params().get();
@@ -250,14 +232,15 @@ public class TypeParamBoundTableFunctionsTest {
         assertFirstParam(params.get(0));
     }
 
-    @Test
-    public void testKeys() {
-        FunctionTypeSymbol hasKeyFnType = assertFnNameAndGetParams("keys");
-        List<ParameterSymbol> params = hasKeyFnType.params().get();
-
-        assertEquals(params.size(), 1);
-        assertFirstParam(params.get(0));
-    }
+    // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/33474
+//    @Test
+//    public void testKeys() {
+//        FunctionTypeSymbol hasKeyFnType = assertFnNameAndGetParams("keys");
+//        List<ParameterSymbol> params = hasKeyFnType.params().get();
+//
+//        assertEquals(params.size(), 1);
+//        assertFirstParam(params.get(0));
+//    }
 
     @Test
     public void testToArray() {

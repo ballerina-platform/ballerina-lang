@@ -29,3 +29,9 @@ const int CI5  = *(5 + 10); // expression is not a constant expression
 const string CS1 = +("hello" + "world"); // operator '+' not defined for 'string'
 
 const boolean CB1 = !(10); // operator '!' not defined for 'int'
+
+const int CONST1 =  ~~false; // operator '~' not defined for 'boolean'
+
+const int CONST2 =  -!false; // operator '-' not defined for 'boolean'
+
+const int CONST3 =  -~false; // operator '~' not defined for 'boolean'

@@ -77,8 +77,8 @@ public class VisibleSymbolsInModuleLevelDeclsTest extends BaseVisibleSymbolsTest
                 {22, 24, expModuleSymbols},
                 {23, 11, expModuleSymbols},
                 {26, 5, expModuleSymbols},
-//                {26, 36, expModuleSymbols},
-//                {30, 13, expModuleSymbols},
+                {26, 36, expModuleSymbols},
+                {30, 13, expModuleSymbols},
                 {33, 5, expModuleSymbols},
                 {34, 17, expModuleSymbols},
                 {37, 18, expModuleSymbols},
@@ -93,7 +93,7 @@ public class VisibleSymbolsInModuleLevelDeclsTest extends BaseVisibleSymbolsTest
                                from("b", PARAMETER),
                                from("c", PARAMETER)
                 )},
-//                {44, 18, expModuleSymbols},
+                {44, 18, expModuleSymbols},
                 {47, 21, concat(expModuleSymbols,
                                 from("self", VARIABLE),
                                 from("name", CLASS_FIELD),
@@ -107,7 +107,7 @@ public class VisibleSymbolsInModuleLevelDeclsTest extends BaseVisibleSymbolsTest
                                 from("getName", METHOD)
                 )},
                 {53, 8, expModuleSymbols},
-//                {55, 19, expModuleSymbols},
+                {55, 19, expModuleSymbols},
                 {58, 32, concat(expModuleSymbols,
                                 from("self", VARIABLE),
                                 from("greet", CLASS_FIELD),

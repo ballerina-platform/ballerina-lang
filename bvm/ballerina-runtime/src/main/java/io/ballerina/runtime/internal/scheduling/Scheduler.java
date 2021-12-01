@@ -42,6 +42,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -94,6 +95,8 @@ public class Scheduler {
         this.immortal = immortal;
         this.listenerRegistry = new ListenerRegistry();
         this.previousStrand = numThreads == 1 ? strandHolder.get().strand : null;
+        ItemGroup group = new ItemGroup();
+        objectGroup.set(group);
     }
 
     public static Strand getStrand() {
@@ -153,10 +156,7 @@ public class Scheduler {
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
         future.strand.strandGroup = parent.strandGroup;
-        parent.strandGroup.add(item);
-        if (parent.strandGroup.scheduled.compareAndSet(false, true)) {
-            runnableList.add(future.strand.strandGroup);
-        }
+        addToRunnableList(item, parent.strandGroup);
         return future;
     }
 
@@ -169,16 +169,8 @@ public class Scheduler {
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
         ItemGroup group = objectGroup.get();
-        if (group == null) {
-            group = new ItemGroup(item);
-            objectGroup.set(group);
-        } else {
-            group.add(item);
-        }
         future.strand.strandGroup = group;
-        if (group.scheduled.compareAndSet(false, true)) {
-            runnableList.add(group);
-        }
+        addToRunnableList(item, group);
         return future;
     }
 
@@ -312,7 +304,8 @@ public class Scheduler {
                 break;
             }
 
-            while (!group.items.empty()) {
+            boolean isItemsEmpty = group.items.isEmpty();
+            while (!isItemsEmpty) {
                 Object result = null;
                 Throwable panic = null;
 
@@ -337,9 +330,11 @@ public class Scheduler {
                     strandHolder.get().strand = previousStrand;
                 }
                 postProcess(item, result, panic);
-                if (group.items.empty()) {
+                group.lock();
+                if ((isItemsEmpty = group.items.empty())) {
                     group.scheduled.set(false);
                 }
+                group.unlock();
             }
         }
     }
@@ -488,16 +483,21 @@ public class Scheduler {
         if (!item.getState().equals(State.RUNNABLE)) {
             ItemGroup group = item.future.strand.strandGroup;
             item.setState(State.RUNNABLE);
-            group.add(item);
-
-            // Group maybe not picked by any thread at the moment because,
-            //  1) All items are blocked.
-            //  2) All others have finished
-            // In this case we need to put it back in the runnable list.
-            if (group.scheduled.compareAndSet(false, true)) {
-                runnableList.add(group);
-            }
+            addToRunnableList(item, group);
         }
+    }
+
+    private void addToRunnableList(SchedulerItem item, ItemGroup group) {
+        group.lock();
+        group.add(item);
+        // Group maybe not picked by any thread at the moment because,
+        //  1) All items are blocked.
+        //  2) All others have finished
+        // In this case we need to put it back in the runnable list.
+        if (group.scheduled.compareAndSet(false, true)) {
+            runnableList.add(group);
+        }
+        group.unlock();
     }
 
     public FutureValue createFuture(Strand parent, Callback callback, Map<String, Object> properties,
@@ -644,14 +644,15 @@ class ItemGroup {
      */
     AtomicBoolean scheduled = new AtomicBoolean(false);
 
+    private final ReentrantLock groupLock = new ReentrantLock();
+
     public static final ItemGroup POISON_PILL = new ItemGroup();
 
     public ItemGroup(SchedulerItem item) {
         items.push(item);
     }
 
-    private ItemGroup() {
-        items = null;
+    public ItemGroup() {
     }
 
     public void add(SchedulerItem item) {
@@ -660,5 +661,13 @@ class ItemGroup {
 
     public SchedulerItem get() {
         return items.pop();
+    }
+
+    public void lock() {
+        this.groupLock.lock();
+    }
+
+    public void unlock() {
+        this.groupLock.unlock();
     }
 }

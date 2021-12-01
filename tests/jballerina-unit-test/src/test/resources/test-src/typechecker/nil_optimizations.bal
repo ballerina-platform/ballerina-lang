@@ -18,51 +18,27 @@ import ballerina/test;
 
 function testNil() {
    int? val = ();
-   if (val is int) {
-        test:assertFail();
-   }
-   if (val is ()) {
-   } else {
-        test:assertFail();
-   }
+   test:assertFalse(val is int);
+   test:assertTrue(val is ());
 }
 
 function testInt() {
    int? val = 1;
-   if (val is ())  {
-        test:assertFail();
-   }
-   if (val is int) {
-   } else {
-        test:assertFail();
-   }
+   test:assertFalse(val is ());
+   test:assertTrue(val is int);
 }
 
 function testNilMultiple() {
    int|decimal? val = ();
-   if (val is int) {
-        test:assertFail();
-   }
-   if (val is decimal) {
-        test:assertFail();
-   }
-   if (val is ()) {
-   } else {
-        test:assertFail();
-   }
+   test:assertFalse(val is int);
+   test:assertFalse(val is decimal);
+   test:assertTrue(val is ());
 }
 
 function testNilMultipleInt() {
    int|decimal? val = 1;
-   if (val is ())  {
-        test:assertFail();
-   }
-   if (val is int) {
-   } else {
-        test:assertFail();
-   }
-   if (val is decimal) {
-        test:assertFail();
-   }
+   test:assertFalse(val is ());
+   test:assertTrue(val is int);
+   test:assertFalse(val is decimal);
 }
 

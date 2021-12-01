@@ -32,7 +32,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.FieldAccessCompletionResolver;
 import org.ballerinalang.langserver.completions.util.ForeachCompletionUtil;
-import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.ballerinalang.langserver.completions.util.TypeGuardCompletionUtil;
 
 import java.util.ArrayList;
@@ -101,27 +100,6 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
      * @param completionItems Completion items to be sorted
      */
     public abstract void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems);
-
-    /**
-     * Sets the sort text of the provided completion item based on provided rank and context type.
-     *
-     * @param context        Completion context
-     * @param completionItem Completion item
-     * @param rank           A secondary rank to be considered other than assignability
-     */
-    protected void sortByAssignability(BallerinaCompletionContext context, LSCompletionItem completionItem, int rank) {
-        Optional<TypeSymbol> contextType = context.getContextType();
-        String sortText = "";
-        // First we sort the assignable items above others, and then sort by the rank
-        if (contextType.isPresent() && SortingUtil.isCompletionItemAssignable(completionItem, contextType.get())) {
-            sortText += SortingUtil.genSortText(1);
-        } else {
-            sortText += SortingUtil.genSortText(2);
-        }
-        sortText += SortingUtil.genSortText(rank);
-
-        completionItem.getCompletionItem().setSortText(sortText);
-    }
 
     private List<LSCompletionItem> getXmlAttributeAccessCompletions(BallerinaCompletionContext context) {
         if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {

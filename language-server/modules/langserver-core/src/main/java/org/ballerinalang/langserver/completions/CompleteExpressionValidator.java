@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions;
 
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
@@ -206,6 +207,11 @@ public class CompleteExpressionValidator extends NodeTransformer<Boolean> {
     @Override
     public Boolean transform(TrapExpressionNode node) {
         return node.expression().apply(this);
+    }
+
+    @Override
+    public Boolean transform(BasicLiteralNode basicLiteralNode) {
+        return true;
     }
 
     @Override

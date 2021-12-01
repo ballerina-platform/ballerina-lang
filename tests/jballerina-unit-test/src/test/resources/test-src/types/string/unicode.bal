@@ -39,6 +39,19 @@ function testUnicode() {
     assertEquality(s9, "A");
     assertEquality(s10, "Cat");
 
+    string str1 = "A \\ B";
+    string str2 = "A \\u{5D} B";
+
+    assertEquality("A \u{5C} B", str1);
+    assertEquality("A \u{5c} B", str1);
+    assertEquality("A \u{05c} B", str1);
+    assertEquality("A \u{0005C} B", str1);
+    assertEquality("A \u{5C}\u{75}{5D} B", str2);
+    assertEquality("A \\\u{75}{5D} B", str2);
+    assertEquality("A \u{5C}\u{75}\u{7B}5D\u{7D} B", str2);
+    assertEquality("A \\\u{75}\u{7B}5D\u{7D} B", str2);
+    assertEquality("A \u{5C}u{75}{5D} B", "A \\u{75}{5D} B");
+
     byte[] bArray = s9.toBytes();
     assertEquality(s7.length(), 1);
     assertEquality(bArray.length(), 1);
@@ -54,7 +67,9 @@ function testUnicode() {
     string s17 = "A\\u{61}\u{42}BE";
     string s18 = "\\" + "u{61}";
     string s19 = "\\u{D800}"; // no error for \u{D800} as it is escaped
-    
+    string s20 = "\\" + "u{5c}";
+    string s21 = "A\\u{5c}\u{5c}";
+
     assertEquality(s11, "\\u{61}");
     assertEquality(s12, "\\a");
     assertEquality(s13, "\\\\u{61}");
@@ -64,6 +79,8 @@ function testUnicode() {
     assertEquality(s17, "A\\u{61}BBE");
     assertEquality(s18, s11);
     assertEquality(s19, "\\u{D800}");
+    assertEquality(s20, "\\u{5c}");
+    assertEquality(s21, "A\\u{5c}\\");
 }
 
 function assertEquality(anydata actual, anydata expected) {

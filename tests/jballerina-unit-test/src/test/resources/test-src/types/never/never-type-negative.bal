@@ -229,3 +229,20 @@ function testNeverEquivRecord() {
     Record1 a = { i: 1 };
     Record2 b = { i: 1 };
 }
+
+type Pair record {
+    int x;
+};
+
+function testNeverFieldTypeBinding() {
+    Pair p = {
+        x: 1,
+        "y": 2,
+        "color": "blue"
+    };
+    var {x: _, ...rest} = p;
+    record {never x?; never y?;} y1 = rest;
+
+    record {} a = {"x": 11};
+    record {never x?;} y2 = a;
+}

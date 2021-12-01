@@ -85,7 +85,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
@@ -378,14 +377,10 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangLock.BLangLockStmt lockStmtNode) {
-        find(lockStmtNode.body);
-        find(lockStmtNode.onFailClause);
     }
 
     @Override
     public void visit(BLangLock.BLangUnLockStmt unLockNode) {
-        find(unLockNode.body);
-        find(unLockNode.onFailClause);
     }
 
     @Override
@@ -882,11 +877,6 @@ public class ReferenceFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangLetVariable letVariable) {
-        find((BLangNode) letVariable.definitionNode);
-    }
-
-    @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         find(listConstructorExpr.exprs);
     }
@@ -982,12 +972,6 @@ public class ReferenceFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangIntRangeExpression intRangeExpression) {
-        find(intRangeExpression.startExpr);
-        find(intRangeExpression.endExpr);
-    }
-
-    @Override
     public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
         find(bLangVarArgsExpression.expr);
     }
@@ -1033,6 +1017,7 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        find(annotAccessExpr.expr);
         addIfSameSymbol(annotAccessExpr.annotationSymbol, annotAccessExpr.annotationName.pos);
     }
 
@@ -1167,7 +1152,7 @@ public class ReferenceFinder extends BaseVisitor {
         }
 
         find(bLangRecordVariable.annAttachments);
-        find((BLangNode) bLangRecordVariable.restParam);
+        find(bLangRecordVariable.restParam);
     }
 
     @Override
