@@ -449,6 +449,16 @@ public class BallerinaTomlTests {
                 + "maximum length of 'name' is 256 characters");
     }
 
+    @Test
+    public void testInvalidIconPath() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("invalid-icon-path.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().diagnostics().size(), 1);
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(), "could not locate icon path '../sample.svg'");
+    }
+
     static PackageManifest getPackageManifest(Path tomlPath) throws IOException {
         String tomlContent = Files.readString(tomlPath);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);

@@ -324,6 +324,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testNamespaces() {
+        BRunUtil.invoke(compileResult, "testNamespaces");
+    }
+
+    @Test
     public void testSetChildrenFunction() {
         BRunUtil.invoke(compileResult, "testSetChildrenFunction");
     }

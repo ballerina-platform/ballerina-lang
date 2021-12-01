@@ -5,7 +5,11 @@
   },
   {
     "description": "Invoke object method.",
-    "code": "Person p1 = new (5, \"John\", \"Doe\"); p1.getFullName()",
+    "code": "Person p1 = new (5, \"John\", \"Doe\");"
+  },
+  {
+    "description": "Invoke object method - get value.",
+    "code": "p1.getFullName()",
     "expr": "\"John Doe\""
   }
 ]

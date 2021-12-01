@@ -306,3 +306,11 @@ const int CONST1 = CONST1;
 // Redeclared constant.
 const abc2 = 1;
 const abc2 = "1";
+
+type Byte byte;
+
+const Byte V1 = 256;
+
+type Ints int;
+
+const Ints V2 = 1.0;

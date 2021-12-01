@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.tree.types;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.types.FiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
@@ -38,6 +40,7 @@ import java.util.StringJoiner;
  */
 public class BLangFiniteTypeNode extends BLangType implements FiniteTypeNode {
 
+    // BLangNodes
     public List<BLangExpression> valueSpace;
 
     public BLangFiniteTypeNode() {
@@ -57,6 +60,16 @@ public class BLangFiniteTypeNode extends BLangType implements FiniteTypeNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

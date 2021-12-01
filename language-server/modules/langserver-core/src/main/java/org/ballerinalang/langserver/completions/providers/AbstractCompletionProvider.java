@@ -52,7 +52,6 @@ import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -324,7 +323,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             }
             String label = prefix;
             String insertText = CommonUtil.escapeReservedKeyword(prefix);
-            CompletionItem item = this.getModuleCompletionItem(label, insertText, new ArrayList<>());
+            CompletionItem item = this.getModuleCompletionItem(label, insertText, new ArrayList<>(), prefix);
             processedList.add(processedModuleHash);
             completionItems.add(new SymbolCompletionItem(ctx, moduleSymbol, item));
         });
@@ -345,7 +344,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 String insertText = CommonUtil.getValidatedSymbolName(ctx, aliasComponent);
                 String alias = !insertText.equals(aliasComponent) ? insertText : "";
                 List<TextEdit> txtEdits = CommonUtil.getAutoImportTextEdits(orgName, name, alias, ctx);
-                CompletionItem item = getModuleCompletionItem(CommonUtil.getPackageLabel(pkg), insertText, txtEdits);
+                CompletionItem item = getModuleCompletionItem(CommonUtil.getPackageLabel(pkg), insertText, txtEdits, 
+                        aliasComponent);
                 completionItems.add(new StaticCompletionItem(ctx, item, StaticCompletionItem.Kind.MODULE));
             }
         });
@@ -377,7 +377,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 return;
             }
             List<TextEdit> textEdits = CommonUtil.getAutoImportTextEdits("", label, alias, ctx);
-            CompletionItem item = this.getModuleCompletionItem(label, insertText, textEdits);
+            CompletionItem item = this.getModuleCompletionItem(label, insertText, textEdits, alias);
             completionItems.add(new StaticCompletionItem(ctx, item, StaticCompletionItem.Kind.MODULE));
         });
 
@@ -577,9 +577,13 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         return completionItems;
     }
 
-    private CompletionItem getModuleCompletionItem(String label, String insertText, @Nonnull List<TextEdit> txtEdits) {
+    private CompletionItem getModuleCompletionItem(String label, String insertText, @Nonnull List<TextEdit> txtEdits, 
+                                                   String prefix) {
         CompletionItem moduleCompletionItem = new CompletionItem();
         moduleCompletionItem.setLabel(label);
+        if (prefix != null) {
+            moduleCompletionItem.setFilterText(prefix);
+        }
         moduleCompletionItem.setInsertText(insertText);
         moduleCompletionItem.setDetail(ItemResolverConstants.MODULE_TYPE);
         moduleCompletionItem.setKind(CompletionItemKind.Module);
@@ -629,7 +633,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      *
      * @param node    node of which the qualifiers are checked.
      * @param context completion context.
-     * @return
+     * @return completion items
      */
     protected List<LSCompletionItem> getCompletionItemsOnQualifiers(Node node, BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
@@ -742,5 +746,31 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         snippetBlock.setId(ItemResolverConstants.ANON_FUNCTION);
         
         return Optional.of(new SnippetCompletionItem(context, snippetBlock));
+    }
+
+    /**
+     * Sets the sort text of the provided completion item based on provided rank and context type.
+     *
+     * @param context        Completion context
+     * @param completionItem Completion item
+     * @param rank           A secondary rank to be considered other than assignability
+     */
+    protected void sortByAssignability(BallerinaCompletionContext context, LSCompletionItem completionItem, int rank) {
+        Optional<TypeSymbol> contextType = context.getContextType();
+        String sortText = "";
+        // First we sort the assignable items above others, and then sort by the rank
+        if (contextType.isPresent() && SortingUtil.isCompletionItemAssignable(completionItem, contextType.get())) {
+            // Rank directly assignable ones first
+            sortText += SortingUtil.genSortText(1);
+        } else if (contextType.isPresent() &&
+                SortingUtil.isCompletionItemAssignableWithCheck(completionItem, contextType.get())) {
+            // Then the items which can be made assignable using a check expression
+            sortText += SortingUtil.genSortText(2);
+        } else {
+            sortText += SortingUtil.genSortText(3);
+        }
+        sortText += SortingUtil.genSortText(rank);
+
+        completionItem.getCompletionItem().setSortText(sortText);
     }
 }

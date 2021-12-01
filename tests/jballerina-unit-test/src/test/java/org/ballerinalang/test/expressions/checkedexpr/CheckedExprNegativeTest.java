@@ -35,12 +35,13 @@ public class CheckedExprNegativeTest {
     public void testSemanticErrors() {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_semantics_negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 3, compile.toString());
+        Assert.assertEquals(compile.getErrorCount(), 4, compile.toString());
         BAssertUtil.validateError(compile, 0, "invalid usage of the 'check' expression " +
                 "operator: no expression type is equivalent to error type", 6, 25);
         BAssertUtil.validateError(compile, 1, "incompatible types: expected '(string|error)'" +
                                               ", found '(string|int)'", 19, 25);
         BAssertUtil.validateError(compile, 2, "invalid expression, expected a call expression", 34, 11);
+        BAssertUtil.validateError(compile, 3, "undefined function 'line'", 34, 11);
     }
 
     @Test

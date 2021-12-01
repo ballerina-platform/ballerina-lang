@@ -1,3 +1,3 @@
 ## Module Overview
 
-The `lang.boolean` module corresponds to basic type boolean.
+The `lang.boolean` module corresponds to the `boolean` basic type.

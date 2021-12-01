@@ -30,8 +30,10 @@ public client class TestClient {
     # Test get message.
     #
     # + uid - User id
+    # + name - User's name
+    # + age - User's age
     # + return - Test message or an error
-    remote isolated function viewMessage(string uid)  returns string|error? {
+    remote isolated function viewMessage(string uid, string name="john", int? age=20)  returns string|error? {
         return "Test Message";
     }
 
@@ -43,6 +45,8 @@ public client class TestClient {
 # User account.
 # + uid - Unique identifier of the account
 # + name - The name of the account
+# + address - User address
+# + parent - Parent info
 @display{label: "User Account"} 
 public type User record {
     string uid = "1";

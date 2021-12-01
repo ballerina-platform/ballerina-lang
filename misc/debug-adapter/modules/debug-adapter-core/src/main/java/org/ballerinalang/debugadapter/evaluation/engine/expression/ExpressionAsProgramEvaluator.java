@@ -22,12 +22,13 @@ import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
@@ -41,8 +42,6 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextDocuments;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.BImport;
@@ -52,14 +51,13 @@ import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.ExternalVariableReferenceFinder;
 import org.ballerinalang.debugadapter.evaluation.engine.ModuleLevelDefinitionFinder;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.utils.FileUtils;
 import org.ballerinalang.debugadapter.evaluation.utils.VariableUtils;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -180,7 +178,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
      * @return Ballerina program snippet
      */
     private String generateEvaluationSnippet() throws EvaluationException {
-        // Generates top level declarations snippet
+        // Generates top-level declarations snippet.
         String moduleDeclarations = extractModuleDefinitions(context.getModule(), false);
 
         // Generates function signature (parameter definitions) for the snippet function template.
@@ -308,7 +306,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         File mainBalFile = File.createTempFile(MAIN_FILE_PREFIX, BAL_FILE_EXT, tempProjectDir.toFile());
         mainBalFile.deleteOnExit();
 
-        writeToFile(mainBalFile, content);
+        FileUtils.writeToFile(mainBalFile, content);
     }
 
     /**
@@ -327,7 +325,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         balTomlContent.add(String.format("name = \"%s\"", EVALUATION_PACKAGE_NAME));
         balTomlContent.add(String.format("version = \"%s\"", EVALUATION_PACKAGE_VERSION));
 
-        writeToFile(balTomlFile, balTomlContent.toString());
+        FileUtils.writeToFile(balTomlFile, balTomlContent.toString());
     }
 
     /**
@@ -335,15 +333,14 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
      * the detected import usages.
      */
     private String generateImportDeclarations(String functionSnippet) throws EvaluationException {
-        TextDocument document = TextDocuments.from(functionSnippet);
-        SyntaxTree functionNode = SyntaxTree.asTopLevel(document);
-        if (functionNode.rootNode().kind() != SyntaxKind.FUNCTION_DEFINITION) {
+        ModuleMemberDeclarationNode functionNode = NodeParser.parseModuleMemberDeclaration(functionSnippet);
+        if (functionNode.kind() != SyntaxKind.FUNCTION_DEFINITION) {
             return null;
         }
         // Detects all the import usages within the evaluation snippet and generates required import statements for
         // the detected import usages.
         EvaluationImportResolver importResolver = new EvaluationImportResolver(context);
-        Map<String, BImport> usedImports = importResolver.detectUsedImports(functionNode.rootNode(), resolvedImports);
+        Map<String, BImport> usedImports = importResolver.detectUsedImports(functionNode, resolvedImports);
         this.capturedImports.addAll(usedImports.values());
 
         StringBuilder importBuilder = new StringBuilder(System.lineSeparator());
@@ -427,27 +424,27 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         File moduleMainFile = Files.createTempFile(filePath, MAIN_FILE_PREFIX, BAL_FILE_EXT).toFile();
         moduleMainFile.deleteOnExit();
         String moduleDefinitions = extractModuleDefinitions(module, true);
-        writeToFile(moduleMainFile, moduleDefinitions);
+        FileUtils.writeToFile(moduleMainFile, moduleDefinitions);
     }
 
-    private String extractModuleDefinitions(Module module, boolean shouldIncludeImports) {
+    private String extractModuleDefinitions(Module module, boolean includeImports) {
         ModuleLevelDefinitionFinder moduleDefinitionFinder = new ModuleLevelDefinitionFinder(context);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.FUNCTION_DEFINITION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.TYPE_DEFINITION);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_VAR_DECL);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.LISTENER_DECLARATION);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CONST_DECLARATION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.ANNOTATION_DECLARATION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.ENUM_DECLARATION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CLASS_DEFINITION);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CONST_DECLARATION);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_VAR_DECL);
 
-        if (shouldIncludeImports) {
+        if (includeImports) {
             moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.IMPORT_DECLARATION);
         }
 
         List<NonTerminalNode> declarationList = moduleDefinitionFinder.getModuleDeclarations(module);
-        if (shouldIncludeImports) {
+        if (includeImports) {
             declarationList = convertImports(declarationList);
         }
 
@@ -595,48 +592,8 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         return bVar.computeValue();
     }
 
-    /**
-     * Helper method to write a string source to a file.
-     *
-     * @param content Content to write to the file.
-     * @throws EvaluationException If writing was unsuccessful.
-     */
-    private void writeToFile(File file, String content) throws EvaluationException {
-        try (FileWriter fileWriter = new FileWriter(file, Charset.defaultCharset())) {
-            fileWriter.write(content);
-        } catch (Exception e) {
-            throw createEvaluationException(String.format("error occurred while writing to a temp file at: '%s'",
-                    file.getPath()));
-        }
-    }
-
-    /**
-     * Delete the given directory along with all files and sub directories.
-     *
-     * @param directoryPath Directory to delete.
-     */
-    private boolean deleteDirectory(Path directoryPath) {
-        try {
-            File directory = new File(String.valueOf(directoryPath));
-            if (directory.isDirectory()) {
-                File[] files = directory.listFiles();
-                if (files != null) {
-                    for (File f : files) {
-                        boolean success = deleteDirectory(f.toPath());
-                        if (!success) {
-                            return false;
-                        }
-                    }
-                }
-            }
-            return directory.delete();
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
     private void dispose() {
         // Todo - anything else to be disposed?
-        deleteDirectory(this.tempProjectDir);
+        FileUtils.deleteDirectory(this.tempProjectDir);
     }
 }

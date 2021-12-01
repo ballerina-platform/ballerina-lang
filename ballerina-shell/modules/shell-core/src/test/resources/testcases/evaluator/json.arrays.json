@@ -1,17 +1,29 @@
 [
   {
     "description": "Create JSON array.",
-    "code": "json j1 = [1, false, null, \"foo\", {first: \"John\", last: \"Pala\"}]; j1.toJsonString()",
+    "code": "json j1 = [1, false, null, \"foo\", {first: \"John\", last: \"Pala\"}];"
+  },
+  {
+    "description": "Create JSON array - get value.",
+    "code": "j1.toJsonString()",
     "expr": "\"[1, false, null, \"foo\", {\"first\":\"John\", \"last\":\"Pala\"}]\""
   },
   {
     "description": "Access Json Array.",
-    "code": "json[] j2 = <json[]>j1; json j3 = j2[4]; j3.toJsonString()",
+    "code": "json[] j2 = <json[]>j1; json j3 = j2[4];"
+  },
+  {
+    "description": "Access Json Array - get value.",
+    "code": "j3.toJsonString()",
     "expr": "\"{\"first\":\"John\", \"last\":\"Pala\"}\""
   },
   {
     "description": "Modify JSON array.",
-    "code": "j2[4] = 8.00; j1.toJsonString()",
+    "code": "j2[4] = 8.00;"
+  },
+  {
+    "description": "Modify JSON array - get value.",
+    "code": "j1.toJsonString()",
     "expr": "\"[1, false, null, \"foo\", 8.0]\""
   },
   {
@@ -20,7 +32,11 @@
   },
   {
     "description": "Change internal values.",
-    "code": "json[] family = <json[]>p[\"family\"]; map<json> member2 = <map<json>>family[2]; member2[\"fname\"] = \"Alisha\"; p.toJsonString()",
+    "code": "json[] family = <json[]>p[\"family\"]; map<json> member2 = <map<json>>family[2]; member2[\"fname\"] = \"Alisha\";"
+  },
+  {
+    "description": "Change internal values - get value.",
+    "code": "p.toJsonString()",
     "expr": "\"{\"fname\":\"John\", \"lname\":\"Stallone\", \"family\":[{\"fname\":\"Peter\", \"lname\":\"Stallone\"}, {\"fname\":\"Emma\", \"lname\":\"Stallone\"}, {\"fname\":\"Alisha\", \"lname\":\"Stallone\"}, {\"fname\":\"Paul\", \"lname\":\"Stallone\"}]}\""
   },
   {

@@ -71,6 +71,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
@@ -83,7 +84,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
@@ -340,6 +340,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
+        lookupNodes(varNode.annAttachments);
         lookupNode(varNode.typeNode);
         lookupNode(varNode.expr);
         setEnclosingNode(varNode, varNode.name.pos);
@@ -375,12 +376,10 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangLock.BLangLockStmt lockStmtNode) {
-        lookupNode(lockStmtNode.body);
     }
 
     @Override
     public void visit(BLangLock.BLangUnLockStmt unLockNode) {
-        lookupNode(unLockNode.body);
     }
 
     @Override
@@ -651,6 +650,7 @@ class NodeFinder extends BaseVisitor {
     public void visit(BLangTypeInit typeInit) {
         lookupNode(typeInit.userDefinedType);
         lookupNodes(typeInit.argsExpr);
+        setEnclosingNode(typeInit, typeInit.pos);
     }
 
     @Override
@@ -818,12 +818,6 @@ class NodeFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangIntRangeExpression intRangeExpression) {
-        lookupNode(intRangeExpression.startExpr);
-        lookupNode(intRangeExpression.endExpr);
-    }
-
-    @Override
     public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
         lookupNode(bLangVarArgsExpression.expr);
     }
@@ -831,6 +825,7 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
         lookupNode(bLangNamedArgsExpression.expr);
+        setEnclosingNode(bLangNamedArgsExpression.name, bLangNamedArgsExpression.name.pos);
     }
 
     @Override
@@ -869,6 +864,11 @@ class NodeFinder extends BaseVisitor {
     public void visit(BLangIsLikeExpr typeTestExpr) {
         lookupNode(typeTestExpr.expr);
         lookupNode(typeTestExpr.typeNode);
+    }
+
+    @Override
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        lookupNode(annotAccessExpr.expr);
     }
 
     @Override
@@ -1107,7 +1107,7 @@ class NodeFinder extends BaseVisitor {
         for (BLangRecordVariable.BLangRecordVariableKeyValue var : bLangRecordVariable.variableList) {
             lookupNode(var.valueBindingPattern);
         }
-        lookupNode((BLangNode) bLangRecordVariable.restParam);
+        lookupNode(bLangRecordVariable.restParam);
         lookupNodes(bLangRecordVariable.annAttachments);
     }
 
@@ -1361,7 +1361,8 @@ class NodeFinder extends BaseVisitor {
     }
 
     private boolean setEnclosingNode(BLangNode node, Location pos) {
-        if (PositionUtil.withinRange(this.range, pos) && this.enclosingNode == null) {
+        if (PositionUtil.withinRange(this.range, pos)
+                && (this.enclosingNode == null || PositionUtil.withinRange(pos.lineRange(), this.enclosingNode.pos))) {
             this.enclosingNode = node;
             return true;
         }

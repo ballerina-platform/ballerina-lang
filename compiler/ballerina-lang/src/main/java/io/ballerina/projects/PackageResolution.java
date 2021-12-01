@@ -43,6 +43,7 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -159,6 +160,7 @@ public class PackageResolution {
             this.autoUpdate = false;
             return true;
         }
+
         // set sticky if `build` file exists and `last_update_time` not passed 24 hours
         if (rootPackageContext.project().kind() == ProjectKind.BUILD_PROJECT) {
             Path buildFilePath = this.rootPackageContext.project().targetDir().resolve(BUILD_FILE);
@@ -166,7 +168,10 @@ public class PackageResolution {
             if (Files.exists(buildFilePath) && buildFilePath.toFile().length() > 0) {
                 try {
                     BuildJson buildJson = readBuildJson(buildFilePath);
-                    if (buildJson != null && !buildJson.isExpiredLastUpdateTime()) {
+                    // if distribution is not same, we anyway return sticky as false
+                    if (buildJson != null && buildJson.distributionVersion() != null &&
+                            buildJson.distributionVersion().equals(RepoUtils.getBallerinaShortVersion()) &&
+                            !buildJson.isExpiredLastUpdateTime()) {
                         this.autoUpdate = false;
                         return true;
                     } else {
