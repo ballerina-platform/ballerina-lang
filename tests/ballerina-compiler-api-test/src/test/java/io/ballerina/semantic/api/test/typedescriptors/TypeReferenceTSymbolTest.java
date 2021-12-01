@@ -109,6 +109,6 @@ public class TypeReferenceTSymbolTest {
         assertEquals(recordFields.size(), 1);
         RecordFieldSymbol recordFieldSymbol = recordFields.get("age");
         assertEquals(recordFieldSymbol.getName().get(), "age");
-        assertEquals(((TypeReferenceTypeSymbol)(recordFieldSymbol).typeDescriptor()).definition(), typeSymbol.get());
+        assertEquals(((TypeReferenceTypeSymbol) (recordFieldSymbol).typeDescriptor()).definition(), typeSymbol.get());
     }
 }
