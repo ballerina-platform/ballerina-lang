@@ -15,14 +15,16 @@
  */
 package org.ballerinalang.langserver.util.rename;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
-import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Document;
@@ -37,6 +39,7 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.PrepareRenameContext;
 import org.ballerinalang.langserver.commons.ReferencesContext;
 import org.ballerinalang.langserver.commons.RenameContext;
+import org.ballerinalang.langserver.contexts.BallerinaContextUtils;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.util.TokensUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
@@ -91,7 +94,7 @@ public class RenameUtil {
                 .orElse(null);
         // Check if token at cursor is an identifier
         if (!(tokenAtCursor instanceof IdentifierToken) || CommonUtil.isKeyword(tokenAtCursor.text()) 
-                || CommonUtil.SELF_KW.equals(tokenAtCursor.text())) {
+                || isSelfClassSymbol(context)) {
             return Optional.empty();
         }
         Optional<Document> document = context.currentDocument();
@@ -132,8 +135,7 @@ public class RenameUtil {
         }
         
         if (nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            String tokenAtCursorName = ((SimpleNameReferenceNode) nodeAtCursor).name().text();
-            if (CommonUtil.SELF_KW.equals(tokenAtCursorName)) {
+            if (isSelfClassSymbol(context)) {
                 return Collections.emptyMap();
             }
         }
@@ -358,6 +360,23 @@ public class RenameUtil {
         Position position = context.getCursorPosition();
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
         context.setCursorPositionInTree(txtPos);
+    }
+    
+    private static boolean isSelfClassSymbol(ReferencesContext context) {
+        Optional<Document> srcFile = context.currentDocument();
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (srcFile.isEmpty() || semanticModel.isEmpty()) {
+            return false;
+        }
+        Position position = context.getCursorPosition();
+        LinePosition linePosition = LinePosition.from(position.getLine(), position.getCharacter());
+        Optional<Symbol> symbol = semanticModel.get().symbol(srcFile.get(), linePosition);
+        if (symbol.isEmpty()) {
+            return false;
+        }
+        ModuleMemberDeclarationNode enclosingNode = BallerinaContextUtils.
+                getEnclosingModuleMember(context.currentSyntaxTree().get(), context.getCursorPositionInTree()).get();
+        return CommonUtil.isSelfClassSymbol(symbol.get(), context, enclosingNode);
     }
 
     private enum RenameChangeAnnotation {
