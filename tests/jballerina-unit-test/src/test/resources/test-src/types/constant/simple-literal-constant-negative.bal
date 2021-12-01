@@ -317,7 +317,7 @@ const Ints V2 = 1.0;
 
 // Test the types of Langlib constants
 type Ints2 -1|int:MIN_VALUE;
-Ints ints2 = 2;
+Ints2 ints2 = 2;
 
 float:NaN floatNan = 1.0;
 float:Infinity floatInf = 1.0;

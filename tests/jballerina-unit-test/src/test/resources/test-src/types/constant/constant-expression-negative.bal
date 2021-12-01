@@ -46,11 +46,11 @@ const boolean CB2 = !true;
 const string CS2 = "1" + "2";
 
 function userDefinedTypeTests() {
-    CI6 ci6 = 4; //
-    CF1 cf1 = 4.0; //
-    CD1 cd1 = 4.0; //
-//  CBT3 cbt3 = 4; //
-    CB2 cb2 = true; //
-    CS2 cs2 = "4"; //
+    CI6 ci6 = 4; // expected '3', found 'int'
+    CF1 cf1 = 4.0; // expected '3.0f', found 'float'
+    CD1 cd1 = 4.0; // expected '3.0d', found 'float'
+//  CBT3 cbt3 = 4; // expected '3', found 'int'
+    CB2 cb2 = true; // expected 'false', found 'boolean'
+    CS2 cs2 = "4"; // expected '12', found 'string'
 }
 

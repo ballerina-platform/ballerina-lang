@@ -59,12 +59,14 @@ public class ConstantExpressionTest {
         BAssertUtil.validateError(compileResult1, i++, "operator '~' not defined for 'boolean'", 33, 22);
         BAssertUtil.validateError(compileResult1, i++, "operator '-' not defined for 'boolean'", 35, 21);
         BAssertUtil.validateError(compileResult1, i++, "operator '~' not defined for 'boolean'", 37, 22);
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3', found 'int'", 43, 15);
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3.0f', found 'float'", 44, 15);
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3.0d', found 'float'", 45, 15);
-//        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3', found 'int'", 46, 15); // Activate this after fixing #33889
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'false', found 'boolean'", 47, 15);
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '12', found 'string'", 48, 15);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3', found 'int'", 49, 15);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3.0f', found 'float'", 50, 15);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3.0d', found 'float'", 51, 15);
+        // Activate this after fixing #33889
+//        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3', found 'int'", 52, 15);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'false', found 'boolean'",
+                53, 15);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '12', found 'string'", 54, 15);
         Assert.assertEquals(compileResult1.getErrorCount(), i);
     }
 

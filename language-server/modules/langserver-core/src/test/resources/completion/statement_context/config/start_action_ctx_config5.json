@@ -22,7 +22,7 @@
     {
       "label": "MIN_VALUE",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "-9223372036854775808",
       "documentation": {
         "right": {
           "kind": "markdown",

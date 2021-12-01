@@ -159,9 +159,12 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Byte', found 'int'", 312, 17);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ints', found 'float'",
                                   316, 17);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ints2', found 'int'", 312, 13);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'NaNf', found 'float'", 314, 22);
-        BAssertUtil.validateError(compileResult, index, "incompatible types: expected 'Infinityf', found 'float'", 315, 27);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ints2', found 'int'",
+                320, 15);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'NaNf', found 'float'",
+                322, 22);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Infinityf', found 'float'",
+                323, 27);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }
