@@ -8,7 +8,6 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageLockingMode;
@@ -193,9 +192,9 @@ public class RemotePackageRepository implements PackageRepository {
                             return x;
                         } else if (x.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
                             return y;
-                        } else if (x.packageDescriptor().version().compareTo(
+                        } else if (getLatest(x.packageDescriptor().version(),
                                 y.packageDescriptor().version()).equals(
-                                SemanticVersion.VersionCompatibilityResult.LESS_THAN)) {
+                                y.packageDescriptor().version())) {
                             return y;
                         }
                         return x;
