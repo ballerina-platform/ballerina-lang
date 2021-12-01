@@ -31,11 +31,23 @@ import java.util.List;
  * @since 3.0.0
  */
 public class BddPath {
-    Bdd bdd = BddAllOrNothing.bddAll();
-    List<Atom> pos = new ArrayList<>();
-    List<Atom> neg = new ArrayList<>();
+    Bdd bdd;
+    List<Atom> pos;
+    List<Atom> neg;
 
-    public static void bddPaths(Bdd b, List<BddPath> paths, BddPath accum) throws CloneNotSupportedException {
+    private BddPath(BddPath bddPath) {
+        this.bdd = bddPath.bdd;
+        this.pos = bddPath.pos;
+        this.neg = bddPath.neg;
+    }
+
+    public BddPath() {
+        this.bdd = BddAllOrNothing.bddAll();
+        this.pos = new ArrayList<>();
+        this.neg = new ArrayList<>();
+    }
+
+    public static void bddPaths(Bdd b, List<BddPath> paths, BddPath accum) {
         if (b instanceof BddAllOrNothing) {
             if (((BddAllOrNothing) b).isAll()) {
                 paths.add(accum);
@@ -54,8 +66,8 @@ public class BddPath {
         }
     }
 
-    private static BddPath bddPathClone(BddPath path) throws CloneNotSupportedException {
-        return (BddPath) path.clone();
+    private static BddPath bddPathClone(BddPath path) {
+        return new BddPath(path);
     }
 
     public static BddPath from() {

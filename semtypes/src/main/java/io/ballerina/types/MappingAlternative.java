@@ -36,13 +36,14 @@ public class MappingAlternative {
         this.neg = neg;
     }
 
-    public MappingAlternative[] mappingAlternativesRw(Context cx, SemType t) throws CloneNotSupportedException {
+    public MappingAlternative[] mappingAlternativesRw(Context cx, SemType t) {
         if (t instanceof UniformTypeBitSet) {
             if ((((UniformTypeBitSet) t).bitset & PredefinedType.MAPPING_RW.bitset) == 0) {
                 return new MappingAlternative[]{};
             } else {
-                return new MappingAlternative[]{from(cx, PredefinedType.MAPPING_RW, new ArrayList<>(),
-                        new ArrayList<>())};
+                return new MappingAlternative[]{
+                        from(cx, PredefinedType.MAPPING_RW, new ArrayList<>(), new ArrayList<>())
+                };
             }
         } else {
             List<BddPath> paths = new ArrayList<>();
@@ -68,5 +69,4 @@ public class MappingAlternative {
         }
         return new MappingAlternative(semType, p, n);
     }
-
 }

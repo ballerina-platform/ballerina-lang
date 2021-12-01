@@ -30,11 +30,11 @@ public class FieldPair {
     public final String  name;
     public final SemType type1;
     public final SemType type2;
-    Optional<Integer> index1;
-    Optional<Integer> index2;
+    Integer index1;
+    Integer index2;
 
 
-    public FieldPair(String name, SemType type1, SemType type2, Optional<Integer> index1, Optional<Integer> index2) {
+    public FieldPair(String name, SemType type1, SemType type2, Integer index1, Integer index2) {
         this.name = name;
         this.type1 = type1;
         this.type2 = type2;
@@ -42,8 +42,8 @@ public class FieldPair {
         this.index2 = index2;
     }
 
-    public static FieldPair create(String name, SemType type1, SemType type2, Optional<Integer> index1,
-                                   Optional<Integer> index2) {
+    public static FieldPair create(String name, SemType type1, SemType type2, Integer index1,
+                                   Integer index2) {
         return new FieldPair(name, type1, type2, index1, index2);
     }
 }
