@@ -67,18 +67,6 @@ function testUnreachableCodeWithTypeNarrowing3() {
     int x = i;
 }
 
-function testUnreachableCodeWithTypeNarrowing4() {
-    int|string|boolean i = 1;
-
-    if i is int|string {
-        panic error("Error");
-    }
-    if i is boolean {
-        return;
-    }
-    int x = i;
-}
-
 function testUnreachableCodeWithTypeNarrowing5() {
     int|string x = 1;
 
@@ -188,16 +176,6 @@ function testUnreachableCodeWithTypeNarrowing10() {
     string y = x;
 }
 
-function testTypeNarrowingWithIfWithoutElseNotCompletedNormally1() {
-    int|string a = 1;
-    if a is int|string {
-        a = 2;
-        return;
-    }
-
-    string b = a;
-}
-
 function testTypeNarrowingWithIfWithoutElseNotCompletedNormally2() {
     int|string a = 1;
     int? b = 12;
@@ -233,16 +211,6 @@ function testTypeNarrowingWithIfWithoutElseNotCompletedNormally3() {
     10 c = b;
 }
 
-function testTypeNarrowingWithIfWithoutElseNotCompletedNormally4() {
-    10 b = 10;
-
-    if b == 10 {
-        return;
-    }
-
-    string a = b;
-}
-
 function testTypeNarrowingWithIfWithoutElseNotCompletedNormally5() {
     10|20 b = 10;
 
@@ -266,16 +234,6 @@ function testTypeNarrowingWithIfWithoutElseNotCompletedNormally6() {
     10 c = b;
 }
 
-function testTypeNarrowingWithIfWithoutElseNotCompletedNormally7() {
-    Type2 b = 10;
-
-    if b == 10 {
-        return;
-    }
-
-    string a = b;
-}
-
 function testTypeNarrowingWithIfWithoutElseNotCompletedNormally8() {
     Type1 b = 10;
 
@@ -284,4 +242,82 @@ function testTypeNarrowingWithIfWithoutElseNotCompletedNormally8() {
     }
 
     20 c = b;
+}
+
+function testTypeNarrowingWithIfWithoutElseNotCompletedNormally9() {
+    int? a = 10;
+    if !(a is int) {
+        return;
+    }
+    () b = a;
+    a = 1;
+    int c = a;
+}
+
+function testTypeNarrowingWithIfWithoutElseNotCompletedNormally10() {
+    int? a = 10;
+    if a !is int {
+        return;
+    }
+    () b = a;
+    a = 1;
+    int c = a;
+}
+
+function testTypeNarrowingWithIfWithoutElseNotCompletedNormally11() {
+    Type1 b = 10;
+    if !(b == 10) {
+        return;
+    }
+    20 c = b;
+    b = 10;
+    10 d = b;
+}
+
+function testTypeNarrowingWithWhileNotCompletedNormally() {
+    int? a = 10;
+    if a is int {
+        while true {
+            if a == 10 {
+                return;
+            }
+        }
+    }
+    int _ = a;
+}
+
+function testTypeNarrowingWithWhileNotCompletedNormally2() {
+    int? a = 10;
+    if a is int {
+        while true {
+            return;
+        }
+    }
+    int _ = a;
+}
+
+function testTypeNarrowingWithWhileCompletedNormally() {
+    int? a = 10;
+    if a is int {
+        while true {
+            if a == 10 {
+                break;
+            }
+        }
+    }
+    () b = a;
+}
+
+function testTypeNarrowingWithWhileCompletedNormally2() returns int? {
+    int? a = 10;
+    if a is int {
+        int b = 1;
+        while b < 5 {
+            if a == 10 {
+                return;
+            }
+            b += 1;
+        }
+    }
+    () b = a;
 }

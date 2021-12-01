@@ -64,16 +64,17 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_RECORD_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_TYPES_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_OBJECTS_CREATOR_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BOBJECT_CALL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_TYPE_IMPL_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeFieldName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 
@@ -113,8 +114,7 @@ public class JvmObjectCreatorGen {
                                              PackageID moduleId, String moduleInitClass, String typeOwnerClass,
                                              SymbolTable symbolTable, String metadataVarName) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_OBJECT_VALUE,
-                String.format("(L%s;L%s;L%s;L%s;[L%s;)L%s;",
-                        STRING_VALUE, SCHEDULER, STRAND_CLASS, MAP, OBJECT, B_OBJECT), null, null);
+                CREATE_OBJECT, null, null);
         mv.visitCode();
         if (objectTypeDefList.isEmpty()) {
             createDefaultCase(mv, new Label(), 1, "No such object: ");
@@ -125,8 +125,7 @@ public class JvmObjectCreatorGen {
             mv.visitVarInsn(ALOAD, 3);
             mv.visitVarInsn(ALOAD, 4);
             mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_OBJECT_VALUE + 0,
-                    String.format("(L%s;L%s;L%s;L%s;[L%s;)L%s;",
-                            STRING_VALUE, SCHEDULER, STRAND_CLASS, MAP, OBJECT, B_OBJECT), false);
+                    CREATE_OBJECT, false);
             mv.visitInsn(ARETURN);
             generateCreateObjectMethodSplits(cw, objectTypeDefList, moduleId, moduleInitClass, typeOwnerClass,
                     symbolTable, metadataVarName);
@@ -156,8 +155,7 @@ public class JvmObjectCreatorGen {
         for (BIRTypeDefinition optionalTypeDef : objectTypeDefList) {
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
                 mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_OBJECT_VALUE + methodCount++,
-                        String.format("(L%s;L%s;L%s;L%s;[L%s;)L%s;",
-                                STRING_VALUE, SCHEDULER, STRAND_CLASS, MAP, OBJECT, B_OBJECT), null, null);
+                        CREATE_OBJECT, null, null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
                 int remainingCases = objectTypeDefList.size() - bTypesCount;
@@ -177,9 +175,9 @@ public class JvmObjectCreatorGen {
             String className = getTypeValueClassName(moduleId, optionalTypeDef.internalName.value);
             mv.visitTypeInsn(NEW, className);
             mv.visitInsn(DUP);
-            mv.visitFieldInsn(GETSTATIC, moduleInitClass, fieldName, String.format("L%s;", TYPE));
+            mv.visitFieldInsn(GETSTATIC, moduleInitClass, fieldName, GET_TYPE);
             mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
-            mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, String.format("(L%s;)V", OBJECT_TYPE_IMPL),
+            mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, OBJECT_TYPE_IMPL_INIT,
                     false);
 
             int tempVarIndex = indexMap.addIfNotExists("tempVar", optionalTypeDef.type);
@@ -194,13 +192,12 @@ public class JvmObjectCreatorGen {
             mv.visitTypeInsn(NEW, STRAND_CLASS);
             mv.visitInsn(DUP);
             mv.visitInsn(ACONST_NULL);
-            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, metadataVarName, String.format("L%s;", STRAND_METADATA));
+            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, metadataVarName, GET_STRAND_METADATA);
             mv.visitVarInsn(ALOAD, schedulerIndex);
             mv.visitVarInsn(ALOAD, parentIndex);
             mv.visitVarInsn(ALOAD, propertiesIndex);
             mv.visitMethodInsn(INVOKESPECIAL, STRAND_CLASS, JVM_INIT_METHOD,
-                    String.format("(L%s;L%s;L%s;L%s;L%s;)V", STRING_VALUE, STRAND_METADATA, SCHEDULER,
-                            STRAND_CLASS, MAP), false);
+                    INIT_STRAND, false);
             mv.visitVarInsn(ASTORE, strandVarIndex);
             Label endConditionLabel = new Label();
             mv.visitJumpInsn(GOTO, endConditionLabel);
@@ -215,7 +212,7 @@ public class JvmObjectCreatorGen {
             mv.visitLdcInsn("$init$");
             mv.visitVarInsn(ALOAD, argsIndex);
 
-            String methodDesc = String.format("(L%s;L%s;[L%s;)L%s;", STRAND_CLASS, STRING_VALUE, OBJECT, OBJECT);
+            String methodDesc = BOBJECT_CALL;
             mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "call", methodDesc, true);
 
             int tempResultIndex = indexMap.addIfNotExists("tempResult", symbolTable.anyType);
@@ -244,8 +241,7 @@ public class JvmObjectCreatorGen {
                     mv.visitVarInsn(ALOAD, 3);
                     mv.visitVarInsn(ALOAD, 4);
                     mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_OBJECT_VALUE + methodCount,
-                            String.format("(L%s;L%s;L%s;L%s;[L%s;)L%s;",
-                                    STRING_VALUE, SCHEDULER, STRAND_CLASS, MAP, OBJECT, B_OBJECT), false);
+                            CREATE_OBJECT, false);
                     mv.visitInsn(ARETURN);
                 }
                 mv.visitMaxs(i + 10, i + 10);

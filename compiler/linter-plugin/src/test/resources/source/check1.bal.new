@@ -1,0 +1,7 @@
+public function main() returns error? {
+    int _ = testFunc();
+}
+
+function testFunc () returns int{
+    return 10;
+}

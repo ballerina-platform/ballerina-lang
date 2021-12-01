@@ -214,8 +214,10 @@ public class AddResourceMethod implements CodeAction {
         textEdits.add(TextEdit.from(textRange, insertText));
         // Create a text document change with our edits
         TextDocumentChange change = TextDocumentChange.from(textEdits.toArray(new TextEdit[0]));
-        // Create the new syntax tree after applying the changes
-        SyntaxTree modifiedSyntaxTree = SyntaxTree.from(syntaxTree, change);
+        // Modify the existing text document with the change
+        TextDocument modifiedTextDocument = syntaxTree.textDocument().apply(change);
+        // Create the new syntax tree with the new text document
+        SyntaxTree modifiedSyntaxTree = SyntaxTree.from(modifiedTextDocument);
 
         // Create a document edit. Represents an edit to a specific document in the workspace. Document is specified
         //  by the fileUri. Need to provide the modified syntax tree.
@@ -232,6 +234,11 @@ public class AddResourceMethod implements CodeAction {
     }
 }
 ```
+
+#### Note
+
+Do not use `SyntaxTree.from(oldSyntaxTree, change)` to create the new syntax tree due to
+https://github.com/ballerina-platform/ballerina-lang/issues/24058. It may cause an out of memory issue in the runtime.
 
 ### Step 3 - Manual Testing
 
@@ -262,6 +269,27 @@ following code.
 public class CodeActionUtils {
 
     /**
+     * Check if provided position is within the provided line range.
+     *
+     * @param lineRange Line range
+     * @param pos       Position
+     * @return True if position is within the provided line range
+     */
+    public static boolean isWithinRange(LineRange lineRange, LinePosition pos) {
+        int sLine = lineRange.startLine().line();
+        int sCol = lineRange.startLine().offset();
+        int eLine = lineRange.endLine().line();
+        int eCol = lineRange.endLine().offset();
+
+        return ((sLine == eLine && pos.line() == sLine) &&
+                (pos.offset() >= sCol && pos.offset() <= eCol)
+        ) || ((sLine != eLine) && (pos.line() > sLine && pos.line() < eLine ||
+                pos.line() == eLine && pos.offset() <= eCol ||
+                pos.line() == sLine && pos.offset() >= sCol
+        ));
+    }
+
+    /**
      * Get codeactions for the provided cursor position in the provided source file.
      *
      * @param filePath  Source file path
@@ -280,7 +308,7 @@ public class CodeActionUtils {
 
         return compilation.diagnosticResult().diagnostics().stream()
                 // Filter diagnostics available for the cursor position
-                .filter(diagnostic -> CodeActionUtil.isWithinRange(diagnostic.location().lineRange(), cursorPos) &&
+                .filter(diagnostic -> isWithinRange(diagnostic.location().lineRange(), cursorPos) &&
                         filePath.endsWith(diagnostic.location().lineRange().filePath()))
                 .flatMap(diagnostic -> {
                     CodeActionContextImpl context = CodeActionContextImpl.from(
@@ -291,7 +319,7 @@ public class CodeActionUtils {
                             compilation.getSemanticModel(documentId.moduleId()),
                             diagnostic);
                     // Get codeactions for the diagnostic
-                    return codeActionManager.codeActions(context).stream();
+                    return codeActionManager.codeActions(context).getCodeActions().stream();
                 })
                 .collect(Collectors.toList());
     }
@@ -321,10 +349,11 @@ Here's an example:
     // Compare expected codeaction and received codeactions to check if we got the expected codeaction
     // Here, we compare codeactions using JSON serialization. You can perform this manually by comparing each
     // field of a codeaction as well.
+    Gson gson = new Gson();
     JsonObject expectedCodeAction = GSON.toJsonTree(expected).getAsJsonObject();
     Optional < CodeActionInfo > found = codeActions.stream()
             .filter(codeActionInfo -> {
-                JsonObject actualCodeAction = GSON.toJsonTree(codeActionInfo).getAsJsonObject();
+                JsonObject actualCodeAction = gson.toJsonTree(codeActionInfo).getAsJsonObject();
                 return actualCodeAction.equals(expectedCodeAction);
             })
             .findFirst();

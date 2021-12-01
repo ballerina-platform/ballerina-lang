@@ -424,7 +424,7 @@ public class CompoundAssignmentTest {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/compoundassignment/compound_assignment_negative.bal");
         int i = 0;
-        Assert.assertEquals(compileResult.getErrorCount(), 33);
+        Assert.assertEquals(compileResult.getErrorCount(), 30);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'any' and 'int'", 5, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '-' not defined for 'any' and 'int'", 13, 5);
         BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 20, 5);
@@ -443,30 +443,27 @@ public class CompoundAssignmentTest {
         BAssertUtil.validateError(compileResult, i++, "operator '<<' not defined for 'int' and 'string'", 108, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '>>' not defined for 'int' and 'string'", 114, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '>>>' not defined for 'int' and 'string'", 120, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int?'", 132, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int?'", 140, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int'", 150, 11);
-        BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 156, 5);
-        BAssertUtil.validateError(compileResult, i++, "invalid token '='", 170, 17);
-        BAssertUtil.validateError(compileResult, i++, "invalid token '='", 171, 17);
+        BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 126, 5);
+        BAssertUtil.validateError(compileResult, i++, "invalid token '='", 140, 17);
+        BAssertUtil.validateError(compileResult, i++, "invalid token '='", 141, 17);
         BAssertUtil.validateError(compileResult, i++, "operator '&' not defined for '(int|string)' and 'int'",
-                180, 5);
+                150, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '|' not defined for '(int|string)' and 'int'",
-                181, 5);
+                151, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '^' not defined for '(int|string)' and 'int'",
-                182, 5);
+                152, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '&' not defined for '(int|string)' and 'SomeType'",
-                185, 5);
+                155, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '|' not defined for '(int|string)' and 'SomeType'",
-                186, 5);
+                156, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '^' not defined for '(int|string)' and 'SomeType'",
-                187, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '&' not defined for '(int|string)' and '12|A'",
-                190, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '|' not defined for '(int|string)' and '12|A'",
-                191, 5);
-        BAssertUtil.validateError(compileResult, i, "operator '^' not defined for '(int|string)' and '12|A'",
-                192, 5);
+                157, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '&' not defined for '(int|string)' and 'SomeType2'",
+                160, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '|' not defined for '(int|string)' and 'SomeType2'",
+                161, 5);
+        BAssertUtil.validateError(compileResult, i, "operator '^' not defined for '(int|string)' and 'SomeType2'",
+                162, 5);
     }
 
     @Test(dataProvider = "dataToTestCompoundAssignmentBinaryOpsWithTypes", description = "Test compound assignment " +
@@ -484,10 +481,7 @@ public class CompoundAssignmentTest {
                 "testCompoundAssignmentDivisionWithTypes",
                 "testCompoundAssignmentBitwiseLeftShift",
                 "testCompoundAssignmentBitwiseRightShift",
-                "testCompoundAssignmentBitwiseUnsignedRightShift",
-                "testCompoundAssignmentBitwiseANDOperation",
-                "testCompoundAssignmentBitwiseOROperation",
-                "testCompoundAssignmentBitwiseXOROperation"
+                "testCompoundAssignmentBitwiseUnsignedRightShift"
         };
     }
 

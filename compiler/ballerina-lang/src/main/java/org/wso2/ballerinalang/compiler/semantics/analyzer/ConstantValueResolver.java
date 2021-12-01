@@ -253,6 +253,12 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BLangConstantValue evaluateUnaryOperator(BLangConstantValue value, OperatorKind kind) {
+        if (value == null || value.value == null) {
+            // This is a compilation error.
+            // This is to avoid NPE exceptions in sub-sequent validations.
+            return new BLangConstantValue(null, this.currentConstSymbol.type);
+        }
+        
         try {
             switch (kind) {
                 case ADD:

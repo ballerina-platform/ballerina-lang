@@ -1143,10 +1143,9 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private void prepareForAdd(long index, Object value, Type sourceType, int currentArraySize) {
         // check types
         if (!TypeChecker.checkIsType(null, value, sourceType, this.elementType)) {
-            BString reason = getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER);
-            BString detail = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, this.elementType,
-                    sourceType);
-            throw ErrorCreator.createError(reason, detail);
+            throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
+                    INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER), BLangExceptionHelper.getErrorDetails(
+                            RuntimeErrors.INCOMPATIBLE_TYPE, this.elementType, sourceType));
         }
 
         int intIndex = (int) index;
@@ -1265,27 +1264,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
             default:
                 return refValues.length;
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        ArrayValueImpl that = (ArrayValueImpl) o;
-        return arrayType.equals(that.arrayType) &&
-                elementType.equals(that.elementType) &&
-                Arrays.equals(refValues, that.refValues) &&
-                Arrays.equals(intValues, that.intValues) &&
-                Arrays.equals(booleanValues, that.booleanValues) &&
-                Arrays.equals(byteValues, that.byteValues) &&
-                Arrays.equals(floatValues, that.floatValues) &&
-                Arrays.equals(bStringValues, that.bStringValues);
     }
 
     @Override

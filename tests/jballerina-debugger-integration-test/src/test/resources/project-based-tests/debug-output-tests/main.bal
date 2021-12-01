@@ -16,5 +16,5 @@
 
 // The `main` function, which acts as the entry point.
 public function main() {
-    int x = 1/0;
+    int _ = 1/0;
 }

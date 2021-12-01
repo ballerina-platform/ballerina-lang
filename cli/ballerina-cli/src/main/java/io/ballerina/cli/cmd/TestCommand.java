@@ -19,14 +19,15 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
-import io.ballerina.cli.task.CleanTargetDirTask;
+import io.ballerina.cli.task.CleanTargetCacheDirTask;
 import io.ballerina.cli.task.CompileTask;
+import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ListTestGroupsTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.RunTestsTask;
+import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
@@ -76,6 +77,36 @@ public class TestCommand implements BLauncherCmd {
         this.exitWhenFinish = exitWhenFinish;
     }
 
+    public TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                       boolean dumpBuildTime) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.dumpBuildTime = dumpBuildTime;
+    }
+
+    public TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                       Boolean testReport, Boolean coverage, String coverageFormat) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.testReport = testReport;
+        this.coverage = coverage;
+        this.coverageFormat = coverageFormat;
+    }
+
+    public TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                       Boolean testReport, Path targetDir) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.testReport = testReport;
+        this.targetDir = targetDir;
+    }
+
     @CommandLine.Option(names = {"--offline"}, description = "Builds/Compiles offline without downloading " +
             "dependencies.")
     private Boolean offline;
@@ -123,10 +154,17 @@ public class TestCommand implements BLauncherCmd {
             description = "hidden option for code coverage to include all classes")
     private String includes;
 
+    @CommandLine.Option(names = "--dump-build-time", description = "calculate and dump build time", hidden = true)
+    private Boolean dumpBuildTime;
+
+    @CommandLine.Option(names = "--target-dir", description = "target directory path")
+    private Path targetDir;
+
     private static final String testCmd = "bal test [--offline]\n" +
             "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
 
     public void execute() {
+        long start = 0;
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
             this.errStream.println(commandUsageInfo);
@@ -146,10 +184,18 @@ public class TestCommand implements BLauncherCmd {
             testReport = false;
         }
         BuildOptions buildOptions = constructBuildOptions();
+
         boolean isSingleFile = false;
         if (FileUtils.hasExtension(this.projectPath)) {
             try {
+                if (buildOptions.dumpBuildTime()) {
+                    start = System.currentTimeMillis();
+                    BuildTime.getInstance().timestamp = start;
+                }
                 project = SingleFileProject.load(this.projectPath, buildOptions);
+                if (buildOptions.dumpBuildTime()) {
+                    BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
+                }
             } catch (ProjectException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), testCmd, false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -158,7 +204,14 @@ public class TestCommand implements BLauncherCmd {
             isSingleFile = true;
         } else {
             try {
+                if (buildOptions.dumpBuildTime()) {
+                    start = System.currentTimeMillis();
+                    BuildTime.getInstance().timestamp = start;
+                }
                 project = BuildProject.load(this.projectPath, buildOptions);
+                if (buildOptions.dumpBuildTime()) {
+                    BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
+                }
             } catch (ProjectException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), testCmd, false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -199,13 +252,14 @@ public class TestCommand implements BLauncherCmd {
         }
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetDirTask(), isSingleFile)   // clean the target directory(projects only)
+                .addTask(new CleanTargetCacheDirTask(), isSingleFile) // clean the target cache dir(projects only)
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new ListTestGroupsTask(outStream), !listGroups) // list available test groups
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
                         testList, includes, coverageFormat), listGroups)
+                .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 
         taskExecutor.executeTasks(project);
@@ -215,14 +269,23 @@ public class TestCommand implements BLauncherCmd {
     }
 
     private BuildOptions constructBuildOptions() {
-        return new BuildOptionsBuilder()
-                .codeCoverage(coverage)
-                .experimental(experimentalFlag)
-                .offline(offline)
-                .skipTests(false)
-                .testReport(testReport)
-                .observabilityIncluded(observabilityIncluded)
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+
+        buildOptionsBuilder
+                .setCodeCoverage(coverage)
+                .setExperimental(experimentalFlag)
+                .setOffline(offline)
+                .setSkipTests(false)
+                .setTestReport(testReport)
+                .setObservabilityIncluded(observabilityIncluded)
+                .setDumpBuildTime(dumpBuildTime)
                 .build();
+
+        if (targetDir != null) {
+            buildOptionsBuilder.targetDir(targetDir.toString());
+        }
+
+        return buildOptionsBuilder.build();
     }
 
     @Override

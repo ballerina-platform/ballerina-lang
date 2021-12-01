@@ -38,8 +38,8 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
 
-import static io.ballerina.ProgramAnalyzerNodeVisitor.ACTION_INVOCATION_KEY;
-import static io.ballerina.ProgramAnalyzerNodeVisitor.ENDPOINTS_KEY;
+import static io.ballerina.PerformanceAnalyzerNodeVisitor.ACTION_INVOCATION_KEY;
+import static io.ballerina.PerformanceAnalyzerNodeVisitor.ENDPOINTS_KEY;
 
 /**
  * Implements functionality to find endpoints and action invocations.
@@ -61,21 +61,21 @@ public class EndpointsFinder {
 
         Path path = Path.of(fileUri);
         String file = StringUtils.substringAfterLast(fileUri, File.separator);
+        JsonObject json = new JsonObject();
         try {
             Optional<SemanticModel> semanticModel = workspaceManager.semanticModel(path);
             Optional<Module> module = workspaceManager.module(path);
             if (semanticModel.isEmpty() || module.isEmpty()) {
-                return null;
+                return json;
             }
             Module defaultModule = module.get();
 
-            ProgramAnalyzerNodeVisitor nodeVisitor = new ProgramAnalyzerNodeVisitor();
-            nodeVisitor.setSemanticModel(semanticModel.get());
-            nodeVisitor.setFile(file);
-            if (range != null) {
-                nodeVisitor.setRange(range);
+            if (range == null) {
+                return json;
             }
 
+            PerformanceAnalyzerNodeVisitor nodeVisitor =
+                    new PerformanceAnalyzerNodeVisitor(semanticModel.get(), file, range);
             for (DocumentId currentDocumentID : defaultModule.documentIds()) {
                 Document document = defaultModule.document(currentDocumentID);
 
@@ -95,7 +95,6 @@ public class EndpointsFinder {
             JsonObject actionInvocationsJson = new JsonObject();
             actionInvocationsJson.add("nextNode", nextNodesJson);
 
-            JsonObject json = new JsonObject();
             json.add(ENDPOINTS_KEY, endPointsJson);
             json.add(ACTION_INVOCATION_KEY, actionInvocationsJson);
 
@@ -105,6 +104,6 @@ public class EndpointsFinder {
         } catch (Throwable e) {
             //
         }
-        return null;
+        return json;
     }
 }

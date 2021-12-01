@@ -1,5 +1,3 @@
-import ballerina/test;
-
 function negativeIntTest() returns [int, int] {
     int x;
     int y;
@@ -167,18 +165,18 @@ function testUnaryOperationsWithNonBasicTypes() {
     anydata x11 = ~-5;
     anydata x12 = -~5;
 
-    test:assertEquals(x1, 5);
-    test:assertEquals(x2, 5);
-    test:assertEquals(x3, -5);
-    test:assertEquals(x4, 5);
-    test:assertEquals(x5, -6);
-    test:assertEquals(x6, -6);
-    test:assertEquals(x7, 5);
-    test:assertEquals(x8, 5);
-    test:assertEquals(x9, -5);
-    test:assertEquals(x10, -6);
-    test:assertEquals(x11, 4);
-    test:assertEquals(x12, 6);
+    assertEquality(x1, 5);
+    assertEquality(x2, 5);
+    assertEquality(x3, -5);
+    assertEquality(x4, 5);
+    assertEquality(x5, -6);
+    assertEquality(x6, -6);
+    assertEquality(x7, 5);
+    assertEquality(x8, 5);
+    assertEquality(x9, -5);
+    assertEquality(x10, -6);
+    assertEquality(x11, 4);
+    assertEquality(x12, 6);
 
     int i = 5;
     int? a1 = +i;
@@ -203,25 +201,131 @@ function testUnaryOperationsWithNonBasicTypes() {
     int? a14 = +-s;
     int|decimal a15 = +~s;
 
-    test:assertEquals(a1, 5);
-    test:assertEquals(a2, 5);
-    test:assertEquals(a3, -6);
-    test:assertEquals(a4, -6);
-    test:assertEquals(a5, 5);
-    test:assertEquals(a6, -5);
-    test:assertEquals(a7, -5.2);
-    test:assertEquals(a8, 5.2);
-    test:assertEquals(a9, 7.45d);
-    test:assertEquals(a10, -7.45d);
-    test:assertEquals(a11, -7.45d);
-    test:assertEquals(a12, 7.45d);
-    test:assertEquals(a13, 16);
-    test:assertEquals(a14, -16);
-    test:assertEquals(a15, -17);
+    assertEquality(a1, 5);
+    assertEquality(a2, 5);
+    assertEquality(a3, -6);
+    assertEquality(a4, -6);
+    assertEquality(a5, 5);
+    assertEquality(a6, -5);
+    assertEquality(a7, -5.2);
+    assertEquality(a8, 5.2);
+    assertEquality(a9, 7.45d);
+    assertEquality(a10, -7.45d);
+    assertEquality(a11, -7.45d);
+    assertEquality(a12, 7.45d);
+    assertEquality(a13, 16);
+    assertEquality(a14, -16);
+    assertEquality(a15, -17);
+
+    int:Signed8|int:Unsigned32 a16 = 12;
+    int a17 = -a16;
+
+    int:Unsigned8|int:Signed8 a18 = 10;
+    int a19 = +a18;
+
+    assertEquality(a17, -12);
+    assertEquality(a19, 10);
 }
 
-function assertEquality(anydata expected, anydata actual) {
-    if expected == actual {
+type Ints -2|-1|0|1|2;
+type Floats -2.0|-1.0|0.0|1.0|2.0;
+type Decimals -2.0d|-1.0d|0d|1.0d|2.0d;
+type IntType1 -2|-1|0|1|2;
+type IntType2 int:Unsigned8|int:Signed32;
+type IntType3 IntType1|IntType2;
+type IntType4 IntType1|byte;
+type FloatType1 -2.0f|-1.0f|0.0f|1.0f|2.0f;
+type FloatType2 FloatType1;
+
+function testUnaryOperationsWithUserDefinedTypes() {
+    Ints a = -2;
+    Ints b = 1;
+    Floats c = -2;
+    Floats d = 0;
+    Decimals e = -2;
+    Decimals f = 1.0;
+
+    int g = -a;
+    int h = +b;
+    float i = -c;
+    float j = +d;
+    decimal k = -e;
+    decimal l = +f;
+
+    IntType3 m = 1;
+    IntType3 n = 255;
+    int|IntType4 o = 127;
+    FloatType2 p = -2;
+    float|FloatType2 q = 1;
+
+    int r = -m;
+    int s = +n;
+    int t = -o;
+    float u = +p;
+    float v = -q;
+
+    assertEquality(g, 2);
+    assertEquality(h, 1);
+    assertEquality(i, 2.0);
+    assertEquality(j, 0.0);
+    assertEquality(k, 2d);
+    assertEquality(l, 1.0d);
+    assertEquality(r, -1);
+    assertEquality(s, 255);
+    assertEquality(t, -127);
+    assertEquality(u, -2.0);
+    assertEquality(v, -1.0);
+}
+
+function testNullableUnaryExpressions() {
+    int? a1 = 10;
+    int? a2 = 5;
+    int a3 = 2;
+    float? a4 = 5.0;
+    float? a5 = 15.0;
+    float a6 = 4.0;
+
+    int? a7 = +((a1 + a2) * a3);
+    float? a8 = -((a4 + a5) / a6);
+    int? a9 = ~a1;
+
+    assertEquality(a7, 30);
+    assertEquality(a8, -5.0);
+    assertEquality(a9, -11);
+
+    Ints? a = -2;
+    Ints? b = 1;
+    Floats? c = -2;
+    Floats? d = 0;
+    Decimals? e = -2;
+    Decimals? f = 1.0;
+
+    int? g = -a;
+    int? h = +b;
+    float? i = -c;
+    float? j = +d;
+    decimal? k = -e;
+    decimal? l = +f;
+
+    assertEquality(g, 2);
+    assertEquality(h, 1);
+    assertEquality(i, 2.0);
+    assertEquality(j, 0.0);
+    assertEquality(k, 2d);
+    assertEquality(l, 1.0d);
+
+    int:Signed8|int:Unsigned32? a16 = 12;
+    int? a17 = -a16;
+
+    int:Unsigned8|int:Signed8? a18 = 10;
+    int? a19 = +a18;
+
+    assertEquality(a17, -12);
+    assertEquality(a19, 10);
+}
+
+function assertEquality(any actual, any expected) {
+    if actual is anydata && expected is anydata && actual == expected {
         return;
     }
     panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");

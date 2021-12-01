@@ -77,6 +77,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(packageManifest.keywords(), Arrays.asList("toml", "ballerina"));
         Assert.assertEquals(packageManifest.repository(), "https://github.com/ballerina-platform/ballerina-lang");
         Assert.assertEquals(packageManifest.ballerinaVersion(), "slbeta2");
+        Assert.assertEquals(packageManifest.visibility(), "private");
 
 //        Assert.assertTrue(ballerinaToml.buildOptions().observabilityIncluded());
 //        Assert.assertTrue(ballerinaToml.buildOptions().offlineBuild());
@@ -335,13 +336,15 @@ public class BallerinaTomlTests {
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("invalid-entries.toml"));
         DiagnosticResult diagnostics = packageManifest.diagnostics();
         Assert.assertTrue(diagnostics.hasErrors());
-        Assert.assertEquals(diagnostics.errors().size(), 5);
+        Assert.assertEquals(diagnostics.errors().size(), 6);
 
         Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
         Assert.assertEquals(iterator.next().message(),
                 "incompatible type for key 'license': expected 'ARRAY', found 'STRING'");
         Assert.assertEquals(iterator.next().message(),
                 "incompatible type for key 'repository': expected 'STRING', found 'BOOLEAN'");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'visibility' under [package]: 'visibility' can only have value 'private'");
         Assert.assertEquals(iterator.next().message(),
                 "could not locate dependency path 'path/to/swagger.txt'");
         Assert.assertEquals(iterator.next().message(),
@@ -444,6 +447,16 @@ public class BallerinaTomlTests {
                 + "maximum length of 'org' is 256 characters");
         Assert.assertEquals(iterator.next().message(), "invalid 'name' under [[dependency]]: "
                 + "maximum length of 'name' is 256 characters");
+    }
+
+    @Test
+    public void testInvalidIconPath() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("invalid-icon-path.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().diagnostics().size(), 1);
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(), "could not locate icon path '../sample.svg'");
     }
 
     static PackageManifest getPackageManifest(Path tomlPath) throws IOException {

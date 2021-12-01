@@ -114,6 +114,10 @@ public class PackageConfig {
         return packageManifest.version();
     }
 
+    public boolean packageTemplate() {
+        return packageManifest.template();
+    }
+
     public PackageManifest packageManifest() {
         return packageManifest;
     }

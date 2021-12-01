@@ -9,12 +9,20 @@
   },
   {
     "description": "Create new person object.",
-    "code": "Person p = new Employee(5, \"John\", \"Doe\"); p.getFullName()",
+    "code": "Person p = new Employee(5, \"John\", \"Doe\");"
+  },
+  {
+    "description": "Create new person object - get value.",
+    "code": "p.getFullName()",
     "expr": "\"John Doe\""
   },
   {
     "description": "Run instance method.",
-    "code": "p.checkAndModifyAge(10, 50); p.age",
+    "code": "p.checkAndModifyAge(10, 50);"
+  },
+  {
+    "description": "Run instance method - get value.",
+    "code": "p.age",
     "expr": "50"
   }
 ]

@@ -25,6 +25,8 @@ import org.ballerinalang.model.tree.expressions.TypeConversionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
@@ -39,11 +41,16 @@ import java.util.stream.Collectors;
  */
 public class BLangTypeConversionExpr extends BLangExpression implements TypeConversionNode {
 
+    // BLangNodes
     public BLangExpression expr;
     public BLangType typeNode;
-    public BType targetType;
     public List<BLangAnnotationAttachment> annAttachments = new ArrayList<>();
+
+    // Parser Flags and Data
     public Set<Flag> flagSet = EnumSet.noneOf(Flag.class);
+
+    // Semantic Data
+    public BType targetType;
     public boolean checkTypes = true;
 
     public ExpressionNode getExpression() {
@@ -70,6 +77,16 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

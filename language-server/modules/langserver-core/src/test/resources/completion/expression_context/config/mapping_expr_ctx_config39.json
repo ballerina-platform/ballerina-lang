@@ -9,107 +9,16 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "rec1Field1",
-      "kind": "Field",
-      "detail": "Rec1.rec1Field1",
-      "sortText": "G",
-      "insertText": "rec1Field1: ${1:0}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "rec1Field2",
-      "kind": "Field",
-      "detail": "Rec1.rec1Field2",
-      "sortText": "G",
-      "insertText": "rec1Field2: ${2:0}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "rec1Field3",
-      "kind": "Field",
-      "detail": "Rec1.rec1Field3",
-      "sortText": "G",
-      "insertText": "rec1Field3: ${3:0}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Fill Rec1 Required Fields",
-      "kind": "Property",
-      "detail": "Rec1",
-      "sortText": "R",
-      "filterText": "fill",
-      "insertText": "rec1Field1: 0,\nrec1Field2: 0",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "rec2Field2",
-      "kind": "Field",
-      "detail": "Rec2.rec2Field2",
-      "sortText": "G",
-      "insertText": "rec2Field2: ${1:0}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "rec2Field3",
-      "kind": "Field",
-      "detail": "Rec2.rec2Field3",
-      "sortText": "G",
-      "insertText": "rec2Field3: ${2:0}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "rec2Field1",
-      "kind": "Field",
-      "detail": "Rec2.rec2Field1",
-      "sortText": "G",
-      "insertText": "rec2Field1: ${3:0}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Fill Rec2 Required Fields",
-      "kind": "Property",
-      "detail": "Rec2",
-      "sortText": "R",
-      "filterText": "fill",
-      "insertText": "rec2Field2: 0,\nrec2Field3: 0,\nrec2Field1: 0",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "anonField2",
-      "kind": "Field",
-      "detail": "(record {| int anonField1; string anonField2; anydata...; |}).anonField2",
-      "sortText": "G",
-      "insertText": "anonField2: \"${1}\"",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "anonField1",
-      "kind": "Field",
-      "detail": "(record {| int anonField1; string anonField2; anydata...; |}).anonField1",
-      "sortText": "G",
-      "insertText": "anonField1: ${2:0}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Fill record {| int anonField1; string anonField2; anydata...; |} Required Fields",
-      "kind": "Property",
-      "detail": "record {| int anonField1; string anonField2; anydata...; |}",
-      "sortText": "R",
-      "filterText": "fill",
-      "insertText": "anonField2: \"\",\nanonField1: 0",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "rec3Field1",
       "kind": "Field",
       "detail": "Rec3.rec3Field1",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "rec3Field1: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -117,7 +26,7 @@
       "label": "rec3Field2",
       "kind": "Field",
       "detail": "Rec3.rec3Field2",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "rec3Field2: ${2:0}",
       "insertTextFormat": "Snippet"
     },

@@ -37,6 +37,9 @@ public abstract class BStructureTypeSymbol extends BTypeSymbol {
     public List<BAttachedFunction> attachedFuncs;
     public BAttachedFunction initializerFunc;
 
+    //todo remove once BTypeReferenceType is introduced to runtime
+    public BTypeDefinitionSymbol typeDefinitionSymbol;
+
     BStructureTypeSymbol(SymbolKind kind, int symTag, long flags, Name name, PackageID pkgID, BType type,
                          BSymbol owner, Location pos, SymbolOrigin origin) {
         super(symTag, flags, name, pkgID, type, owner, pos, origin);

@@ -57,14 +57,23 @@ public class MatchGuardAnalysisTest {
         BAssertUtil.validateError(result, i++, getInvalidRestFieldKeyError("y"), 25, 35);
         BAssertUtil.validateError(result, i++, getInvalidRestFieldKeyError("z"), 29, 29);
         BAssertUtil.validateError(result, i++, getInvalidRestFieldKeyError("y"), 29, 41);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'x'", 38, 9);
         BAssertUtil.validateWarning(result, i++, "pattern will not be matched", 40, 9);
-        BAssertUtil.validateError(result, i++, "incompatible types: 'record {| int x; anydata...; |}' will not be " +
+        BAssertUtil.validateError(result, i++, "incompatible types: 'Foo' will not be " +
                 "matched to 'record {| string x; int i; anydata...; |}'", 40, 20);
         BAssertUtil.validateWarning(result, i++, "pattern will not be matched", 42, 9);
-        BAssertUtil.validateError(result, i++, "incompatible types: 'record {| int x; anydata...; |}' will not be " +
+        BAssertUtil.validateError(result, i++, "incompatible types: 'Foo' will not be " +
                 "matched to 'record {| string x; int i; anydata...; |}'", 42, 30);
-        Assert.assertEquals(result.getWarnCount(), 2);
-        Assert.assertEquals(result.getErrorCount(), i - 2);
+        BAssertUtil.validateError(result, i++, "incompatible types: 'function () returns ()' will not be " +
+                "matched to 'isolated function'", 51, 19);
+        BAssertUtil.validateError(result, i++, "incompatible types: 'function (int,string) returns ()' " +
+                "will not be matched to 'isolated function'", 60, 19);
+        BAssertUtil.validateError(result, i++, "incompatible types: 'function (int,string) returns (int)' " +
+                "will not be matched to 'isolated function'", 69, 19);
+        BAssertUtil.validateError(result, i++, "incompatible types: 'function () returns (int)' will not be " +
+                "matched to 'isolated function'", 78, 19);
+        Assert.assertEquals(result.getWarnCount(), 3);
+        Assert.assertEquals(result.getErrorCount(), i - 3);
     }
 
     private String getInvalidRestFieldKeyError(String key) {
@@ -104,21 +113,30 @@ public class MatchGuardAnalysisTest {
         BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 160, 19);
         BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 162, 19);
         BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 162, 60);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'r'", 219, 9);
         BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 219, 35);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'x'", 228, 9);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'y'", 228, 9);
         BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 228, 29);
         BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 228, 37);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'x'", 230, 9);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'z'", 230, 9);
         BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 230, 23);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'x'", 237, 9);
         BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 237, 33);
         BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 237, 38);
         BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 237, 44);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'y'", 239, 9);
         BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 239, 20);
         BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 239, 21);
         BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 239, 29);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'z'", 241, 9);
         BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 241, 20);
         BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 241, 21);
         BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 241, 29);
         BAssertUtil.validateError(result, i++, NON_READ_ONLY_ARG_IN_MATCH_GUARD_CALL_ERROR, 243, 35);
         BAssertUtil.validateError(result, i++, NON_ISOLATED_CALL_IN_MATCH_GUARD_ERROR, 243, 35);
-        Assert.assertEquals(result.getErrorCount(), i);
+        Assert.assertEquals(result.getErrorCount(), i - 8);
+        Assert.assertEquals(result.getWarnCount(), 8);
     }
 }

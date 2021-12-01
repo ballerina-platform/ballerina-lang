@@ -32,10 +32,14 @@ import org.testng.annotations.Test;
  */
 public class StructNegativeTest {
     CompileResult result;
+    CompileResult result2;
     
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/structs/structs-negative.bal");
+
+        result2 = BCompileUtil.compile("test-src/structs/struct.bal");
+        Assert.assertEquals(result2.getErrorCount(), 0);
     }
 
     @Test
@@ -109,46 +113,31 @@ public class StructNegativeTest {
           expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = ".*error:.*array index out of range.*")
     public void testGetNonInitField() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 0);
-        BRunUtil.invoke(compileResult, "testGetNonInitAttribute");
+        BRunUtil.invoke(result2, "testGetNonInitAttribute");
     }
 
     @Test(description = "Test accessing an arrays field of a noninitialized struct",
           expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = ".*error:.*array index out of range.*")
     public void testGetNonInitArrayField() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 0);
-        BRunUtil.invoke(compileResult, "testGetNonInitArrayAttribute");
+        BRunUtil.invoke(result2, "testGetNonInitArrayAttribute");
     }
 
     @Test(description = "Test accessing the field of a noninitialized struct",
           expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = ".*error:.*array index out of range.*")
     public void testGetNonInitLastField() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 0);
-        BRunUtil.invoke(compileResult, "testGetNonInitLastAttribute");
+        BRunUtil.invoke(result2, "testGetNonInitLastAttribute");
     }
 
     @Test(description = "Test setting an field of a noninitialized child struct")
     public void testSetNonInitField() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 0);
-        BRunUtil.invoke(compileResult, "testSetFieldOfNonInitChildStruct");
+        BRunUtil.invoke(result2, "testSetFieldOfNonInitChildStruct");
     }
 
     @Test(description = "Test setting the field of a noninitialized root struct")
     public void testSetNonInitLastField() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 0);
-        BRunUtil.invoke(compileResult, "testSetFieldOfNonInitStruct");
+        BRunUtil.invoke(result2, "testSetFieldOfNonInitStruct");
     }
 
     @AfterClass

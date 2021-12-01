@@ -18,10 +18,13 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.environment.ProjectEnvironment;
+import io.ballerina.projects.util.ProjectConstants;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
@@ -43,8 +46,8 @@ public abstract class Project {
                       ProjectEnvironmentBuilder projectEnvironmentBuilder, BuildOptions buildOptions) {
         this.projectKind = projectKind;
         this.sourceRoot = projectPath;
-        this.projectEnvironment = projectEnvironmentBuilder.build(this);
         this.buildOptions = buildOptions;
+        this.projectEnvironment = projectEnvironmentBuilder.build(this);
     }
 
     protected Project(ProjectKind projectKind,
@@ -53,7 +56,7 @@ public abstract class Project {
         this.projectKind = projectKind;
         this.sourceRoot = projectPath;
         this.projectEnvironment = projectEnvironmentBuilder.build(this);
-        this.buildOptions = new BuildOptionsBuilder().build();
+        this.buildOptions = BuildOptions.builder().build();
     }
 
     void setBuildOptions(BuildOptions buildOptions) {
@@ -78,6 +81,14 @@ public abstract class Project {
         return this.sourceRoot;
     }
 
+    public Path targetDir() {
+        if (this.buildOptions.getTargetPath() == null) {
+            return this.sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
+        } else {
+            return Paths.get(this.buildOptions().getTargetPath());
+        }
+    }
+
     protected void setCurrentPackage(Package currentPackage) {
         // TODO Handle concurrent read/write to the currentPackage variable
         this.currentPackage = currentPackage;
@@ -98,6 +109,37 @@ public abstract class Project {
         CompilerContext compilerContext = this.projectEnvironmentContext().getService(CompilerContext.class);
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(PROJECT_DIR, this.sourceRoot().toAbsolutePath().toString());
+    }
+
+    /**
+     * Clears all caches of this project.
+     *
+     * The current content and the structure will be preserved. In-memory caches
+     * (i.e. package resolution caches, compilation caches)
+     * generated during project compilation will be discarded.
+     */
+    public void clearCaches() {
+        cloneProject(this);
+        CompilerContext compilerContext = this.projectEnvironmentContext()
+                .getService(CompilerContext.class);
+        PackageCache packageCache = PackageCache.getInstance(compilerContext);
+        packageCache.flush();
+    }
+
+    /**
+     * Creates a new Project instance which has the same structure as this Project.
+     *
+     * The new project will have the same structure and content as this. The caches of
+     * this project generated during project compilation will not be copied.
+     *
+     * @return The new Project instance.
+     */
+    public abstract Project duplicate();
+
+    protected Project cloneProject(Project project) {
+        Package clone = this.currentPackage.duplicate(project);
+        project.setCurrentPackage(clone);
+        return project;
     }
 
     public abstract DocumentId documentId(Path file);

@@ -18,7 +18,6 @@
 package io.ballerina.projects.directory;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
@@ -39,7 +38,7 @@ import java.util.Optional;
 public class ProjectLoader {
 
     public static Project loadProject(Path path) {
-        return loadProject(path, ProjectEnvironmentBuilder.getDefaultBuilder(), new BuildOptionsBuilder().build());
+        return loadProject(path, ProjectEnvironmentBuilder.getDefaultBuilder(), BuildOptions.builder().build());
     }
 
     public static Project loadProject(Path path, BuildOptions buildOptions) {
@@ -47,7 +46,7 @@ public class ProjectLoader {
     }
 
     public static Project loadProject(Path path, ProjectEnvironmentBuilder projectEnvironmentBuilder) {
-        return loadProject(path, projectEnvironmentBuilder, new BuildOptionsBuilder().build());
+        return loadProject(path, projectEnvironmentBuilder, BuildOptions.builder().build());
     }
 
     /**

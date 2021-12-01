@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvi
 import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
@@ -47,12 +46,6 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
     public static final String NAME = "Pull Module";
 
     private static final int MISSING_MODULE_NAME_INDEX = 0;
-
-    @Override
-    public boolean isEnabled(LanguageServerContext serverContext) {
-        // TODO: Disabled temporarily due to #33073
-        return false;
-    }
 
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,

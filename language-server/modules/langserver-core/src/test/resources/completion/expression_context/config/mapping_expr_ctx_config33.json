@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "Fa2",
       "kind": "Field",
       "detail": "Foo.Fa2",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "Fa2: {\n\tBa1: ${1:0},\n\tBa2: \"${2}\"\n}",
       "insertTextFormat": "Snippet"
     },
@@ -26,7 +26,7 @@
       "label": "Fa1",
       "kind": "Field",
       "detail": "Foo.Fa1",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "Fa1: ${2:0}",
       "insertTextFormat": "Snippet"
     },

@@ -126,12 +126,12 @@ function testReturningInMatch() returns string? {
     }
 }
 
-function testReturnsDuringValidCheck() returns error? {
-    int x = checkpanic ints:fromString("15");
+function testReturnsDuringValidCheck() returns error? { // doesn't have to explicitly return nil since the return type is a subtype of `error?`
+    int _ = checkpanic ints:fromString("15");
 }
 
 function testValidCheckWithExplicitReturn() returns error? {
-    int x = checkpanic ints:fromString("15");
+    int _ = checkpanic ints:fromString("15");
     return;
 }
 
@@ -245,6 +245,104 @@ function testNilableTypedesc() returns typedesc<any>? {
 function testNilableTypedescArray() returns typedesc<any>[]? {
 }
 
+type Object object {
+    function foo() returns int?; // no warning
+};
+
+class MyClass {
+    function foo() returns int? {
+    }
+}
+
+function testFunctionNotExplicitlyReturingValue() returns int? {
+    int? a = 10;
+    if a is int {
+        return 1;
+    }
+}
+
+service object {} obj2 = service object {
+    remote function foo() returns int? {
+        int? a = 10;
+        if a is int {
+            return 1;
+        }
+    }
+};
+
+client class MyClient {
+    remote function foo() returns int? {
+    }
+}
+
+type MyClientObj client object {
+    function foo() returns int?; // no warning
+    remote function bar() returns int?; // no warning
+};
+
+function print(any|error... values) returns int? = @java:Method { // no warning
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;
+
 public function println(any|error... values) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
+
+function testReturnTypeThatContainsErrorOrNilButNotASubTypeOfErrorOrNil1() returns int|error? {
+}
+
+function testReturnTypeThatContainsErrorOrNilButNotASubTypeOfErrorOrNil2() returns ()|int[]|error {
+}
+
+type MyError1 distinct error;
+type MyError2 distinct error;
+
+function testReturnTypeThatContainsErrorOrNilButNotASubTypeOfErrorOrNil3() returns ()|int[]|MyError1 {
+}
+
+function testReturnTypeThatContainsErrorOrNilButNotASubTypeOfErrorOrNil4() returns MyError1|MyError2?|int {
+}
+
+function testReturnTypeThatContainsErrorOrNilButNotASubTypeOfErrorOrNil5() returns MyError1|MyError2|()|int {
+}
+
+type MyOptionalError error?;
+type MyOptionalIntOrError MyError1|int|MyError2?;
+
+function testReturnTypeThatContainsErrorOrNilButNotASubTypeOfErrorOrNil6() returns MyOptionalError|int {
+}
+
+function testReturnTypeThatContainsErrorOrNilButNotASubTypeOfErrorOrNil7() returns MyOptionalIntOrError {
+}
+
+function testReturnTypeThatIsASubTypeOfErrorOrNilContainingNil1() returns error? { // no warning
+}
+
+function testReturnTypeThatIsASubTypeOfErrorOrNilContainingNil2() returns ()|error { // no warning
+}
+
+function testReturnTypeThatIsASubTypeOfErrorOrNilContainingNil3() returns ()|MyError1 { // no warning
+}
+
+function testReturnTypeThatIsASubTypeOfErrorOrNilContainingNil4() returns MyError1|MyError2? { // no warning
+}
+
+function testReturnTypeThatIsASubTypeOfErrorOrNilContainingNil5() returns MyError1|MyError2|() { // no warning
+}
+
+function testReturnTypeThatIsASubTypeOfErrorOrNilContainingNil6() returns MyError1|MyError2|()|error { // no warning
+}
+
+function testReturnTypeThatIsASubTypeOfErrorOrNilContainingNil7() returns MyOptionalError { // no warning
+}
+
+function testReturnTypeThatIsASubTypeNil1() returns () { // no warning
+}
+
+function testReturnTypeThatIsASubTypeNil2() returns ()|() { // no warning
+}
+
+type MyNil ()|()|()?;
+
+function testReturnTypeThatIsASubTypeNil3() returns MyNil { // no warning
+}

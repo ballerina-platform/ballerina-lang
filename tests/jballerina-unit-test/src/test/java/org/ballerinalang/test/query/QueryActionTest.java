@@ -146,6 +146,16 @@ public class QueryActionTest {
         BRunUtil.invoke(result, "testTypeNarrowingVarDefinedWithLet");
     }
 
+    @Test
+    public void testWildcardBindingPatternInQueryAction1() {
+        BRunUtil.invoke(result, "testWildcardBindingPatternInQueryAction1");
+    }
+
+    @Test
+    public void testWildcardBindingPatternInQueryAction2() {
+        BRunUtil.invoke(result, "testWildcardBindingPatternInQueryAction2");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

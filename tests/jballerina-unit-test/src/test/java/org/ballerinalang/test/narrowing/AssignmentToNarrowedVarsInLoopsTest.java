@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.test.narrowing;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
@@ -35,7 +37,17 @@ public class AssignmentToNarrowedVarsInLoopsTest {
     @Test
     public void testAssignmentToNarrowedVarsInLoops() {
         CompileResult result = BCompileUtil.compile("test-src/narrowing/assignment_to_narrowed_vars_in_loops.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
+        Assert.assertEquals(result.getErrorCount(), 0);
+        Assert.assertEquals(result.getHintCount(), 2);
+
+        Assert.assertEquals(result.getWarnCount(), 69);
+        for (Diagnostic diagnostic : result.getDiagnostics()) {
+            if (diagnostic.diagnosticInfo().severity() != DiagnosticSeverity.WARNING) {
+                continue;
+            }
+
+            Assert.assertTrue(diagnostic.message().startsWith("unused variable"));
+        }
     }
 
     @Test
@@ -44,15 +56,24 @@ public class AssignmentToNarrowedVarsInLoopsTest {
                 "test-src/narrowing/assignment_to_narrowed_vars_in_loops_negative.bal");
         int index = 0;
 
+        BAssertUtil.validateWarning(result, index++, "unused variable 'j'", 23, 13);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 24, 13);
+        BAssertUtil.validateWarning(result, index++, "unused variable 'j'", 32, 13);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 33, 13);
+        BAssertUtil.validateWarning(result, index++, "unused variable 'j'", 41, 13);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 42, 13);
+        BAssertUtil.validateWarning(result, index++, "unused variable 'j'", 51, 13);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 52, 13);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 67, 17);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 68, 17);
+        BAssertUtil.validateWarning(result, index++, "unused variable 'j'", 72, 13);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 80, 17);
+        BAssertUtil.validateWarning(result, index++, "unused variable 'j'", 84, 13);
+        BAssertUtil.validateWarning(result, index++, "unused variable 'c'", 96, 17);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 97, 17);
+        BAssertUtil.validateWarning(result, index++, "unused variable 'c'", 105, 17);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 106, 17);
+        BAssertUtil.validateWarning(result, index++, "unused variable 'c'", 120, 21);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 121, 21);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 136, 21);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 150, 13);
@@ -80,14 +101,26 @@ public class AssignmentToNarrowedVarsInLoopsTest {
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 403, 25);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 420, 17);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 424, 21);
+        BAssertUtil.validateWarning(result, index++, "unused variable 'f'", 444, 41);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 445, 13);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 446, 13);
+        BAssertUtil.validateWarning(result, index++, "unused variable 'e'", 452, 38);
+        BAssertUtil.validateWarning(result, index++, "unused variable 'f'", 452, 41);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 459, 13);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 460, 13);
+        BAssertUtil.validateWarning(result, index++, "unused variable 'f'", 466, 41);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 468, 13);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 469, 13);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 487, 25);
+        BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 503, 17);
+        BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 524, 17);
+        BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 547, 21);
+        BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 568, 17);
+        BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 587, 17);
+        BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 609, 21);
+        BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 628, 13);
 
-        Assert.assertEquals(index, result.getErrorCount());
+        Assert.assertEquals(result.getErrorCount(), index - 13);
+        Assert.assertEquals(result.getWarnCount(), 13);
     }
 }

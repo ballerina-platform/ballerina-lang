@@ -86,8 +86,7 @@ public class CoverageReport {
                           List<ISourceFileCoverage> packageSourceCoverageList, List<ExecutionData> packageExecData,
                           List<SessionInfo> sessionInfoList) throws IOException {
         this.module = module;
-        this.target = new Target(module.project().sourceRoot());
-
+        this.target = new Target(module.project().targetDir());
         this.coverageDir = target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR);
         this.title = coverageDir.toFile().getName();
         this.classesDirectory = coverageDir.resolve(TesterinaConstants.BIN_DIR);
