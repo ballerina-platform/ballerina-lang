@@ -263,6 +263,7 @@ public class NewCommandTest extends BaseCommandTest {
                 "org = \"admin\"\n" +
                 "name = \"sample_pull_local\"\n" +
                 "version = \"0.1.0\"\n" +
+                "export = [\"sample_pull_local\"]\n" +
                 "ballerina_version = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
                 "language_spec_version = \"2021R1\"\n" +
@@ -291,6 +292,7 @@ public class NewCommandTest extends BaseCommandTest {
                 "org = \"parkavik\"\n" +
                 "name = \"sample_pull_WO_Module_Version\"\n" +
                 "version = \"1.0.1\"\n" +
+                "export = [\"sample_pull_WO_Module_Version\"]\n" +
                 "ballerina_version = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
                 "language_spec_version = \"2021R1\"\n" +
@@ -321,6 +323,7 @@ public class NewCommandTest extends BaseCommandTest {
                 "org = \"parkavik\"\n" +
                 "name = \"sample_pull\"\n" +
                 "version = \"1.0.0\"\n" +
+                "export = [\"sample_pull\"]\n" +
                 "ballerina_version = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
                 "language_spec_version = \"2021R1\"\n" +
@@ -364,6 +367,7 @@ public class NewCommandTest extends BaseCommandTest {
                 "org = \"admin\"\n" +
                 "name = \"sample_pull_libs\"\n" +
                 "version = \"0.1.0\"\n" +
+                "export = [\"sample_pull_libs\"]\n" +
                 "ballerina_version = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
                 "language_spec_version = \"2021R1\"\n" +
@@ -372,7 +376,6 @@ public class NewCommandTest extends BaseCommandTest {
                 "artifactId = \"snakeyaml\"\n" +
                 "groupId = \"org.yaml\"\n" +
                 "version = \"1.9\"";
-
         Assert.assertTrue(tomlContent.contains(expectedTomlPkgContent));
         Assert.assertTrue(tomlContent.contains(expectedTomlLibContent));
 
@@ -396,6 +399,37 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         Assert.assertTrue(Files.exists(packageDir.resolve("modules").resolve("module1")));
         Assert.assertTrue(Files.exists(packageDir.resolve("modules").resolve("module2")));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+
+        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+    }
+
+    @Test(description = "Test new command by pulling a central template with muliple modules without export attribute")
+    public void testNewCommandWithMultiModuleTemplateWithoutExport() throws IOException {
+        // Test if no arguments was passed in
+        String templateArg = "parkavik/MultiModulePro:0.1.1";
+        String[] args = {"project1", "-t", templateArg};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+
+        Path packageDir = tmpDir.resolve("project1");
+        Assert.assertTrue(Files.exists(packageDir));
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String tomlContent = Files.readString(
+                packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
+        String expectedTomlContent = "[package]\n" +
+                "org = \"parkavik\"\n" +
+                "name = \"project1\"\n" +
+                "version = \"0.1.1\"\n" +
+                "export = [\"project1\"]\n" +
+                "ballerina_version = \"slbeta6\"\n" +
+                "implementation_vendor = \"WSO2\"\n" +
+                "language_spec_version = \"2021R1\"\n" +
+                "template = true";
+        Assert.assertTrue(tomlContent.contains(expectedTomlContent));
+
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
 
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
