@@ -55,9 +55,9 @@ import java.util.Set;
 public class LargeMethodOptimizer {
 
     // splits are done only if the original function has more instructions than the below number
-    private static final int FUNCTION_INSTRUCTION_COUNT_THRESHOLD = 1;
+    private static final int FUNCTION_INSTRUCTION_COUNT_THRESHOLD = 1000;
     // splits are done only if the newly created method will contain more instructions than the below number
-    private static final int SPLIT_INSTRUCTION_COUNT_THRESHOLD = 1;
+    private static final int SPLIT_INSTRUCTION_COUNT_THRESHOLD = 50;
     // splits are done only if the newly created method will have less function arguments than the below number
     private static final int MAX_SPLIT_FUNCTION_ARG_COUNT = 250;
     // current BIR package id
