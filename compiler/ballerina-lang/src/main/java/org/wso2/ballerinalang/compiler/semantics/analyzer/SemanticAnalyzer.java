@@ -1198,6 +1198,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             varNode.setBType(symResolver.resolveTypeNode(varNode.typeNode, env));
         }
 
+        if (isOptionalFieldAvailableInRecord(varNode.typeNode.getBType())) {
+            dlog.error(varNode.expr.pos, DiagnosticErrorCode.INVALID_OPTIONAL_FIELD_IN_RECORD_BINDING_PATTERN);
+            return;
+        }
+
         int ownerSymTag = env.scope.owner.tag;
         // If this is a module record variable, checkTypeAndVarCountConsistency already done at symbolEnter.
         if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE &&
@@ -1535,6 +1540,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case RECORD_VARIABLE:
                 if (varRefExpr == null) {
                     return;
+                }
+
+                if (isOptionalFieldAvailableInRecord(rhsType)) {
+                    dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_OPTIONAL_FIELD_IN_RECORD_BINDING_PATTERN);
                 }
 
                 BType recordRhsType = types.getReferredType(rhsType);
@@ -1938,8 +1947,25 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
         typeChecker.checkExpr(recordDeStmt.expr, this.env);
+        if (isOptionalFieldAvailableInRecord(recordDeStmt.expr.getBType())) {
+            dlog.error(recordDeStmt.expr.pos, DiagnosticErrorCode.INVALID_OPTIONAL_FIELD_IN_RECORD_BINDING_PATTERN);
+        }
         checkRecordVarRefEquivalency(recordDeStmt.pos, recordDeStmt.varRef, recordDeStmt.expr.getBType(),
                                      recordDeStmt.expr.pos);
+    }
+
+    private boolean isOptionalFieldAvailableInRecord(BType type) {
+        type = types.getReferredType(type);
+        if (type.tag != TypeTags.RECORD) {
+            return false;
+        }
+        BRecordType recordType = (BRecordType) type;
+        for (BField field: recordType.fields.values()) {
+            if (Symbols.isOptional(field.symbol)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
