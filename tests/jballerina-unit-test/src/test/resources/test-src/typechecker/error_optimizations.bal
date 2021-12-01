@@ -21,13 +21,30 @@ public type YourError error<record { int value; string message?; error cause?; }
 
 function testWithValue() {
     string|MyError someValue = "some";
-    test:assertTrue(someValue is string);
-    // Always evaluates to true
-    //test:assertTrue(someValue is readonly);
-    test:assertTrue(someValue is string|int);
-    test:assertFalse(someValue is MyError|YourError);
-    test:assertFalse(someValue is MyError);
-    test:assertFalse(someValue is error);
+    if (someValue is string) {
+    } else {
+        test:assertFail();
+    }
+
+    if (someValue is readonly) { // always true
+    }
+
+    if (someValue is string|int) {
+    } else {
+        test:assertFail();
+    }
+
+    if (someValue is MyError|YourError) {
+        test:assertFail();
+    }
+
+    if (someValue is MyError) {
+        test:assertFail();
+    }
+
+    if (someValue is error) {
+        test:assertFail();
+    }
 }
 
 type Person record {
@@ -43,51 +60,139 @@ type Student record {
 
 function testWithRecordAndError() {
     Person|MyError someValue = {name: "John", age: "30"};
-    test:assertTrue(someValue is Person);
-    // Always evaluates to false
-    // test:assertFalse(someValue is readonly);
-    test:assertFalse(someValue is Student);
-    test:assertFalse(someValue is MyError|YourError);
-    test:assertFalse(someValue is MyError);
-    test:assertFalse(someValue is error);
+    if (someValue is Person) {
+    } else {
+        test:assertFail();
+    }
+
+    if (someValue is readonly) {
+        test:assertFail();
+    }
+
+    if (someValue is Student) {
+        test:assertFail();
+    }
+
+    if (someValue is MyError|YourError) {
+        test:assertFail();
+    }
+
+    if (someValue is MyError) {
+        test:assertFail();
+    }
+
+    if (someValue is error) {
+        test:assertFail();
+    }
 }
 
 function testWithError() {
     string|MyError someValue = error MyError("io error", code = 0);
-    test:assertFalse(someValue is string);
-    // Always evaluates to true
-    // test:assertTrue(someValue is readonly);
-    test:assertFalse(someValue is string|int);
-    test:assertTrue(someValue is MyError|YourError);
-    test:assertTrue(someValue is MyError);
-    test:assertFalse(someValue is YourError);
-    test:assertTrue(someValue is error);
+    if (someValue is string) {
+        test:assertFail();
+    }
+
+    if (someValue is readonly) { // always true
+    }
+
+    if (someValue is string|int) {
+        test:assertFail();
+    }
+
+    if (someValue is MyError|YourError) {
+    } else {
+        test:assertFail();
+    }
+
+    if (someValue is MyError) {
+    } else {
+        test:assertFail();
+    }
+
+    if (someValue is YourError) {
+        test:assertFail();
+    }
+
+    if (someValue is error) {
+    } else {
+        test:assertFail();
+    }
 }
 
 function testWithOnlyError() {
     error err = error("hello");
-    test:assertFalse(err is MyError);
-    test:assertFalse(err is MyError|YourError);
-    test:assertTrue(err is MyError|error);
-    test:assertTrue(err is error);
+
+    if(err is MyError) {
+        test:assertFail();
+    }
+
+    if (err is MyError|YourError) {
+        test:assertFail();
+    }
+
+    if (err is MyError|error) { // always true
+    }
+
+    if (err is error) { // always true
+    }
 }
 
 function testWithMultipleErrors() {
     MyError|YourError|int someValue = 1;
-    test:assertFalse(someValue is MyError);
-    test:assertFalse(someValue is MyError|YourError);
-    test:assertFalse(someValue is MyError|error);
-    test:assertFalse(someValue is error);
-    test:assertTrue(someValue is int);
+    if(someValue is MyError) {
+        test:assertFail();
+    }
+
+    if (someValue is MyError|YourError) {
+        test:assertFail();
+    }
+
+    if (someValue is MyError|error) {
+        test:assertFail();
+    }
+
+    if (someValue is error) {
+        test:assertFail();
+    }
+
+    if (someValue is int) {
+    } else {
+        test:assertFail();
+    }
 }
 
 function testWithMultipleErrorsAndError() {
     MyError|YourError|int someValue = error MyError("io error", code = 0);
-    test:assertTrue(someValue is MyError);
-    test:assertTrue(someValue is MyError|YourError);
-    test:assertTrue(someValue is MyError|error);
-    test:assertTrue(someValue is MyError|error);
-    test:assertTrue(someValue is error);
-    test:assertFalse(someValue is int);
-    test:assertFalse(someValue is YourError);
+    if(someValue is MyError) {
+    } else {
+        test:assertFail();
+    }
+
+    if (someValue is MyError|YourError) {
+    } else {
+        test:assertFail();
+    }
+
+    if (someValue is MyError|error) {
+    } else {
+        test:assertFail();
+    }
+
+    if (someValue is error|MyError) {
+    } else {
+        test:assertFail();
+    }
+
+    if (someValue is error) {
+    } else {
+        test:assertFail();
+    }
+
+    if (someValue is int) {
+        test:assertFail();
+    }
+
+    if (someValue is YourError) {
+        test:assertFail();
+    }
 }
