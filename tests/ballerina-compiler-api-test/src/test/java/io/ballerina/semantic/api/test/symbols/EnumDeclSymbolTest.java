@@ -146,7 +146,7 @@ public class EnumDeclSymbolTest {
 
         // check type
         assertEquals(symbol.typeKind(), TypeDescKind.SINGLETON);
-        assertEquals(symbol.typeDescriptor().typeKind(), typeDescKind);
+        assertEquals(symbol.typeDescriptor().typeKind(), TypeDescKind.SINGLETON);
     }
 
     @DataProvider(name = "EnumMemberDeclarationProvider")
