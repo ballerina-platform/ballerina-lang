@@ -17,6 +17,7 @@
  */
 package io.ballerina.types;
 
+import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.typeops.BddCommonOps;
@@ -162,5 +163,19 @@ public class Common {
      */
     public interface BddPredicate {
         boolean apply(Context cx, Conjunction posList, Conjunction negList);
+    }
+
+    public static boolean isNothingSubtype(SubtypeData d) {
+        if (d instanceof AllOrNothingSubtype) {
+            return ((AllOrNothingSubtype) d).isNothingSubtype();
+        }
+        return false;
+    }
+
+    public static boolean isAllSubtype(SubtypeData d) {
+        if (d instanceof AllOrNothingSubtype) {
+            return ((AllOrNothingSubtype) d).isAllSubtype();
+        }
+        return false;
     }
 }
