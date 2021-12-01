@@ -1943,9 +1943,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return symTable.notFoundSymbol;
         }
         if (opKind == OperatorKind.ADD) {
-            if (type.isNullable()) {
-                return createUnaryOperator(opKind, type, BUnionType.create(null, type, symTable.nilType));
-            }
             return createUnaryOperator(opKind, type, type);
         }
         if (type.isNullable()) {
