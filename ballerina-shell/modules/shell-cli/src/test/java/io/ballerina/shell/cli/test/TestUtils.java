@@ -23,7 +23,7 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -58,7 +58,7 @@ public abstract class TestUtils {
     public static String readFile(String fileName) {
         InputStream inputStream = TestUtils.class.getClassLoader().getResourceAsStream(fileName);
         Objects.requireNonNull(inputStream, "Test file does not exist: " + fileName);
-        try (Scanner scanner = new Scanner(inputStream, Charset.defaultCharset()).useDelimiter(SPECIAL_DELIMITER)) {
+        try (Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8).useDelimiter(SPECIAL_DELIMITER)) {
             return scanner.hasNext() ? scanner.next() : "";
         }
     }

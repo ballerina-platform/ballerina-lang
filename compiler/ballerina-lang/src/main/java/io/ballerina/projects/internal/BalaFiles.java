@@ -41,7 +41,6 @@ import io.ballerina.projects.util.ProjectUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -135,7 +134,7 @@ public class BalaFiles {
         } else {
             String content;
             try {
-                content = Files.readString(documentFilePath, Charset.defaultCharset());
+                content = Files.readString(documentFilePath);
             } catch (IOException e) {
                 throw new ProjectException(e);
             }

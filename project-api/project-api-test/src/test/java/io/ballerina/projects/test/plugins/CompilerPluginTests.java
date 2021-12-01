@@ -38,7 +38,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -153,7 +152,7 @@ public class CompilerPluginTests {
 
         Path logFilePath = Paths.get("build/logs/diagnostics.log");
         Assert.assertTrue(Files.exists(logFilePath));
-        String logFileContent = Files.readString(logFilePath, Charset.defaultCharset());
+        String logFileContent = Files.readString(logFilePath);
         Assert.assertTrue(logFileContent.contains(diagnosticResult.warnings().stream().findFirst().get().toString()));
         Assert.assertTrue(logFileContent.contains(diagnosticResult.errors().stream().findFirst().get().toString()));
     }
@@ -171,7 +170,7 @@ public class CompilerPluginTests {
 
         Path logFilePath = Paths.get("build/logs/single-file/diagnostics.log");
         Assert.assertTrue(Files.exists(logFilePath));
-        String logFileContent = Files.readString(logFilePath, Charset.defaultCharset());
+        String logFileContent = Files.readString(logFilePath);
         Assert.assertTrue(logFileContent.contains(diagnosticResult.warnings().stream().findFirst().get().toString()));
         Assert.assertTrue(logFileContent.contains(diagnosticResult.errors().stream().findFirst().get().toString()));
     }

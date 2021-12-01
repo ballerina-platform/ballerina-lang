@@ -41,7 +41,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -132,7 +131,7 @@ public abstract class BalaWriter {
         String balaJson = gson.toJson(new BalaJson());
         try {
             putZipEntry(balaOutputStream, Paths.get(BALA_JSON),
-                    new ByteArrayInputStream(balaJson.getBytes(Charset.defaultCharset())));
+                    new ByteArrayInputStream(balaJson.getBytes(StandardCharsets.UTF_8)));
         } catch (IOException e) {
             throw new ProjectException("Failed to write 'bala.json' file: " + e.getMessage(), e);
         }
@@ -173,7 +172,7 @@ public abstract class BalaWriter {
 
         try {
             putZipEntry(balaOutputStream, Paths.get(PACKAGE_JSON),
-                    new ByteArrayInputStream(gson.toJson(packageJson).getBytes(Charset.defaultCharset())));
+                    new ByteArrayInputStream(gson.toJson(packageJson).getBytes(StandardCharsets.UTF_8)));
         } catch (IOException e) {
             throw new ProjectException("Failed to write 'package.json' file: " + e.getMessage(), e);
         }
@@ -278,7 +277,7 @@ public abstract class BalaWriter {
 
         try {
             putZipEntry(balaOutputStream, Paths.get(DEPENDENCY_GRAPH_JSON),
-                        new ByteArrayInputStream(gson.toJson(depGraphJson).getBytes(Charset.defaultCharset())));
+                        new ByteArrayInputStream(gson.toJson(depGraphJson).getBytes(StandardCharsets.UTF_8)));
         } catch (IOException e) {
             throw new ProjectException("Failed to write '" + DEPENDENCY_GRAPH_JSON + "' file: " + e.getMessage(), e);
         }

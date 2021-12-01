@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -146,7 +146,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
             try {
                 putZipEntry(balaOutputStream, Paths.get("compiler-plugin", COMPILER_PLUGIN_JSON),
                         new ByteArrayInputStream(
-                                gson.toJson(compilerPluginJson).getBytes(Charset.defaultCharset())));
+                                gson.toJson(compilerPluginJson).getBytes(StandardCharsets.UTF_8)));
             } catch (IOException e) {
                 throw new ProjectException("Failed to write '" + COMPILER_PLUGIN_JSON + "' file: " + e.getMessage(), e);
             }

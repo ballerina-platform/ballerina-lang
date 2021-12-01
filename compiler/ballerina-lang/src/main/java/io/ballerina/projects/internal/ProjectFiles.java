@@ -27,7 +27,6 @@ import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -189,7 +188,7 @@ public class ProjectFiles {
 
         String content;
         try {
-            content = Files.readString(documentFilePath, Charset.defaultCharset());
+            content = Files.readString(documentFilePath);
         } catch (IOException e) {
             throw new ProjectException(e);
         }
@@ -204,7 +203,7 @@ public class ProjectFiles {
         }
         String content;
         try {
-            content = Files.readString(documentFilePath, Charset.defaultCharset());
+            content = Files.readString(documentFilePath);
         } catch (IOException e) {
             throw new ProjectException(e);
         }

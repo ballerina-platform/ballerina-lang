@@ -33,7 +33,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -240,6 +240,6 @@ public class ManifestProcessor {
         toml.put("dependencies", dependencies);
         TomlWriter writer = new TomlWriter();
         String tomlContent = writer.write(toml);
-        return tomlContent.getBytes(Charset.defaultCharset());
+        return tomlContent.getBytes(StandardCharsets.UTF_8);
     }
 }

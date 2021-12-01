@@ -29,7 +29,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.samjs.jarlibrary.diagnosticutils.DiagnosticUtils;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * A sample {@code CompilerPlugin} that generated files for each function definition.
@@ -54,7 +54,7 @@ public class CodegenFunctionPlugin extends CompilerPlugin {
         @Override
         public void init(CodeGeneratorContext generatorContext) {
             generatorContext.addSourceGeneratorTask(sourceGeneratorContext -> {
-                sourceGeneratorContext.addResourceFile("".getBytes(Charset.defaultCharset()), "openapi-spec.yaml");
+                sourceGeneratorContext.addResourceFile("".getBytes(StandardCharsets.UTF_8), "openapi-spec.yaml");
             });
         }
     }

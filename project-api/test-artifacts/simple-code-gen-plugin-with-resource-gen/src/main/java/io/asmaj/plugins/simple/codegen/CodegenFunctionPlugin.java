@@ -24,7 +24,7 @@ import io.ballerina.projects.plugins.CompilerPluginContext;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * A sample {@code CompilerPlugin} that generates a source file and a resource file.
@@ -48,7 +48,7 @@ public class CodegenFunctionPlugin extends CompilerPlugin {
         @Override
         public void init(CodeGeneratorContext generatorContext) {
             generatorContext.addSourceGeneratorTask(sourceGeneratorContext -> {
-                sourceGeneratorContext.addResourceFile("".getBytes(Charset.defaultCharset()), "openapi-spec.yaml");
+                sourceGeneratorContext.addResourceFile("".getBytes(StandardCharsets.UTF_8), "openapi-spec.yaml");
             });
         }
     }
