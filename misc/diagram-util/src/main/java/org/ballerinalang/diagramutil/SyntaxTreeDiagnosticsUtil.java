@@ -21,6 +21,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.Location;
 
 /**
  * This is the SyntaxTreeDiagnosticsUtil class for diagnostics related utils used in the syntax tree generation.
@@ -34,6 +35,7 @@ public class SyntaxTreeDiagnosticsUtil {
         for (Diagnostic diagnostic : diagnostics) {
             JsonObject diagnosticJson = new JsonObject();
             diagnosticJson.addProperty("message", diagnostic.message());
+            diagnosticJson.add("range" , getLocation(diagnostic.location()));
             DiagnosticInfo diagnosticInfo = diagnostic.diagnosticInfo();
             if (diagnosticInfo != null) {
                 JsonObject diagnosticInfoJson = new JsonObject();
@@ -45,5 +47,14 @@ public class SyntaxTreeDiagnosticsUtil {
         }
 
         return diagnosticsArray;
+    }
+
+    public static JsonObject getLocation(Location location) {
+        JsonObject jsonLocation = new JsonObject();
+        jsonLocation.addProperty("startLine", location.lineRange().startLine().line());
+        jsonLocation.addProperty("endLine", location.lineRange().endLine().line());
+        jsonLocation.addProperty("startColumn", location.textRange().startOffset());
+        jsonLocation.addProperty("endColumn", location.textRange().endOffset());
+        return jsonLocation;
     }
 }
