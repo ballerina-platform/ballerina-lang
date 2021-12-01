@@ -16,18 +16,26 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.OnConflictClauseNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Completion provider for {@link OnConflictClauseNode} context.
@@ -45,7 +53,7 @@ public class OnConflictClauseNodeContext extends AbstractCompletionProvider<OnCo
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, OnConflictClauseNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        
+
         if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             /*
             Covers the cases where the cursor is within the expression context
@@ -57,12 +65,37 @@ public class OnConflictClauseNodeContext extends AbstractCompletionProvider<OnCo
             completionItems.addAll(this.expressionCompletions(context));
         }
         this.sort(context, node, completionItems);
-        
+
         return completionItems;
     }
 
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, OnConflictClauseNode node) {
         return !node.onKeyword().isMissing() && !node.conflictKeyword().isMissing();
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, OnConflictClauseNode node, List<LSCompletionItem> lsCItems) {
+        for (LSCompletionItem lsCItem : lsCItems) {
+            int rank = 2;
+            if (this.isVariableOfErrorType(lsCItem)) {
+                Optional<Symbol> symbol = ((SymbolCompletionItem) lsCItem).getSymbol();
+                Optional<TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol.get());
+                if (typeDescriptor.isPresent()
+                        && CommonUtil.getRawType(typeDescriptor.get()).typeKind() == TypeDescKind.ERROR) {
+                    rank = 1;
+                }
+            }
+            String sortText = SortingUtil.genSortText(rank)
+                    + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
+            lsCItem.getCompletionItem().setSortText(sortText);
+        }
+    }
+
+    private boolean isVariableOfErrorType(LSCompletionItem lsCItem) {
+        Predicate<Symbol> symbolPredicate = CommonUtil.getVariableFilterPredicate();
+        return lsCItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL
+                && ((SymbolCompletionItem) lsCItem).getSymbol().isPresent()
+                && symbolPredicate.test(((SymbolCompletionItem) lsCItem).getSymbol().get());
     }
 }
