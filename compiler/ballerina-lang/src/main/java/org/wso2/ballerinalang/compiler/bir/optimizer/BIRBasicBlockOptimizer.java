@@ -206,13 +206,13 @@ public class BIRBasicBlockOptimizer extends BIRVisitor {
     @Override
     public void visit(BIRNode.BIRErrorEntry errorEntry) {
         if (errorEntry.endBB == this.env.currentBB) {
-            this.optimizeTerm(errorEntry.endBB.terminator, this.env);
+            errorEntry.endBB = this.env.nextBB;
         }
         if (errorEntry.trapBB == this.env.currentBB) {
-            this.optimizeTerm(errorEntry.trapBB.terminator, this.env);
+            errorEntry.trapBB = this.env.nextBB;
         }
         if (errorEntry.targetBB == this.env.currentBB) {
-            this.optimizeTerm(errorEntry.targetBB.terminator, this.env);
+            errorEntry.targetBB = this.env.nextBB;
         }
     }
 
