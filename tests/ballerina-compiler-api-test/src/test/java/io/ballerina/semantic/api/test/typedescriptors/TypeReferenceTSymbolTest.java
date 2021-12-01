@@ -19,9 +19,10 @@
 package io.ballerina.semantic.api.test.typedescriptors;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.EnumSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -33,9 +34,6 @@ import io.ballerina.projects.Project;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 
 import java.util.Map;
 import java.util.Optional;
@@ -102,14 +100,15 @@ public class TypeReferenceTSymbolTest {
 
     @Test
     public void testRecordField() {
-        Optional<Symbol> symbol = model.symbol(srcFile, from(44, 7));
-        TypeSymbol variableSymbol = ((VariableSymbol) symbol.get()).typeDescriptor();
+        Optional<Symbol> fieldSymbol = model.symbol(srcFile, from(44, 7));
+        Optional<Symbol> typeSymbol = model.symbol(srcFile, from(39, 6));
+
+        TypeSymbol variableSymbol = ((VariableSymbol) fieldSymbol.get()).typeDescriptor();
         assertEquals(variableSymbol.typeKind(), TypeDescKind.RECORD);
-        BRecordType varType = (BRecordType) ((AbstractTypeSymbol) variableSymbol).getBType();
-        Map<String, BField> recordFields = varType.fields;
+        Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) (variableSymbol)).fieldDescriptors();
         assertEquals(recordFields.size(), 1);
-        BField field = recordFields.get("age");
-        assertEquals(field.getName().getValue(), "age");
-        assertEquals(((BTypeReferenceType) field.getType()).definitionName, "Age");
+        RecordFieldSymbol recordFieldSymbol = recordFields.get("age");
+        assertEquals(recordFieldSymbol.getName().get(), "age");
+        assertEquals(((TypeReferenceTypeSymbol)(recordFieldSymbol).typeDescriptor()).definition(), typeSymbol.get());
     }
 }

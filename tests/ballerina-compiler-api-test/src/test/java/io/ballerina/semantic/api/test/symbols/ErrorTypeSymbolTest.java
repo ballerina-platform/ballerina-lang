@@ -19,26 +19,25 @@
 package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
@@ -85,27 +84,25 @@ public class ErrorTypeSymbolTest {
         Optional<Symbol> distinctErrorSymbol = model.symbol(srcFile, LinePosition.from(29, 13));
 
         assertTrue(unionErrorSymbol.isPresent());
-        assertEquals(((TypeDefinitionSymbol) unionErrorSymbol.get()).typeDescriptor().typeKind(),
-                TypeDescKind.UNION);
+        TypeDefinitionSymbol unionTypeDefinitionSymbol = (TypeDefinitionSymbol) unionErrorSymbol.get();
+        assertEquals(unionTypeDefinitionSymbol.typeDescriptor().typeKind(), TypeDescKind.UNION);
+        assertEquals(((unionTypeDefinitionSymbol)).getName().get(), "EmailError");
 
-        BUnionType unionType =
-                (BUnionType) ((AbstractTypeSymbol) ((TypeDefinitionSymbol) unionErrorSymbol.get()).
-                        typeDescriptor()).getBType();
-        assertEquals(unionType.toString(), "EmailError");
+        UnionTypeSymbol unionTypeSymbol =
+                (UnionTypeSymbol) ((TypeDefinitionSymbol) unionErrorSymbol.get()).typeDescriptor();
+        List<TypeSymbol> memberTypeSymbols = unionTypeSymbol.memberTypeDescriptors();
 
-        for (BType type : unionType.getMemberTypes()) {
-            assertEquals(((BTypeReferenceType) type).referredType.getKind(), TypeKind.ERROR);
-            assertEquals(type.tsymbol.pkgID, PackageID.DEFAULT);
-            assertEquals(type.tsymbol.pkgID.getOrgName(), Names.ANON_ORG);
+        for (TypeSymbol typeSymbol : memberTypeSymbols) {
+            assertEquals(((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor().typeKind(), TypeDescKind.ERROR);
+            assertEquals(((typeSymbol).getModule().get()).id().orgName(), Names.ANON_ORG.toString());
+            assertEquals(((typeSymbol).getModule().get()).id().moduleName(), PackageID.DEFAULT.toString());
         }
 
         assertTrue(distinctErrorSymbol.isPresent());
         ErrorTypeSymbol errorTypeSymbol =
-                (ErrorTypeSymbol) ((TypeDefinitionSymbol) distinctErrorSymbol.get()).
-                        typeDescriptor();
-        assertEquals(errorTypeSymbol.typeKind(),
-                TypeDescKind.ERROR);
-        assertEquals(((AbstractTypeSymbol) errorTypeSymbol).getBType().tsymbol.pkgID, PackageID.DEFAULT);
-        assertEquals(((AbstractTypeSymbol) errorTypeSymbol).getBType().tsymbol.pkgID.getOrgName(), Names.ANON_ORG);
+                (ErrorTypeSymbol) ((TypeDefinitionSymbol) distinctErrorSymbol.get()).typeDescriptor();
+        assertEquals(errorTypeSymbol.typeKind(), TypeDescKind.ERROR);
+        assertEquals(errorTypeSymbol.getModule().get().id().moduleName(), PackageID.DEFAULT.toString());
+        assertEquals(errorTypeSymbol.getModule().get().id().orgName(), Names.ANON_ORG.toString());
     }
 }
