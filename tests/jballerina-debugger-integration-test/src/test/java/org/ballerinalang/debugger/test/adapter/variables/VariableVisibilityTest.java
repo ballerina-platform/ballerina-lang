@@ -84,7 +84,7 @@ public class VariableVisibilityTest extends BaseTestCase {
 
         // debug point variable should be visible when we go to the next line (STEP_OVER).
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_OVER);
-        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        debugHitInfo = debugTestRunner.waitForDebugHit(15000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
         Assert.assertEquals(localVariables.size(), 40);
         Assert.assertTrue(localVariables.containsKey("byteVar"));
