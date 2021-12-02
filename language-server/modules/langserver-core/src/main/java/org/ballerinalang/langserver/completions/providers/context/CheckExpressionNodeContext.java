@@ -39,7 +39,6 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 /**
  * Completion provider for {@link CheckExpressionNode} context.
@@ -67,13 +66,9 @@ public class CheckExpressionNodeContext extends AbstractCompletionProvider<Check
 
             NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
             if (QNameReferenceUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
-                Predicate<Symbol> filter = symbol -> symbol.kind() == SymbolKind.VARIABLE
-                        || symbol.kind() == SymbolKind.FUNCTION
-                        || symbol.kind() == SymbolKind.TYPE_DEFINITION
-                        || symbol.kind() == SymbolKind.CLASS;
-                List<Symbol> types = QNameReferenceUtil.getModuleContent(ctx,
-                        (QualifiedNameReferenceNode) nodeAtCursor, filter);
-                completionItems.addAll(getCompletionItemList(types, ctx));
+                List<Symbol> expressions =
+                        QNameReferenceUtil.getExpressionContextEntries(ctx, (QualifiedNameReferenceNode) nodeAtCursor);
+                completionItems.addAll(getCompletionItemList(expressions, ctx));
             } else {
                 /*
                     We add the action keywords in order to support the check action context completions

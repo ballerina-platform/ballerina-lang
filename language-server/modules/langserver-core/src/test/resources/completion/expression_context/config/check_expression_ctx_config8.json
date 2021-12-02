@@ -204,6 +204,48 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "TEST_INT_CONST1",
+      "kind": "Variable",
+      "detail": "1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "DC",
+      "insertText": "TEST_INT_CONST1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TEST_STRING_CONST1",
+      "kind": "Variable",
+      "detail": "HELLO WORLD",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "DC",
+      "insertText": "TEST_STRING_CONST1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ENUM1_FIELD1",
+      "kind": "EnumMember",
+      "detail": "ENUM1_FIELD1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "DH",
+      "insertText": "ENUM1_FIELD1",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
