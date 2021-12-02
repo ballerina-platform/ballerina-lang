@@ -5555,7 +5555,7 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BType> errorTypes = new ArrayList<>();
         List<BType> nonErrorTypes = new ArrayList<>();
         if (!isErrorType) {
-            for (BType memberType : ((BUnionType) types.getReferredType(exprType)).getMemberTypes()) {
+            for (BType memberType : types.getAllTypes(exprType, true)) {
                 if (memberType.tag == TypeTags.READONLY) {
                     errorTypes.add(symTable.errorType);
                     nonErrorTypes.add(symTable.anyAndReadonly);
