@@ -18,7 +18,11 @@
 package io.ballerina.parsers;
 
 import com.google.gson.JsonElement;
-import io.ballerina.compiler.syntax.tree.*;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.NodeParser;
+import io.ballerina.compiler.syntax.tree.StatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
