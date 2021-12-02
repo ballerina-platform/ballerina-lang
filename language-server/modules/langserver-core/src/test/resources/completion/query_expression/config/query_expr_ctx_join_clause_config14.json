@@ -1,17 +1,26 @@
 {
   "position": {
     "line": 16,
-    "character": 35
+    "character": 17
   },
-  "source": "query_expression/source/query_expr_ctx_let_clause_source13.bal",
+  "source": "query_expression/source/query_expr_ctx_join_clause_source14.bal",
   "items": [
     {
-      "label": "let",
+      "label": "from",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "Q",
-      "filterText": "let",
-      "insertText": "let",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "from clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "from",
+      "insertText": "from ${1:var} ${2:item} in ${3}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -24,12 +33,30 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "let",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "let",
+      "insertText": "let",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "let clause",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
       "filterText": "let",
       "insertText": "let ${1:var} ${2:varName} = ${3}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "outer",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "outer",
+      "insertText": "outer ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -69,15 +96,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "do",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "P",
-      "filterText": "do",
-      "insertText": "do {\n\t${1}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "select",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -87,12 +105,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "outer",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "outer",
-      "insertText": "outer ",
+      "label": "do",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "do",
+      "insertText": "do {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -1,33 +1,33 @@
 {
   "position": {
-    "line": 16,
-    "character": 35
+    "line": 8,
+    "character": 57
   },
-  "source": "query_expression/source/query_expr_ctx_let_clause_source13.bal",
+  "source": "query_expression/source/query_expr_ctx_source28.bal",
   "items": [
-    {
-      "label": "let",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "let",
-      "insertText": "let",
-      "insertTextFormat": "Snippet"
-    },
     {
       "label": "where",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "DQ",
       "filterText": "where",
       "insertText": "where ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "let",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "DQ",
+      "filterText": "let",
+      "insertText": "let",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "let clause",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "DP",
       "filterText": "let",
       "insertText": "let ${1:var} ${2:varName} = ${3}",
       "insertTextFormat": "Snippet"
@@ -36,7 +36,7 @@
       "label": "join",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "DQ",
       "filterText": "join",
       "insertText": "join ",
       "insertTextFormat": "Snippet"
@@ -45,7 +45,7 @@
       "label": "join clause",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "DP",
       "filterText": "join",
       "insertText": "join ${1:var} ${2:varName} in ${3:expr} on ${3:onExpr} equals ${3:equalsExpr}",
       "insertTextFormat": "Snippet"
@@ -54,7 +54,7 @@
       "label": "order by",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "DQ",
       "filterText": "order by",
       "insertText": "order by ",
       "insertTextFormat": "Snippet"
@@ -63,34 +63,34 @@
       "label": "limit",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "DQ",
       "filterText": "limit",
       "insertText": "limit ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "do",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "P",
-      "filterText": "do",
-      "insertText": "do {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "select",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "DQ",
       "filterText": "select",
       "insertText": "select ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "do",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "DP",
+      "filterText": "do",
+      "insertText": "do {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "outer",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "DQ",
       "filterText": "outer",
       "insertText": "outer ",
       "insertTextFormat": "Snippet"
