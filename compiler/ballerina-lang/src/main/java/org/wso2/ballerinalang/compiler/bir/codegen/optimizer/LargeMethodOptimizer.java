@@ -77,7 +77,7 @@ public class LargeMethodOptimizer {
             if (hasLessInstructionCount(function)) {
                 continue;
             }
-            List<BIRFunction> newBIRFunctions = splitThisBIRFunction(function, false);
+            List<BIRFunction> newBIRFunctions = splitBIRFunction(function, false);
             newlyAddedBIRFunctions.addAll(newBIRFunctions);
         }
         for (BIRTypeDefinition birTypeDef : birPkg.typeDefs) {
@@ -85,7 +85,7 @@ public class LargeMethodOptimizer {
                 if (hasLessInstructionCount(function)) {
                     continue;
                 }
-                List<BIRFunction> newBIRFunctions = splitThisBIRFunction(function, true);
+                List<BIRFunction> newBIRFunctions = splitBIRFunction(function, true);
                 newlyAddedBIRFunctions.addAll(newBIRFunctions);
             }
         }
@@ -100,7 +100,7 @@ public class LargeMethodOptimizer {
         return instructionCount < FUNCTION_INSTRUCTION_COUNT_THRESHOLD;
     }
 
-    private List<BIRFunction> splitThisBIRFunction(BIRFunction birFunction, boolean fromAttachedFunction) {
+    private List<BIRFunction> splitBIRFunction(BIRFunction birFunction, boolean fromAttachedFunction) {
         final List<BIRFunction> newlyAddingFunctions = new ArrayList<>();
         List<Split> possibleSplits = getPossibleSplits(birFunction.basicBlocks, birFunction.errorTable);
         if (!possibleSplits.isEmpty()) {
@@ -371,7 +371,7 @@ public class LargeMethodOptimizer {
             newBBNum += 1;
             newlyAddedFunctions.add(newBIRFunc);
             if (currSplit.splitFurther) {
-                newlyAddedFunctions.addAll(splitThisBIRFunction(newBIRFunc, fromAttachedFunction));
+                newlyAddedFunctions.addAll(splitBIRFunction(newBIRFunc, fromAttachedFunction));
             }
             function.errorTable.removeAll(currSplit.errorTableEntries);
             startInsNum = currSplit.lastIns + 1;
@@ -621,7 +621,7 @@ public class LargeMethodOptimizer {
                     possibleSplits.get(splitNum).lhsVars, possibleSplits.get(splitNum).funcArgs, fromAttachedFunction);
             newlyAddedFunctions.add(newBIRFunc);
             if (possibleSplits.get(splitNum).splitFurther) {
-                newlyAddedFunctions.addAll(splitThisBIRFunction(newBIRFunc, fromAttachedFunction));
+                newlyAddedFunctions.addAll(splitBIRFunction(newBIRFunc, fromAttachedFunction));
             }
             currentBB.instructions.addAll(instructionList.subList(startInsNum, possibleSplits.get(splitNum).firstIns));
             startInsNum = possibleSplits.get(splitNum).lastIns + 1;
