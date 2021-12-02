@@ -464,9 +464,8 @@ public class BallerinaTomlTests {
         PackageManifest packageManifest = getPackageManifest(
                 BAL_TOML_REPO.resolve("invalid-icon-type.toml"));
         Assert.assertTrue(packageManifest.diagnostics().hasErrors());
-        Assert.assertEquals(packageManifest.diagnostics().diagnostics().size(), 2);
+        Assert.assertEquals(packageManifest.diagnostics().diagnostics().size(), 1);
         Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
-        Assert.assertEquals(iterator.next().message(), "could not locate icon path '../sample.svg'");
         Assert.assertEquals(iterator.next().message(),
                 "invalid 'icon' under [package]: 'icon' can only have 'png' images");
     }
