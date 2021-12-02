@@ -61,7 +61,7 @@ public class CheckExpressionNodeContext extends AbstractCompletionProvider<Check
                 || node.parent().kind() == SyntaxKind.MODULE_VAR_DECL
                 || node.parent().kind() == SyntaxKind.OBJECT_FIELD
                 || node.parent().kind() == SyntaxKind.FROM_CLAUSE) {
-                completionItems.addAll(CompletionUtil.route(ctx, node.parent()));
+            completionItems.addAll(CompletionUtil.route(ctx, node.parent()));
         } else {
 
             NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
@@ -70,9 +70,8 @@ public class CheckExpressionNodeContext extends AbstractCompletionProvider<Check
                         QNameReferenceUtil.getExpressionContextEntries(ctx, (QualifiedNameReferenceNode) nodeAtCursor);
                 completionItems.addAll(getCompletionItemList(expressions, ctx));
             } else {
-                /*
-                    We add the action keywords in order to support the check action context completions
-                 */
+
+                //We add the action keywords in order to support the check action context completions.
                 completionItems.addAll(this.actionKWCompletions(ctx));
                 completionItems.addAll(this.expressionCompletions(ctx));
                 completionItems.add(new SnippetCompletionItem(ctx, Snippet.STMT_COMMIT.get()));
