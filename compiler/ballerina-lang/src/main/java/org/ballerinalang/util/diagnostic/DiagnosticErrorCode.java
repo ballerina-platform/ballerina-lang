@@ -32,7 +32,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     UNDEFINED_MODULE("BCE2000", "undefined.module"),
     CYCLIC_MODULE_IMPORTS_DETECTED("BCE2001", "cyclic.module.imports.detected"),
-    UNUSED_IMPORT_MODULE("BCE2002", "unused.import.module"),
+    UNUSED_MODULE_PREFIX("BCE2002", "unused.module.prefix"),
     MODULE_NOT_FOUND("BCE2003", "module.not.found"),
     REDECLARED_IMPORT_MODULE("BCE2004", "redeclared.import.module"),
     INVALID_MODULE_DECLARATION("BCE2005", "invalid.module.declaration"),
