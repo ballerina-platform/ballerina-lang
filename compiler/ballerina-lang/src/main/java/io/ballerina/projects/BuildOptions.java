@@ -83,6 +83,10 @@ public class BuildOptions {
         return this.compilationOptions;
     }
 
+    public boolean exportOpenapi() {
+        return this.compilationOptions.exportOpenapi();
+    }
+
     /**
      * Merge the given build options by favoring theirs if there are conflicts.
      *
@@ -129,6 +133,7 @@ public class BuildOptions {
         buildOptionsBuilder.setListConflictedClasses(compilationOptions.listConflictedClasses);
         buildOptionsBuilder.setSticky(compilationOptions.sticky);
         buildOptionsBuilder.setConfigSchemaGen(compilationOptions.configSchemaGen);
+        buildOptionsBuilder.setExportOpenapi(compilationOptions.exportOpenapi);
 
         return buildOptionsBuilder.build();
     }
@@ -271,6 +276,11 @@ public class BuildOptions {
 
         public BuildOptionsBuilder setConfigSchemaGen(Boolean value) {
             compilationOptionsBuilder.setConfigSchemaGen(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setExportOpenapi(Boolean value) {
+            compilationOptionsBuilder.setExportOpenapi(value);
             return this;
         }
 
