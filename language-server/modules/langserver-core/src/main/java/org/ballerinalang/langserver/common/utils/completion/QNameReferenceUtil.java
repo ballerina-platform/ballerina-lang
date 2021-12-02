@@ -51,6 +51,18 @@ public class QNameReferenceUtil {
     public static List<Symbol> getExpressionContextEntries(BallerinaCompletionContext ctx,
                                                            QualifiedNameReferenceNode qNameRef) {
         String moduleAlias = QNameReferenceUtil.getAlias(qNameRef);
+        return getExpressionContextEntries(ctx, moduleAlias);
+    }
+
+    /**
+     * Get the completions for the qualified name reference context.
+     *
+     * @param ctx           language server operation context
+     * @param moduleAlias   module alias of the qualified name reference
+     * @return {@link List} of completion items
+     */
+    public static List<Symbol> getExpressionContextEntries(BallerinaCompletionContext ctx, String moduleAlias) {
+
         Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(ctx, moduleAlias);
 
         return moduleSymbol.map(value -> value.allSymbols().stream()

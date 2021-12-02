@@ -19,6 +19,8 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -44,7 +46,21 @@ public class ConditionalExpressionNodeContext extends AbstractCompletionProvider
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ConditionalExpressionNode node)
             throws LSCompletionException {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        int cursor = context.getCursorPositionInTree();
+        int colonTokenPos = node.colonToken().textRange().startOffset();
+        
+        if (cursor > colonTokenPos && node.middleExpression().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE 
+                && node.endExpression().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            /*
+            Covers the following context
+            eg: int n = true ? module1:
+             */
+            String middleExprName = ((SimpleNameReferenceNode) node.middleExpression()).name().text();
+            String alias = middleExprName.startsWith("'") ? middleExprName.substring(1) : middleExprName;
+            List<Symbol> expressionContextSymbols = QNameReferenceUtil.getExpressionContextEntries(context, alias);
+            return this.getCompletionItemList(expressionContextSymbols, context);
+        }
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             List<Symbol> expressionContextSymbols =
                     QNameReferenceUtil.getExpressionContextEntries(context, (QualifiedNameReferenceNode) nodeAtCursor);
             return this.getCompletionItemList(expressionContextSymbols, context);
