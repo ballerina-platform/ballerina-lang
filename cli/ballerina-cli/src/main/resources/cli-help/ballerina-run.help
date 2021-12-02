@@ -3,14 +3,14 @@ NAME
 
 SYNOPSIS
        bal run 
-       bal run <executable-jar> 
+       bal run <executable-jar>
+       bal run [--target-dir] <target-directory-path>
        bal run [--offline] [--experimental] [--debug] [--observability-included] 
                <ballerina-file-path> 
        bal run [--offline] [--experimental] [--debug] [--observability-included] 
                <ballerina-file-path> [--] <args...>
        bal run [--offline] [--experimental] [--debug] [--observability-included] 
                <ballerina-package-path> [--] <args...>
-
 
 DESCRIPTION
        Build and execute the given `.bal` file, package, or program.
@@ -45,6 +45,10 @@ OPTIONS
        --observability-included
            Include the dependencies and artifacts in the  executable JAR file(s) of a Ballerina 
            program that are required to enable the observability functionalities on it.
+
+       --target-dir
+           Target directory path.
+
 
 ARGUMENTS
        --

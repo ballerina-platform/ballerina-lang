@@ -21,6 +21,7 @@ package io.ballerina.cli.cmd;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
@@ -48,6 +49,9 @@ public class CleanCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
+    @CommandLine.Option(names = "--target-dir", description = "target directory path")
+    private Path targetDir;
+
     public CleanCommand(Path projectPath, boolean exitWhenFinish) {
         this.projectPath = projectPath;
         this.outStream = System.out;
@@ -59,6 +63,13 @@ public class CleanCommand implements BLauncherCmd {
         this.outStream = System.out;
         this.exitWhenFinish = true;
     }
+
+    public CleanCommand(Path projectPath, boolean exitWhenFinish, Path targetDir) {
+        this.projectPath = projectPath;
+        this.outStream =  System.out;
+        this.exitWhenFinish = exitWhenFinish;
+        this.targetDir = targetDir;
+    }
     
     @Override
     public void execute() {
@@ -69,8 +80,10 @@ public class CleanCommand implements BLauncherCmd {
         }
 
         Project project;
+        BuildOptions buildOptions = constructBuildOptions();
+
         try {
-            project = BuildProject.load(this.projectPath);
+            project = BuildProject.load(this.projectPath, buildOptions);
         } catch (ProjectException e) {
             CommandUtil.printError(this.outStream, e.getMessage(), null, false);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -81,6 +94,16 @@ public class CleanCommand implements BLauncherCmd {
                 .addTask(new CleanTargetDirTask())
                 .build();
         taskExecutor.executeTasks(project);
+    }
+
+    private BuildOptions constructBuildOptions() {
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+
+        if (targetDir != null) {
+            buildOptionsBuilder.targetDir(targetDir.toString());
+        }
+
+        return buildOptionsBuilder.build();
     }
     
     @Override

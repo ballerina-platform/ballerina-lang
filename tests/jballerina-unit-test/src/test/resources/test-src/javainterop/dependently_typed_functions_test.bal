@@ -871,6 +871,26 @@ function testDependentlyTypedMethodCallOnObjectTypeWithInferredArgument() {
     assert(true, rec is record {| Person value; |});
 }
 
+function functionWithInferredArgForParamOfTypeReferenceType(TargetType t = <>) returns t =
+    @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "functionWithInferredArgForParamOfTypeReferenceType"
+    } external;
+
+function testDependentlyTypedFunctionWithInferredArgForParamOfTypeReferenceType() {
+    int a = functionWithInferredArgForParamOfTypeReferenceType();
+    assert(9876, a);
+
+    string b = functionWithInferredArgForParamOfTypeReferenceType();
+    assert("hello!", b);
+
+    int c = functionWithInferredArgForParamOfTypeReferenceType(int);
+    assert(9876, c);
+
+    var d = functionWithInferredArgForParamOfTypeReferenceType(string);
+    assert("hello!", d);
+}
+
 // Util functions
 function assert(anydata expected, anydata actual) {
     if (expected != actual) {
