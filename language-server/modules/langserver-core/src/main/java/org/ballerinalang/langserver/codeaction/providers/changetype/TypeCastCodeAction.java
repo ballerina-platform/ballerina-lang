@@ -30,7 +30,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.codeaction.ExpressionNodeResolver;
+import org.ballerinalang.langserver.codeaction.MatchedExpressionNodeResolver;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
@@ -71,7 +71,8 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         }
 
         //Check if there is a type cast expression already present.
-        ExpressionNodeResolver expressionResolver = new ExpressionNodeResolver(positionDetails.matchedNode());
+        MatchedExpressionNodeResolver expressionResolver = 
+                new MatchedExpressionNodeResolver(positionDetails.matchedNode());
         Optional<ExpressionNode> expressionNode = positionDetails.matchedNode().apply(expressionResolver);
         if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
             return Collections.emptyList();

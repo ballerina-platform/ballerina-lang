@@ -35,11 +35,11 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class ExpressionNodeResolver extends NodeTransformer<Optional<ExpressionNode>> {
+public class MatchedExpressionNodeResolver extends NodeTransformer<Optional<ExpressionNode>> {
 
     Node matchedNode;
 
-    public ExpressionNodeResolver(Node matchedNode) {
+    public MatchedExpressionNodeResolver(Node matchedNode) {
         this.matchedNode = matchedNode;
     }
 

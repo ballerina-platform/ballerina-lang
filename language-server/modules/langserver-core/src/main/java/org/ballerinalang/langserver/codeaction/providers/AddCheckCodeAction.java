@@ -23,7 +23,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.codeaction.ExpressionNodeResolver;
+import org.ballerinalang.langserver.codeaction.MatchedExpressionNodeResolver;
 import org.ballerinalang.langserver.codeaction.providers.changetype.TypeCastCodeAction;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -65,7 +65,8 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
         }
 
         //Check if there is a check expression already present.
-        ExpressionNodeResolver expressionResolver = new ExpressionNodeResolver(positionDetails.matchedNode());
+        MatchedExpressionNodeResolver expressionResolver =
+                new MatchedExpressionNodeResolver(positionDetails.matchedNode());
         Optional<ExpressionNode> expressionNode = positionDetails.matchedNode().apply(expressionResolver);
         if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.CHECK_EXPRESSION) {
             return Collections.emptyList();
