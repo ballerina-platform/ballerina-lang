@@ -15,34 +15,28 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
-import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.compiler.syntax.tree.WaitFieldNode;
 import io.ballerina.compiler.syntax.tree.WaitFieldsListNode;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.wso2.ballerinalang.compiler.util.Names;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
-import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.WORKER;
 
 /**
@@ -51,7 +45,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.WORKER;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class WaitFieldsListNodeContext extends MappingContextProvider<WaitFieldsListNode> {
+public class WaitFieldsListNodeContext extends AbstractCompletionProvider<WaitFieldsListNode> {
 
     public WaitFieldsListNodeContext() {
         super(WaitFieldsListNode.class);
@@ -63,79 +57,47 @@ public class WaitFieldsListNodeContext extends MappingContextProvider<WaitFields
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        NonTerminalNode evalNode = getEvalNode(context);
 
-        if (this.withinValueExpression(context, evalNode)) {
-                /*
-            Captures the following cases.
-            (1) wait {fieldName: <cursor>}
-            (2) wait {fieldName: a<cursor>}
-             */
-            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-                QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-                completionItems.addAll(this.getExpressionsCompletionsForQNameRef(context, qNameRef));
-            } else {
-                completionItems.addAll(this.expressionCompletions(context));
-            }
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            completionItems.addAll(this.getExpressionsCompletionsForQNameRef(context, nodeAtCursor));
         } else {
-            /*
-            Captures the following cases.
-            (1) wait {<cursor>}
-            (2) wait {fieldName: value, <cursor>}
-             */
-            completionItems.addAll(this.getFieldCompletionItems(context, node, evalNode));
+            completionItems.addAll(this.expressionCompletions(context));
         }
         this.sort(context, node, completionItems);
 
         return completionItems;
     }
-
-    @Override
-    protected boolean withinValueExpression(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {
-        if (evalNodeAtCursor.kind() != SyntaxKind.WAIT_FIELD) {
-            return false;
-        }
-        Token colon = ((WaitFieldNode) evalNodeAtCursor).colon();
-        int cursorPosInTree = context.getCursorPositionInTree();
-        int colonStart = colon.textRange().startOffset();
-        return cursorPosInTree > colonStart;
-    }
-    
-    @Override
-    protected Map<String, RecordFieldSymbol> getValidFields(WaitFieldsListNode node,
-                                                          RecordTypeSymbol recordTypeSymbol) {
-        List<String> missingFields = node.waitFields().stream()
-                .filter(field -> !field.isMissing() && field.kind() == SyntaxKind.WAIT_FIELD
-                        && ((WaitFieldNode) field).fieldName().name().kind() == SyntaxKind.IDENTIFIER_TOKEN)
-                .map(field -> (((WaitFieldNode) field).fieldName().name()).text())
-                .collect(Collectors.toList());
-        Map<String, RecordFieldSymbol> fieldSymbols = new HashMap<>();
-        recordTypeSymbol.fieldDescriptors().forEach((name, symbol) -> {
-            if (!missingFields.contains(name)) {
-                fieldSymbols.put(name, symbol);
-            }
-        });
-
-        return fieldSymbols;
-    }
-
-    @Override
-    protected Predicate<Symbol> getVariableFilter() {
-        return (symbol -> (symbol.kind() == SymbolKind.VARIABLE
-                        && ((VariableSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.FUTURE)
-        || symbol.kind() == SymbolKind.WORKER);
-    }
     
     protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
-
-        List<Symbol> filteredList = visibleSymbols.stream()
-                .filter(symbol -> (symbol instanceof VariableSymbol || symbol.kind() == PARAMETER ||
-                        symbol.kind() == FUNCTION || symbol.kind() == WORKER)
-                        && !symbol.getName().orElse("").equals(Names.ERROR.getValue()))
+        List<Symbol> filteredList = visibleSymbols.stream() 
+                .filter(CommonUtil.getVariableFilterPredicate().or(symbol -> symbol.kind() == WORKER))
                 .collect(Collectors.toList());
-        completionItems.addAll(this.getCompletionItemList(filteredList, context));
-        return completionItems;
+        return this.getCompletionItemList(filteredList, context);
     }
+
+    protected List<LSCompletionItem> getExpressionsCompletionsForQNameRef(BallerinaCompletionContext context,
+                                                                          NonTerminalNode nodeAtCursor) {
+        QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
+        Predicate<Symbol> filter = symbol -> symbol instanceof VariableSymbol
+                || symbol.kind() == SymbolKind.FUNCTION;
+        List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
+        return this.getCompletionItemList(moduleContent, context);
+    }
+    
+    @Override
+    public void sort(BallerinaCompletionContext context, WaitFieldsListNode node, 
+                     List<LSCompletionItem> completionItems) {
+
+        Optional<TypeSymbol> contextType = context.getContextType();
+        if (contextType.isPresent()) {
+            completionItems.forEach(lsCItem -> {
+                String sortText = SortingUtil.genSortTextByAssignability(context, lsCItem, contextType.get());
+                lsCItem.getCompletionItem().setSortText(sortText);
+            });
+            return;
+        }
+        super.sort(context, node, completionItems);
+    }
+
 }

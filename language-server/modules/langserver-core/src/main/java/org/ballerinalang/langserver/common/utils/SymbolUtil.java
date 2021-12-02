@@ -33,7 +33,6 @@ import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.api.symbols.WorkerSymbol;
 
 import java.util.Map;
 import java.util.Optional;
@@ -229,8 +228,6 @@ public class SymbolUtil {
                 return Optional.of(((ClassFieldSymbol) symbol).typeDescriptor());
             case TYPE:
                 return Optional.of((TypeSymbol) symbol);
-            case WORKER:
-                return Optional.of(((WorkerSymbol) symbol).returnType());
             default:
                 return Optional.empty();
         }

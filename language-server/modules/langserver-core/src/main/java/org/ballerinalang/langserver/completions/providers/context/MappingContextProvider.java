@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -50,9 +49,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
-import static io.ballerina.compiler.api.symbols.SymbolKind.WORKER;
 
 /**
  * Abstract completion provider for mapping constructor context.
@@ -116,31 +112,17 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
     protected List<LSCompletionItem> getVariableCompletionsForFields(BallerinaCompletionContext ctx,
                                                                      Map<String, RecordFieldSymbol> recFields) {
         List<Symbol> visibleSymbols = ctx.visibleSymbols(ctx.getCursorPosition()).stream()
-                .filter(this.getVariableFilter())
-                .collect(Collectors.toList());
-        List<Symbol> symbolList = new ArrayList<>();
-        visibleSymbols.forEach(symbol -> {
-            Optional<TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
-            Optional<String> symbolName = symbol.getName();
-            boolean sameType;
-            if (symbolName.isPresent() && typeDescriptor.isPresent() && recFields.containsKey(symbolName.get())) {
-                if (symbol.kind() == WORKER) {
-                    sameType = recFields.get(symbolName.get()).typeDescriptor().signature()
-                            .equals(typeDescriptor.get().signature());
-                } else if (symbol.kind() == VARIABLE && typeDescriptor.get().typeKind() == TypeDescKind.FUTURE) {
-                        sameType = ((FutureTypeSymbol) typeDescriptor.get()).typeParameter().get().signature()
-                                .equals(recFields.get(symbolName.get()).typeDescriptor().signature());
-                } else {
-                    sameType = recFields.get(symbolName.get()).typeDescriptor().typeKind()
+                .filter(this.getVariableFilter().and(symbol -> {
+                    Optional<TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
+                    Optional<String> symbolName = symbol.getName();
+                    return symbolName.isPresent() && typeDescriptor.isPresent()
+                            && recFields.containsKey(symbolName.get())
+                            && recFields.get(symbolName.get()).typeDescriptor().typeKind()
                             == typeDescriptor.get().typeKind();
-                }
-                if (sameType) {
-                    symbolList.add(symbol);
-                }
-            }
-        });
+                }))
+                .collect(Collectors.toList());
 
-        return this.getCompletionItemList(symbolList, ctx);
+        return this.getCompletionItemList(visibleSymbols, ctx);
     }
 
     protected List<LSCompletionItem> getExpressionsCompletionsForQNameRef(BallerinaCompletionContext context,
@@ -156,15 +138,10 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
                 && ((SpecificFieldNode) evalNodeAtCursor).readonlyKeyword().isPresent());
     }
 
-    protected boolean withinWaitFieldList(Node nodeAtCursor) {
-        return nodeAtCursor.kind() == SyntaxKind.WAIT_FIELD 
-                || nodeAtCursor.kind() == SyntaxKind.WAIT_FIELDS_LIST;
-    }
-
     protected List<LSCompletionItem> getFieldCompletionItems(BallerinaCompletionContext context, Node node,
                                                              NonTerminalNode evalNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (!this.hasReadonlyKW(evalNode) && !this.withinWaitFieldList(node)) {
+        if (!this.hasReadonlyKW(evalNode)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_READONLY.get()));
         }
         List<Pair<TypeSymbol, TypeSymbol>> recordTypeDesc = this.getRecordTypeDescs(context, node);
@@ -193,10 +170,6 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
                           {<cursor>} => {}
                     }
                    }
-                3. function init() {
-                    worker WA returns string { return ""; }
-                    map<string> myVar = wait {<cursor>};
-                    }
                  */
             List<Symbol> variables = context.visibleSymbols(context.getCursorPosition()).stream()
                     .filter(this.getVariableFilter())
