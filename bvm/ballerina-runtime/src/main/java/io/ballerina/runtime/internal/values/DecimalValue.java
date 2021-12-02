@@ -75,8 +75,12 @@ public class DecimalValue implements SimpleValue, BDecimal {
             try {
                 this.value = new BigDecimal(value, MathContext.DECIMAL128);
             } catch (NumberFormatException exception) {
-                throw ErrorCreator.createError(BallerinaErrorReasons.LARGE_EXPONENT_ERROR,
-                        BLangExceptionHelper.getErrorDetails(RuntimeErrors.LARGE_EXPONENTS_IN_DECIMAL, value));
+                String message = exception.getMessage();
+                if (message.equals("Too many nonzero exponent digits.") || message.equals("Exponent overflow.")) {
+                    throw ErrorCreator.createError(BallerinaErrorReasons.LARGE_EXPONENT_ERROR,
+                            BLangExceptionHelper.getErrorDetails(RuntimeErrors.LARGE_EXPONENTS_IN_DECIMAL, value));
+                }
+                throw exception;
             }
         }
         if (!this.booleanValue()) {
