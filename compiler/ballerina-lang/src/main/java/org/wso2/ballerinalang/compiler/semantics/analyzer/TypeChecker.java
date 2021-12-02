@@ -1110,8 +1110,10 @@ public class TypeChecker extends BLangNodeVisitor {
         LinkedHashMap<String, List<BField>> fieldNameToFields = new LinkedHashMap<>();
         for (BType memType : memTypes) {
             BRecordType member = (BRecordType) memType;
-            for (BField field : member.fields.values()) {
-                String key = field.name.value;
+            for (Map.Entry<String, BField> entry : member.fields.entrySet()) {
+                String key = entry.getKey();
+                BField field = entry.getValue();
+
                 if (fieldNameToFields.containsKey(key)) {
                     fieldNameToFields.get(key).add(field);
                 } else {
@@ -1137,11 +1139,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             for (BType memType : memTypes) {
                 BRecordType bMemType = (BRecordType) memType;
-                if (bMemType.sealed) {
-                    continue;
-                }
-
-                if (bMemType.fields.containsKey(fieldName)) {
+                if (bMemType.sealed || bMemType.fields.containsKey(fieldName)) {
                     continue;
                 }
 
@@ -1151,7 +1149,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
 
-            BField resultantField = replaceFieldType(fields.get(0), uniqueTypes);
+            BField resultantField = createFieldWithType(fields.get(0), uniqueTypes);
             boolean isOptional = hasOptionalFields(fields) || fields.size() != memTypesSize;
 
             if (isOptional) {
@@ -1181,11 +1179,11 @@ public class TypeChecker extends BLangNodeVisitor {
         for (BField field : fields) {
             BType type = field.getType();
             if (type.tag == TypeTags.UNION) {
-                ((BUnionType) type).getMemberTypes().forEach(t -> {
+                for (BType t : ((BUnionType) type).getMemberTypes()) {
                     if (isUniqueType(uniqueTypes, t)) {
                         uniqueTypes.add(t);
                     }
-                });
+                }
             } else if (isUniqueType(uniqueTypes, type)) {
                 uniqueTypes.add(type);
             }
@@ -1195,25 +1193,37 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     /**
-     * Replaces the {@code BField} type with a union type, derived from the given unique list of types.
+     * Create a new {@code BField} out of existing {@code BField}, while changing its type.
+     * The new type is derived from the given unique list of types.
      *
-     * @param field       - bField of which, the type to be replaced
+     * @param field       - existing {@code BField}
      * @param uniqueTypes - list of unique types
      * @return a {@code BField}
      */
-    private BField replaceFieldType(BField field, List<BType> uniqueTypes) {
+    private BField createFieldWithType(BField field, List<BType> uniqueTypes) {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(uniqueTypes);
-        BType unionType = BUnionType.create(null, memberTypes);
+
+        BType newType;
+        if (memberTypes.size() == 1) {
+            newType = uniqueTypes.get(0);
+        } else {
+            newType = BUnionType.create(null, memberTypes);
+        }
 
         BVarSymbol originalSymbol = field.symbol;
         BVarSymbol fieldSymbol = new BVarSymbol(originalSymbol.flags, originalSymbol.name, originalSymbol.pkgID,
-                unionType, originalSymbol.owner, originalSymbol.pos, VIRTUAL);
+                newType, originalSymbol.owner, originalSymbol.pos, VIRTUAL);
 
         return new BField(field.name, field.pos, fieldSymbol);
     }
 
     private boolean hasOptionalFields(List<BField> fields) {
-        return fields.stream().anyMatch(field -> field.symbol.getFlags().contains(Flag.OPTIONAL));
+        for (BField field : fields) {
+            if (field.symbol.getFlags().contains(Flag.OPTIONAL)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private BRecordType createTableConstraintRecordType(Set<BField> inferredFields, List<BType> restFieldTypes,
