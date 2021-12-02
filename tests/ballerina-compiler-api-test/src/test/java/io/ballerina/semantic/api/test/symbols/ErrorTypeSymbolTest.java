@@ -19,6 +19,8 @@
 package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Documentable;
+import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -63,18 +65,21 @@ public class ErrorTypeSymbolTest {
     }
 
     @Test(dataProvider = "ErrorTypeProvider")
-    public void testErrorTypeSymbols(int line, int col) {
+    public void testErrorTypeSymbols(int line, int col, String description) {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
         assertTrue(symbol.isPresent());
         assertEquals(symbol.get().kind(), SymbolKind.TYPE_DEFINITION);
         assertEquals(((TypeDefinitionSymbol) symbol.get()).typeDescriptor().kind(), SymbolKind.TYPE);
+        Optional<Documentation> documentation = ((Documentable) symbol.get()).documentation();
+        assertTrue(documentation.isPresent());
+        assertEquals(documentation.get().description().get(), description);
     }
 
     @DataProvider(name = "ErrorTypeProvider")
     public Object[][] getErrorType() {
         return new Object[][]{
-                {26, 13},
-                {29, 13}
+                {26, 13, "Represents email related errors."},
+                {29, 13, "Represents the operation canceled(typically by the caller) error."}
         };
     }
 
