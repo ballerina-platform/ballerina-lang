@@ -36,7 +36,7 @@ import java.util.Optional;
  */
 public class SingleFileProject extends Project {
 
-    Path targetDir;
+    private Path targetDir;
 
     /**
      * Loads a single file project from the provided path.
