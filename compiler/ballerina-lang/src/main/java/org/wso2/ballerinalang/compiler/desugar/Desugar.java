@@ -1050,16 +1050,6 @@ public class Desugar extends BLangNodeVisitor {
             bLangSimpleVariable.typeNode = rewrite(bLangSimpleVariable.typeNode, env);
         }
 
-        Set<BVarSymbol> functionMapClosures = new HashSet<>();
-        if (classDefinition.oceEnvData.capturedClosureEnv != null && classDefinition.isObjectContructorDecl &&
-                classDefinition.oceEnvData.capturedClosureEnv.enclInvokable != null) {
-            BLangInvokableNode invokableNode = classDefinition.oceEnvData.capturedClosureEnv.enclInvokable;
-            BLangFunction function = (BLangFunction) invokableNode;
-            classDefinition.oceEnvData.functionMapClosures = new ArrayList<>(function.symbol.params.size());
-            functionMapClosures =
-                    function.symbol.params.stream().filter(symbol -> symbol.closure).collect(Collectors.toSet());
-        }
-
         // Add object level variables default values to the init function.
         Map<BSymbol, BLangStatement> initFuncStmts = classDefinition.generatedInitFunction.initFunctionStmts;
         for (BLangSimpleVariable field : classDefinition.fields) {
@@ -1069,9 +1059,6 @@ public class Desugar extends BLangNodeVisitor {
             if (field.symbol.isDefaultable && field.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) field.expr;
                 if (varRef.symbol.closure) {
-                    if (classDefinition.isObjectContructorDecl && functionMapClosures.contains(varRef.symbol)) {
-                        classDefinition.oceEnvData.functionMapClosures.add((BVarSymbol) varRef.symbol);
-                    }
                     // convert to local variable
                     visit((BLangSimpleVarRef) field.expr);
                     //  not adding them to init but will be handled in closure desugar
@@ -1110,19 +1097,7 @@ public class Desugar extends BLangNodeVisitor {
         rewrite(classDefinition.initFunction, this.env);
 
         result = classDefinition;
-
     }
-
-//    private void populateFunctionClosureSymbolsInOCEClass(BLangClassDefinition classDefinition) {
-//
-//        if (classDefinition.oceEnvData.functionMapClosures == null &&
-//                classDefinition.oceEnvData.capturedClosureEnv.enclInvokable != null) {
-//            BLangInvokableNode invokableNode = classDefinition.oceEnvData.capturedClosureEnv.enclInvokable;
-//            BLangFunction function = (BLangFunction) invokableNode;
-//            classDefinition.oceEnvData.functionMapClosures =
-//                    function.symbol.params.stream().filter(symbol -> symbol.closure).collect(Collectors.toList());
-//        }
-//    }
 
     private BLangInvocation createUserDefinedInitInvocation(Location location,
                                                             BObjectTypeSymbol objectTypeSymbol,
@@ -6476,9 +6451,12 @@ public class Desugar extends BLangNodeVisitor {
 
         if (invocation.objectInitMethod && Symbols.isFlagOn(invocation.expr.getBType().flags, Flags.OBJECT_CTOR)) {
             BObjectType initializingObject = (BObjectType) invocation.expr.getBType();
-            OCEDynamicEnvironmentData oceEnvData = initializingObject.classDef.oceEnvData;
-            if (oceEnvData.attachedFunctionInvocation == null) {
-                oceEnvData.attachedFunctionInvocation = (BLangAttachedFunctionInvocation) result;
+            BLangClassDefinition classDef = initializingObject.classDef;
+            if (classDef.hasClosureVars) {
+                OCEDynamicEnvironmentData oceEnvData = initializingObject.classDef.oceEnvData;
+                if (oceEnvData.attachedFunctionInvocation == null) {
+                    oceEnvData.attachedFunctionInvocation = (BLangAttachedFunctionInvocation) result;
+                }
             }
         }
         fixTypeCastInTypeParamInvocation(invocation, invRef);

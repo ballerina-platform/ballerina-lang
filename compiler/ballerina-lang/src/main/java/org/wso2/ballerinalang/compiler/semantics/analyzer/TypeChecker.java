@@ -93,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
@@ -5944,6 +5945,12 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                     classDefinition.hasClosureVars |= true;
                     resolvedSymbol.closure = true;
+                    OCEDynamicEnvironmentData oceEnvData = classDefinition.oceEnvData;
+                    if (currentFunction.symbol.params.contains(resolvedSymbol)) {
+                        oceEnvData.closureFuncSymbols.add(resolvedSymbol);
+                    } else {
+                        oceEnvData.closureBlockSymbols.add(resolvedSymbol);
+                    }
                 }
                 break;
             } else {

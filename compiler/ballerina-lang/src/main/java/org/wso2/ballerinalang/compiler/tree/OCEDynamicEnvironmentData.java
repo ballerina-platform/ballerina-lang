@@ -1,11 +1,13 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +32,11 @@ public class OCEDynamicEnvironmentData {
     public boolean functionMapUpdatedInInitMethod;
     public BVarSymbol blockMap;
     public BVarSymbol classEnclosedFunctionMap;
-    public List<BVarSymbol> functionMapClosures;
 
     public List<BLangLambdaFunction> lambdaFunctionsList;
+    public List<BSymbol> closureBlockSymbols;
+    public List<BSymbol> closureFuncSymbols;
+
 
     /*
      * Following fields will be used for AST Cloning.
@@ -43,6 +47,8 @@ public class OCEDynamicEnvironmentData {
 
     public OCEDynamicEnvironmentData() {
         lambdaFunctionsList = new ArrayList<>(1);
+        closureBlockSymbols = new ArrayList<>();
+        closureFuncSymbols = new ArrayList<>();
         cloneAttempt = 0;
     }
 }
