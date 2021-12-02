@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -32,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -209,7 +211,7 @@ public class JvmTypeGen {
     void generateUserDefinedTypeFields(ClassWriter cw, List<BIRTypeDefinition> typeDefs) {
         // create the type
         for (BIRTypeDefinition typeDef : typeDefs) {
-            BType bType = typeDef.type;
+            BType bType = JvmCodeGenUtil.getReferredType(typeDef.type);
             if (bType.tag == TypeTags.RECORD || bType.tag == TypeTags.ERROR || bType.tag == TypeTags.OBJECT
                     || bType.tag == TypeTags.UNION || bType.tag == TypeTags.TUPLE) {
                 String name = typeDef.internalName.value;
@@ -460,6 +462,9 @@ public class JvmTypeGen {
                 case TypeTags.PARAMETERIZED_TYPE:
                     loadParameterizedType(mv, (BParameterizedType) bType);
                     return;
+                case TypeTags.TYPEREFDESC:
+                    loadType(mv, JvmCodeGenUtil.getReferredType(bType));
+                    return;
                 default:
                     return;
             }
@@ -515,6 +520,8 @@ public class JvmTypeGen {
                     return LOAD_READONLY_TYPE;
                 case TypeTags.UNION:
                     return LOAD_UNION_TYPE;
+                case TypeTags.TYPEREFDESC:
+                    return loadTypeClass(JvmCodeGenUtil.getReferredType(bType));
                 default:
                     return LOAD_TYPE;
             }
@@ -680,10 +687,16 @@ public class JvmTypeGen {
     }
 
     public void loadCyclicFlag(MethodVisitor mv, BType valueType) {
-        if (valueType.tag == TypeTags.UNION) {
-            mv.visitInsn(((BUnionType) valueType).isCyclic ? ICONST_1 : ICONST_0);
-        } else if (valueType.tag == TypeTags.TUPLE) {
-            mv.visitInsn(((BTupleType) valueType).isCyclic ? ICONST_1 : ICONST_0);
+        switch (valueType.tag) {
+            case TypeTags.UNION:
+                mv.visitInsn(((BUnionType) valueType).isCyclic ? ICONST_1 : ICONST_0);
+                break;
+            case TypeTags.TUPLE:
+                mv.visitInsn(((BTupleType) valueType).isCyclic ? ICONST_1 : ICONST_0);
+                break;
+            case TypeTags.TYPEREFDESC:
+                loadCyclicFlag(mv, JvmCodeGenUtil.getReferredType(valueType));
+                break;
         }
     }
 
@@ -810,7 +823,15 @@ public class JvmTypeGen {
         BType typeToLoad = bType.tsymbol.isTypeParamResolved ? typeSymbol.type : bType;
         PackageID pkgID = typeSymbol.pkgID;
         String typeOwner = JvmCodeGenUtil.getPackageName(pkgID) + MODULE_INIT_CLASS_NAME;
-        String fieldName = getTypeFieldName(toNameString(typeToLoad));
+        String defName = "";
+        if ((typeSymbol.kind == SymbolKind.RECORD || typeSymbol.kind == SymbolKind.OBJECT)
+                && typeSymbol.name.value.isEmpty()) {
+            defName = IdentifierUtils
+                    .encodeNonFunctionIdentifier(((BStructureTypeSymbol) typeSymbol).typeDefinitionSymbol.name.value);
+        }
+        //class symbols
+        String fieldName = defName.isEmpty() ? getTypeFieldName(toNameString(typeToLoad)) : defName;
+
         boolean samePackage = JvmCodeGenUtil.isSameModule(this.packageID, packageID);
 
         // if name contains $anon and doesn't belong to the same package, load type using getAnonType() method.
@@ -1010,6 +1031,8 @@ public class JvmTypeGen {
                 return GET_HANDLE_VALUE;
             case TypeTags.INVOKABLE:
                 return GET_FUNCTION_POINTER;
+            case TypeTags.TYPEREFDESC:
+                return getTypeDesc(JvmCodeGenUtil.getReferredType(bType));
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }
@@ -1039,20 +1062,7 @@ public class JvmTypeGen {
                 mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, VALUE_OF_METHOD, LONG_VALUE_OF,
                         false);
             } else {
-                switch (valueType.tag) {
-                    case TypeTags.BOOLEAN:
-                        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
-                                BOOLEAN_VALUE_OF_METHOD, false);
-                        break;
-                    case TypeTags.FLOAT:
-                        mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, VALUE_OF_METHOD,
-                                DOUBLE_VALUE_OF_METHOD, false);
-                        break;
-                    case TypeTags.BYTE:
-                        mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, VALUE_OF_METHOD,
-                                INT_VALUE_OF_METHOD, false);
-                        break;
-                }
+                loadValueType(mv, valueType);
             }
 
             // Add the value to the set
@@ -1065,6 +1075,25 @@ public class JvmTypeGen {
 
         // initialize the finite type using the value space
         mv.visitMethodInsn(INVOKESPECIAL, FINITE_TYPE_IMPL, JVM_INIT_METHOD,
-                           INIT_FINITE_TYPE_IMPL, false);
+                INIT_FINITE_TYPE_IMPL, false);
+    }
+
+    private void loadValueType(MethodVisitor mv, BType valueType) {
+        switch (valueType.tag) {
+            case TypeTags.BOOLEAN:
+                mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
+                        BOOLEAN_VALUE_OF_METHOD, false);
+                break;
+            case TypeTags.FLOAT:
+                mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, VALUE_OF_METHOD,
+                        DOUBLE_VALUE_OF_METHOD, false);
+                break;
+            case TypeTags.BYTE:
+                mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, VALUE_OF_METHOD,
+                        INT_VALUE_OF_METHOD, false);
+                break;
+            case TypeTags.TYPEREFDESC:
+                loadValueType(mv, JvmCodeGenUtil.getReferredType(valueType));
+        }
     }
 }

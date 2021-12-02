@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
@@ -472,6 +473,9 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
+                case TypeTags.TYPEREFDESC:
+                    return isValidParamBType(jType, JvmCodeGenUtil.getReferredType(bType), isLastParam,
+                            restParamExist);
                 default:
                     return false;
             }
@@ -629,6 +633,9 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
+                case TypeTags.TYPEREFDESC:
+                    return isValidReturnBType(jType, JvmCodeGenUtil.getReferredType(bType),
+                            jMethodRequest, visitedSet);
                 default:
                     return false;
             }

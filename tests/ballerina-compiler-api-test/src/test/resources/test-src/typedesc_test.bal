@@ -244,3 +244,14 @@ type bar function(string, int) returns boolean;
 type Obj object {
     function(string, string) barObj;
 };
+
+function testObjectTypeSignature() {
+    client object {
+        int a;
+        int b;
+        *FooObj;
+
+        function testFunc();
+        remote function testRFunc();
+    } obj;
+}

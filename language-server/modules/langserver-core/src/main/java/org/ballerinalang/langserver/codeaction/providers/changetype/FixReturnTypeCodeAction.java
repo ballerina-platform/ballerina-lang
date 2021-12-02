@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Code Action for incompatible return types.
@@ -50,6 +51,7 @@ import java.util.Optional;
 public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "Fix Return Type";
+    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
 
     /**
      * {@inheritDoc}
@@ -58,7 +60,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
+        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
             return Collections.emptyList();
         }
 
@@ -67,9 +69,16 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        Optional<TypeSymbol> foundTypeSymbol = positionDetails.diagnosticProperty(
-                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
-        if (foundTypeSymbol.isEmpty()) {
+        Optional<TypeSymbol> foundType;
+        if ("BCE2068".equals(diagnostic.diagnosticInfo().code())) {
+            foundType = positionDetails.diagnosticProperty(CodeActionUtil
+                    .getDiagPropertyFilterFunction(DiagBasedPositionDetails
+                            .DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX));
+        } else {
+            foundType = positionDetails.diagnosticProperty(
+                    DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
+        }
+        if (foundType.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -98,7 +107,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
         List<CodeAction> codeActions = new ArrayList<>();
         List<TextEdit> importEdits = new ArrayList<>();
         // Get all possible return types including ambiguous scenarios
-        List<String> types = CodeActionUtil.getPossibleTypes(foundTypeSymbol.get(), importEdits, context);
+        List<String> types = CodeActionUtil.getPossibleTypes(foundType.get(), importEdits, context);
 
         types.forEach(type -> {
             List<TextEdit> edits = new ArrayList<>();

@@ -22,9 +22,9 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -210,6 +210,7 @@ public class SymbolTable {
     public BPackageSymbol internalTransactionModuleSymbol;
 
     private Names names;
+    private Types types;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
     public Map<Name, BPackageSymbol> predeclaredModules = new HashMap<>();
 
@@ -226,6 +227,7 @@ public class SymbolTable {
         context.put(SYM_TABLE_KEY, this);
 
         this.names = Names.getInstance(context);
+        this.types = Types.getInstance(context);
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         this.rootPkgSymbol = new BPackageSymbol(PackageID.ANNOTATIONS, null, null, BUILTIN);
@@ -296,8 +298,7 @@ public class SymbolTable {
         }});
 
         this.anyAndReadonly =
-                ImmutableTypeCloner.getImmutableIntersectionType((SelectivelyImmutableReferenceType) this.anyType,
-                        this, names);
+                ImmutableTypeCloner.getImmutableIntersectionType(this.anyType, this, names, this.types);
         initializeType(this.anyAndReadonly, this.anyAndReadonly.effectiveType.name.getValue(), BUILTIN);
 
         defineReadonlyCompoundType();
@@ -1021,7 +1022,7 @@ public class SymbolTable {
     }
 
     public void defineIntRangeOperations() {
-        BType[] intTypes = {intType, signed32IntType, signed16IntType, signed8IntType,
+        BType[] intTypes = {byteType, intType, signed32IntType, signed16IntType, signed8IntType,
                 unsigned32IntType, unsigned16IntType, unsigned8IntType};
         for (BType lhs : intTypes) {
             for (BType rhs : intTypes) {

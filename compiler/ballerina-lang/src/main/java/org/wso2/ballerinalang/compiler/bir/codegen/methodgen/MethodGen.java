@@ -53,6 +53,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -377,6 +378,9 @@ public class MethodGen {
             case JTypeTags.JTYPE:
                 genJDefaultValue(mv, (JType) bType, index);
                 break;
+            case TypeTags.TYPEREFDESC:
+                genDefaultValue(mv, ((BTypeReferenceType) bType).referredType, index);
+                break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }
@@ -550,7 +554,7 @@ public class MethodGen {
             if (localVar.onlyUsedInSingleBB) {
                 continue;
             }
-            BType bType = localVar.type;
+            BType bType = JvmCodeGenUtil.getReferredType(localVar.type);
             int index = indexMap.addIfNotExists(localVar.name.value, bType);
             mv.visitInsn(DUP);
 
@@ -660,6 +664,10 @@ public class MethodGen {
             case JTypeTags.JTYPE:
                 generateFrameClassJFieldLoad(localVar, mv, index, frameName);
                 break;
+            case TypeTags.TYPEREFDESC:
+                generateFrameClassFieldLoadByTypeTag(mv, frameName, localVar, index,
+                        ((BTypeReferenceType) bType).referredType);
+                break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }
@@ -667,7 +675,7 @@ public class MethodGen {
 
     private void generateFrameClassJFieldLoad(BIRVariableDcl localVar, MethodVisitor mv,
                                               int index, String frameName) {
-        JType jType = (JType) localVar.type;
+        JType jType = (JType) JvmCodeGenUtil.getReferredType(localVar.type);
 
         switch (jType.jTag) {
             case JTypeTags.JBYTE:
@@ -711,7 +719,7 @@ public class MethodGen {
             if (localVar.onlyUsedInSingleBB) {
                 continue;
             }
-            BType bType = localVar.type;
+            BType bType = JvmCodeGenUtil.getReferredType(localVar.type);
             int index = indexMap.addIfNotExists(localVar.name.value, bType);
             mv.visitInsn(DUP);
 
@@ -821,6 +829,10 @@ public class MethodGen {
             case JTypeTags.JTYPE:
                 generateFrameClassJFieldUpdate(localVar, mv, index, frameName);
                 break;
+            case TypeTags.TYPEREFDESC:
+                generateFrameClassFieldUpdateByTypeTag(mv, frameName, localVar, index,
+                        ((BTypeReferenceType) bType).referredType);
+                break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
                                                          bType);
@@ -904,7 +916,6 @@ public class MethodGen {
         if (func.receiver != null) {
             mv.visitLocalVariable("self", GET_BOBJECT, null, methodStartLabel, methodEndLabel, 0);
         }
-        BIRBasicBlock endBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
         for (int i = localVarOffset; i < func.localVars.size(); i++) {
             BIRVariableDcl localVar = func.localVars.get(i);
             Label startLabel = methodStartLabel;
@@ -918,7 +929,7 @@ public class MethodGen {
                     startLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + localVar.insScope.id);
                 }
                 if (localVar.endBB != null) {
-                    endLabel = labelGen.getLabel(funcName + endBB.id.value + "beforeTerm");
+                    endLabel = labelGen.getLabel(funcName + localVar.endBB.id.value + "beforeTerm");
                 }
             }
             String metaVarName = localVar.metaVarName;
@@ -1014,6 +1025,9 @@ public class MethodGen {
                 break;
             case JTypeTags.JTYPE:
                 jvmType = InteropMethodGen.getJTypeSignature((JType) bType);
+                break;
+            case TypeTags.TYPEREFDESC:
+                jvmType = getJVMTypeSign(((BTypeReferenceType) bType).referredType);
                 break;
             default:
                 throw new BLangCompilerException("JVM code generation is not supported for type " +

@@ -52,9 +52,9 @@ public class XMLIterationTest {
         BAssertUtil.validateError(negative, index++,
                                   "invalid list binding pattern: attempted to infer a list type, but found 'xml'",
                                   13, 17);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
-                "'function ((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)) returns ()'," +
-                " found 'function ([int,xml,string]) returns ()'", 18, 19);
+        BAssertUtil.validateError(negative, index++, "incompatible types: " +
+                "expected 'function (ballerina/lang.xml:0.0.0:ItemType) returns ()', " +
+                "found 'function ([int,xml,string]) returns ()'", 18, 19);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found 'xml:Element'",
                 29, 13);
@@ -98,15 +98,15 @@ public class XMLIterationTest {
                 "incompatible types: '(xml<xml:Element>|xml<xml:Text>)' is not an iterable collection",
                 68, 44);
         BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', found 'record " +
-                        "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
+                "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', " +
+                        "found 'record {| ballerina/lang.xml:0.0.0:ItemType value; |}?'",
                 72, 68);
         BAssertUtil.validateError(negative, index++,
                 "xml langlib functions does not support union types as their arguments",
                 72, 68);
         BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', found 'record " +
-                        "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
+                "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', " +
+                        "found 'record {| ballerina/lang.xml:0.0.0:ItemType value; |}?'",
                 73, 68);
         BAssertUtil.validateError(negative, index++,
                 "xml langlib functions does not support union types as their arguments",

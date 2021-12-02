@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - stage-slbeta4
   workflow_dispatch:
 
 jobs:

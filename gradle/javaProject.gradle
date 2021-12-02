@@ -27,109 +27,111 @@ ext.setProperty("protobufVersion", "3.11.0")
 
 dependencies {
     checkstyle project(':build-config:checkstyle')
-    checkstyle 'com.puppycrawl.tools:checkstyle:8.18'
+    checkstyle "com.puppycrawl.tools:checkstyle:${project.puppycrawlCheckstyleVersion}"
 
-    implementation 'org.slf4j:slf4j-api:1.7.26'
+    implementation "org.slf4j:slf4j-api:${project.slf4jApiVersion}"
 
     constraints {
-        implementation 'commons-codec:commons-codec:1.14'
-        implementation 'commons-io:commons-io:2.7'
-        implementation 'commons-logging:commons-logging:1.1.1'
-        implementation 'com.atlassian.commonmark:commonmark:0.11.0'
-        implementation 'com.atlassian.commonmark:commonmark-ext-gfm-tables:0.11.0'
-        implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.1'
-        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.11.1'
-        implementation 'com.h2database:h2:1.4.199'
-        implementation 'org.hsqldb:hsqldb:2.2.7'
-        implementation 'com.github.chewiebug:gcviewer:1.36'
-        implementation "com.github.jknack:handlebars:4.0.6"
-        implementation 'com.google.protobuf:protobuf-java:3.9.1'
-        implementation 'com.google.code.findbugs:jsr305:3.0.2'
-        implementation 'com.google.code.gson:gson:2.8.7'
-        implementation 'com.moandjiezana.toml:toml4j:0.7.2'
-        implementation 'com.sun.mail:javax.mail:1.6.2'
-        implementation 'com.squareup.okhttp3:okhttp:3.14.0'
-        implementation 'com.squareup.okio:okio:2.2.2'
-        implementation 'io.jaegertracing:jaeger-core:0.31.0'
-        implementation 'io.jaegertracing:jaeger-thrift:0.31.0'
-        implementation 'com.zaxxer:HikariCP:3.3.1'
+        implementation "commons-codec:commons-codec:${project.commonsCodecVersion}"
+        implementation "commons-io:commons-io:${project.commonsIoVersion}"
+        implementation "commons-logging:commons-logging:${project.commonsLoggingVersion}"
+        implementation "com.atlassian.commonmark:commonmark:${project.atalassianCommonmarkVersion}"
+        implementation "com.atlassian.commonmark:commonmark-ext-gfm-tables:${project.atalassianCommonmarkExtGfmTablesVersion}"
+        implementation "com.fasterxml.jackson.core:jackson-databind:${project.jacksonDatabindVersion}"
+        implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${project.jacksonDataformatYamlVersion}"
+        implementation "com.h2database:h2:${project.h2DatabaseVersion}"
+        implementation "org.hsqldb:hsqldb:${project.hsqldbVersion}"
+        implementation "com.github.chewiebug:gcviewer:${project.chewiebugGcviewerVersion}"
+        implementation "com.github.jknack:handlebars:${project.jknackHandlebarsVersion}"
+        implementation "com.google.protobuf:protobuf-java:${project.protobufJavaVersion}"
+        implementation "com.google.code.findbugs:jsr305:${project.findbugsJsr305Version}"
+        implementation "com.google.code.gson:gson:${project.gsonVersion}"
+        implementation "com.google.guava:guava:${project.guavaVersion}"
+        implementation "com.moandjiezana.toml:toml4j:${project.moandjiezanaToml4jVersion}"
+        implementation "com.sun.mail:javax.mail:${project.javaxMailVersion}"
+        implementation "com.squareup.okhttp3:okhttp:${project.okhttpVersion}"
+        implementation "com.squareup.okio:okio:${project.squareupOkioVersion}"
+        implementation "io.jaegertracing:jaeger-core:${project.jaegerCoreVersion}"
+        implementation "io.jaegertracing:jaeger-thrift:${project.jaegerThriftVersion}"
+        implementation "com.zaxxer:HikariCP:${project.hikariCPVersion}"
         implementation "io.grpc:grpc-protobuf:${project.ext.grpcVersion}"
         implementation "io.grpc:grpc-stub:${project.ext.grpcVersion}"
         implementation "io.grpc:grpc-netty-shaded:${project.ext.grpcVersion}"
-        implementation 'com.github.spullara.mustache.java:compiler:0.8.9'
-        implementation 'org.bitbucket.cowwoc:diff-match-patch:1.2'
-        implementation 'guru.nidi:graphviz-java:0.18.1'
+        implementation "com.github.spullara.mustache.java:compiler:${project.mustacheJavaCompilerVersion}"
+        implementation "org.bitbucket.cowwoc:diff-match-patch:${project.bitbucketCowwocVersion}"
+        implementation "guru.nidi:graphviz-java:${project.guruNidiGraphvizVersion}"
 
-        implementation 'org.apache.commons:commons-lang3:3.8.1'
-        implementation 'org.apache.commons:commons-text:1.9'
-        implementation 'org.apache.geronimo.specs:geronimo-stax-api_1.0_spec:1.0.1'
-        implementation 'org.apache.mina:mina-core:2.0.16'
-        implementation 'org.apache.maven:maven-plugin-api:3.6.0'
-        implementation 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.6.0'
-        implementation 'org.apache.ws.commons.axiom:axiom-api:1.2.22'
-        implementation 'org.apache.ws.commons.axiom:axiom-impl:1.2.22'
-        implementation 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
-        implementation 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
-        implementation 'org.apache.zookeeper:zookeeper:3.6.1'
-        implementation 'org.codehaus.woodstox:woodstox-core-asl:4.4.1'
-        implementation 'org.codehaus.woodstox:stax2-api:4.2'
-        implementation 'org.awaitility:awaitility:3.1.6'
+        implementation "org.apache.commons:commons-lang3:${project.apacheCommonsLang3Version}"
+        implementation "org.apache.commons:commons-text:${project.apacheCommonsTextVersion}"
+        implementation "org.apache.geronimo.specs:geronimo-stax-api_1.0_spec:${project.apacheGeronimoStaxVersion}"
+        implementation "org.apache.mina:mina-core:${project.apacheMinaCoreVersion}"
+        implementation "org.apache.maven:maven-plugin-api:${project.apacheMavenPluginApiVersion}"
+        implementation "org.apache.maven.plugin-tools:maven-plugin-annotations:${project.apacheMavenPluginAnnotationsVersion}"
+        implementation "org.apache.ws.commons.axiom:axiom-api:${project.apacheCommonsAxiomApiVersion}"
+        implementation "org.apache.ws.commons.axiom:axiom-impl:${project.apacheCommonsAxiomImplVersion}"
+        implementation "org.apache.ws.commons.axiom:axiom-dom:${project.apacheCommonsAxiomDomVersion}"
+        implementation "org.apache.ws.commons.axiom:axiom-c14n:${project.apacheCommonsAxiomC14nVersion}"
+        implementation "org.apache.zookeeper:zookeeper:${project.apacheZookeeperVersion}"
+        implementation "org.codehaus.woodstox:woodstox-core-asl:${project.codehausWoodstoxCoreAslVersion}"
+        implementation "org.codehaus.woodstox:stax2-api:${project.codehausWoodstoxStax2ApiVersion}"
+        implementation "org.awaitility:awaitility:${project.awaitilityVersion}"
 
-        implementation 'org.bytedeco.javacpp-presets:llvm-platform:6.0.1-1.4.2'
-        implementation 'org.codehaus.plexus:plexus-utils:3.0.8'
-        implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.12.0'
-        implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.12.0'
-        implementation 'org.hdrhistogram:HdrHistogram:2.1.11'
-        implementation 'org.hsqldb:hsqldb:2.4.1'
-        implementation 'org.javassist:javassist:3.24.1-GA'
-        implementation 'org.jvnet.mimepull:mimepull:1.9.11'
-        implementation 'org.mockito:mockito-all:1.10.19'
-        implementation 'org.powermock:powermock-mockito-release-full:1.6.4'
-        implementation 'org.powermock:powermock-module-testng-common:1.6.4'
-        implementation 'org.powermock:powermock-mockito-release-full:1.6.4'
-        implementation 'org.powermock:powermock-module-testng-common:1.6.4'
-        implementation 'org.mvel:mvel2:2.4.4.Final'
-        implementation 'org.ow2.asm:asm:7.1'
-        implementation 'org.ow2.asm:asm-util:7.1'
-        implementation 'org.ow2.asm:asm-tree:7.1'
-        implementation 'org.scala-lang:scala-library:2.11.7'
-        implementation 'org.slf4j:slf4j-simple:1.7.26'
-        implementation 'org.slf4j:slf4j-jdk14:1.7.26'
-        implementation 'org.testng:testng:6.14.3'
-        implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
-        implementation 'org.yaml:snakeyaml:1.26'
-        implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.11'
-        implementation 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
-        implementation 'org.wso2.staxon:staxon-core:1.2.0.wso2v2'
-        implementation 'org.quartz-scheduler:quartz:2.3.2'
-        implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.1'
+        implementation "org.bouncycastle:bcprov-jdk15on:${project.bouncycastleVersion}"
+        implementation "org.bouncycastle:bcpkix-jdk15on:${project.bouncycastleVersion}"
+        implementation "org.bytedeco.javacpp-presets:llvm-platform:${project.bytedecoJavacppPlatformVersion}"
+        implementation "org.codehaus.plexus:plexus-utils:${project.codehausPlexusUtilsVersion}"
+        implementation "org.eclipse.lsp4j:org.eclipse.lsp4j:${project.eclipseLsp4jVersion}"
+        implementation "org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:${project.eclipseLsp4jJsonrpcVersion}"
+        implementation "org.hdrhistogram:HdrHistogram:${project.hdrHistogramVersion}"
+        implementation "org.hsqldb:hsqldb:${project.hsqldbVersion}"
+        implementation "org.javassist:javassist:${project.javassistVersion}"
+        implementation "org.jvnet.mimepull:mimepull:${project.jvnetMimepullVersion}"
+        implementation "org.mockito:mockito-all:${project.mockitoAllVersion}"
+        implementation "org.powermock:powermock-mockito-release-full:${project.powermockMockitoReleaseVersion}"
+        implementation "org.powermock:powermock-module-testng-common:${project.powermockModuleTestngVersion}"
+        implementation "org.mvel:mvel2:${project.mvel2Version}"
+        implementation "org.ow2.asm:asm:${project.ow2AsmVersion}"
+        implementation "org.ow2.asm:asm-util:${project.ow2AsmUtilVersion}"
+        implementation "org.ow2.asm:asm-tree:${project.ow2AsmTreeVersion}"
+        implementation "org.scala-lang:scala-library:${project.scalaLibraryVersion}"
+        implementation "org.slf4j:slf4j-simple:${project.slf4jSimpleVersion}"
+        implementation "org.slf4j:slf4j-jdk14:${project.slf4jJdk14Version}"
+        implementation "org.testng:testng:${project.testngVersion}"
+        implementation "org.wso2.carbon.messaging:org.wso2.carbon.messaging:${project.wso2CarbonMessagingVersion}"
+        implementation "org.yaml:snakeyaml:${project.snakeyamlVersion}"
+        implementation "org.wso2.transport.http:org.wso2.transport.http.netty:${project.wso2TransportHttpVersion}"
+        implementation "org.wso2.transport.file:org.wso2.transport.local-file-system:${project.wso2TransportLocalFileSystemVersion}"
+        implementation "org.wso2.staxon:staxon-core:${project.wso2StaxonCoreVersion}"
+        implementation "org.quartz-scheduler:quartz:${project.quartzSchedulerVersion}"
+        implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${project.jacksonDatatypeJsr310Version}"
 
-        implementation 'info.picocli:picocli:4.0.1'
-        implementation 'io.ballerina.messaging:broker-common:0.970.5'
-        implementation 'io.ballerina.messaging:broker-core:0.970.5'
-        implementation 'io.ballerina.messaging:broker-amqp:0.970.5'
-        implementation 'io.dropwizard.metrics:metrics-core:4.1.7'
-        implementation 'io.netty:netty-codec:4.1.68.Final'
-        implementation 'io.netty:netty-buffer:4.1.68.Final'
-        implementation 'io.netty:netty-common:4.1.68.Final'
-        implementation 'io.netty:netty-codec-http:4.1.68.Final'
-        implementation 'io.netty:netty-codec-http2:4.1.68.Final'
-        implementation 'io.netty:netty-handler:4.1.46.Final'
-        implementation 'io.netty:netty-transport:4.1.39.Final'
-        implementation 'io.opentelemetry:opentelemetry-api:1.0.0'
-        implementation 'io.opentelemetry:opentelemetry-sdk-trace:1.0.0'
-        implementation 'io.opentelemetry:opentelemetry-sdk-testing:1.0.0'
-        implementation 'io.swagger.core.v3:swagger-models:1.5.18'
-        implementation 'io.swagger.parser.v3:swagger-parser:2.0.14'
-        implementation 'io.swagger.parser.v3:swagger-parser-v2-converter:2.0.14'
-        implementation 'me.tongfei:progressbar:0.7.4'
-        implementation 'org.jline:jline:3.11.0'
-        implementation 'jakarta.activation:jakarta.activation-api:1.2.2'
-        implementation 'com.github.zafarkhaja:java-semver:0.9.0'
+        implementation "info.picocli:picocli:${project.picocliVersion}"
+        implementation "io.ballerina.messaging:broker-common:${project.balMessagingBrokerCommonVersion}"
+        implementation "io.ballerina.messaging:broker-core:${project.balMessagingBrokerCoreVersion}"
+        implementation "io.ballerina.messaging:broker-amqp:${project.balMessagingBrokerAmqpVersion}"
+        implementation "io.dropwizard.metrics:metrics-core:${project.dropwizardMetricsCoreVersion}"
+        implementation "io.netty:netty-codec:${project.nettyCodecVersion}"
+        implementation "io.netty:netty-buffer:${project.nettyBufferVersion}"
+        implementation "io.netty:netty-common:${project.nettyCommonVersion}"
+        implementation "io.netty:netty-codec-http:${project.nettyCodecHttpVersion}"
+        implementation "io.netty:netty-codec-http2:${project.nettyCodecHttp2Version}"
+        implementation "io.netty:netty-handler:${project.nettyHandlerVersion}"
+        implementation "io.netty:netty-tcnative-boringssl-static:${project.nettyBoringSslVersion}"
+        implementation "io.netty:netty-transport:${project.nettyTransportVersion}"
+        implementation "io.opentelemetry:opentelemetry-api:${project.openTelemetryApiVersion}"
+        implementation "io.opentelemetry:opentelemetry-sdk-trace:${project.openTelemetrySdkTraceVersion}"
+        implementation "io.opentelemetry:opentelemetry-sdk-testing:${project.openTelemetrySdkTestingVersion}"
+        implementation "io.swagger.core.v3:swagger-models:${project.swaggerModelsVersion}"
+        implementation "io.swagger.parser.v3:swagger-parser:${project.swaggerParserVersion}"
+        implementation "io.swagger.parser.v3:swagger-parser-v2-converter:${project.swaggerParserV2Version}"
+        implementation "me.tongfei:progressbar:${project.tongfeiProgressbarVersion}"
+        implementation "org.jline:jline:${project.jlineVersion}"
+        implementation "jakarta.activation:jakarta.activation-api:${project.jakartaActivationVersion}"
+        implementation "com.github.zafarkhaja:java-semver:${project.zafarkhajaJsemverVersion}"
 
-        implementation 'javax.transaction:javax.transaction-api:1.3'
-        implementation 'javax.ws.rs:javax.ws.rs-api:2.1.1'
-        implementation 'junit:junit:4.8.2'
+        implementation "javax.transaction:javax.transaction-api:${project.javaxTransactionApiVersion}"
+        implementation "javax.ws.rs:javax.ws.rs-api:${project.javaxWsRsApi}"
+        implementation "junit:junit:${project.junitVersion}"
     }
 }
 
@@ -140,7 +142,7 @@ tasks.withType(JavaCompile) {
 }
 
 checkstyle {
-    toolVersion '7.8.2'
+    toolVersion "${project.checkStyleToolVersion}"
     configFile rootProject.file("build-config/checkstyle/build/checkstyle.xml")
 }
 

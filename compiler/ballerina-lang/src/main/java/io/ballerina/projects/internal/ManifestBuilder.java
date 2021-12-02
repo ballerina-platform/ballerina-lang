@@ -161,6 +161,7 @@ public class ManifestBuilder {
         String ballerinaVersion = "";
         String visibility = "";
         boolean template = false;
+        String icon = "";
 
         if (!tomlAstNode.entries().isEmpty()) {
             TomlTableNode pkgNode = (TomlTableNode) tomlAstNode.entries().get(PACKAGE);
@@ -173,6 +174,20 @@ public class ManifestBuilder {
                 ballerinaVersion = getStringValueFromTomlTableNode(pkgNode, "distribution", "");
                 visibility = getStringValueFromTomlTableNode(pkgNode, "visibility", "");
                 template = getBooleanFromTemplateNode(pkgNode, TEMPLATE);
+                icon = getStringValueFromTomlTableNode(pkgNode, "icon", "");
+
+                // validate icon path
+                if (icon != null) {
+                    Path iconPath = Paths.get(icon);
+                    if (!iconPath.isAbsolute()) {
+                        iconPath = this.projectPath.resolve(iconPath);
+                    }
+                    if (Files.notExists(iconPath)) {
+                        reportDiagnostic(pkgNode.entries().get("icon"),
+                                "could not locate icon path '" + icon + "'",
+                                "error.invalid.path", DiagnosticSeverity.ERROR);
+                    }
+                }
             }
         }
 
@@ -203,7 +218,7 @@ public class ManifestBuilder {
 
         return PackageManifest.from(packageDescriptor, pluginDescriptor, platforms, localRepoDependencies, otherEntries,
                 diagnostics(), license, authors, keywords, exported, repository, ballerinaVersion, visibility,
-                template);
+                template, icon);
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
@@ -300,7 +315,9 @@ public class ManifestBuilder {
                                             path = this.projectPath.resolve(path);
                                         }
                                         if (Files.notExists(path)) {
-                                            reportInvalidPathDiagnostic(platformEntryTable, pathValue);
+                                            reportDiagnostic(platformEntryTable.entries().get("path"),
+                                                    "could not locate dependency path '" + pathValue + "'",
+                                                    "error.invalid.path", DiagnosticSeverity.ERROR);
                                         }
                                     }
                                     platformEntryMap.put("path",
@@ -366,13 +383,16 @@ public class ManifestBuilder {
         return dependencies;
     }
 
-    private void reportInvalidPathDiagnostic(TomlTableNode tomlTableNode, String path) {
+    private void reportDiagnostic(TopLevelNode tomlTableNode,
+                                  String message,
+                                  String messageFormat,
+                                  DiagnosticSeverity severity) {
         DiagnosticInfo diagnosticInfo =
-                new DiagnosticInfo(null, "error.invalid.path", DiagnosticSeverity.ERROR);
+                new DiagnosticInfo(null, messageFormat, severity);
         TomlDiagnostic tomlDiagnostic = new TomlDiagnostic(
-                tomlTableNode.entries().get("path").location(),
+                tomlTableNode.location(),
                 diagnosticInfo,
-                "could not locate dependency path '" + path + "'");
+                message);
         tomlTableNode.addDiagnostic(tomlDiagnostic);
     }
 
@@ -384,8 +404,6 @@ public class ManifestBuilder {
 
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
 
-        Boolean skipTests =
-                getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.SKIP_TESTS.toString());
         Boolean offline = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OFFLINE.toString());
         Boolean experimental =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.EXPERIMENTAL.toString());
@@ -407,8 +425,10 @@ public class ManifestBuilder {
         Boolean listConflictedClasses =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.LIST_CONFLICTED_CLASSES.toString());
 
-        return buildOptionsBuilder
-                .setSkipTests(skipTests)
+        String targetDir = getStringFromBuildOptionsTableNode(tableNode,
+                BuildOptions.OptionName.TARGET_DIR.toString());
+
+        buildOptionsBuilder
                 .setOffline(offline)
                 .setExperimental(experimental)
                 .setObservabilityIncluded(observabilityIncluded)
@@ -417,8 +437,13 @@ public class ManifestBuilder {
                 .setCloud(cloud)
                 .setListConflictedClasses(listConflictedClasses)
                 .setDumpBuildTime(dumpBuildTime)
-                .setSticky(sticky)
-                .build();
+                .setSticky(sticky);
+
+        if (targetDir != null) {
+            buildOptionsBuilder.targetDir(targetDir);
+        }
+
+        return buildOptionsBuilder.build();
     }
 
     private Boolean getBooleanFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
@@ -433,6 +458,23 @@ public class ManifestBuilder {
             if (value.kind() == TomlType.BOOLEAN) {
                 TomlBooleanValueNode tomlBooleanValueNode = (TomlBooleanValueNode) value;
                 return tomlBooleanValueNode.getValue();
+            }
+        }
+        return null;
+    }
+
+    private String getStringFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
+        TopLevelNode topLevelNode = tableNode.entries().get(key);
+        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
+            return null;
+        }
+
+        if (topLevelNode.kind() == TomlType.KEY_VALUE) {
+            TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
+            TomlValueNode value = keyValueNode.value();
+            if (value.kind() == TomlType.STRING) {
+                TomlStringValueNode tomlStringValueNode = (TomlStringValueNode) value;
+                return tomlStringValueNode.getValue();
             }
         }
         return null;

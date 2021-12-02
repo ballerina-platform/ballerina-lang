@@ -43,3 +43,39 @@ function fn2() {
         }
     }
 }
+
+function fn3() {
+    int[] x = [1, 2];
+
+    match x {
+        [1, 2] if function () { } is isolated function => {
+        }
+    }
+}
+
+function fn4() {
+    int[] x = [1, 2];
+
+    match x {
+        [1, 2] if function (int a, string b) { } is isolated function => {
+        }
+    }
+}
+
+function fn5() {
+    int[] x = [1, 2];
+
+    match x {
+        [1, 2] if function (int a, string b) returns int { return 1; } is isolated function => {
+        }
+    }
+}
+
+function fn6() {
+    int[] x = [1, 2];
+
+    match x {
+        [1, 2] if function () returns int { return 1; } is isolated function => {
+        }
+    }
+}

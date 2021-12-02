@@ -128,6 +128,7 @@ public class BuildOptions {
         buildOptionsBuilder.setCloud(compilationOptions.cloud);
         buildOptionsBuilder.setListConflictedClasses(compilationOptions.listConflictedClasses);
         buildOptionsBuilder.setSticky(compilationOptions.sticky);
+        buildOptionsBuilder.setConfigSchemaGen(compilationOptions.configSchemaGen);
 
         return buildOptionsBuilder.build();
     }
@@ -161,8 +162,8 @@ public class BuildOptions {
         SKIP_TESTS("skipTests"),
         TEST_REPORT("testReport"),
         CODE_COVERAGE("codeCoverage"),
-        DUMP_BUILD_TIME("dumpBuildTime")
-        ;
+        DUMP_BUILD_TIME("dumpBuildTime"),
+        TARGET_DIR("targetDir");
 
         private final String name;
 
@@ -188,7 +189,6 @@ public class BuildOptions {
         private Boolean skipTests;
         private String targetPath;
         private final CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder;
-        
 
         private BuildOptionsBuilder() {
             compilationOptionsBuilder = CompilationOptions.builder();
@@ -266,6 +266,11 @@ public class BuildOptions {
 
         public BuildOptionsBuilder targetDir(String path) {
             targetPath = path;
+            return this;
+        }
+
+        public BuildOptionsBuilder setConfigSchemaGen(Boolean value) {
+            compilationOptionsBuilder.setConfigSchemaGen(value);
             return this;
         }
 

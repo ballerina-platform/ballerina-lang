@@ -93,6 +93,12 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-raw-graphs", hidden = true)
     private boolean dumpRawGraphs;
 
+    @CommandLine.Option(names = "--generate-config-schema", hidden = true)
+    private Boolean configSchemaGen;
+
+    @CommandLine.Option(names = "--target-dir", description = "target directory path")
+    private Path targetDir;
+
     private static final String runCmd =
             "bal run [--debug <port>] <executable-jar> \n" +
             "    bal run [--experimental] [--offline]\n" +
@@ -109,6 +115,14 @@ public class RunCommand implements BLauncherCmd {
         this.exitWhenFinish = exitWhenFinish;
         this.outStream = outStream;
         this.errStream = outStream;
+    }
+
+    public RunCommand(Path projectPath, PrintStream outStream, boolean exitWhenFinish, Path targetDir) {
+        this.projectPath = projectPath;
+        this.exitWhenFinish = exitWhenFinish;
+        this.outStream = outStream;
+        this.errStream = outStream;
+        this.targetDir = targetDir;
     }
 
     public void execute() {
@@ -157,6 +171,7 @@ public class RunCommand implements BLauncherCmd {
         // load project
         Project project;
         BuildOptions buildOptions = constructBuildOptions();
+
         boolean isSingleFileBuild = false;
         if (FileUtils.hasExtension(this.projectPath)) {
             try {
@@ -217,7 +232,9 @@ public class RunCommand implements BLauncherCmd {
     }
 
     private BuildOptions constructBuildOptions() {
-        return BuildOptions.builder()
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+
+        buildOptionsBuilder
                 .setCodeCoverage(false)
                 .setExperimental(experimentalFlag)
                 .setOffline(offline)
@@ -227,6 +244,12 @@ public class RunCommand implements BLauncherCmd {
                 .setSticky(sticky)
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
-                .build();
+                .setConfigSchemaGen(configSchemaGen);
+
+        if (targetDir != null) {
+            buildOptionsBuilder.targetDir(targetDir.toString());
+        }
+
+        return buildOptionsBuilder.build();
     }
 }

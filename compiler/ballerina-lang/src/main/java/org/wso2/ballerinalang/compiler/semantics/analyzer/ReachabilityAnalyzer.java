@@ -90,7 +90,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -357,6 +356,8 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchStatement matchStatement) {
+        checkStatementExecutionValidity(matchStatement);
+
         if (!this.failureHandled) {
             this.failureHandled = matchStatement.onFailClause != null;
         }
@@ -492,11 +493,9 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        BType returnType = funcNode.returnTypeNode.getBType();
-
+        BType returnType = types.getReferredType(funcNode.returnTypeNode.getBType());
         if (!funcNode.interfaceFunction && returnType.tag == TypeTags.UNION) {
-            LinkedHashSet<BType> memberTypes = ((BUnionType) returnType).getMemberTypes();
-            if (memberTypes.contains(symTable.nilType) &&
+            if (types.getAllTypes(returnType, true).contains(symTable.nilType) &&
                     !types.isSubTypeOfErrorOrNilContainingNil((BUnionType) returnType) &&
                     !this.statementReturnsPanicsOrFails) {
                 this.dlog.warning(funcNode.returnTypeNode.pos,
@@ -582,6 +581,8 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             this.statementReturnsPanicsOrFails = prevStatementReturnsPanicsOrFails;
             this.continueAsLastStatement = prevContinueAsLastStatement;
             this.breakAsLastStatement = prevBreakAsLastStatement;
+        } else {
+            this.statementReturnsPanicsOrFails = true;
         }
         this.breakStmtFound = prevBreakStmtFound;
 

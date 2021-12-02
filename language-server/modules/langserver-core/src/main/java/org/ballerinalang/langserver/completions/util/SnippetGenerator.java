@@ -272,6 +272,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Outer Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getOuterKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.OUTER_KEYWORD, ItemResolverConstants.OUTER_KEYWORD, "outer ",
+                ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
+    }
+
+    /**
      * Get Order By Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -282,7 +292,7 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get Join Keyword Snippet Block.
+     * Get Limit Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
@@ -1049,23 +1059,7 @@ public class SnippetGenerator {
         return new SnippetBlock(ItemResolverConstants.RETURN_SC, ItemResolverConstants.RETURN_SC, "return;",
                 ItemResolverConstants.STATEMENT_TYPE, Kind.STATEMENT);
     }
-
-    /**
-     * Get Service Definition Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getHttpServiceDefSnippet() {
-        ImmutablePair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
-        String snippet = "service /${1} on new http:Listener(8080) {"
-                + CommonUtil.LINE_SEPARATOR + "\tresource function ${2:get} ${3:getResource}"
-                + "(http:Caller ${4:caller}, " + "http:Request ${5:req}) {" + CommonUtil.LINE_SEPARATOR
-                + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}";
-        return new SnippetBlock(ItemResolverConstants.SERVICE_HTTP,
-                generateFilterText(Arrays.asList(ItemResolverConstants.SERVICE, "http")), snippet,
-                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET, httpImport);
-    }
-
+    
     /**
      * Get Service Variable Snippet Block.
      *

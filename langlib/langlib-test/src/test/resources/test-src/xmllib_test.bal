@@ -991,3 +991,21 @@ function testXmlIteratorNextInvocations() {
     test:assertFalse(itrNextNextNext is record {| 'xml:Element|'xml:Text value; |});
     test:assertFalse(itrNextNextNext is record {| 'xml:Text value; |});
 }
+
+function testNamespaces() {
+    map<string> attributes1 = {"{http://www.w3.org/2000/xmlns/}ns0":"http://sample.com/test","status":"online"};
+    xml:Element element1 = xml:createElement("{http://sample.com/test}bookStore", attributes1, xml ``);
+    assertEquals(element1.toString(), "<ns0:bookStore xmlns:ns0=\"http://sample.com/test\" status=\"online\"/>");
+
+    map<string> attributes2 = {"{http://www.w3.org/2000/xmlns/}xml":"http://sample.com/test","status":"online"};
+    xml:Element element2 = xml:createElement("{http://sample.com/test}bookStore", attributes2, xml ``);
+    assertEquals(element2.toString(), "<bookStore xmlns=\"http://sample.com/test\" status=\"online\"/>");
+
+    map<string> attributes3 = {"{http://www.w3.org/XML/1998/namespace}ns0":"http://sample.com/test","status":"online"};
+    xml:Element element3 = xml:createElement("{http://sample.com/test}bookStore", attributes3, xml ``);
+    assertEquals(element3.toString(), "<bookStore xmlns=\"http://sample.com/test\" xml:ns0=\"http://sample.com/test\" status=\"online\"/>");
+
+    map<string> attributes4 = {"status":"online"};
+    xml:Element element4 = xml:createElement("{http://sample.com/test}bookStore", attributes4, xml ``);
+    assertEquals(element4.toString(), "<bookStore xmlns=\"http://sample.com/test\" status=\"online\"/>");
+}

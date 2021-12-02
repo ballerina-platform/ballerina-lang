@@ -49,7 +49,7 @@ function testBitwiseANDOperation() {
     a1 = panicIndex & A;
     assertEqual(a1, 4);
 
-    byte a2 = panicIndex & 0x5;
+    int a2 = panicIndex & 0x5;
     assertEqual(a2, 0x5);
 
     byte a = 12;

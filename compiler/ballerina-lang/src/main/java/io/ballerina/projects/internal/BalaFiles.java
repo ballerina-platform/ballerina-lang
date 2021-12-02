@@ -60,6 +60,7 @@ import java.util.stream.Stream;
 
 import static io.ballerina.projects.DependencyGraph.DependencyGraphBuilder.getBuilder;
 import static io.ballerina.projects.internal.ProjectFiles.loadDocuments;
+import static io.ballerina.projects.internal.ProjectFiles.loadResources;
 import static io.ballerina.projects.util.ProjectConstants.BALA_DOCS_DIR;
 import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_DIR;
 import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_JSON;
@@ -169,8 +170,10 @@ public class BalaFiles {
         List<DocumentData> srcDocs = loadDocuments(modulePath);
         List<DocumentData> testSrcDocs = Collections.emptyList();
         DocumentData moduleMd = loadDocument(moduleDocPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
+        List<Path> resources = loadResources(modulePath);
 
-        return ModuleData.from(modulePath, moduleName, srcDocs, testSrcDocs, moduleMd);
+        return ModuleData.from(modulePath, moduleName, srcDocs, testSrcDocs, moduleMd, resources,
+                Collections.emptyList());
     }
 
     private static List<ModuleData> loadOtherModules(String pkgName, Path packagePath) {
@@ -528,7 +531,7 @@ public class BalaFiles {
             moduleName = ModuleName.from(pkgDesc.name());
         } else {
             String moduleNamePart = modDepEntry.getModuleName()
-                    .split(modDepEntry.getPackageName() + MODULE_NAME_SEPARATOR)[1];
+                    .split(modDepEntry.getPackageName() + MODULE_NAME_SEPARATOR, 2)[1];
             moduleName = ModuleName.from(pkgDesc.name(), moduleNamePart);
         }
         return ModuleDescriptor.from(moduleName, pkgDesc);

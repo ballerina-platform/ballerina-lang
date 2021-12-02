@@ -95,7 +95,8 @@ public class ConfigReader {
         }
         if (!configVariables.isEmpty()) {
             // Add configurable variable details for the current package
-            configDetails.put(getConfigModuleDetails(module.moduleName(), currentPkgId, true), configVariables);
+            configDetails.put(getConfigModuleDetails(module.moduleName(), currentPkgId,
+                    module.project().kind()), configVariables);
         }
     }
 
@@ -104,15 +105,15 @@ public class ConfigReader {
      *
      * @param moduleName to retrieve module details
      * @param packageID to retrieve package details
-     * @param isCurrentPackage flag to denote current package or not
+     * @param projectKind to retrieve information about the type of project
      * @return module details stored in object ConfigModuleDetails
      */
     private static ConfigModuleDetails getConfigModuleDetails(ModuleName moduleName, PackageID packageID,
-                                                              boolean isCurrentPackage) {
+                                                              ProjectKind projectKind) {
         String orgName = packageID.getOrgName().getValue();
         String packageName = packageID.getPkgName().getValue();
         String moduleNameVal = moduleName.isDefaultModuleName() ? moduleName.toString() : moduleName.moduleNamePart();
-        return new ConfigModuleDetails(orgName, packageName, moduleNameVal, isCurrentPackage);
+        return new ConfigModuleDetails(orgName, packageName, moduleNameVal, projectKind);
     }
 
     /**

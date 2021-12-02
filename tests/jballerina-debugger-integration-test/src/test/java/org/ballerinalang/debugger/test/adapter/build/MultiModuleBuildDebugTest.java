@@ -49,7 +49,7 @@ public class MultiModuleBuildDebugTest extends BaseTestCase {
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testMultiModuleBuildDebugScenarios() throws BallerinaTestException {
         int port = findFreePort();
         debugTestRunner.runDebuggeeProgram(debugTestRunner.testProjectPath.toString(), port);

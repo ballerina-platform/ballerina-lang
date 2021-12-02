@@ -72,7 +72,11 @@ public class SelectivelyImmutableTypeTest {
                 {"testReadOnlyCastConstructingReadOnlyValuesPropagation"},
                 {"testValidInitializationOfReadOnlyClassIntersectionWithReadOnly"},
                 {"testValidInitializationOfNonReadOnlyClassIntersectionWithReadOnly"},
-                {"testFunctionWithReturnTypeAnyToReadonly"}
+                {"testFunctionWithReturnTypeAnyToReadonly"},
+                {"testReadOnlyIntersectionWithNever"},
+                {"testReadOnlyIntersectionWithNeverExplicitlyInType"},
+                {"testReadOnlyIntersectionWithRecordThatHasAnOptionalNeverReadOnlyField"},
+                {"testReadOnlyIntersectionWithRecordThatHasANeverReadOnlyRestField"}
         };
     }
 
@@ -145,6 +149,28 @@ public class SelectivelyImmutableTypeTest {
                 "'NonReadOnlyClass'", 298, 35);
         validateError(result, index++, "incompatible types: expected '(NonReadOnlyClass & readonly)', found " +
                 "'NonReadOnlyClass'", 299, 38);
+
+        validateError(result, index++, "cannot define a variable of type 'never' or equivalent to type 'never'",
+                      303, 5);
+        validateError(result, index++, "incompatible types: expected 'never', found 'int'", 305, 52);
+
+        validateError(result, index++, "invalid intersection type with 'readonly', 'Grault' can never be 'readonly'",
+                      313, 5);
+
+        validateError(result, index++, "incompatible types: expected 'never', found 'stream<int>'", 321, 27);
+        validateError(result, index++, "incompatible types: expected 'record {| never a?; |}', " +
+                "found '(R1 & readonly)'", 322, 32);
+        validateError(result, index++, "incompatible types: expected 'never', found 'int'", 331, 35);
+        validateError(result, index++, "incompatible types: expected 'never', found 'stream<int>'", 331, 43);
+        validateError(result, index++, "incompatible types: expected 'record {| never a?; |}', " +
+                "found '(R2 & readonly)'", 332, 32);
+        validateError(result, index++, "missing non-defaultable required record field 'a'", 333, 23);
+        validateError(result, index++, "incompatible types: expected 'never', found 'int'", 333, 29);
+        validateError(result, index++, "invalid intersection type with 'readonly', 'R3' can never be 'readonly'",
+                      345, 6);
+        validateError(result, index++, "invalid intersection type with 'readonly', 'R4' can never be 'readonly'",
+                      346, 5);
+
         assertEquals(result.getErrorCount(), index);
     }
 

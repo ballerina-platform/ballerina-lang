@@ -17,12 +17,12 @@
  */
 package io.ballerina.projects.test;
 
+import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.CloudToml;
-import io.ballerina.projects.CompilationOptions;
 import io.ballerina.projects.CompilerPluginToml;
 import io.ballerina.projects.DependenciesToml;
 import io.ballerina.projects.DependencyGraph;
@@ -48,6 +48,7 @@ import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.projects.ResourceConfig;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.util.ProjectConstants;
@@ -64,6 +65,7 @@ import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -74,6 +76,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.test.TestUtils.isWindows;
@@ -81,11 +84,14 @@ import static io.ballerina.projects.test.TestUtils.loadProject;
 import static io.ballerina.projects.test.TestUtils.readFileAsString;
 import static io.ballerina.projects.test.TestUtils.resetPermissions;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
+import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
+import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Contains cases to test the basic package structure.
@@ -1332,44 +1338,6 @@ public class TestBuildProject extends BaseTest {
         buildProject.documentId(filePath); // get the document ID
     }
 
-    @Test(description = "test passing compilation options to package compilation", enabled = false)
-    public void testPassCompilationOptionsToPackageCompilation() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
-
-        // 1) Initialize the project instance
-        BuildOptions options = BuildOptions.builder().setExperimental(true).build();
-        BuildProject project = loadBuildProject(projectPath, options);
-
-        Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
-        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-            Assert.assertTrue(project.currentPackage().module(moduleId).moduleName().toString().contains("myproject"));
-        }
-        project.currentPackage().getCompilation();
-        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
-
-        // 2) Pass compilations option 'offline' to the package compilation
-        CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder = CompilationOptions.builder();
-        compilationOptionsBuilder.setOffline(true);
-        project.currentPackage().getCompilation(compilationOptionsBuilder.build());
-        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
-
-        // 3) Get compilation again and check compilation options
-        BallerinaToml newBallerinaToml = project.currentPackage().ballerinaToml().get()
-                .modify().withContent("" +
-                                       "[package]\n" +
-                                       "org = \"sameera\"\n" +
-                                       "name = \"yourproject\"\n" +
-                                       "version = \"0.2.0\"\n").apply();
-        Package newPackage = newBallerinaToml.packageInstance();
-        Assert.assertEquals(newPackage.packageName().toString(), "yourproject");
-
-        project.currentPackage().getCompilation();
-        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
-
-        newPackage.getCompilation();
-        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
-    }
-
     @Test(description = "test auto updating dependencies using build file")
     public void testAutoUpdateWithBuildFile() throws IOException {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
@@ -1469,6 +1437,68 @@ public class TestBuildProject extends BaseTest {
         Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
     }
 
+    @Test(description = "test auto updating dependencies with old distribution version")
+    public void testAutoUpdateWithOldDistVersion() throws IOException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("old_dist_version_project");
+        // Delete build file and Dependencies.toml file if already exists
+        Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+
+        // Set sticky false, to imitate the default build command behavior
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        buildOptionsBuilder.setSticky(false);
+        BuildOptions buildOptions = buildOptionsBuilder.build();
+
+        // 1) Initialize the project instance
+        BuildProject project = loadBuildProject(projectPath);
+        project.save();
+
+        Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
+        Path buildFile = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        Assert.assertTrue(buildFile.toFile().exists());
+        BuildJson initialBuildJson = readBuildJson(buildFile);
+        Assert.assertTrue(initialBuildJson.lastBuildTime() > 0, "invalid last_build_time in the build file");
+        Assert.assertTrue(initialBuildJson.lastUpdateTime() > 0, "invalid last_update_time in the build file");
+        Assert.assertFalse(initialBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
+
+        // 2) Build project again after setting un-matching dist version
+        // When distribution is not matching always should update Dependencies.toml, even build file has not expired
+        initialBuildJson.setDistributionVersion("slbeta0");
+        ProjectUtils.writeBuildFile(buildFile, initialBuildJson);
+        Assert.assertTrue(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists());
+        BuildProject projectSecondBuild = loadBuildProject(projectPath, buildOptions);
+        projectSecondBuild.save();
+
+        Assert.assertTrue(buildFile.toFile().exists());
+        BuildJson secondBuildJson = readBuildJson(buildFile);
+        Assert.assertTrue(secondBuildJson.lastBuildTime() > initialBuildJson.lastBuildTime(),
+                "last_build_time has not updated for the second build");
+        assertTrue(secondBuildJson.lastUpdateTime() > initialBuildJson.lastUpdateTime(),
+                "last_update_time has not updated for the second build");
+        Assert.assertFalse(secondBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
+        Assert.assertTrue(projectSecondBuild.currentPackage().getResolution().autoUpdate());
+
+        // 3) Build project again after setting dist version as null
+        initialBuildJson.setDistributionVersion(null);
+        ProjectUtils.writeBuildFile(buildFile, initialBuildJson);
+        Assert.assertTrue(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists());
+        BuildProject projectThirdBuild = loadBuildProject(projectPath, buildOptions);
+        projectThirdBuild.save();
+
+        Assert.assertTrue(buildFile.toFile().exists());
+        BuildJson thirdBuildJson = readBuildJson(buildFile);
+        Assert.assertTrue(thirdBuildJson.lastBuildTime() > secondBuildJson.lastBuildTime(),
+                "last_build_time has not updated for the second build");
+        assertTrue(thirdBuildJson.lastUpdateTime() > secondBuildJson.lastUpdateTime(),
+                "last_update_time has not updated for the second build");
+        Assert.assertFalse(thirdBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
+        Assert.assertTrue(projectThirdBuild.currentPackage().getResolution().autoUpdate());
+
+        // Remove generated files
+        Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+    }
+
     @Test(description = "test build package without dependencies")
     public void testPackageWithoutDependencies() throws IOException {
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_wo_deps");
@@ -1534,6 +1564,197 @@ public class TestBuildProject extends BaseTest {
         // Clean Dependencies.toml and build file if already exists
         Files.deleteIfExists(projectDirPath.resolve(DEPENDENCIES_TOML));
         Files.deleteIfExists(projectDirPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+    }
+
+    @Test
+    public void testGetResources() {
+        // 1. load the project
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        BuildProject buildProject = loadBuildProject(projectPath);
+        for (ModuleId moduleId : buildProject.currentPackage().moduleIds()) {
+            Module module = buildProject.currentPackage().module(moduleId);
+            if (module.isDefaultModule()) {
+                Assert.assertEquals(module.resourceIds().size(), 2);
+                for (DocumentId documentId : module.resourceIds()) {
+                    Assert.assertTrue(module.resource(documentId).name().equals("expectedDependencies.toml") ||
+                            module.resource(documentId).name().equals("main.json"));
+                }
+                Assert.assertEquals(module.testResourceIds().size(), 0);
+                continue;
+            }
+            if (module.moduleName().toString().equals("myproject.services")) {
+                Assert.assertEquals(module.resourceIds().size(), 4);
+                for (DocumentId documentId : module.resourceIds()) {
+                    Assert.assertTrue(module.resource(documentId).name().equals("config.json") ||
+                            module.resource(documentId).name().equals("invalidProject/tests/main_tests.bal") ||
+                            module.resource(documentId).name().equals("invalidProject/main.bal") ||
+                            module.resource(documentId).name().equals("invalidProject/Ballerina.toml")
+                            );
+                }
+
+                Assert.assertEquals(module.testResourceIds().size(), 0);
+                continue;
+            }
+            Assert.assertEquals(module.resourceIds().size(), 1);
+            Assert.assertEquals(module.resource(module.resourceIds().stream().findFirst().orElseThrow()).name(),
+                    "db.json");
+            Assert.assertEquals(module.testResourceIds().size(), 0);
+        }
+    }
+
+    @Test
+    public void testGetResourcesOfDependencies() throws IOException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_resources_tests/package_e");
+        BuildProject buildProject = loadBuildProject(projectPath);
+        Module defaultModule = buildProject.currentPackage().getDefaultModule();
+        DocumentId documentId = defaultModule.resourceIds().stream().findFirst().orElseThrow();
+        Assert.assertEquals(defaultModule.resource(documentId).name(), "project-info.properties");
+
+        List<ResolvedPackageDependency> dependencies = buildProject.currentPackage().getResolution().dependencyGraph()
+                .getNodes().stream().filter(resolvedPackageDependency ->
+                        !resolvedPackageDependency.packageInstance().equals(buildProject.currentPackage()))
+                .collect(Collectors.toList());
+        Module depDefaultModule = dependencies.get(0).packageInstance().getDefaultModule();
+        DocumentId dependencyDocId = depDefaultModule.resourceIds()
+                .stream().findFirst().orElseThrow();
+        Assert.assertEquals(depDefaultModule.resource(dependencyDocId).name(), "project-info.properties");
+
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        Path execPath = buildProject.sourceRoot().resolve(TARGET_DIR_NAME).resolve("temp.jar");
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, execPath);
+
+        JarFile execJar = new JarFile(execPath.toString());
+        String resourceName = RESOURCE_DIR_NAME + "/asmaj/package_e/0/project-info.properties";
+        String depResourceName = RESOURCE_DIR_NAME + "/samjs/package_e/0/project-info.properties";
+
+        Assert.assertNotNull(execJar.getJarEntry(resourceName));
+        try (InputStream inputStream = execJar.getInputStream(execJar.getJarEntry(resourceName))) {
+            Assert.assertTrue(new String(inputStream.readAllBytes()).contains("asmaj"));
+        }
+        Assert.assertNotNull(execJar.getJarEntry(depResourceName));
+        try (InputStream inputStream = execJar.getInputStream(execJar.getJarEntry(depResourceName))) {
+            Assert.assertTrue(new String(inputStream.readAllBytes()).contains("samjs"));
+        }
+    }
+
+    @Test
+    public void testAddResources() throws IOException {
+        // 1. load the project
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_resources_tests/myproject");
+        BuildProject buildProject = loadBuildProject(projectPath);
+        Module defaultModule = buildProject.currentPackage().getDefaultModule();
+
+        // 2. Create and add a resource
+        DocumentId documentId = DocumentId.create("config/project-info.json", defaultModule.moduleId());
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("org", buildProject.currentPackage().descriptor().org().toString());
+        jsonObject.addProperty("name", buildProject.currentPackage().descriptor().name().toString());
+        jsonObject.addProperty("version", buildProject.currentPackage().descriptor().version().toString());
+        byte[] serialize = jsonObject.toString().getBytes();
+        ResourceConfig resourceConfig = ResourceConfig.from(documentId, "config/project-info.json", serialize);
+        // Should we throw an unsupported exception for SingleFileProject??
+        defaultModule.modify().addResource(resourceConfig).apply();
+
+        // 3. Compile and generate caches and executable
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        Path execPath = buildProject.sourceRoot().resolve(TARGET_DIR_NAME).resolve("temp.jar");
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, execPath);
+
+        // 4. Verify the existence of resources in thin jar, testable jar and executable jar
+        JarFile execJar = new JarFile(execPath.toString());
+
+        for (ModuleId moduleId : buildProject.currentPackage().moduleIds()) {
+            Module module = buildProject.currentPackage().module(moduleId);
+            Path moduleJarPath = buildProject.sourceRoot().resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME)
+                    .resolve(module.descriptor().org().toString())
+                    .resolve(module.descriptor().packageName().toString())
+                    .resolve(module.descriptor().version().toString()).resolve("java11")
+                    .resolve(module.descriptor().org().toString() + "-" + module.descriptor().name().toString() + "-"
+                            + module.descriptor().version().toString() + ".jar");
+            JarFile jar = new JarFile(moduleJarPath.toString());
+            for (String name : getResources(buildProject.currentPackage().module(moduleId))) {
+                Assert.assertNotNull(jar.getJarEntry(name));
+                Assert.assertNotNull(execJar.getJarEntry(name));
+            }
+
+            Path testableJarPath = buildProject.sourceRoot().resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME)
+                    .resolve(module.descriptor().org().toString())
+                    .resolve(module.descriptor().packageName().toString())
+                    .resolve(module.descriptor().version().toString()).resolve("java11")
+                    .resolve(module.descriptor().org().toString() + "-" + module.descriptor().name().toString() + "-"
+                            + module.descriptor().version().toString() + "-testable.jar");
+            if (Files.exists(testableJarPath)) {
+                JarFile testableJar = new JarFile(testableJarPath.toString());
+                for (String name : getResources(buildProject.currentPackage().module(moduleId))) {
+                    Assert.assertNotNull(testableJar.getJarEntry(name));
+                }
+                for (String name : getTestResources(buildProject.currentPackage().module(moduleId))) {
+                    Assert.assertNotNull(testableJar.getJarEntry(name));
+                }
+
+            }
+        }
+
+        // Assert resources of dependencies
+        for (ResolvedPackageDependency resolvedPackageDependency :
+                buildProject.currentPackage().getResolution().dependencyGraph().toTopologicallySortedList()) {
+            Package depPackage = resolvedPackageDependency.packageInstance();
+            for (ModuleId moduleId : depPackage.moduleIds()) {
+                for (String name : getResources(depPackage.module(moduleId))) {
+                    Assert.assertNotNull(execJar.getJarEntry(name));
+                }
+            }
+
+        }
+
+        Path balaPath = buildProject.sourceRoot().resolve(TARGET_DIR_NAME);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
+        JarFile bala = new JarFile(balaPath.resolve("sameera-myproject-any-0.1.0.bala").toString());
+
+        for (ModuleId moduleId : buildProject.currentPackage().moduleIds()) {
+            for (String name : getResourcesInBala(buildProject.currentPackage().module(moduleId))) {
+                Assert.assertNotNull(bala.getJarEntry(name));
+            }
+        }
+    }
+
+    private List<String> getResources(Module module) {
+        List<String> resources = new ArrayList<>();
+        for (DocumentId documentId : module.resourceIds()) {
+            String name = RESOURCE_DIR_NAME + "/" +
+                    module.descriptor().org().toString() + "/" +
+                    module.moduleName() + "/" +
+                    module.descriptor().version().value().major() + "/" +
+                    module.resource(documentId).name();
+            resources.add(name);
+        }
+        return resources;
+    }
+
+    private List<String> getResourcesInBala(Module module) {
+        List<String> resources = new ArrayList<>();
+        for (DocumentId documentId : module.resourceIds()) {
+            String name = MODULES_ROOT + "/" +
+                    module.moduleName() + "/" + RESOURCE_DIR_NAME + "/" +
+                    module.resource(documentId).name();
+            resources.add(name);
+        }
+        return resources;
+    }
+
+    private List<String> getTestResources(Module module) {
+        List<String> resources = new ArrayList<>();
+        for (DocumentId documentId : module.testResourceIds()) {
+            String name = RESOURCE_DIR_NAME + "/" +
+                    module.descriptor().org().toString() + "/" +
+                    module.moduleName() + "/" +
+                    module.descriptor().version().value().major() + "/" +
+                    module.resource(documentId).name();
+            resources.add(name);
+        }
+        return resources;
     }
 
     private static BuildProject loadBuildProject(Path projectPath) {

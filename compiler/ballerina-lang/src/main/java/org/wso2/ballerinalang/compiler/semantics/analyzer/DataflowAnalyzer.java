@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.types.TypeNode;
@@ -62,7 +63,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -71,7 +71,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
@@ -103,7 +102,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
@@ -146,7 +144,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
@@ -160,7 +157,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -185,9 +181,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -217,7 +211,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -456,18 +449,18 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         service.annAttachments.forEach(bLangAnnotationAttachment -> analyzeNode(bLangAnnotationAttachment.expr, env));
-        service.resourceFunctions.forEach(function -> analyzeNode(function, env));
         this.currDependentSymbolDeque.pop();
     }
 
     @Override
-    public void visit(BLangResource resource) {
-    }
-
-    @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeDefinition.typeNode, typeDefinition.symbol.scope, env);
-        this.currDependentSymbolDeque.push(typeDefinition.symbol);
+        SymbolEnv typeDefEnv;
+        BSymbol symbol = typeDefinition.symbol;
+        if (typeDefinition.symbol.kind == SymbolKind.TYPE_DEF) {
+            symbol = symbol.type.tsymbol;
+        }
+        typeDefEnv = SymbolEnv.createTypeEnv(typeDefinition.typeNode, symbol.scope, env);
+        this.currDependentSymbolDeque.push(symbol);
         analyzeNode(typeDefinition.typeNode, typeDefEnv);
         this.currDependentSymbolDeque.pop();
     }
@@ -563,7 +556,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         this.currDependentSymbolDeque.push(symbol);
         if (variable.typeNode != null && variable.typeNode.getBType() != null) {
-            recordGlobalVariableReferenceRelationship(variable.typeNode.getBType().tsymbol);
+            BType type = variable.typeNode.getBType();
+            recordGlobalVariableReferenceRelationship(types.getReferredType(type).tsymbol);
         }
         boolean withInModuleVarLetExpr = symbol.owner.tag == SymTag.LET && isGlobalVarSymbol(env.enclVarSym);
         if (withInModuleVarLetExpr) {
@@ -622,12 +616,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWorker worker) {
-        SymbolEnv workerEnv = SymbolEnv.createWorkerEnv(worker, this.env);
-        analyzeBranch(worker.body, workerEnv);
-    }
-
-    @Override
     public void visit(BLangAssignment assignment) {
         analyzeNode(assignment.expr, env);
         checkAssignment(assignment.varRef);
@@ -651,14 +639,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(returnNode.expr, env);
 
         // return statement will exit from the function.
-        terminateFlow();
-    }
-
-    @Override
-    public void visit(BLangThrow throwNode) {
-        analyzeNode(throwNode.expr, env);
-
-        // throw statement will terminate the flow.
         terminateFlow();
     }
 
@@ -731,7 +711,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         Location pos = matchClause.pos;
         for (BVarSymbol symbol : matchClause.declaredVars.values()) {
             if (!isWildCardBindingPattern(symbol)) {
-                unusedLocalVariables.put(symbol, pos);
+                this.unusedLocalVariables.put(symbol, pos);
             }
         }
         analyzeNode(matchClause.matchGuard, env);
@@ -788,9 +768,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForeach foreach) {
-        populateUnusedVariableMapForMembers(this.unusedLocalVariables,
-                                            (BLangVariable) foreach.variableDefinitionNode.getVariable());
-        analyzeNode(foreach.collection, env);
+        BLangExpression collection = foreach.collection;
+
+        if (isNotRangeExpr(collection)) {
+            populateUnusedVariableMapForMembers(this.unusedLocalVariables,
+                                                (BLangVariable) foreach.variableDefinitionNode.getVariable());
+        }
+
+        analyzeNode(collection, env);
         analyzeNode(foreach.body, env);
         if (foreach.onFailClause != null) {
             analyzeNode(foreach.onFailClause, env);
@@ -866,10 +851,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRollback rollbackNode) {
         analyzeNode(rollbackNode.expr, env);
-    }
-
-    @Override
-    public void visit(BLangTryCatchFinally tryNode) {
     }
 
     @Override
@@ -1058,17 +1039,26 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private List<BLangExpression> createKeyArray(BLangRecordLiteral literal, List<String> fieldNames) {
         //fieldNames have to be literals in table constructor's record literal list
-        Map<String, BLangExpression> fieldMap =
-                literal.fields.stream().map(recordField -> (BLangRecordLiteral.BLangRecordKeyValueField) recordField)
-                        .map(d -> new SimpleEntry<>(d.key.expr.toString(), d.valueExpr)).
-                        collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
+        Map<String, BLangExpression> fieldMap = new HashMap<>();
+
+        for (RecordLiteralNode.RecordField recordField : literal.fields) {
+            if (recordField.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField keyVal =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) recordField;
+                fieldMap.put(keyVal.key.expr.toString(), keyVal.valueExpr);
+            } else if (recordField.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangRecordLiteral.BLangRecordVarNameField recordVarNameField =
+                        (BLangRecordLiteral.BLangRecordVarNameField) recordField;
+                fieldMap.put(recordVarNameField.getVariableName().value, recordVarNameField);
+            }
+        }
         return fieldNames.stream().map(fieldMap::get).collect(Collectors.toList());
     }
 
     private List<String> getFieldNames(BLangTableConstructorExpr constructorExpr) {
         List<String> fieldNames = null;
-        if (constructorExpr.getBType().tag == TypeTags.TABLE) {
-            fieldNames = ((BTableType) constructorExpr.getBType()).fieldNameList;
+        if (types.getReferredType(constructorExpr.getBType()).tag == TypeTags.TABLE) {
+            fieldNames = ((BTableType) types.getReferredType(constructorExpr.getBType())).fieldNameList;
             if (fieldNames != null) {
                 return fieldNames;
             }
@@ -1105,7 +1095,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVarRef varRefExpr) {
         this.unusedErrorVarsDeclaredWithVar.remove(varRefExpr.symbol);
 
-        if (isRead(varRefExpr)) {
+        if (isNotVariableReferenceLVExpr(varRefExpr)) {
             this.unusedLocalVariables.remove(varRefExpr.symbol);
         }
 
@@ -1223,9 +1213,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFromClause fromClause) {
-        populateUnusedVariableMapForMembers(this.unusedLocalVariables,
-                                            (BLangVariable) fromClause.variableDefinitionNode.getVariable());
-        analyzeNode(fromClause.collection, env);
+        BLangExpression collection = fromClause.collection;
+
+        if (isNotRangeExpr(collection)) {
+            populateUnusedVariableMapForMembers(this.unusedLocalVariables,
+                                                (BLangVariable) fromClause.variableDefinitionNode.getVariable());
+        }
+
+        analyzeNode(collection, env);
     }
 
     @Override
@@ -1424,7 +1419,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeInit typeInitExpr) {
         typeInitExpr.argsExpr.forEach(argExpr -> analyzeNode(argExpr, env));
         if (this.currDependentSymbolDeque.peek() != null) {
-            addDependency(this.currDependentSymbolDeque.peek(), typeInitExpr.getBType().tsymbol);
+            addDependency(this.currDependentSymbolDeque.peek(),
+                    types.getReferredType(typeInitExpr.getBType()).tsymbol);
         }
     }
 
@@ -1562,18 +1558,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-        analyzeNode(xmlAttributeAccessExpr.expr, env);
-        analyzeNode(xmlAttributeAccessExpr.indexExpr, env);
-    }
-
-    @Override
-    public void visit(BLangIntRangeExpression intRangeExpression) {
-        analyzeNode(intRangeExpression.startExpr, env);
-        analyzeNode(intRangeExpression.endExpr, env);
-    }
-
-    @Override
     public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
         analyzeNode(bLangVarArgsExpression.expr, env);
     }
@@ -1642,10 +1626,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangContinue continueNode) {
         terminateFlow();
-    }
-
-    @Override
-    public void visit(BLangCatch catchNode) {
     }
 
     @Override
@@ -1723,7 +1703,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (this.currDependentSymbolDeque.isEmpty()) {
             return;
         }
-        BType resolvedType = userDefinedType.getBType();
+        BType resolvedType = types.getReferredType(userDefinedType.getBType());
         if (resolvedType == symTable.semanticError) {
             return;
         }
@@ -1762,14 +1742,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        BTypeSymbol tsymbol = recordTypeNode.getBType().tsymbol;
+        BTypeSymbol tsymbol = types.getReferredType(recordTypeNode.getBType()).tsymbol;
         for (TypeNode type : recordTypeNode.getTypeReferences()) {
             BLangType bLangType = (BLangType) type;
             analyzeNode(bLangType, env);
-            recordGlobalVariableReferenceRelationship(bLangType.getBType().tsymbol);
+            recordGlobalVariableReferenceRelationship(
+                    types.getReferredType(bLangType.getBType()).tsymbol);
         }
         for (BLangSimpleVariable field : recordTypeNode.fields) {
-            addTypeDependency(tsymbol, field.getBType(), new HashSet<>());
+            addTypeDependency(tsymbol, types.getReferredType(field.getBType()), new HashSet<>());
             analyzeNode(field, env);
             recordGlobalVariableReferenceRelationship(field.symbol);
         }
@@ -1795,6 +1776,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             case TypeTags.MAP:
                 addTypeDependency(dependentTypeSymbol,
                         types.getTypeWithEffectiveIntersectionTypes(((BMapType) providerType).getConstraint()),
+                        unresolvedTypes);
+                break;
+            case TypeTags.TYPEREFDESC:
+                addTypeDependency(dependentTypeSymbol, types.getReferredType(providerType),
                         unresolvedTypes);
                 break;
             default:
@@ -1856,10 +1841,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         if (this.currDependentSymbolDeque.peek() != null) {
-            addDependency(this.currDependentSymbolDeque.peek(), serviceConstructorExpr.getBType().tsymbol);
+            addDependency(this.currDependentSymbolDeque.peek(),
+                    types.getReferredType(serviceConstructorExpr.getBType()).tsymbol);
         }
 
-        addDependency(serviceConstructorExpr.getBType().tsymbol, serviceConstructorExpr.serviceNode.symbol);
+        addDependency(types.getReferredType(serviceConstructorExpr.getBType()).tsymbol,
+                serviceConstructorExpr.serviceNode.symbol);
         analyzeNode(serviceConstructorExpr.serviceNode, env);
     }
 
@@ -2123,7 +2110,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 BLangAccessExpression accessExpr = (BLangAccessExpression) varRef;
 
                 BLangExpression expr = accessExpr.expr;
-                BType type = expr.getBType();
+                BType type = types.getReferredType(expr.getBType());
                 if (isObjectMemberAccessWithSelf(accessExpr)) {
                     BObjectType objectType = (BObjectType) type;
 
@@ -2172,7 +2159,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private void checkFinalObjectFieldUpdate(BLangFieldBasedAccess fieldAccess) {
         BLangExpression expr = fieldAccess.expr;
 
-        BType exprType = expr.getBType();
+        BType exprType = types.getReferredType(expr.getBType());
 
         if (types.isSubTypeOfBaseType(exprType, TypeTags.OBJECT) &&
                 isFinalFieldInAllObjects(fieldAccess.pos, exprType, fieldAccess.field.value)) {
@@ -2180,7 +2167,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean isFinalFieldInAllObjects(Location pos, BType type, String fieldName) {
+    private boolean isFinalFieldInAllObjects(Location pos, BType btype, String fieldName) {
+        BType type = types.getReferredType(btype);
         if (type.tag == TypeTags.OBJECT) {
 
             BField field = ((BObjectType) type).fields.get(fieldName);
@@ -2296,6 +2284,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         long flags = symbol.flags;
 
+        SymbolKind kind = symbol.kind;
+        if (kind == SymbolKind.PATH_PARAMETER || kind == SymbolKind.PATH_REST_PARAMETER) {
+            return false;
+        }
+
         return !Symbols.isFlagOn(flags, Flags.REQUIRED_PARAM)
                 && !Symbols.isFlagOn(flags, Flags.DEFAULTABLE_PARAM)
                 && !Symbols.isFlagOn(flags, Flags.INCLUDED)
@@ -2352,24 +2345,22 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean isRead(BLangSimpleVarRef varRefExpr) {
+    private boolean isNotVariableReferenceLVExpr(BLangSimpleVarRef varRefExpr) {
         if (!varRefExpr.isLValue) {
             return true;
         }
 
         BLangNode parent = varRefExpr.parent;
+        return parent != null && parent.getKind() != NodeKind.ASSIGNMENT;
+    }
 
-        if (parent == null || parent.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR) {
-            return false;
+    private boolean isNotRangeExpr(BLangExpression collection) {
+        if (collection.getKind() != NodeKind.BINARY_EXPR) {
+            return true;
         }
 
-        BLangNode parentParent = parent.parent;
-
-        if (parentParent == null || parentParent.getKind() != NodeKind.ASSIGNMENT) {
-            return false;
-        }
-
-        return ((BLangIndexBasedAccess) parent).indexExpr == varRefExpr;
+        OperatorKind opKind = ((BLangBinaryExpr) collection).opKind;
+        return opKind != OperatorKind.HALF_OPEN_RANGE && opKind != OperatorKind.CLOSED_RANGE;
     }
 
     private enum InitStatus {
