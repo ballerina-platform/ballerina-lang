@@ -479,4 +479,17 @@ public class VariableReturnType {
         assert td.getDescribingType().getTag() == INT_TAG;
         return x;
     }
+
+    public static Object functionWithInferredArgForParamOfTypeReferenceType(BTypedesc td) {
+        Type describingType = td.getDescribingType();
+
+        int tag = describingType.getTag();
+
+        if (tag == INT_TAG) {
+            return 9876L;
+        }
+
+        assert tag == STRING_TAG;
+        return StringUtils.fromString("hello!");
+    }
 }

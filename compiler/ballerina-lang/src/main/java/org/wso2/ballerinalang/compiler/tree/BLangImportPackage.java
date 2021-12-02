@@ -31,12 +31,15 @@ import java.util.stream.Collectors;
  */
 public class BLangImportPackage extends BLangNode implements ImportPackageNode {
 
-    public List<BLangIdentifier> pkgNameComps;
-    public BLangIdentifier version;
-    public BLangIdentifier alias;
-    public BPackageSymbol symbol;
+    // BLangNodes
     public BLangIdentifier orgName;
+    public List<BLangIdentifier> pkgNameComps;
+    public BLangIdentifier alias;
     public BLangIdentifier compUnit;
+    public BLangIdentifier version;
+
+    // Semantic Data
+    public BPackageSymbol symbol;
 
     @Override
     public List<BLangIdentifier> getPackageName() {
@@ -77,6 +80,16 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

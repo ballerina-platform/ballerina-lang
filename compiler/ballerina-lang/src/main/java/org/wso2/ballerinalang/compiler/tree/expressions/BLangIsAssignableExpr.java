@@ -22,6 +22,8 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.IsAssignableNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
@@ -32,11 +34,17 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
  *
  * @since 0.967.0
  */
+@Deprecated
 public class BLangIsAssignableExpr extends BLangExpression implements IsAssignableNode {
-    public final OperatorKind opKind = OperatorKind.IS_ASSIGNABLE;
+
+    // TODO: #AST_CLEAN
+    // BLangNodes
     public BLangExpression lhsExpr;
-    public BType targetType;
     public BLangType typeNode;
+
+    // Semantic Data
+    public final OperatorKind opKind = OperatorKind.IS_ASSIGNABLE;
+    public BType targetType;
     public BOperatorSymbol opSymbol;
 
     @Override
@@ -52,6 +60,16 @@ public class BLangIsAssignableExpr extends BLangExpression implements IsAssignab
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override
