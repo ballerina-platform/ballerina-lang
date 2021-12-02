@@ -130,14 +130,9 @@ public class RenameUtil {
         NonTerminalNode nodeAtCursor = CommonUtil.findNode(cursorPosRange, document.get().syntaxTree());
 
         // For clients that doesn't support prepare rename, we do this check here as well
-        if (onImportDeclarationNode(context, nodeAtCursor)) {
+        if (onImportDeclarationNode(context, nodeAtCursor) 
+                || (nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE && isSelfClassSymbol(context))) {
             return Collections.emptyMap();
-        }
-        
-        if (nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            if (isSelfClassSymbol(context)) {
-                return Collections.emptyMap();
-            }
         }
 
         if (QNameReferenceUtil.onModulePrefix(context, nodeAtCursor)) {
