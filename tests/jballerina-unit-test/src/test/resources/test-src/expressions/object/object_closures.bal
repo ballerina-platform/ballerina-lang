@@ -96,9 +96,9 @@ function testClosureVariableUsedInsideWithDifferentType() {
 }
 
 function testClosureButAsArgument() {
-    //closureVariableUsedInsideMethodNoBlockMap("10");
-    //closureArgumentAsClassFieldDefaultValue("10");
-    //closureArgumentAsClassFieldDefaultValueChangingClosureVarValue("10");
+    closureVariableUsedInsideMethodNoBlockMap("10");
+    closureArgumentAsClassFieldDefaultValue("10");
+    closureArgumentAsClassFieldDefaultValueChangingClosureVarValue("10");
     closureVariablesAndArgsAsFieldsAndAttachedMethodBodyTogether(10);
 }
 
@@ -177,7 +177,9 @@ function closureLambda(string j) returns function (string b) returns string {
 }
 
 function closureArgumentAsClassFieldDefaultValueChangingClosureVarValue(string j2) {
-    string j = "10";
+    string j3 = j2;
+    string j4 = j3;
+    string j = j4;
     object {
         function bar(string b) returns string;
     } bOceVariable = object {
