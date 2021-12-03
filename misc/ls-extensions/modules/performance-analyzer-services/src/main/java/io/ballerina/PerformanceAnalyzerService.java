@@ -37,6 +37,15 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 
+import static io.ballerina.Constants.AUTHENTICATION_ERROR;
+import static io.ballerina.Constants.CONNECTION_ERROR;
+import static io.ballerina.Constants.ENDPOINT_RESOLVE_ERROR;
+import static io.ballerina.Constants.ERROR;
+import static io.ballerina.Constants.MESSAGE;
+import static io.ballerina.Constants.NO_DATA;
+import static io.ballerina.Constants.SOME_ERROR;
+import static io.ballerina.Constants.SUCCESS;
+import static io.ballerina.Constants.TYPE;
 import static io.ballerina.PerformanceAnalyzerNodeVisitor.ACTION_INVOCATION_KEY;
 
 /**
@@ -48,17 +57,8 @@ import static io.ballerina.PerformanceAnalyzerNodeVisitor.ACTION_INVOCATION_KEY;
 @JsonSegment("performanceAnalyzer")
 public class PerformanceAnalyzerService implements ExtendedLanguageServerService {
 
-    static final String ERROR = "error";
-    static final String SUCCESS = "Success";
-    static final String CONNECTION_ERROR = "CONNECTION_ERROR";
-    static final String AUTHENTICATION_ERROR = "AUTHENTICATION_ERROR";
-    static final String SOME_ERROR = "SOME_ERROR_OCCURRED";
-    static final String ENDPOINT_RESOLVE_ERROR = "ENDPOINT_RESOLVE_ERROR";
-    static final String TYPE = "type";
-    static final String MESSAGE = "message";
     private static final HashMap<JsonObject, JsonObject> realTimeCachedResponses = new HashMap<>();
     private static final HashMap<JsonObject, JsonObject> advancedCachedResponses = new HashMap<>();
-    public static final String NO_DATA = "NO_DATA";
 
     private WorkspaceManager workspaceManager;
 

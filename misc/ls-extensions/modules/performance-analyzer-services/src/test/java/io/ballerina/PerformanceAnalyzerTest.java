@@ -38,11 +38,11 @@ import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import static io.ballerina.Constants.MESSAGE;
+import static io.ballerina.Constants.SUCCESS;
+import static io.ballerina.Constants.TYPE;
 import static io.ballerina.PerformanceAnalyzerNodeVisitor.ACTION_INVOCATION_KEY;
 import static io.ballerina.PerformanceAnalyzerNodeVisitor.ENDPOINTS_KEY;
-import static io.ballerina.PerformanceAnalyzerService.MESSAGE;
-import static io.ballerina.PerformanceAnalyzerService.SUCCESS;
-import static io.ballerina.PerformanceAnalyzerService.TYPE;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 
 /**
@@ -50,8 +50,8 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
  */
 public class PerformanceAnalyzerTest {
 
-    public static final String BALLERINA = "ballerina";
-    public static final String RESULT = "result";
+    private static final String BALLERINA = "ballerina";
+    private static final String RESULT = "result";
     private static final String PERFORMANCE_ANALYZE = "performanceAnalyzer/getEndpoints";
     private static final Path RES_DIR = Paths.get("src", "test", "resources").toAbsolutePath();
 
