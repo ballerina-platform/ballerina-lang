@@ -15,9 +15,12 @@
  */
 package org.ballerinalang.langserver.util.rename;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -36,6 +39,7 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.PrepareRenameContext;
 import org.ballerinalang.langserver.commons.ReferencesContext;
 import org.ballerinalang.langserver.commons.RenameContext;
+import org.ballerinalang.langserver.contexts.BallerinaContextUtils;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.util.TokensUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
@@ -89,7 +93,8 @@ public class RenameUtil {
                 })
                 .orElse(null);
         // Check if token at cursor is an identifier
-        if (!(tokenAtCursor instanceof IdentifierToken) || CommonUtil.isKeyword(tokenAtCursor.text())) {
+        if (!(tokenAtCursor instanceof IdentifierToken) || CommonUtil.isKeyword(tokenAtCursor.text()) 
+                || isSelfClassSymbol(context)) {
             return Optional.empty();
         }
         Optional<Document> document = context.currentDocument();
@@ -125,7 +130,8 @@ public class RenameUtil {
         NonTerminalNode nodeAtCursor = CommonUtil.findNode(cursorPosRange, document.get().syntaxTree());
 
         // For clients that doesn't support prepare rename, we do this check here as well
-        if (onImportDeclarationNode(context, nodeAtCursor)) {
+        if (onImportDeclarationNode(context, nodeAtCursor) 
+                || (nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE && isSelfClassSymbol(context))) {
             return Collections.emptyMap();
         }
 
@@ -168,7 +174,6 @@ public class RenameUtil {
         Map<String, ChangeAnnotation> changeAnnotationMap = new HashMap<>();
         WorkspaceEdit workspaceEdit = new WorkspaceEdit();
         Map<String, List<TextEdit>> changes = getChanges(context);
-
         if (context.getHonorsChangeAnnotations() && CommonUtil.isKeyword(context.getParams().getNewName())) {
             changeAnnotationMap.put(RenameChangeAnnotation.QUOTED_KEYWORD.getID(),
                     RenameChangeAnnotation.QUOTED_KEYWORD.getChangeAnnotation());
@@ -350,6 +355,26 @@ public class RenameUtil {
         Position position = context.getCursorPosition();
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
         context.setCursorPositionInTree(txtPos);
+    }
+    
+    private static boolean isSelfClassSymbol(ReferencesContext context) {
+        Optional<Document> srcFile = context.currentDocument();
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (srcFile.isEmpty() || semanticModel.isEmpty() || context.currentSyntaxTree().isEmpty()) {
+            return false;
+        }
+        Position position = context.getCursorPosition();
+        LinePosition linePosition = LinePosition.from(position.getLine(), position.getCharacter());
+        Optional<Symbol> symbol = semanticModel.get().symbol(srcFile.get(), linePosition);
+        if (symbol.isEmpty()) {
+            return false;
+        }
+        Optional<ModuleMemberDeclarationNode> enclosingNode = BallerinaContextUtils.
+                getEnclosingModuleMember(context.currentSyntaxTree().get(), context.getCursorPositionInTree());
+        if (enclosingNode.isEmpty()) {
+            return false;
+        }
+        return CommonUtil.isSelfClassSymbol(symbol.get(), context, enclosingNode.get());
     }
 
     private enum RenameChangeAnnotation {

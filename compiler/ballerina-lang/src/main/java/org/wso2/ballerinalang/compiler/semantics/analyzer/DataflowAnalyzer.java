@@ -2218,7 +2218,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                     Names.IGNORE.value.equals(importStmt.alias.value)) {
                 continue;
             }
-            dlog.error(importStmt.pos, DiagnosticErrorCode.UNUSED_IMPORT_MODULE, importStmt.getQualifiedPackageName());
+            dlog.error(importStmt.alias.pos, DiagnosticErrorCode.UNUSED_MODULE_PREFIX, importStmt.alias.value);
         }
     }
 

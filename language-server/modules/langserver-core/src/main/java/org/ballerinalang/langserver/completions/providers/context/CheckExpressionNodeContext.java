@@ -55,8 +55,9 @@ public class CheckExpressionNodeContext extends AbstractCompletionProvider<Check
         if (node.parent().kind() == SyntaxKind.ASSIGNMENT_STATEMENT
                 || node.parent().kind() == SyntaxKind.LOCAL_VAR_DECL
                 || node.parent().kind() == SyntaxKind.MODULE_VAR_DECL
-                || node.parent().kind() == SyntaxKind.OBJECT_FIELD) {
-            completionItems.addAll(CompletionUtil.route(ctx, node.parent()));
+                || node.parent().kind() == SyntaxKind.OBJECT_FIELD
+                || node.parent().kind() == SyntaxKind.FROM_CLAUSE) {
+                completionItems.addAll(CompletionUtil.route(ctx, node.parent()));
         } else {
             /*
             We add the action keywords in order to support the check action context completions
