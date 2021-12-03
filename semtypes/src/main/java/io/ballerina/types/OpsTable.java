@@ -48,7 +48,7 @@ public class OpsTable {
         OPS[i++] = new BooleanOps();    // boolean
         OPS[i++] = new ListTypeRoOps(); // RO list
         OPS[i++] = new MappingRoOps();  // RO mapping
-        OPS[i++] = PANIC_IMPL;          // RO table
+        OPS[i++] = new MappingRoOps();  // RO table
         OPS[i++] = new XmlRoOps();      // RO xml
         OPS[i++] = PANIC_IMPL;          // RO object
         OPS[i++] = new IntOps();        // int
@@ -64,7 +64,7 @@ public class OpsTable {
         OPS[i++] = PANIC_IMPL;          // RW stream
         OPS[i++] = new ListTypeRwOps(); // RW list
         OPS[i++] = new MappingRwOps();  // RW mapping
-        OPS[i++] = PANIC_IMPL;          // RW table
+        OPS[i++] = new MappingRwOps();  // RW table
         OPS[i++] = new XmlRwOps();      // RW xml
         OPS[i] = PANIC_IMPL;            // RW object
     }
