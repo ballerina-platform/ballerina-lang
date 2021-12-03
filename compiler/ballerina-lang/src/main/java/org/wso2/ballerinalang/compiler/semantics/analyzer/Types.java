@@ -2897,7 +2897,8 @@ public class Types {
                 if (sourceTypes.contains(symTable.nilType) != targetTypes.contains(symTable.nilType)) {
                     return false;
                 }
-                return checkValueSpaceHasSameType(((BFiniteType) target.getMemberTypes().iterator().next()),
+                BType type = target.getMemberTypes().iterator().next();
+                return checkValueSpaceHasSameType(((BFiniteType) getReferredType(type)),
                         sUnionType.getMemberTypes().iterator().next());
             }
 
@@ -3062,7 +3063,8 @@ public class Types {
     }
 
     private boolean checkUnionHasAllFiniteOrNilMembers(LinkedHashSet<BType> memberTypes) {
-        for (BType type : memberTypes) {
+        for (BType bType : memberTypes) {
+            BType type = getReferredType(bType);
             if (type.tag != TypeTags.FINITE && type.tag != TypeTags.NIL) {
                 return false;
             }

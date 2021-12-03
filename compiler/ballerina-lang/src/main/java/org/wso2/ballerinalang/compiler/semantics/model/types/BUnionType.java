@@ -192,7 +192,7 @@ public class BUnionType extends BType implements UnionType {
         }
 
         for (BType memBType : toFlatTypeSet(types)) {
-            if (memBType.tag != TypeTags.NEVER) {
+            if (getReferredType(memBType).tag != TypeTags.NEVER) {
                 memberTypes.add(memBType);
             }
 
@@ -402,9 +402,21 @@ public class BUnionType extends BType implements UnionType {
 
     private static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
         return types.stream()
-                .flatMap(type -> type.tag == TypeTags.UNION && !isTypeParamAvailable(type) ?
-                        ((BUnionType) type).memberTypes.stream() : Stream.of(type))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                .flatMap(type -> {
+                    BType refType = getReferredType(type);
+                    if (refType.tag == TypeTags.UNION && !isTypeParamAvailable(type)) {
+                        return ((BUnionType) refType).memberTypes.stream();
+                    }
+                    return Stream.of(type);
+                }).collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    private static BType getReferredType(BType type) {
+        BType constraint = type;
+        if (type.tag == TypeTags.TYPEREFDESC) {
+            constraint = getReferredType(((BTypeReferenceType) type).referredType);
+        }
+        return constraint;
     }
 
     private static boolean isTypeParamAvailable(BType type) {
