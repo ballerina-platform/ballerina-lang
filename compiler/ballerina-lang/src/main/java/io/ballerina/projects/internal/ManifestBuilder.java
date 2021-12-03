@@ -164,8 +164,9 @@ public class ManifestBuilder {
         String icon = "";
 
         if (!tomlAstNode.entries().isEmpty()) {
-            TomlTableNode pkgNode = (TomlTableNode) tomlAstNode.entries().get(PACKAGE);
-            if (pkgNode != null && pkgNode.kind() != TomlType.NONE && pkgNode.kind() == TomlType.TABLE) {
+            TopLevelNode topLevelPkgNode = tomlAstNode.entries().get(PACKAGE);
+            if (topLevelPkgNode != null && topLevelPkgNode.kind() == TomlType.TABLE) {
+                TomlTableNode pkgNode = (TomlTableNode) topLevelPkgNode;
                 license = getStringArrayFromPackageNode(pkgNode, LICENSE);
                 authors = getStringArrayFromPackageNode(pkgNode, AUTHORS);
                 keywords = getStringArrayFromPackageNode(pkgNode, KEYWORDS);
@@ -235,11 +236,12 @@ public class ManifestBuilder {
             return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
         }
 
-        TomlTableNode pkgNode = (TomlTableNode) tomlTableNode.entries().get(PACKAGE);
-        if (pkgNode == null || pkgNode.kind() == TomlType.NONE) {
+        TopLevelNode topLevelPkgNode = tomlTableNode.entries().get(PACKAGE);
+        if (topLevelPkgNode == null || topLevelPkgNode.kind() != TomlType.TABLE) {
             return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
         }
 
+        TomlTableNode pkgNode = (TomlTableNode) topLevelPkgNode;
         if (pkgNode.entries().isEmpty()) {
             return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
         }

@@ -164,6 +164,17 @@ public class BallerinaTomlTests {
         Assert.assertEquals(iterator.next().message(), "'version' under [package] is missing");
     }
 
+    @Test(description = "Package should be given as [package], Here checking error when it given as [[package]]")
+    public void testBallerinaTomlWithPackageGivenAsTableArray() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("package-as-table-array.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 1);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(),
+                "incompatible type for key 'package': expected 'OBJECT', found 'ARRAY'");
+    }
+
     @Test(enabled = false)
     public void testBallerinaTomlWithoutOrgNameVersion() throws IOException {
         PackageManifest packageManifest = getPackageManifest(
