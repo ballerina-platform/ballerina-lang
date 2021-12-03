@@ -32,14 +32,14 @@ import io.ballerina.types.UniformTypeCode;
  */
 public class TableSubtype {
 
-    public static SemType tableContaining(SemType memberType){
+    public static SemType tableContaining(SemType memberType) {
         SubtypeData ro = Core.subtypeData(memberType, UniformTypeCode.UT_MAPPING_RO);
         SubtypeData rw = Core.subtypeData(memberType, UniformTypeCode.UT_MAPPING_RW);
         return createTableSemtype(ro, rw);
     }
 
     private static ComplexSemType createTableSemtype(SubtypeData ro, SubtypeData rw) {
-        if (Common.isNothingSubtype(ro)){
+        if (Common.isNothingSubtype(ro)) {
             return ComplexSemType.createComplexSemType(0, UniformSubtype.from(UniformTypeCode.UT_TABLE_RW, rw));
         } else if (Common.isNothingSubtype(rw)) {
             return ComplexSemType.createComplexSemType(0, UniformSubtype.from(UniformTypeCode.UT_TABLE_RO, ro));

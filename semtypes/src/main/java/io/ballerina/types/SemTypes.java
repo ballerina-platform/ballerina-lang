@@ -23,6 +23,7 @@ import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
+import io.ballerina.types.subtypedata.TableSubtype;
 
 import java.math.BigDecimal;
 
@@ -82,6 +83,10 @@ public class SemTypes {
 
     public static SemType errorDetail(SemType detail) {
         return Error.errorDetail(detail);
+    }
+
+    public static SemType tableContaining(SemType memberType) {
+        return TableSubtype.tableContaining(memberType);
     }
 
     public static SemType intersection(SemType t1, SemType t2) {
