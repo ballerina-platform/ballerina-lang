@@ -33,6 +33,7 @@ public interface DiagBasedPositionDetails {
     int DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED_SYMBOL_INDEX = 0;
     int DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX = 1;
     int DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX = 0;
+    int DIAG_PROP_INCOMPATIBLE_TYPES_FOR_ITERABLE_FOUND_SYMBOL_INDEX = 0;
 
     /**
      * Returns matched scoped node for the current position.

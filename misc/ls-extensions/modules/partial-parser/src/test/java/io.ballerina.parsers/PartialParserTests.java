@@ -130,7 +130,7 @@ public class PartialParserTests {
         Assert.assertEquals(json.getSyntaxTree(), expected);
     }
 
-    @Test(description = "Test getting ST for a record")
+    @Test(description = "Test getting ST for a record", enabled = false)
     public void testSTForRecordMembers() throws ExecutionException, InterruptedException, IOException {
         String recordMember =  Files.readString(sampleRecord);;
         PartialSTRequest request = new PartialSTRequest(recordMember);
