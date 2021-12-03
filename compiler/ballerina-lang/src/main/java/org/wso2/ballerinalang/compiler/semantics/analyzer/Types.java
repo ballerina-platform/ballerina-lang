@@ -5785,7 +5785,19 @@ public class Types {
             Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
             for (BType member : memberTypes) {
                 BType memType = getReferredType(member);
+                if (memType.tag == TypeTags.FINITE || memType.tag == TypeTags.UNION) {
+                    isNonNilSimpleBasicTypeOrString(memType);
+                    continue;
+                }
                 if (memType.tag == TypeTags.NIL || !isSimpleBasicType(memType.tag)) {
+                    return false;
+                }
+            }
+            return true;
+        } else if (type.tag == TypeTags.FINITE) {
+            for (BLangExpression expression: ((BFiniteType) type).getValueSpace()) {
+                BType exprType = getReferredType(expression.getBType());
+                if (exprType.tag == TypeTags.NIL || !isSimpleBasicType(exprType.tag)) {
                     return false;
                 }
             }
