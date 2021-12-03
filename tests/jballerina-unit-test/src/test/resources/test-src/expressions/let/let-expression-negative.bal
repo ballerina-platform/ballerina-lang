@@ -84,6 +84,14 @@ class Person {
     }
 }
 
+type A record {
+    int a;
+};
+
+function testLetWithXMLTemplateExpression() {
+    xml _ = xml `<Books>${xml `<Book>"${let A y = {a: 1} in y}"</Book>`}</Books>`;
+}
+
 function func(string[] k) returns string {
     return "CDE" + k[0];
 }
