@@ -16,9 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.WaitFieldsListNode;
@@ -34,7 +32,6 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.WORKER;
@@ -59,7 +56,9 @@ public class WaitFieldsListNodeContext extends AbstractCompletionProvider<WaitFi
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            completionItems.addAll(this.getExpressionsCompletionsForQNameRef(context, nodeAtCursor));
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
+            List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
+            completionItems.addAll(this.getCompletionItemList(exprEntries, context));
         } else {
             completionItems.addAll(this.expressionCompletions(context));
         }
@@ -74,15 +73,6 @@ public class WaitFieldsListNodeContext extends AbstractCompletionProvider<WaitFi
                 .filter(CommonUtil.getVariableFilterPredicate().or(symbol -> symbol.kind() == WORKER))
                 .collect(Collectors.toList());
         return this.getCompletionItemList(filteredList, context);
-    }
-
-    protected List<LSCompletionItem> getExpressionsCompletionsForQNameRef(BallerinaCompletionContext context,
-                                                                          NonTerminalNode nodeAtCursor) {
-        QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-        Predicate<Symbol> filter = symbol -> symbol instanceof VariableSymbol
-                || symbol.kind() == SymbolKind.FUNCTION;
-        List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
-        return this.getCompletionItemList(moduleContent, context);
     }
     
     @Override
