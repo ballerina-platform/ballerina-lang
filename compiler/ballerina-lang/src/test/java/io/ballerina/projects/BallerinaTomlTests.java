@@ -188,6 +188,36 @@ public class BallerinaTomlTests {
                 "incompatible type for key 'build-options': expected 'OBJECT', found 'ARRAY'");
     }
 
+    @Test(description = "Platform libs should be given as [[platform.java11.dependency]], " +
+            "Here checking error when it given as [platform.java11.dependency]")
+    public void testBallerinaTomlWithPlatformLibsGivenAsTable() throws IOException {
+        PackageManifest packageManifest =
+                getPackageManifest(BAL_TOML_REPO.resolve("platform-libs-as-table.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 2);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(),
+                "incompatible type for key 'dependency': expected 'ARRAY', found 'OBJECT'");
+        Assert.assertEquals(iterator.next().message(),
+                "existing node 'dependency'");
+    }
+
+    @Test(description = "Local dependencies should be given as [[dependency]], " +
+            "Here checking error when it given as [dependency]")
+    public void testBallerinaTomlWithLocalDependenciesGivenAsTable() throws IOException {
+        PackageManifest packageManifest =
+                getPackageManifest(BAL_TOML_REPO.resolve("local-dependencies-as-table-array.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 2);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(),
+                "incompatible type for key 'dependency': expected 'ARRAY', found 'OBJECT'");
+        Assert.assertEquals(iterator.next().message(),
+                "existing node 'dependency'");
+    }
+
     @Test(enabled = false)
     public void testBallerinaTomlWithoutOrgNameVersion() throws IOException {
         PackageManifest packageManifest = getPackageManifest(
