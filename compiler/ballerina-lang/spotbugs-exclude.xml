@@ -365,4 +365,8 @@
         <Method name="getBooleanFromBuildOptionsTableNode"/>
         <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
     </Match>
+    <Match>
+        <Class name = "org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
 </FindBugsFilter>
