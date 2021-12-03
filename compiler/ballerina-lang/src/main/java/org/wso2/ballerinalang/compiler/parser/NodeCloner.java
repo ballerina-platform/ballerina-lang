@@ -2232,7 +2232,6 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneAttempt = this.currentCloneAttempt;
         clone.originalClass = source.originalClass; // dont copy me
         clone.typeInit = clone(source.typeInit);
-        clone.lambdaFunctionsList = cloneList(source.lambdaFunctionsList);
         source.cloneRef = clone;
         return clone;
     }

@@ -22,7 +22,6 @@ public class OCEDynamicEnvironmentData {
     public BLangTypeInit typeInit;
     public BObjectType objectType;
     public BLangInvocation.BLangAttachedFunctionInvocation attachedFunctionInvocation;
-//    public BLangClassDefinition classDefinition;
 
     public SymbolEnv objMethodsEnv;
     public SymbolEnv fieldEnv;
@@ -32,10 +31,8 @@ public class OCEDynamicEnvironmentData {
     public BVarSymbol blockMap;
     public BVarSymbol classEnclosedFunctionMap;
 
-    public List<BLangLambdaFunction> lambdaFunctionsList;
     public List<BSymbol> closureBlockSymbols;
     public List<BSymbol> closureFuncSymbols;
-
 
     /*
      * Following fields will be used for AST Cloning.
@@ -44,8 +41,10 @@ public class OCEDynamicEnvironmentData {
     public int cloneAttempt;
     public BLangClassDefinition originalClass;
 
+    // annotations debug
+    public BLangLambdaFunction annotationLambda;
+
     public OCEDynamicEnvironmentData() {
-        lambdaFunctionsList = new ArrayList<>(1);
         closureBlockSymbols = new ArrayList<>();
         closureFuncSymbols = new ArrayList<>();
         cloneAttempt = 0;

@@ -5898,6 +5898,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
                 resolvedSymbol.closure = true;
                 ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+                return;
             }
         }
         if (env.node.getKind() == NodeKind.ARROW_EXPR
@@ -5907,8 +5908,10 @@ public class TypeChecker extends BLangNodeVisitor {
             if (resolvedSymbol != symTable.notFoundSymbol) {
                 resolvedSymbol.closure = true;
                 ((BLangArrowFunction) env.node).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+                return;
             }
         }
+
         if (env.enclType != null && env.enclType.getKind() == NodeKind.RECORD_TYPE) {
             SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, (BLangRecordTypeNode) env.enclType);
             BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
@@ -5916,10 +5919,28 @@ public class TypeChecker extends BLangNodeVisitor {
                     !encInvokable.flagSet.contains(Flag.ATTACHED)) {
                 resolvedSymbol.closure = true;
                 ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+                return;
             }
         }
 
         BLangNode node = env.node;
+        if (node.getKind() == NodeKind.CLASS_DEFN &&
+                ((BLangClassDefinition) node).flagSet.contains(Flag.OBJECT_CTOR))  {
+            BLangFunction currentFunction = (BLangFunction) encInvokable;
+            if ((currentFunction != null) && !currentFunction.attachedFunction &&
+                    !(currentFunction.symbol.receiverSymbol == symbol)) {
+                BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(env.enclEnv, symbol.name, SymTag.VARIABLE);
+                BLangClassDefinition classDefinition = (BLangClassDefinition) node;
+                if (resolvedSymbol != symTable.notFoundSymbol && !resolvedSymbol.closure) {
+                    if (resolvedSymbol.owner.getKind() != SymbolKind.PACKAGE) {
+                        updateObjectCtorClosureSymbol(pos, (BLangFunction) encInvokable, currentFunction,
+                                resolvedSymbol, classDefinition);
+                        return;
+                    }
+                }
+            }
+        }
+
         SymbolEnv cEnv = env;
         while (node != null) {
             if (node.getKind() == NodeKind.FUNCTION) {
@@ -5943,14 +5964,9 @@ public class TypeChecker extends BLangNodeVisitor {
                     if (resolvedSymbol.owner.getKind() == SymbolKind.PACKAGE) {
                         break;
                     }
-                    classDefinition.hasClosureVars |= true;
-                    resolvedSymbol.closure = true;
-                    OCEDynamicEnvironmentData oceEnvData = classDefinition.oceEnvData;
-                    if (currentFunction != null && currentFunction.symbol.params.contains(resolvedSymbol)) {
-                        oceEnvData.closureFuncSymbols.add(resolvedSymbol);
-                    } else {
-                        oceEnvData.closureBlockSymbols.add(resolvedSymbol);
-                    }
+                    updateObjectCtorClosureSymbol(pos, (BLangFunction) encInvokable, currentFunction, resolvedSymbol,
+                            classDefinition);
+                    return;
                 }
                 break;
             } else {
@@ -5961,6 +5977,21 @@ public class TypeChecker extends BLangNodeVisitor {
                 cEnv = enclEnv;
                 node = cEnv.node;
             }
+        }
+    }
+
+    private void updateObjectCtorClosureSymbol(Location pos, BLangFunction encInvokable, BLangFunction currentFunction,
+                                               BSymbol resolvedSymbol, BLangClassDefinition classDefinition) {
+        classDefinition.hasClosureVars = true;
+        resolvedSymbol.closure = true;
+        if (encInvokable != null) {
+            encInvokable.closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+        }
+        OCEDynamicEnvironmentData oceEnvData = classDefinition.oceEnvData;
+        if (currentFunction != null && currentFunction.symbol.params.contains(resolvedSymbol)) {
+            oceEnvData.closureFuncSymbols.add(resolvedSymbol);
+        } else {
+            oceEnvData.closureBlockSymbols.add(resolvedSymbol);
         }
     }
 
