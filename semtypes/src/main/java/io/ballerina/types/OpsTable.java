@@ -29,6 +29,8 @@ import io.ballerina.types.typeops.MappingRoOps;
 import io.ballerina.types.typeops.MappingRwOps;
 import io.ballerina.types.typeops.StringOps;
 import io.ballerina.types.typeops.UniformTypeOpsPanicImpl;
+import io.ballerina.types.typeops.XmlRoOps;
+import io.ballerina.types.typeops.XmlRwOps;
 
 /**
  * Lookup table containing subtype ops for each uniform type indexed by uniform type code.
@@ -47,7 +49,7 @@ public class OpsTable {
         OPS[i++] = new ListTypeRoOps(); // RO list
         OPS[i++] = new MappingRoOps();  // RO mapping
         OPS[i++] = PANIC_IMPL;          // RO table
-        OPS[i++] = PANIC_IMPL;          // RO xml
+        OPS[i++] = new XmlRoOps();      // RO xml
         OPS[i++] = PANIC_IMPL;          // RO object
         OPS[i++] = new IntOps();        // int
         OPS[i++] = new FloatOps();      // float
@@ -63,7 +65,7 @@ public class OpsTable {
         OPS[i++] = new ListTypeRwOps(); // RW list
         OPS[i++] = new MappingRwOps();  // RW mapping
         OPS[i++] = PANIC_IMPL;          // RW table
-        OPS[i++] = PANIC_IMPL;          // RW xml
+        OPS[i++] = new XmlRwOps();      // RW xml
         OPS[i] = PANIC_IMPL;            // RW object
     }
 }

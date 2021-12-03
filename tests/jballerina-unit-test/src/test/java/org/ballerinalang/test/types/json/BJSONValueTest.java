@@ -488,7 +488,7 @@ public class BJSONValueTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.typedesc\\}ConversionError " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.value\\}ConversionError " +
                     "\\{\"message\":\"cannot convert '\\(\\)' to type 'map<json>'.*")
     public void testNullJsonToMap() {
         BRunUtil.invoke(compileResult, "testNullJsonToMap");

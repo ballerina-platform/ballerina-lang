@@ -17,23 +17,29 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
@@ -43,6 +49,7 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
@@ -59,6 +66,7 @@ import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
@@ -202,6 +210,11 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     public Optional<TypeSymbol> transform(VariableDeclarationNode node) {
         return this.visit(node.typedBindingPattern().bindingPattern());
     }
+    
+    @Override
+    public Optional<TypeSymbol> transform(LetVariableDeclarationNode node) {
+        return this.visit(node.typedBindingPattern().bindingPattern());
+    }
 
     @Override
     public Optional<TypeSymbol> transform(ObjectFieldNode node) {
@@ -263,6 +276,26 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     @Override
+    public Optional<TypeSymbol> transform(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
+        /*
+         * For error constructor node we return the detail type descriptor of the error type desc.
+         */
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (semanticModel.isEmpty()) {
+            return Optional.empty();
+        }
+        Optional<TypeSymbol> typeRefSymbol = semanticModel.get().typeOf(errorConstructorExpressionNode);
+        if (typeRefSymbol.isEmpty() || typeRefSymbol.get().typeKind() != TypeDescKind.TYPE_REFERENCE) {
+            return Optional.empty();
+        }
+        TypeSymbol typeSymbol = ((TypeReferenceTypeSymbol) typeRefSymbol.get()).typeDescriptor();
+        if (typeSymbol.typeKind() != TypeDescKind.ERROR) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(CommonUtil.getRawType(((ErrorTypeSymbol) typeSymbol).detailTypeDescriptor()));
+    }
+
+    @Override
     public Optional<TypeSymbol> transform(FunctionDefinitionNode node) {
         /*
         For the function definition, we consider the return type. In order to support the record-type-descriptor
@@ -297,7 +330,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (filteredSymbol.isEmpty()) {
             return Optional.empty();
         }
-        
+
         return SymbolUtil.getTypeDescriptor(filteredSymbol.get());
     }
 
@@ -328,6 +361,107 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         Optional<ParameterSymbol> paramSymbol =
                 CommonUtil.resolveFunctionParameterSymbol(
                         ((FunctionSymbol) funcSymbol.get()).typeDescriptor(), context, node);
+        if (paramSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        return SymbolUtil.getTypeDescriptor(paramSymbol.get());
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
+
+        Optional<TypeSymbol> classSymbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.typeOf(implicitNewExpressionNode))
+                .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol))).stream().findFirst();
+        if (classSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        if (!CommonUtil.isInNewExpressionParameterContext(context, implicitNewExpressionNode)
+                || !(classSymbol.get() instanceof ClassSymbol)) {
+            return SymbolUtil.getTypeDescriptor(classSymbol.get());
+        }
+        Optional<ParenthesizedArgList> args = implicitNewExpressionNode.parenthesizedArgList();
+        if (args.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Optional<MethodSymbol> methodSymbol = ((ClassSymbol) classSymbol.get()).initMethod();
+        Optional<ParameterSymbol> paramSymbol =
+                CommonUtil.resolveFunctionParameterSymbol(methodSymbol.get().typeDescriptor(),
+                        context, implicitNewExpressionNode);
+        if (paramSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        return SymbolUtil.getTypeDescriptor(paramSymbol.get());
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(ExplicitNewExpressionNode explicitNewExpressionNode) {
+        Optional<TypeSymbol> classSymbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.typeOf(explicitNewExpressionNode))
+                .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol))).stream().findFirst();
+        if (classSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        if (!CommonUtil.isInNewExpressionParameterContext(context, explicitNewExpressionNode)
+                || !(classSymbol.get() instanceof ClassSymbol)) {
+            return SymbolUtil.getTypeDescriptor(classSymbol.get());
+        }
+        Optional<MethodSymbol> methodSymbol = ((ClassSymbol) classSymbol.get()).initMethod();
+        Optional<ParameterSymbol> paramSymbol =
+                CommonUtil.resolveFunctionParameterSymbol(methodSymbol.get().typeDescriptor(),
+                        context, explicitNewExpressionNode);
+        if (paramSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        return SymbolUtil.getTypeDescriptor(paramSymbol.get());
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(MethodCallExpressionNode node) {
+        if (node.methodName().kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            // Should always be simple name reference.
+            return Optional.empty();
+        }
+        SimpleNameReferenceNode methodName = (SimpleNameReferenceNode) node.methodName();
+        FieldAccessCompletionResolver resolver = new FieldAccessCompletionResolver(this.context);
+        List<Symbol> visibleEntries = resolver.getVisibleEntries(node.expression());
+        Optional<Symbol> methodSymbol = visibleEntries.stream()
+                .filter(symbol -> symbol.getName().orElse("").equals(methodName.name().text()))
+                .findFirst();
+
+        if (methodSymbol.isEmpty() || methodSymbol.get().kind() != SymbolKind.METHOD) {
+            return Optional.empty();
+        }
+        if (!CommonUtil.isInMethodCallParameterContext(context, node)) {
+            return SymbolUtil.getTypeDescriptor(methodSymbol.get());
+        }
+
+        Optional<ParameterSymbol> paramSymbol =
+                CommonUtil.resolveFunctionParameterSymbol(
+                        ((MethodSymbol) methodSymbol.get()).typeDescriptor(), context, node);
+
+        if (paramSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return SymbolUtil.getTypeDescriptor(paramSymbol.get());
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(RemoteMethodCallActionNode node) {
+        Optional<Symbol> methodSymbol = this.context.currentSemanticModel().get().symbol(node);
+
+        if (methodSymbol.isEmpty() || methodSymbol.get().kind() != SymbolKind.METHOD) {
+            return Optional.empty();
+        }
+        if (!CommonUtil.isInMethodCallParameterContext(context, node)) {
+            return SymbolUtil.getTypeDescriptor(methodSymbol.get());
+        }
+
+        Optional<ParameterSymbol> paramSymbol =
+                CommonUtil.resolveFunctionParameterSymbol(
+                        ((MethodSymbol) methodSymbol.get()).typeDescriptor(), context, node);
 
         if (paramSymbol.isEmpty()) {
             return Optional.empty();
@@ -400,7 +534,18 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                 }
                 break;
             case ERROR_CONSTRUCTOR: {
-                // TODO: Couldn't find a way to get this done yet due to a limitation. Need to implement
+                Optional<TypeSymbol> errorDetail = this.visit(namedArgumentNode.parent());
+                if (errorDetail.isEmpty() || errorDetail.get().typeKind() != TypeDescKind.RECORD) {
+                    return Optional.empty();
+                }
+                Optional<RecordFieldSymbol> fieldSymbol =
+                        ((RecordTypeSymbol) errorDetail.get()).fieldDescriptors().values().stream()
+                                .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent()
+                                        && namedArgumentNode.argumentName().name().text().trim()
+                                        .equals(recordFieldSymbol.getName().get())).findFirst();
+                if (fieldSymbol.isPresent()) {
+                    return Optional.of(fieldSymbol.get().typeDescriptor());
+                }
             }
         }
 
@@ -559,7 +704,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
         ParameterSymbol parameterSymbol = parameterSymbols.get().get(argIndex);
         TypeSymbol typeDescriptor = parameterSymbol.typeDescriptor();
-        
+
         return Optional.of(typeDescriptor);
     }
 

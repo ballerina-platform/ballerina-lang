@@ -92,7 +92,7 @@ public class PackageCompilation {
         options.put(EXPERIMENTAL, Boolean.toString(compilationOptions.experimental()));
         options.put(OBSERVABILITY_INCLUDED, Boolean.toString(compilationOptions.observabilityIncluded()));
         options.put(DUMP_BIR, Boolean.toString(compilationOptions.dumpBir()));
-        options.put(DUMP_BIR_FILE, compilationOptions.getBirDumpFile());
+        options.put(DUMP_BIR_FILE, Boolean.toString(compilationOptions.dumpBirFile()));
         options.put(CLOUD, compilationOptions.getCloud());
         options.put(SEMTYPE, Boolean.toString(compilationOptions.semtype()));
     }
@@ -194,8 +194,10 @@ public class PackageCompilation {
         List<Diagnostic> diagnostics = new ArrayList<>();
         // add resolution diagnostics
         diagnostics.addAll(packageResolution.diagnosticResult().allDiagnostics);
-        // add manifest diagnostics
+        // add package manifest diagnostics
         diagnostics.addAll(packageContext().packageManifest().diagnostics().allDiagnostics);
+        // add dependency manifest diagnostics
+        diagnostics.addAll(packageContext().dependencyManifest().diagnostics().allDiagnostics);
         // add compilation diagnostics
         for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
             moduleContext.compile(compilerContext);

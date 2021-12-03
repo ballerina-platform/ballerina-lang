@@ -1110,17 +1110,22 @@ public class NodeCloner extends BLangNodeVisitor {
     @Override
     public void visit(BLangFieldBasedAccess source) {
 
-        BLangFieldBasedAccess clone;
-        if (source instanceof BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) {
-            BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess fieldBasedAccess =
-                    new BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess();
-            fieldBasedAccess.nsPrefix = ((BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) source).nsPrefix;
-            clone = fieldBasedAccess;
-        } else {
-            clone = new BLangFieldBasedAccess();
-        }
+        BLangFieldBasedAccess clone = new BLangFieldBasedAccess();
 
         source.cloneRef = clone;
+        clone.field = source.field;
+        clone.fieldKind = source.fieldKind;
+        cloneBLangAccessExpression(source, clone);
+    }
+
+    @Override
+    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess source) {
+
+        BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess clone =
+                new BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess();
+
+        source.cloneRef = clone;
+        clone.nsPrefix = source.nsPrefix;
         clone.field = source.field;
         clone.fieldKind = source.fieldKind;
         cloneBLangAccessExpression(source, clone);
@@ -1308,11 +1313,6 @@ public class NodeCloner extends BLangNodeVisitor {
 
         BLangTypeConversionExpr clone = new BLangTypeConversionExpr();
         source.cloneRef = clone;
-
-        // Forcefully clone the expression since it may clash with the clone of type cast expression type
-        // checking.
-        source.expr.cloneAttempt++;
-
         clone.expr = clone(source.expr);
         clone.typeNode = clone(source.typeNode);
         clone.targetType = source.targetType;

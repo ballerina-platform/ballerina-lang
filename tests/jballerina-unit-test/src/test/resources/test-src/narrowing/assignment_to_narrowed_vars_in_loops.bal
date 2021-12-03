@@ -776,3 +776,56 @@ function f22() {
         }
     }
 }
+
+function f23(anydata[] arr) {
+    foreach anydata v in arr {
+        string|int value = "";
+
+        if value is string {
+            value = 1;
+        }
+    }
+}
+
+isolated function f24(record {} logRecord) returns string {
+    string message = "";
+    foreach [string, anydata] [k, v] in logRecord.entries() {
+        string value;
+        match k {
+            "time"|"level" => {
+                value = v.toString();
+            }
+            "module" => {
+                value = v.toString();
+                if value == "" {
+                    value = "\"\"";
+                }
+            }
+            _ => {
+                value = v is string ? string `${escape(v.toString())}` : v.toString();
+            }
+        }
+        if message == "" {
+            message = message + string `${k} = ${value}`;
+        } else {
+            message = message + string ` ${k} = ${value}`;
+        }
+    }
+    return message;
+}
+
+isolated function escape(string msg) returns string => "";
+
+isolated function f25(record {} logRecord) {
+    string message = "";
+    foreach [string, anydata] [k, v] in logRecord.entries() {
+        string value = "";
+
+        if k is "module" {
+            value = v.toString();
+            if value is "" {
+                value = "\"\"";
+            }
+        }
+    }
+}

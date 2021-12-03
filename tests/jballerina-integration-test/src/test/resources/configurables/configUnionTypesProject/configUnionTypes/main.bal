@@ -59,6 +59,7 @@ public function main() {
     testEnumValues();
     imported_unions:testEnumValues();
     union_ambiguity:test_ambiguous_union_type();
+    union_ambiguity:test_union_type_arrays();
     util:print("Tests passed");
 }
 

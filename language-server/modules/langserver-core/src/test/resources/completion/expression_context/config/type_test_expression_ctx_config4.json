@@ -15,7 +15,7 @@
           "value": ""
         }
       },
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "TEST_INT_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -29,7 +29,7 @@
           "value": ""
         }
       },
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "TEST_STRING_CONST1",
       "insertTextFormat": "Snippet"
     },

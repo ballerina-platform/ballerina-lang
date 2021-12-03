@@ -18,16 +18,18 @@
 package io.ballerina.projects.test.resolution.packages.internal;
 
 import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
-import io.ballerina.projects.internal.ImportModuleRequest;
-import io.ballerina.projects.internal.ImportModuleResponse;
+import io.ballerina.projects.internal.PackageVersionContainer;
 import io.ballerina.projects.internal.repositories.AbstractPackageRepository;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,15 +43,19 @@ import java.util.stream.Collectors;
  */
 public class  DefaultPackageRepository extends AbstractPackageRepository {
 
-    protected final PackageContainer<PackageDescriptor> pkgContainer;
+    protected final PackageVersionContainer<PackageDescWrapper> pkgContainer;
     protected final Map<PackageDescriptor, DependencyGraph<PackageDescriptor>> graphMap;
     public static final DefaultPackageRepository EMPTY_REPO = new DefaultPackageRepository(
-            new PackageContainer<>(), new HashMap<>());
+            new PackageVersionContainer<>(), new HashMap<>());
 
-    public DefaultPackageRepository(PackageContainer<PackageDescriptor> pkgContainer,
+    public DefaultPackageRepository(PackageVersionContainer<PackageDescWrapper> pkgContainer,
                                     Map<PackageDescriptor, DependencyGraph<PackageDescriptor>> graphMap) {
         this.pkgContainer = pkgContainer;
         this.graphMap = graphMap;
+    }
+
+    public DependencyGraph<PackageDescriptor> getDependencyGraph(PackageDescriptor pkgDesc) {
+        return graphMap.get(pkgDesc);
     }
 
     @Override
@@ -58,6 +64,7 @@ public class  DefaultPackageRepository extends AbstractPackageRepository {
                                                       PackageVersion version) {
         return pkgContainer.get(org, name)
                 .stream()
+                .map(PackageDescWrapper::pkgDesc)
                 .map(PackageDescriptor::version)
                 .collect(Collectors.toList());
     }
@@ -67,27 +74,42 @@ public class  DefaultPackageRepository extends AbstractPackageRepository {
                                                                     PackageName name,
                                                                     PackageVersion version) {
         return pkgContainer.get(org, name, version)
+                .map(PackageDescWrapper::pkgDesc)
                 .map(graphMap::get)
-                .orElseThrow(IllegalStateException::new);
+                .orElseThrow(() -> new IllegalStateException("Package cannot be found in dot graph files " +
+                        "org: " + org + ", name: " + name + ", version: " + version));
     }
 
     @Override
-    public Optional<Package> getPackage(ResolutionRequest resolutionRequest) {
+    public Collection<ModuleDescriptor> getModules(PackageOrg org, PackageName name, PackageVersion version) {
+        PackageDescWrapper pkgDescWrapper = pkgContainer.get(org, name, version)
+                .orElseThrow(() -> new IllegalStateException("Package cannot be found in dot graph files " +
+                        "org: " + org + ", name: " + name + ", version: " + version));
+        PackageDescriptor pkgDesc = pkgDescWrapper.pkgDesc();
+        return pkgDescWrapper.modules().stream()
+                .map(modNameStr -> Utils.getModuleName(name, modNameStr))
+                .map(moduleName -> ModuleDescriptor.from(moduleName, pkgDesc))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean isPackageExists(PackageOrg org, PackageName name, PackageVersion version) {
+        Optional<PackageDescWrapper> packageDescWrapper = pkgContainer.get(org, name, version);
+        return packageDescWrapper.isPresent();
+    }
+
+    @Override
+    public Optional<Package> getPackage(ResolutionRequest request, ResolutionOptions options) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public List<PackageVersion> getPackageVersions(ResolutionRequest resolutionRequest) {
+    public Collection<PackageVersion> getPackageVersions(ResolutionRequest request, ResolutionOptions options) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public Map<String, List<String>> getPackages() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests) {
         throw new UnsupportedOperationException();
     }
 }

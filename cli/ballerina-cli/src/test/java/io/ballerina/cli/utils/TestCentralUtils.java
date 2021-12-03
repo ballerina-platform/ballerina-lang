@@ -13,7 +13,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 
 /**
@@ -29,7 +28,7 @@ public class TestCentralUtils extends PowerMockTestCase {
     public void testGetAccessTokenOfCliFromSettings() throws SettingsTomlException {
         PowerMockito.mockStatic(RepoUtils.class);
         PowerMockito.when(RepoUtils.createAndGetHomeReposPath()).thenReturn(UTILS_TEST_RESOURCES);
-        Settings settings = readSettings();
+        Settings settings = RepoUtils.readSettings();
 
         Assert.assertEquals(getAccessTokenOfCLI(settings), "273cc9f6-c333-36ab-aa2q-f08e9513ff5y");
     }
@@ -39,7 +38,7 @@ public class TestCentralUtils extends PowerMockTestCase {
         PowerMockito.mockStatic(RepoUtils.class);
         PowerMockito.when(RepoUtils.createAndGetHomeReposPath()).thenReturn(UTILS_TEST_RESOURCES);
 
-        Settings settings = readSettings();
+        Settings settings = RepoUtils.readSettings();
         Assert.assertEquals(settings.getCentral().getAccessToken(), "273cc9f6-c333-36ab-aa2q-f08e9513ff5y");
     }
 }

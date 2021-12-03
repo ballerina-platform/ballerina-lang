@@ -15,7 +15,7 @@
 // under the License.
 
 public function foo() returns boolean {
-    while (false) {
+    while (0 > 1) {
         return true;
     }
 }

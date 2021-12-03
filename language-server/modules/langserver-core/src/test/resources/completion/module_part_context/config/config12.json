@@ -1,0 +1,36 @@
+{
+  "position": {
+    "line": 2,
+    "character": 16
+  },
+  "source": "module_part_context/source/source12.bal",
+  "items": [
+    {
+      "label": "object",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "B",
+      "filterText": "object",
+      "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "class",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "B",
+      "filterText": "class",
+      "insertText": "class ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "class",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "filterText": "class",
+      "insertText": "class ${1:className} {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -57,8 +57,6 @@ function testMaps() {
     test:assertEquals(anonRecordMapTable.toString(), "{\"entry1\":[{\"id\":126,\"arrVal\":[100,200],\"intVal\":100," +
     "\"stringVal\":\"string\",\"floatVal\":103.507,\"mapVal\":{\"m\":\"value\",\"n\":608}," +
     "\"mapArr\":[{\"y\":\"test\",\"x\":204}]}]}");
-
-    testMapIteration();
 }
 
 function testMapIteration() {
@@ -69,7 +67,5 @@ function testMapIteration() {
     util:testMapIterator(memberMapTable, 1);
     util:testMapIterator(anonRecordMap, 2);
     util:testMapIterator(anonRecordMapTable, 1);
-
-// These lines should be enabled after fixing #30566
-// util:testMapIterator(productMap, 2);
+    util:testMapIterator(productMap, 2);
 }

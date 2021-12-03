@@ -8,7 +8,7 @@ SYNOPSIS
        bal build [--test-report] [--offline] [--experimental] [-o | --output] <output-path> [--dump-build-time]
                   <ballerina-file-path>
        bal build [-c | --compile] [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
-                 [--skip-tests] [--list-conflicted-classes] <ballerina-package-path>
+                 [--with-tests] [--list-conflicted-classes] <ballerina-package-path>
        bal build [-c | --compile] [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
                  [--list-conflicted-classes] [--debug]  [--test-report] [--code-coverage]
                  <ballerina-package-path>
@@ -41,8 +41,8 @@ OPTIONS
             Build offline using the local artifacts without downloading the latest artifacts of
             the dependencies from the remote repository (Ballerina Central).
 
-       --skip-tests
-           Skip test compilation and execution.
+       --with-tests
+            Compile and execute tests.
 
        --experimental
            Enable experimental language features.
@@ -58,7 +58,7 @@ OPTIONS
            if code coverage is enabled.
 
        --debug
-           Run tests in remote debugging mode only when the '--skip-tests' flag is not used.
+           Run tests in remote debugging mode.
 
        --observability-included
            Include the dependencies and artifacts in the  executable JAR file(s) of a Ballerina
