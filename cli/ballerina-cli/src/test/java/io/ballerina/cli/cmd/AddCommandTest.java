@@ -37,7 +37,6 @@ public class AddCommandTest extends BaseCommandTest {
 
     private Path projectPath;
     private Path modulesPath;
-    private Path homeCache;
 
     @BeforeClass
     public void setup() throws IOException {
@@ -48,8 +47,6 @@ public class AddCommandTest extends BaseCommandTest {
         newCommand.execute();
         projectPath = tmpDir.resolve("project_name");
         modulesPath = projectPath.resolve(ProjectConstants.MODULES_ROOT);
-
-        homeCache = this.tmpDir.resolve("home-cache");
     }
 
     @Test(description = "Test add command")
@@ -104,7 +101,7 @@ public class AddCommandTest extends BaseCommandTest {
     public void testAddCommandWithInvalidTemplate() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"mymodule2", "-t", "invalid"};
-        AddCommand addCommand = new AddCommand(projectPath, printStream, false, homeCache);
+        AddCommand addCommand = new AddCommand(projectPath, printStream, false);
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 

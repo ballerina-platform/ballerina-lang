@@ -469,12 +469,6 @@ public class CommandUtil {
             Path source = path.resolve("lib.bal");
             Files.move(source, source.resolveSibling(guessPkgName(packageName) + ".bal"),
                     StandardCopyOption.REPLACE_EXISTING);
-
-            String packageMd = FileUtils.readFileAsString(
-                    CREATE_CMD_TEMPLATES + "/lib/" + ProjectConstants.PACKAGE_MD_FILE_NAME);
-
-            write(path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME),
-                    packageMd.getBytes(StandardCharsets.UTF_8));
         } else {
             initPackage(path);
         }
@@ -590,6 +584,10 @@ public class CommandUtil {
                 .replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
 
         write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
+
+        // Create Package.md
+        String packageMd = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/Package.md");
+        write(path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME), packageMd.getBytes(StandardCharsets.UTF_8));
     }
 
     protected static PackageVersion findLatest(List<PackageVersion> packageVersions) {

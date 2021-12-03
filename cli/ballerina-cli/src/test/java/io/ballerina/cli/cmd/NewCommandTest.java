@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
@@ -350,7 +351,7 @@ public class NewCommandTest extends BaseCommandTest {
                 "implementation_vendor = \"WSO2\"\n" +
                 "language_spec_version = \"2021R1\"\n" +
                 "[[platform.java11.dependency]]\n" +
-                "path = \"libs/protobuf-native-1.0.1.jar\"";
+                "path = \"libs" + File.separator + "protobuf-native-1.0.1.jar\"";
         Assert.assertTrue(tomlContent.contains(expectedTomlContent));
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
