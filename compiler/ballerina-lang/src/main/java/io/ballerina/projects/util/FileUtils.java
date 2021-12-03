@@ -161,16 +161,30 @@ public class FileUtils {
      * @throws IOException error when reading the given file path
      */
     public static boolean isValidPng(Path filePath) throws IOException {
-        try (FileInputStream fileInputStream = new FileInputStream(String.valueOf(filePath))) {
+        return isMatchingImageFormat(filePath, PNG_HEX_HEADER, 8);
+    }
+
+    /**
+     * Validate any image file against given image format header hex value.
+     *
+     * @param imgPath        image file path
+     * @param formatHexValue image format header hex value
+     * @param formatOffset   image format header hex value length
+     * @return is matched with the given image format hex value
+     * @throws IOException error when reading the given file path
+     */
+    private static boolean isMatchingImageFormat(Path imgPath, String formatHexValue, int formatOffset)
+            throws IOException {
+        try (FileInputStream fileInputStream = new FileInputStream(String.valueOf(imgPath))) {
             try {
-                byte[] imgHeaderByteArray = new byte[8];
-                int bytesRead = fileInputStream.read(imgHeaderByteArray, 0, 8);
+                byte[] imgHeaderByteArray = new byte[formatOffset];
+                int bytesRead = fileInputStream.read(imgHeaderByteArray, 0, formatOffset);
                 if (bytesRead != 8) {
                     return false;
                 }
-                byte[] pngHeaderByteArray =
-                        Arrays.copyOfRange(new BigInteger(PNG_HEX_HEADER, 16).toByteArray(), 1, 9);
-                if (Arrays.equals(imgHeaderByteArray, pngHeaderByteArray)) {
+                byte[] formatHeaderByteArray = Arrays.copyOfRange(new BigInteger(formatHexValue, 16)
+                        .toByteArray(), 1, formatOffset + 1);
+                if (Arrays.equals(imgHeaderByteArray, formatHeaderByteArray)) {
                     return true;
                 }
             } catch (Exception e) {
