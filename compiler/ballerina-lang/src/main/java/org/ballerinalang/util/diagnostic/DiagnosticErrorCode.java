@@ -413,7 +413,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
           "cannot.use.type.inclusion.with.more.than.one.open.record.with.different.rest.descriptor.types"),
     INVALID_METHOD_CALL_EXPR_ON_FIELD("BCE2651", "invalid.method.call.expr.on.field"),
     INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR("BCE2652", "incompatible.type.wait.future.expr"),
-    INVALID_OPTIONAL_FIELD_IN_RECORD_BINDING_PATTERN("BCE2653", "invalid.optional.field.in.record.binding.pattern"),
+    INVALID_OPTIONAL_FIELD_IN_MAPPING_BINDING_PATTERN("BCE2653", "invalid.optional.field.in.mapping.binding.pattern"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),

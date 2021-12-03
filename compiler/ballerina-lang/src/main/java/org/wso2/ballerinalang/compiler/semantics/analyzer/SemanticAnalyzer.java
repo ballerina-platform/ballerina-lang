@@ -1198,8 +1198,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             varNode.setBType(symResolver.resolveTypeNode(varNode.typeNode, env));
         }
 
-        if (isOptionalFieldAvailableInRecord(varNode.typeNode.getBType())) {
-            dlog.error(varNode.expr.pos, DiagnosticErrorCode.INVALID_OPTIONAL_FIELD_IN_RECORD_BINDING_PATTERN);
+        if (checkValidMappingBindingPatternForRecordVariable(varNode.variableList, varNode.typeNode.getBType())) {
+            dlog.error(varNode.expr.pos, DiagnosticErrorCode.INVALID_OPTIONAL_FIELD_IN_MAPPING_BINDING_PATTERN);
             return;
         }
 
@@ -1542,8 +1542,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
 
-                if (isOptionalFieldAvailableInRecord(rhsType)) {
-                    dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_OPTIONAL_FIELD_IN_RECORD_BINDING_PATTERN);
+                if (checkValidMappingBindingPatternForRecordVariable(((BLangRecordVariable) variable).variableList,
+                        rhsType)) {
+                    dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_OPTIONAL_FIELD_IN_MAPPING_BINDING_PATTERN);
                 }
 
                 BType recordRhsType = types.getReferredType(rhsType);
@@ -1947,22 +1948,43 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
         typeChecker.checkExpr(recordDeStmt.expr, this.env);
-        if (isOptionalFieldAvailableInRecord(recordDeStmt.expr.getBType())) {
-            dlog.error(recordDeStmt.expr.pos, DiagnosticErrorCode.INVALID_OPTIONAL_FIELD_IN_RECORD_BINDING_PATTERN);
+        if (checkValidMappingBindingPatternForRecordVarRef(recordDeStmt.varRef.recordRefFields,
+                recordDeStmt.expr.getBType())) {
+            dlog.error(recordDeStmt.expr.pos, DiagnosticErrorCode.INVALID_OPTIONAL_FIELD_IN_MAPPING_BINDING_PATTERN);
         }
         checkRecordVarRefEquivalency(recordDeStmt.pos, recordDeStmt.varRef, recordDeStmt.expr.getBType(),
                                      recordDeStmt.expr.pos);
     }
 
-    private boolean isOptionalFieldAvailableInRecord(BType type) {
+    private boolean checkValidMappingBindingPatternForRecordVarRef(List<BLangRecordVarRefKeyValue> recordRefFields,
+                                                                   BType type) {
         type = types.getReferredType(type);
         if (type.tag != TypeTags.RECORD) {
             return false;
         }
         BRecordType recordType = (BRecordType) type;
-        for (BField field: recordType.fields.values()) {
-            if (Symbols.isOptional(field.symbol)) {
-                return true;
+        for (BLangRecordVarRefKeyValue lhsField : recordRefFields) {
+            if (recordType.fields.containsKey(lhsField.variableName.value)) {
+                if (Symbols.isOptional(recordType.fields.get(lhsField.variableName.value).symbol)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean checkValidMappingBindingPatternForRecordVariable(List<BLangRecordVariable.
+            BLangRecordVariableKeyValue> recordRefFields, BType type) {
+        type = types.getReferredType(type);
+        if (type.tag != TypeTags.RECORD) {
+            return false;
+        }
+        BRecordType recordType = (BRecordType) type;
+        for (BLangRecordVariable.BLangRecordVariableKeyValue lhsField : recordRefFields) {
+            if (recordType.fields.containsKey(lhsField.key.value)) {
+                if (Symbols.isOptional(recordType.fields.get(lhsField.key.value).symbol)) {
+                    return true;
+                }
             }
         }
         return false;
