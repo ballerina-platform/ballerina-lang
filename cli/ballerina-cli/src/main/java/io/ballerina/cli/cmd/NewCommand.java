@@ -19,10 +19,9 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import org.ballerinalang.central.client.exceptions.CentralClientException;
-import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -35,9 +34,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static io.ballerina.cli.cmd.CommandUtil.applyBalaTemplate;
-import static io.ballerina.cli.cmd.CommandUtil.findBalaTemplate;
-import static io.ballerina.cli.cmd.CommandUtil.pullPackageFromCentral;
+import static io.ballerina.cli.cmd.CommandUtil.initPackageFromCentral;
 import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 
@@ -88,9 +85,6 @@ public class NewCommand implements BLauncherCmd {
 
     @Override
     public void execute() {
-        Path balaCache = homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
-                .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
-                .resolve(ProjectConstants.BALA_DIR_NAME);
         // If help flag is given print the help message.
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(NEW_COMMAND);
@@ -172,74 +166,38 @@ public class NewCommand implements BLauncherCmd {
         }
 
         if (!ProjectUtils.validatePackageName(packageName)) {
+            packageName = ProjectUtils.guessPkgName(packageName);
             errStream.println("unallowed characters in the project name were replaced by " +
                     "underscores when deriving the package name. Edit the Ballerina.toml to change it.");
             errStream.println();
         }
 
         try {
-            Files.createDirectories(path);
             // check if the template matches with one of the inbuilt template types
-            if (!CommandUtil.getTemplates().contains(template)) {
-                // Check if the package is available in local bala cache
-                if (findBalaTemplate(template) != null) {
-                    // Pkg is available in the local cache
-                    try {
-                        applyBalaTemplate(path, balaCache, template);
-                    } catch (CentralClientException centralClientException) {
-                        if (Files.exists(path)) {
-                            try {
-                                Files.delete(path);
-                            } catch (IOException ignored) {
-                            }
-                        }
-                        CommandUtil.printError(errStream, centralClientException.getMessage(),
-                                null,
-                                false);
-                        CommandUtil.exitError(this.exitWhenFinish);
-                    }
-                } else {
-                    // Pull pkg from central
-                    pullPackageFromCentral(balaCache, path, template);
-                }
-            } else {
+            if (CommandUtil.getTemplates().contains(template)) {
                 // create package with inbuilt template
                 CommandUtil.initPackageByTemplate(path, packageName, template);
+            } else {
+                CommandUtil.setPrintStream(errStream);
+                Path balaCache = homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
+                        .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
+                        .resolve(ProjectConstants.BALA_DIR_NAME);
+                initPackageFromCentral(balaCache, path, packageName, template);
             }
-        } catch (PackageAlreadyExistsException e) {
-            try {
-                applyBalaTemplate(path, balaCache, template);
-                if (Files.exists(path)) {
-                    errStream.println("Created new Ballerina package '" + guessPkgName(packageName)
-                            + "' at " + userDir.relativize(path) + ".");
-                }
-            } catch (CentralClientException centralClientException) {
-                if (Files.exists(path)) {
-                    try {
-                        Files.delete(path);
-                    } catch (IOException ignored) {
-                    }
-                }
-                CommandUtil.printError(errStream, centralClientException.getMessage(),
-                        null,
-                        false);
-                CommandUtil.exitError(this.exitWhenFinish);
-            }
-            CommandUtil.exitError(this.exitWhenFinish);
         } catch (AccessDeniedException e) {
             CommandUtil.printError(errStream,
                     "error occurred while creating project : " + "Insufficient Permission : " + e.getMessage(),
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
-        } catch (CentralClientException e) {
+        } catch (BLauncherException e) {
             if (Files.exists(path)) {
                 try {
                     Files.delete(path);
                 } catch (IOException ignored) {
                 }
             }
-            CommandUtil.printError(errStream, e.getMessage(),
+            CommandUtil.printError(errStream, e.getDetailedMessages().get(0),
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
