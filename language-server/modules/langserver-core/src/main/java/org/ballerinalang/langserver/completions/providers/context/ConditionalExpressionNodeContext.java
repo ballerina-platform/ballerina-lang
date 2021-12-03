@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -22,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -29,6 +31,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link ConditionalExpressionNode} context.
@@ -57,10 +60,14 @@ public class ConditionalExpressionNodeContext extends AbstractCompletionProvider
              */
             String middleExprName = ((SimpleNameReferenceNode) node.middleExpression()).name().text();
             String alias = middleExprName.startsWith("'") ? middleExprName.substring(1) : middleExprName;
-            List<Symbol> expressionContextSymbols = QNameReferenceUtil.getExpressionContextEntries(context, alias);
-            return this.getCompletionItemList(expressionContextSymbols, context);
-        }
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context, alias);
+            if (moduleSymbol.isEmpty()) {
+                return this.expressionCompletions(context);
+            } else {
+                List<Symbol> expressionContextSymbols = QNameReferenceUtil.getExpressionContextEntries(context, alias);
+                return this.getCompletionItemList(expressionContextSymbols, context);
+            }
+        } else if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             List<Symbol> expressionContextSymbols =
                     QNameReferenceUtil.getExpressionContextEntries(context, (QualifiedNameReferenceNode) nodeAtCursor);
             return this.getCompletionItemList(expressionContextSymbols, context);
