@@ -279,6 +279,41 @@ function testAssertErrorEquals(){
     test:assertTrue(err is error);
 }
 
+@test:Config{}
+function testAssertFailWithNeverReturn(){
+    _ = testVartype("hello", "testVal");
+}
+
+function testVartype(int|string t, string|int k) returns int|string {
+     if isStringType(t) {
+         if k is int {
+             test:assertFail("must be string");
+         }
+         else {
+             return k + <string>t;
+         }
+     }
+     else if isIntType(t) {
+         if k is string {
+             test:assertFail("must be int");
+         }
+         else {
+             return <int>t + k;
+         }
+     }
+     else {
+         test:assertFail("int or string expected");
+     }
+}
+
+function isStringType(any a) returns boolean {
+    return a is string;
+}
+
+function isIntType(any a) returns boolean {
+    return a is int;
+}
+
 function intAdd(int a, int b) returns (int) {
     return a + b;
 }

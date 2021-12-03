@@ -158,7 +158,8 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
 
-    @CommandLine.Option(names = "--export-openapi", description = "generate openapi specification for all services in package")
+    @CommandLine.Option(names = "--export-openapi", description = "generate openapi specification for all" +
+            " services in package")
     private Boolean exportOpenapi;
 
     public void execute() {

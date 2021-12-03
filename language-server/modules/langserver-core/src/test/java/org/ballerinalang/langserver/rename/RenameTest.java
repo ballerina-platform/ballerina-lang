@@ -62,6 +62,7 @@ public class RenameTest extends AbstractRenameTest {
 
                 // Invalid rename positions tests
                 {"rename_on_keyword1.json", "fn"},
+                {"rename_self.json", "this"},
         };
     }
 }

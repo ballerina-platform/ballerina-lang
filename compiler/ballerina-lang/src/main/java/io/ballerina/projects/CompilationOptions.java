@@ -105,7 +105,9 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(this.configSchemaGen);
     }
 
-    public boolean exportOpenapi() { return toBooleanDefaultIfNull(this.exportOpenapi); }
+    public boolean exportOpenapi() {
+        return toBooleanDefaultIfNull(this.exportOpenapi);
+    }
 
     /**
      * Merge the given compilation options by favoring theirs if there are conflicts.
