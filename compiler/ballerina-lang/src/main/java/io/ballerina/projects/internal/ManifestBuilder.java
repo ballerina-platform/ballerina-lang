@@ -73,13 +73,13 @@ import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
  */
 public class ManifestBuilder {
 
-    private TomlDocument ballerinaToml;
-    private TomlDocument compilerPluginToml;
+    private final TomlDocument ballerinaToml;
+    private final TomlDocument compilerPluginToml;
     private DiagnosticResult diagnostics;
-    private List<Diagnostic> diagnosticList;
-    private PackageManifest packageManifest;
-    private BuildOptions buildOptions;
-    private Path projectPath;
+    private final List<Diagnostic> diagnosticList;
+    private final PackageManifest packageManifest;
+    private final BuildOptions buildOptions;
+    private final Path projectPath;
 
     private static final String PACKAGE = "package";
     private static final String VERSION = "version";
@@ -399,10 +399,11 @@ public class ManifestBuilder {
     }
 
     private BuildOptions setBuildOptions(TomlTableNode tomlTableNode) {
-        TomlTableNode tableNode = (TomlTableNode) tomlTableNode.entries().get("build-options");
-        if (tableNode == null || tableNode.kind() == TomlType.NONE) {
+        TopLevelNode topLevelBuildOptionsNode = tomlTableNode.entries().get("build-options");
+        if (topLevelBuildOptionsNode == null || topLevelBuildOptionsNode.kind() != TomlType.TABLE) {
             return null;
         }
+        TomlTableNode tableNode = (TomlTableNode) topLevelBuildOptionsNode;
 
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
 

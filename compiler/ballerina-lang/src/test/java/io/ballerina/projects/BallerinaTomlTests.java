@@ -175,6 +175,19 @@ public class BallerinaTomlTests {
                 "incompatible type for key 'package': expected 'OBJECT', found 'ARRAY'");
     }
 
+    @Test(description = "Build options should be given as [build-options], " +
+            "Here checking error when it given as [build-options]")
+    public void testBallerinaTomlWithBuildOptionsGivenAsTableArray() throws IOException {
+        PackageManifest packageManifest =
+                getPackageManifest(BAL_TOML_REPO.resolve("build-options-as-table-array.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 1);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(),
+                "incompatible type for key 'build-options': expected 'OBJECT', found 'ARRAY'");
+    }
+
     @Test(enabled = false)
     public void testBallerinaTomlWithoutOrgNameVersion() throws IOException {
         PackageManifest packageManifest = getPackageManifest(
